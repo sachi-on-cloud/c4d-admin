@@ -8,6 +8,8 @@ import {
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+import { HomeModernIcon } from "@heroicons/react/24/outline";
+import Booking from "./pages/booking/booking";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -41,6 +43,12 @@ export const routes = [
         path: "/notifications",
         element: <Notifications />,
       },
+      {
+        icon: <HomeModernIcon {...icon} />,
+        name: "Booking",
+        path: "/booking",
+        element: <Booking />
+      }
     ],
   },
   {
