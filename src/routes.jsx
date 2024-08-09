@@ -5,9 +5,11 @@ import {
   InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
+  UserIcon,
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+import { CustomerView } from "@/pages/customer";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -22,24 +24,35 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
+        display: true
       },
       {
         icon: <UserCircleIcon {...icon} />,
         name: "profile",
         path: "/profile",
         element: <Profile />,
+        display: true
       },
       {
         icon: <TableCellsIcon {...icon} />,
         name: "tables",
         path: "/tables",
         element: <Tables />,
+        display: true
       },
       {
         icon: <InformationCircleIcon {...icon} />,
         name: "notifications",
         path: "/notifications",
         element: <Notifications />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "customers",
+        path: "/customers",
+        element: <CustomerView />,
+        display: true
       },
     ],
   },
@@ -52,12 +65,14 @@ export const routes = [
         name: "sign in",
         path: "/sign-in",
         element: <SignIn />,
+        display: true
       },
       {
         icon: <RectangleStackIcon {...icon} />,
         name: "sign up",
         path: "/sign-up",
         element: <SignUp />,
+        display: true
       },
     ],
   },

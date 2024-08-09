@@ -75,24 +75,29 @@ export function Topnav({ brandImg, brandName, routes }) {
         
         <nav>
           <div className="hidden md:flex items-center space-x-4">
-            {routes.map(({ layout, pages }) => (
-              pages.map(({ icon, name, path }) => (
-                <NavLink 
-                  key={name} 
-                  to={`/${layout}${path}`}
-                  className={({ isActive }) => 
-                    isActive 
-                      ? "text-blue-500 font-medium" 
-                      : "text-white hover:text-gray-300"
-                  }
-                >
-                  <span className="flex items-center gap-2">
-                    {icon}
-                    <Typography className="font-medium capitalize">
-                      {name}
-                    </Typography>
-                  </span>
-                </NavLink>
+            {routes.map(({ layout, pages }, key) => (
+              pages.map(({ icon, name, path, display }) => (
+                <>
+                    { display && (
+                        <NavLink 
+                        key={name} 
+                        to={`/${layout}${path}`}
+                        className={({ isActive }) => 
+                            isActive 
+                            ? "text-white font-medium border-b border-white py-3 px-6" 
+                            : "text-gray-600 hover:text-gray-300"
+                        }
+                        >
+                        <span className="flex items-center gap-2">
+                            {icon}
+                            <Typography className="font-medium capitalize">
+                            {name}
+                            </Typography>
+                        </span>
+                        </NavLink>
+
+                    )}
+                </>
               ))
             ))}
           </div>
