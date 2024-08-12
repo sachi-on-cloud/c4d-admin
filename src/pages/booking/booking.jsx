@@ -113,15 +113,15 @@ const Booking = () => {
 
         if (data?.success) {
             if (params?.bookingDetails) {
-                navigate('/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
+                navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
-                navigate('/select-location', { state: { 'bookingId': data?.data?.id } });
+                navigate('/dashboard/select-location', { state: { 'bookingId': data?.data?.id } });
             }
         }
     }
     console.log('initialValues :', initialValues);
     return (
-        <div className="flex flex-col bg-white p-5 space-y-3">
+        <div className="flex flex-col bg-white p-6 space-y-3">
             <Formik
                 initialValues={initialValues}
                 onSubmit={async (values, { resetForm }) => {
@@ -138,7 +138,7 @@ const Booking = () => {
                         <div className="flex-1 mt-2 mb-2">
                             <div className="grid grid-cols-2 gap-4">
                                 <Button
-                                    color={values.packageTypeSelected === 'Intercity' ? 'blue' : 'gray'}
+                                    color={values.packageTypeSelected === 'Intercity' ? 'black' : 'gray'}
                                     onClick={() => {
                                         if (values.packageTypeSelected !== 'Intercity') {
                                             setFieldValue('packageTypeSelected', 'Intercity');
@@ -148,11 +148,12 @@ const Booking = () => {
                                             setFieldValue('toDate', '');
                                         }
                                     }}
+                                    variant={values?.packageTypeSelected === 'Intercity' ? 'filled' : 'outlined'}
                                 >
                                     Intercity
                                 </Button>
                                 <Button
-                                    color={values.packageTypeSelected === 'Outstation' ? 'blue' : 'gray'}
+                                    color={values.packageTypeSelected === 'Outstation' ? 'black' : 'gray'}
                                     onClick={() => {
                                         if (values.packageTypeSelected !== 'Outstation') {
                                             setFieldValue('packageTypeSelected', 'Outstation');
@@ -162,6 +163,7 @@ const Booking = () => {
                                             setFieldValue('toDate', '');
                                         }
                                     }}
+                                    variant={values?.packageTypeSelected === 'Outstation' ? 'filled' : 'outlined'}
                                 >
                                     Outstation
                                 </Button>
@@ -220,8 +222,9 @@ const Booking = () => {
                                 {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                     <Button
                                         key={item.id}
-                                        color={values.rideTime === item.id ? 'blue' : 'gray'}
+                                        color={values.rideTime === item.id ? 'black' : 'gray'}
                                         onClick={() => setFieldValue('rideTime', item.id)}
+                                        variant={values.rideTime === item.id ? 'filled' : 'outlined'}
                                     >
                                         {item.data}
                                     </Button>
@@ -233,16 +236,16 @@ const Booking = () => {
                         </div>
 
                         <div className="flex-1">
-                            <div className="flex items-center mb-2">
+                            <div className="flex items-center mb-3">
                                 <Typography variant="h6">Choose a package</Typography>
                             </div>
-                            <div className="flex-row space-x-6">
+                            <div className="flex-row space-x-6 px-2">
                                 {packageTypeSelectedData
                                     .filter((item) => values.packageTypeSelected === item.type)
                                     .map((item) => (
                                         <Button
                                             key={item.id}
-                                            color={values.packageSelected === item.id.toString() ? 'blue' : 'gray'}
+                                            color={values.packageSelected === item.id.toString() ? 'black' : 'gray'}
                                             onClick={() => {
                                                 handleChange('packageSelected')(item.id.toString());
                                                 if (values.packageTypeSelected === 'Outstation') {
@@ -253,6 +256,7 @@ const Booking = () => {
                                                 }
                                             }}
                                             className='max-h-fit max-w-fit'
+                                            variant={values.packageSelected === item.id.toString() ? 'filled' : 'outlined'}
                                         >
                                             <div>
                                                 <Typography>{item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}</Typography>
@@ -316,10 +320,10 @@ const Booking = () => {
 
                         <Button
                             fullWidth
-                            color="blue"
+                            color="black"
                             onClick={handleSubmit}
                             disabled={!dirty || !isValid}
-                            className='my-4 mx-2'
+                            className='my-6 mx-2'
                         >
                             Continue
                         </Button>

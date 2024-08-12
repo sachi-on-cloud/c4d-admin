@@ -167,7 +167,10 @@ export const API_ROUTES = {
     'CASH_PAYMENT': '/offline-payment',
     'DRIVER_CURRENT_LOCATION': '/driver-location',
     'EXPIRE_REQUEST': '/expire-request',
-    'GET_NEWS': '/news'
+    'GET_NEWS': '/news',
+    'GET_CUSTOMERS': '/admin/customer',
+    'GET_ALL_CUSTOMERS': '/admin/customers',
+    'GET_ALL_DRIVERS': '/admin/drivers',
 };
 
 export const ASYNC_STORAGE_KEYS = {

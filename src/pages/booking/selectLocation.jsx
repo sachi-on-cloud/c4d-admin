@@ -7,7 +7,7 @@ import {
     ListItem,
     Typography,
 } from "@material-tailwind/react";
-import { IoLocationOutline } from "react-icons/io5";
+import { IoLocationOutline, IoLocationSharp } from "react-icons/io5";
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { API_ROUTES } from "../../utils/constants";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
@@ -50,8 +50,9 @@ const SelectLocation = () => {
     const [suggestions, setSuggestions] = useState([]);
     const [pickupLocation, setPickupLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
-    const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
+    const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
     const [mapZoom, setMapZoom] = useState(2);
+    const mapRef = useRef(null);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -61,11 +62,29 @@ const SelectLocation = () => {
         id: 'google-map-script',
         googleMapsApiKey: "GOOGLE_API_KEY"
     });
-
+    console.log('SELECT LOCATION - paramsPassed :', paramsPassed);
     useEffect(() => {
-        // Set initial map center (you can replace with a default location)
-        setMapCenter({ lat: 0, lng: 0 });
-    }, []);
+        if (pickupLocation && dropLocation) {
+            fitBoundsToMarkers();
+        } else if (pickupLocation || dropLocation) {
+            const location = pickupLocation || dropLocation;
+            setMapCenter(location);
+            setMapZoom(15);
+        }
+    }, [pickupLocation, dropLocation]);
+
+    const fitBoundsToMarkers = () => {
+        if (mapRef.current && pickupLocation && dropLocation) {
+            const bounds = new window.google.maps.LatLngBounds();
+            bounds.extend(pickupLocation);
+            bounds.extend(dropLocation);
+            mapRef.current.fitBounds(bounds);
+
+            // Optional: Add some padding to the bounds
+            const padding = { top: 100, right: 100, bottom: 100, left: 100 }; // Adjust as needed
+            mapRef.current.panToBounds(bounds, padding);
+        }
+    };
 
     const searchLocations = async (query) => {
         if (query.length > 2) {
@@ -96,8 +115,6 @@ const SelectLocation = () => {
                 setDropAddress(address);
                 setDropLocation(location);
             }
-            setMapCenter(location);
-            setMapZoom(15);
         }
         setSuggestions([]);
     };
@@ -108,7 +125,7 @@ const SelectLocation = () => {
             return;
         }
         const apiReqBody = {
-            bookingId: 649,
+            bookingId: paramsPassed?.bookingId,
             pickupLat: pickupLocation.lat,
             pickupLong: pickupLocation.lng,
             pickupAddress: {
@@ -123,7 +140,7 @@ const SelectLocation = () => {
         console.log('apiReqBody:', apiReqBody);
         const data = await ApiRequestUtils.update(API_ROUTES.ADD_LOCATION, apiReqBody);
         if (data?.success) {
-            navigate('/confirm-booking', { state: { 'bookingId': paramsPassed?.bookingId } });
+            navigate('/dashboard/confirm-booking', { state: { 'bookingId': paramsPassed?.bookingId } });
         }
     };
 
@@ -158,13 +175,16 @@ const SelectLocation = () => {
                         mapContainerStyle={{ width: '100%', height: '100%' }}
                         center={mapCenter}
                         zoom={mapZoom}
+                        onLoad={(map) => {
+                            mapRef.current = map;
+                        }}
                     >
                         {pickupLocation && (
                             <Marker
                                 position={pickupLocation}
                                 icon={{
-                                    url: 'path_to_pickup_icon.png',
-                                    scaledSize: new window.google.maps.Size(40, 40)
+                                    url: '/img/Pickup-Location.png',
+                                    scaledSize: new window.google.maps.Size(40, 40),
                                 }}
                             />
                         )}
@@ -172,7 +192,7 @@ const SelectLocation = () => {
                             <Marker
                                 position={dropLocation}
                                 icon={{
-                                    url: 'path_to_drop_icon.png',
+                                    url: '/img/Drop-Location.png',
                                     scaledSize: new window.google.maps.Size(40, 40)
                                 }}
                             />
@@ -184,8 +204,9 @@ const SelectLocation = () => {
             <div className="p-4">
                 <Button
                     fullWidth
-                    color="blue"
+                    color="black"
                     onClick={onPressHandler}
+                    disabled={!pickupLocation}
                 >
                     Confirm & Search
                 </Button>
