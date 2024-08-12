@@ -127,7 +127,7 @@ export function DriverView() {
                           <td className={className}>
                             <Button
                               as="a"
-                              onClick={() => { alert("hi"); }}
+                              onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
                               className="text-xs font-semibold text-white"
                             >
                               Edit

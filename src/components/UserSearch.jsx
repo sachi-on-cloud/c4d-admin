@@ -4,8 +4,10 @@ import axios from 'axios';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import { useNavigate } from 'react-router-dom';
 
 const UserSearch = ({onSearch}) => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -62,7 +64,7 @@ const UserSearch = ({onSearch}) => {
           </div>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => navigate(`/dashboard/users/add`)}
           className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Add new

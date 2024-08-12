@@ -15,10 +15,12 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import UserSearch from "@/components/UserSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
+import { useNavigate } from 'react-router-dom';
 
 
 export function UserView() {
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   const getUsers = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
@@ -115,7 +117,7 @@ export function UserView() {
                       <td className={className}>
                         <Button
                           as="a"
-                          onClick={()=> {alert("hi");}}
+                          onClick={() => navigate(`/dashboard/users/edit/${id}`)}
                           className="text-xs font-semibold text-white"
                         >
                           Edit

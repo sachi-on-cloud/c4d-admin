@@ -1,62 +1,66 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Button } from '@material-tailwind/react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const DriverAdd = () => {
+    const [driverVal, setDriverVal] = useState({});
+    const { id } = useParams();
+    const isEditMode = !!id;
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (isEditMode) {
+          fetchItem(id);
+        }
+      }, [id, isEditMode]);
+    const fetchItem = async (itemId) => {
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID+`${itemId}`);
+        setDriverVal(data.data);
+    };
     const initialValues = {
-        salutation: '',
-        firstName: '',
-        phoneNumber: '',
-        license: '',
-        carNumber: '',
-        nickName: '',
-        carType: '',
-        fuelType: '',
-        transmissionType: ''
+        salutation: driverVal?.salutation || "",
+        firstName: driverVal?.firstName || "",
+        phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, ''): "",
+        license: driverVal?.license || "",
+        address: driverVal?.address || "",
+        reference: driverVal?.references || "",
+        preference: driverVal?.preference || "",
     };
 
     const validationSchema = Yup.object({
         salutation: Yup.string().required('Salutation is required'),
         firstName: Yup.string().required('Name is required'),
         phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
-        license: Yup.string().matches(`^[A-Z]{2}[0-9]{13}$/`, 'Invalid Driver\'s License').required('Driving License is required'),
-        carNumber: Yup.string().required('Car number is required'),
-        nickName: Yup.string().required('Car name is required'),
-        carType: Yup.string().required('Car type is required'),
-        fuelType: Yup.string().required('Fuel type is required'),
-        transmissionType: Yup.string().required('Transmission type number is required')
+        license: Yup.string().matches('^[A-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        address: Yup.string().required('Car number is required'),
+        reference: Yup.string().required('Car name is required'),
+        preference: Yup.string().required('Car type is required'),
     });
 
-    const onSubmit = async (values, { setSubmitting }) => {
+    const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
             const driverData = {
                 salutation: values.salutation,
                 firstName: values.firstName,
                 phoneNumber: "+91" + values.phoneNumber,
-                license: values.license
+                license: values.license,
+                address: values.address,
+                references: values.reference,
+                preference: values.preference
             };
-
-            const response = await ApiRequestUtils.post(API_ROUTES.REGISTER_CUSTOMER, driverData);
-            console.log('Driver created:', response.data);
-
-            if (response.data) {
-                const carData = {
-                    customerId: response.data.id,
-                    carNumber: values.carNumber,
-                    nickName: values.nickName,
-                    carType: values.carType,
-                    fuelType: values.fuelType,
-                    transmissionType: values.transmissionType
-                };
-
-                const carResponse = await ApiRequestUtils.post(API_ROUTES.ADD_CAR_DETAILS, carData);
-                console.log('Car added:', carResponse.data);
+            let data;
+            if (isEditMode) {
+                driverData['driverId'] = id;
+                data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER, driverData);
+            } else {
+                data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             }
-
-            // Handle success (e.g., show a success message, redirect, etc.)
+            console.log('Driver created:', data.data);
+            navigate('/dashboard/drivers');
+           
         } catch (error) {
             console.error('Error creating driver and car:', error);
             // Handle error (e.g., show an error message)
@@ -71,8 +75,10 @@ const DriverAdd = () => {
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={onSubmit}
+                enableReinitialize={true}
+
             >
-                {({ handleSubmit, dirty, isValid }) => (
+                {({ handleSubmit, values, dirty, isValid }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -87,7 +93,7 @@ const DriverAdd = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</label>
+                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
                                 <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
@@ -100,42 +106,20 @@ const DriverAdd = () => {
 
                             <div>
                                 <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300 uppercase" />
+                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15}/>
                                 <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
-                                <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
-                                <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
+                                <Field type="text" name="address" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
-                                <label htmlFor="nickName" className="text-sm font-medium text-gray-700">Car Name</label>
-                                <Field type="text" name="nickName" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="nickName" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="fuelType" className="text-sm font-medium text-gray-700">Fuel Type</label>
-                                <Field as="select" name="fuelType" className="p-2 w-full rounded-md border-gray-300 shadow-sm">
-                                    <option value="">Select fuel type</option>
-                                    <option value="Petrol">Petrol</option>
-                                    <option value="Diesel">Diesel</option>
-                                    <option value="Electric">Electric</option>
-                                    <option value="Hybrid">Hybrid</option>
-                                </Field>
-                                <ErrorMessage name="fuelType" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="transmissionType" className="text-sm font-medium text-gray-700">Transmission Type</label>
-                                <Field as="select" name="transmissionType" className="p-2 w-full rounded-md border-gray-300">
-                                    <option value="">Select transmission type</option>
-                                    <option value="Manual">Manual</option>
-                                    <option value="Automatic">Automatic</option>
-                                </Field>
-                                <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</label>
+                                <Field type="text" name="reference" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="reference" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
 
@@ -143,19 +127,19 @@ const DriverAdd = () => {
                             <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                             <div className="space-x-4">
                                 <label className="inline-flex items-center">
-                                    <Field type="radio" name="carType" value="Sedan" className="form-radio" />
+                                    <Field type="radio" name="preference" value="Sedan" className="form-radio" />
                                     <span className="ml-2">Sedan</span>
                                 </label>
                                 <label className="inline-flex items-center">
-                                    <Field type="radio" name="carType" value="SUV" className="form-radio" />
+                                    <Field type="radio" name="preference" value="SUV" className="form-radio" />
                                     <span className="ml-2">SUV</span>
                                 </label>
                                 <label className="inline-flex items-center">
-                                    <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
+                                    <Field type="radio" name="preference" value="Hatchback" className="form-radio" />
                                     <span className="ml-2">Hatchback</span>
                                 </label>
                             </div>
-                            <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
+                            <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                         </div>
 
                         <Button

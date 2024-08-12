@@ -15,9 +15,11 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import CustomerSearch from "@/components/CustomerSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
+import { useNavigate } from 'react-router-dom';
 
 
 export function CustomerView() {
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
 
   const getCustomers = async (searchQuery) => {
@@ -119,9 +121,16 @@ export function CustomerView() {
                         <Button
                           as="a"
                           onClick={()=> {alert("hi");}}
-                          className="text-xs font-semibold text-white"
+                          className="text-xs font-semibold text-white mr-3"
                         >
                           Book Drivers
+                        </Button>
+                        <Button
+                          as='a'
+                          onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
+                          className="text-xs font-semibold text-white"
+                        >
+                          Edit
                         </Button>
                       </td>
                     </tr>
