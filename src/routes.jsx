@@ -12,6 +12,7 @@ import { SignIn, SignUp } from "@/pages/auth";
 import { CustomerView } from "@/pages/customer";
 import { DriverView } from "@/pages/driver";
 import { UserView } from "@/pages/users";
+import DriverAdd from "./pages/driver/add";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -62,6 +63,13 @@ export const routes = [
         path: "/drivers",
         element: <DriverView />,
         display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "drivers",
+        path: "/drivers/add",
+        element: <DriverAdd />,
+        display: false
       },
       {
         icon: <UserIcon {...icon} />,
