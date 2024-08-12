@@ -170,6 +170,10 @@ export const API_ROUTES = {
     'GET_NEWS': '/news',
     'GET_CUSTOMERS': '/admin/customer',
     'GET_ALL_CUSTOMERS': '/admin/customers',
+    'GET_ALL_DRIVERS': '/admin/drivers',
+    'GET_ALL_USERS': '/users',
+    'ADD_USER': '/add-user',
+    'USER_LOGIN': '/login',
 };
 
 export const ASYNC_STORAGE_KEYS = {

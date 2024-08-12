@@ -10,6 +10,8 @@ import {
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { CustomerView } from "@/pages/customer";
+import { DriverView } from "@/pages/driver";
+import { UserView } from "@/pages/users";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -52,6 +54,20 @@ export const routes = [
         name: "customers",
         path: "/customers",
         element: <CustomerView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "drivers",
+        path: "/drivers",
+        element: <DriverView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "users",
+        path: "/users",
+        element: <UserView />,
         display: true
       },
     ],
