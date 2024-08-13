@@ -21,6 +21,7 @@ import { HomeModernIcon } from "@heroicons/react/24/outline";
 import Booking from "./pages/booking/booking";
 import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
+import DriverDetails from "./pages/driver/details";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -93,6 +94,13 @@ export const routes = [
         name: "drivers",
         path: "/drivers/add",
         element: <DriverAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "drivers",
+        path: "/drivers/details/:id",
+        element: <DriverDetails />,
         display: false
       },
       {

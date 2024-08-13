@@ -10,22 +10,17 @@ import {
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import DriverAddModal from '@/components/DriverAddModal';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 
 export function DriverView() {
   const [drivers, setDrivers] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [alert, setAlert] = useState(false);
 
   const location = useLocation();
   const paramsPassed = location.state;
 
   const navigate = useNavigate();
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
 
   const getDrivers = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
@@ -141,16 +136,27 @@ export function DriverView() {
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>
+                          <div>
+                            <td className={className}>
+                              <Button
+                                as="a"
+                                onClick={() => navigate(`/dashboard/drivers/details/${id}`)}
+                                className="text-xs font-semibold text-white"
+                              >
+                                View
+                              </Button>
+                            </td>
 
-                          <td className={className}>
-                            <Button
-                              as="a"
-                              onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
-                              className="text-xs font-semibold text-white"
-                            >
-                              Edit
-                            </Button>
-                          </td>
+                            <td className={className}>
+                              <Button
+                                as="a"
+                                onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
+                                className="text-xs font-semibold text-white"
+                              >
+                                Edit
+                              </Button>
+                            </td>
+                          </div>
                         </tr>
                       );
                     }
@@ -167,10 +173,6 @@ export function DriverView() {
           </CardHeader>
         )}
       </Card>
-      {
-        isModalOpen &&
-        <DriverAddModal openModal={isModalOpen} closeModal={closeModal} />
-      }
     </div >
   );
 }
