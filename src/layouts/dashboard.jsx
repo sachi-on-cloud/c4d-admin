@@ -3,6 +3,7 @@ import { Cog6ToothIcon } from "@heroicons/react/24/solid";
 import { IconButton } from "@material-tailwind/react";
 import {
   Sidenav,
+  Topnav,
   DashboardNavbar,
   Configurator,
   Footer,
@@ -13,16 +14,21 @@ import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
 export function Dashboard() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavType } = controller;
-
   return (
     <div className="min-h-screen bg-blue-gray-50/50">
-      <Sidenav
+      {/* <Sidenav
         routes={routes}
         brandImg={
           sidenavType === "dark" ? "/img/logo-ct.png" : "/img/logo-ct-dark.png"
         }
+      /> */}
+      <Topnav 
+        routes={routes}
+        brandImg={
+          "/img/logo-ct.png"
+        }
       />
-      <div className="p-4 xl:ml-80">
+      <div className="p-4 ">
         <DashboardNavbar />
         <Configurator />
         <IconButton

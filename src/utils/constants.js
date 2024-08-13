@@ -138,6 +138,9 @@ export const API_ROUTES = {
     'MOBILENUMBER_VERIFICATION': '/verify',
     'OTP_VERIFICATION': '/otp-verify',
     'REGISTER_CUSTOMER': '/register',
+    'UPDATE_CUSTOMER': '/customer',
+    'REGISTER_DRIVER': '/register/driver',
+    'UPDATE_DRIVER': '/driver/update',
     'GET_CUSTOMER': '/customer',
     'REGISTER_CAR_DETAILS': '/car-number',
     'ADD_CAR_DETAILS': '/car',
@@ -171,6 +174,11 @@ export const API_ROUTES = {
     'GET_CUSTOMERS': '/admin/customer',
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
+    'GET_ALL_USERS': '/users',
+    'UPDATE_USER': '/users',
+    'ADD_USER': '/add-user',
+    'USER_LOGIN': '/login',
+    'GET_USER_BY_ID': '/users/'
 };
 
 export const ASYNC_STORAGE_KEYS = {
