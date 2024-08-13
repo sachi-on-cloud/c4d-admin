@@ -178,7 +178,7 @@ export const API_ROUTES = {
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',
     'USER_LOGIN': '/login',
-    'GET_USER_BY_ID': '/users/',
+    'GET_USER_BY_ID': '/users/'
 };
 
 export const ASYNC_STORAGE_KEYS = {

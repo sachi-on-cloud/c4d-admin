@@ -9,12 +9,20 @@ import {
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+
 import { CustomerView } from "@/pages/customer";
 import { DriverView } from "@/pages/driver";
 import { UserView } from "@/pages/users";
 import DriverAdd from "./pages/driver/add";
 import UserAdd from "./pages/users/add";
 import CustomerAdd from "./pages/customer/add";
+
+import { HomeModernIcon } from "@heroicons/react/24/outline";
+import Booking from "./pages/booking/booking";
+import ConfirmBooking from "./pages/booking/confirmBooking";
+import SelectLocation from "./pages/booking/selectLocation";
+// import { SearchDrivers } from "./pages/booking";
+
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -115,6 +123,31 @@ export const routes = [
         element: <UserAdd />,
         display: false
       },
+      {
+        icon: <HomeModernIcon {...icon} />,
+        name: "Booking",
+        path: "/booking",
+        element: <Booking />,
+        display: true,
+      },
+      {
+        name: "SelectLocation",
+        path: "/select-location",
+        element: <SelectLocation />,
+        display: false
+      },
+      {
+        name: "ConfirmBooking",
+        path: "/confirm-booking",
+        element: <ConfirmBooking />,
+        display: false
+      },
+      // {
+      //   name: "SearchDriver",
+      //   path: "/search-drivers",
+      //   element: <SearchDrivers />,
+      //   display: false
+      // }
     ],
   },
   {
@@ -137,6 +170,36 @@ export const routes = [
       },
     ],
   },
+  {
+    layout: "booking",
+    pages: [
+      {
+        icon: <HomeModernIcon {...icon} />,
+        name: "Booking",
+        path: "/",
+        element: <Booking />,
+        display: false
+      },
+      {
+        name: "SelectLocation",
+        path: "/select-location",
+        element: <SelectLocation />,
+        display: false
+      },
+      {
+        name: "ConfirmBooking",
+        path: "/confirm-booking",
+        element: <ConfirmBooking />,
+        display: false
+      },
+      // {
+      //   name: "SearchDriver",
+      //   path: "/search-drivers",
+      //   element: <SearchDrivers />,
+      //   display: false
+      // }
+    ],
+  }
 ];
 
 export default routes;
