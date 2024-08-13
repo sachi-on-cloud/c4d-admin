@@ -1,23 +1,24 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Button } from '@material-tailwind/react';
+import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
 const CustomerAdd = () => {
     const [driverVal, setDriverVal] = useState({});
+    const [alert, setAlert] = useState(false);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
     useEffect(() => {
         if (isEditMode) {
-          fetchItem(id);
+            fetchItem(id);
         }
-      }, [id, isEditMode]);
+    }, [id, isEditMode]);
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_CUSTOMER+`/${itemId}`);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CUSTOMER + `/${itemId}`);
         setDriverVal(data.data);
     };
     const initialValues = {
@@ -36,17 +37,17 @@ const CustomerAdd = () => {
         firstName: Yup.string().required('Name is required'),
         ...(isEditMode
             ? {}
-            : {                
-            phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
-            carNumber: Yup.string().required('Car number is required'),
-            nickName: Yup.string().required('Car name is required'),
-            carType: Yup.string().required('Car type is required'),
-            fuelType: Yup.string().required('Fuel type is required'),
-            transmissionType: Yup.string().required('Transmission type number is required')
-        }),
+            : {
+                phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
+                carNumber: Yup.string().required('Car number is required'),
+                nickName: Yup.string().required('Car name is required'),
+                carType: Yup.string().required('Car type is required'),
+                fuelType: Yup.string().required('Fuel type is required'),
+                transmissionType: Yup.string().required('Transmission type number is required')
+            }),
     });
 
-    const onSubmit = async (values, { setSubmitting }) => {
+    const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
             const customerData = {
                 salutation: values.salutation,
@@ -62,11 +63,19 @@ const CustomerAdd = () => {
                 customerData['phoneNumber'] = "+91" + values.phoneNumber;
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CUSTOMER, customerData);
             }
-            console.log('Customer created:', response.data);
+            console.log('Customer created:', data);
 
+            if (!data?.success && data?.code === 203) {
+                setAlert(true);
+
+                setTimeout(() => {
+                    setAlert(false);
+                    resetForm();
+                }, 2000)
+            }
             if (data.data) {
                 const carData = {
-                    customerId: response.data.id,
+                    customerId: data?.data?.id,
                     carNumber: values.carNumber,
                     nickName: values.nickName,
                     carType: values.carType,
@@ -76,10 +85,14 @@ const CustomerAdd = () => {
 
                 const carResponse = await ApiRequestUtils.post(API_ROUTES.ADD_CAR_DETAILS, carData);
                 console.log('Car added:', carResponse.data);
-                
-                navigate('/dashboard/customers');
+
+                navigate('/dashboard/customers', {
+                    state: {
+                        customerAdded: true,
+                        customerName: data?.data?.firstName
+                    }
+                });
             }
-            
             // Handle success (e.g., show a success message, redirect, etc.)
         } catch (error) {
             console.error('Error creating customer and car:', error);
@@ -89,7 +102,15 @@ const CustomerAdd = () => {
     };
 
     return (
-        <div className="p-4 mx-auto">
+        <div className="p-4">
+            {alert && <div className='mb-2'>
+                <Alert
+                    color='red'
+                    className='py-3 px-6 rounded-xl'
+                >
+                    User already exist!
+                </Alert>
+            </div>}
             <h2 className="text-2xl font-bold mb-4">Add New Customer</h2>
             <Formik
                 initialValues={initialValues}
@@ -119,65 +140,65 @@ const CustomerAdd = () => {
 
                             {!isEditMode && (
                                 <>
-                                <div>
-                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                                </div>
-                            <div>
-                                <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
-                                <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
+                                    <div>
+                                        <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
+                                        <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300 uppercase" maxLength={10} />
+                                        <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>
 
-                            <div>
-                                <label htmlFor="nickName" className="text-sm font-medium text-gray-700">Car Name</label>
-                                <Field type="text" name="nickName" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="nickName" component="div" className="text-red-500 text-sm" />
-                            </div>
+                                    <div>
+                                        <label htmlFor="nickName" className="text-sm font-medium text-gray-700">Car Name</label>
+                                        <Field type="text" name="nickName" className="p-2 w-full rounded-md border-gray-300" />
+                                        <ErrorMessage name="nickName" component="div" className="text-red-500 text-sm" />
+                                    </div>
 
-                            <div>
-                                <label htmlFor="fuelType" className="text-sm font-medium text-gray-700">Fuel Type</label>
-                                <Field as="select" name="fuelType" className="p-2 w-full rounded-md border-gray-300 shadow-sm">
-                                    <option value="">Select fuel type</option>
-                                    <option value="Petrol">Petrol</option>
-                                    <option value="Diesel">Diesel</option>
-                                    <option value="Electric">Electric</option>
-                                    <option value="Hybrid">Hybrid</option>
-                                </Field>
-                                <ErrorMessage name="fuelType" component="div" className="text-red-500 text-sm" />
-                            </div>
+                                    <div>
+                                        <label htmlFor="fuelType" className="text-sm font-medium text-gray-700">Fuel Type</label>
+                                        <Field as="select" name="fuelType" className="p-2 w-full rounded-md border-gray-300 shadow-sm">
+                                            <option value="">Select fuel type</option>
+                                            <option value="Petrol">Petrol</option>
+                                            <option value="Diesel">Diesel</option>
+                                            <option value="Electric">Electric</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                        </Field>
+                                        <ErrorMessage name="fuelType" component="div" className="text-red-500 text-sm" />
+                                    </div>
 
-                            <div>
-                                <label htmlFor="transmissionType" className="text-sm font-medium text-gray-700">Transmission Type</label>
-                                <Field as="select" name="transmissionType" className="p-2 w-full rounded-md border-gray-300">
-                                    <option value="">Select transmission type</option>
-                                    <option value="Manual">Manual</option>
-                                    <option value="Automatic">Automatic</option>
-                                </Field>
-                                <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            </>)}
+                                    <div>
+                                        <label htmlFor="transmissionType" className="text-sm font-medium text-gray-700">Transmission Type</label>
+                                        <Field as="select" name="transmissionType" className="p-2 w-full rounded-md border-gray-300">
+                                            <option value="">Select transmission type</option>
+                                            <option value="Manual">Manual</option>
+                                            <option value="Automatic">Automatic</option>
+                                        </Field>
+                                        <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                </>)}
                         </div>
                         {!isEditMode && (
-                        <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
-                            <div className="space-x-4">
-                                <label className="inline-flex items-center">
-                                    <Field type="radio" name="carType" value="Sedan" className="form-radio" />
-                                    <span className="ml-2">Sedan</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <Field type="radio" name="carType" value="SUV" className="form-radio" />
-                                    <span className="ml-2">SUV</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
-                                    <span className="ml-2">Hatchback</span>
-                                </label>
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
+                                        <span className="ml-2">Sedan</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="carType" value="SUV" className="form-radio" />
+                                        <span className="ml-2">SUV</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
+                                        <span className="ml-2">Hatchback</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                        </div>
                         )}
 
                         <Button

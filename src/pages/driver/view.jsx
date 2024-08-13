@@ -4,23 +4,24 @@ import {
   CardHeader,
   CardBody,
   Typography,
-  Avatar,
   Chip,
-  Tooltip,
-  Progress,
-  Button
+  Button,
+  Alert
 } from "@material-tailwind/react";
-import { authorsTableData } from "@/data";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import DriverAddModal from '@/components/DriverAddModal';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 export function DriverView() {
   const [drivers, setDrivers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [alert, setAlert] = useState(false);
+
+  const location = useLocation();
+  const paramsPassed = location.state;
+
   const navigate = useNavigate();
 
   const openModal = () => setIsModalOpen(true);
@@ -48,21 +49,38 @@ export function DriverView() {
   };
   useEffect(() => {
     getDrivers('');
+    if (paramsPassed?.driverAdded) {
+      setAlert(true);
+      setTimeout(() => {
+        setAlert(false);
+      }, 2000);
+    }
   }, [])
+
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
+      {alert && <div className='mb-2'>
+        <Alert
+          color='blue'
+          className='py-3 px-6 rounded-xl'
+        >
+          {paramsPassed?.driverName} added successfully!
+        </Alert>
+      </div>}
+      <div className='flex justify-end mr-5'>
+        <button
+          onClick={() => navigate('/dashboard/drivers/add')}
+          className="ml-4 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Add new
+        </button>
+      </div>
       <Card>
         {drivers.length > 0 ? (
           <>
             <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
               <Typography variant="h6" color="white">
                 Drivers List
-                <button
-                  onClick={() => navigate('/dashboard/drivers/add')}
-                  className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  Add new
-                </button>
               </Typography>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

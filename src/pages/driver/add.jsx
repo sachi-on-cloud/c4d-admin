@@ -1,29 +1,30 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Button } from '@material-tailwind/react';
+import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const DriverAdd = () => {
     const [driverVal, setDriverVal] = useState({});
+    const [alert, setAlert] = useState(false);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
     useEffect(() => {
         if (isEditMode) {
-          fetchItem(id);
+            fetchItem(id);
         }
-      }, [id, isEditMode]);
+    }, [id, isEditMode]);
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID+`${itemId}`);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
         setDriverVal(data.data);
     };
     const initialValues = {
         salutation: driverVal?.salutation || "",
         firstName: driverVal?.firstName || "",
-        phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, ''): "",
+        phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driverVal?.license || "",
         address: driverVal?.address || "",
         reference: driverVal?.references || "",
@@ -58,9 +59,22 @@ const DriverAdd = () => {
             } else {
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             }
+            if (!data?.success && data?.code === 203) {
+                setAlert(true);
+
+                setTimeout(() => {
+                    setAlert(false);
+                    resetForm();
+                }, 2000)
+            }
             console.log('Driver created:', data.data);
-            navigate('/dashboard/drivers');
-           
+            navigate('/dashboard/drivers', {
+                state: {
+                    driverAdded: true,
+                    driverName: data?.data?.firstName
+                }
+            });
+
         } catch (error) {
             console.error('Error creating driver and car:', error);
             // Handle error (e.g., show an error message)
@@ -70,6 +84,14 @@ const DriverAdd = () => {
 
     return (
         <div className="p-4 mx-auto">
+            {alert && <div className='mb-2'>
+                <Alert
+                    color='red'
+                    className='py-3 px-6 rounded-xl'
+                >
+                    Driver already exist!
+                </Alert>
+            </div>}
             <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
             <Formik
                 initialValues={initialValues}
@@ -106,7 +128,7 @@ const DriverAdd = () => {
 
                             <div>
                                 <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15}/>
+                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
                                 <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
                             </div>
 
@@ -121,25 +143,57 @@ const DriverAdd = () => {
                                 <Field type="text" name="reference" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="reference" component="div" className="text-red-500 text-sm" />
                             </div>
-                        </div>
-
-                        <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
-                            <div className="space-x-4">
-                                <label className="inline-flex items-center">
-                                    <Field type="radio" name="preference" value="Sedan" className="form-radio" />
-                                    <span className="ml-2">Sedan</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <Field type="radio" name="preference" value="SUV" className="form-radio" />
-                                    <span className="ml-2">SUV</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <Field type="radio" name="preference" value="Hatchback" className="form-radio" />
-                                    <span className="ml-2">Hatchback</span>
-                                </label>
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="preference" value="Sedan" className="form-radio" />
+                                        <span className="ml-2">Sedan</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="preference" value="SUV" className="form-radio" />
+                                        <span className="ml-2">SUV</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="preference" value="Hatchback" className="form-radio" />
+                                        <span className="ml-2">Hatchback</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="preference" value="Sedan" className="form-radio" />
+                                        <span className="ml-2">Automatic</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="preference" value="SUV" className="form-radio" />
+                                        <span className="ml-2">Petrol</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="preference" value="Hatchback" className="form-radio" />
+                                        <span className="ml-2">Diesel</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="package" className="text-sm font-medium text-gray-700">Package</label>
+                                <Field as="select" name="package" className="p-2 w-full rounded-md border-gray-300">
+                                    <option value="">Select package type</option>
+                                    <option value="1">4 hr</option>
+                                    <option value="2">6 hr</option>
+                                    <option value="3">8 hr</option>
+                                    <option value="4">10 hr</option>
+                                    <option value="5">12 hr</option>
+                                    <option value="6">1 d</option>
+                                </Field>
+                                <ErrorMessage name="package" component="div" className="text-red-500 text-sm" />
+                            </div>
                         </div>
 
                         <Button
