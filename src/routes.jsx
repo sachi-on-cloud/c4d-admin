@@ -12,7 +12,7 @@ import { HomeModernIcon } from "@heroicons/react/24/outline";
 import Booking from "./pages/booking/booking";
 import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
-import { SearchDrivers } from "./pages/booking";
+// import { SearchDrivers } from "./pages/booking";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -69,12 +69,12 @@ export const routes = [
         element: <ConfirmBooking />,
         display: false
       },
-      {
-        name: "SearchDriver",
-        path: "/search-drivers",
-        element: <SearchDrivers />,
-        display: false
-      }
+      // {
+      //   name: "SearchDriver",
+      //   path: "/search-drivers",
+      //   element: <SearchDrivers />,
+      //   display: false
+      // }
     ],
   },
   {
@@ -119,12 +119,12 @@ export const routes = [
         element: <ConfirmBooking />,
         display: false
       },
-      {
-        name: "SearchDriver",
-        path: "/search-drivers",
-        element: <SearchDrivers />,
-        display: false
-      }
+      // {
+      //   name: "SearchDriver",
+      //   path: "/search-drivers",
+      //   element: <SearchDrivers />,
+      //   display: false
+      // }
     ],
   }
 ];
