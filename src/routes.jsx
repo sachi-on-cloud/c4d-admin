@@ -41,27 +41,6 @@ export const routes = [
         display: true
       },
       {
-        icon: <UserCircleIcon {...icon} />,
-        name: "profile",
-        path: "/profile",
-        element: <Profile />,
-        display: true
-      },
-      {
-        icon: <TableCellsIcon {...icon} />,
-        name: "tables",
-        path: "/tables",
-        element: <Tables />,
-        display: true
-      },
-      {
-        icon: <InformationCircleIcon {...icon} />,
-        name: "notifications",
-        path: "/notifications",
-        element: <Notifications />,
-        display: true
-      },
-      {
         icon: <UserIcon {...icon} />,
         name: "customers",
         path: "/customers",
@@ -156,26 +135,6 @@ export const routes = [
       //   element: <SearchDrivers />,
       //   display: false
       // }
-    ],
-  },
-  {
-    title: "auth pages",
-    layout: "auth",
-    pages: [
-      {
-        icon: <ServerStackIcon {...icon} />,
-        name: "sign in",
-        path: "/sign-in",
-        element: <SignIn />,
-        display: true
-      },
-      {
-        icon: <RectangleStackIcon {...icon} />,
-        name: "sign up",
-        path: "/sign-up",
-        element: <SignUp />,
-        display: true
-      },
     ],
   },
   {
