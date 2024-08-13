@@ -5,6 +5,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
+import Multiselect from 'multiselect-react-dropdown';
 
 const DriverAdd = () => {
     const [driverVal, setDriverVal] = useState({});
@@ -12,6 +13,14 @@ const DriverAdd = () => {
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
+    const options = [
+        { id: '1', name: '4 hr' },
+        { id: '2', name: '6 hr' },
+        { id: '3', name: '8 hr' },
+        { id: '4', name: '10 hr' },
+        { id: '5', name: '12 hr' },
+        { id: '6', name: '1 d' },
+    ];
     useEffect(() => {
         if (isEditMode) {
             fetchItem(id);
@@ -35,10 +44,14 @@ const DriverAdd = () => {
         salutation: Yup.string().required('Salutation is required'),
         firstName: Yup.string().required('Name is required'),
         phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
-        license: Yup.string().matches('^[A-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
         address: Yup.string().required('Car number is required'),
         reference: Yup.string().required('Car name is required'),
         preference: Yup.string().required('Car type is required'),
+        packages: Yup.array()
+            .of(Yup.string().required('Each package must be selected'))
+            .required('At least one package must be selected')
+            .min(1, 'At least one package must be selected'),
     });
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -50,7 +63,8 @@ const DriverAdd = () => {
                 license: values.license,
                 address: values.address,
                 references: values.reference,
-                preference: values.preference
+                preference: values.preference,
+                packages: values.packages
             };
             let data;
             if (isEditMode) {
@@ -100,7 +114,7 @@ const DriverAdd = () => {
                 enableReinitialize={true}
 
             >
-                {({ handleSubmit, values, dirty, isValid }) => (
+                {({ handleSubmit, values, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -147,19 +161,19 @@ const DriverAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Sedan" className="form-radio" />
+                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
                                         <span className="ml-2">Sedan</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="SUV" className="form-radio" />
+                                        <Field type="radio" name="carType" value="SUV" className="form-radio" />
                                         <span className="ml-2">SUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Hatchback" className="form-radio" />
+                                        <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
                                         <span className="ml-2">Hatchback</span>
                                     </label>
                                 </div>
-                                <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
+                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
@@ -181,7 +195,7 @@ const DriverAdd = () => {
                                 <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                             </div>
 
-                            <div>
+                            {/* <div>
                                 <label htmlFor="package" className="text-sm font-medium text-gray-700">Package</label>
                                 <Field as="select" name="package" className="p-2 w-full rounded-md border-gray-300">
                                     <option value="">Select package type</option>
@@ -193,6 +207,20 @@ const DriverAdd = () => {
                                     <option value="6">1 d</option>
                                 </Field>
                                 <ErrorMessage name="package" component="div" className="text-red-500 text-sm" />
+                            </div> */}
+                            <div>
+                                <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
+                                <Multiselect
+                                    options={options}
+                                    displayValue="name"
+                                    selectedValues={() => options.filter(option => values.packages.includes(option.id))}
+                                    onSelect={(selectedList) => {
+                                        setFieldValue("packages", selectedList.map(item => item.id));
+                                    }}
+                                    placeholder="Select options"
+                                    className="w-full rounded-md border-gray-300"
+                                    showCheckbox={true}
+                                />
                             </div>
                         </div>
 
