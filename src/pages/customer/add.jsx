@@ -39,11 +39,11 @@ const CustomerAdd = () => {
             ? {}
             : {
                 phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
-                carNumber: Yup.string().required('Car number is required'),
-                nickName: Yup.string().required('Car name is required'),
-                carType: Yup.string().required('Car type is required'),
-                fuelType: Yup.string().required('Fuel type is required'),
-                transmissionType: Yup.string().required('Transmission type number is required')
+                // carNumber: Yup.string().required('Car number is required'),
+                // nickName: Yup.string().required('Car name is required'),
+                // carType: Yup.string().required('Car type is required'),
+                // fuelType: Yup.string().required('Fuel type is required'),
+                // transmissionType: Yup.string().required('Transmission type number is required')
             }),
     });
 
@@ -205,10 +205,10 @@ const CustomerAdd = () => {
                             fullWidth
                             color="black"
                             onClick={handleSubmit}
-                            disabled={!dirty || !isValid}
+                            disabled={isEditMode ? false : !dirty || !isValid}
                             className='my-6 mx-2'
                         >
-                            Continue
+                            {isEditMode ? 'Update' : 'Continue'}
                         </Button>
                     </Form>
                 )}

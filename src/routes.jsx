@@ -23,7 +23,7 @@ import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
 import DriverDetails from "./pages/driver/details";
 import AddPriceDetails from "./pages/driver/addPriceDetails";
-import { BookingsList } from "./pages/booking";
+import { BookingsList, SearchDrivers } from "./pages/booking";
 import UserDetails from "./pages/users/details";
 import CustomerDetails from "./pages/customer/details";
 // import { SearchDrivers } from "./pages/booking";
@@ -161,12 +161,32 @@ export const routes = [
         element: <ConfirmBooking />,
         display: false
       },
-      // {
-      //   name: "SearchDriver",
-      //   path: "/search-drivers",
-      //   element: <SearchDrivers />,
-      //   display: false
-      // }
+      {
+        name: "SearchDriver",
+        path: "/search-drivers",
+        element: <SearchDrivers />,
+        display: false
+      }
+    ],
+  },
+  {
+    title: "auth pages",
+    layout: "auth",
+    pages: [
+      {
+        icon: <ServerStackIcon {...icon} />,
+        name: "sign in",
+        path: "/sign-in",
+        element: <SignIn />,
+        display: false
+      },
+      {
+        icon: <RectangleStackIcon {...icon} />,
+        name: "sign up",
+        path: "/sign-up",
+        element: <SignUp />,
+        display: false
+      },
     ],
   },
   {

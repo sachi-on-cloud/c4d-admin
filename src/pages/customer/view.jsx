@@ -44,7 +44,6 @@ export function CustomerView() {
 
   useEffect(() => {
     if (paramsPassed?.customerAdded) {
-      console.log('paramsPassed?.customerName :', paramsPassed?.customerName)
       setAlert(true);
       setTimeout(() => {
         setAlert(false);
@@ -136,13 +135,6 @@ export function CustomerView() {
                           <td className={className}>
                             <Button
                               as="a"
-                              onClick={() => { alert("hi"); }}
-                              className="text-xs font-semibold text-white mr-3"
-                            >
-                              Book Drivers
-                            </Button>
-                            <Button
-                              as="a"
                               onClick={() => navigate(`/dashboard/customers/details/${id}`)}
                               className="text-xs font-semibold text-white mr-3"
                             >
@@ -163,7 +155,6 @@ export function CustomerView() {
                 </tbody>
               </table>
             </CardBody>
-
           </>) : (
           <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
             <Typography variant="h6" color="white">
