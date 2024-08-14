@@ -142,6 +142,13 @@ export function CustomerView() {
                               Book Drivers
                             </Button>
                             <Button
+                              as="a"
+                              onClick={() => navigate(`/dashboard/customers/details/${id}`)}
+                              className="text-xs font-semibold text-white mr-3"
+                            >
+                              View
+                            </Button>
+                            <Button
                               as='a'
                               onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
                               className="text-xs font-semibold text-white"

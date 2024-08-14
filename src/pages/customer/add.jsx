@@ -73,26 +73,25 @@ const CustomerAdd = () => {
                     resetForm();
                 }, 2000)
             }
-            if (data.data) {
-                const carData = {
-                    customerId: data?.data?.id,
-                    carNumber: values.carNumber,
-                    nickName: values.nickName,
-                    carType: values.carType,
-                    fuelType: values.fuelType,
-                    transmissionType: values.transmissionType
-                };
+            navigate('/dashboard/customers', {
+                state: {
+                    customerAdded: true,
+                    customerName: data?.data?.firstName
+                }
+            });
+            // if (data.data) {
+            //     const carData = {
+            //         customerId: data?.data?.id,
+            //         carNumber: values.carNumber,
+            //         nickName: values.nickName,
+            //         carType: values.carType,
+            //         fuelType: values.fuelType,
+            //         transmissionType: values.transmissionType
+            //     };
 
-                const carResponse = await ApiRequestUtils.post(API_ROUTES.ADD_CAR_DETAILS, carData);
-                console.log('Car added:', carResponse.data);
-
-                navigate('/dashboard/customers', {
-                    state: {
-                        customerAdded: true,
-                        customerName: data?.data?.firstName
-                    }
-                });
-            }
+            //     const carResponse = await ApiRequestUtils.post(API_ROUTES.ADD_CAR_DETAILS, carData);
+            //     console.log('Car added:', carResponse.data);
+            // }
             // Handle success (e.g., show a success message, redirect, etc.)
         } catch (error) {
             console.error('Error creating customer and car:', error);
@@ -145,7 +144,8 @@ const CustomerAdd = () => {
                                         <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                         <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                    <div>
+                                    {/*Car module */}
+                                    {/* <div>
                                         <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
                                         <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300 uppercase" maxLength={10} />
                                         <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
@@ -177,10 +177,10 @@ const CustomerAdd = () => {
                                             <option value="Automatic">Automatic</option>
                                         </Field>
                                         <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
-                                    </div>
+                                    </div> */}
                                 </>)}
                         </div>
-                        {!isEditMode && (
+                        {/* {!isEditMode && (
                             <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
@@ -199,7 +199,7 @@ const CustomerAdd = () => {
                                 </div>
                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
                             </div>
-                        )}
+                        )} */}
 
                         <Button
                             fullWidth

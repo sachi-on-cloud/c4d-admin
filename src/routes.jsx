@@ -24,6 +24,8 @@ import SelectLocation from "./pages/booking/selectLocation";
 import DriverDetails from "./pages/driver/details";
 import AddPriceDetails from "./pages/driver/addPriceDetails";
 import { BookingsList } from "./pages/booking";
+import UserDetails from "./pages/users/details";
+import CustomerDetails from "./pages/customer/details";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -61,6 +63,13 @@ export const routes = [
         name: "customers",
         path: "/customers/edit/:id",
         element: <CustomerAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "customers",
+        path: "/customers/details/:id",
+        element: <CustomerDetails />,
         display: false
       },
       {
@@ -117,6 +126,13 @@ export const routes = [
         name: "users",
         path: "/users/edit/:id",
         element: <UserAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "users",
+        path: "/users/details/:id",
+        element: <UserDetails />,
         display: false
       },
       {

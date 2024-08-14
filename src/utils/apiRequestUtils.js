@@ -5,11 +5,11 @@ import { Alert } from '@material-tailwind/react';
 const TOKEN = 'bc8612f9-2253-4170-b3d8-185edae495aa';
 export const ApiRequestUtils = {
     post: async (apiRoute, body) => {
-        // const token = await Utils.getValueFromAsyncStorage(ASYNC_STORAGE_KEYS.TOKEN);
+        const token = localStorage.getItem('token');
         const { data } = await axios.post(getBaseUrl() + apiRoute, body, {
             headers: {
                 'Content-Type': 'application/json',
-                'token': TOKEN,
+                'token': token,
                 'custID': 63
             }
         });
@@ -26,11 +26,11 @@ export const ApiRequestUtils = {
     },
 
     get: async (apiRoute) => {
-        // const token = await Utils.getValueFromAsyncStorage(ASYNC_STORAGE_KEYS.TOKEN);
+        const token = localStorage.getItem('token');
         const { data } = await axios.get(getBaseUrl() + apiRoute, {
             headers: {
                 'Content-Type': 'application/json',
-                'token': TOKEN,
+                'token': token,
                 'custID': 63
             }
         });
@@ -47,11 +47,11 @@ export const ApiRequestUtils = {
     },
 
     getWithQueryParam: async (apiRoute, params) => {
-        // const token = await Utils.getValueFromAsyncStorage(ASYNC_STORAGE_KEYS.TOKEN);
+        const token = localStorage.getItem('token');
         const { data } = await axios.get(getBaseUrl() + apiRoute, {
             headers: {
                 'Content-Type': 'application/json',
-                'token': TOKEN,
+                'token': token,
                 'custID': 63
             },
             params: params
@@ -69,11 +69,11 @@ export const ApiRequestUtils = {
     },
 
     update: async (apiRoute, body) => {
-        // const token = await Utils.getValueFromAsyncStorage(ASYNC_STORAGE_KEYS.TOKEN);
+        const token = localStorage.getItem('token');
         const { data } = await axios.put(getBaseUrl() + apiRoute, body, {
             headers: {
                 'Content-Type': 'application/json',
-                'token': TOKEN,
+                'token': token,
                 'custID': 63
             }
         });
@@ -90,11 +90,11 @@ export const ApiRequestUtils = {
     },
 
     delete: async (apiRoute, body) => {
-        // const token = await Utils.getValueFromAsyncStorage(ASYNC_STORAGE_KEYS.TOKEN);
+        const token = localStorage.getItem('token');
         const { data } = await axios.delete(getBaseUrl() + apiRoute, {
             headers: {
                 'Content-Type': 'application/json',
-                'token': TOKEN,
+                'token': token,
                 'custID': 63
             },
             data: body
