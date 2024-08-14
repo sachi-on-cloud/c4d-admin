@@ -8,7 +8,7 @@ import {
     Option,
     Input,
 } from "@material-tailwind/react";
-import { Formik, Form } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
 import { API_ROUTES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
@@ -126,6 +126,16 @@ const Booking = () => {
             }
         }
     }
+    function convertTimeFormat(time) {
+        let [hours, minutes, seconds] = time.split(':');
+        hours = parseInt(hours);
+
+        const period = hours >= 12 ? 'p.m.' : 'a.m.';
+        hours = hours % 12 || 12;
+
+        return `${hours}:${minutes} ${period}`;
+    }
+
     return (
         <div className='flex flex-row space-x-6 justify-between'>
             <BookingsList />
@@ -141,7 +151,7 @@ const Booking = () => {
                     enableReinitialize
                 >
                     {({ handleSubmit, errors, touched, values, setFieldValue, handleChange, isValid, dirty }) => (
-                        <Form className='space-y-4'>
+                        <>
                             {customerData && <div className="p-2">
                                 <SearchableDropdown options={customerData} onSelect={(val) => {
                                     setFieldValue('customerId', val);
@@ -200,7 +210,19 @@ const Booking = () => {
                             </div>
 
                             <div className="flex-1 mb-4">
-                                <Typography variant="h6" className="mb-2">Choose a time</Typography>
+                                <div>
+                                    <label htmlFor="rideTime" className="text-sm font-medium text-gray-700">Choose a time</label>
+                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select time</option>
+                                        {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
+                                            <option key={item.id} value={item.id}>
+                                                {convertTimeFormat(item.id)}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                    <ErrorMessage name="rideTime" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                {/* <Typography variant="h6" className="mb-2">Choose a time</Typography>
                                 <Select
                                     label=""
                                     value={values?.rideTime ? values?.rideTime : ''}
@@ -225,7 +247,7 @@ const Booking = () => {
                                             {item.data}
                                         </Option>
                                     ))}
-                                </Select>
+                                </Select> */}
                                 {/* <div className="grid grid-cols-4 gap-2">
                                     {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                         <Button
@@ -238,9 +260,9 @@ const Booking = () => {
                                         </Button>
                                     ))}
                                 </div> */}
-                                {errors.rideTime && touched.rideTime && (
+                                {/* {errors.rideTime && touched.rideTime && (
                                     <Typography color="red" className="mt-2">{errors.rideTime}</Typography>
-                                )}
+                                )} */}
                             </div>
 
                             <div className="flex-1">
@@ -335,7 +357,7 @@ const Booking = () => {
                             >
                                 Continue
                             </Button>
-                        </Form>
+                        </>
                     )}
                 </Formik>
             </div>

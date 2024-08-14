@@ -42,6 +42,14 @@ export function BookingsList() {
             navigate("/dashboard/booking");
         }
     }
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    }
     return (
         <div className="flex flex-col rounded-xl">
             <div className='mb-2'>
@@ -59,7 +67,7 @@ export function BookingsList() {
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
-                                    {["Booking ID", "Service Type", "Driver Name", "Status", ""].map((el) => (
+                                    {["Booking ID", "Service Type", "Driver Name", "Customer Name", "Date", "Created Date", "Status", ""].map((el) => (
                                         <th
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -76,7 +84,7 @@ export function BookingsList() {
                             </thead>
                             <tbody>
                                 {bookingsList.map(
-                                    ({ id, serviceType, Driver, status, customerId }, key) => {
+                                    ({ id, bookingNumber, serviceType, Driver, status, customerId, Customer, date, time, created_at }, key) => {
                                         const className = `p-3 ${key === bookingsList.length - 1
                                             ? ""
                                             : "border-b border-blue-gray-50"
@@ -92,7 +100,7 @@ export function BookingsList() {
                                                                 color="blue-gray"
                                                                 className="font-semibold"
                                                             >
-                                                                {id}
+                                                                {bookingNumber}
                                                             </Typography>
                                                         </div>
                                                     </div>
@@ -108,12 +116,43 @@ export function BookingsList() {
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
-                                                    <Chip
-                                                        variant="gradient"
-                                                        // color={online ? "green" : "blue-gray"}
-                                                        value={status}
-                                                        className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                                                    />
+                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        {Customer?.firstName}
+                                                    </Typography>
+                                                </td>
+                                                <td className={className}>
+                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        {formatDate(date)}
+                                                    </Typography>
+                                                </td>
+                                                <td className={className}>
+                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        {formatDate(created_at)}
+                                                    </Typography>
+                                                </td>
+                                                <td className={className}>
+                                                    {status == "STARTED" ?
+                                                        <Chip
+                                                            variant="gradient"
+                                                            // color={online ? "green" : "blue-gray"}
+                                                            value={"CONFIRMED"}
+                                                            className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                        />
+                                                        : status == "ENDED" ?
+                                                            <Chip
+                                                                variant="gradient"
+                                                                // color={online ? "green" : "blue-gray"}
+                                                                value={"COMPLETED"}
+                                                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                            />
+                                                            :
+                                                            <Chip
+                                                                variant="gradient"
+                                                                // color={online ? "green" : "blue-gray"}
+                                                                value={"INITIATED"}
+                                                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                            />
+                                                    }
                                                 </td>
                                                 <td className={className}>
                                                     <Button

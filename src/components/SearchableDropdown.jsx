@@ -60,7 +60,10 @@ const SearchableDropdown = ({ options, onSelect }) => {
                             </div>
                         ))
                     ) : (
-                        <div className="p-2 text-gray-500">No options found</div>
+                        <>
+                            <div className="p-2 text-gray-500">No options found</div>
+                            <div className="p-2 text-gray-500">+ Add new customer</div>
+                        </>
                     )}
                 </div>
             )}
