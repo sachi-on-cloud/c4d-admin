@@ -23,6 +23,7 @@ import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
 import DriverDetails from "./pages/driver/details";
 import AddPriceDetails from "./pages/driver/addPriceDetails";
+import { BookingsList } from "./pages/booking";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -124,6 +125,13 @@ export const routes = [
         path: "/booking",
         element: <Booking />,
         display: true,
+      },
+      {
+        icon: <HomeModernIcon {...icon} />,
+        name: "BookingsList",
+        path: "/booking/list",
+        element: <BookingsList />,
+        display: false,
       },
       {
         name: "SelectLocation",
