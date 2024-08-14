@@ -45,7 +45,8 @@ const DriverDetails = () => {
         reference: driver?.references || "",
         preference: driver?.preference || "",
         packages: driver?.packages || "",
-        carType: driver?.carType || ""
+        carType: driver?.carType || "",
+        wallet: driver?.wallet || ""
     };
     return (
         <>
@@ -146,6 +147,11 @@ const DriverDetails = () => {
                                         className="w-full rounded-xl border-gray-300 bg-gray-200"
                                         disable={true}
                                     />
+                                </div>
+                                <div>
+                                    <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
+                                    <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                    <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
                         </div>

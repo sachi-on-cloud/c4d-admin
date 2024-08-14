@@ -48,9 +48,9 @@ const DriverAdd = () => {
         reference: driverVal?.references || "",
         preference: driverVal?.preference || "",
         carType: driverVal?.carType || "",
-        packages: driverVal?.packages || ""
+        packages: driverVal?.packages || "",
+        wallet: driverVal?.wallet || ""
     };
-
     const validationSchema = Yup.object({
         salutation: Yup.string().required('Salutation is required'),
         firstName: Yup.string().required('Name is required'),
@@ -63,6 +63,8 @@ const DriverAdd = () => {
             .of(Yup.string().required('Each package must be selected'))
             .required('At least one package must be selected')
             .min(1, 'At least one package must be selected'),
+
+        wallet: Yup.string().required('Wallet is required'),
     });
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -76,7 +78,8 @@ const DriverAdd = () => {
                 references: values.reference,
                 preference: values.preference,
                 packages: values.packages,
-                carType: values.carType
+                carType: values.carType,
+                wallet: values.wallet
             };
             let data;
             if (isEditMode) {
@@ -221,6 +224,11 @@ const DriverAdd = () => {
                                     className="w-full rounded-md border-gray-300"
                                     showCheckbox={true}
                                 />
+                            </div>
+                            <div>
+                                <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
+                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
 
