@@ -56,6 +56,7 @@ export function SearchDrivers() {
             status: BOOKING_STATUS.STARTED,
             bookingId: paramsPassed?.bookingDetails?.id,
             driverId: driverId,
+            driverStatus: 'ASSIGNED'
         };
         const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, paramsPassed?.customerId);
         if (data?.success) {

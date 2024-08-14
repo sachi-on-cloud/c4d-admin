@@ -38,14 +38,14 @@ const SearchableDropdown = ({ options, onSelect }) => {
     };
 
     return (
-        <div className="relative w-full">
+        <div className="w-full">
             <input
                 type="text"
                 value={searchText}
                 onChange={handleSearchChange}
                 onClick={() => setIsOpen(!isOpen)}
-                placeholder="Search..."
-                className="p-2 border rounded w-full"
+                placeholder="Search customers"
+                className="p-2 border rounded-xl w-full"
             />
             {isOpen && (
                 <div className="absolute z-10 overflow-x-auto w-full mt-1 bg-white border border-gray-300 rounded shadow-lg">

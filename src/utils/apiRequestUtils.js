@@ -39,7 +39,7 @@ export const ApiRequestUtils = {
             headers
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
-            Alert.alert('Failure', data.message, [{
+            alert('Failure', data.message, [{
                 style: 'default', onPress: () => {
                     // navigation.navigate('Welcome');
                 }
@@ -61,7 +61,7 @@ export const ApiRequestUtils = {
             params: params
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
-            Alert.alert('Failure', data.message, [{
+            alert('Failure', data.message, [{
                 style: 'default', onPress: () => {
                     // navigation.navigate('Welcome');
                 }
@@ -85,7 +85,7 @@ export const ApiRequestUtils = {
             headers
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
-            Alert.alert('Failure', data.message, [{
+            alert('Failure', data.message, [{
                 style: 'default', onPress: () => {
                     // navigation.navigate('Welcome');
                 }
@@ -107,7 +107,7 @@ export const ApiRequestUtils = {
             data: body
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
-            Alert.alert('Failure', data.message, [{
+            alert('Failure', data.message, [{
                 style: 'default', onPress: () => {
                     // navigation.navigate('Welcome');
                 }

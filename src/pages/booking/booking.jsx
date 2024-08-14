@@ -8,7 +8,7 @@ import {
     Option,
     Input,
 } from "@material-tailwind/react";
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form } from 'formik';
 import { Utils } from '../../utils/utils';
 import { API_ROUTES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
@@ -17,16 +17,15 @@ import moment from 'moment';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { BookingsList } from '.';
+import SearchableDropdown from '@/components/SearchableDropdown';
 
 const Booking = () => {
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
-    const [savedCars, setSavedCars] = useState([]);
     const [bookingTimes, setBookingTimes] = useState([]);
     const [bookingTimesForDay, setBookingTimesForDay] = useState([]);
     const [range, setRange] = useState({});
     const [datePickerVisible, setDatePickerVisible] = useState(false);
     const [customerData, setCustomerData] = useState([]);
-    const [selectedUser, setSelectedUser] = useState();
 
     const fetchData = async () => {
         try {
@@ -36,20 +35,6 @@ const Booking = () => {
             console.error('Error fetching data:', error);
         }
     };
-
-    const handleChange = (value) => {
-        const selected = customerData.find(user => user.id.toString() === value);
-        console.log(selected);
-        setSelectedUser(selected);
-    };
-
-    const customFilter = (searchText, item) => {
-        const lowerSearchText = searchText.toLowerCase();
-        return (
-            item.props.children.toLowerCase().includes(lowerSearchText)
-        );
-    };
-
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -62,18 +47,6 @@ const Booking = () => {
         }
     }, []);
 
-    const getSavedCarDetails = useCallback(async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CARS);
-        if (data?.success) {
-            data?.data.map((item) => item['label'] = item.nickName);
-            setSavedCars(data?.data);
-        }
-    }, []);
-
-    const addNewCarHandler = () => {
-        navigate('/vehicle-registration', { state: { mode: 'add' } });
-    };
-
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
@@ -81,7 +54,6 @@ const Booking = () => {
 
     useEffect(() => {
         getPackageListDetails();
-        getSavedCarDetails();
         if (params?.bookingDetails?.packageType === "Outstation" && params?.bookingDetails?.fromDate && params?.bookingDetails?.toDate) {
             setRange({ startDate: params?.bookingDetails?.fromDate, endDate: params?.bookingDetails?.toDate })
         }
@@ -95,6 +67,7 @@ const Booking = () => {
         packageSelected: '',
         fromDate: "",
         toDate: "",
+        customerId: ''
     };
 
     const handleDateChange = (dates, setFieldValue) => {
@@ -129,56 +102,37 @@ const Booking = () => {
             bookingId: params?.bookingDetails?.id || '',
             fromDate: values.fromDate,
             toDate: values.toDate,
+            customerId: values.customerId?.id,
+            adminBooking: true,
+            serviceType: 'DRIVER'
         }
         let data;
         if (params?.bookingDetails) {
             bookingData['bookingId'] = params?.bookingDetails?.id;
             data = await ApiRequestUtils.update(API_ROUTES.UPDATE_BOOKING, bookingData);
         } else {
-            data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_BOOKING, bookingData);
+            data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_BOOKING, bookingData, values?.customerId?.id);
         }
-
         if (data?.success) {
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
-                navigate('/dashboard/select-location', { state: { 'bookingId': data?.data?.id } });
+                navigate('/dashboard/select-location', {
+                    state: {
+                        'bookingId': data?.data?.id,
+                        'customerId': data?.data?.customerId
+                    }
+                });
             }
         }
     }
-    console.log('initialValues :', initialValues);
     return (
         <div className='flex flex-row space-x-6 justify-between'>
             <BookingsList />
-            <div className="flex-1 bg-white w-1/3 min-w-[300px] p-3 rounded-xl">
-                <div className="w-72">
-                    <Select
-                        label="Search and select user"
-                        value={selectedUser ? selectedUser.id : ''}
-                        onChange={handleChange}
-                        animate={{
-                            mount: { y: 0 },
-                            unmount: { y: 25 },
-                        }}
-                        filter={customFilter}
-                        selected={(element) => {
-                            if (element) {
-                                return element.props.value
-                            }
-                        }}
-                        className='border border-purple-500 flex p-4 text-black'
-                    >
-                        {customerData.map((item) => (
-                            <Option key={item.id} value={item.firstName} data-id={item.id} name={item.firstName}>
-                                {item.firstName} - {item.phoneNumber}
-                            </Option>
-                        ))}
-                    </Select>
-                </div>
+            <div className="flex-1 bg-white p-3 rounded-xl">
                 <Formik
                     initialValues={initialValues}
                     onSubmit={async (values, { resetForm }) => {
-                        console.log('Values---->>>>', values);
                         await onSubmitHandler(values);
                         resetForm();
                         setRange({});
@@ -187,7 +141,12 @@ const Booking = () => {
                     enableReinitialize
                 >
                     {({ handleSubmit, errors, touched, values, setFieldValue, handleChange, isValid, dirty }) => (
-                        <Form>
+                        <Form className='space-y-4'>
+                            {customerData && <div className="p-2">
+                                <SearchableDropdown options={customerData} onSelect={(val) => {
+                                    setFieldValue('customerId', val);
+                                }} />
+                            </div>}
                             <div className="flex-1 mt-2 mb-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <Button
@@ -223,35 +182,6 @@ const Booking = () => {
                                 </div>
                             </div>
 
-                            <div className="flex-1 mb-4">
-                                <Typography variant="h6" className="mb-2">Select Car</Typography>
-                                <Select
-                                    //label="Select a Car"
-                                    value={values?.carSelected?.id || ''}
-                                    onChange={(value) => {
-                                        console.log('VALUE IN SELECTED CARS :', value);
-                                        const car = savedCars.find(car => car.id === value);
-                                        console.log('VALUE IN CARS :', car);
-                                        setFieldValue('carSelected', car);
-                                    }}
-                                >
-                                    {savedCars.length === 0 ? (
-                                        <Option onClick={addNewCarHandler} className="text-blue-500">
-                                            + Add New Car
-                                        </Option>
-                                    ) : (
-                                        savedCars.map((car) => (
-                                            <Option key={car.id} value={car.id}>
-                                                {car.nickName} - {car.carNumber} ({car.carType})
-                                            </Option>
-                                        ))
-                                    )}
-                                </Select>
-                                {errors.carSelected && touched.carSelected && (
-                                    <Typography color="red" className="mt-2">{errors.carSelected}</Typography>
-                                )}
-                            </div>
-
                             <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
                                     When to ride?
@@ -271,7 +201,32 @@ const Booking = () => {
 
                             <div className="flex-1 mb-4">
                                 <Typography variant="h6" className="mb-2">Choose a time</Typography>
-                                <div className="grid grid-cols-4 gap-2">
+                                <Select
+                                    label=""
+                                    value={values?.rideTime ? values?.rideTime : ''}
+                                    onChange={(val) => {
+                                        const selectedVal = (values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).find(el => el.id === val);
+                                        setFieldValue('rideTime', selectedVal.id);
+                                    }}
+                                    animate={{
+                                        mount: { y: 0 },
+                                        unmount: { y: 25 },
+                                    }}
+                                    selected={(element) => {
+                                        if (element) {
+                                            console.log('element :', element.props)
+                                            return element.props.value
+                                        }
+                                    }}
+                                    className='p-4 text-black'
+                                >
+                                    {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
+                                        <Option key={item.id} value={item.data} data-id={item.id} name={item.data}>
+                                            {item.data}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                {/* <div className="grid grid-cols-4 gap-2">
                                     {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                         <Button
                                             key={item.id}
@@ -282,7 +237,7 @@ const Booking = () => {
                                             {item.data}
                                         </Button>
                                     ))}
-                                </div>
+                                </div> */}
                                 {errors.rideTime && touched.rideTime && (
                                     <Typography color="red" className="mt-2">{errors.rideTime}</Typography>
                                 )}

@@ -7,7 +7,7 @@ import {
     Chip
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export function BookingsList() {
@@ -29,6 +29,19 @@ export function BookingsList() {
     useEffect(() => {
         getBookingsList();
     }, []);
+
+    const onEndTrip = async (bookingId, driverId) => {
+        const reqBody = {
+            status: BOOKING_STATUS.ENDED,
+            bookingId: bookingId,
+            driverId: driverId,
+            driverStatus: 'ACTIVE'
+        };
+        const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody);
+        if (data?.success) {
+            navigate("/dashboard/booking");
+        }
+    }
     return (
         <div className="flex flex-col rounded-xl">
             <div className='mb-2'>
@@ -63,7 +76,7 @@ export function BookingsList() {
                             </thead>
                             <tbody>
                                 {bookingsList.map(
-                                    ({ id, serviceType, Driver, status, email }, key) => {
+                                    ({ id, serviceType, Driver, status, customerId }, key) => {
                                         const className = `p-3 ${key === bookingsList.length - 1
                                             ? ""
                                             : "border-b border-blue-gray-50"
@@ -105,18 +118,24 @@ export function BookingsList() {
                                                 <td className={className}>
                                                     <Button
                                                         as="a"
-                                                        onClick={() => { alert("hi"); }}
+                                                        onClick={() => navigate("/dashboard/confirm-booking", {
+                                                            state: {
+                                                                bookingId: id,
+                                                                customerId,
+                                                                edit: true
+                                                            }
+                                                        })}
                                                         className="text-xs font-semibold text-white mr-3"
                                                     >
                                                         View
                                                     </Button>
-                                                    <Button
+                                                    {status === 'STARTED' && <Button
                                                         as='a'
-                                                        onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
+                                                        onClick={() => onEndTrip(id, Driver?.id)}
                                                         className="text-xs font-semibold text-white"
                                                     >
-                                                        Edit
-                                                    </Button>
+                                                        End Trip
+                                                    </Button>}
                                                 </td>
                                             </tr>
                                         );

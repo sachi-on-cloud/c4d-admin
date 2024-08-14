@@ -202,7 +202,8 @@ export const BOOKING_STATUS = {
     CANCELLED: 'CANCELLED',
     IN_PROGRESS: 'IN PROGRESS',
     STARTED: 'STARTED',
-    ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT'
+    ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
+    ENDED: 'ENDED',
 };
 
 export const PUSH_NOTIFICATION_TYPE = {
@@ -251,5 +252,3 @@ export const CAROUSEL_DATA = [
         imgUrl: "https://w0.peakpx.com/wallpaper/385/370/HD-wallpaper-new-york-city-street-traffic-jam-manhattan-nyc-traffic-new-york-usa-evening-city-america.jpg",
     },
 ];
-
-export const MAP_DIRECTIONS_KEY = 'AIzaSyAgrNDTpj86zJdxMN9-3sRCMHxspDapIgY';
