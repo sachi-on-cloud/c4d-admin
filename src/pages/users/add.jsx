@@ -122,7 +122,7 @@ const UserAdd = () => {
                                 <Multiselect
                                     options={options}
                                     displayValue="name"
-                                    selectedValues={() => options.filter(option => values.permission.includes(option.id))}
+                                    selectedValues={options.filter(option => values.permission.includes(option.id))}
                                     onSelect={(selectedList) => {
                                         setFieldValue("permission", selectedList.map(item => item.id));
                                     }}
@@ -142,10 +142,10 @@ const UserAdd = () => {
                             fullWidth
                             color="black"
                             onClick={handleSubmit}
-                            disabled={!dirty || !isValid}
+                            disabled={isEditMode ? false : !dirty || !isValid}
                             className='my-6 mx-2'
                         >
-                            Continue
+                            {isEditMode ? 'Update' : 'Continue'}
                         </Button>
                     </Form>
                 )}

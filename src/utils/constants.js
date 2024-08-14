@@ -183,7 +183,8 @@ export const API_ROUTES = {
     'GET_PRICE': '/get-price',
     'ADD_PRICE': '/add-price',
     'UPDATE_PRICE': '/update-price',
-    'GET_BOOKINGS': '/admin/bookings'
+    'GET_BOOKINGS': '/admin/bookings',
+    'UPATE_ADMIN_BOOKINGS': '/admin-booking'
 };
 
 export const ASYNC_STORAGE_KEYS = {

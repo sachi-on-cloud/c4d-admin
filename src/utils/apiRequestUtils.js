@@ -1,20 +1,21 @@
 import axios from 'axios';
 import { getBaseUrl } from "./constants";
-import { Alert } from '@material-tailwind/react';
 
-const TOKEN = 'bc8612f9-2253-4170-b3d8-185edae495aa';
 export const ApiRequestUtils = {
-    post: async (apiRoute, body) => {
+    post: async (apiRoute, body, custID = 0) => {
         const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            'token': token
+        }
+        if (custID != 0) {
+            headers['custID'] = custID;
+        }
         const { data } = await axios.post(getBaseUrl() + apiRoute, body, {
-            headers: {
-                'Content-Type': 'application/json',
-                'token': token,
-                'custID': 63
-            }
+            headers
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
-            Alert.alert('Failure', data.message, [{
+            alert('Failure', data.message, [{
                 style: 'default', onPress: () => {
                     // navigation.navigate('Welcome');
                 }
@@ -25,14 +26,17 @@ export const ApiRequestUtils = {
         }
     },
 
-    get: async (apiRoute) => {
+    get: async (apiRoute, custID = 0) => {
         const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            'token': token
+        }
+        if (custID != 0) {
+            headers['custID'] = custID;
+        }
         const { data } = await axios.get(getBaseUrl() + apiRoute, {
-            headers: {
-                'Content-Type': 'application/json',
-                'token': token,
-                'custID': 63
-            }
+            headers
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
             Alert.alert('Failure', data.message, [{
@@ -68,14 +72,17 @@ export const ApiRequestUtils = {
         }
     },
 
-    update: async (apiRoute, body) => {
+    update: async (apiRoute, body, custID = 0) => {
         const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            'token': token
+        }
+        if (custID != 0) {
+            headers['custID'] = custID;
+        }
         const { data } = await axios.put(getBaseUrl() + apiRoute, body, {
-            headers: {
-                'Content-Type': 'application/json',
-                'token': token,
-                'custID': 63
-            }
+            headers
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
             Alert.alert('Failure', data.message, [{
