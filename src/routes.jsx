@@ -22,6 +22,7 @@ import Booking from "./pages/booking/booking";
 import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
 import DriverDetails from "./pages/driver/details";
+import AddPriceDetails from "./pages/driver/addPriceDetails";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -87,6 +88,13 @@ export const routes = [
         name: "drivers",
         path: "/drivers/edit/:id",
         element: <DriverAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "drivers",
+        path: "/drivers/addprice",
+        element: <AddPriceDetails />,
         display: false
       },
       {
