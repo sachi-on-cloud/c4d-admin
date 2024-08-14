@@ -11,9 +11,9 @@ import PriceAdd from './AddPriceTable';
 import { useNavigate } from 'react-router-dom';
 
 function PriceTable({ driverId, packages, selectedPackages }) {
-    console.log("selectedPackages", selectedPackages);
+    //console.log("selectedPackages", packages);
     const [price, setPrice] = useState([]);
-    const [showForm, setShowForm] = useState(false);
+    const [addedPackage, setAddedPackage] = useState([]);
     const navigate = useNavigate();
 
     const getPrice = async (driverId) => {
@@ -21,32 +21,42 @@ function PriceTable({ driverId, packages, selectedPackages }) {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_PRICE + `?driverId=${driverId}`);
         if (data?.success) {
             setPrice(data?.data);
+            const val = data?.data.map(item => item.packageId);
+            setAddedPackage(val)
         }
     };
-    const showPrice = () => {
-        setShowForm(!showForm)
-    }
     useEffect(() => {
         getPrice(driverId);
+
     }, [])
+    function getNameById(id, obj) {
+        for (const key in obj) {
+            if (obj[key].id === id) {
+                return obj[key].period;
+            }
+        }
+        return null;
+    }
 
     return (
         <div>
             <br /><br />
             <div className='flex flex-row justify-between px-2 mb-2'>
                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                {price?.length < selectedPackages?.length && <button
-                    onClick={() => navigate('/dashboard/drivers/addPrice', {
-                        state: {
-                            driverId,
-                            packages,
-                            selectedPackages
-                        }
-                    })}
-                    className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                    Add new
-                </button>}
+                {price?.length < selectedPackages?.length &&
+                    <button
+                        onClick={() => navigate('/dashboard/drivers/addPrice', {
+                            state: {
+                                driverId,
+                                packages,
+                                selectedPackages,
+                                addedPackage
+                            }
+                        })}
+                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        Add new
+                    </button>}
             </div>
             <Card>
                 {price.length > 0 ? (
@@ -88,7 +98,7 @@ function PriceTable({ driverId, packages, selectedPackages }) {
                                                                     color="blue-gray"
                                                                     className="font-semibold"
                                                                 >
-                                                                    {packageId}
+                                                                    {getNameById(packageId, packages)}
                                                                 </Typography>
                                                             </div>
                                                         </div>
@@ -131,7 +141,9 @@ function PriceTable({ driverId, packages, selectedPackages }) {
                                                                     state: {
                                                                         driverId,
                                                                         packages,
-                                                                        selectedPackages
+                                                                        selectedPackages,
+                                                                        addedPackage,
+                                                                        values: { id, packageId, price, extraPrice, extraKmPrice, nightCharge, cancelCharge, extraCabType }
                                                                     }
                                                                 })
                                                             }}
@@ -148,18 +160,12 @@ function PriceTable({ driverId, packages, selectedPackages }) {
                             </table>
                         </CardBody>
 
-                    </>) : (<>
-                        <br />
-                        <h2 className="text-2xl font-bold mb-4 ml-4">No Price Record
-                            <button type="button" onClick={showPrice}> Add Row</button>
-                        </h2>
-                    </>
+                    </>) : (
+
+                    <h2 className="text-2xl font-bold mt-4 mb-4 ml-4">No Price</h2>
+
                 )}
             </Card>
-
-            {showForm &&
-                <PriceAdd driverId={driverId} packages={packages} selectedPackages={selectedPackages} />
-            }
         </div>
     );
 }

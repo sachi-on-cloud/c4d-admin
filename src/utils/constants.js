@@ -182,6 +182,7 @@ export const API_ROUTES = {
     'GET_USER_BY_TOKEN': '/session/users',
     'GET_PRICE': '/get-price',
     'ADD_PRICE': '/add-price',
+    'UPDATE_PRICE': '/update-price',
     'GET_BOOKINGS': '/admin/bookings'
 };
 

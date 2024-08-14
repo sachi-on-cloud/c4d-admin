@@ -12,28 +12,35 @@ const AddPriceDetails = () => {
     const paramsPassed = location.state;
     const navigate = useNavigate();
 
-    const { id } = useParams();
+    const id = paramsPassed.values?.id;
     const isEditMode = !!id;
     useEffect(() => {
-        if (isEditMode) {
-            fetchItem(id);
-        }
+        //if (isEditMode) {
+        //fetchItem(id);
+        //}
     }, [id, isEditMode]);
-    console.log(paramsPassed?.selectedPackages, paramsPassed?.packages);
+    //console.log(paramsPassed?.addedPackage);
+
+    let addedPackage = paramsPassed?.addedPackage;
+    if (isEditMode) {
+        addedPackage = addedPackage.filter(item => item !== paramsPassed.values?.packageId)
+    }
+
+    //console.log(paramsPassed?.selectedPackages, paramsPassed?.packages);
     const updatedPackage = paramsPassed?.selectedPackages ? paramsPassed?.packages.filter(option => paramsPassed?.selectedPackages.includes(option.id)) : [];
-    console.log("updatedPackage", updatedPackage)
+    //console.log("updatedPackage", updatedPackage)
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + `${itemId}`);
         setPriceVal(data.data);
     };
     const initialValues = {
-        packageId: priceVal?.packageId || "",
-        price: priceVal?.price || "",
-        extraPrice: priceVal?.extraPrice || "",
-        extraKmPrice: priceVal?.extraKmPrice || "",
-        nightCharge: priceVal?.nightCharge || "",
-        cancelCharge: priceVal?.cancelCharge || "",
-        extraCabType: priceVal?.extraCabType || ""
+        packageId: paramsPassed.values?.packageId || "",
+        price: paramsPassed.values?.price || "",
+        extraPrice: paramsPassed.values?.extraPrice || "",
+        extraKmPrice: paramsPassed.values?.extraKmPrice || "",
+        nightCharge: paramsPassed.values?.nightCharge || "",
+        cancelCharge: paramsPassed.values?.cancelCharge || "",
+        extraCabType: paramsPassed.values?.extraCabType || ""
     };
 
     const validationSchema = Yup.object({
@@ -59,14 +66,15 @@ const AddPriceDetails = () => {
                 extraCabType: values.extraCabType
             };
             let data;
-            // if (isEditMode) {
-            //     priceData['priceId'] = id;
-            //     data = await ApiRequestUtils.update(API_ROUTES.UPDATE_USER, priceData);
-            // } else {
-            priceData['driverId'] = paramsPassed?.driverId;
-            data = await ApiRequestUtils.post(API_ROUTES.ADD_PRICE, priceData);
-            //}
-            console.log('User created:', data.data);
+            if (isEditMode) {
+                priceData['priceId'] = id;
+                priceData['driverId'] = paramsPassed?.driverId;
+                data = await ApiRequestUtils.update(API_ROUTES.UPDATE_PRICE, priceData);
+            } else {
+                priceData['driverId'] = paramsPassed?.driverId;
+                data = await ApiRequestUtils.post(API_ROUTES.ADD_PRICE, priceData);
+            }
+            //console.log('User created:', data.data);
             navigate(`/dashboard/drivers/details/${paramsPassed?.driverId}`);
 
         } catch (error) {
@@ -93,7 +101,13 @@ const AddPriceDetails = () => {
                                 <Field as="select" name="packageId" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                     <option value="">Select Packages</option>
                                     {updatedPackage.map((val, index) => (
-                                        <option key={index} value={val.id}>{val.period}</option>
+                                        !addedPackage.includes(val.id) &&
+                                        <option
+                                            key={index}
+                                            value={val.id}
+                                        >
+                                            {val.period}
+                                        </option>
                                     ))}
                                 </Field>
                                 <ErrorMessage name="packageId" component="div" className="text-red-500 text-sm" />
