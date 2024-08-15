@@ -23,18 +23,14 @@ const ConfirmBooking = () => {
             status: BOOKING_STATUS.INITIATED,
             bookingId: bookingDetails?.id,
         };
-        const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody);
+        const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody, bookingDetails?.customerId);
         if (data?.success) {
             navigate("/dashboard/search-drivers", { state: { bookingDetails } });
         }
     };
-
     const getBookingById = async (bookingId) => {
         setLoading(true);
-        const data = await ApiRequestUtils.get(
-            API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId
-        );
-        console.log("data in getBookingById :", data?.data);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, paramsPassed?.customerId);
         if (data?.success) {
             setBookingDetails(data?.data);
         }
@@ -54,7 +50,7 @@ const ConfirmBooking = () => {
         };
         const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody);
         if (data?.success) {
-            navigate("/");
+            navigate("/dashboard/booking");
         }
     };
 
@@ -72,7 +68,7 @@ const ConfirmBooking = () => {
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Ride Details</Typography>
-                        <Button
+                        {/* <Button
                             color="black"
                             buttonType="link"
                             size="sm"
@@ -80,7 +76,7 @@ const ConfirmBooking = () => {
                             onClick={() => navigate("/", { state: { bookingDetails } })}
                         >
                             Edit
-                        </Button>
+                        </Button> */}
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
@@ -92,10 +88,10 @@ const ConfirmBooking = () => {
                             <Typography color="gray" variant="h6">Date:</Typography>
                             <Typography>{`${bookingDetails.date}, ${bookingDetails.time}`}</Typography>
                         </div>
-                        <div className="flex justify-between">
+                        {/* <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Car:</Typography>
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
-                        </div>
+                        </div> */}
                     </div>
                     <hr className="my-2" />
                     <Typography variant="h5" className="mt-4">
@@ -131,7 +127,7 @@ const ConfirmBooking = () => {
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Location Details</Typography>
-                        <Button
+                        {/* <Button
                             color="black"
                             buttonType="link"
                             size="sm"
@@ -147,7 +143,7 @@ const ConfirmBooking = () => {
                             }
                         >
                             Edit
-                        </Button>
+                        </Button> */}
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
@@ -165,7 +161,7 @@ const ConfirmBooking = () => {
                 </CardBody>
             </Card>
 
-            <div className="mt-6 space-y-4">
+            {!paramsPassed?.edit && <div className="mt-6 space-y-4">
                 <Button
                     color="black"
                     ripple="light"
@@ -183,7 +179,7 @@ const ConfirmBooking = () => {
                 >
                     Cancel
                 </Button>
-            </div>
+            </div>}
         </div>
     );
 };

@@ -178,7 +178,13 @@ export const API_ROUTES = {
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',
     'USER_LOGIN': '/login',
-    'GET_USER_BY_ID': '/users/'
+    'GET_USER_BY_ID': '/users/',
+    'GET_USER_BY_TOKEN': '/session/users',
+    'GET_PRICE': '/get-price',
+    'ADD_PRICE': '/add-price',
+    'UPDATE_PRICE': '/update-price',
+    'GET_BOOKINGS': '/admin/bookings',
+    'UPATE_ADMIN_BOOKINGS': '/admin-booking'
 };
 
 export const ASYNC_STORAGE_KEYS = {
@@ -196,7 +202,8 @@ export const BOOKING_STATUS = {
     CANCELLED: 'CANCELLED',
     IN_PROGRESS: 'IN PROGRESS',
     STARTED: 'STARTED',
-    ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT'
+    ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
+    ENDED: 'ENDED',
 };
 
 export const PUSH_NOTIFICATION_TYPE = {
@@ -245,5 +252,3 @@ export const CAROUSEL_DATA = [
         imgUrl: "https://w0.peakpx.com/wallpaper/385/370/HD-wallpaper-new-york-city-street-traffic-jam-manhattan-nyc-traffic-new-york-usa-evening-city-america.jpg",
     },
 ];
-
-export const MAP_DIRECTIONS_KEY = 'AIzaSyAgrNDTpj86zJdxMN9-3sRCMHxspDapIgY';

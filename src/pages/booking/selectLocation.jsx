@@ -138,9 +138,9 @@ const SelectLocation = () => {
             } : null
         };
         console.log('apiReqBody:', apiReqBody);
-        const data = await ApiRequestUtils.update(API_ROUTES.ADD_LOCATION, apiReqBody);
+        const data = await ApiRequestUtils.update(API_ROUTES.ADD_LOCATION, apiReqBody, paramsPassed?.customerId);
         if (data?.success) {
-            navigate('/dashboard/confirm-booking', { state: { 'bookingId': paramsPassed?.bookingId } });
+            navigate('/dashboard/confirm-booking', { state: { 'bookingId': paramsPassed?.bookingId, 'customerId': paramsPassed?.customerId } });
         }
     };
 

@@ -21,6 +21,11 @@ import { HomeModernIcon } from "@heroicons/react/24/outline";
 import Booking from "./pages/booking/booking";
 import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
+import DriverDetails from "./pages/driver/details";
+import AddPriceDetails from "./pages/driver/addPriceDetails";
+import { BookingsList, SearchDrivers } from "./pages/booking";
+import UserDetails from "./pages/users/details";
+import CustomerDetails from "./pages/customer/details";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -37,27 +42,6 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
-        display: true
-      },
-      {
-        icon: <UserCircleIcon {...icon} />,
-        name: "profile",
-        path: "/profile",
-        element: <Profile />,
-        display: true
-      },
-      {
-        icon: <TableCellsIcon {...icon} />,
-        name: "tables",
-        path: "/tables",
-        element: <Tables />,
-        display: true
-      },
-      {
-        icon: <InformationCircleIcon {...icon} />,
-        name: "notifications",
-        path: "/notifications",
-        element: <Notifications />,
         display: true
       },
       {
@@ -83,6 +67,13 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "customers",
+        path: "/customers/details/:id",
+        element: <CustomerDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/drivers",
         element: <DriverView />,
@@ -98,8 +89,22 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
+        path: "/drivers/details/:id",
+        element: <DriverDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "drivers",
         path: "/drivers/edit/:id",
         element: <DriverAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "drivers",
+        path: "/drivers/addprice",
+        element: <AddPriceDetails />,
         display: false
       },
       {
@@ -124,11 +129,25 @@ export const routes = [
         display: false
       },
       {
+        icon: <UserIcon {...icon} />,
+        name: "users",
+        path: "/users/details/:id",
+        element: <UserDetails />,
+        display: false
+      },
+      {
         icon: <HomeModernIcon {...icon} />,
         name: "Booking",
         path: "/booking",
         element: <Booking />,
         display: true,
+      },
+      {
+        icon: <HomeModernIcon {...icon} />,
+        name: "BookingsList",
+        path: "/booking/list",
+        element: <BookingsList />,
+        display: false,
       },
       {
         name: "SelectLocation",
@@ -142,12 +161,12 @@ export const routes = [
         element: <ConfirmBooking />,
         display: false
       },
-      // {
-      //   name: "SearchDriver",
-      //   path: "/search-drivers",
-      //   element: <SearchDrivers />,
-      //   display: false
-      // }
+      {
+        name: "SearchDriver",
+        path: "/search-drivers",
+        element: <SearchDrivers />,
+        display: false
+      }
     ],
   },
   {
@@ -159,14 +178,14 @@ export const routes = [
         name: "sign in",
         path: "/sign-in",
         element: <SignIn />,
-        display: true
+        display: false
       },
       {
         icon: <RectangleStackIcon {...icon} />,
         name: "sign up",
         path: "/sign-up",
         element: <SignUp />,
-        display: true
+        display: false
       },
     ],
   },
