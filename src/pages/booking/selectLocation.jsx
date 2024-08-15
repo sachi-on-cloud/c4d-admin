@@ -60,7 +60,7 @@ const SelectLocation = () => {
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
-        googleMapsApiKey: "GOOGLE_API_KEY"
+        googleMapsApiKey: "AIzaSyBophy4_QEc4vRjYu222kNHtuNiDga29Uo"
     });
     console.log('SELECT LOCATION - paramsPassed :', paramsPassed);
     useEffect(() => {
