@@ -26,6 +26,7 @@ const Booking = () => {
     const [range, setRange] = useState({});
     const [datePickerVisible, setDatePickerVisible] = useState(false);
     const [customerData, setCustomerData] = useState([]);
+    const [selectedCustomer, setSelectedCustomer] = useState(0);
 
     const fetchData = async () => {
         try {
@@ -67,7 +68,8 @@ const Booking = () => {
         packageSelected: '',
         fromDate: "",
         toDate: "",
-        customerId: ''
+        customerId: '',
+        serviceType: ''
     };
 
     const handleDateChange = (dates, setFieldValue) => {
@@ -138,7 +140,7 @@ const Booking = () => {
 
     return (
         <div className='flex flex-row space-x-6 justify-between'>
-            <BookingsList />
+            <BookingsList customerId={selectedCustomer} />
             <div className="flex-1 bg-white p-3 rounded-xl">
                 <Formik
                     initialValues={initialValues}
@@ -150,14 +152,28 @@ const Booking = () => {
                     validationSchema={BOOKING_DETAILS_SCHEMA}
                     enableReinitialize
                 >
-                    {({ handleSubmit, errors, touched, values, setFieldValue, handleChange, isValid, dirty }) => (
+                    {({ handleSubmit, values, setFieldValue, isValid, dirty }) => (
                         <>
                             {customerData && <div className="p-2">
                                 <SearchableDropdown options={customerData} onSelect={(val) => {
                                     setFieldValue('customerId', val);
+                                    // setSelectedCustomer(val.id)
                                 }} />
                             </div>}
                             <div className="flex-1 mt-2 mb-2">
+                                <div className="flex-1 mb-4">
+                                    <div>
+                                        <Typography variant="h6" className="mb-2">
+                                            Service Type
+                                        </Typography>
+                                        <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                            <option value="">Service Type</option>
+                                            <option value="DRIVER">Acting Driver</option>
+                                        </Field>
+                                        <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                </div>
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <Button
                                         color={values.packageTypeSelected === 'Intercity' ? 'black' : 'gray'}
@@ -211,8 +227,10 @@ const Booking = () => {
 
                             <div className="flex-1 mb-4">
                                 <div>
-                                    <label htmlFor="rideTime" className="text-sm font-medium text-gray-700">Choose a time</label>
-                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Typography variant="h6" className="mb-2">
+                                        Choose time
+                                    </Typography>
+                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
                                         <option value="">Select time</option>
                                         {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                             <option key={item.id} value={item.id}>
@@ -222,82 +240,24 @@ const Booking = () => {
                                     </Field>
                                     <ErrorMessage name="rideTime" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                {/* <Typography variant="h6" className="mb-2">Choose a time</Typography>
-                                <Select
-                                    label=""
-                                    value={values?.rideTime ? values?.rideTime : ''}
-                                    onChange={(val) => {
-                                        const selectedVal = (values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).find(el => el.id === val);
-                                        setFieldValue('rideTime', selectedVal.id);
-                                    }}
-                                    animate={{
-                                        mount: { y: 0 },
-                                        unmount: { y: 25 },
-                                    }}
-                                    selected={(element) => {
-                                        if (element) {
-                                            console.log('element :', element.props)
-                                            return element.props.value
-                                        }
-                                    }}
-                                    className='p-4 text-black'
-                                >
-                                    {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
-                                        <Option key={item.id} value={item.data} data-id={item.id} name={item.data}>
-                                            {item.data}
-                                        </Option>
-                                    ))}
-                                </Select> */}
-                                {/* <div className="grid grid-cols-4 gap-2">
-                                    {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
-                                        <Button
-                                            key={item.id}
-                                            color={values.rideTime === item.id ? 'black' : 'gray'}
-                                            onClick={() => setFieldValue('rideTime', item.id)}
-                                            variant={values.rideTime === item.id ? 'filled' : 'outlined'}
-                                        >
-                                            {item.data}
-                                        </Button>
-                                    ))}
-                                </div> */}
-                                {/* {errors.rideTime && touched.rideTime && (
-                                    <Typography color="red" className="mt-2">{errors.rideTime}</Typography>
-                                )} */}
                             </div>
 
-                            <div className="flex-1">
-                                <div className="flex items-center mb-3">
-                                    <Typography variant="h6">Choose a package</Typography>
+                            <div className="flex-1 mb-4">
+                                <div>
+                                    <Typography variant="h6" className="mb-2">
+                                        Choose a package
+                                    </Typography>
+                                    <Field as="select" name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Package</option>
+                                        {packageTypeSelectedData
+                                            .filter((item) => values.packageTypeSelected === item.type).map((item) => (
+                                                <option key={item.id} value={item.id}>
+                                                    {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}
+                                                </option>
+                                            ))}
+                                    </Field>
+                                    <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div className="flex-row space-x-6 px-2">
-                                    {packageTypeSelectedData
-                                        .filter((item) => values.packageTypeSelected === item.type)
-                                        .map((item) => (
-                                            <Button
-                                                key={item.id}
-                                                color={values.packageSelected === item.id.toString() ? 'black' : 'gray'}
-                                                onClick={() => {
-                                                    handleChange('packageSelected')(item.id.toString());
-                                                    if (values.packageTypeSelected === 'Outstation') {
-                                                        setDatePickerVisible(false);
-                                                        setRange({});
-                                                        // handleChange('fromDate')("");
-                                                        // handleChange('toDate')("")
-                                                    }
-                                                }}
-                                                className='max-h-fit max-w-fit'
-                                                variant={values.packageSelected === item.id.toString() ? 'filled' : 'outlined'}
-                                            >
-                                                <div>
-                                                    <Typography>{item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}</Typography>
-                                                    <Typography>₹ {item.price}</Typography>
-                                                </div>
-                                            </Button>
-                                        ))}
-                                </div>
-                                {errors.packageSelected && touched.packageSelected && (
-                                    <Typography color="red" className="mt-2">{errors.packageSelected}</Typography>
-                                )}
                             </div>
 
                             {values.packageTypeSelected === "Outstation" && (
@@ -305,13 +265,13 @@ const Booking = () => {
                                     <Typography variant="h6" className="text-center">OR</Typography>
                                     <Button
                                         fullWidth
-                                        color="gray"
+                                        color="blue"
                                         onClick={() => setDatePickerVisible(!datePickerVisible)}
                                     >
                                         Select Date Range
                                     </Button>
                                     {datePickerVisible && (
-                                        <div className='border border-red-400 flex-1'>
+                                        <div className='w-full'>
                                             <DatePicker
                                                 selected={values.fromDate}
                                                 onChange={(dates) => handleDateChange(dates, setFieldValue)}
@@ -325,7 +285,7 @@ const Booking = () => {
                                     )}
                                     {range.startDate && range.endDate && (
                                         <Card className="p-4">
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-2 gap-4 mb-2">
                                                 <div>
                                                     <Typography>Departure</Typography>
                                                     <Typography variant="h4">{new Date(range.startDate).getDate()}</Typography>
@@ -337,10 +297,10 @@ const Booking = () => {
                                                     <Typography>{new Date(range.endDate).toLocaleString('default', { month: 'short' })}</Typography>
                                                 </div>
                                             </div>
-                                            <Typography>
+                                            <Typography variant='h6'>
                                                 Selected Date: {countDaysBetween(values.fromDate, values.toDate)} days
                                             </Typography>
-                                            <Typography>
+                                            <Typography variant='h6'>
                                                 Total Amount: ₹ {countDaysBetween(values.fromDate, values.toDate) * 1000}
                                             </Typography>
                                         </Card>
