@@ -1,10 +1,12 @@
 // src/components/SearchableDropdown.js
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SearchableDropdown = ({ options, onSelect }) => {
     const [searchText, setSearchText] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState();
+    const navigate = useNavigate();
 
     useEffect(() => {
         setFilteredOptions(options);
@@ -38,7 +40,7 @@ const SearchableDropdown = ({ options, onSelect }) => {
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full" onClick={() => setIsOpen(!isOpen)}>
             <input
                 type="text"
                 value={searchText}
@@ -48,7 +50,7 @@ const SearchableDropdown = ({ options, onSelect }) => {
                 className="p-2 border rounded-xl w-full"
             />
             {isOpen && (
-                <div className="absolute z-10 overflow-x-auto w-full mt-1 bg-white border border-gray-300 rounded shadow-lg">
+                <div className="absolute z-10 max-w-max max-h-64 mt-1 overflow-y-auto bg-white border border-gray-300 rounded shadow-lg">
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((option) => (
                             <div
@@ -62,7 +64,9 @@ const SearchableDropdown = ({ options, onSelect }) => {
                     ) : (
                         <>
                             <div className="p-2 text-gray-500">No options found</div>
-                            <div className="p-2 text-gray-500">+ Add new customer</div>
+                            <div className="p-2 text-blue-700" onClick={() => {
+                                navigate('/dashboard/customers/add');
+                            }}>+ Add new customer</div>
                         </>
                     )}
                 </div>

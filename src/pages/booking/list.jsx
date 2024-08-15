@@ -10,7 +10,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList() {
+export function BookingsList({ customerId = 0 }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
 
@@ -19,7 +19,7 @@ export function BookingsList() {
 
     const getBookingsList = async () => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
-            "customerId": 0,
+            "customerId": customerId,
         });
         if (data?.success) {
             setBookingsList(data?.data);
@@ -28,7 +28,7 @@ export function BookingsList() {
 
     useEffect(() => {
         getBookingsList();
-    }, []);
+    }, [customerId]);
 
     const onEndTrip = async (bookingId, driverId) => {
         const reqBody = {
@@ -86,7 +86,7 @@ export function BookingsList() {
                                 {bookingsList.map(
                                     ({ id, bookingNumber, serviceType, Driver, status, customerId, Customer, date, time, created_at }, key) => {
                                         const className = `p-3 ${key === bookingsList.length - 1
-                                            ? ""
+                                            ? "mb-4"
                                             : "border-b border-blue-gray-50"
                                             }`;
 
@@ -94,11 +94,17 @@ export function BookingsList() {
                                             <tr key={id}>
                                                 <td className={className}>
                                                     <div className="flex items-center">
-                                                        <div>
+                                                        <div onClick={() => navigate("/dashboard/confirm-booking", {
+                                                            state: {
+                                                                bookingId: id,
+                                                                customerId,
+                                                                edit: true
+                                                            }
+                                                        })}>
                                                             <Typography
                                                                 variant="small"
-                                                                color="blue-gray"
-                                                                className="font-semibold"
+                                                                color="blue"
+                                                                className="font-semibold underline"
                                                             >
                                                                 {bookingNumber}
                                                             </Typography>
@@ -134,14 +140,14 @@ export function BookingsList() {
                                                     {status == "STARTED" ?
                                                         <Chip
                                                             variant="gradient"
-                                                            // color={online ? "green" : "blue-gray"}
+                                                            color={"blue"}
                                                             value={"CONFIRMED"}
                                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                         />
                                                         : status == "ENDED" ?
                                                             <Chip
                                                                 variant="gradient"
-                                                                // color={online ? "green" : "blue-gray"}
+                                                                color={"green"}
                                                                 value={"COMPLETED"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
@@ -155,19 +161,6 @@ export function BookingsList() {
                                                     }
                                                 </td>
                                                 <td className={className}>
-                                                    <Button
-                                                        as="a"
-                                                        onClick={() => navigate("/dashboard/confirm-booking", {
-                                                            state: {
-                                                                bookingId: id,
-                                                                customerId,
-                                                                edit: true
-                                                            }
-                                                        })}
-                                                        className="text-xs font-semibold text-white mr-3"
-                                                    >
-                                                        View
-                                                    </Button>
                                                     {status === 'STARTED' && <Button
                                                         as='a'
                                                         onClick={() => onEndTrip(id, Driver?.id)}
