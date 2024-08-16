@@ -42,7 +42,14 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
-        display: true
+        display: false
+      },
+      {
+        icon: <HomeModernIcon {...icon} />,
+        name: "Booking",
+        path: "/booking",
+        element: <Booking />,
+        display: true,
       },
       {
         icon: <UserIcon {...icon} />,
@@ -135,13 +142,7 @@ export const routes = [
         element: <UserDetails />,
         display: false
       },
-      {
-        icon: <HomeModernIcon {...icon} />,
-        name: "Booking",
-        path: "/booking",
-        element: <Booking />,
-        display: true,
-      },
+      
       {
         icon: <HomeModernIcon {...icon} />,
         name: "BookingsList",

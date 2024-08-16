@@ -18,6 +18,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { BookingsList } from '.';
 import SearchableDropdown from '@/components/SearchableDropdown';
+import CustomerAdd from '../customer/add';
 
 const Booking = () => {
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
@@ -27,6 +28,8 @@ const Booking = () => {
     const [datePickerVisible, setDatePickerVisible] = useState(false);
     const [customerData, setCustomerData] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(0);
+    const [showQuickCreateCustomer, setShowQuickCreateCustomer] = useState(false);
+    const [bookingType, setBookingType] = useState("");
 
     const fetchData = async () => {
         try {
@@ -51,7 +54,10 @@ const Booking = () => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-    }, []);
+        if(params && params.refreshData){
+            setShowQuickCreateCustomer(false);
+        }
+    }, [params]);
 
     useEffect(() => {
         getPackageListDetails();
@@ -139,9 +145,14 @@ const Booking = () => {
     }
 
     return (
-        <div className='flex flex-row space-x-6 justify-between'>
-            <BookingsList customerId={selectedCustomer} />
-            <div className="flex-1 bg-white p-3 rounded-xl">
+        <div className='flex flex-row space-x-6 justify-between w-full'>
+            
+            <div className="flex-1 bg-white p-3 rounded-xl w-2/5 ">
+                <div className='mb-2'>
+                    <Typography variant="h5" color='#000000'>
+                        New Booking
+                    </Typography>
+                </div>
                 <Formik
                     initialValues={initialValues}
                     onSubmit={async (values, { resetForm }) => {
@@ -154,11 +165,18 @@ const Booking = () => {
                 >
                     {({ handleSubmit, values, setFieldValue, isValid, dirty }) => (
                         <>
-                            {customerData && <div className="p-2">
+                            {customerData && <div className="p-2 flex">
                                 <SearchableDropdown options={customerData} onSelect={(val) => {
                                     setFieldValue('customerId', val);
                                     // setSelectedCustomer(val.id)
                                 }} />
+                                <Button
+                                className="ml-3 w-1/2"
+                            fullWidth
+                            color="black"
+                            onClick={()=>{setShowQuickCreateCustomer(true)}}>
+                                Add New
+                            </Button>
                             </div>}
                             <div className="flex-1 mt-2 mb-2">
                                 <div className="flex-1 mb-4">
@@ -166,15 +184,16 @@ const Booking = () => {
                                         <Typography variant="h6" className="mb-2">
                                             Service Type
                                         </Typography>
-                                        <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                        <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e)=>{setFieldValue("serviceType",e.target.value);setBookingType(e.target.value)}}>
                                             <option value="">Service Type</option>
                                             <option value="DRIVER">Acting Driver</option>
+                                            <option value="WASH">Car Wash</option>
                                         </Field>
                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                {bookingType=== "DRIVER" && <div className="grid grid-cols-2 gap-4">
                                     <Button
                                         color={values.packageTypeSelected === 'Intercity' ? 'black' : 'gray'}
                                         onClick={() => {
@@ -205,13 +224,14 @@ const Booking = () => {
                                     >
                                         Outstation
                                     </Button>
-                                </div>
+                                </div>}
                             </div>
 
                             <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
-                                    When to ride?
+                                    When?
                                 </Typography>
+                                <div className='flex'>
                                 <Input
                                     type="date"
                                     value={values.rideDate}
@@ -223,14 +243,7 @@ const Booking = () => {
                                         setBookingTimesForDay(Utils.generateBookingTimesForDay(newDate));
                                     }}
                                 />
-                            </div>
-
-                            <div className="flex-1 mb-4">
-                                <div>
-                                    <Typography variant="h6" className="mb-2">
-                                        Choose time
-                                    </Typography>
-                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
                                         <option value="">Select time</option>
                                         {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                             <option key={item.id} value={item.id}>
@@ -238,11 +251,10 @@ const Booking = () => {
                                             </option>
                                         ))}
                                     </Field>
-                                    <ErrorMessage name="rideTime" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
 
-                            <div className="flex-1 mb-4">
+                            {bookingType=== "DRIVER" &&<div className="flex-1 mb-4">
                                 <div>
                                     <Typography variant="h6" className="mb-2">
                                         Choose a package
@@ -258,7 +270,7 @@ const Booking = () => {
                                     </Field>
                                     <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                 </div>
-                            </div>
+                            </div>}
 
                             {values.packageTypeSelected === "Outstation" && (
                                 <div className="space-y-4 mb-4">
@@ -320,6 +332,12 @@ const Booking = () => {
                         </>
                     )}
                 </Formik>
+            </div>
+                    
+            <div className='w-3/5'>
+                {!showQuickCreateCustomer && <BookingsList customerId={selectedCustomer} />}
+            
+                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true}/>}
             </div>
         </div>
     );

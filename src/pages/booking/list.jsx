@@ -51,8 +51,8 @@ export function BookingsList({ customerId = 0 }) {
         return `${day}-${month}-${year}`;
     }
     return (
-        <div className="flex flex-col rounded-xl">
-            <div className='mb-2'>
+        <div className="flex flex-col bg-white rounded-xl" >
+            <div className='px-3 py-3 mb-2'>
                 <Typography variant="h5" color='#000000'>
                     Bookings List
                 </Typography>

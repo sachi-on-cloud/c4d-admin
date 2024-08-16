@@ -6,7 +6,7 @@ import { API_ROUTES } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
-const CustomerAdd = () => {
+const CustomerAdd = (props) => {
     const [driverVal, setDriverVal] = useState({});
     const [alert, setAlert] = useState(false);
     const { id } = useParams();
@@ -72,6 +72,13 @@ const CustomerAdd = () => {
                     setAlert(false);
                     resetForm();
                 }, 2000)
+            }
+            if(props.isQuickCreate){
+                return navigate('/dashboard/booking',{
+                    state:{
+                        refreshData: true,
+                    }
+                });
             }
             navigate('/dashboard/customers', {
                 state: {
