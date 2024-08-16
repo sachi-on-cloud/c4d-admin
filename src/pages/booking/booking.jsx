@@ -16,16 +16,17 @@ import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { BookingsList } from '.';
+import { BookingsList, SearchDrivers } from '.';
 import SearchableDropdown from '@/components/SearchableDropdown';
 import CustomerAdd from '../customer/add';
+import SelectLocation from './selectLocation';
 
 // Format date to YYYY-MM-DD for input's min attribute
 const currentDate = () => {
     return (new Date()).toISOString().split('T')[0];
-  };
+};
 
-const Booking = () => {
+const Booking = (props) => {
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
     const [bookingTimes, setBookingTimes] = useState([]);
     const [bookingTimesForDay, setBookingTimesForDay] = useState([]);
@@ -35,6 +36,8 @@ const Booking = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(0);
     const [showQuickCreateCustomer, setShowQuickCreateCustomer] = useState(false);
     const [bookingType, setBookingType] = useState("");
+    const [bookingStage, setBookingStage] = useState(0);
+    const [bookingData, setBookingData] = useState();
 
     const fetchData = async () => {
         try {
@@ -59,7 +62,7 @@ const Booking = () => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-        if(params && params.refreshData){
+        if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }
     }, [params]);
@@ -130,12 +133,8 @@ const Booking = () => {
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
-                navigate('/dashboard/select-location', {
-                    state: {
-                        'bookingId': data?.data?.id,
-                        'customerId': data?.data?.customerId
-                    }
-                });
+                setBookingStage(1);
+                setBookingData(data?.data);
             }
         }
     }
@@ -148,17 +147,19 @@ const Booking = () => {
 
         return `${hours}:${minutes} ${period}`;
     }
-
+    const onAssignDriver = async (data) => {
+        setBookingData(data);
+        setBookingStage(2);
+    }
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
-            
             <div className="flex-1 bg-white p-3 rounded-xl w-2/5 ">
                 <div className='mb-2'>
                     <Typography variant="h5" color='#000000'>
-                        New Booking
+                        {`${bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : 'Assign Drivers'}`}
                     </Typography>
                 </div>
-                <Formik
+                {bookingStage === 0 && <Formik
                     initialValues={initialValues}
                     onSubmit={async (values, { resetForm }) => {
                         await onSubmitHandler(values);
@@ -176,12 +177,12 @@ const Booking = () => {
                                     // setSelectedCustomer(val.id)
                                 }} />
                                 <Button
-                                className="ml-3 w-1/2"
-                            fullWidth
-                            color="black"
-                            onClick={()=>{setShowQuickCreateCustomer(true)}}>
-                                Add New
-                            </Button>
+                                    className="ml-3 w-1/2"
+                                    fullWidth
+                                    color="black"
+                                    onClick={() => { setShowQuickCreateCustomer(true) }}>
+                                    Add New
+                                </Button>
                             </div>}
                             <div className="flex-1 mb-4">
                                 <div>
@@ -237,8 +238,8 @@ const Booking = () => {
                                 <Typography variant="h6" className="mb-2">
                                     When?
                                 </Typography>
-                                <div className='flex'>
-                                {/* <Input
+                                <div className='flex gap-x-2'>
+                                    {/* <Input
                                     variant='normal'
                                     type="date"
                                     value={values.rideDate}
@@ -250,11 +251,11 @@ const Booking = () => {
                                         setBookingTimesForDay(Utils.generateBookingTimesForDay(newDate));
                                     }}
                                 /> */}
-                                <Field type="date" name="rideDate" className="p-2 w-full rounded-xl border-2 border-gray-300" min={currentDate()}  onChange={(e)=>{
-                                    setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
-                                    setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
-                                }}></Field>
-                                 <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                    <Field type="date" name="rideDate" className="p-2 w-full rounded-xl border-2 border-gray-300" min={currentDate()} onChange={(e) => {
+                                        setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
+                                        setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
+                                    }}></Field>
+                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
                                         <option value="">Select time</option>
                                         {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                             <option key={item.id} value={item.id}>
@@ -262,7 +263,7 @@ const Booking = () => {
                                             </option>
                                         ))}
                                     </Field>
-                            </div></div>}
+                                </div></div>}
 
                             {values.serviceType === 'CAB' &&
                                 <div className="flex-1 mb-4">
@@ -358,13 +359,23 @@ const Booking = () => {
                             </Button>}
                         </>
                     )}
-                </Formik>
+                </Formik>}
+                {
+                    bookingStage === 1 && <SelectLocation bookingId={bookingData?.id} customerId={bookingData?.customerId} onNext={() => {
+                        setBookingStage(2);
+                    }} />
+                }
+                {
+                    bookingStage === 2 && <SearchDrivers bookingData={bookingData} onNext={() => {
+                        setBookingStage(0);
+                    }} />
+                }
             </div>
-                    
+
             <div className='w-3/5'>
-                {!showQuickCreateCustomer && <BookingsList customerId={selectedCustomer} />}
-            
-                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true}/>}
+                {!showQuickCreateCustomer && <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} />}
+
+                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} />}
             </div>
         </div>
     );

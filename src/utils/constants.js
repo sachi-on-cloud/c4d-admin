@@ -174,6 +174,7 @@ export const API_ROUTES = {
     'GET_CUSTOMERS': '/admin/customer',
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
+    'GET_DRIVERS': '/get-drivers/',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',

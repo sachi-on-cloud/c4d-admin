@@ -10,7 +10,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0 }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
 
@@ -28,7 +28,7 @@ export function BookingsList({ customerId = 0 }) {
 
     useEffect(() => {
         getBookingsList();
-    }, [customerId]);
+    }, [customerId, bookingStage]);
 
     const onEndTrip = async (bookingId, driverId) => {
         const reqBody = {
@@ -84,20 +84,20 @@ export function BookingsList({ customerId = 0 }) {
                             </thead>
                             <tbody>
                                 {bookingsList.map(
-                                    ({ id, bookingNumber, serviceType, Driver, status, customerId, Customer, date, time, created_at }, key) => {
+                                    (data, key) => {
                                         const className = `p-3 ${key === bookingsList.length - 1
                                             ? "mb-4"
                                             : "border-b border-blue-gray-50"
                                             }`;
 
                                         return (
-                                            <tr key={id}>
+                                            <tr key={data?.id}>
                                                 <td className={className}>
                                                     <div className="flex items-center">
                                                         <div onClick={() => navigate("/dashboard/confirm-booking", {
                                                             state: {
-                                                                bookingId: id,
-                                                                customerId,
+                                                                bookingId: data?.id,
+                                                                customerId: data?.customerId,
                                                                 edit: true
                                                             }
                                                         })}>
@@ -106,45 +106,45 @@ export function BookingsList({ customerId = 0 }) {
                                                                 color="blue"
                                                                 className="font-semibold underline"
                                                             >
-                                                                {bookingNumber}
+                                                                {data?.bookingNumber}
                                                             </Typography>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {serviceType}
+                                                        {data?.serviceType}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {Driver?.firstName}
+                                                        {data?.Driver?.firstName ? data?.Driver?.firstName : ''}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {Customer?.firstName}
+                                                        {data?.Customer?.firstName}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {formatDate(date)}
+                                                        {formatDate(data?.date)}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {formatDate(created_at)}
+                                                        {formatDate(data?.created_at)}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
-                                                    {status == "STARTED" ?
+                                                    {data?.status == "STARTED" ?
                                                         <Chip
                                                             variant="gradient"
                                                             color={"blue"}
-                                                            value={"CONFIRMED"}
+                                                            value={"ON TRIP"}
                                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                         />
-                                                        : status == "ENDED" ?
+                                                        : data?.status == "ENDED" ?
                                                             <Chip
                                                                 variant="gradient"
                                                                 color={"green"}
@@ -161,13 +161,24 @@ export function BookingsList({ customerId = 0 }) {
                                                     }
                                                 </td>
                                                 <td className={className}>
-                                                    {status === 'STARTED' && <Button
-                                                        as='a'
-                                                        onClick={() => onEndTrip(id, Driver?.id)}
-                                                        className="text-xs font-semibold text-white"
-                                                    >
-                                                        End Trip
-                                                    </Button>}
+                                                    {data?.status === 'STARTED' &&
+                                                        <Button
+                                                            fullWidth
+                                                            onClick={() => onEndTrip(data?.id, data?.Driver?.id)}
+                                                            className="text-xs font-semibold text-white"
+                                                        >
+                                                            End Trip
+                                                        </Button>
+                                                    }
+                                                    {data?.status === 'INITIATED' && !data?.Driver?.id &&
+                                                        <Button
+                                                            fullWidth
+                                                            onClick={() => { onAssignDriver(data) }}
+                                                            className="text-xs font-semibold text-white flex-wrap"
+                                                        >
+                                                            Assign Driver
+                                                        </Button>
+                                                    }
                                                 </td>
                                             </tr>
                                         );

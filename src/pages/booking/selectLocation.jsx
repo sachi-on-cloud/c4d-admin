@@ -44,7 +44,7 @@ const LocationInput = ({ value, onChange, onSelect, placeholder, suggestions }) 
     );
 };
 
-const SelectLocation = () => {
+const SelectLocation = (props) => {
     const [pickupAddress, setPickupAddress] = useState('');
     const [dropAddress, setDropAddress] = useState('');
     const [suggestions, setSuggestions] = useState([]);
@@ -62,7 +62,6 @@ const SelectLocation = () => {
         id: 'google-map-script',
         googleMapsApiKey: "AIzaSyBophy4_QEc4vRjYu222kNHtuNiDga29Uo"
     });
-    console.log('SELECT LOCATION - paramsPassed :', paramsPassed);
     useEffect(() => {
         if (pickupLocation && dropLocation) {
             fitBoundsToMarkers();
@@ -125,7 +124,7 @@ const SelectLocation = () => {
             return;
         }
         const apiReqBody = {
-            bookingId: paramsPassed?.bookingId,
+            bookingId: props?.bookingId,
             pickupLat: pickupLocation.lat,
             pickupLong: pickupLocation.lng,
             pickupAddress: {
@@ -138,14 +137,14 @@ const SelectLocation = () => {
             } : null
         };
         console.log('apiReqBody:', apiReqBody);
-        const data = await ApiRequestUtils.update(API_ROUTES.ADD_LOCATION, apiReqBody, paramsPassed?.customerId);
+        const data = await ApiRequestUtils.update(API_ROUTES.ADD_LOCATION, apiReqBody, props?.customerId);
         if (data?.success) {
-            navigate('/dashboard/confirm-booking', { state: { 'bookingId': paramsPassed?.bookingId, 'customerId': paramsPassed?.customerId } });
+            props?.onNext(1);
         }
     };
 
     return (
-        <div className="flex flex-col h-screen bg-white">
+        <div className="flex flex-col h-screen bg-white w-full">
             <div className="p-4 space-y-4">
                 <LocationInput
                     value={pickupAddress}
@@ -200,15 +199,24 @@ const SelectLocation = () => {
                     </GoogleMap>
                 )}
             </div>
-
-            <div className="p-4">
+            <div className='flex flex-row'>
+                <Button
+                    fullWidth
+                    onClick={() => {
+                        navigate('/dashboard/booking');
+                    }}
+                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                >
+                    Prev
+                </Button>
                 <Button
                     fullWidth
                     color="black"
                     onClick={onPressHandler}
                     disabled={!pickupLocation}
+                    className='my-6 mx-2 rounded-xl'
                 >
-                    Confirm & Search
+                    Next
                 </Button>
             </div>
         </div>
