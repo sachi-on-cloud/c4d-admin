@@ -73,9 +73,9 @@ const CustomerAdd = (props) => {
                     resetForm();
                 }, 2000)
             }
-            if(props.isQuickCreate){
-                return navigate('/dashboard/booking',{
-                    state:{
+            if (props.isQuickCreate) {
+                return navigate('/dashboard/booking', {
+                    state: {
                         refreshData: true,
                     }
                 });
@@ -86,25 +86,22 @@ const CustomerAdd = (props) => {
                     customerName: data?.data?.firstName
                 }
             });
-            // if (data.data) {
-            //     const carData = {
-            //         customerId: data?.data?.id,
-            //         carNumber: values.carNumber,
-            //         nickName: values.nickName,
-            //         carType: values.carType,
-            //         fuelType: values.fuelType,
-            //         transmissionType: values.transmissionType
-            //     };
-
-            //     const carResponse = await ApiRequestUtils.post(API_ROUTES.ADD_CAR_DETAILS, carData);
-            //     console.log('Car added:', carResponse.data);
-            // }
-            // Handle success (e.g., show a success message, redirect, etc.)
         } catch (error) {
             console.error('Error creating customer and car:', error);
             // Handle error (e.g., show an error message)
         }
         setSubmitting(false);
+    };
+    const handleCancel = () => {
+        if (props.isQuickCreate) {
+            return navigate('/dashboard/booking', {
+                state: {
+                    refreshData: true,
+                }
+            });
+        } else {
+            navigate('/dashboard/customers');
+        }
     };
 
     return (
@@ -151,72 +148,27 @@ const CustomerAdd = (props) => {
                                         <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                         <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                    {/*Car module */}
-                                    {/* <div>
-                                        <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
-                                        <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300 uppercase" maxLength={10} />
-                                        <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="nickName" className="text-sm font-medium text-gray-700">Car Name</label>
-                                        <Field type="text" name="nickName" className="p-2 w-full rounded-md border-gray-300" />
-                                        <ErrorMessage name="nickName" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="fuelType" className="text-sm font-medium text-gray-700">Fuel Type</label>
-                                        <Field as="select" name="fuelType" className="p-2 w-full rounded-md border-gray-300 shadow-sm">
-                                            <option value="">Select fuel type</option>
-                                            <option value="Petrol">Petrol</option>
-                                            <option value="Diesel">Diesel</option>
-                                            <option value="Electric">Electric</option>
-                                            <option value="Hybrid">Hybrid</option>
-                                        </Field>
-                                        <ErrorMessage name="fuelType" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="transmissionType" className="text-sm font-medium text-gray-700">Transmission Type</label>
-                                        <Field as="select" name="transmissionType" className="p-2 w-full rounded-md border-gray-300">
-                                            <option value="">Select transmission type</option>
-                                            <option value="Manual">Manual</option>
-                                            <option value="Automatic">Automatic</option>
-                                        </Field>
-                                        <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
-                                    </div> */}
                                 </>)}
                         </div>
-                        {/* {!isEditMode && (
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
-                                        <span className="ml-2">Sedan</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="SUV" className="form-radio" />
-                                        <span className="ml-2">SUV</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
-                                        <span className="ml-2">Hatchback</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                            </div>
-                        )} */}
 
-                        <Button
-                            fullWidth
-                            color="black"
-                            onClick={handleSubmit}
-                            disabled={isEditMode ? false : !dirty || !isValid}
-                            className='my-6 mx-2'
-                        >
-                            {isEditMode ? 'Update' : 'Continue'}
-                        </Button>
+                        <div className='flex flex-row'>
+                            <Button
+                                fullWidth
+                                onClick={handleCancel}
+                                className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                fullWidth
+                                color="black"
+                                onClick={handleSubmit}
+                                disabled={isEditMode ? false : !dirty || !isValid}
+                                className='my-6 mx-2'
+                            >
+                                {isEditMode ? 'Update' : 'Continue'}
+                            </Button>
+                        </div>
                     </Form>
                 )}
             </Formik>
