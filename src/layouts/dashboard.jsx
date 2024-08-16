@@ -29,8 +29,8 @@ export function Dashboard() {
         }
       />
       <div className="p-4 ">
-        <DashboardNavbar />
-        <Configurator />
+        {/* <DashboardNavbar /> */}
+        {/* <Configurator />
         <IconButton
           size="lg"
           color="white"
@@ -39,7 +39,7 @@ export function Dashboard() {
           onClick={() => setOpenConfigurator(dispatch, true)}
         >
           <Cog6ToothIcon className="h-5 w-5" />
-        </IconButton>
+        </IconButton> */}
         <Routes>
           {routes.map(
             ({ layout, pages }) =>

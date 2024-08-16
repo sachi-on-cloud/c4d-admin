@@ -13,7 +13,7 @@ function App() {
             </ProtectedRoute>
           } />
         <Route path="/auth/*" element={<Auth />} />
-        <Route path="*" element={<Navigate to="/dashboard/home" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard/booking" replace />} />
       </Routes>
     </AuthProvider>
   );

@@ -18,6 +18,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { BookingsList } from '.';
 import SearchableDropdown from '@/components/SearchableDropdown';
+import CustomerAdd from '../customer/add';
 
 const Booking = () => {
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
@@ -27,6 +28,8 @@ const Booking = () => {
     const [datePickerVisible, setDatePickerVisible] = useState(false);
     const [customerData, setCustomerData] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(0);
+    const [showQuickCreateCustomer, setShowQuickCreateCustomer] = useState(false);
+    const [bookingType, setBookingType] = useState("");
 
     const fetchData = async () => {
         try {
@@ -51,7 +54,10 @@ const Booking = () => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-    }, []);
+        if(params && params.refreshData){
+            setShowQuickCreateCustomer(false);
+        }
+    }, [params]);
 
     useEffect(() => {
         getPackageListDetails();
@@ -139,9 +145,14 @@ const Booking = () => {
     }
 
     return (
-        <div className='flex flex-row space-x-6 justify-between'>
-            <BookingsList customerId={selectedCustomer} />
-            <div className="flex-1 bg-white p-3 rounded-xl">
+        <div className='flex flex-row space-x-6 justify-between w-full'>
+            
+            <div className="flex-1 bg-white p-3 rounded-xl w-2/5 ">
+                <div className='mb-2'>
+                    <Typography variant="h5" color='#000000'>
+                        New Booking
+                    </Typography>
+                </div>
                 <Formik
                     initialValues={initialValues}
                     onSubmit={async (values, { resetForm }) => {
@@ -154,11 +165,18 @@ const Booking = () => {
                 >
                     {({ handleSubmit, values, setFieldValue, isValid, dirty }) => (
                         <>
-                            {customerData && <div className="p-2">
+                            {customerData && <div className="p-2 flex">
                                 <SearchableDropdown options={customerData} onSelect={(val) => {
                                     setFieldValue('customerId', val);
                                     // setSelectedCustomer(val.id)
                                 }} />
+                                <Button
+                                className="ml-3 w-1/2"
+                            fullWidth
+                            color="black"
+                            onClick={()=>{setShowQuickCreateCustomer(true)}}>
+                                Add New
+                            </Button>
                             </div>}
                             <div className="flex-1 mb-4">
                                 <div>
@@ -208,10 +226,12 @@ const Booking = () => {
                                 </div>
                             }
 
+
                             {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
-                                    When to ride?
+                                    When?
                                 </Typography>
+                                <div className='flex'>
                                 <Input
                                     type="date"
                                     value={values.rideDate}
@@ -238,7 +258,6 @@ const Booking = () => {
                                             </option>
                                         ))}
                                     </Field>
-                                    <ErrorMessage name="rideTime" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>}
 
@@ -337,6 +356,12 @@ const Booking = () => {
                         </>
                     )}
                 </Formik>
+            </div>
+                    
+            <div className='w-3/5'>
+                {!showQuickCreateCustomer && <BookingsList customerId={selectedCustomer} />}
+            
+                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true}/>}
             </div>
         </div>
     );

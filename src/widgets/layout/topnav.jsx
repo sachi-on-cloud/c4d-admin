@@ -16,7 +16,7 @@ export function Topnav({ brandImg, brandName, routes }) {
   const { logout } = useAuth();
   return (
     <header className="bg-gray-800 text-white">
-      <div className="container mx-auto px-6 py-3">
+      <div className="mx-auto px-5 py-3">
         <div className="flex items-center justify-between mb-4">
           <Link to="/" className="text-xl font-semibold">
             C4D ADMIN
