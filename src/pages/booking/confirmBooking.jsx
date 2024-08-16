@@ -6,12 +6,19 @@ import {
     Button,
     Spinner,
 } from "@material-tailwind/react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "../../utils/constants";
+import moment from "moment";
+
+const currentDate = () => {
+    return (new Date()).toISOString().split('T')[0];
+};
 
 const ConfirmBooking = () => {
     const [bookingDetails, setBookingDetails] = useState("");
+    const [selectedDate, setSelectedDate] = useState(currentDate());
+
     const navigate = useNavigate();
     const location = useLocation();
     const paramsPassed = location.state;
@@ -25,7 +32,7 @@ const ConfirmBooking = () => {
         };
         const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody, bookingDetails?.customerId);
         if (data?.success) {
-            navigate("/dashboard/search-drivers", { state: { bookingDetails } });
+            // navigate("/dashboard/search-drivers", { state: { bookingDetails } });
         }
     };
     const getBookingById = async (bookingId) => {
@@ -53,6 +60,20 @@ const ConfirmBooking = () => {
             navigate("/dashboard/booking");
         }
     };
+    const convertTimeFormat = (time) => {
+        let [hours, minutes, seconds] = time.split(':');
+        hours = parseInt(hours);
+
+        const period = hours >= 12 ? 'p.m.' : 'a.m.';
+        hours = hours % 12 || 12;
+
+        return `${hours}:${minutes} ${period}`;
+    }
+    const handleDateChange = (e) => {
+        const formattedDate = moment(e.target.value).format('YYYY-MM-DD');
+        setSelectedDate(formattedDate);
+        console.log('HANDLE DATE CHANGE :', e.target.value)
+    };
 
     if (loading) {
         return (
@@ -68,15 +89,6 @@ const ConfirmBooking = () => {
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Ride Details</Typography>
-                        {/* <Button
-                            color="black"
-                            buttonType="link"
-                            size="sm"
-                            ripple="dark"
-                            onClick={() => navigate("/", { state: { bookingDetails } })}
-                        >
-                            Edit
-                        </Button> */}
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
@@ -93,8 +105,33 @@ const ConfirmBooking = () => {
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
                         </div> */}
                     </div>
-                    <hr className="my-2" />
-                    <Typography variant="h5" className="mt-4">
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <div className="flex justify-between mb-2">
+                        <Typography variant="h5">Location Details</Typography>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Pickup:</Typography>
+                            <Typography>{bookingDetails?.pickupAddress?.name}</Typography>
+                        </div>
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Drop-off:</Typography>
+                            <Typography>
+                                {bookingDetails?.dropAddress?.name || "Not Added"}
+                            </Typography>
+                        </div>
+                    </div>
+                </CardBody>
+            </Card>
+
+            <Card className="my-4">
+                <CardBody>
+                    <Typography variant="h5">
                         Package Details
                     </Typography>
                     <hr className="my-2" />
@@ -123,63 +160,45 @@ const ConfirmBooking = () => {
                 </CardBody>
             </Card>
 
-            <Card>
-                <CardBody>
-                    <div className="flex justify-between mb-2">
-                        <Typography variant="h5">Location Details</Typography>
-                        {/* <Button
-                            color="black"
-                            buttonType="link"
-                            size="sm"
-                            ripple="dark"
-                            onClick={() =>
-                                navigate("/select-location", {
-                                    state: {
-                                        bookingDetails,
-                                        mode: true,
-                                        bookingId,
-                                    },
-                                })
-                            }
-                        >
-                            Edit
-                        </Button> */}
-                    </div>
-                    <hr className="my-2" />
-                    <div className="space-y-2">
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Pickup:</Typography>
-                            <Typography>{bookingDetails?.pickupAddress?.name}</Typography>
-                        </div>
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Drop-off:</Typography>
-                            <Typography>
-                                {bookingDetails?.dropAddress?.name || "Not Added"}
+            {bookingDetails?.status === 'STARTED' &&
+                <>
+                    <Card className="my-4 gap-4">
+                        <CardBody >
+                            <Typography variant="h5" className="mb-2">
+                                End Trip Details
                             </Typography>
-                        </div>
+                            <div className='flex gap-x-2'>
+                                <input
+                                    type="datetime-local"
+                                    value={selectedDate}
+                                    className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                    min={currentDate()}
+                                    onChange={handleDateChange}
+                                />
+                            </div>
+                        </CardBody>
+                    </Card>
+                    <div className="mt-6 flex flex-row space-x-4">
+                        <Button
+                            color="gray"
+                            variant="outlined"
+                            ripple="dark"
+                            fullWidth
+                            onClick={onCancelPressHandler}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            color="black"
+                            ripple="light"
+                            fullWidth
+                            onClick={onConfirmPressHandler}
+                        >
+                            Confirm
+                        </Button>
                     </div>
-                </CardBody>
-            </Card>
-
-            {!paramsPassed?.edit && <div className="mt-6 space-y-4">
-                <Button
-                    color="black"
-                    ripple="light"
-                    fullWidth
-                    onClick={onConfirmPressHandler}
-                >
-                    Confirm
-                </Button>
-                <Button
-                    color="gray"
-                    variant="outlined"
-                    ripple="dark"
-                    fullWidth
-                    onClick={onCancelPressHandler}
-                >
-                    Cancel
-                </Button>
-            </div>}
+                </>
+            }
         </div>
     );
 };

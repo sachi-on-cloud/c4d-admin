@@ -44,7 +44,7 @@ export const Utils = {
         const todayString = today.toISOString().split('T')[0];
 
         if (selectedDateString === todayString) {
-            return generateBookingTimes();
+            return Utils.generateBookingTimes();
         } else {
             const intervalMinutes = 30; // Set the interval between booking times in minutes
             const totalIntervals = 24 * 60 / intervalMinutes; // Total intervals in a day

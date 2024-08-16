@@ -361,9 +361,14 @@ const Booking = (props) => {
                     )}
                 </Formik>}
                 {
-                    bookingStage === 1 && <SelectLocation bookingId={bookingData?.id} customerId={bookingData?.customerId} onNext={() => {
-                        setBookingStage(2);
-                    }} />
+                    bookingStage === 1 &&
+                    <SelectLocation
+                        bookingId={bookingData?.id}
+                        customerId={bookingData?.customerId}
+                        onNext={() => {
+                            setBookingStage(2);
+                        }}
+                        onPrev={() => setBookingStage(0)} />
                 }
                 {
                     bookingStage === 2 && <SearchDrivers bookingData={bookingData} onNext={() => {

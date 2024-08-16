@@ -203,7 +203,7 @@ const SelectLocation = (props) => {
                 <Button
                     fullWidth
                     onClick={() => {
-                        navigate('/dashboard/booking');
+                        props?.onPrev()
                     }}
                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                 >
