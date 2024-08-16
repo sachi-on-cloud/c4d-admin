@@ -8,7 +8,7 @@ import {
     Option,
     Input,
 } from "@material-tailwind/react";
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { Utils } from '../../utils/utils';
 import { API_ROUTES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
@@ -19,6 +19,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import { BookingsList } from '.';
 import SearchableDropdown from '@/components/SearchableDropdown';
 import CustomerAdd from '../customer/add';
+
+// Format date to YYYY-MM-DD for input's min attribute
+const currentDate = () => {
+    return (new Date()).toISOString().split('T')[0];
+  };
 
 const Booking = () => {
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
@@ -186,6 +191,7 @@ const Booking = () => {
                                     <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300">
                                         <option value="">Service Type</option>
                                         <option value="DRIVER">Acting Driver</option>
+                                        <option value="CAR_WASH">Car Wash</option>
                                         {/* <option value="CAB">Cab Booking</option> */}
                                     </Field>
                                     <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
@@ -232,7 +238,8 @@ const Booking = () => {
                                     When?
                                 </Typography>
                                 <div className='flex'>
-                                <Input
+                                {/* <Input
+                                    variant='normal'
                                     type="date"
                                     value={values.rideDate}
                                     onChange={(e) => {
@@ -242,15 +249,12 @@ const Booking = () => {
                                         setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
                                         setBookingTimesForDay(Utils.generateBookingTimesForDay(newDate));
                                     }}
-                                />
-                            </div></div>}
-
-                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-4">
-                                <div>
-                                    <Typography variant="h6" className="mb-2">
-                                        Choose time
-                                    </Typography>
-                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                /> */}
+                                <Field type="date" name="rideDate" className="p-2 w-full rounded-xl border-2 border-gray-300" min={currentDate()}  onChange={(e)=>{
+                                    setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
+                                    setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
+                                }}></Field>
+                                 <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
                                         <option value="">Select time</option>
                                         {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                             <option key={item.id} value={item.id}>
@@ -258,8 +262,7 @@ const Booking = () => {
                                             </option>
                                         ))}
                                     </Field>
-                                </div>
-                            </div>}
+                            </div></div>}
 
                             {values.serviceType === 'CAB' &&
                                 <div className="flex-1 mb-4">
