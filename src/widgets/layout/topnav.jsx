@@ -1,22 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Link, NavLink } from "react-router-dom";
-import { XMarkIcon, UserCircleIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { UserCircleIcon } from "@heroicons/react/24/outline";
 import {
-  Avatar,
-  Button,
   IconButton,
   Typography,
-  Input,
   Menu,
   MenuHandler,
   MenuList,
   MenuItem,
 } from "@material-tailwind/react";
+import { useAuth } from "@/context/auth";
 
 export function Topnav({ brandImg, brandName, routes }) {
-  const [searchQuery, setSearchQuery] = useState("");
-
+  const { logout } = useAuth();
   return (
     <header className="bg-gray-800 text-white">
       <div className="mx-auto px-5 py-3">
@@ -26,19 +23,6 @@ export function Topnav({ brandImg, brandName, routes }) {
             {/* <img src={brandImg} alt={brandName} className="h-8" /> */}
           </Link>
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10 bg-gray-700 text-white"
-                containerProps={{
-                  className: "min-w-[200px]",
-                }}
-              />
-              <MagnifyingGlassIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            </div>
             <Menu>
               <MenuHandler>
                 <IconButton variant="text" color="white">
@@ -61,7 +45,7 @@ export function Topnav({ brandImg, brandName, routes }) {
                   </Link>
                 </MenuItem>
                 <MenuItem className="text-white hover:bg-gray-600">
-                  <Link to="/signout" className="flex items-center gap-2">
+                  <Link to="/auth/sign-in" className="flex items-center gap-2" onClick={() => logout()}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                     </svg>
@@ -72,31 +56,31 @@ export function Topnav({ brandImg, brandName, routes }) {
             </Menu>
           </div>
         </div>
-        
+
         <nav>
           <div className="hidden md:flex items-center space-x-4">
             {routes.map(({ layout, pages }, key) => (
               pages.map(({ icon, name, path, display }) => (
                 <>
-                    { display && (
-                        <NavLink 
-                        key={name} 
-                        to={`/${layout}${path}`}
-                        className={({ isActive }) => 
-                            isActive 
-                            ? "text-white font-medium border-b border-white py-3 px-6" 
-                            : "text-gray-600 hover:text-gray-300"
-                        }
-                        >
-                        <span className="flex items-center gap-2">
-                            {icon}
-                            <Typography className="font-medium capitalize">
-                            {name}
-                            </Typography>
-                        </span>
-                        </NavLink>
+                  {display && (
+                    <NavLink
+                      key={name}
+                      to={`/${layout}${path}`}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "text-white font-medium border-b border-white py-3 px-6"
+                          : "text-gray-600 hover:text-gray-300"
+                      }
+                    >
+                      <span className="flex items-center gap-2">
+                        {icon}
+                        <Typography className="font-medium capitalize">
+                          {name}
+                        </Typography>
+                      </span>
+                    </NavLink>
 
-                    )}
+                  )}
                 </>
               ))
             ))}
