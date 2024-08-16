@@ -168,7 +168,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                                     }
                                                 </td>
                                                 <td className={className}>
-                                                    {data?.status === 'STARTED' &&
+                                                    {/* {data?.status === 'STARTED' &&
                                                         <Button
                                                             fullWidth
                                                             onClick={() => onEndTrip(data?.id, data?.Driver?.id)}
@@ -176,7 +176,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                                         >
                                                             End Trip
                                                         </Button>
-                                                    }
+                                                    } */}
                                                     {data?.status === 'INITIATED' && !data?.Driver?.id &&
                                                         <Button
                                                             fullWidth
