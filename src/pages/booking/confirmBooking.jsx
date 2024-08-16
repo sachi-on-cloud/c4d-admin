@@ -54,6 +54,9 @@ const ConfirmBooking = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, paramsPassed?.customerId);
         if (data?.success) {
             setBookingDetails(data?.data);
+            if (data?.data?.status == BOOKING_STATUS.ENDED) {
+                setAmount({ price: 0, extraPrice: 0, total: data?.data.endPayment });
+            }
         }
         setLoading(false);
     };
@@ -91,20 +94,7 @@ const ConfirmBooking = () => {
             navigate("/dashboard/booking");
         }
     };
-    const convertTimeFormat = (time) => {
-        let [hours, minutes, seconds] = time.split(':');
-        hours = parseInt(hours);
 
-        const period = hours >= 12 ? 'p.m.' : 'a.m.';
-        hours = hours % 12 || 12;
-
-        return `${hours}:${minutes} ${period}`;
-    }
-    const handleDateChange = (e) => {
-        const formattedDate = moment(e.target.value).format('YYYY-MM-DD');
-        setSelectedDate(formattedDate);
-        console.log('HANDLE DATE CHANGE :', e.target.value)
-    };
 
     if (loading) {
         return (
@@ -172,15 +162,19 @@ const ConfirmBooking = () => {
                                 <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
                                     }`}</Typography>
                             </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
-                                <Typography>₹{amount?.price}</Typography>
-                            </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                    } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}:`}</Typography>
-                                <Typography>₹{amount?.extraPrice}</Typography>
-                            </div>
+                            {amount?.price !== 0 &&
+                                <>
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
+                                        <Typography>₹{amount?.price}</Typography>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                            } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}:`}</Typography>
+                                        <Typography>₹{amount?.extraPrice}</Typography>
+                                    </div>
+                                </>
+                            }
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Total: </Typography>
                                 <Typography>₹{amount?.total}</Typography>
