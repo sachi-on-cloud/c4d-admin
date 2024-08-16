@@ -243,7 +243,7 @@ const Booking = () => {
                                         setBookingTimesForDay(Utils.generateBookingTimesForDay(newDate));
                                     }}
                                 />
-                            </div>}
+                            </div></div>}
 
                             {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-4">
                                 <div>
