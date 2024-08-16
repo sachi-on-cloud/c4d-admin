@@ -186,7 +186,9 @@ export const API_ROUTES = {
     'UPDATE_PRICE': '/update-price',
     'GET_BOOKINGS': '/admin/bookings',
     'UPATE_ADMIN_BOOKINGS': '/admin-booking',
-    'UPDATE_DRIVERS': '/admin-driver/update'
+    'UPDATE_DRIVERS': '/admin-driver/update',
+    'ADMIN_BOOKING_STATUS': '/admin-booking-status',
+    'ADMIN_BOOKING_PRICE': '/get-booking-price',
 };
 
 export const ASYNC_STORAGE_KEYS = {

@@ -9,6 +9,8 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "../../utils/constants";
+import DatePicker from "react-datepicker";
+import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 
 const currentDate = () => {
@@ -18,6 +20,8 @@ const currentDate = () => {
 const ConfirmBooking = () => {
     const [bookingDetails, setBookingDetails] = useState("");
     const [selectedDate, setSelectedDate] = useState(currentDate());
+    const [dateVal, setDateVal] = useState();
+    const [amount, setAmount] = useState();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -26,13 +30,23 @@ const ConfirmBooking = () => {
     const [loading, setLoading] = useState(true);
 
     const onConfirmPressHandler = async () => {
+        setLoading(true);
         const reqBody = {
-            status: BOOKING_STATUS.INITIATED,
             bookingId: bookingDetails?.id,
+            driverId: bookingDetails?.Driver?.id,
+            date: moment(dateVal).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
+            amount: 0
         };
-        const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody, bookingDetails?.customerId);
+        if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
+            reqBody.type = "start";
+        } else if (bookingDetails.status == BOOKING_STATUS.STARTED) {
+            reqBody.type = "end";
+            reqBody.amount = amount.total;
+        }
+        //console.log("reqBody", reqBody)
+        const data = await ApiRequestUtils.update(API_ROUTES.ADMIN_BOOKING_STATUS, reqBody, bookingDetails?.customerId);
         if (data?.success) {
-            // navigate("/dashboard/search-drivers", { state: { bookingDetails } });
+            navigate("/dashboard/booking");
         }
     };
     const getBookingById = async (bookingId) => {
@@ -42,6 +56,23 @@ const ConfirmBooking = () => {
             setBookingDetails(data?.data);
         }
         setLoading(false);
+    };
+
+    const getPriceForBooking = async (date) => {
+        setDateVal(date)
+        if (bookingDetails?.status == BOOKING_STATUS.STARTED) {
+            //const date = moment(dateVal).format("YYYY-MM-DD HH:mm:ss.SSSZ");
+            setLoading(true);
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ADMIN_BOOKING_PRICE, {
+                bookingId: bookingDetails?.id,
+                driverId: bookingDetails?.Driver?.id,
+                date: moment(date).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
+            });
+            if (data?.success) {
+                setAmount(data?.data);
+            }
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -128,53 +159,71 @@ const ConfirmBooking = () => {
                     </div>
                 </CardBody>
             </Card>
-
-            <Card className="my-4">
-                <CardBody>
-                    <Typography variant="h5">
-                        Package Details
-                    </Typography>
-                    <hr className="my-2" />
-                    <div className="space-y-2">
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Package:</Typography>
-                            <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
-                                }`}</Typography>
-                        </div>
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
-                            <Typography>₹{bookingDetails?.Package?.price}</Typography>
-                        </div>
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}:`}</Typography>
-                            <Typography>₹{bookingDetails?.Package?.extra_price}</Typography>
-                        </div>
-                    </div>
-                    <div className="bg-gray-100 p-3 rounded-md mt-4">
-                        <Typography variant="small" color="gray">
-                            Price might vary at the time of trip closure, based on other charges like
-                            parking, toll, trip extension and so on.
+            {amount && (
+                <Card className="my-4">
+                    <CardBody>
+                        <Typography variant="h5">
+                            Package Details
                         </Typography>
-                    </div>
-                </CardBody>
-            </Card>
+                        <hr className="my-2" />
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Package:</Typography>
+                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
+                                    }`}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
+                                <Typography>₹{amount?.price}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                    } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}:`}</Typography>
+                                <Typography>₹{amount?.extraPrice}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Total: </Typography>
+                                <Typography>₹{amount?.total}</Typography>
+                            </div>
+                        </div>
+                        {/* <div className="bg-gray-100 p-3 rounded-md mt-4">
+                            <Typography variant="small" color="gray">
+                                Price might vary at the time of trip closure, based on other charges like
+                                parking, toll, trip extension and so on.
+                            </Typography>
+                        </div> */}
+                    </CardBody>
+                </Card>
+            )}
 
-            {bookingDetails?.status === 'STARTED' &&
+            {(bookingDetails?.status === 'STARTED') ||
+                (bookingDetails?.status === 'INITIATED' && !!bookingDetails?.Driver?.id) ?
                 <>
                     <Card className="my-4 gap-4">
                         <CardBody >
                             <Typography variant="h5" className="mb-2">
-                                End Trip Details
+                                {bookingDetails?.status === 'STARTED' ? "End" : "Start"} Trip Details
                             </Typography>
-                            <div className='flex gap-x-2'>
-                                <input
+                            <div className='flex gap-x-5'>
+                                <div className='w-48 rounded-xl border-2 border-gray-300'>
+                                    <DatePicker
+                                        //minDate={bookingDetails?.startTime || new Date()}
+                                        //minTime={bookingDetails?.startTime || new Date()}
+                                        selected={dateVal}
+                                        onChange={(date) => { getPriceForBooking(date) }}
+                                        showTimeSelect
+                                        timeFormat="HH:mm"
+                                        timeIntervals={15}
+                                        dateFormat="MMMM d, yyyy hh:mm aa"
+                                    />
+                                </div>
+                                {/* <input
                                     type="datetime-local"
                                     value={selectedDate}
                                     className="p-2 w-full rounded-xl border-2 border-gray-300"
                                     min={currentDate()}
                                     onChange={handleDateChange}
-                                />
+                                /> */}
                             </div>
                         </CardBody>
                     </Card>
@@ -197,7 +246,7 @@ const ConfirmBooking = () => {
                             Confirm
                         </Button>
                     </div>
-                </>
+                </> : ""
             }
         </div>
     );
