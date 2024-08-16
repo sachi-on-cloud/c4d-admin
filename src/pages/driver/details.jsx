@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
+import { Button } from '@material-tailwind/react';
 
 const DriverDetails = () => {
+    const navigate = useNavigate();
     const [driver, setDriver] = useState({});
     const [packageDetails, setPackageDetails] = useState([]);
     const { id } = useParams();
@@ -15,7 +17,7 @@ const DriverDetails = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Intercity' ? 'hr' : 'd';
+                const suffix = option.type === 'Intercity' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
                 return {
                     ...option,
                     period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
@@ -23,7 +25,8 @@ const DriverDetails = () => {
             });
             const intercityPackage = packageData.filter(val => val.type === 'Intercity');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            setPackageDetails([...intercityPackage, ...outstationPackage]);
+            const carWashPackage = packageData.filter(val => val.type === 'CarWash');
+            setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
         }
     };
     useEffect(() => {
@@ -159,6 +162,14 @@ const DriverDetails = () => {
                 </Formik>
             </div>
             <PriceTable driverId={id} selectedPackages={driver?.packages} packages={packageDetails} />
+            <div className='flex justify-center w-full'>
+                <Button
+                    onClick={() => { navigate('/dashboard/drivers'); }}
+                    className='my-6 px-8 text-black border-2 border-gray-400 bg-white rounded-xl'
+                >
+                    Cancel
+                </Button>
+            </div>
         </>
     );
 };

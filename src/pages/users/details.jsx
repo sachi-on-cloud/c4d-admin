@@ -35,51 +35,61 @@ const UserDetails = () => {
         permission: userVal?.permission || ""
     };
     return (
-        <div className="p-4 mx-auto">
-            <h2 className="text-2xl font-bold mb-4">User Details</h2>
-            <Formik
-                initialValues={initialValues}
-                onSubmit={() => { }}
-                enableReinitialize={true}
+        <>
+            <div className="p-4 mx-auto">
+                <h2 className="text-2xl font-bold mb-4">User Details</h2>
+                <Formik
+                    initialValues={initialValues}
+                    onSubmit={() => { }}
+                    enableReinitialize={true}
 
-            >
-                {({ values }) => (
-                    <Form className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
-                                <Field type="text" disabled name="name" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                >
+                    {({ values }) => (
+                        <Form className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                                    <Field type="text" disabled name="name" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+                                    <Field type="text" disabled name="email" className="p-2 w-full rounded-md border-gray-300" />
+                                    <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="permission" className="text-sm font-medium text-gray-700">Permission</label>
+                                    <Multiselect
+                                        options={options}
+                                        displayValue="name"
+                                        selectedValues={options.filter(option => values.permission.includes(option.id))}
+                                        placeholder=""
+                                        className="w-full rounded-md border-gray-300"
+                                        disable={true}
+                                    />
+                                </div>
                             </div>
 
-                            <div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-                                <Field type="text" disabled name="email" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="permission" className="text-sm font-medium text-gray-700">Permission</label>
-                                <Multiselect
-                                    options={options}
-                                    displayValue="name"
-                                    selectedValues={options.filter(option => values.permission.includes(option.id))}
-                                    placeholder=""
-                                    className="w-full rounded-md border-gray-300"
-                                    disable={true}
-                                />
-                            </div>
-                        </div>
-
-                    </Form>
-                )}
-            </Formik>
-        </div>
+                        </Form>
+                    )}
+                </Formik>
+            </div>
+            <div className='flex justify-center w-full'>
+                <Button
+                    onClick={() => { navigate('/dashboard/users'); }}
+                    className='my-6 px-8 text-black border-2 border-gray-400 bg-white rounded-xl'
+                >
+                    Cancel
+                </Button>
+            </div>
+        </>
     );
 };
 

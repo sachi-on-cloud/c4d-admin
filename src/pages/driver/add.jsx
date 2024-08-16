@@ -18,7 +18,7 @@ const DriverAdd = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Intercity' ? 'hr' : 'd';
+                const suffix = option.type === 'Intercity' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
                 return {
                     ...option,
                     period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
@@ -26,7 +26,8 @@ const DriverAdd = () => {
             });
             const intercityPackage = packageData.filter(val => val.type === 'Intercity');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            setPackageDetails([...intercityPackage, ...outstationPackage]);
+            const carWashPackage = packageData.filter(val => val.type === 'CarWash');
+            setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
         }
     };
     useEffect(() => {
@@ -231,16 +232,24 @@ const DriverAdd = () => {
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
-
-                        <Button
-                            fullWidth
-                            color="black"
-                            onClick={handleSubmit}
-                            disabled={isEditMode ? false : !dirty || !isValid}
-                            className='my-6 mx-2'
-                        >
-                            {isEditMode ? 'Update' : 'Continue'}
-                        </Button>
+                        <div className='flex flex-row'>
+                            <Button
+                                fullWidth
+                                onClick={() => { navigate('/dashboard/drivers'); }}
+                                className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                fullWidth
+                                color="black"
+                                onClick={handleSubmit}
+                                disabled={isEditMode ? false : !dirty || !isValid}
+                                className='my-6 mx-2'
+                            >
+                                {isEditMode ? 'Update' : 'Continue'}
+                            </Button>
+                        </div>
                     </Form>
                 )}
             </Formik>
