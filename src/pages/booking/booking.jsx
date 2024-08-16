@@ -106,7 +106,7 @@ const Booking = () => {
             toDate: values.toDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: 'DRIVER'
+            serviceType: values.serviceType
         }
         let data;
         if (params?.bookingDetails) {
@@ -160,21 +160,21 @@ const Booking = () => {
                                     // setSelectedCustomer(val.id)
                                 }} />
                             </div>}
-                            <div className="flex-1 mt-2 mb-2">
-                                <div className="flex-1 mb-4">
-                                    <div>
-                                        <Typography variant="h6" className="mb-2">
-                                            Service Type
-                                        </Typography>
-                                        <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300">
-                                            <option value="">Service Type</option>
-                                            <option value="DRIVER">Acting Driver</option>
-                                        </Field>
-                                        <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
-                                    </div>
+                            <div className="flex-1 mb-4">
+                                <div>
+                                    <Typography variant="h6" className="mb-2">
+                                        Service Type
+                                    </Typography>
+                                    <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                        <option value="">Service Type</option>
+                                        <option value="DRIVER">Acting Driver</option>
+                                        {/* <option value="CAB">Cab Booking</option> */}
+                                    </Field>
+                                    <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-4">
+                            </div>
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') &&
+                                <div className="grid grid-cols-2 gap-4 mb-2">
                                     <Button
                                         color={values.packageTypeSelected === 'Intercity' ? 'black' : 'gray'}
                                         onClick={() => {
@@ -206,9 +206,9 @@ const Booking = () => {
                                         Outstation
                                     </Button>
                                 </div>
-                            </div>
+                            }
 
-                            <div className="flex-1 mb-2">
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
                                     When to ride?
                                 </Typography>
@@ -223,9 +223,9 @@ const Booking = () => {
                                         setBookingTimesForDay(Utils.generateBookingTimesForDay(newDate));
                                     }}
                                 />
-                            </div>
+                            </div>}
 
-                            <div className="flex-1 mb-4">
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-4">
                                 <div>
                                     <Typography variant="h6" className="mb-2">
                                         Choose time
@@ -240,9 +240,26 @@ const Booking = () => {
                                     </Field>
                                     <ErrorMessage name="rideTime" component="div" className="text-red-500 text-sm" />
                                 </div>
-                            </div>
+                            </div>}
 
-                            <div className="flex-1 mb-4">
+                            {values.serviceType === 'CAB' &&
+                                <div className="flex-1 mb-4">
+                                    <div>
+                                        <Typography variant="h6" className="mb-2">
+                                            Cab Type
+                                        </Typography>
+                                        <Field as="select" name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                            <option value="">Cab Type</option>
+                                            <option value="SEDAN">Sedan (5 Seater)</option>
+                                            <option value="HATCHBACK">Hatchback (5 Seater)</option>
+                                            <option value="SUV">Hatchback (7 Seater)</option>
+                                        </Field>
+                                        <ErrorMessage name="cabType" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                </div>
+                            }
+
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-4">
                                 <div>
                                     <Typography variant="h6" className="mb-2">
                                         Choose a package
@@ -258,9 +275,9 @@ const Booking = () => {
                                     </Field>
                                     <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                 </div>
-                            </div>
+                            </div>}
 
-                            {values.packageTypeSelected === "Outstation" && (
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && (
                                 <div className="space-y-4 mb-4">
                                     <Typography variant="h6" className="text-center">OR</Typography>
                                     <Button
@@ -308,7 +325,7 @@ const Booking = () => {
                                 </div>
                             )}
 
-                            <Button
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <Button
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
@@ -316,7 +333,7 @@ const Booking = () => {
                                 className='my-6 mx-2'
                             >
                                 Continue
-                            </Button>
+                            </Button>}
                         </>
                     )}
                 </Formik>
