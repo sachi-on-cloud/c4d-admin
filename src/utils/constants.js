@@ -174,6 +174,7 @@ export const API_ROUTES = {
     'GET_CUSTOMERS': '/admin/customer',
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
+    'GET_DRIVERS': '/get-drivers/',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',
@@ -184,7 +185,10 @@ export const API_ROUTES = {
     'ADD_PRICE': '/add-price',
     'UPDATE_PRICE': '/update-price',
     'GET_BOOKINGS': '/admin/bookings',
-    'UPATE_ADMIN_BOOKINGS': '/admin-booking'
+    'UPATE_ADMIN_BOOKINGS': '/admin-booking',
+    'UPDATE_DRIVERS': '/admin-driver/update',
+    'ADMIN_BOOKING_STATUS': '/admin-booking-status',
+    'ADMIN_BOOKING_PRICE': '/get-booking-price',
 };
 
 export const ASYNC_STORAGE_KEYS = {

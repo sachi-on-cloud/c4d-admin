@@ -137,16 +137,24 @@ const UserAdd = () => {
 
 
                         </div>
-
-                        <Button
-                            fullWidth
-                            color="black"
-                            onClick={handleSubmit}
-                            disabled={isEditMode ? false : !dirty || !isValid}
-                            className='my-6 mx-2'
-                        >
-                            {isEditMode ? 'Update' : 'Continue'}
-                        </Button>
+                        <div className='flex flex-row'>
+                            <Button
+                                fullWidth
+                                onClick={() => { navigate('/dashboard/users'); }}
+                                className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                fullWidth
+                                color="black"
+                                onClick={handleSubmit}
+                                disabled={isEditMode ? false : !dirty || !isValid}
+                                className='my-6 mx-2'
+                            >
+                                {isEditMode ? 'Update' : 'Continue'}
+                            </Button>
+                        </div>
                     </Form>
                 )}
             </Formik>

@@ -72,7 +72,7 @@ function PriceTable({ driverId, packages, selectedPackages }) {
                                             >
                                                 <Typography
                                                     variant="h6"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                    className="text-[12px] font-bold uppercase text-black"
                                                 >
                                                     {el}
                                                 </Typography>

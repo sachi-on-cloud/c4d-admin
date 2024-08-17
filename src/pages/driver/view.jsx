@@ -42,6 +42,14 @@ export function DriverView() {
       }
     }
   };
+  const updateDrivers = async (driverId, status) => {
+    let driverData = {
+      driverId,
+      status: status == "ACTIVE" ? "NOT_ACTIVE" : "ACTIVE"
+    };
+    const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVERS, driverData);
+    getDrivers('');
+  };
   useEffect(() => {
     getDrivers('');
     if (paramsPassed?.driverAdded) {
@@ -109,17 +117,17 @@ export function DriverView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div>
+                              <div onClick={() => navigate(`/dashboard/drivers/details/${id}`)}>
                                 <Typography
                                   variant="small"
-                                  color="blue-gray"
-                                  className="font-semibold"
+                                  color="blue"
+                                  className="font-semibold underline"
                                 >
                                   {firstName}
                                 </Typography>
-                                <Typography className="text-xs font-normal text-blue-gray-500">
+                                {/* <Typography className="text-xs font-normal text-blue-gray-500">
                                   {email}
-                                </Typography>
+                                </Typography> */}
                               </div>
                             </div>
                           </td>
@@ -137,7 +145,7 @@ export function DriverView() {
                             />
                           </td>
                           <div>
-                            <td className={className}>
+                            {/* <td className={className}>
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/drivers/details/${id}`)}
@@ -145,7 +153,7 @@ export function DriverView() {
                               >
                                 View
                               </Button>
-                            </td>
+                            </td> */}
 
                             <td className={className}>
                               <Button
@@ -154,6 +162,15 @@ export function DriverView() {
                                 className="text-xs font-semibold text-white"
                               >
                                 Edit
+                              </Button>
+                            </td>
+                            <td className={className}>
+                              <Button
+                                as="a"
+                                onClick={() => { updateDrivers(id, status) }}
+                                className="text-xs font-semibold text-white"
+                              >
+                                {status == "ACTIVE" ? "Mark Offline" : "Mark Online"}
                               </Button>
                             </td>
                           </div>
