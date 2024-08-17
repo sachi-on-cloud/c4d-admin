@@ -15,7 +15,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
 
@@ -181,13 +181,17 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                             <tr key={data?.id}>
                                                 <td className={className}>
                                                     <div className="flex items-center">
-                                                        <div onClick={() => navigate("/dashboard/confirm-booking", {
-                                                            state: {
-                                                                bookingId: data?.id,
-                                                                customerId: data?.customerId,
-                                                                edit: true
-                                                            }
-                                                        })}>
+                                                        <div onClick={() => {
+                                                                // navigate("/dashboard/confirm-booking", {
+                                                                // state: {
+                                                                //     bookingId: data?.id,
+                                                                //     customerId: data?.customerId,
+                                                                //     edit: true
+                                                                // }
+                                                                // });
+                                                                onSelectBooking(data);
+                                                            }   
+                                                        }>
                                                             <Typography
                                                                 variant="small"
                                                                 color="blue"

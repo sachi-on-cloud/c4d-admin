@@ -27,7 +27,7 @@ function convertTimeFormat(time) {
 
     return `${hours}:${minutes} ${period}`;
 }
-const ConfirmBooking = () => {
+const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
     const [selectedDate, setSelectedDate] = useState(currentDate());
     const [dateVal, setDateVal] = useState();
@@ -67,9 +67,9 @@ const ConfirmBooking = () => {
             navigate("/dashboard/booking");
         }
     };
-    const getBookingById = async (bookingId) => {
+    const getBookingById = async (bookingId, customerId) => {
         setLoading(true);
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, paramsPassed?.customerId);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
             setBookingDetails(data?.data);
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
@@ -102,9 +102,17 @@ const ConfirmBooking = () => {
 
     useEffect(() => {
         if (paramsPassed?.bookingId) {
-            getBookingById(paramsPassed?.bookingId);
+            getBookingById(paramsPassed?.bookingId, paramsPassed?.customerId);
         }
+       
     }, []);
+
+    useEffect(() => {
+        if(props.bookingData){
+            console.log("props.bookingData",props.bookingData)
+            getBookingById(props.bookingData.id, props.bookingData.customerId);
+        }
+    }, [props.bookingData]);
 
     const onCancelPressHandler = async () => {
         const reqBody = {

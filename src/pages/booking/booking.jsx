@@ -20,6 +20,7 @@ import { BookingsList, SearchDrivers } from '.';
 import SearchableDropdown from '@/components/SearchableDropdown';
 import CustomerAdd from '../customer/add';
 import SelectLocation from './selectLocation';
+import BookingItem from "./confirmBooking"
 
 // Format date to YYYY-MM-DD for input's min attribute
 const currentDate = () => {
@@ -37,6 +38,7 @@ const Booking = (props) => {
     const [showQuickCreateCustomer, setShowQuickCreateCustomer] = useState(false);
     const [bookingStage, setBookingStage] = useState(0);
     const [bookingData, setBookingData] = useState();
+    const [bookingView, setBookingView] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -150,10 +152,18 @@ const Booking = (props) => {
         setBookingData(data);
         setBookingStage(2);
     }
+
+    const onSelectBooking = (data) => {
+        console.log('selecting booking',data);
+        setBookingData(data);
+        setBookingView(true);
+    }
+
+    const onCancelBookingView = () => {}
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
-                {<BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} />}
+                {<BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking}/>}
  
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
@@ -384,6 +394,9 @@ const Booking = (props) => {
                         setBookingStage(0);
                     }} />
                 }
+                </>}
+                {bookingView && <>
+                    <BookingItem bookingData={bookingData} onCancel={onCancelBookingView}/>
                 </>}
                 
             </div>
