@@ -104,12 +104,12 @@ const ConfirmBooking = (props) => {
         if (paramsPassed?.bookingId) {
             getBookingById(paramsPassed?.bookingId, paramsPassed?.customerId);
         }
-       
+
     }, []);
 
     useEffect(() => {
-        if(props.bookingData){
-            console.log("props.bookingData",props.bookingData)
+        if (props.bookingData) {
+            console.log("props.bookingData", props.bookingData)
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
     }, [props.bookingData]);
@@ -223,15 +223,15 @@ const ConfirmBooking = (props) => {
 
             {(bookingDetails?.status === 'STARTED') ||
                 (bookingDetails?.status === 'INITIATED' && !!bookingDetails?.Driver?.id) ?
-                <>
-                    <Card className="my-4 gap-4">
-                        <CardBody >
-                            <Typography variant="h5" className="mb-2">
-                                {bookingDetails?.status === 'STARTED' ? "End" : "Start"} Time
-                            </Typography>
-                            <div className='flex gap-x-5'>
-                                <div className=''>
-                                    {/* <DatePicker
+
+                <Card className="my-4 gap-4">
+                    <CardBody >
+                        <Typography variant="h5" className="mb-2">
+                            {bookingDetails?.status === 'STARTED' ? "End" : "Start"} Time
+                        </Typography>
+                        <div className='flex gap-x-5'>
+                            <div className=''>
+                                {/* <DatePicker
                                         //minDate={bookingDetails?.startTime || new Date()}
                                         //minTime={bookingDetails?.startTime || new Date()}
                                         selected={dateVal}
@@ -241,56 +241,91 @@ const ConfirmBooking = (props) => {
                                         timeIntervals={15}
                                         dateFormat="MMMM d, yyyy hh:mm aa"
                                     /> */}
-                                    <Formik>
-                                        <div className='flex gap-x-2'>
-                                            <Field type="date" name="dateVal" className="p-2 w-full rounded-xl border-2 border-gray-300" min={bookingDetails?.date} onChange={(e) => {
-                                                setDateVal(e.target.value);
-                                            }} value={dateVal}></Field>
-                                            <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
-                                                setTimeVal(e.target.value);
-                                            }} value={timeVal}>
-                                                <option value="">Select time</option>
-                                                {(bookingTimes).map((item) => (
-                                                    <option key={item.id} value={item.id}>
-                                                        {convertTimeFormat(item.id)}
-                                                    </option>
-                                                ))}
-                                            </Field>
-                                            {bookingDetails.status == BOOKING_STATUS.STARTED && <Button onClick={getPriceForBooking}>Check Price</Button>}
-                                        </div>
-                                    </Formik>
-                                </div>
-                                {/* <input
+                                <Formik>
+                                    <div className='flex gap-x-2'>
+                                        <Field type="date" name="dateVal" className="p-2 w-full rounded-xl border-2 border-gray-300" min={bookingDetails?.date} onChange={(e) => {
+                                            setDateVal(e.target.value);
+                                        }} value={dateVal}></Field>
+                                        <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
+                                            setTimeVal(e.target.value);
+                                        }} value={timeVal}>
+                                            <option value="">Select time</option>
+                                            {(bookingTimes).map((item) => (
+                                                <option key={item.id} value={item.id}>
+                                                    {convertTimeFormat(item.id)}
+                                                </option>
+                                            ))}
+                                        </Field>
+                                        {bookingDetails.status == BOOKING_STATUS.STARTED && <Button onClick={getPriceForBooking}>Check Price</Button>}
+                                    </div>
+                                </Formik>
+                            </div>
+                            {/* <input
                                     type="datetime-local"
                                     value={selectedDate}
                                     className="p-2 w-full rounded-xl border-2 border-gray-300"
                                     min={currentDate()}
                                     onChange={handleDateChange}
                                 /> */}
-                            </div>
-                        </CardBody>
-                    </Card>
-                    <div className="mt-6 flex flex-row space-x-4">
-                        <Button
-                            color="gray"
-                            variant="outlined"
-                            ripple="dark"
-                            fullWidth
-                            onClick={onCancelPressHandler}
-                        >
-                            Cancel
-                        </Button>
+                        </div>
+                    </CardBody>
+                </Card>
+                : ""}
+            <>
+                <div className="mt-6 flex flex-row space-x-4">
+
+                    {bookingDetails.status != "ENDED" && bookingDetails.status != "STARTED" &&
+                        <>
+                            <Button
+                                color="gray"
+                                variant="outlined"
+                                ripple="dark"
+                                fullWidth
+                                onClick={onCancelPressHandler}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                color="gray"
+                                variant="outlined"
+                                ripple="dark"
+                                fullWidth
+                                onClick={() => { props.onEdit(bookingDetails) }}
+                            >
+                                Edit
+                            </Button>
+                        </>
+                    }
+                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id &&
                         <Button
                             color="black"
                             ripple="light"
                             fullWidth
-                            onClick={onConfirmPressHandler}
+                            onClick={() => { props.onAssignDriver(bookingDetails) }}
                         >
-                            Confirm
+                            Assign Captain
                         </Button>
-                    </div>
-                </> : ""
-            }
+                    }
+                    {bookingDetails.status === 'INITIATED' && bookingDetails?.Driver?.id &&
+                        <Button
+                            color="black"
+                            ripple="light"
+                            fullWidth
+                            onClick={() => { props.onAssignDriver(bookingDetails) }}
+                        >
+                            Choose another Captain
+                        </Button>
+                    }
+                    {dateVal && <Button
+                        color="black"
+                        ripple="light"
+                        fullWidth
+                        onClick={onConfirmPressHandler}
+                    >
+                        Confirm
+                    </Button>}
+                </div>
+            </>
         </div>
     );
 };

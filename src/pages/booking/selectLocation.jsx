@@ -53,6 +53,7 @@ const SelectLocation = (props) => {
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
     const [mapZoom, setMapZoom] = useState(2);
     const mapRef = useRef(null);
+    const [editBooking, setEditBooking] = useState(props.editBooking);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -71,7 +72,26 @@ const SelectLocation = (props) => {
             setMapZoom(15);
         }
     }, [pickupLocation, dropLocation]);
-
+    useEffect(() => {
+        if (editBooking) {
+            if (editBooking?.pickupLat && editBooking?.pickupLong) {
+                console.log(editBooking?.pickupAddres);
+                setPickupAddress(editBooking?.pickupAddress?.name);
+                setPickupLocation({
+                    lat: editBooking?.pickupLat,
+                    lng: editBooking?.pickupLong
+                });
+            }
+            if (editBooking?.dropLat && editBooking?.dropLong) {
+                let location = {
+                    lat: editBooking?.dropLat,
+                    lng: editBooking?.dropLong
+                };
+                setDropAddress(editBooking?.dropAddress?.name);
+                setDropLocation(location);
+            }
+        }
+    }, [editBooking])
     const fitBoundsToMarkers = () => {
         if (mapRef.current && pickupLocation && dropLocation) {
             const bounds = new window.google.maps.LatLngBounds();
@@ -147,33 +167,33 @@ const SelectLocation = (props) => {
         const newLat = event.latLng.lat();
         const newLng = event.latLng.lng();
         setPickupLocation({ lat: newLat, lng: newLng });
-    
+
         // Fetch the address using Geocoding API
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-          if (status === 'OK' && results[0]) {
-            setPickupAddress(results[0].formatted_address);
-          } else {
-            setPickupAddress('Address not found');
-          }
+            if (status === 'OK' && results[0]) {
+                setPickupAddress(results[0].formatted_address);
+            } else {
+                setPickupAddress('Address not found');
+            }
         });
-      }, []);
+    }, []);
 
-      const handleDropMarkerDragEnd = useCallback((event) => {
+    const handleDropMarkerDragEnd = useCallback((event) => {
         const newLat = event.latLng.lat();
         const newLng = event.latLng.lng();
         setDropLocation({ lat: newLat, lng: newLng });
-    
+
         // Fetch the address using Geocoding API
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-          if (status === 'OK' && results[0]) {
-            setDropAddress(results[0].formatted_address);
-          } else {
-            setDropAddress('Address not found');
-          }
+            if (status === 'OK' && results[0]) {
+                setDropAddress(results[0].formatted_address);
+            } else {
+                setDropAddress('Address not found');
+            }
         });
-      }, []);
+    }, []);
 
     return (
         <div className="flex flex-col h-screen bg-white w-full">
@@ -185,10 +205,10 @@ const SelectLocation = (props) => {
                         searchLocations(value);
                     }}
                     onSelect={(address) => handleSelectLocation(address, true)}
-                    placeholder={props.serviceType!=='CAR_WASH'?"Enter pickup location":"Enter location"}
+                    placeholder={props.serviceType !== 'CAR_WASH' ? "Enter pickup location" : "Enter location"}
                     suggestions={suggestions}
                 />
-                {props.serviceType!=='CAR_WASH' && <LocationInput
+                {props.serviceType !== 'CAR_WASH' && <LocationInput
                     value={dropAddress}
                     onChange={(value) => {
                         setDropAddress(value);

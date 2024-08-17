@@ -2,14 +2,24 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const SearchableDropdown = ({ options, onSelect }) => {
+const SearchableDropdown = ({ selected, options, onSelect }) => {
     const [searchText, setSearchText] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState();
+    const [selectedValue, setSelectedValue] = useState(selected);
     const navigate = useNavigate();
+
+    function findRecordById(records, id) {
+        return records.find(record => record.id === id);
+    }
 
     useEffect(() => {
         setFilteredOptions(options);
+        if (selectedValue) {
+            let val = findRecordById(options, selectedValue);
+            setSearchText(`${val.firstName} - ${val.phoneNumber}`);
+            onSelect(val);
+        }
     }, [options])
     const handleSearchChange = (e) => {
         const value = e.target.value;
@@ -32,7 +42,6 @@ const SearchableDropdown = ({ options, onSelect }) => {
         });
         setFilteredOptions(newFilteredOptions);
     }
-
     const handleOptionClick = (option) => {
         setSearchText(`${option.firstName} - ${option.phoneNumber}`); // Update the input with the selected option's details
         onSelect(option); // Notify the parent component of the selection
@@ -48,6 +57,8 @@ const SearchableDropdown = ({ options, onSelect }) => {
                 onClick={() => setIsOpen(!isOpen)}
                 placeholder="Search customers"
                 className="p-2 border rounded-xl w-full"
+                readOnly={selectedValue}
+                disabled={selectedValue}
             />
             {isOpen && (
                 <div className="absolute z-10 max-w-max max-h-64 mt-1 overflow-y-auto bg-white border border-gray-300 rounded shadow-lg">

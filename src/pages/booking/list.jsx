@@ -182,15 +182,15 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 <td className={className}>
                                                     <div className="flex items-center">
                                                         <div onClick={() => {
-                                                                // navigate("/dashboard/confirm-booking", {
-                                                                // state: {
-                                                                //     bookingId: data?.id,
-                                                                //     customerId: data?.customerId,
-                                                                //     edit: true
-                                                                // }
-                                                                // });
-                                                                onSelectBooking(data);
-                                                            }   
+                                                            // navigate("/dashboard/confirm-booking", {
+                                                            // state: {
+                                                            //     bookingId: data?.id,
+                                                            //     customerId: data?.customerId,
+                                                            //     edit: true
+                                                            // }
+                                                            // });
+                                                            onSelectBooking(data);
+                                                        }
                                                         }>
                                                             <Typography
                                                                 variant="small"
@@ -281,7 +281,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             onClick={() => { onAssignDriver(data) }}
                                                             className="text-xs font-semibold text-white flex-wrap"
                                                         >
-                                                            Assign Driver
+                                                            Assign Captain
                                                         </Button>
                                                     }
                                                 </td>
