@@ -90,7 +90,7 @@ const CustomerSearch = ({ onSearch }) => {
         </div>
         <button
           onClick={() => navigate(`/dashboard/customers/add`)}
-          className="ml-4 px-4 py-2 bg-black text-white rounded-md font-normal"
+          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md font-normal"
         >
           Add new
         </button>

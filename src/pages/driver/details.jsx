@@ -65,7 +65,7 @@ const DriverDetails = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                    <Field as="select" name="salutation" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200">
+                                    <Field as="select" name="salutation" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200">
                                         <option value="">Select salutation</option>
                                         <option value="Mr">Mr</option>
                                         <option value="Mrs">Mrs</option>
@@ -76,31 +76,31 @@ const DriverDetails = () => {
 
                                 <div>
                                     <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
-                                    <Field type="text" name="firstName" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-200" />
+                                    <Field type="text" name="firstName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
                                     <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
 
                                 <div>
                                     <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" name="phoneNumber" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" maxLength={10} />
+                                    <Field type="tel" name="phoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
                                     <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
 
                                 <div>
                                     <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                    <Field type="text" name="license" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" maxLength={15} />
+                                    <Field type="text" name="license" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
                                     <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
                                 </div>
 
                                 <div>
                                     <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
-                                    <Field type="text" name="address" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                    <Field type="text" name="address" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                 </div>
 
                                 <div>
                                     <label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</label>
-                                    <Field type="text" name="reference" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                    <Field type="text" name="reference" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="reference" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
@@ -147,13 +147,13 @@ const DriverDetails = () => {
                                         displayValue="period"
                                         selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
                                         placeholder=""
-                                        className="w-full rounded-xl border-gray-300 bg-gray-200"
+                                        className="w-full rounded-xl border-gray-300 bg-gray-200 border"
                                         disable={true}
                                     />
                                 </div>
                                 <div>
                                     <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                    <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                    <Field type="text" disabled name="wallet" className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" />
                                     <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
@@ -165,9 +165,9 @@ const DriverDetails = () => {
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/drivers'); }}
-                    className='my-6 px-8 text-black border-2 border-gray-400 bg-white rounded-xl'
+                    className='my-6 px-8 text-white border-2 rounded-xl'
                 >
-                    Cancel
+                    Back
                 </Button>
             </div>
         </>

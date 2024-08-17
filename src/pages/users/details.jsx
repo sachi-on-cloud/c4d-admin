@@ -49,19 +49,19 @@ const UserDetails = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
-                                    <Field type="text" disabled name="name" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <Field type="text" disabled name="name" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
                                     <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
 
                                 <div>
                                     <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                    <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" maxLength={10} />
                                     <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
 
                                 <div>
                                     <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-                                    <Field type="text" disabled name="email" className="p-2 w-full rounded-md border-gray-300" />
+                                    <Field type="text" disabled name="email" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
@@ -71,7 +71,7 @@ const UserDetails = () => {
                                         displayValue="name"
                                         selectedValues={options.filter(option => values.permission.includes(option.id))}
                                         placeholder=""
-                                        className="w-full rounded-md border-gray-300"
+                                        className="w-full rounded-md border-gray-300 border bg-gray-200"
                                         disable={true}
                                     />
                                 </div>
@@ -84,9 +84,9 @@ const UserDetails = () => {
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/users'); }}
-                    className='my-6 px-8 text-black border-2 border-gray-400 bg-white rounded-xl'
+                    className='my-6 px-8 text-white border-2 bg-black rounded-xl'
                 >
-                    Cancel
+                    Back
                 </Button>
             </div>
         </>

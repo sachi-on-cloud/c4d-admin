@@ -100,17 +100,17 @@ export function CustomerView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div>
+                              <div onClick={() => navigate(`/dashboard/customers/details/${id}`)}>
                                 <Typography
                                   variant="small"
-                                  color="blue-gray"
-                                  className="font-semibold"
+                                  color="blue"
+                                  className="font-semibold underline"
                                 >
                                   {firstName}
                                 </Typography>
-                                <Typography className="text-xs font-normal text-blue-gray-500">
+                                {/* <Typography className="text-xs font-normal text-blue-gray-500">
                                   {email}
-                                </Typography>
+                                </Typography> */}
                               </div>
                             </div>
                           </td>
@@ -133,13 +133,13 @@ export function CustomerView() {
                         </Typography>
                       </td> */}
                           <td className={className}>
-                            <Button
+                            {/* <Button
                               as="a"
                               onClick={() => navigate(`/dashboard/customers/details/${id}`)}
                               className="text-xs font-semibold text-white mr-3"
                             >
                               View
-                            </Button>
+                            </Button> */}
                             <Button
                               as='a'
                               onClick={() => navigate(`/dashboard/customers/edit/${id}`)}

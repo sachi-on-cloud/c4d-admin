@@ -84,11 +84,11 @@ export function UserView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div>
+                              <div onClick={() => navigate(`/dashboard/users/details/${id}`)}>
                                 <Typography
                                   variant="small"
-                                  color="blue-gray"
-                                  className="font-semibold"
+                                  color="blue"
+                                  className="font-semibold underline"
                                 >
                                   {name}
                                 </Typography>
@@ -114,7 +114,7 @@ export function UserView() {
                             />
                           </td>
                           <div>
-                            <td className={className}>
+                            {/* <td className={className}>
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/users/details/${id}`)}
@@ -122,7 +122,7 @@ export function UserView() {
                               >
                                 View
                               </Button>
-                            </td>
+                            </td> */}
                             <td className={className}>
                               <Button
                                 as="a"

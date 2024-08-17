@@ -42,7 +42,7 @@ const CustomerDetails = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                    <Field as="select" disabled name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" disabled name="salutation" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select salutation</option>
                                         <option value="Mr">Mr</option>
                                         <option value="Mrs">Mrs</option>
@@ -53,12 +53,12 @@ const CustomerDetails = () => {
 
                                 <div>
                                     <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</label>
-                                    <Field type="text" disabled name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <Field type="text" disabled name="firstName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
                                     <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
                                 <div>
                                     <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                    <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md bg-gray-200 border border-gray-300" maxLength={10} />
                                     <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
 
@@ -71,9 +71,9 @@ const CustomerDetails = () => {
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/customers'); }}
-                    className='my-6 px-8 text-black border-2 border-gray-400 bg-white rounded-xl'
+                    className='my-6 px-8 text-white border-2 rounded-xl'
                 >
-                    Cancel
+                    Back
                 </Button>
             </div>
         </>

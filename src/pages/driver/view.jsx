@@ -117,17 +117,17 @@ export function DriverView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div>
+                              <div onClick={() => navigate(`/dashboard/drivers/details/${id}`)}>
                                 <Typography
                                   variant="small"
-                                  color="blue-gray"
-                                  className="font-semibold"
+                                  color="blue"
+                                  className="font-semibold underline"
                                 >
                                   {firstName}
                                 </Typography>
-                                <Typography className="text-xs font-normal text-blue-gray-500">
+                                {/* <Typography className="text-xs font-normal text-blue-gray-500">
                                   {email}
-                                </Typography>
+                                </Typography> */}
                               </div>
                             </div>
                           </td>
@@ -145,7 +145,7 @@ export function DriverView() {
                             />
                           </td>
                           <div>
-                            <td className={className}>
+                            {/* <td className={className}>
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/drivers/details/${id}`)}
@@ -153,7 +153,7 @@ export function DriverView() {
                               >
                                 View
                               </Button>
-                            </td>
+                            </td> */}
 
                             <td className={className}>
                               <Button
