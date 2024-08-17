@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
     Input,
@@ -27,7 +27,7 @@ const LocationInput = ({ value, onChange, onSelect, placeholder, suggestions }) 
                 onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                 className="pr-10"
             />
-            {isFocused && suggestions.length > 0 && (
+            {suggestions.length > 0 && (
                 <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                     {suggestions.map((suggestion, index) => (
                         <ListItem
@@ -143,6 +143,38 @@ const SelectLocation = (props) => {
         }
     };
 
+    const handlePickupMarkerDragEnd = useCallback((event) => {
+        const newLat = event.latLng.lat();
+        const newLng = event.latLng.lng();
+        setPickupLocation({ lat: newLat, lng: newLng });
+    
+        // Fetch the address using Geocoding API
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+          if (status === 'OK' && results[0]) {
+            setPickupAddress(results[0].formatted_address);
+          } else {
+            setPickupAddress('Address not found');
+          }
+        });
+      }, []);
+
+      const handleDropMarkerDragEnd = useCallback((event) => {
+        const newLat = event.latLng.lat();
+        const newLng = event.latLng.lng();
+        setDropLocation({ lat: newLat, lng: newLng });
+    
+        // Fetch the address using Geocoding API
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+          if (status === 'OK' && results[0]) {
+            setDropAddress(results[0].formatted_address);
+          } else {
+            setDropAddress('Address not found');
+          }
+        });
+      }, []);
+
     return (
         <div className="flex flex-col h-screen bg-white w-full">
             <div className="p-4 space-y-4">
@@ -153,10 +185,10 @@ const SelectLocation = (props) => {
                         searchLocations(value);
                     }}
                     onSelect={(address) => handleSelectLocation(address, true)}
-                    placeholder="Enter pickup location"
+                    placeholder={props.serviceType!=='CAR_WASH'?"Enter pickup location":"Enter location"}
                     suggestions={suggestions}
                 />
-                <LocationInput
+                {props.serviceType!=='CAR_WASH' && <LocationInput
                     value={dropAddress}
                     onChange={(value) => {
                         setDropAddress(value);
@@ -165,7 +197,7 @@ const SelectLocation = (props) => {
                     onSelect={(address) => handleSelectLocation(address, false)}
                     placeholder="Enter drop location (Optional)"
                     suggestions={suggestions}
-                />
+                />}
             </div>
 
             <div className="flex-1">
@@ -181,19 +213,23 @@ const SelectLocation = (props) => {
                         {pickupLocation && (
                             <Marker
                                 position={pickupLocation}
+                                draggable={true}
                                 icon={{
                                     url: '/img/Pickup-Location.png',
                                     scaledSize: new window.google.maps.Size(40, 40),
                                 }}
+                                onDragEnd={handlePickupMarkerDragEnd}
                             />
                         )}
                         {dropLocation && (
                             <Marker
                                 position={dropLocation}
+                                draggable={true}
                                 icon={{
                                     url: '/img/Drop-Location.png',
                                     scaledSize: new window.google.maps.Size(40, 40)
                                 }}
+                                onDragEnd={handleDropMarkerDragEnd}
                             />
                         )}
                     </GoogleMap>

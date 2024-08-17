@@ -114,7 +114,7 @@ const CustomerAdd = (props) => {
                     User already exist!
                 </Alert>
             </div>}
-            <h2 className="text-2xl font-bold mb-4">Add New Customer</h2>
+            <h2 className="text-2xl font-bold mb-4">New Customer</h2>
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
@@ -126,7 +126,7 @@ const CustomerAdd = (props) => {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" name="salutation" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                     <option value="">Select salutation</option>
                                     <option value="Mr">Mr</option>
                                     <option value="Mrs">Mrs</option>
@@ -137,7 +137,7 @@ const CustomerAdd = (props) => {
 
                             <div>
                                 <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</label>
-                                <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <Field type="text" name="firstName" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
@@ -145,7 +145,7 @@ const CustomerAdd = (props) => {
                                 <>
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-2 border-gray-300" maxLength={10} />
                                         <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 </>)}
