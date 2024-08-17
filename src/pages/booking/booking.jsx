@@ -35,7 +35,6 @@ const Booking = (props) => {
     const [customerData, setCustomerData] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(0);
     const [showQuickCreateCustomer, setShowQuickCreateCustomer] = useState(false);
-    const [bookingType, setBookingType] = useState("");
     const [bookingStage, setBookingStage] = useState(0);
     const [bookingData, setBookingData] = useState();
 
@@ -195,7 +194,12 @@ const Booking = (props) => {
                                     <Typography variant="h6" className="mb-2">
                                         Service Type
                                     </Typography>
-                                    <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                    <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e)=>{
+                                        console.log('e.target.value',e.target.value);
+                                        setFieldValue("serviceType",e.target.value);
+                                        if(e.target.value === 'CAR_WASH')
+                                            setFieldValue("packageTypeSelected","CarWash");
+                                    }}>
                                         <option value="">Service Type</option>
                                         <option value="DRIVER">Acting Driver</option>
                                         <option value="CAR_WASH">Car Wash</option>
@@ -240,7 +244,7 @@ const Booking = (props) => {
                             }
 
 
-                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-2">
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
                                     When?
                                 </Typography>
@@ -288,7 +292,7 @@ const Booking = (props) => {
                                 </div>
                             }
 
-                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <div className="flex-1 mb-4">
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <div className="flex-1 mb-4">
                                 <div>
                                     <Typography variant="h6" className="mb-2">
                                         Choose a package
@@ -298,7 +302,7 @@ const Booking = (props) => {
                                         {packageTypeSelectedData
                                             .filter((item) => values.packageTypeSelected === item.type).map((item) => (
                                                 <option key={item.id} value={item.id}>
-                                                    {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}
+                                                    {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''}
                                                 </option>
                                             ))}
                                     </Field>
@@ -354,7 +358,7 @@ const Booking = (props) => {
                                 </div>
                             )}
 
-                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && <Button
+                            {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
@@ -367,6 +371,7 @@ const Booking = (props) => {
                     )}
                 </Formik>}
                 {bookingStage === 1 && <SelectLocation
+                        serviceType={bookingData?.serviceType}
                         bookingId={bookingData?.id}
                         customerId={bookingData?.customerId}
                         onNext={() => {
