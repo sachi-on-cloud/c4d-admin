@@ -157,11 +157,11 @@ const Booking = (props) => {
  
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
-                <div className='mb-2'>
+                {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
                     <Typography variant="h5" color='#000000'>
                         {`${bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : 'Assign Drivers'}`}
                     </Typography>
-                </div>
+                </div>}
                 {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} />}
                 {!showQuickCreateCustomer && <>
                 {bookingStage === 0 && <Formik
