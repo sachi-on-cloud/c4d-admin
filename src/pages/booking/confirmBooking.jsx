@@ -6,10 +6,11 @@ import {
     Button,
     Spinner,
 } from "@material-tailwind/react";
+import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "../../utils/constants";
-import DatePicker from "react-datepicker";
+import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 
@@ -17,6 +18,15 @@ const currentDate = () => {
     return (new Date()).toISOString().split('T')[0];
 };
 
+function convertTimeFormat(time) {
+    let [hours, minutes, seconds] = time.split(':');
+    hours = parseInt(hours);
+
+    const period = hours >= 12 ? 'p.m.' : 'a.m.';
+    hours = hours % 12 || 12;
+
+    return `${hours}:${minutes} ${period}`;
+}
 const ConfirmBooking = () => {
     const [bookingDetails, setBookingDetails] = useState("");
     const [selectedDate, setSelectedDate] = useState(currentDate());
@@ -104,6 +114,7 @@ const ConfirmBooking = () => {
         );
     }
 
+    const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1,'days'));
     return (
         <div className="container mx-auto p-4">
             <Card className="mb-4">
@@ -199,8 +210,8 @@ const ConfirmBooking = () => {
                                 {bookingDetails?.status === 'STARTED' ? "End" : "Start"} Trip Details
                             </Typography>
                             <div className='flex gap-x-5'>
-                                <div className='w-48 rounded-xl border-2 border-gray-300'>
-                                    <DatePicker
+                                <div className=''>
+                                    {/* <DatePicker
                                         //minDate={bookingDetails?.startTime || new Date()}
                                         //minTime={bookingDetails?.startTime || new Date()}
                                         selected={dateVal}
@@ -209,7 +220,22 @@ const ConfirmBooking = () => {
                                         timeFormat="HH:mm"
                                         timeIntervals={15}
                                         dateFormat="MMMM d, yyyy hh:mm aa"
-                                    />
+                                    /> */}
+                                    <Formik>
+                                    <div className='flex gap-x-2'>
+                                    <Field type="date" name="dateVal" className="p-2 w-full rounded-xl border-2 border-gray-300" min={currentDate()} onChange={(e) => {
+                                        setDateVal(e.target.value);
+                                    }}></Field>
+                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                        <option value="">Select time</option>
+                                        {(bookingTimes).map((item) => (
+                                            <option key={item.id} value={item.id}>
+                                                {convertTimeFormat(item.id)}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                    </div>
+                                    </Formik>
                                 </div>
                                 {/* <input
                                     type="datetime-local"

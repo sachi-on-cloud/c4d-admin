@@ -191,7 +191,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                                             <Typography
                                                                 variant="small"
                                                                 color="blue"
-                                                                className="font-semibold underline"
+                                                                className="font-semibold underline cursor-pointer"
                                                             >
                                                                 {data?.bookingNumber}
                                                             </Typography>

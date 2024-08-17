@@ -153,12 +153,18 @@ const Booking = (props) => {
     }
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
-            <div className="flex-1 bg-white p-3 rounded-xl w-2/5 ">
+            <div className='w-4/6'>
+                {<BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} />}
+ 
+            </div>
+            <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 <div className='mb-2'>
                     <Typography variant="h5" color='#000000'>
                         {`${bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : 'Assign Drivers'}`}
                     </Typography>
                 </div>
+                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} />}
+                {!showQuickCreateCustomer && <>
                 {bookingStage === 0 && <Formik
                     initialValues={initialValues}
                     onSubmit={async (values, { resetForm }) => {
@@ -360,9 +366,7 @@ const Booking = (props) => {
                         </>
                     )}
                 </Formik>}
-                {
-                    bookingStage === 1 &&
-                    <SelectLocation
+                {bookingStage === 1 && <SelectLocation
                         bookingId={bookingData?.id}
                         customerId={bookingData?.customerId}
                         onNext={() => {
@@ -375,12 +379,8 @@ const Booking = (props) => {
                         setBookingStage(0);
                     }} />
                 }
-            </div>
-
-            <div className='w-3/5'>
-                {!showQuickCreateCustomer && <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} />}
-
-                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} />}
+                </>}
+                
             </div>
         </div>
     );
