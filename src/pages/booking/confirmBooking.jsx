@@ -31,6 +31,7 @@ const ConfirmBooking = () => {
     const [bookingDetails, setBookingDetails] = useState("");
     const [selectedDate, setSelectedDate] = useState(currentDate());
     const [dateVal, setDateVal] = useState();
+    const [timeVal, setTimeVal] = useState();
     const [amount, setAmount] = useState();
 
     const navigate = useNavigate();
@@ -41,17 +42,24 @@ const ConfirmBooking = () => {
 
     const onConfirmPressHandler = async () => {
         setLoading(true);
+        let dateTime = dateVal + " " + timeVal;
         const reqBody = {
             bookingId: bookingDetails?.id,
             driverId: bookingDetails?.Driver?.id,
-            date: moment(dateVal).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
+            date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
             amount: 0
         };
         if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
             reqBody.type = "start";
         } else if (bookingDetails.status == BOOKING_STATUS.STARTED) {
             reqBody.type = "end";
-            reqBody.amount = amount.total;
+            if (amount?.total) {
+                reqBody.amount = amount?.total;
+            } else {
+                alert("Please check price before end the trip");
+                setLoading(false);
+                return false;
+            }
         }
         //console.log("reqBody", reqBody)
         const data = await ApiRequestUtils.update(API_ROUTES.ADMIN_BOOKING_STATUS, reqBody, bookingDetails?.customerId);
@@ -71,15 +79,19 @@ const ConfirmBooking = () => {
         setLoading(false);
     };
 
-    const getPriceForBooking = async (date) => {
-        setDateVal(date)
-        if (bookingDetails?.status == BOOKING_STATUS.STARTED) {
+    const getPriceForBooking = async () => {
+        //date && setDateVal(date);
+        //time && setTimeVal(time);
+        //console.log(dateVal, timeVal, "DATETIME");
+        if (bookingDetails?.status == BOOKING_STATUS.STARTED && dateVal && timeVal) {
             //const date = moment(dateVal).format("YYYY-MM-DD HH:mm:ss.SSSZ");
             setLoading(true);
+            let dateTime = dateVal + " " + timeVal;
+            //console.log(dateTime, "dateTime");
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ADMIN_BOOKING_PRICE, {
                 bookingId: bookingDetails?.id,
                 driverId: bookingDetails?.Driver?.id,
-                date: moment(date).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
+                date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
             });
             if (data?.success) {
                 setAmount(data?.data);
@@ -114,7 +126,7 @@ const ConfirmBooking = () => {
         );
     }
 
-    const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1,'days'));
+    const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto p-4">
             <Card className="mb-4">
@@ -207,7 +219,7 @@ const ConfirmBooking = () => {
                     <Card className="my-4 gap-4">
                         <CardBody >
                             <Typography variant="h5" className="mb-2">
-                                {bookingDetails?.status === 'STARTED' ? "End" : "Start"} Trip Details
+                                {bookingDetails?.status === 'STARTED' ? "End" : "Start"} Time
                             </Typography>
                             <div className='flex gap-x-5'>
                                 <div className=''>
@@ -222,19 +234,22 @@ const ConfirmBooking = () => {
                                         dateFormat="MMMM d, yyyy hh:mm aa"
                                     /> */}
                                     <Formik>
-                                    <div className='flex gap-x-2'>
-                                    <Field type="date" name="dateVal" className="p-2 w-full rounded-xl border-2 border-gray-300" min={currentDate()} onChange={(e) => {
-                                        setDateVal(e.target.value);
-                                    }}></Field>
-                                    <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300">
-                                        <option value="">Select time</option>
-                                        {(bookingTimes).map((item) => (
-                                            <option key={item.id} value={item.id}>
-                                                {convertTimeFormat(item.id)}
-                                            </option>
-                                        ))}
-                                    </Field>
-                                    </div>
+                                        <div className='flex gap-x-2'>
+                                            <Field type="date" name="dateVal" className="p-2 w-full rounded-xl border-2 border-gray-300" min={bookingDetails?.date} onChange={(e) => {
+                                                setDateVal(e.target.value);
+                                            }} value={dateVal}></Field>
+                                            <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
+                                                setTimeVal(e.target.value);
+                                            }} value={timeVal}>
+                                                <option value="">Select time</option>
+                                                {(bookingTimes).map((item) => (
+                                                    <option key={item.id} value={item.id}>
+                                                        {convertTimeFormat(item.id)}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                            {bookingDetails.status == BOOKING_STATUS.STARTED && <Button onClick={getPriceForBooking}>Check Price</Button>}
+                                        </div>
                                     </Formik>
                                 </div>
                                 {/* <input

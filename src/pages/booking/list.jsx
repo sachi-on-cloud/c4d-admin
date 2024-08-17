@@ -245,13 +245,20 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                                                     value={"CANCELLED"}
                                                                     className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                 />
-                                                                :
-                                                                <Chip
-                                                                    variant="gradient"
-                                                                    // color={online ? "green" : "blue-gray"}
-                                                                    value={"INITIATED"}
-                                                                    className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                                                                />
+                                                                : data?.status == "INITIATED" && data?.Driver?.id ?
+                                                                    <Chip
+                                                                        variant="gradient"
+                                                                        value={"DRIVER ASSIGNED"}
+                                                                        className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                                    />
+
+                                                                    :
+                                                                    <Chip
+                                                                        variant="gradient"
+                                                                        // color={online ? "green" : "blue-gray"}
+                                                                        value={"INITIATED"}
+                                                                        className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                                    />
                                                     }
                                                 </td>
                                                 <td className={className}>
