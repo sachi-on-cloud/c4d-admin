@@ -4,8 +4,13 @@ import {
     CardBody,
     Typography,
     Button,
-    Chip
+    Chip,
+    Popover,
+    PopoverHandler,
+    PopoverContent,
+    Checkbox
 } from "@material-tailwind/react";
+import { FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -13,6 +18,61 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
+
+    const [statusFilter, setStatusFilter] = useState(['All']);
+    const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
+
+    const handleFilterChange = (filterType, value) => {
+        if (filterType === 'status') {
+            setStatusFilter(prev => {
+                if (value === 'All') {
+                    return ['All'];
+                } else {
+                    const newFilter = prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+                    return newFilter.length === 0 ? ['All'] : newFilter;
+                }
+            });
+        } else if (filterType === 'serviceType') {
+            setServiceTypeFilter(prev => {
+                if (value === 'All') {
+                    return ['All'];
+                } else {
+                    const newFilter = prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+                    return newFilter.length === 0 ? ['All'] : newFilter;
+                }
+            });
+        }
+    };
+    const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+        <Popover placement="bottom-start">
+            <PopoverHandler>
+                <div className="flex items-center cursor-pointer">
+                    <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+                        {title}
+                    </Typography>
+                    <FaFilter className="text-blue-gray-400 text-xs" />
+                </div>
+            </PopoverHandler>
+            <PopoverContent className="p-2">
+                {options.map((option) => (
+                    <div key={option.value} className="flex items-center mb-2">
+                        <Checkbox
+                            color="blue"
+                            checked={selectedFilters.includes(option.value)}
+                            onChange={() => onFilterChange(option.value)}
+                        />
+                        <Typography color="blue-gray" className="font-medium ml-2">
+                            {option.label}
+                        </Typography>
+                    </div>
+                ))}
+            </PopoverContent>
+        </Popover>
+    );
 
     const location = useLocation();
     const paramsPassed = location.state;
@@ -72,19 +132,46 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                         >
-                                            <Typography
-                                                variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
-                                            >
-                                                {el}
-                                            </Typography>
+                                            {el === "Service Type" ? (
+                                                <FilterPopover
+                                                    title={el}
+                                                    options={[
+                                                        { value: 'All', label: 'All' },
+                                                        { value: 'DRIVER', label: 'Acting Driver' },
+                                                        { value: 'CAR_WASH', label: 'Car Wash' }
+                                                    ]}
+                                                    selectedFilters={serviceTypeFilter}
+                                                    onFilterChange={(value) => handleFilterChange('serviceType', value)}
+                                                />
+                                            ) : el === "Status" ? (
+                                                <FilterPopover
+                                                    title={el}
+                                                    options={[
+                                                        { value: 'All', label: 'All' },
+                                                        { value: 'INITIATED', label: 'Initiated' },
+                                                        { value: 'STARTED', label: 'Started' },
+                                                        { value: 'ENDED', label: 'Ended' },
+                                                        { value: 'CANCELLED', label: 'Cancelled' },
+                                                    ]}
+                                                    selectedFilters={statusFilter}
+                                                    onFilterChange={(value) => handleFilterChange('status', value)}
+                                                />
+                                            ) : (
+                                                <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
+                                                    {el}
+                                                </Typography>
+                                            )}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
-                                {bookingsList.map(
-                                    (data, key) => {
+                                {bookingsList
+                                    .filter(booking =>
+                                        (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
+                                        (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType))
+                                    )
+                                    .map((data, key) => {
                                         const className = `p-3 ${key === bookingsList.length - 1
                                             ? "mb-4"
                                             : "border-b border-blue-gray-50"
@@ -190,7 +277,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                             </tr>
                                         );
                                     }
-                                )}
+                                    )}
                             </tbody>
                         </table>)}
                 </CardBody>
