@@ -40,6 +40,8 @@ const Booking = (props) => {
     const [bookingData, setBookingData] = useState();
     const [bookingView, setBookingView] = useState(false);
     const [editBooking, setEditBooking] = useState();
+    const [customerNumber, setCustomerNumber] = useState('');
+    const [addCustomerNumber, setAddCustomerNumber] = useState('');
 
     const fetchData = async () => {
         try {
@@ -66,6 +68,9 @@ const Booking = (props) => {
         fetchData();
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
+        }
+        if (params && params.customerPhoneNumber) {
+            setAddCustomerNumber(params.customerPhoneNumber);
         }
     }, [params]);
 
@@ -180,7 +185,7 @@ const Booking = (props) => {
                         {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : `Assign Drivers - ${bookingData?.bookingNumber} ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''}`}`}
                     </Typography>
                 </div>}
-                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} />}
+                {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} customerNumber={customerNumber} />}
                 {!showQuickCreateCustomer && !bookingView && <>
                     {bookingStage === 0 && <Formik
                         initialValues={initialValues}
@@ -195,7 +200,7 @@ const Booking = (props) => {
                         {({ handleSubmit, values, setFieldValue, isValid, dirty }) => (
                             <>
                                 {customerData && <div className="p-2 flex">
-                                    <SearchableDropdown selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
+                                    <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
                                         setFieldValue('customerId', val);
                                         // setSelectedCustomer(val.id)
                                     }} />

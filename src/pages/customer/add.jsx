@@ -24,7 +24,7 @@ const CustomerAdd = (props) => {
     const initialValues = {
         salutation: driverVal?.salutation || '',
         firstName: driverVal?.firstName || '',
-        phoneNumber: '', //driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, ''): "",
+        phoneNumber: props.customerNumber || '', //driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, ''): "",
         carNumber: '',
         nickName: '',
         carType: '',
@@ -77,6 +77,7 @@ const CustomerAdd = (props) => {
                 return navigate('/dashboard/booking', {
                     state: {
                         refreshData: true,
+                        customerPhoneNumber: data?.data?.phoneNumber
                     }
                 });
             }

@@ -2,23 +2,29 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const SearchableDropdown = ({ selected, options, onSelect }) => {
+const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) => {
     const [searchText, setSearchText] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState();
     const [selectedValue, setSelectedValue] = useState(selected);
     const navigate = useNavigate();
 
-    function findRecordById(records, id) {
-        return records.find(record => record.id === id);
+    function findRecordById(records, field, id) {
+        return records.find(record => record[field] == id);
     }
 
     useEffect(() => {
         setFilteredOptions(options);
         if (selectedValue) {
-            let val = findRecordById(options, selectedValue);
+            let val = findRecordById(options, 'id', selectedValue);
             setSearchText(`${val.firstName} - ${val.phoneNumber}`);
             onSelect(val);
+        } else if (addVal) {
+            let val = findRecordById(options, 'phoneNumber', addVal);
+            if (val) {
+                setSearchText(`${val?.firstName} - ${val?.phoneNumber}`);
+                onSelect(val);
+            }
         }
     }, [options])
     const handleSearchChange = (e) => {
@@ -35,8 +41,10 @@ const SearchableDropdown = ({ selected, options, onSelect }) => {
         // Filter options based on input type
         const newFilteredOptions = options.filter((option) => {
             if (isNumeric) {
+                searchVal(value);
                 return regex.test(option.phoneNumber);
             } else {
+                searchVal('');
                 return regex.test(option.firstName);
             }
         });
@@ -75,9 +83,9 @@ const SearchableDropdown = ({ selected, options, onSelect }) => {
                     ) : (
                         <>
                             <div className="p-2 text-gray-500">No options found</div>
-                            <div className="p-2 text-blue-700" onClick={() => {
+                            {/* <div className="p-2 text-blue-700" onClick={() => {
                                 navigate('/dashboard/customers/add');
-                            }}>+ Add new customer</div>
+                            }}>+ Add new customer</div> */}
                         </>
                     )}
                 </div>
