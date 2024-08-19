@@ -8,9 +8,10 @@ import {
     Popover,
     PopoverHandler,
     PopoverContent,
-    Checkbox
+    Checkbox,
+    IconButton
 } from "@material-tailwind/react";
-import { FaFilter } from 'react-icons/fa';
+import { FaArrowRight, FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -21,6 +22,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
 
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
+    const [showPickedBooking, setShowPickedBooking] = useState(0);
 
     const handleFilterChange = (filterType, value) => {
         if (filterType === 'status') {
@@ -102,6 +104,10 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
             navigate("/dashboard/booking");
         }
     }
+    const onAssignDriverHandler = (data) => {
+        setShowPickedBooking(data?.id);
+        onAssignDriver(data);
+    };
     function formatDate(dateString) {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -127,7 +133,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
-                                    {["Booking ID", "Service Type", "Driver Name", "Customer Name", "Date", "Created Date", "Status", ""].map((el) => (
+                                    {["Booking ID", "Service Type", "Driver Name", "Customer Name", "Date", "Created Date", "Status", "", ""].map((el) => (
                                         <th
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -278,13 +284,21 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     {data?.status === 'INITIATED' && !data?.Driver?.id &&
                                                         <Button
                                                             fullWidth
-                                                            onClick={() => { onAssignDriver(data) }}
+                                                            onClick={() => {
+                                                                onAssignDriverHandler(data)
+                                                            }}
                                                             className="text-xs font-semibold text-white flex-wrap"
                                                         >
                                                             Assign Captain
                                                         </Button>
                                                     }
                                                 </td>
+                                                {data?.id === showPickedBooking && bookingStage === 2 && < td className={className}>
+                                                    <IconButton>
+                                                        <FaArrowRight />
+                                                    </IconButton>
+
+                                                </td>}
                                             </tr>
                                         );
                                     }

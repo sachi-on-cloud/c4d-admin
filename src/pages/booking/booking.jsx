@@ -177,7 +177,7 @@ const Booking = (props) => {
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
                     <Typography variant="h5" color='#000000'>
-                        {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : 'Assign Drivers'}`}
+                        {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : `Assign Drivers - ${bookingData?.bookingNumber} ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''}`}`}
                     </Typography>
                 </div>}
                 {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} />}

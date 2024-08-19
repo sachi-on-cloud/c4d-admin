@@ -7,14 +7,13 @@ import {
     ListItem,
     Typography,
 } from "@material-tailwind/react";
-import { IoLocationOutline, IoLocationSharp } from "react-icons/io5";
+import { IoLocationOutline } from "react-icons/io5";
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { API_ROUTES } from "../../utils/constants";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
 
 const LocationInput = ({ value, onChange, onSelect, placeholder, suggestions }) => {
     const [isFocused, setIsFocused] = useState(false);
-
     return (
         <div className="relative">
             <Input
@@ -47,7 +46,8 @@ const LocationInput = ({ value, onChange, onSelect, placeholder, suggestions }) 
 const SelectLocation = (props) => {
     const [pickupAddress, setPickupAddress] = useState('');
     const [dropAddress, setDropAddress] = useState('');
-    const [suggestions, setSuggestions] = useState([]);
+    const [pickupSuggestions, setPickupSuggestions] = useState([]);
+    const [dropSuggestions, setDropSuggestions] = useState([]);
     const [pickupLocation, setPickupLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
@@ -105,16 +105,21 @@ const SelectLocation = (props) => {
         }
     };
 
-    const searchLocations = async (query) => {
+    const searchLocations = async (query, val) => {
         if (query.length > 2) {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
                 address: query
             });
             if (data?.success && data?.data) {
-                setSuggestions(data.data);
+                if (val) {
+                    setPickupSuggestions(data?.data)
+                } else {
+                    setDropSuggestions(data?.data);
+                }
             }
         } else {
-            setSuggestions([]);
+            setPickupSuggestions([]);
+            setDropSuggestions([]);
         }
     };
 
@@ -135,7 +140,8 @@ const SelectLocation = (props) => {
                 setDropLocation(location);
             }
         }
-        setSuggestions([]);
+        setPickupSuggestions([]);
+        setDropSuggestions([]);
     };
 
     const onPressHandler = async () => {
@@ -202,21 +208,21 @@ const SelectLocation = (props) => {
                     value={pickupAddress}
                     onChange={(value) => {
                         setPickupAddress(value);
-                        searchLocations(value);
+                        searchLocations(value, true);
                     }}
                     onSelect={(address) => handleSelectLocation(address, true)}
                     placeholder={props.serviceType !== 'CAR_WASH' ? "Enter pickup location" : "Enter location"}
-                    suggestions={suggestions}
+                    suggestions={pickupSuggestions}
                 />
                 {props.serviceType !== 'CAR_WASH' && <LocationInput
                     value={dropAddress}
                     onChange={(value) => {
                         setDropAddress(value);
-                        searchLocations(value);
+                        searchLocations(value, false);
                     }}
                     onSelect={(address) => handleSelectLocation(address, false)}
                     placeholder="Enter drop location (Optional)"
-                    suggestions={suggestions}
+                    suggestions={dropSuggestions}
                 />}
             </div>
 
