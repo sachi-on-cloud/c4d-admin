@@ -9,7 +9,7 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS, COMPANY_NAME, GST_NUMBER } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
@@ -165,7 +165,7 @@ const ConfirmBooking = (props) => {
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Location Details</Typography>
                     </div>
-
+                    <hr className="my-2" />
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Pickup:</Typography>
@@ -217,6 +217,42 @@ const ConfirmBooking = (props) => {
                                 parking, toll, trip extension and so on.
                             </Typography>
                         </div> */}
+                        <div className="mt-4 border rounded-xl bg-gray-200 p-4">
+                            <h2 className="text-2xl font-bold text-center">Invoice</h2>
+                            <div className="mt-3">
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Company Name: </Typography>
+                                    <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">GST Number: </Typography>
+                                    <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
+                                </div>
+                            </div>
+                            <hr className="my-2 border border-black" />
+                            <div className="mt-4">
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Package:</Typography>
+                                    <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
+                                        }`}</Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
+                                    <Typography>₹ {amount?.price}</Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                        } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}: (6 x 100)`}</Typography>
+                                    <Typography>₹ {amount?.extraPrice}</Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total:</Typography>
+                                    <Typography style={{
+                                        fontWeight: 'bold'
+                                    }}>₹ {amount?.total}</Typography>
+                                </div>
+                            </div>
+                        </div>
                     </CardBody>
                 </Card>
             )}
