@@ -29,10 +29,10 @@ function convertTimeFormat(time) {
 }
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
-    const [selectedDate, setSelectedDate] = useState(currentDate());
     const [dateVal, setDateVal] = useState();
     const [timeVal, setTimeVal] = useState();
     const [amount, setAmount] = useState();
+    const [whatsappMsg, setWhatsappMsg] = useState();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -47,7 +47,10 @@ const ConfirmBooking = (props) => {
             bookingId: bookingDetails?.id,
             driverId: bookingDetails?.Driver?.id,
             date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
-            amount: 0
+            amount: 0,
+            extraHours: 0,
+            price: 0,
+            extraPrice: 0
         };
         if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
             reqBody.type = "start";
@@ -55,6 +58,9 @@ const ConfirmBooking = (props) => {
             reqBody.type = "end";
             if (amount?.total) {
                 reqBody.amount = amount?.total;
+                reqBody.extraHours = amount?.extraHours;
+                reqBody.price = amount?.price;
+                reqBody.extraPrice = amount?.extraPrice;
             } else {
                 alert("Please check price before end the trip");
                 setLoading(false);
@@ -64,16 +70,26 @@ const ConfirmBooking = (props) => {
         //console.log("reqBody", reqBody)
         const data = await ApiRequestUtils.update(API_ROUTES.ADMIN_BOOKING_STATUS, reqBody, bookingDetails?.customerId);
         if (data?.success) {
-            navigate("/dashboard/booking");
+            //navigate("/dashboard/booking");
+            props.onConfirm()
+            setLoading(false);
         }
     };
     const getBookingById = async (bookingId, customerId) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
+            //console.log(data?.data);
             setBookingDetails(data?.data);
+            const msg = (data?.data?.Driver ? `Driver Name: ${data?.data?.Driver.firstName}\n Driver Number: ${data?.data?.Driver.phoneNumber}\n` : '') +
+                `Pickup Address: ${data?.data?.pickupAddress.name}\n` +
+                (data?.data?.dropAddress ? `Drop Address: ${data?.data?.dropAddress.name}\n` : '');
+
+            setWhatsappMsg(encodeURIComponent(msg));
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
-                setAmount({ price: 0, extraPrice: 0, total: data?.data.endPayment });
+                setAmount({ price: data?.data?.price, extraPrice: data?.data.extraHours * data?.data.extraPrice || 0, total: data?.data.endPayment, extraHours: data?.data.extraHours, extraHourPrice: data?.data.extraPrice });
+            } else {
+                setAmount();
             }
         }
         setLoading(false);
@@ -109,7 +125,7 @@ const ConfirmBooking = (props) => {
 
     useEffect(() => {
         if (props.bookingData) {
-            console.log("props.bookingData", props.bookingData)
+            //console.log("props.bookingData", props.bookingData)
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
     }, [props.bookingData]);
@@ -141,6 +157,7 @@ const ConfirmBooking = (props) => {
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Ride Details</Typography>
+                        <Typography variant="h6" color="green"><a target="_blank" href={`https://wa.me/${bookingDetails?.Customer?.phoneNumber.replace(/^(\+91)/, '')}?text=${whatsappMsg}`}>Share on Whatsapp</a></Typography>
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
@@ -163,7 +180,7 @@ const ConfirmBooking = (props) => {
             <Card>
                 <CardBody>
                     <div className="flex justify-between mb-2">
-                        <Typography variant="h5">Location Details</Typography>
+                        <Typography variant="h5">Location Details </Typography>
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
@@ -181,13 +198,13 @@ const ConfirmBooking = (props) => {
                 </CardBody>
             </Card>
             {amount && (
-                <Card className="my-4">
-                    <CardBody>
-                        <Typography variant="h5">
+                <Card className="my-6">
+                    {/* <CardBody> */}
+                    {/* <Typography variant="h5">
                             Package Details
                         </Typography>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
+                        <hr className="my-2" /> */}
+                    {/* <div className="space-y-2">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Package:</Typography>
                                 <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
@@ -210,50 +227,50 @@ const ConfirmBooking = (props) => {
                                 <Typography color="gray" variant="h6">Total: </Typography>
                                 <Typography>₹{amount?.total}</Typography>
                             </div>
-                        </div>
-                        {/* <div className="bg-gray-100 p-3 rounded-md mt-4">
+                        </div> */}
+                    {/* <div className="bg-gray-100 p-3 rounded-md mt-4">
                             <Typography variant="small" color="gray">
                                 Price might vary at the time of trip closure, based on other charges like
                                 parking, toll, trip extension and so on.
                             </Typography>
                         </div> */}
-                        <div className="mt-4 border rounded-xl bg-gray-200 p-4">
-                            <h2 className="text-2xl font-bold text-center">Invoice</h2>
-                            <div className="mt-3">
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Company Name: </Typography>
-                                    <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
-                                </div>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">GST Number: </Typography>
-                                    <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
-                                </div>
+                    <div className="border rounded-xl bg-gray-200 p-4">
+                        <h2 className="text-2xl font-bold text-center">Invoice</h2>
+                        <div className="mt-3">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Company Name: </Typography>
+                                <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
                             </div>
-                            <hr className="my-2 border border-black" />
-                            <div className="mt-4">
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Package:</Typography>
-                                    <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
-                                        }`}</Typography>
-                                </div>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
-                                    <Typography>₹ {amount?.price}</Typography>
-                                </div>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                        } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}: (6 x 100)`}</Typography>
-                                    <Typography>₹ {amount?.extraPrice}</Typography>
-                                </div>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total:</Typography>
-                                    <Typography style={{
-                                        fontWeight: 'bold'
-                                    }}>₹ {amount?.total}</Typography>
-                                </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">GST Number: </Typography>
+                                <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
                             </div>
                         </div>
-                    </CardBody>
+                        <hr className="my-2 border border-black" />
+                        <div className="mt-4">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Package:</Typography>
+                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
+                                    }`}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
+                                <Typography>₹ {amount?.price}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                    } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
+                                <Typography>₹ {amount?.extraPrice}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Total:</Typography>
+                                <Typography style={{
+                                    fontWeight: 'bold'
+                                }}>₹ {amount?.total}</Typography>
+                            </div>
+                        </div>
+                    </div>
+                    {/* </CardBody> */}
                 </Card>
             )}
 

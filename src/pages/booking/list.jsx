@@ -89,6 +89,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     };
 
     useEffect(() => {
+        console.log("LLIISST", bookingStage);
         getBookingsList();
     }, [customerId, bookingStage]);
 

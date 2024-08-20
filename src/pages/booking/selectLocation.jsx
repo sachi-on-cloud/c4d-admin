@@ -162,7 +162,7 @@ const SelectLocation = (props) => {
                 name: dropAddress
             } : null
         };
-        console.log('apiReqBody:', apiReqBody);
+        //console.log('apiReqBody:', apiReqBody);
         const data = await ApiRequestUtils.update(API_ROUTES.ADD_LOCATION, apiReqBody, props?.customerId);
         if (data?.success) {
             props?.onNext(1);

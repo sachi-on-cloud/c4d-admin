@@ -167,10 +167,17 @@ const Booking = (props) => {
 
     const onSelectBooking = (data) => {
         //console.log('selecting booking', data);
+        setBookingStage(4);
         setBookingData(data);
         setBookingView(true);
         setEditBooking();
     }
+    const onConfirmBooking = () => {
+        setBookingStage(0);
+        setBookingView(false);
+        console.log("LIST", bookingStage);
+    }
+
 
     const onCancelBookingView = () => { }
     return (
@@ -400,7 +407,8 @@ const Booking = (props) => {
                         customerId={bookingData?.customerId}
                         editBooking={editBooking}
                         onNext={() => {
-                            setBookingStage(2);
+                            //setBookingStage(2);
+                            onSelectBooking(bookingData)
                         }}
                         onPrev={() => setBookingStage(0)} />
                     }
@@ -411,7 +419,7 @@ const Booking = (props) => {
                     }
                 </>}
                 {bookingView && <>
-                    <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} />
+                    <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                 </>}
 
             </div>
