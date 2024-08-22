@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   Input,
@@ -20,7 +20,7 @@ export function SignIn() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser(prevUser => ({
@@ -34,12 +34,12 @@ export function SignIn() {
     const response = await ApiRequestUtils.post(API_ROUTES.USER_LOGIN, newUser);
     if (response.code) {
       login(response.code);
-      
+
       setNewUser({
         email: '',
         password: ''
       });
-      navigate('/dashboard/home');
+      navigate('/dashboard/booking');
     }
   };
 
