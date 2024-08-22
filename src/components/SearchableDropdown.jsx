@@ -1,5 +1,5 @@
 // src/components/SearchableDropdown.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) => {
@@ -7,6 +7,7 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
     const [isOpen, setIsOpen] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState();
     const [selectedValue, setSelectedValue] = useState(selected);
+    const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
     function findRecordById(records, field, id) {
@@ -28,6 +29,7 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
         }
     }, [options])
     const handleSearchChange = (e) => {
+        onSelect("");
         const value = e.target.value;
         setSearchText(e.target.value);
         const isNumeric = /^\d+$/.test(value);
@@ -55,9 +57,22 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
         onSelect(option); // Notify the parent component of the selection
         setIsOpen(false); // Close the dropdown menu
     };
+    const handleClickOutside = (event) => {
+        console.log(dropdownRef.current);
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("click", handleClickOutside);
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
 
     return (
-        <div className="w-full" onClick={() => setIsOpen(!isOpen)}>
+        <div className="w-full" ref={dropdownRef} onClick={() => setIsOpen(!isOpen)}>
             <input
                 type="text"
                 value={searchText}

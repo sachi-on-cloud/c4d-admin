@@ -3,12 +3,13 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Button } from '@material-tailwind/react';
+import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 
 const UserAdd = () => {
     const [userVal, setUserVal] = useState({});
+    const [alert, setAlert] = useState(false);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -69,8 +70,17 @@ const UserAdd = () => {
                 userData['password'] = values.password;
                 data = await ApiRequestUtils.post(API_ROUTES.ADD_USER, userData);
             }
-            console.log('User created:', data.data);
-            navigate('/dashboard/users');
+            if (!data?.success && data?.code === 203) {
+                setAlert(true);
+
+                setTimeout(() => {
+                    setAlert(false);
+                }, 2000)
+            } else {
+                resetForm();
+                console.log('User created:', data.data);
+                navigate('/dashboard/users');
+            }
 
         } catch (error) {
             console.error('Error creating user and car:', error);
@@ -81,6 +91,14 @@ const UserAdd = () => {
 
     return (
         <div className="p-4 mx-auto">
+            {alert && <div className='mb-2'>
+                <Alert
+                    color='red'
+                    className='py-3 px-6 rounded-xl'
+                >
+                    Driver already exist!
+                </Alert>
+            </div>}
             <h2 className="text-2xl font-bold mb-4">Add New User</h2>
             <Formik
                 initialValues={initialValues}

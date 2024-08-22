@@ -7,6 +7,7 @@ import {
     Select,
     Option,
     Input,
+    Spinner,
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { Utils } from '../../utils/utils';
@@ -28,6 +29,7 @@ const currentDate = () => {
 };
 
 const Booking = (props) => {
+    const [loading, setLoading] = useState(false);
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
     const [bookingTimes, setBookingTimes] = useState([]);
     const [bookingTimesForDay, setBookingTimesForDay] = useState([]);
@@ -175,10 +177,16 @@ const Booking = (props) => {
     const onConfirmBooking = () => {
         setBookingStage(0);
         setBookingView(false);
-        console.log("LIST", bookingStage);
+        //console.log("LIST", bookingStage);
     }
 
-
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Spinner className="h-12 w-12" />
+            </div>
+        );
+    }
     const onCancelBookingView = () => { }
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
@@ -189,7 +197,7 @@ const Booking = (props) => {
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
                     <Typography variant="h5" color='#000000'>
-                        {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : `Assign Drivers - ${bookingData?.bookingNumber} ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''}`}`}
+                        {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : `Assign Captain - ${bookingData?.bookingNumber} ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''}`}`}
                     </Typography>
                 </div>}
                 {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} customerNumber={customerNumber} />}
@@ -197,9 +205,11 @@ const Booking = (props) => {
                     {bookingStage === 0 && <Formik
                         initialValues={initialValues}
                         onSubmit={async (values, { resetForm }) => {
+                            setLoading(true);
                             await onSubmitHandler(values);
                             resetForm();
                             setRange({});
+                            setLoading(false);
                         }}
                         validationSchema={BOOKING_DETAILS_SCHEMA}
                         enableReinitialize={true}

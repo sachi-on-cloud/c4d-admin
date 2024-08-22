@@ -27,8 +27,8 @@ export function UserView() {
     if (searchQuery != "") {
       const phoneNumberPattern = `^${searchQuery}`;
 
-      const filteredUsers = customers.filter((customer) =>
-        new RegExp(phoneNumberPattern).test(customer.phoneNumber)
+      const filteredUsers = users.filter((user) =>
+        new RegExp(phoneNumberPattern).test(user.phoneNumber)
       );
       setUsers(filteredUsers)
       // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);

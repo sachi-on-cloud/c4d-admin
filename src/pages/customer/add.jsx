@@ -63,7 +63,7 @@ const CustomerAdd = (props) => {
                 customerData['phoneNumber'] = "+91" + values.phoneNumber;
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CUSTOMER, customerData);
             }
-            console.log('Customer created:', data);
+            //console.log('Customer created:', data);
 
             if (!data?.success && data?.code === 203) {
                 setAlert(true);

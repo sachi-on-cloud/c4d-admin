@@ -82,8 +82,8 @@ const ConfirmBooking = (props) => {
             //console.log(data?.data);
             setBookingDetails(data?.data);
             const msg = (data?.data?.Driver ? `Driver Name: ${data?.data?.Driver.firstName}\n Driver Number: ${data?.data?.Driver.phoneNumber}\n` : '') +
-                `Pickup Address: ${data?.data?.pickupAddress.name}\n` +
-                (data?.data?.dropAddress ? `Drop Address: ${data?.data?.dropAddress.name}\n` : '');
+                `Pickup Address: ${data?.data?.pickupAddress?.name}\n` +
+                (data?.data?.dropAddress ? `Drop Address: ${data?.data?.dropAddress?.name}\n` : '');
 
             setWhatsappMsg(encodeURIComponent(msg));
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
@@ -131,13 +131,16 @@ const ConfirmBooking = (props) => {
     }, [props.bookingData]);
 
     const onCancelPressHandler = async () => {
+        setLoading(true);
         const reqBody = {
             status: BOOKING_STATUS.CANCELLED,
             bookingId: bookingDetails?.id,
         };
         const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody);
         if (data?.success) {
-            navigate("/dashboard/booking");
+            //navigate("/dashboard/booking");
+            props.onConfirm()
+            setLoading(false);
         }
     };
 
@@ -349,7 +352,7 @@ const ConfirmBooking = (props) => {
                             </Button>
                         </>
                     }
-                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id &&
+                    {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id &&
                         <Button
                             color="black"
                             ripple="light"
