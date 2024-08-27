@@ -51,7 +51,7 @@ const SelectLocation = (props) => {
     const [pickupLocation, setPickupLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
-    const [mapZoom, setMapZoom] = useState(2);
+    const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
     const [editBooking, setEditBooking] = useState(props.editBooking);
 
@@ -70,6 +70,33 @@ const SelectLocation = (props) => {
             const location = pickupLocation || dropLocation;
             setMapCenter(location);
             setMapZoom(15);
+        } else {
+            if (!navigator.geolocation) {
+                setError('Geolocation is not supported by your browser');
+                return;
+            }
+
+            const successCallback = (position) => {
+                const { latitude, longitude } = position.coords;
+                setMapCenter({ lat: latitude, lng: longitude });
+                setMapZoom(12);
+            };
+
+            const errorCallback = (error) => {
+                console.log(`Error: ${error.message}`);
+            };
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.getCurrentPosition(
+                successCallback,
+                errorCallback,
+                options
+            );
         }
     }, [pickupLocation, dropLocation]);
     useEffect(() => {
@@ -264,8 +291,8 @@ const SelectLocation = (props) => {
                     </GoogleMap>
                 )}
             </div>
-            {/* <div className='flex flex-row'>
-                <Button
+            <div className='flex flex-row'>
+                {/* <Button
                     fullWidth
                     onClick={() => {
                         props?.onPrev()
@@ -273,7 +300,7 @@ const SelectLocation = (props) => {
                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                 >
                     Prev
-                </Button>
+                </Button> */}
                 <Button
                     fullWidth
                     color="black"
@@ -281,9 +308,9 @@ const SelectLocation = (props) => {
                     disabled={!pickupLocation}
                     className='my-6 mx-2 rounded-xl'
                 >
-                    Next
+                    Continue
                 </Button>
-            </div> */}
+            </div>
         </div>
     );
 };

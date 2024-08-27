@@ -44,9 +44,9 @@ const UserAdd = () => {
             .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/, 'Invalid email address')
             .required('Email address is required'),
         permission: Yup.array()
-            .of(Yup.string().required('Each package must be selected'))
-            .required('At least one package must be selected')
-            .min(1, 'At least one package must be selected'),
+            .of(Yup.string().required('Each permission must be selected'))
+            .required('At least one permission must be selected')
+            .min(1, 'At least one permission must be selected'),
         ...(isEditMode
             ? {}
             : {
@@ -96,7 +96,7 @@ const UserAdd = () => {
                     color='red'
                     className='py-3 px-6 rounded-xl'
                 >
-                    Driver already exist!
+                    User already exist!
                 </Alert>
             </div>}
             <h2 className="text-2xl font-bold mb-4">Add New User</h2>

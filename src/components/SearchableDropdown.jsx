@@ -58,7 +58,6 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
         setIsOpen(false); // Close the dropdown menu
     };
     const handleClickOutside = (event) => {
-        console.log(dropdownRef.current);
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
             setIsOpen(false);
         }

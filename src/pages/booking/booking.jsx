@@ -233,7 +233,7 @@ const Booking = (props) => {
                                         <Typography variant="h6" className="mb-2">
                                             Service Type
                                         </Typography>
-                                        <Field as="select" name="serviceType" disabled={editBooking} className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
+                                        <Field as="select" name="serviceType" disabled={editBooking || bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
                                             console.log('e.target.value', e.target.value);
                                             setFieldValue("serviceType", e.target.value);
                                             if (e.target.value === 'CAR_WASH')
@@ -261,6 +261,7 @@ const Booking = (props) => {
                                                     setFieldValue('toDate', '');
                                                 }
                                             }}
+                                            disabled={bookingStage === 1}
                                             variant={values?.packageTypeSelected === 'Intercity' ? 'filled' : 'outlined'}
                                         >
                                             Intercity
@@ -276,6 +277,7 @@ const Booking = (props) => {
                                                     setFieldValue('toDate', '');
                                                 }
                                             }}
+                                            disabled={bookingStage === 1}
                                             variant={values?.packageTypeSelected === 'Outstation' ? 'filled' : 'outlined'}
                                         >
                                             Outstation
@@ -301,11 +303,11 @@ const Booking = (props) => {
                                         setBookingTimesForDay(Utils.generateBookingTimesForDay(newDate));
                                     }}
                                 /> */}
-                                        <Field type="date" name="rideDate" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} onChange={(e) => {
+                                        <Field type="date" name="rideDate" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} onChange={(e) => {
                                             setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
                                             setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
                                         }}></Field>
-                                        <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
+                                        <Field as="select" name="rideTime" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
                                             <option value="">Select time</option>
                                             {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
                                                 <option key={item.id} value={item.id}>
@@ -321,7 +323,7 @@ const Booking = (props) => {
                                             <Typography variant="h6" className="mb-2">
                                                 Cab Type
                                             </Typography>
-                                            <Field as="select" name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                            <Field as="select" disabled={bookingStage === 1} name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300">
                                                 <option value="">Cab Type</option>
                                                 <option value="SEDAN">Sedan (5 Seater)</option>
                                                 <option value="HATCHBACK">Hatchback (5 Seater)</option>
@@ -337,7 +339,7 @@ const Booking = (props) => {
                                         <Typography variant="h6" className="mb-2">
                                             Choose a package
                                         </Typography>
-                                        <Field as="select" name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}>
+                                        <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}>
                                             <option value="">Select Package</option>
                                             {packageTypeSelectedData
                                                 .filter((item) => values.packageTypeSelected === item.type).map((item) => (
@@ -356,6 +358,7 @@ const Booking = (props) => {
                                         <Button
                                             fullWidth
                                             color="blue"
+                                            disabled={bookingStage === 1}
                                             onClick={() => setDatePickerVisible(!datePickerVisible)}
                                         >
                                             Select Date Range
@@ -397,18 +400,6 @@ const Booking = (props) => {
                                         )}
                                     </div>
                                 )}
-
-                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <SelectLocation
-                                    serviceType={bookingData?.serviceType}
-                                    bookingId={bookingData?.id}
-                                    customerId={bookingData?.customerId}
-                                    editBooking={editBooking}
-                                    onNext={() => {
-                                        //setBookingStage(2);
-                                        onSelectBooking(bookingData)
-                                    }}
-                                    onPrev={() => setBookingStage(0)} />
-                                }
                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                     fullWidth
                                     color="black"
@@ -432,6 +423,19 @@ const Booking = (props) => {
                         }}
                         onPrev={() => setBookingStage(0)} />
                     } */}
+
+                    <hr />
+                    {bookingStage === 1 && <SelectLocation
+                        serviceType={bookingData?.serviceType}
+                        bookingId={bookingData?.id}
+                        customerId={bookingData?.customerId}
+                        editBooking={editBooking}
+                        onNext={() => {
+                            setBookingStage(2);
+                            onSelectBooking(bookingData)
+                        }}
+                        onPrev={() => setBookingStage(0)} />
+                    }
                     {
                         bookingStage === 2 && <SearchDrivers bookingData={bookingData} onNext={() => {
                             setBookingStage(0);
