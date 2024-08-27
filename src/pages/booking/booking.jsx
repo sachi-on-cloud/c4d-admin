@@ -180,34 +180,33 @@ const Booking = (props) => {
         //console.log("LIST", bookingStage);
     }
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <Spinner className="h-12 w-12" />
-            </div>
-        );
-    }
+    // if (loading) {
+    //     return (
+    //         <div className="flex justify-center items-center h-screen">
+    //             <Spinner className="h-12 w-12" />
+    //         </div>
+    //     );
+    // }
     const onCancelBookingView = () => { }
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
                 {<BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />}
-
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
                     <Typography variant="h5" color='#000000'>
-                        {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'Select Location' : `Assign Captain - ${bookingData?.bookingNumber} ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''}`}`}
+                        {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : `Assign Captain - ${bookingData?.bookingNumber} ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''}`}`}
                     </Typography>
                 </div>}
                 {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} customerNumber={customerNumber} />}
                 {!showQuickCreateCustomer && !bookingView && <>
-                    {bookingStage === 0 && <Formik
+                    {(bookingStage === 0 || bookingStage === 1) && <Formik
                         initialValues={initialValues}
                         onSubmit={async (values, { resetForm }) => {
                             setLoading(true);
                             await onSubmitHandler(values);
-                            resetForm();
+                            // resetForm();
                             setRange({});
                             setLoading(false);
                         }}
@@ -399,7 +398,18 @@ const Booking = (props) => {
                                     </div>
                                 )}
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
+                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <SelectLocation
+                                    serviceType={bookingData?.serviceType}
+                                    bookingId={bookingData?.id}
+                                    customerId={bookingData?.customerId}
+                                    editBooking={editBooking}
+                                    onNext={() => {
+                                        //setBookingStage(2);
+                                        onSelectBooking(bookingData)
+                                    }}
+                                    onPrev={() => setBookingStage(0)} />
+                                }
+                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                     fullWidth
                                     color="black"
                                     onClick={handleSubmit}
@@ -411,7 +421,7 @@ const Booking = (props) => {
                             </>
                         )}
                     </Formik>}
-                    {bookingStage === 1 && <SelectLocation
+                    {/* {bookingStage === 0 && values.serviceType !== '' && <SelectLocation
                         serviceType={bookingData?.serviceType}
                         bookingId={bookingData?.id}
                         customerId={bookingData?.customerId}
@@ -421,7 +431,7 @@ const Booking = (props) => {
                             onSelectBooking(bookingData)
                         }}
                         onPrev={() => setBookingStage(0)} />
-                    }
+                    } */}
                     {
                         bookingStage === 2 && <SearchDrivers bookingData={bookingData} onNext={() => {
                             setBookingStage(0);
