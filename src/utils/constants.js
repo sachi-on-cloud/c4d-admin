@@ -239,6 +239,9 @@ export const supportNumber = "+919999999999";
 export const supportEmail = "c4dsupport@texve.com";
 export const supportMessage = `Welcome to C4D.\n Please raise your query!`;
 
+export const COMPANY_NAME = 'C4D';
+export const GST_NUMBER = '1234567890ABC';
+
 export const CAROUSEL_DATA = [
     {
         title: "Aenean leo",

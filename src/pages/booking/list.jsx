@@ -8,19 +8,21 @@ import {
     Popover,
     PopoverHandler,
     PopoverContent,
-    Checkbox
+    Checkbox,
+    IconButton
 } from "@material-tailwind/react";
-import { FaFilter } from 'react-icons/fa';
+import { FaArrowRight, FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
 
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
+    const [showPickedBooking, setShowPickedBooking] = useState(0);
 
     const handleFilterChange = (filterType, value) => {
         if (filterType === 'status') {
@@ -87,6 +89,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
     };
 
     useEffect(() => {
+        //console.log("LLIISST", bookingStage);
         getBookingsList();
     }, [customerId, bookingStage]);
 
@@ -102,6 +105,10 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
             navigate("/dashboard/booking");
         }
     }
+    const onAssignDriverHandler = (data) => {
+        setShowPickedBooking(data?.id);
+        onAssignDriver(data);
+    };
     function formatDate(dateString) {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -127,7 +134,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
-                                    {["Booking ID", "Service Type", "Driver Name", "Customer Name", "Date", "Created Date", "Status", ""].map((el) => (
+                                    {["Booking ID", "Service Type", "Driver Name", "Customer Name", "Date", "Created Date", "Status", "", ""].map((el) => (
                                         <th
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -181,13 +188,17 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                             <tr key={data?.id}>
                                                 <td className={className}>
                                                     <div className="flex items-center">
-                                                        <div onClick={() => navigate("/dashboard/confirm-booking", {
-                                                            state: {
-                                                                bookingId: data?.id,
-                                                                customerId: data?.customerId,
-                                                                edit: true
-                                                            }
-                                                        })}>
+                                                        <div onClick={() => {
+                                                            // navigate("/dashboard/confirm-booking", {
+                                                            // state: {
+                                                            //     bookingId: data?.id,
+                                                            //     customerId: data?.customerId,
+                                                            //     edit: true
+                                                            // }
+                                                            // });
+                                                            onSelectBooking(data);
+                                                        }
+                                                        }>
                                                             <Typography
                                                                 variant="small"
                                                                 color="blue"
@@ -245,13 +256,20 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                                                     value={"CANCELLED"}
                                                                     className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                 />
-                                                                :
-                                                                <Chip
-                                                                    variant="gradient"
-                                                                    // color={online ? "green" : "blue-gray"}
-                                                                    value={"INITIATED"}
-                                                                    className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                                                                />
+                                                                : data?.status == "INITIATED" && data?.Driver?.id ?
+                                                                    <Chip
+                                                                        variant="gradient"
+                                                                        value={"DRIVER ASSIGNED"}
+                                                                        className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                                    />
+
+                                                                    :
+                                                                    <Chip
+                                                                        variant="gradient"
+                                                                        // color={online ? "green" : "blue-gray"}
+                                                                        value={"INITIATED"}
+                                                                        className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                                    />
                                                     }
                                                 </td>
                                                 <td className={className}>
@@ -267,13 +285,21 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver }) {
                                                     {data?.status === 'INITIATED' && !data?.Driver?.id &&
                                                         <Button
                                                             fullWidth
-                                                            onClick={() => { onAssignDriver(data) }}
+                                                            onClick={() => {
+                                                                onAssignDriverHandler(data)
+                                                            }}
                                                             className="text-xs font-semibold text-white flex-wrap"
                                                         >
-                                                            Assign Driver
+                                                            Assign Captain
                                                         </Button>
                                                     }
                                                 </td>
+                                                {data?.id === showPickedBooking && bookingStage === 2 && < td className={className}>
+                                                    <IconButton>
+                                                        <FaArrowRight />
+                                                    </IconButton>
+
+                                                </td>}
                                             </tr>
                                         );
                                     }

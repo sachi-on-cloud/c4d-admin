@@ -57,9 +57,9 @@ const DriverAdd = () => {
         firstName: Yup.string().required('Name is required'),
         phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
         license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
-        address: Yup.string().required('Car number is required'),
-        reference: Yup.string().required('Car name is required'),
-        preference: Yup.string().required('Car type is required'),
+        address: Yup.string().required('Address is required'),
+        reference: Yup.string().required('Reference is required'),
+        preference: Yup.string().required('Preference is required'),
         packages: Yup.array()
             .of(Yup.string().required('Each package must be selected'))
             .required('At least one package must be selected')

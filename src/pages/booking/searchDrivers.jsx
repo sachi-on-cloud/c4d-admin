@@ -127,7 +127,7 @@ export function SearchDrivers(props) {
                                                         onClick={() => { onAssignDriver(id) }}
                                                         className="text-xs font-semibold text-white"
                                                     >
-                                                        Assign Driver
+                                                        Assign Captain
                                                     </Button>}
                                                 </td>
                                             </tr>
@@ -150,7 +150,7 @@ export function SearchDrivers(props) {
                     onClick={() => { props?.onNext() }}
                     className='text-white border-2 bg-black rounded-xl'
                 >
-                    Assign Driver Later
+                    Assign Captain Later
                 </Button>
             </div>
         </div >
