@@ -107,6 +107,7 @@ const Booking = (props) => {
     };
 
     const countDaysBetween = (date1, date2) => {
+        console.log("countDaysBetween", date1, date2);
         const timeDiff = date2.getTime() - date1.getTime();
         return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
     };
@@ -391,10 +392,10 @@ const Booking = (props) => {
                                                     </div>
                                                 </div>
                                                 <Typography variant='h6'>
-                                                    Selected Date: {countDaysBetween(values.fromDate, values.toDate)} days
+                                                    Selected Date: {countDaysBetween(range.startDate, range.endDate)} days
                                                 </Typography>
                                                 <Typography variant='h6'>
-                                                    Total Amount: ₹ {countDaysBetween(values.fromDate, values.toDate) * 1000}
+                                                    Total Amount: ₹ {countDaysBetween(range.startDate, range.endDate) * 1000}
                                                 </Typography>
                                             </Card>
                                         )}
