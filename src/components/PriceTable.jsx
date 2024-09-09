@@ -7,13 +7,12 @@ import {
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import PriceAdd from './AddPriceTable';
+import { Formik, Form, Field } from 'formik';
 import { useNavigate } from 'react-router-dom';
 
-function PriceTable({ driverId, packages, selectedPackages }) {
-    //console.log("selectedPackages", packages);
+function PriceTable({ driverId, packages, priceDetails }) {
     const [price, setPrice] = useState([]);
-    const [addedPackage, setAddedPackage] = useState([]);
+    const [editingId, setEditingId] = useState(null);
     const navigate = useNavigate();
 
     const getPrice = async (driverId) => {
@@ -21,8 +20,6 @@ function PriceTable({ driverId, packages, selectedPackages }) {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_PRICE + `?driverId=${driverId}`);
         if (data?.success) {
             setPrice(data?.data);
-            const val = data?.data.map(item => item.packageId);
-            setAddedPackage(val)
         }
     };
     useEffect(() => {
@@ -38,132 +35,109 @@ function PriceTable({ driverId, packages, selectedPackages }) {
         return null;
     }
 
+    const handleEdit = (id) => {
+        setEditingId(id);
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
+        setPrice([])
+        getPrice(driverId);
+    };
+
+    const handleSave = async (values, { setSubmitting }) => {
+        const priceData = {
+            packageId: values.packageId,
+            price: values.price,
+            extraPrice: values.extraPrice,
+            extraKmPrice: values.extraKmPrice,
+            nightCharge: values.nightCharge,
+            cancelCharge: values.cancelCharge,
+            extraCabType: values.extraCabType,
+            priceId: values.id,
+            driverId: values.DriverId
+        };
+        const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_PRICE, priceData);
+        getPrice(values.DriverId);
+        setEditingId(null);
+        setSubmitting(false);
+    };
     return (
         <div>
             <br /><br />
             <div className='flex flex-row justify-between px-2 mb-2'>
                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                {price?.length < selectedPackages?.length &&
-                    <button
-                        onClick={() => navigate('/dashboard/drivers/addPrice', {
-                            state: {
-                                driverId,
-                                packages,
-                                selectedPackages,
-                                addedPackage
-                            }
-                        })}
-                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        Add new
-                    </button>}
             </div>
             <Card>
                 {price.length > 0 ? (
-                    <>
-                        <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                            <table className="w-full min-w-[640px] table-auto">
-                                <thead>
-                                    <tr>
-                                        {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type", ""].map((el) => (
-                                            <th
-                                                key={el}
-                                                className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                            >
-                                                <Typography
-                                                    variant="h6"
-                                                    className="text-[12px] font-bold uppercase text-black"
-                                                >
-                                                    {el}
-                                                </Typography>
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {price.map(
-                                        ({ id, packageId, price, extraPrice, extraKmPrice, nightCharge, cancelCharge, extraCabType }, key) => {
-                                            const className = `py-3 px-5 ${key === price.length - 1
-                                                ? ""
-                                                : "border-b border-blue-gray-50"
-                                                }`;
-
-                                            return (
-                                                <tr key={id}>
-                                                    <td className={className}>
-                                                        <div className="flex items-center gap-4">
-                                                            <div>
-                                                                <Typography
-                                                                    variant="small"
-                                                                    color="blue-gray"
-                                                                    className="font-semibold"
-                                                                >
-                                                                    {getNameById(packageId, packages)}
+                    <Formik
+                        initialValues={price}
+                        onSubmit={(values) => values}
+                        enableReinitialize
+                    >
+                        {({ values, isSubmitting, setSubmitting }) => (
+                            <Form>
+                                <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                                    <table className="w-full min-w-[640px] table-auto">
+                                        <thead>
+                                            <tr>
+                                                {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type", "Actions"].map((el) => (
+                                                    <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                                        <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
+                                                            {el}
+                                                        </Typography>
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {values.map((priceItem, index) => (
+                                                <tr key={priceItem.id}>
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        <Typography variant="small" color="blue-gray" className="font-semibold">
+                                                            {getNameById(priceItem.packageId, packages)}
+                                                        </Typography>
+                                                    </td>
+                                                    {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+                                                        <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
+                                                            {editingId === priceItem.id ? (
+                                                                <Field
+                                                                    name={`[${index}].${field}`}
+                                                                    className="w-full p-1 text-xs border rounded"
+                                                                />
+                                                            ) : (
+                                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                    {priceItem[field]}
                                                                 </Typography>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {price}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {extraPrice}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {extraKmPrice}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {nightCharge}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {cancelCharge}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {extraCabType}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Button
-                                                            as="a"
-                                                            onClick={() => {
-                                                                navigate('/dashboard/drivers/addPrice', {
-                                                                    state: {
-                                                                        driverId,
-                                                                        packages,
-                                                                        selectedPackages,
-                                                                        addedPackage,
-                                                                        values: { id, packageId, price, extraPrice, extraKmPrice, nightCharge, cancelCharge, extraCabType }
-                                                                    }
-                                                                })
-                                                            }}
-                                                            className="text-xs font-semibold text-white"
-                                                        >
-                                                            Edit
-                                                        </Button>
+                                                            )}
+                                                        </td>
+                                                    ))}
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        {editingId === priceItem.id ? (
+                                                            <>
+                                                                <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
+                                                                    Save
+                                                                </Button>
+                                                                <Button type="button" onClick={handleCancel}>
+                                                                    Cancel
+                                                                </Button>
+                                                            </>
+                                                        ) : (
+                                                            <Button type="button" onClick={() => handleEdit(priceItem.id)}>
+                                                                Edit
+                                                            </Button>
+                                                        )}
                                                     </td>
                                                 </tr>
-                                            );
-                                        }
-                                    )}
-                                </tbody>
-                            </table>
-                        </CardBody>
-
-                    </>) : (
-
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </CardBody>
+                            </Form>
+                        )}
+                    </Formik>
+                ) : (
                     <h2 className="text-2xl font-bold mt-4 mb-4 ml-4">No Price</h2>
-
                 )}
             </Card>
         </div>

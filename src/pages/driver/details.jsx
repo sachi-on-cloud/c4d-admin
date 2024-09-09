@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
@@ -6,8 +6,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
+import WalletDetails from '@/components/WalletDetails';
+import PrintDriverDetails from '@/components/PrintDriverDetails';
 
 const DriverDetails = () => {
+    const printRef = useRef();
+
+    const handlePrintClick = () => {
+        if (printRef.current) {
+            printRef.current.print();  // Trigger the print action
+        }
+    };
+
     const navigate = useNavigate();
     const [driver, setDriver] = useState({});
     const [packageDetails, setPackageDetails] = useState([]);
@@ -40,21 +50,27 @@ const DriverDetails = () => {
         setDriver(data?.data);
     };
     const initialValues = {
-        salutation: driver?.salutation || "",
-        firstName: driver?.firstName || "",
-        phoneNumber: driver?.phoneNumber ? driver?.phoneNumber.replace(/^(\+91)/, '') : "",
-        license: driver?.license || "",
-        address: driver?.address || "",
-        reference: driver?.references || "",
-        preference: driver?.preference || "",
-        packages: driver?.packages || "",
-        carType: driver?.carType || "",
-        wallet: driver?.wallet || ""
+        salutation: driver?.result?.salutation || "",
+        firstName: driver?.result?.firstName || "",
+        phoneNumber: driver?.result?.phoneNumber ? driver?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
+        license: driver?.result?.license || "",
+        address: driver?.result?.curAddress || "",
+        reference: driver?.result?.references || "",
+        preference: driver?.result?.preference || "",
+        packages: driver?.result?.packages || "",
+        carType: driver?.result?.carType || "",
+        wallet: driver?.result?.wallet || "",
+        mode: driver?.result?.mode ? driver?.result?.mode === 'PREPAID' ? 'Prepaid' : 'Commision' : ""
     };
     return (
         <>
             <div className="p-4 mx-auto">
-                <h2 className="text-2xl font-bold mb-4">Driver Details</h2>
+                <div className="flex flex-row justify-between pr-5">
+                    <h2 className="text-2xl font-bold mb-4">Driver Details</h2>
+                    <img src="/img/printing.png" height={30} width={30} alt="" onClick={() => {
+                        handlePrintClick();
+                    }} />
+                </div>
                 <Formik
                     initialValues={initialValues}
                     enableReinitialize={true}
@@ -141,6 +157,20 @@ const DriverDetails = () => {
                                     <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
+                                    <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="mode" disabled value="Prepaid" className="form-radio" />
+                                            <span className="ml-2">Prepaid</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="mode" disabled value="Commission" className="form-radio" />
+                                            <span className="ml-2">Commission</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
                                     <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                     <Multiselect
                                         options={packageDetails}
@@ -151,17 +181,14 @@ const DriverDetails = () => {
                                         disable={true}
                                     />
                                 </div>
-                                <div>
-                                    <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                    <Field type="text" disabled name="wallet" className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" />
-                                    <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                                </div>
                             </div>
                         </div>
                     )}
                 </Formik>
             </div>
-            <PriceTable driverId={id} selectedPackages={driver?.packages} packages={packageDetails} />
+            {driver?.price && <PriceTable driverId={id} packages={packageDetails} priceDetails={driver?.price} />}
+            {driver?.wallet && <WalletDetails wallet={driver?.wallet} />}
+            {driver?.result && <PrintDriverDetails ref={printRef} price={driver?.price} driver={driver?.result} packages={packageDetails} />}
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/drivers'); }}
