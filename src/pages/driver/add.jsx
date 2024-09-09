@@ -3,14 +3,52 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Alert, Button } from '@material-tailwind/react';
+import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
+
+const LocationInput = ({ field, form, suggestions, onSearch }) => {
+    const [isFocused, setIsFocused] = useState(false);
+
+    return (
+        <div className="relative">
+            <Input
+                type="text"
+                placeholder="Enter address"
+                {...field}
+                onChange={(e) => {
+                    form.setFieldValue(field.name, e.target.value);
+                    onSearch(e.target.value);
+                }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                className="pr-10"
+            />
+            {suggestions.length > 0 && isFocused && (
+                <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {suggestions.map((suggestion, index) => (
+                        <ListItem
+                            key={index}
+                            onClick={() => {
+                                form.setFieldValue(field.name, suggestion);
+                                setIsFocused(false);
+                            }}
+                            className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <Typography variant="small">{suggestion}</Typography>
+                        </ListItem>
+                    ))}
+                </List>
+            )}
+        </div>
+    );
+};
 
 const DriverAdd = () => {
     const [driverVal, setDriverVal] = useState({});
     const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
+    const [addressSuggestions, setAddressSuggestions] = useState([]);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -30,16 +68,19 @@ const DriverAdd = () => {
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
         }
     };
+
     useEffect(() => {
         getPackageListDetails();
         if (isEditMode) {
             fetchItem(id);
         }
     }, [id, isEditMode]);
+
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
         setDriverVal(data.data);
     };
+
     const initialValues = {
         salutation: driverVal?.salutation || "",
         firstName: driverVal?.firstName || "",
@@ -50,8 +91,11 @@ const DriverAdd = () => {
         preference: driverVal?.preference || "",
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || "",
-        wallet: driverVal?.wallet || ""
+        wallet: driverVal?.wallet || "",
+        mode: driverVal?.mode || "Prepaid",
+        prices: []
     };
+
     const validationSchema = Yup.object({
         salutation: Yup.string().required('Salutation is required'),
         firstName: Yup.string().required('Name is required'),
@@ -60,13 +104,41 @@ const DriverAdd = () => {
         address: Yup.string().required('Address is required'),
         reference: Yup.string().required('Reference is required'),
         preference: Yup.string().required('Preference is required'),
+        mode: Yup.string().required('Mode is required'),
         packages: Yup.array()
             .of(Yup.string().required('Each package must be selected'))
             .required('At least one package must be selected')
             .min(1, 'At least one package must be selected'),
-
         wallet: Yup.string().required('Wallet is required'),
+        prices: Yup.array().of(
+            Yup.object().shape({
+                price: Yup.number().required('Price is required'),
+                extra_price: Yup.number().required('Extra price is required'),
+                extraKmPrice: Yup.number().required('Extra KM price is required'),
+                nightCharge: Yup.number().required('Night charge is required'),
+                cancelCharge: Yup.number().required('Cancel charge is required'),
+                extraCabType: Yup.string().required('Cab type is required'),
+            })
+        ).test('at-least-one-price', 'At least one price must be added', function (prices) {
+            return prices.some(price =>
+                price.price || price.extra_price || price.extraKmPrice ||
+                price.nightCharge || price.cancelCharge || price.extraCabType
+            );
+        })
     });
+
+    const searchLocations = async (query) => {
+        if (query.length > 2) {
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
+                address: query
+            });
+            if (data?.success && data?.data) {
+                setAddressSuggestions(data?.data)
+            }
+        } else {
+            setAddressSuggestions([]);
+        }
+    };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -80,7 +152,8 @@ const DriverAdd = () => {
                 preference: values.preference,
                 packages: values.packages,
                 carType: values.carType,
-                wallet: values.wallet
+                wallet: values.wallet,
+                prices: values.prices
             };
             let data;
             if (isEditMode) {
@@ -107,9 +180,22 @@ const DriverAdd = () => {
 
         } catch (error) {
             console.error('Error creating driver and car:', error);
-            // Handle error (e.g., show an error message)
         }
         setSubmitting(false);
+    };
+
+    const isFormValid = (values, errors) => {
+        const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
+        const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
+
+        const isPricesFilled = values.prices.some(price =>
+            price.price || price.extra_price || price.extraKmPrice ||
+            price.nightCharge || price.cancelCharge || price.extraCabType
+        );
+
+        const hasErrors = Object.keys(errors).length > 0;
+
+        return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
     };
     return (
         <div className="p-4 mx-auto">
@@ -127,9 +213,8 @@ const DriverAdd = () => {
                 validationSchema={validationSchema}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
-
             >
-                {({ handleSubmit, values, dirty, isValid, handleChange, setFieldValue }) => (
+                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -161,12 +246,26 @@ const DriverAdd = () => {
                                 <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
                             </div>
 
-                            <div>
+                            {/* <div>
                                 <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
                                 <Field type="text" name="address" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
 
+                            <div>
+                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
+                                <Field name="address">
+                                    {({ field, form }) => (
+                                        <LocationInput
+                                            field={field}
+                                            form={form}
+                                            suggestions={addressSuggestions}
+                                            onSearch={searchLocations}
+                                        />
+                                    )}
+                                </Field>
+                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</label>
                                 <Field type="text" name="reference" className="p-2 w-full rounded-md border-gray-300" />
@@ -210,6 +309,25 @@ const DriverAdd = () => {
                                 <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="mode" value="Prepaid" className="form-radio" />
+                                        <span className="ml-2">Prepaid</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="mode" value="Commission" className="form-radio" />
+                                        <span className="ml-2">Commission</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
+                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
                                 <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                 <Multiselect
                                     options={packageDetails}
@@ -217,21 +335,72 @@ const DriverAdd = () => {
                                     selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
                                     onSelect={(selectedList) => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
+                                        const newPrices = selectedList.map(item => ({
+                                            id: item.id,
+                                            period: item.period,
+                                            price: item.price,
+                                            extra_price: item.extra_price,
+                                            extraKmPrice: item.extraKmPrice,
+                                            nightCharge: item.nightCharge,
+                                            cancelCharge: item.cancelCharge,
+                                            extraCabType: item.extraCabType
+                                        }));
+                                        setFieldValue("prices", newPrices);
                                     }}
                                     onRemove={(selectedList) => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
+                                        setFieldValue("prices", values.prices.filter(price =>
+                                            selectedList.some(item => item.id === price.id)
+                                        ));
                                     }}
                                     placeholder="Select options"
                                     className="w-full rounded-md border-gray-300"
                                     showCheckbox={true}
                                 />
                             </div>
-                            <div>
-                                <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                            </div>
                         </div>
+                        {values.packages.length > 0 && (
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">Price Details</h2>
+                                <Card>
+                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                                        <table className="w-full min-w-[640px] table-auto">
+                                            <thead>
+                                                <tr>
+                                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
+                                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
+                                                                {el}
+                                                            </Typography>
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {values.prices.map((priceItem, index) => (
+                                                    <tr key={priceItem.id}>
+                                                        <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                            <Typography variant="small" color="blue-gray" className="font-semibold">
+                                                                {priceItem.period}
+                                                            </Typography>
+                                                        </td>
+                                                        {['price', 'extra_price', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+                                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
+                                                                <Field
+                                                                    name={`prices[${index}].${field}`}
+                                                                    className="w-full p-1 text-xs border rounded"
+                                                                />
+                                                                <ErrorMessage name={`prices[${index}].${field}`} component="div" className="text-red-500 text-xs" />
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </CardBody>
+                                </Card>
+                            </div>
+                        )}
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
@@ -244,7 +413,8 @@ const DriverAdd = () => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                disabled={isEditMode ? false : !dirty || !isValid}
+                                // disabled={isEditMode ? false : !dirty || !isValid}
+                                disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}
