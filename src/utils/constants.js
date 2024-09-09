@@ -139,7 +139,7 @@ export const API_ROUTES = {
     'OTP_VERIFICATION': '/otp-verify',
     'REGISTER_CUSTOMER': '/register',
     'UPDATE_CUSTOMER': '/customer',
-    'REGISTER_DRIVER': '/register/driver',
+    'REGISTER_DRIVER': '/register/admin/driver',
     'UPDATE_DRIVER': '/driver/update',
     'GET_CUSTOMER': '/customer',
     'REGISTER_CAR_DETAILS': '/car-number',

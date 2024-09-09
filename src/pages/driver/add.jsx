@@ -142,19 +142,21 @@ const DriverAdd = () => {
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            const driverData = {
+            const driverDetails = {
                 salutation: values.salutation,
                 firstName: values.firstName,
                 phoneNumber: "+91" + values.phoneNumber,
                 license: values.license,
-                address: values.address,
+                curAddress: values.address,
                 references: values.reference,
                 preference: values.preference,
                 packages: values.packages,
                 carType: values.carType,
                 wallet: values.wallet,
-                prices: values.prices
             };
+            let driverData = { driverDetails, prices: values.prices }
+            console.log(driverData);
+            //return;
             let data;
             if (isEditMode) {
                 driverData['driverId'] = id;
@@ -336,7 +338,7 @@ const DriverAdd = () => {
                                     onSelect={(selectedList) => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
                                         const newPrices = selectedList.map(item => ({
-                                            id: item.id,
+                                            packageId: item.id,
                                             period: item.period,
                                             price: item.price,
                                             extra_price: item.extra_price,
