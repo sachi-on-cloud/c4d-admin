@@ -26,6 +26,7 @@ import AddPriceDetails from "./pages/driver/addPriceDetails";
 import { BookingsList, SearchDrivers } from "./pages/booking";
 import UserDetails from "./pages/users/details";
 import CustomerDetails from "./pages/customer/details";
+import Commission from "./pages/commission/add";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -142,7 +143,7 @@ export const routes = [
         element: <UserDetails />,
         display: false
       },
-      
+
       {
         icon: <HomeModernIcon {...icon} />,
         name: "BookingsList",
@@ -167,7 +168,14 @@ export const routes = [
         path: "/search-drivers",
         element: <SearchDrivers />,
         display: false
-      }
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Commission",
+        path: "/commission",
+        element: <Commission />,
+        display: true
+      },
     ],
   },
   {
