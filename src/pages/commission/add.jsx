@@ -39,9 +39,9 @@ function Commission({ driverId, packages, priceDetails }) {
         setEditingId(id);
     };
 
-    const handleCancel = () => {
+    const handleCancel = (resetForm) => {
         setEditingId(null);
-        getPackageListDetails();
+        resetForm()
     };
 
     const handleSave = async (values, { setSubmitting }) => {
@@ -68,7 +68,7 @@ function Commission({ driverId, packages, priceDetails }) {
                         onSubmit={(values) => values}
                         enableReinitialize
                     >
-                        {({ values, isSubmitting, setSubmitting }) => (
+                        {({ values, isSubmitting, setSubmitting, resetForm }) => (
                             <Form>
                                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                                     <table className="w-full min-w-[640px] table-auto">
@@ -105,7 +105,7 @@ function Commission({ driverId, packages, priceDetails }) {
                                                                 />
                                                             ) : (
                                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                    {priceItem[field]}
+                                                                    {priceItem[field]} %
                                                                 </Typography>
                                                             )}
                                                         </td>
@@ -116,7 +116,7 @@ function Commission({ driverId, packages, priceDetails }) {
                                                                 <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
                                                                     Save
                                                                 </Button>
-                                                                <Button type="button" onClick={handleCancel}>
+                                                                <Button type="button" onClick={() => handleCancel(resetForm)}>
                                                                     Cancel
                                                                 </Button>
                                                             </>
@@ -135,7 +135,7 @@ function Commission({ driverId, packages, priceDetails }) {
                         )}
                     </Formik>
                 ) : (
-                    <h2 className="text-2xl font-bold mt-4 mb-4 ml-4">No Price</h2>
+                    <h2 className="text-2xl font-bold mt-4 mb-4 ml-4">No Commission</h2>
                 )}
             </Card>
         </div>
