@@ -1,11 +1,14 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import {
   CardBody,
   Typography
 } from "@material-tailwind/react";
 import ReactDOMServer from 'react-dom/server';
+import { ApiRequestUtils } from "@/utils/apiRequestUtils";
+import { API_ROUTES } from "@/utils/constants";
 
 const PrintDriverDetails = forwardRef((props, ref) => {
+  const [driver, setDriver] = useState();
   function getNameById(id, obj) {
     for (const key in obj) {
       if (obj[key].id === id) {
@@ -14,6 +17,15 @@ const PrintDriverDetails = forwardRef((props, ref) => {
     }
     return null;
   }
+
+  const fetchItem = async (itemId) => {
+    const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
+    setDriver(data?.data);
+  };
+
+  useEffect(() => {
+    fetchItem(props?.driverId);
+  })
   const driverDetails = () => {
     return (
       <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
@@ -30,30 +42,30 @@ const PrintDriverDetails = forwardRef((props, ref) => {
             </tr>
           </thead>
           <tbody>
-            <tr key={props?.driver?.id}>
+            <tr key={driver?.result?.id}>
               <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography variant="small" color="blue-gray" className="font-semibold">
-                  {props?.driver?.firstName}
+                  {driver?.result?.firstName}
                 </Typography>
               </td>
               <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography variant="small" color="blue-gray" className="font-semibold">
-                  {props?.driver?.phoneNumber}
+                  {driver?.result?.phoneNumber}
                 </Typography>
               </td>
               <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography variant="small" color="blue-gray" className="font-semibold">
-                  {props?.driver?.carType}
+                  {driver?.result?.carType}
                 </Typography>
               </td>
               <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography variant="small" color="blue-gray" className="font-semibold">
-                  {props?.driver?.preference}
+                  {driver?.result?.preference}
                 </Typography>
               </td>
               <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography variant="small" color="blue-gray" className="font-semibold">
-                  {props?.driver?.mode}
+                  {driver?.result?.mode}
                 </Typography>
               </td>
             </tr>
@@ -79,7 +91,7 @@ const PrintDriverDetails = forwardRef((props, ref) => {
             </tr>
           </thead>
           <tbody>
-            {props?.price?.map((priceItem, index) => (
+            {driver?.price?.map((priceItem, index) => (
               <tr key={priceItem.id}>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
                   <Typography variant="small" color="blue-gray" className="font-semibold">
