@@ -11,10 +11,13 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import DriverSearch from '@/components/DriverSearch';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 
 export function SearchDrivers(props) {
     const [drivers, setDrivers] = useState([]);
+    const [sortField, setSortField] = useState(null);
+    const [sortDirection, setSortDirection] = useState('asc');
     const navigate = useNavigate();
     const location = useLocation();
     const paramsPassed = location.state;
@@ -45,6 +48,26 @@ export function SearchDrivers(props) {
             }
         }
     };
+
+    const handleSort = (field) => {
+        const isAsc = sortField === field && sortDirection === 'asc';
+        setSortField(field);
+        setSortDirection(isAsc ? 'desc' : 'asc');
+
+        const sortedDrivers = [...drivers].sort((a, b) => {
+            if (a[field] < b[field]) return isAsc ? 1 : -1;
+            if (a[field] > b[field]) return isAsc ? -1 : 1;
+            return 0;
+        });
+
+        setDrivers(sortedDrivers);
+    };
+
+    const SortIcon = ({ field }) => {
+        if (sortField !== field) return null;
+        return sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />;
+    };
+
     useEffect(() => {
         if (props?.bookingData) {
             getDriversList();
@@ -70,16 +93,20 @@ export function SearchDrivers(props) {
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
-                                    {["Name", "Phone Number", "Status"].map((el) => (
+                                    {["Name", "Phone Number", "Intercity Count", "Outstation Count", "Status"].map((el) => (
                                         <th
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                         >
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                onClick={() => {
+                                                    ['Intercity Count', 'Outstation Count'].includes(el) && handleSort(el === 'Intercity Count' ? 'intercityCount' : 'outstationCount')
+                                                }}
                                             >
                                                 {el}
+                                                {['Intercity Count', 'Outstation Count'].includes(el) && <SortIcon field={el === 'Intercity Count' ? 'intercityCount' : 'outstationCount'} />}
                                             </Typography>
                                         </th>
                                     ))}
@@ -87,7 +114,7 @@ export function SearchDrivers(props) {
                             </thead>
                             <tbody>
                                 {drivers.map(
-                                    ({ id, firstName, status, phoneNumber, email }, key) => {
+                                    ({ id, firstName, status, phoneNumber, intercityCount, outstationCount }, key) => {
                                         const className = `py-3 px-5 ${key === drivers.length - 1
                                             ? ""
                                             : "border-b border-blue-gray-50"
@@ -111,6 +138,16 @@ export function SearchDrivers(props) {
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
                                                         {phoneNumber}
+                                                    </Typography>
+                                                </td>
+                                                <td className={className}>
+                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        {intercityCount}
+                                                    </Typography>
+                                                </td>
+                                                <td className={className}>
+                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        {outstationCount}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
