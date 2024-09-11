@@ -7,37 +7,32 @@ import {
     Button
 } from '@material-tailwind/react';
 import { Formik, Form, Field } from 'formik';
+import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import { API_ROUTES } from '@/utils/constants';
 
-const WalletDetails = ({ wallet }) => {
+const WalletDetails = ({ wallet, onFetch }) => {
     const navigate = useNavigate();
     const [editingId, setEditingId] = useState(null);
 
     const handleSave = async (values, { setSubmitting }) => {
-        // const priceData = {
-        //     packageId: values.packageId,
-        //     price: values.price,
-        //     extraPrice: values.extraPrice,
-        //     extraKmPrice: values.extraKmPrice,
-        //     nightCharge: values.nightCharge,
-        //     cancelCharge: values.cancelCharge,
-        //     extraCabType: values.extraCabType,
-        //     priceId: values.id,
-        //     driverId: values.DriverId
-        // };
-        // const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_PRICE, priceData);
-        // getPrice(values.DriverId);
-        // setEditingId(null);
-        // setSubmitting(false);
+        const walletData = {
+            walletId: values.id,
+            commission: values.commission
+        };
+        const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_WALLET, walletData);
+        setEditingId(null);
+        setSubmitting(false);
+        onFetch();
     };
 
     const handleEdit = (id) => {
         setEditingId(id);
+        onFetch();
     };
 
-    const handleCancel = () => {
+    const handleCancel = (resetForm) => {
         setEditingId(null);
-        // setPrice([])
-        // getPrice(driverId);
+        resetForm();
     };
 
     return (
@@ -53,7 +48,7 @@ const WalletDetails = ({ wallet }) => {
                         onSubmit={(values) => values}
                         enableReinitialize
                     >
-                        {({ values, isSubmitting, setSubmitting }) => (
+                        {({ values, isSubmitting, setSubmitting, resetForm }) => (
                             <Form>
                                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                                     <table className="w-full min-w-[640px] table-auto">
@@ -71,7 +66,12 @@ const WalletDetails = ({ wallet }) => {
                                         <tbody>
                                             {values.map((priceItem, index) => (
                                                 <tr key={priceItem.id}>
-                                                    {['type', 'commission'].map((field) => (
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        <Typography variant="small" color="blue-gray" className="font-semibold">
+                                                            {priceItem.type}
+                                                        </Typography>
+                                                    </td>
+                                                    {['commission'].map((field) => (
                                                         <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                             {editingId === priceItem.id ? (
                                                                 <Field
@@ -91,7 +91,7 @@ const WalletDetails = ({ wallet }) => {
                                                                 <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
                                                                     Save
                                                                 </Button>
-                                                                <Button type="button" onClick={handleCancel}>
+                                                                <Button type="button" onClick={() => handleCancel(resetForm)}>
                                                                     Cancel
                                                                 </Button>
                                                             </>

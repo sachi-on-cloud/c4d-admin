@@ -10,9 +10,11 @@ import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 
 const DriverDetails = () => {
+    const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
     const handlePrintClick = () => {
+        setEnablePrint(true);
         if (printRef.current) {
             printRef.current.print();  // Trigger the print action
         }
@@ -187,8 +189,8 @@ const DriverDetails = () => {
                 </Formik>
             </div>
             {driver?.price && <PriceTable driverId={id} packages={packageDetails} priceDetails={driver?.price} />}
-            {driver?.wallet && <WalletDetails wallet={driver?.wallet} />}
-            {driver?.result && <PrintDriverDetails ref={printRef} price={driver?.price} driver={driver?.result} packages={packageDetails} />}
+            {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />}
+            {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} />}
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/drivers'); }}

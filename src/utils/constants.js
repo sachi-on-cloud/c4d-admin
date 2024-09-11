@@ -189,6 +189,7 @@ export const API_ROUTES = {
     'UPDATE_DRIVERS': '/admin-driver/update',
     'ADMIN_BOOKING_STATUS': '/admin-booking-status',
     'ADMIN_BOOKING_PRICE': '/get-booking-price',
+    'UPDATE_WALLET': '/update-wallet',
     'UPDATE_COMMISSION': '/update/commission',
 };
 

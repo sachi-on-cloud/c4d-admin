@@ -39,10 +39,9 @@ function PriceTable({ driverId, packages, priceDetails }) {
         setEditingId(id);
     };
 
-    const handleCancel = () => {
+    const handleCancel = (resetForm) => {
         setEditingId(null);
-        setPrice([])
-        getPrice(driverId);
+        resetForm();
     };
 
     const handleSave = async (values, { setSubmitting }) => {
@@ -75,7 +74,7 @@ function PriceTable({ driverId, packages, priceDetails }) {
                         onSubmit={(values) => values}
                         enableReinitialize
                     >
-                        {({ values, isSubmitting, setSubmitting }) => (
+                        {({ values, isSubmitting, setSubmitting, resetForm }) => (
                             <Form>
                                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                                     <table className="w-full min-w-[640px] table-auto">
@@ -118,7 +117,7 @@ function PriceTable({ driverId, packages, priceDetails }) {
                                                                 <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
                                                                     Save
                                                                 </Button>
-                                                                <Button type="button" onClick={handleCancel}>
+                                                                <Button type="button" onClick={() => handleCancel(resetForm)}>
                                                                     Cancel
                                                                 </Button>
                                                             </>
