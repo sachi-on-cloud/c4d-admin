@@ -27,6 +27,7 @@ import { BookingsList, SearchDrivers } from "./pages/booking";
 import UserDetails from "./pages/users/details";
 import CustomerDetails from "./pages/customer/details";
 import Commission from "./pages/commission/add";
+import DriverEdit from "./pages/driver/edit";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -105,7 +106,7 @@ export const routes = [
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/drivers/edit/:id",
-        element: <DriverAdd />,
+        element: <DriverEdit />,
         display: false
       },
       {

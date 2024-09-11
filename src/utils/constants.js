@@ -140,7 +140,7 @@ export const API_ROUTES = {
     'REGISTER_CUSTOMER': '/register',
     'UPDATE_CUSTOMER': '/customer',
     'REGISTER_DRIVER': '/register/admin/driver',
-    'UPDATE_DRIVER': '/driver/update',
+    'UPDATE_DRIVER': '/update/admin/driver',
     'GET_CUSTOMER': '/customer',
     'REGISTER_CAR_DETAILS': '/car-number',
     'ADD_CAR_DETAILS': '/car',

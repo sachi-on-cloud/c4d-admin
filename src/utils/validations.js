@@ -55,3 +55,34 @@ export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
         .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/, 'Invalid email address')
         .required('Email address is required')
 });
+
+export const DRIVER_SCHEMA = Yup.object({
+    salutation: Yup.string().required('Salutation is required'),
+    firstName: Yup.string().required('Name is required'),
+    phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
+    license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+    address: Yup.string().required('Address is required'),
+    reference: Yup.string().required('Reference is required'),
+    preference: Yup.string().required('Preference is required'),
+    mode: Yup.string().required('Mode is required'),
+    packages: Yup.array()
+        .of(Yup.string().required('Each package must be selected'))
+        .required('At least one package must be selected')
+        .min(1, 'At least one package must be selected'),
+    wallet: Yup.string().required('Wallet is required'),
+    prices: Yup.array().of(
+        Yup.object().shape({
+            price: Yup.number().required('Price is required'),
+            extraPrice: Yup.number().required('Extra price is required'),
+            extraKmPrice: Yup.number().required('Extra KM price is required'),
+            nightCharge: Yup.number().required('Night charge is required'),
+            cancelCharge: Yup.number().required('Cancel charge is required'),
+            extraCabType: Yup.string().required('Cab type is required'),
+        })
+    ).test('at-least-one-price', 'At least one price must be added', function (prices) {
+        return prices.some(price =>
+            price.price || price.extraPrice || price.extraKmPrice ||
+            price.nightCharge || price.cancelCharge || price.extraCabType
+        );
+    })
+});
