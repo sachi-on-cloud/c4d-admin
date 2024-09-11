@@ -99,7 +99,7 @@ const DriverEdit = () => {
         packages: driverVal?.result?.packages || "",
         wallet: driverVal?.result?.wallet || "",
         mode: driverVal?.result?.mode ? driverVal?.result?.mode === 'PREPAID' ? 'Prepaid' : 'Commision' : "",
-        prices: driverVal?.price ? driverVal?.price : []
+        prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : []
     };
 
     const searchLocations = async (query) => {
@@ -283,7 +283,7 @@ const DriverEdit = () => {
                                     selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
                                     onSelect={(selectedList) => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
-                                        const newPrices = selectedList.map(item => ({
+                                        const newPrices = selectedList.filter((el) => !values.packages.includes(el.id)).map(item => ({
                                             packageId: item.id,
                                             period: item.period,
                                             price: item.price,
@@ -293,7 +293,7 @@ const DriverEdit = () => {
                                             cancelCharge: item.cancelCharge,
                                             extraCabType: item.extraCabType
                                         }));
-                                        setFieldValue("prices", newPrices);
+                                        setFieldValue("prices", [...values.prices, ...newPrices]);
                                     }}
                                     onRemove={(selectedList) => {
                                         setFieldValue("packages", selectedList.map(item => item.id));

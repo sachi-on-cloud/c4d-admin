@@ -188,7 +188,7 @@ const DriverDetails = () => {
                     )}
                 </Formik>
             </div>
-            {driver?.price && <PriceTable driverId={id} packages={packageDetails} priceDetails={driver?.price} />}
+            {driver?.price && <PriceTable driverId={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />}
             {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} />}
             <div className='flex justify-center w-full'>

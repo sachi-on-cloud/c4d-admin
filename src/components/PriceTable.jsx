@@ -10,7 +10,7 @@ import { API_ROUTES } from "@/utils/constants";
 import { Formik, Form, Field } from 'formik';
 import { useNavigate } from 'react-router-dom';
 
-function PriceTable({ driverId, packages, priceDetails }) {
+function PriceTable({ driverId, packages, selectedPackages }) {
     const [price, setPrice] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const navigate = useNavigate();
@@ -19,7 +19,8 @@ function PriceTable({ driverId, packages, priceDetails }) {
 
         const data = await ApiRequestUtils.get(API_ROUTES.GET_PRICE + `?driverId=${driverId}`);
         if (data?.success) {
-            setPrice(data?.data);
+            const priceData = data?.data.filter((el) => selectedPackages.includes(el.packageId));
+            setPrice(priceData);
         }
     };
     useEffect(() => {
