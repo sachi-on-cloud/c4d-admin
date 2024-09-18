@@ -50,7 +50,8 @@ const ConfirmBooking = (props) => {
             amount: 0,
             extraHours: 0,
             price: 0,
-            extraPrice: 0
+            extraPrice: 0,
+            extraHourPrice: 0,
         };
         if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
             reqBody.type = "start";
@@ -61,6 +62,7 @@ const ConfirmBooking = (props) => {
                 reqBody.extraHours = amount?.extraHours;
                 reqBody.price = amount?.price;
                 reqBody.extraPrice = amount?.extraPrice;
+                reqBody.extraHourPrice = amount?.extraHourPrice;
             } else {
                 alert("Please check price before end the trip");
                 setLoading(false);
@@ -87,7 +89,7 @@ const ConfirmBooking = (props) => {
 
             setWhatsappMsg(encodeURIComponent(msg));
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
-                setAmount({ price: data?.data?.price, extraPrice: data?.data.extraHours * data?.data.extraPrice || 0, total: data?.data.endPayment, extraHours: data?.data.extraHours, extraHourPrice: data?.data.extraPrice });
+                setAmount({ price: data?.data?.price, extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0, total: data?.data.endPayment, extraHours: data?.data.extraHours, extraHourPrice: data?.data.extraHourPrice });
             } else {
                 setAmount();
             }
