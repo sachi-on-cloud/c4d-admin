@@ -92,7 +92,7 @@ const DriverAdd = () => {
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || "",
         wallet: driverVal?.wallet || "",
-        mode: driverVal?.mode || "Prepaid",
+        mode: driverVal?.mode || "PREPAID",
         prices: []
     };
 
@@ -153,6 +153,7 @@ const DriverAdd = () => {
                 packages: values.packages,
                 carType: values.carType,
                 wallet: values.wallet,
+                mode: values.mode,
             };
             let driverData = { driverDetails, prices: values.prices }
             console.log(driverData);
@@ -314,11 +315,11 @@ const DriverAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="mode" value="Prepaid" className="form-radio" />
+                                        <Field type="radio" name="mode" value="PREPAID" className="form-radio" />
                                         <span className="ml-2">Prepaid</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="mode" value="Commission" className="form-radio" />
+                                        <Field type="radio" name="mode" value="COMMISSION" className="form-radio" />
                                         <span className="ml-2">Commission</span>
                                     </label>
                                 </div>

@@ -98,7 +98,7 @@ const DriverEdit = () => {
         carType: driverVal?.result?.carType || "",
         packages: driverVal?.result?.packages || "",
         wallet: driverVal?.result?.wallet || "",
-        mode: driverVal?.result?.mode ? driverVal?.result?.mode === 'PREPAID' ? 'Prepaid' : 'Commision' : "",
+        mode: driverVal?.result?.mode ? driverVal?.result?.mode === 'PREPAID' ? 'PREPAID' : 'COMMISSION' : "",
         prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : []
     };
 
@@ -116,7 +116,7 @@ const DriverEdit = () => {
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
-        console.log('onSubmit :', values)
+        //console.log('onSubmit :', values)
         try {
             const driverDetails = {
                 salutation: values.salutation,
@@ -129,6 +129,7 @@ const DriverEdit = () => {
                 packages: values.packages,
                 carType: values.carType,
                 wallet: values.wallet,
+                mode: values.mode,
                 driverId: id
             };
             let driverData = { driverDetails, prices: values.prices }
@@ -260,11 +261,11 @@ const DriverEdit = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="mode" value="Prepaid" className="form-radio" />
+                                        <Field type="radio" name="mode" value="PREPAID" className="form-radio" />
                                         <span className="ml-2">Prepaid</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="mode" value="Commission" className="form-radio" />
+                                        <Field type="radio" name="mode" value="COMMISSION" className="form-radio" />
                                         <span className="ml-2">Commission</span>
                                     </label>
                                 </div>

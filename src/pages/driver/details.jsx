@@ -62,7 +62,7 @@ const DriverDetails = () => {
         packages: driver?.result?.packages || "",
         carType: driver?.result?.carType || "",
         wallet: driver?.result?.wallet || "",
-        mode: driver?.result?.mode ? driver?.result?.mode === 'PREPAID' ? 'Prepaid' : 'Commision' : ""
+        mode: driver?.result?.mode ? driver?.result?.mode === 'PREPAID' ? 'PREPAID' : 'COMMISSION' : ""
     };
     return (
         <>
@@ -162,11 +162,11 @@ const DriverDetails = () => {
                                     <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
                                     <div className="space-x-4">
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="mode" disabled value="Prepaid" className="form-radio" />
+                                            <Field type="radio" name="mode" disabled value="PREPAID" className="form-radio" />
                                             <span className="ml-2">Prepaid</span>
                                         </label>
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="mode" disabled value="Commission" className="form-radio" />
+                                            <Field type="radio" name="mode" disabled value="COMMISSION" className="form-radio" />
                                             <span className="ml-2">Commission</span>
                                         </label>
                                     </div>
