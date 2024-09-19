@@ -258,7 +258,7 @@ const ConfirmBooking = (props) => {
                                 <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""
                                     }`}</Typography>
                             </div>
-                            {bookingDetails?.packageType === "Intercity" || bookingDetails?.packageType === "Outstation" &&
+                            {bookingDetails?.packageType === "Intercity" || bookingDetails?.packageType === "Outstation" ?
                                 <>
                                     <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
@@ -269,7 +269,7 @@ const ConfirmBooking = (props) => {
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
                                         <Typography>₹ {amount?.extraPrice}</Typography>
                                     </div>
-                                </>
+                                </> : ""
                             }
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Total:</Typography>
