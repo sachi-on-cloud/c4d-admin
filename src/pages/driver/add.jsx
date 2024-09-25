@@ -49,6 +49,7 @@ const DriverAdd = () => {
     const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -99,8 +100,22 @@ const DriverAdd = () => {
     const validationSchema = Yup.object({
         salutation: Yup.string().required('Salutation is required'),
         firstName: Yup.string().required('Name is required'),
-        phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
-        license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        phoneNumber: Yup.string()
+            .matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number')
+            .required('Phone number is required')
+            .test('unique-phone', 'Phone number already exists', async function(value) {
+                if (!value) return true;
+                const isUnique = await checkUniquePhoneNumber(value);
+                return isUnique;
+            }),
+        license: Yup.string()
+            .matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License')
+            .required('Driving License is required')
+            .test('unique-license', 'License number already exists', async function(value) {
+                if (!value) return true;
+                const isUnique = await checkUniqueLicenseNumber(value);
+                return isUnique;
+            }),
         address: Yup.string().required('Address is required'),
         reference: Yup.string().required('Reference is required'),
         preference: Yup.string().required('Preference is required'),
@@ -109,7 +124,7 @@ const DriverAdd = () => {
             .of(Yup.string().required('Each package must be selected'))
             .required('At least one package must be selected')
             .min(1, 'At least one package must be selected'),
-        wallet: Yup.string().required('Wallet is required'),
+        wallet: Yup.number().required('Wallet is required').typeError('Wallet must be a number').positive('Wallet must be a positive number'),
         prices: Yup.array().of(
             Yup.object().shape({
                 price: Yup.number().required('Price is required'),
@@ -126,7 +141,25 @@ const DriverAdd = () => {
             );
         })
     });
+    const checkUniquePhoneNumber = async (phoneNumber) => {
+        try {
+            const response = await ApiRequestUtils.get(`${API_ROUTES.CHECK_UNIQUE_PHONE}?phoneNumber=${phoneNumber}`);
+            return response.isUnique;
+        } catch (error) {
+            console.error('Error checking unique phone number:', error);
+            return false;
+        }
+    };
 
+    const checkUniqueLicenseNumber = async (licenseNumber) => {
+        try {
+            const response = await ApiRequestUtils.get(`${API_ROUTES.CHECK_UNIQUE_LICENSE}?licenseNumber=${licenseNumber}`);
+            return response.isUnique;
+        } catch (error) {
+            console.error('Error checking unique license number:', error);
+            return false;
+        }
+    };
     const searchLocations = async (query) => {
         if (query.length > 2) {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
@@ -165,24 +198,30 @@ const DriverAdd = () => {
             } else {
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             }
-            if (!data?.success && data?.code === 203) {
+            if (data?.success) {
+                console.log('Driver created:', data.data);
+                navigate('/dashboard/drivers', {
+                    state: {
+                        driverAdded: true,
+                        driverName: data?.data?.firstName
+                    }
+                });
+            } else {
+                setErrorMessage(data?.message || 'An error occurred while adding the driver');
                 setAlert(true);
-
                 setTimeout(() => {
                     setAlert(false);
-                    resetForm();
-                }, 2000)
+                    setErrorMessage('');
+                }, 5000);
             }
-            console.log('Driver created:', data.data);
-            navigate('/dashboard/drivers', {
-                state: {
-                    driverAdded: true,
-                    driverName: data?.data?.firstName
-                }
-            });
-
         } catch (error) {
             console.error('Error creating driver and car:', error);
+            setErrorMessage('An unexpected error occurred');
+            setAlert(true);
+            setTimeout(() => {
+                setAlert(false);
+                setErrorMessage('');
+            }, 5000);
         }
         setSubmitting(false);
     };
@@ -202,14 +241,16 @@ const DriverAdd = () => {
     };
     return (
         <div className="p-4 mx-auto">
-            {alert && <div className='mb-2'>
+            {alert && (
+                <div className='mb-2'>
                 <Alert
                     color='red'
                     className='py-3 px-6 rounded-xl'
                 >
-                    Driver already exist!
+                    {errorMessage || 'An error occured'}
                 </Alert>
-            </div>}
+            </div>
+            )}
             <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
             <Formik
                 initialValues={initialValues}
@@ -217,7 +258,7 @@ const DriverAdd = () => {
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
-                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
+                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue}) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -417,7 +458,7 @@ const DriverAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 // disabled={isEditMode ? false : !dirty || !isValid}
-                                disabled={!isFormValid(values, errors)}
+                                disabled={!isValid || !dirty}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}
