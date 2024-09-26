@@ -273,7 +273,7 @@ const DriverEdit = () => {
                             </div>
                             <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
