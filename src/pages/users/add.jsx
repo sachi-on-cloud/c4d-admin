@@ -38,11 +38,8 @@ const UserAdd = () => {
 
     const validationSchema = Yup.object({
         name: Yup.string().required('Name is required'),
-        phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
-        email: Yup.string()
-            .email('Invalid email address')
-            .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/, 'Invalid email address')
-            .required('Email address is required'),
+        phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
+        email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
         permission: Yup.array()
             .of(Yup.string().required('Each permission must be selected'))
             .required('At least one permission must be selected')
@@ -54,7 +51,7 @@ const UserAdd = () => {
             }),
     });
 
-    const onSubmit = async (values, { setSubmitting }) => {
+    const onSubmit = async (values, { setSubmitting, resetForm}) => {
         try {
             const userData = {
                 name: values.name,
@@ -71,15 +68,23 @@ const UserAdd = () => {
                 data = await ApiRequestUtils.post(API_ROUTES.ADD_USER, userData);
             }
             if (!data?.success && data?.code === 203) {
-                setAlert(true);
+                setAlert({ show: true, message: 'User already exists!', color: 'red' });
 
                 setTimeout(() => {
-                    setAlert(false);
+                    setAlert({ show: false, message: '', color: 'red' });
                 }, 2000)
             } else {
-                resetForm();
-                console.log('User created:', data.data);
-                navigate('/dashboard/users');
+                setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
+                setTimeout(() => {
+                    resetForm();
+                    navigate('/dashboard/users', { 
+                        state: { 
+                            userAdded: isEditMode ? false : true, 
+                            userUpdated: isEditMode ? true : false,
+                            userName: values.name 
+                        } 
+                    });
+                }, 2000);
             }
 
         } catch (error) {
@@ -91,14 +96,16 @@ const UserAdd = () => {
 
     return (
         <div className="p-4 mx-auto">
-            {alert && <div className='mb-2'>
+            {alert && (
+                <div className='mb-2'>
                 <Alert
-                    color='red'
+                    color={alert.color}
                     className='py-3 px-6 rounded-xl'
                 >
-                    User already exist!
+                    {alert.message}
                 </Alert>
-            </div>}
+            </div>
+            )}
             <h2 className="text-2xl font-bold mb-4">Add New User</h2>
             <Formik
                 initialValues={initialValues}
