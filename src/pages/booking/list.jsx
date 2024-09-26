@@ -145,7 +145,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     options={[
                                                         { value: 'All', label: 'All' },
                                                         { value: 'DRIVER', label: 'Acting Driver' },
-                                                        { value: 'CAR_WASH', label: 'Car Wash' }
+                                                        { value: 'CAR_WASH', label: 'Car Wash' },
+                                                        { value: 'CAB', label: 'Cab' }
                                                     ]}
                                                     selectedFilters={serviceTypeFilter}
                                                     onFilterChange={(value) => handleFilterChange('serviceType', value)}

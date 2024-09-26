@@ -244,7 +244,7 @@ const Booking = (props) => {
                                             <option value="">Service Type</option>
                                             <option value="DRIVER">Acting Driver</option>
                                             <option value="CAR_WASH">Car Wash</option>
-                                            {/* <option value="CAB">Cab Booking</option> */}
+                                            <option value="CAB">Cab Booking</option>
                                         </Field>
                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -283,11 +283,29 @@ const Booking = (props) => {
                                         >
                                             Outstation
                                         </Button>
+                                        {(values.serviceType === 'CAB' || values.serviceType === 'CAB') &&
+                                            <Button
+                                                color={values.packageTypeSelected === 'Commute' ? 'black' : 'gray'}
+                                                onClick={() => {
+                                                    if (values.packageTypeSelected !== 'Commute') {
+                                                        setFieldValue('packageTypeSelected', 'Commute');
+                                                        setFieldValue('packageSelected', '');
+                                                        setRange({});
+                                                        setFieldValue('fromDate', '');
+                                                        setFieldValue('toDate', '');
+                                                    }
+                                                }}
+                                                disabled={bookingStage === 1}
+                                                variant={values?.packageTypeSelected === 'Commute' ? 'filled' : 'outlined'}
+                                            >
+                                                Commute
+                                            </Button>
+                                        }
                                     </div>
                                 }
 
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <div className="flex-1 mb-2">
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <div className="flex-1 mb-2">
                                     <Typography variant="h6" className="mb-2">
                                         When?
                                     </Typography>
@@ -335,7 +353,7 @@ const Booking = (props) => {
                                     </div>
                                 }
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <div className="flex-1 mb-4">
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <div className="flex-1 mb-4">
                                     <div>
                                         <Typography variant="h6" className="mb-2">
                                             Choose a package
@@ -401,7 +419,7 @@ const Booking = (props) => {
                                         )}
                                     </div>
                                 )}
-                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
+                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <Button
                                     fullWidth
                                     color="black"
                                     onClick={handleSubmit}
