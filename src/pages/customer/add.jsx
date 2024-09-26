@@ -38,7 +38,7 @@ const CustomerAdd = (props) => {
         ...(isEditMode
             ? {}
             : {
-                phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
+                phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
                 // carNumber: Yup.string().required('Car number is required'),
                 // nickName: Yup.string().required('Car name is required'),
                 // carType: Yup.string().required('Car type is required'),
