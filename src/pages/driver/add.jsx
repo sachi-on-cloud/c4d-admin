@@ -166,26 +166,31 @@ const DriverAdd = () => {
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             }
             if (!data?.success && data?.code === 203) {
-                setAlert(true);
+                setAlert({ show: true, message: 'Driver already exists!', color: 'red' });
 
                 setTimeout(() => {
-                    setAlert(false);
+                    setAlert({ show: false, message: '', color: 'red' });
                     resetForm();
                 }, 2000)
+            } else {
+                setAlert({ show: true, message: isEditMode ? 'Driver updated successfully!' : 'Driver added successfully!' , color: 'green' });
+                setTimeout(() => {
+                    setAlert({ show: false, message: '', color: 'green' });
+                    navigate('/dashboard/drivers', {
+                        state: {
+                            driverAdded: isEditMode ? false : true,
+                            driverUpdated: isEditMode ? true : false,
+                            driverName: data?.data?.firstName
+                        }
+                    });
+                }, 2000);
             }
-            console.log('Driver created:', data.data);
-            navigate('/dashboard/drivers', {
-                state: {
-                    driverAdded: true,
-                    driverName: data?.data?.firstName
-                }
-            });
-
+            console.log('Driver operation:', data.data);
         } catch (error) {
-            console.error('Error creating driver and car:', error);
+            console.error('Error creating/updating driver:', error);
         }
         setSubmitting(false);
-    };
+    };            
 
     const isFormValid = (values, errors) => {
         const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
@@ -202,14 +207,16 @@ const DriverAdd = () => {
     };
     return (
         <div className="p-4 mx-auto">
-            {alert && <div className='mb-2'>
+            {alert.show && (
+                <div className='mb-2'>
                 <Alert
-                    color='red'
+                    color={alert.color}
                     className='py-3 px-6 rounded-xl'
                 >
-                    Driver already exist!
+                    {alert.message}
                 </Alert>
-            </div>}
+            </div>
+            )}
             <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
             <Formik
                 initialValues={initialValues}
@@ -327,7 +334,7 @@ const DriverAdd = () => {
                             </div>
                             <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
