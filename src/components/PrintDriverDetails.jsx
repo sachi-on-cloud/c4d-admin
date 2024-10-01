@@ -19,14 +19,16 @@ const PrintDriverDetails = forwardRef((props, ref) => {
   }
 
   const fetchItem = async (itemId) => {
-    const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
+    const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);  
     setDriver(data?.data);
+    print(data?.data);
+
   };
 
   useEffect(() => {
     fetchItem(props?.driverId);
-  })
-  const driverDetails = () => {
+  },[])
+  const driverDetails = (driver) => {
     return (
       <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
         <table className="w-full min-w-[640px] table-auto">
@@ -75,7 +77,7 @@ const PrintDriverDetails = forwardRef((props, ref) => {
     )
   }
 
-  const priceDetails = () => {
+  const priceDetails = (driver) => {
     return (
       <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
         <table className="w-full min-w-[640px] table-auto">
@@ -113,10 +115,10 @@ const PrintDriverDetails = forwardRef((props, ref) => {
       </CardBody>
     )
   }
-  useImperativeHandle(ref, () => ({
-    print: () => {
-      const driverContent = ReactDOMServer.renderToStaticMarkup(driverDetails());
-      const priceContent = ReactDOMServer.renderToStaticMarkup(priceDetails());
+  // useImperativeHandle(ref, () => ({
+   const print = (driver) => {
+      const driverContent = ReactDOMServer.renderToStaticMarkup(driverDetails(driver));
+      const priceContent = ReactDOMServer.renderToStaticMarkup(priceDetails(driver));
       const printWindow = window.open("", "_blank");
       printWindow.document.write(`
         <html>
@@ -155,7 +157,7 @@ const PrintDriverDetails = forwardRef((props, ref) => {
       printWindow.print();
       printWindow.close();
     }
-  }));
+  // }));
 
   return (
     null

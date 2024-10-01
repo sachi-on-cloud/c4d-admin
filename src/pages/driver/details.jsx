@@ -13,12 +13,12 @@ const DriverDetails = () => {
     const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
-    const handlePrintClick = () => {
-        setEnablePrint(true);
-        if (printRef.current) {
-            printRef.current.print();  // Trigger the print action
-        }
-    };
+    // const handlePrintClick = () => {
+    //     setEnablePrint(true);
+    //     if (printRef.current) {
+    //         printRef.current.print();  // Trigger the print action
+    //     }
+    // };
 
     const navigate = useNavigate();
     const [driver, setDriver] = useState({});
@@ -42,6 +42,7 @@ const DriverDetails = () => {
         }
     };
     useEffect(() => {
+        console.log("IDDD", id);
         if (id) {
             getPackageListDetails();
             fetchItem(id);
@@ -70,7 +71,12 @@ const DriverDetails = () => {
                 <div className="flex flex-row justify-between pr-5">
                     <h2 className="text-2xl font-bold mb-4">Driver Details</h2>
                     <img src="/img/printing.png" height={30} width={30} alt="" onClick={() => {
-                        handlePrintClick();
+                        console.log("HIIIII");
+                        setEnablePrint(true);
+                        // printRef.current.print();  
+                        // if (printRef.current) {
+                        //     // Trigger the print action
+                        // }
                     }} />
                 </div>
                 <Formik
@@ -144,15 +150,15 @@ const DriverDetails = () => {
                                     <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
                                     <div className="space-x-4">
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" disabled value="Sedan" className="form-radio" />
+                                            <Field type="radio" name="preference" disabled value="Automatic" className="form-radio" />
                                             <span className="ml-2">Automatic</span>
                                         </label>
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" disabled value="SUV" className="form-radio" />
+                                            <Field type="radio" name="preference" disabled value="Petrol" className="form-radio" />
                                             <span className="ml-2">Petrol</span>
                                         </label>
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" disabled value="Hatchback" className="form-radio" />
+                                            <Field type="radio" name="preference" disabled value="Diesel" className="form-radio" />
                                             <span className="ml-2">Diesel</span>
                                         </label>
                                     </div>
@@ -190,7 +196,7 @@ const DriverDetails = () => {
             </div>
             {driver?.price && <PriceTable driverId={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />}
-            {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} />}
+            {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />}
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/drivers'); }}

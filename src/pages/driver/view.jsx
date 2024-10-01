@@ -53,7 +53,7 @@ export function DriverView() {
   };
   useEffect(() => {
     getDrivers('');
-    if (paramsPassed?.driverAdded) {
+    if (paramsPassed?.driverAdded || paramsPassed?.driverUpdated) {
       setAlert(true);
       setTimeout(() => {
         setAlert(false);
@@ -72,7 +72,7 @@ export function DriverView() {
           color='blue'
           className='py-3 px-6 rounded-xl'
         >
-          {paramsPassed?.driverName} added successfully!
+          {paramsPassed?.driverName} {paramsPassed?.driverAdded ? 'added' : 'updated'} successfully!
         </Alert>
       </div>}
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
