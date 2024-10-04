@@ -14,12 +14,14 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
         return records.find(record => record[field] == id);
     }
 
-    useEffect(() => {
+    useEffect(() => { 
         setFilteredOptions(options);
         if (selectedValue) {
             let val = findRecordById(options, 'id', selectedValue);
-            setSearchText(`${val.firstName} - ${val.phoneNumber}`);
-            onSelect(val);
+            if (val) {
+                setSearchText(`${val.firstName} - ${val.phoneNumber}`);
+                onSelect(val);
+            }  
         } else if (addVal) {
             let val = findRecordById(options, 'phoneNumber', addVal);
             if (val) {
@@ -27,11 +29,12 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
                 onSelect(val);
             }
         }
-    }, [options])
+    }, [options, selectedValue, addVal])
     const handleSearchChange = (e) => {
-        onSelect("");
         const value = e.target.value;
-        setSearchText(e.target.value);
+        setSearchText(value);
+        onSelect("");
+        setSelectedValue(null);
         const isNumeric = /^\d+$/.test(value);
 
         // Form a regex pattern based on the input
@@ -51,10 +54,12 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
             }
         });
         setFilteredOptions(newFilteredOptions);
+        setIsOpen(true);
     }
     const handleOptionClick = (option) => {
         setSearchText(`${option.firstName} - ${option.phoneNumber}`); // Update the input with the selected option's details
         onSelect(option); // Notify the parent component of the selection
+        setSelectedValue(option.id);
         setIsOpen(false); // Close the dropdown menu
     };
     const handleClickOutside = (event) => {
@@ -76,11 +81,12 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
                 type="text"
                 value={searchText}
                 onChange={handleSearchChange}
-                onClick={() => setIsOpen(!isOpen)}
+                onFocus={() => setIsOpen(true)}
+                // onClick={() => setIsOpen(!isOpen)}
                 placeholder="Search customers"
                 className="p-2 border rounded-xl w-full"
-                readOnly={selectedValue}
-                disabled={selectedValue}
+                // readOnly={selectedValue}
+                // disabled={selectedValue}
             />
             {isOpen && (
                 <div className="absolute z-10 max-w-max max-h-64 mt-1 overflow-y-auto bg-white border border-gray-300 rounded shadow-lg">

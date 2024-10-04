@@ -46,21 +46,40 @@ export function SearchDrivers(props) {
                 latitude: props?.bookingData?.pickupLat,
                 longitude: props?.bookingData?.pickupLong
             });
+            console.log("data",data);
             if (data?.success) {
                 setDrivers(data?.data);
+            }else{
+                setDrivers("");
             }
         }
     };
 
     const handleSort = (field) => {
-        const isAsc = sortField === field && sortDirection === 'asc';
+        const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
         setSortField(field);
-        setSortDirection(isAsc ? 'desc' : 'asc');
+        setSortDirection(newDirection);
 
         const sortedDrivers = [...drivers].sort((a, b) => {
-            if (a[field] < b[field]) return isAsc ? 1 : -1;
-            if (a[field] > b[field]) return isAsc ? -1 : 1;
-            return 0;
+            // Handle null or undefined values
+            if (!a[field] && !b[field]) return 0;
+            if (!a[field]) return 1;
+            if (!b[field]) return -1;
+
+            // Convert to numbers for numeric fields
+            const aValue = ['intercityCount', 'outstationCount', 'distance'].includes(field) 
+                ? Number(a[field]) 
+                : a[field];
+            const bValue = ['intercityCount', 'outstationCount', 'distance'].includes(field) 
+                ? Number(b[field]) 
+                : b[field];
+
+            // Sort based on direction
+            if (newDirection === 'asc') {
+                return aValue - bValue;
+            } else {
+                return bValue - aValue;
+            }
         });
 
         setDrivers(sortedDrivers);

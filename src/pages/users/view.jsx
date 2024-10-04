@@ -20,26 +20,44 @@ import { useNavigate } from 'react-router-dom';
 
 export function UserView() {
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_USERS);
+      if (data?.success) {
+        setUsers(data?.data);
+        setAllUsers(data?.data); // Store all users for local filtering
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const getUsers = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
-    if (searchQuery != "") {
-      const phoneNumberPattern = `^${searchQuery}`;
-
-      const filteredUsers = users.filter((user) =>
-        new RegExp(phoneNumberPattern).test(user.phoneNumber)
-      );
-      setUsers(filteredUsers)
+    if (searchQuery && searchQuery.trim() !== "") {
+       // Convert search query to lowercase for case-insensitive comparison
+       const query = searchQuery.toLowerCase().trim();
+      
+       // Filter from allUsers (original data) instead of the current filtered users
+       const filteredUsers = allUsers.filter((user) => {
+         const name = (user.name || "").toLowerCase();
+         const phone = (user.phoneNumber || "").toLowerCase();
+         const email = (user.email || "").toLowerCase();
+         
+         // Check if any field starts with the search query
+         return name.startsWith(query) || 
+                phone.startsWith(query) || 
+                email.startsWith(query);
+    });
+      setUsers(filteredUsers);
       // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
       // if (data?.success) {
       //   setUsers(data?.data);
       // }
     } else {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_USERS);
-      if (data?.success) {
-        setUsers(data?.data);
-      }
+      setUsers(allUsers);
     }
   };
   return (

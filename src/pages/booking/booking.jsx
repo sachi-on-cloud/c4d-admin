@@ -71,8 +71,9 @@ const Booking = (props) => {
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }
-        if (params && params.customerPhoneNumber) {
+        if (params && params.customerPhoneNumber !== undefined) {
             setAddCustomerNumber(params.customerPhoneNumber);
+            setCustomerNumber(params.customerPhoneNumber);
         }
     }, [params]);
 
@@ -305,9 +306,15 @@ const Booking = (props) => {
                                     }}
                                 /> */}
                                         <Field type="date" name="rideDate" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} onChange={(e) => {
-                                            setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
-                                            setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
-                                        }}></Field>
+                                            const newDate = e.target.value ? moment(e.target.value).format('YYYY-MM-DD') : '';
+                                            setFieldValue('rideDate', newDate);
+                                            if(newDate){
+                                                setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(newDate)));
+                                            }else {
+                                                setBookingTimesForDay([]);
+                                            }
+                                        }}
+                                        ></Field>
                                         <Field as="select" name="rideTime" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
                                             <option value="">Select time</option>
                                             {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
@@ -405,7 +412,7 @@ const Booking = (props) => {
                                     fullWidth
                                     color="black"
                                     onClick={handleSubmit}
-                                    disabled={!dirty || !isValid}
+                                    disabled={!dirty || !isValid || !values.rideDate}
                                     className='my-6 mx-2'
                                 >
                                     Continue
