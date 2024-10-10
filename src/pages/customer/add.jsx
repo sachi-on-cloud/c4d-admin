@@ -58,49 +58,35 @@ const CustomerAdd = (props) => {
                 customerData['id'] = id;
                 data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CUSTOMER, customerData);
 
-                return navigate('/dashboard/customers');
+                navigate('/dashboard/customers', {
+                    state: { 
+                        customerUpdated: true,
+                        customerName: values.firstName
+                    }
+                });
             } else {
                 customerData['phoneNumber'] = "+91" + values.phoneNumber;
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CUSTOMER, customerData);
-            }
-            //console.log('Customer created:', data);
-
-            if (!data?.success) {
-                if (data?.code === 203) {
-                    setAlert({ show: true, message: 'Customer already exists!', color: 'red' });
-                } else {
-                    setAlert({ show: true, message: 'An error occurred while processing your request.', color: 'red' });
-                }
-                setTimeout(() => {
-                    setAlert({ show: false, message: '', color: 'red' });
-                }, 2000);
+            
+            if (!data?.success && data?.code === 203) {
+                setAlert({ message: 'Customer already exists!', color: 'red' });
+                setTimeout(() => setAlert(null),5000);
+                resetForm();
             } else {
-                // setAlert({ show: true, message: 'Customer added successfully!', color: 'green' });
-                setTimeout(() => {
-                    // setAlert({ show: false, message: '', color: 'green' });
-                    if (props.isQuickCreate) {
-                        navigate('/dashboard/booking', {
-                            state: {
-                                refreshData: true,
-                                customerPhoneNumber: data?.data?.phoneNumber
-                            }
-                        });
-                    } else {
-                        navigate('/dashboard/customers', {
-                            state: {
-                                customerAdded: true,
-                                customerName: data?.data?.firstName
-                            }
-                        });
-                    }
-                }, 1000);
+                // setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
+                // setTimeout(() => {
+                //     resetForm();
+                    navigate('/dashboard/customers', { 
+                        state: { 
+                            customerAdded: true, 
+                            customerName: values.firstName
+                        } 
+                    }); 
+                }
             }
         } catch (error) {
-            console.error('Error creating customer:', error);
-            setAlert({ show: true, message: 'An unexpected error occurred.', color: 'red' });
-            setTimeout(() => {
-                setAlert({ show: false, message: '', color: 'red' });
-            }, 5000);
+            console.error('Error creating user and car:', error);
+            // Handle error (e.g., show an error message)
         }
         setSubmitting(false);
     };
@@ -120,7 +106,7 @@ const CustomerAdd = (props) => {
 
     return (
         <div className="p-4">
-            {alert.show && (
+            {alert && (
                 <div className='mb-2'>
                 <Alert
                     color={alert.color}

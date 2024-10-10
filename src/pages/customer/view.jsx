@@ -16,50 +16,73 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export function CustomerView() {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
+  const [allCustomers, setAllCustomers] = useState([]);
   const [alert, setAlert] = useState(false);
 
   const location = useLocation();
-  const paramsPassed = location.state;
 
-  const getCustomers = async (searchQuery) => {
-    //console.log("searchQuery",searchQuery);
-    if (searchQuery != "") {
-      const phoneNumberPattern = `^\\+91${searchQuery}`;
-
-      const filteredCustomers = customers.filter((customer) =>
-        new RegExp(phoneNumberPattern).test(customer.phoneNumber)
-      );
-      setCustomers(filteredCustomers)
-      // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
-      // if (data?.success) {
-      //   setCustomers(data?.data);
-      // }
-    } else {
+  useEffect(() => {
+    const fetchCustomers = async () => {
       const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS);
       if (data?.success) {
         setCustomers(data?.data);
+        setAllCustomers(data?.data);
       }
+    };
+    fetchCustomers();
+
+    if (location.state?.customerAdded || location.state?.customerUpdated) {
+      const action = location.state.customerAdded ? 'added' : 'updated';
+      setAlert({
+        message: `${location.state.customerName} ${action} successfully!`
+      });
+      setTimeout(() => {
+        setAlert(null);
+      }, 5000);
+      // Clear the state to prevent showing the alert on page refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  const getCustomers = async (searchQuery) => {
+    if (searchQuery && searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase().trim();
+
+      const filteredCustomers = allCustomers.filter((customer) => {
+        const name = (customer.firstName || "").toLowerCase();
+        const phone = (customer.phoneNumber || "").toLowerCase();
+
+        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
+
+        return name.startsWith(query) || 
+               phoneNumberWithoutCountryCode.startsWith(query);
+      });
+      setCustomers(filteredCustomers);
+      
+    } else {
+      setCustomers(allCustomers);
     }
   };
 
-  useEffect(() => {
-    if (paramsPassed?.customerAdded) {
-      setAlert(true);
-      setTimeout(() => {
-        setAlert(false);
-      }, 2000);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (paramsPassed?.customerAdded) {
+  //     setAlert(true);
+  //     setTimeout(() => {
+  //       setAlert(false);
+  //     }, 2000);
+  //   }
+  // }, []);
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
-      {alert && <div className='mb-2'>
+      {alert && (
+        <div className='mb-2'>
         <Alert
           color='blue'
           className='py-3 px-6 rounded-xl'
         >
-          {paramsPassed?.customerName} added successfully!
+          {alert.message}
         </Alert>
-      </div>}
+      </div>)}
       <CustomerSearch onSearch={getCustomers} />
       <Card>
         {customers.length > 0 ? (

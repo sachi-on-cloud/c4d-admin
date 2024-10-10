@@ -68,24 +68,21 @@ const UserAdd = () => {
                 data = await ApiRequestUtils.post(API_ROUTES.ADD_USER, userData);
             }
             if (!data?.success && data?.code === 203) {
-                setAlert({ show: true, message: 'User already exists!', color: 'red' });
-
-                setTimeout(() => {
-                    setAlert({ show: false, message: '', color: 'red' });
-                }, 2000)
+                setAlert({ message: 'User already exists!', color: 'red' });
+                setTimeout(() => setAlert(null),5000);
+                resetForm();
             } else {
-                setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
-                setTimeout(() => {
-                    resetForm();
+                // setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
+                // setTimeout(() => {
+                //     resetForm();
                     navigate('/dashboard/users', { 
                         state: { 
                             userAdded: isEditMode ? false : true, 
                             userUpdated: isEditMode ? true : false,
                             userName: values.name 
                         } 
-                    });
-                }, 2000);
-            }
+                    }); 
+                }
 
         } catch (error) {
             console.error('Error creating user and car:', error);

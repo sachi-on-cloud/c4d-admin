@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 const DriverSearch = ({ onSearch }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -21,6 +23,12 @@ const DriverSearch = ({ onSearch }) => {
             <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
           </div>
         </div>
+        <button 
+          onClick={() => navigate(`/dashboard/drivers/add`)}
+          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Add new
+        </button>
       </div>
     </div>
   );

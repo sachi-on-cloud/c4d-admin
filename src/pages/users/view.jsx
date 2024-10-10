@@ -8,21 +8,24 @@ import {
   Chip,
   Tooltip,
   Progress,
-  Button
+  Button,
+  Alert
 } from "@material-tailwind/react";
 import { authorsTableData } from "@/data";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import UserSearch from "@/components/UserSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 
 export function UserView() {
   const [users, setUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [alert, setAlert] = useState(false);
   const navigate = useNavigate();
-
+  const location = useLocation();
+ 
   useEffect(() => {
     const fetchUsers = async () => {
       const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_USERS);
@@ -30,23 +33,33 @@ export function UserView() {
         setUsers(data?.data);
         setAllUsers(data?.data); // Store all users for local filtering
       }
-    };
+    }; 
     fetchUsers();
-  }, []);
+
+    if (location.state?.userAdded || location.state?.userUpdated) {
+      const action = location.state.userAdded ? 'added' : 'updated';
+      setAlert({
+        message: `${location.state.userName} ${action} successfully!`
+      });
+      setTimeout(() => {
+        setAlert(null);
+      }, 5000);
+      // Clear the state to prevent showing the alert on page refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location]);
 
   const getUsers = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
     if (searchQuery && searchQuery.trim() !== "") {
-       // Convert search query to lowercase for case-insensitive comparison
+      
        const query = searchQuery.toLowerCase().trim();
       
-       // Filter from allUsers (original data) instead of the current filtered users
        const filteredUsers = allUsers.filter((user) => {
          const name = (user.name || "").toLowerCase();
          const phone = (user.phoneNumber || "").toLowerCase();
          const email = (user.email || "").toLowerCase();
          
-         // Check if any field starts with the search query
          return name.startsWith(query) || 
                 phone.startsWith(query) || 
                 email.startsWith(query);
@@ -60,8 +73,27 @@ export function UserView() {
       setUsers(allUsers);
     }
   };
+  // useEffect(() => {
+  //   getUsers('');
+  //   if (paramsPassed?.userAdded || paramsPassed?.userUpdated) {
+  //     setAlert(true);
+  //     setTimeout(() => {
+  //       setAlert(false);
+  //     }, 2000);
+  //   }
+  // }, [])
+
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
+      {alert && (
+        <div className='mb-2'>
+        <Alert
+          color='blue'
+          className='py-3 px-6 rounded-xl'
+        >
+          {alert.message}
+        </Alert>
+      </div>)}
       <UserSearch onSearch={getUsers} />
       <Card>
         {users.length > 0 ? (

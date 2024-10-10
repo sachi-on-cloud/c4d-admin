@@ -7,12 +7,14 @@ import {
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 
 function Commission({ driverId, packages, priceDetails }) {
     const [editingId, setEditingId] = useState(null);
     const [packageDetails, setPackageDetails] = useState([]);
+    const [saveError, setSaveError] = useState(null);
     const navigate = useNavigate();
 
     const getPackageListDetails = async () => {
@@ -37,24 +39,48 @@ function Commission({ driverId, packages, priceDetails }) {
 
     const handleEdit = (id) => {
         setEditingId(id);
+        setSaveError(null);
     };
 
     const handleCancel = (resetForm) => {
         setEditingId(null);
-        resetForm()
+        setSaveError(null);
+        resetForm();
     };
 
-    const handleSave = async (values, { setSubmitting }) => {
-        //console.log("values", values);
-        const commissionData = {
-            packageId: values.id,
-            commission: values.commission,
-        };
-        const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_COMMISSION, commissionData);
-        getPackageListDetails();
-        setEditingId(null);
+    const handleSave = async (values, { setSubmitting, validateForm }) => {
+        const errors = await validateForm(values);
+        if (Object.keys(errors).length === 0) {
+            const commissionData = {
+                packageId: values.id,
+                commission: values.commission,
+            };
+            try {
+                const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_COMMISSION, commissionData);
+                if (data?.success) {
+                    getPackageListDetails();
+                    setEditingId(null);
+                    setSaveError(null);
+                } else {
+                    setSaveError("Failed to update commission. Please try again.");
+                }
+            } catch (error) {
+                setSaveError("An error occurred while saving. Please try again.");
+            }
+        } else {
+            setSaveError("The commission rate must be between 10% and 25%");
+        }
         setSubmitting(false);
     };
+
+    const validationSchema = Yup.object().shape({
+        commission: Yup.number()
+            .typeError('Commission must be a number')
+            .min(10, 'Commission must be at least 10')
+            .max(25, 'Commission must not exceed 25')
+            .required('Commission is required'),
+    });
+
     return (
         <div>
             <br /><br />
@@ -67,8 +93,9 @@ function Commission({ driverId, packages, priceDetails }) {
                         initialValues={packageDetails}
                         onSubmit={(values) => values}
                         enableReinitialize
+                        validationSchema={validationSchema}
                     >
-                        {({ values, isSubmitting, setSubmitting, resetForm }) => (
+                        {({ values, isSubmitting, setSubmitting, resetForm, validateForm }) => (
                             <Form>
                                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                                     <table className="w-full min-w-[640px] table-auto">
@@ -96,24 +123,37 @@ function Commission({ driverId, packages, priceDetails }) {
                                                             {priceItem.type}
                                                         </Typography>
                                                     </td>
-                                                    {['commission'].map((field) => (
-                                                        <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                            {editingId === priceItem.id ? (
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        {editingId === priceItem.id ? (
+                                                            <div>
                                                                 <Field
-                                                                    name={`[${index}].${field}`}
+                                                                    name={`[${index}].commission`}
                                                                     className="w-full p-1 text-xs border rounded"
                                                                 />
-                                                            ) : (
-                                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                    {priceItem[field]} %
-                                                                </Typography>
-                                                            )}
-                                                        </td>
-                                                    ))}
+                                                                <ErrorMessage
+                                                                    name={`[${index}].commission`}
+                                                                    component="div"
+                                                                    className="text-red-500 text-xs mt-1"
+                                                                />
+                                                                {saveError && (
+                                                                    <div className="text-red-500 text-sm mb-2 px-5">{saveError}</div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {priceItem.commission} %
+                                                            </Typography>
+                                                        )}
+                                                    </td>
                                                     <td className="py-3 px-5 border-b border-blue-gray-50">
                                                         {editingId === priceItem.id ? (
                                                             <>
-                                                                <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
+                                                                <Button 
+                                                                    type="button" 
+                                                                    onClick={() => handleSave(priceItem, { setSubmitting, validateForm })} 
+                                                                    disabled={isSubmitting} 
+                                                                    className="mr-2"
+                                                                >
                                                                     Save
                                                                 </Button>
                                                                 <Button type="button" onClick={() => handleCancel(resetForm)}>
