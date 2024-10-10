@@ -16,7 +16,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, selectPickedBooking }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
 
@@ -285,21 +285,20 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     {data?.status === 'INITIATED' && !data?.Driver?.id &&
                                                         <Button
                                                             fullWidth
-                                                            onClick={() => {
-                                                                onAssignDriverHandler(data)
-                                                            }}
+                                                            onClick={() => onAssignDriverHandler(data)}
                                                             className="text-xs font-semibold text-white flex-wrap"
                                                         >
                                                             Assign Captain
                                                         </Button>
                                                     }
                                                 </td>
-                                                {data?.id === showPickedBooking && bookingStage === 2 && < td className={className}>
+                                                {data?.id === selectPickedBooking && bookingStage === 2 && (
+                                                    < td className={className}>
                                                     <IconButton>
                                                         <FaArrowRight />
                                                     </IconButton>
 
-                                                </td>}
+                                                </td>)}
                                             </tr>
                                         );
                                     }

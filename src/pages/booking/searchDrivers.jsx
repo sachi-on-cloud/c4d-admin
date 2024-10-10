@@ -15,43 +15,55 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 
 export function SearchDrivers(props) {
+    console.log("val",props?.bookingData);
     const [drivers, setDrivers] = useState([]);
     const [sortField, setSortField] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
     const navigate = useNavigate();
     const location = useLocation();
     const paramsPassed = location.state;
+    const [loading, setLoading] = useState(false);
+    // const [bookingData, setBookingData] = useState(props?.bookingData);
 
-    const getDriversList = async (searchQuery) => {
-        if (searchQuery !== '') {
-            const isNumeric = /^\d+$/.test(searchQuery);
+    const getDriversList = async (searchQuery = '') => {
+        setLoading(true);
+        try{
+            if (searchQuery !== ''){
+                const isNumeric = /^\d+$/.test(searchQuery);
 
-            // Form a regex pattern based on the input
-            const pattern = isNumeric ? `^\\+91${searchQuery}` : searchQuery;
-
-            // Create a regex for filtering
-            const regex = new RegExp(pattern, 'i'); // 'i' for case-insensitive
-
-            // Filter options based on input type
-            const filtredOptions = drivers.filter((option) => {
-                if (isNumeric) {
-                    return regex.test(option.phoneNumber);
-                } else {
-                    return regex.test(option.firstName);
+                // Form a regex pattern based on the input
+                const pattern = isNumeric ? `^\\+91${searchQuery}` : searchQuery;
+    
+                // Create a regex for filtering
+                const regex = new RegExp(pattern, 'i'); // 'i' for case-insensitive
+    
+                // Filter options based on input type
+                const filtredOptions = drivers.filter((option) => {
+                    if (isNumeric) {
+                        return regex.test(option.phoneNumber);
+                    } else {
+                        return regex.test(option.firstName);
+                    }
+                });
+                setDrivers(filtredOptions);
+            } else {
+                console.log('PACKAGE ID :', props?.bookingData?.packageId)
+                const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVERS + props?.bookingData?.packageId, {
+                    latitude: props?.bookingData?.pickupLat,
+                    longitude: props?.bookingData?.pickupLong
+                });
+                console.log("driverdata",data);
+                if (data?.success) {
+                    setDrivers(data?.data);
+                }else{
+                    setDrivers([]);
                 }
-            });
-            setDrivers(filtredOptions);
-        } else {
-            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVERS + props?.bookingData?.packageId, {
-                latitude: props?.bookingData?.pickupLat,
-                longitude: props?.bookingData?.pickupLong
-            });
-            console.log("data",data);
-            if (data?.success) {
-                setDrivers(data?.data);
-            }else{
-                setDrivers("");
             }
+        }catch(error){
+            console.error("Error fetching drivers:", error);
+            setDrivers([]);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -91,10 +103,11 @@ export function SearchDrivers(props) {
     };
 
     useEffect(() => {
+        // console.log("BOOKINGDATA",props?.bookingData)
         if (props?.bookingData) {
             getDriversList();
         }
-    }, []);
+    }, [props.bookingData]);
 
     const onAssignDriver = async (driverId) => {
         const reqBody = {
@@ -110,7 +123,13 @@ export function SearchDrivers(props) {
         <div className="flex flex-col w-full gap-y-4">
             <DriverSearch onSearch={getDriversList} />
             <Card>
-                {drivers.length > 0 ? (
+            {loading ? (
+                    <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                        <Typography variant="h6" color="white">
+                            Loading drivers...
+                        </Typography>
+                    </CardHeader>
+            ) : drivers.length > 0 ? (
                     <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 max-h-screen">
                         <table className="w-full table-auto">
                             <thead>

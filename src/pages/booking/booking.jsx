@@ -44,6 +44,7 @@ const Booking = (props) => {
     const [editBooking, setEditBooking] = useState();
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
+    const [selectPickedBooking, setSelectPickedBooking] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -157,7 +158,8 @@ const Booking = (props) => {
 
         return `${hours}:${minutes} ${period}`;
     }
-    const onAssignDriver = async (data) => {
+    const onAssignDriver = (data) => {
+        setSelectPickedBooking(data?.id);
         setBookingData(data);
         setBookingStage(2);
         setBookingView(false);
@@ -193,7 +195,7 @@ const Booking = (props) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
-                {<BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />}
+                <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} selectPickedBooking={selectPickedBooking}/>
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
@@ -445,10 +447,13 @@ const Booking = (props) => {
                         onPrev={() => setBookingStage(0)} />
                     }
                     {
-                        bookingStage === 2 && <SearchDrivers bookingData={bookingData} onNext={() => {
+                        bookingStage === 2 && bookingData && (
+                        <SearchDrivers bookingData={bookingData} onNext={() => {
                             setBookingStage(0);
+                            setSelectPickedBooking(null);
+                            setBookingData(null);
                         }} />
-                    }
+                    )}
                 </>}
                 {bookingView && <>
                     <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
