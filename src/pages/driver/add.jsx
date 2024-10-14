@@ -46,7 +46,7 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
 
 const DriverAdd = () => {
     const [driverVal, setDriverVal] = useState({});
-    // const [alert, setAlert] = useState(false);
+    const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const { id } = useParams();
@@ -90,7 +90,7 @@ const DriverAdd = () => {
         reference: driverVal?.references || "",
         preference: driverVal?.preference || "",
         carType: driverVal?.carType || "",
-        packages: driverVal?.packages || "",
+        packages: driverVal?.packages || [],
         wallet: driverVal?.wallet || "",
         mode: driverVal?.mode || "PREPAID",
         prices: []
@@ -107,13 +107,13 @@ const DriverAdd = () => {
         mode: Yup.string().required('Mode is required'),
         packages: Yup.array()
             .of(Yup.string().required('Each package must be selected'))
-            .required('At least one package must be selected')
-            .min(1, 'At least one package must be selected'),
+            .required('At least one package must be selected'),
+            // .min(1, 'At least one package must be selected'),
         wallet: Yup.string().required('Wallet is required'),
         prices: Yup.array().of(
             Yup.object().shape({
                 price: Yup.number().required('Price is required'),
-                extra_price: Yup.number().required('Extra price is required'),
+                extraPrice: Yup.number().required('Extra price is required'),
                 extraKmPrice: Yup.number().required('Extra KM price is required'),
                 nightCharge: Yup.number().required('Night charge is required'),
                 cancelCharge: Yup.number().required('Cancel charge is required'),
@@ -121,7 +121,7 @@ const DriverAdd = () => {
             })
         ).test('at-least-one-price', 'At least one price must be added', function (prices) {
             return prices.some(price =>
-                price.price || price.extra_price || price.extraKmPrice ||
+                price.price || price.extraPrice || price.extraKmPrice ||
                 price.nightCharge || price.cancelCharge || price.extraCabType
             );
         })
@@ -155,7 +155,7 @@ const DriverAdd = () => {
                 wallet: values.wallet,
                 mode: values.mode,
             };
-            let driverData = { driverDetails, prices: values.prices }
+            let driverData = { driverDetails, prices: values.prices };
             console.log(driverData);
             //return;
             let data;
@@ -167,6 +167,11 @@ const DriverAdd = () => {
             }
             if (!data?.success && data?.code === 203) {
                 console.error('Driver already exists');
+                setAlert({
+                    color: 'red',
+                    message: 'Driver already exists'
+                });
+                setTimeout(() => setAlert(null), 5000); 
                 resetForm();
             } else {
                 navigate('/dashboard/drivers', {
@@ -197,26 +202,26 @@ const DriverAdd = () => {
         });
 
         const isPricesFilled = values.prices.some(price =>
-            price.price || price.extra_price || price.extraKmPrice ||
+            price.price || price.extraPrice || price.extraKmPrice ||
             price.nightCharge || price.cancelCharge || price.extraCabType
         );
 
         const hasErrors = Object.keys(errors).length > 0;
 
         return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
-    };
+}
     return (
         <div className="p-4 mx-auto">
-            {/* {alert && (
+            {alert && (
                 <div className='mb-2'>
                 <Alert
                     color={alert.color}
                     className='py-3 px-6 rounded-xl'
                 >
-                    {alert.message}
+                    {alert.message} 
                 </Alert>
             </div>
-            )} */}
+            )}
             <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
             <Formik
                 initialValues={initialValues}
@@ -349,7 +354,7 @@ const DriverAdd = () => {
                                             packageId: item.id,
                                             period: item.period,
                                             price: item.price,
-                                            extra_price: item.extra_price,
+                                            extraPrice: item.extra_price,
                                             extraKmPrice: item.extraKmPrice,
                                             nightCharge: item.nightCharge,
                                             cancelCharge: item.cancelCharge,
@@ -392,7 +397,7 @@ const DriverAdd = () => {
                                                                 {priceItem.period}
                                                             </Typography>
                                                         </td>
-                                                        {['price', 'extra_price', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+                                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
                                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                                 <Field
                                                                     name={`prices[${index}].${field}`}
@@ -422,7 +427,7 @@ const DriverAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 // disabled={isEditMode ? false : !dirty || !isValid}
-                                // disabled={!isFormValid(values, errors)}
+                                 disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}

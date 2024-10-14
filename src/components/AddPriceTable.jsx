@@ -25,7 +25,7 @@ const PriceAdd = ({ driverId, packages, selectedPackages }) => {
     const initialValues = {
         packageId: priceVal?.packageId || "",
         price: priceVal?.price || "",
-        extraPrice: priceVal?.extraPrice || "",
+        extra_price: priceVal?.extraPrice || "",
         extraKmPrice: priceVal?.extraKmPrice || "",
         nightCharge: priceVal?.nightCharge || "",
         cancelCharge: priceVal?.cancelCharge || "",
@@ -35,7 +35,7 @@ const PriceAdd = ({ driverId, packages, selectedPackages }) => {
     const validationSchema = Yup.object({
         packageId: Yup.string().required('Package is required'),
         price: Yup.string().required('Price is required'),
-        extraPrice: Yup.string().required('Extra Price is required'),
+        extra_price: Yup.string().required('Extra Price is required'),
         extraKmPrice: Yup.string().required('Extra KM Price is required'),
         nightCharge: Yup.string().required('Night Charge is required'),
         cancelCharge: Yup.string().required('Cancel Charge is required'),
@@ -48,7 +48,7 @@ const PriceAdd = ({ driverId, packages, selectedPackages }) => {
             const priceData = {
                 packageId: values.packageId,
                 price: values.price,
-                extraPrice: values.extraPrice,
+                extraPrice: values.extra_price,
                 extraKmPrice: values.extraKmPrice,
                 nightCharge: values.nightCharge,
                 cancelCharge: values.cancelCharge,
@@ -101,9 +101,9 @@ const PriceAdd = ({ driverId, packages, selectedPackages }) => {
                             </div>
 
                             <div>
-                                <label htmlFor="extraPrice" className="text-sm font-medium text-gray-700">Extra Price</label>
-                                <Field type="text" name="extraPrice" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="extraPrice" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="extra_price" className="text-sm font-medium text-gray-700">Extra Price</label>
+                                <Field type="text" name="extra_price" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="extra_price" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>

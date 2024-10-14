@@ -49,7 +49,7 @@ function PriceTable({ type, id, packages, selectedPackages }) {
         const priceData = {
             packageId: values.packageId,
             price: values.price,
-            extraPrice: values.extraPrice,
+            extraPrice: values.extra_price,
             extraKmPrice: values.extraKmPrice,
             nightCharge: values.nightCharge,
             cancelCharge: values.cancelCharge,

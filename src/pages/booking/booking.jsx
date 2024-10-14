@@ -44,6 +44,7 @@ const Booking = (props) => {
     const [editBooking, setEditBooking] = useState();
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
+    const [selectPickedBooking, setSelectPickedBooking] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -71,8 +72,9 @@ const Booking = (props) => {
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }
-        if (params && params.customerPhoneNumber) {
+        if (params && params.customerPhoneNumber !== undefined) {
             setAddCustomerNumber(params.customerPhoneNumber);
+            setCustomerNumber(params.customerPhoneNumber);
         }
     }, [params]);
 
@@ -161,7 +163,8 @@ const Booking = (props) => {
 
         return `${hours}:${minutes} ${period}`;
     }
-    const onAssignDriver = async (data) => {
+    const onAssignDriver = (data) => {
+        setSelectPickedBooking(data?.id);
         setBookingData(data);
         setBookingStage(2);
         setBookingView(false);
@@ -197,7 +200,7 @@ const Booking = (props) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
-                {<BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />}
+                <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} selectPickedBooking={selectPickedBooking} />
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
@@ -328,15 +331,15 @@ const Booking = (props) => {
                                     }}
                                 /> */}
                                         <Field type="date" name="rideDate" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} onChange={(e) => {
-                                            setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
-                                            setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
-                                            console.log("khjkhj", values.fromDate, moment(e.target.value).format('YYYY-MM-DD'));
-                                            if (moment(e.target.value).format('YYYY-MM-DD') != values.fromDate) {
-                                                setRange({});
-                                                setFieldValue('fromDate', '');
-                                                setFieldValue('toDate', '');
+                                            const newDate = e.target.value ? moment(e.target.value).format('YYYY-MM-DD') : '';
+                                            setFieldValue('rideDate', newDate);
+                                            if (newDate) {
+                                                setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(newDate)));
+                                            } else {
+                                                setBookingTimesForDay([]);
                                             }
-                                        }}></Field>
+                                        }}
+                                        ></Field>
                                         <Field as="select" name="rideTime" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
                                             <option value="">Select time</option>
                                             {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
@@ -440,7 +443,7 @@ const Booking = (props) => {
                                     fullWidth
                                     color="black"
                                     onClick={handleSubmit}
-                                    disabled={!dirty || !isValid}
+                                    disabled={!dirty || !isValid || !values.rideDate}
                                     className='my-6 mx-2'
                                 >
                                     Continue
@@ -473,10 +476,13 @@ const Booking = (props) => {
                         onPrev={() => setBookingStage(0)} />
                     }
                     {
-                        bookingStage === 2 && <SearchDrivers bookingData={bookingData} onNext={() => {
-                            setBookingStage(0);
-                        }} />
-                    }
+                        bookingStage === 2 && bookingData && (
+                            <SearchDrivers bookingData={bookingData} onNext={() => {
+                                setBookingStage(0);
+                                setSelectPickedBooking(null);
+                                setBookingData(null);
+                            }} />
+                        )}
                 </>}
                 {bookingView && <>
                     <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
