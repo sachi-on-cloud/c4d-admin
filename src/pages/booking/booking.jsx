@@ -95,7 +95,7 @@ const Booking = (props) => {
         serviceType: editBooking?.serviceType ? editBooking?.serviceType : ''
     };
 
-    const handleDateChange = (dates, setFieldValue) => {
+    const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
         const [start, end] = dates;
         setFieldValue('fromDate', start);
         setFieldValue('toDate', end);
@@ -103,6 +103,11 @@ const Booking = (props) => {
         if (start && end) {
             setRange({ startDate: start, endDate: end });
             setDatePickerVisible(false);
+        }
+        let startDate = moment(start).format("DD-MM-YYYY");
+        if (rideDate != startDate) {
+            setFieldValue('rideDate', moment(start).format("YYYY-MM-DD"));
+            setBookingTimesForDay(Utils.generateBookingTimesForDay(moment(start).format("YYYY-MM-DD")));
         }
     };
 
@@ -214,12 +219,12 @@ const Booking = (props) => {
                         validationSchema={BOOKING_DETAILS_SCHEMA}
                         enableReinitialize={true}
                     >
-                        {({ handleSubmit, values, setFieldValue, isValid, dirty }) => (
+                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange }) => (
                             <>
                                 {customerData && <div className="p-2 flex">
                                     <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
                                         setFieldValue('customerId', val);
-                                        // setSelectedCustomer(val.id)
+                                        setSelectedCustomer(val.id)
                                     }} />
                                     <Button
                                         className="ml-3 w-1/2"
@@ -325,6 +330,12 @@ const Booking = (props) => {
                                         <Field type="date" name="rideDate" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} onChange={(e) => {
                                             setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
                                             setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
+                                            console.log("khjkhj", values.fromDate, moment(e.target.value).format('YYYY-MM-DD'));
+                                            if (moment(e.target.value).format('YYYY-MM-DD') != values.fromDate) {
+                                                setRange({});
+                                                setFieldValue('fromDate', '');
+                                                setFieldValue('toDate', '');
+                                            }
                                         }}></Field>
                                         <Field as="select" name="rideTime" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
                                             <option value="">Select time</option>
@@ -386,12 +397,18 @@ const Booking = (props) => {
                                             <div className='w-full'>
                                                 <DatePicker
                                                     selected={values.fromDate}
-                                                    onChange={(dates) => handleDateChange(dates, setFieldValue)}
+                                                    onChange={(dates) => {
+                                                        console.log(values.rideDate, " ", dates.start)
+
+
+                                                        handleDateChange(dates, setFieldValue, handleChange, values.rideDate)
+                                                    }}
                                                     startDate={values.fromDate}
                                                     endDate={values.toDate}
                                                     selectsRange
                                                     inline
                                                     className="w-full h-full"
+                                                    minDate={new Date()}
                                                 />
                                             </div>
                                         )}

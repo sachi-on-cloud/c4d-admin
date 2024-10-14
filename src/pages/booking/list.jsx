@@ -217,7 +217,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {data?.Driver?.firstName ? data?.Driver?.firstName : ''}
+                                                        {data?.serviceType === "CAB" ? data?.Cab?.name : data?.serviceType == "DRIVER" || data?.serviceType == "CAR_WASH" ? data?.Driver?.firstName : ''}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
@@ -257,8 +257,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                     value={"CANCELLED"}
                                                                     className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                 />
-                                                                : data?.status == "INITIATED" && data?.Driver?.id ?
-                                                                    <Chip
+                                                                : data?.status == "INITIATED" && (data?.Driver?.id || data?.Cab?.id) ?
+                                                                    < Chip
                                                                         variant="gradient"
                                                                         value={"DRIVER ASSIGNED"}
                                                                         className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -283,7 +283,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             End Trip
                                                         </Button>
                                                     } */}
-                                                    {data?.status === 'INITIATED' && !data?.Driver?.id &&
+                                                    {data?.status === 'INITIATED' && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                         <Button
                                                             fullWidth
                                                             onClick={() => {

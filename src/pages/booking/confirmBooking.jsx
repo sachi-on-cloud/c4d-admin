@@ -45,7 +45,8 @@ const ConfirmBooking = (props) => {
         let dateTime = dateVal + " " + timeVal;
         const reqBody = {
             bookingId: bookingDetails?.id,
-            driverId: bookingDetails?.Driver?.id,
+            id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
+            bookingType: bookingDetails?.serviceType,
             date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
             amount: 0,
             extraHours: 0,
@@ -108,8 +109,9 @@ const ConfirmBooking = (props) => {
             //console.log(dateTime, "dateTime");
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ADMIN_BOOKING_PRICE, {
                 bookingId: bookingDetails?.id,
-                driverId: bookingDetails?.Driver?.id,
+                id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
                 date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
+                bookingType: bookingDetails?.serviceType,
             });
             if (data?.success) {
                 setAmount(data?.data);
@@ -166,6 +168,10 @@ const ConfirmBooking = (props) => {
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Service Type:</Typography>
+                            <Typography>{bookingDetails.serviceType}</Typography>
+                        </div>
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
@@ -284,7 +290,7 @@ const ConfirmBooking = (props) => {
             )}
 
             {(bookingDetails?.status === 'STARTED') ||
-                (bookingDetails?.status === 'INITIATED' && !!bookingDetails?.Driver?.id) ?
+                (bookingDetails?.status === 'INITIATED' && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) ?
 
                 <Card className="my-4 gap-4">
                     <CardBody >
@@ -358,7 +364,7 @@ const ConfirmBooking = (props) => {
                             </Button>
                         </>
                     }
-                    {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id &&
+                    {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id && !bookingDetails?.Cab?.id &&
                         <Button
                             color="black"
                             ripple="light"
@@ -368,7 +374,7 @@ const ConfirmBooking = (props) => {
                             Assign Captain
                         </Button>
                     }
-                    {bookingDetails.status === 'INITIATED' && bookingDetails?.Driver?.id &&
+                    {bookingDetails.status === 'INITIATED' && bookingDetails?.Driver?.id && bookingDetails?.Cab?.id &&
                         <Button
                             color="black"
                             ripple="light"

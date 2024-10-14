@@ -10,21 +10,21 @@ import { API_ROUTES } from "@/utils/constants";
 import { Formik, Form, Field } from 'formik';
 import { useNavigate } from 'react-router-dom';
 
-function PriceTable({ driverId, packages, selectedPackages }) {
+function PriceTable({ type, id, packages, selectedPackages }) {
     const [price, setPrice] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const navigate = useNavigate();
 
-    const getPrice = async (driverId) => {
+    const getPrice = async (type, driverId) => {
 
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_PRICE + `?driverId=${driverId}`);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_PRICE + `?${type}=${driverId}`);
         if (data?.success) {
             const priceData = data?.data.filter((el) => selectedPackages.includes(el.packageId));
             setPrice(priceData);
         }
     };
     useEffect(() => {
-        getPrice(driverId);
+        getPrice(type, id);
 
     }, [])
     function getNameById(id, obj) {
@@ -55,10 +55,9 @@ function PriceTable({ driverId, packages, selectedPackages }) {
             cancelCharge: values.cancelCharge,
             extraCabType: values.extraCabType,
             priceId: values.id,
-            driverId: values.DriverId
         };
         const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_PRICE, priceData);
-        getPrice(values.DriverId);
+        getPrice(type, id);
         setEditingId(null);
         setSubmitting(false);
     };

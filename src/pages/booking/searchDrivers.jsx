@@ -42,10 +42,20 @@ export function SearchDrivers(props) {
             });
             setDrivers(filtredOptions);
         } else {
-            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVERS + props?.bookingData?.packageId, {
-                latitude: props?.bookingData?.pickupLat,
-                longitude: props?.bookingData?.pickupLong
-            });
+            console.log("props.bookingData.serviceType", props.bookingData);
+            let api = props.bookingData.serviceType == "CAB" ? API_ROUTES.GET_CABS_PACKAGE : API_ROUTES.GET_DRIVERS_PACKAGE;
+            let data;
+            if (props.bookingData.serviceType == "CAB") {
+                data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE + props?.bookingData?.packageId, {
+                    latitude: props?.bookingData?.pickupLat,
+                    longitude: props?.bookingData?.pickupLong
+                });
+            } else {
+                data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVERS_PACKAGE + props?.bookingData?.packageId, {
+                    latitude: props?.bookingData?.pickupLat,
+                    longitude: props?.bookingData?.pickupLong
+                });
+            }
             if (data?.success) {
                 setDrivers(data?.data);
             }
@@ -77,11 +87,13 @@ export function SearchDrivers(props) {
         }
     }, []);
 
-    const onAssignDriver = async (driverId) => {
+    const onAssignDriver = async (service, driverId) => {
+
         const reqBody = {
             bookingId: props?.bookingData?.id,
-            driverId: driverId
+
         };
+        let type = service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
         const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
         if (data?.success) {
             props?.onNext();
@@ -117,7 +129,7 @@ export function SearchDrivers(props) {
                             </thead>
                             <tbody>
                                 {drivers.map(
-                                    ({ id, firstName, status, phoneNumber, distance, intercityCount, outstationCount }, key) => {
+                                    ({ id, firstName, name, status, phoneNumber, distance, intercityCount, outstationCount }, key) => {
                                         const className = `py-3 px-5 ${key === drivers.length - 1
                                             ? ""
                                             : "border-b border-blue-gray-50"
@@ -133,7 +145,7 @@ export function SearchDrivers(props) {
                                                                 color="blue-gray"
                                                                 className="font-semibold"
                                                             >
-                                                                {firstName}
+                                                                {props.bookingData.serviceType == "CAB" ? name : firstName}
                                                             </Typography>
                                                         </div>
                                                     </div>
@@ -169,7 +181,7 @@ export function SearchDrivers(props) {
                                                 <td className={className}>
                                                     {status === "ACTIVE" && <Button
                                                         as="a"
-                                                        onClick={() => { onAssignDriver(id) }}
+                                                        onClick={() => { onAssignDriver(props.bookingData.serviceType, id) }}
                                                         className="text-xs font-semibold text-white"
                                                     >
                                                         Assign Captain
