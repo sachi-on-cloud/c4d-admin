@@ -38,7 +38,7 @@ const CustomerAdd = (props) => {
         ...(isEditMode
             ? {}
             : {
-                phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
+                phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
                 // carNumber: Yup.string().required('Car number is required'),
                 // nickName: Yup.string().required('Car name is required'),
                 // carType: Yup.string().required('Car type is required'),
@@ -65,34 +65,46 @@ const CustomerAdd = (props) => {
             }
             //console.log('Customer created:', data);
 
-            if (!data?.success && data?.code === 203) {
-                setAlert(true);
-
-                setTimeout(() => {
-                    setAlert(false);
-                    resetForm();
-                }, 2000)
-            }
-            if (props.isQuickCreate) {
-                return navigate('/dashboard/booking', {
-                    state: {
-                        refreshData: true,
-                        customerPhoneNumber: data?.data?.phoneNumber
-                    }
-                });
-            }
-            navigate('/dashboard/customers', {
-                state: {
-                    customerAdded: true,
-                    customerName: data?.data?.firstName
+            if (!data?.success) {
+                if (data?.code === 203) {
+                    setAlert({ show: true, message: 'Customer already exists!', color: 'red' });
+                } else {
+                    setAlert({ show: true, message: 'An error occurred while processing your request.', color: 'red' });
                 }
-            });
+                setTimeout(() => {
+                    setAlert({ show: false, message: '', color: 'red' });
+                }, 2000);
+            } else {
+                // setAlert({ show: true, message: 'Customer added successfully!', color: 'green' });
+                setTimeout(() => {
+                    // setAlert({ show: false, message: '', color: 'green' });
+                    if (props.isQuickCreate) {
+                        navigate('/dashboard/booking', {
+                            state: {
+                                refreshData: true,
+                                customerPhoneNumber: data?.data?.phoneNumber
+                            }
+                        });
+                    } else {
+                        navigate('/dashboard/customers', {
+                            state: {
+                                customerAdded: true,
+                                customerName: data?.data?.firstName
+                            }
+                        });
+                    }
+                }, 1000);
+            }
         } catch (error) {
-            console.error('Error creating customer and car:', error);
-            // Handle error (e.g., show an error message)
+            console.error('Error creating customer:', error);
+            setAlert({ show: true, message: 'An unexpected error occurred.', color: 'red' });
+            setTimeout(() => {
+                setAlert({ show: false, message: '', color: 'red' });
+            }, 5000);
         }
         setSubmitting(false);
     };
+
     const handleCancel = () => {
         if (props.isQuickCreate) {
             return navigate('/dashboard/booking', {
@@ -107,14 +119,16 @@ const CustomerAdd = (props) => {
 
     return (
         <div className="p-4">
-            {alert && <div className='mb-2'>
+            {alert.show && (
+                <div className='mb-2'>
                 <Alert
-                    color='red'
+                    color={alert.color}
                     className='py-3 px-6 rounded-xl'
                 >
-                    User already exist!
+                    {alert.message}
                 </Alert>
-            </div>}
+            </div>
+            )}
             <h2 className="text-2xl font-bold mb-4">New Customer</h2>
             <Formik
                 initialValues={initialValues}

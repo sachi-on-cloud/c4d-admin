@@ -138,7 +138,7 @@ const DriverEdit = () => {
             console.log('data in driver add :', data);
             navigate('/dashboard/drivers', {
                 state: {
-                    driverAdded: true,
+                    driverUpdated: true,
                     driverName: data?.data?.firstName
                 }
             });
@@ -243,15 +243,15 @@ const DriverEdit = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Sedan" className="form-radio" />
+                                        <Field type="radio" name="preference" value="Automatic" className="form-radio" />
                                         <span className="ml-2">Automatic</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="SUV" className="form-radio" />
+                                        <Field type="radio" name="preference" value="Petrol" className="form-radio" />
                                         <span className="ml-2">Petrol</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Hatchback" className="form-radio" />
+                                        <Field type="radio" name="preference" value="Diesel" className="form-radio" />
                                         <span className="ml-2">Diesel</span>
                                     </label>
                                 </div>
@@ -271,11 +271,11 @@ const DriverEdit = () => {
                                 </div>
                                 <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                 <Multiselect

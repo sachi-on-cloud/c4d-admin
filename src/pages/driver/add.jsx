@@ -46,7 +46,7 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
 
 const DriverAdd = () => {
     const [driverVal, setDriverVal] = useState({});
-    const [alert, setAlert] = useState(false);
+    // const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const { id } = useParams();
@@ -166,30 +166,35 @@ const DriverAdd = () => {
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             }
             if (!data?.success && data?.code === 203) {
-                setAlert(true);
-
-                setTimeout(() => {
-                    setAlert(false);
-                    resetForm();
-                }, 2000)
+                console.error('Driver already exists');
+                resetForm();
+            } else {
+                navigate('/dashboard/drivers', {
+                    state: {
+                        driverAdded: isEditMode ? false : true,
+                        driverUpdated: isEditMode ? true : false,
+                        driverName: data?.data?.firstName
+                    }
+                });
             }
-            console.log('Driver created:', data.data);
-            navigate('/dashboard/drivers', {
-                state: {
-                    driverAdded: true,
-                    driverName: data?.data?.firstName
-                }
-            });
-
+            console.log('Driver operation:', data.data);
         } catch (error) {
-            console.error('Error creating driver and car:', error);
+            console.error('Error creating/updating driver:', error);
         }
         setSubmitting(false);
     };
 
     const isFormValid = (values, errors) => {
         const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
-        const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
+        const areRequiredFieldsFilled = requiredFields.every(field => {
+            if (field === 'packages') {
+                return Array.isArray(values[field]) && values[field].length > 0;
+            }
+            if (field === 'wallet') {
+                return values[field] !== undefined && values[field] !== '';
+            }
+            return values[field] && values[field].length > 0;
+        });
 
         const isPricesFilled = values.prices.some(price =>
             price.price || price.extra_price || price.extraKmPrice ||
@@ -202,14 +207,16 @@ const DriverAdd = () => {
     };
     return (
         <div className="p-4 mx-auto">
-            {alert && <div className='mb-2'>
+            {/* {alert && (
+                <div className='mb-2'>
                 <Alert
-                    color='red'
+                    color={alert.color}
                     className='py-3 px-6 rounded-xl'
                 >
-                    Driver already exist!
+                    {alert.message}
                 </Alert>
-            </div>}
+            </div>
+            )} */}
             <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
             <Formik
                 initialValues={initialValues}
@@ -297,7 +304,7 @@ const DriverAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Automatice" className="form-radio" />
+                                        <Field type="radio" name="preference" value="Automatic" className="form-radio" />
                                         <span className="ml-2">Automatic</span>
                                     </label>
                                     <label className="inline-flex items-center">
@@ -327,7 +334,7 @@ const DriverAdd = () => {
                             </div>
                             <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
@@ -415,7 +422,7 @@ const DriverAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 // disabled={isEditMode ? false : !dirty || !isValid}
-                                disabled={!isFormValid(values, errors)}
+                                // disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}
