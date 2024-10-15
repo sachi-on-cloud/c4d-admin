@@ -45,12 +45,14 @@ const ConfirmBooking = (props) => {
         let dateTime = dateVal + " " + timeVal;
         const reqBody = {
             bookingId: bookingDetails?.id,
-            driverId: bookingDetails?.Driver?.id,
+            id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
+            bookingType: bookingDetails?.serviceType,
             date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
             amount: 0,
             extraHours: 0,
             price: 0,
-            extraPrice: 0
+            extraPrice: 0,
+            extraHourPrice: 0,
         };
         if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
             reqBody.type = "start";
@@ -61,6 +63,7 @@ const ConfirmBooking = (props) => {
                 reqBody.extraHours = amount?.extraHours;
                 reqBody.price = amount?.price;
                 reqBody.extraPrice = amount?.extraPrice;
+                reqBody.extraHourPrice = amount?.extraHourPrice;
             } else {
                 alert("Please check price before end the trip");
                 setLoading(false);
@@ -87,7 +90,7 @@ const ConfirmBooking = (props) => {
 
             setWhatsappMsg(encodeURIComponent(msg));
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
-                setAmount({ price: data?.data?.price, extraPrice: data?.data.extraHours * data?.data.extraPrice || 0, total: data?.data.endPayment, extraHours: data?.data.extraHours, extraHourPrice: data?.data.extraPrice });
+                setAmount({ price: data?.data?.price, extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0, total: data?.data.endPayment, extraHours: data?.data.extraHours, extraHourPrice: data?.data.extraHourPrice });
             } else {
                 setAmount();
             }
@@ -106,8 +109,9 @@ const ConfirmBooking = (props) => {
             //console.log(dateTime, "dateTime");
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ADMIN_BOOKING_PRICE, {
                 bookingId: bookingDetails?.id,
-                driverId: bookingDetails?.Driver?.id,
+                id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
                 date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
+                bookingType: bookingDetails?.serviceType,
             });
             if (data?.success) {
                 setAmount(data?.data);
@@ -164,6 +168,10 @@ const ConfirmBooking = (props) => {
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Service Type:</Typography>
+                            <Typography>{bookingDetails.serviceType}</Typography>
+                        </div>
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
@@ -253,18 +261,22 @@ const ConfirmBooking = (props) => {
                         <div className="mt-4">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Package:</Typography>
-                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
+                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""
                                     }`}</Typography>
                             </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
-                                <Typography>₹ {amount?.price}</Typography>
-                            </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                    } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
-                                <Typography>₹ {amount?.extraPrice}</Typography>
-                            </div>
+                            {bookingDetails?.packageType === "Intercity" || bookingDetails?.packageType === "Outstation" ?
+                                <>
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
+                                        <Typography>₹ {amount?.price}</Typography>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                            } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
+                                        <Typography>₹ {amount?.extraPrice}</Typography>
+                                    </div>
+                                </> : ""
+                            }
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Total:</Typography>
                                 <Typography style={{
@@ -278,7 +290,7 @@ const ConfirmBooking = (props) => {
             )}
 
             {(bookingDetails?.status === 'STARTED') ||
-                (bookingDetails?.status === 'INITIATED' && !!bookingDetails?.Driver?.id) ?
+                (bookingDetails?.status === 'INITIATED' && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) ?
 
                 <Card className="my-4 gap-4">
                     <CardBody >
@@ -352,7 +364,7 @@ const ConfirmBooking = (props) => {
                             </Button>
                         </>
                     }
-                    {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id &&
+                    {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id && !bookingDetails?.Cab?.id &&
                         <Button
                             color="black"
                             ripple="light"
@@ -362,7 +374,7 @@ const ConfirmBooking = (props) => {
                             Assign Captain
                         </Button>
                     }
-                    {bookingDetails.status === 'INITIATED' && bookingDetails?.Driver?.id &&
+                    {bookingDetails.status === 'INITIATED' && bookingDetails?.Driver?.id && bookingDetails?.Cab?.id &&
                         <Button
                             color="black"
                             ripple="light"

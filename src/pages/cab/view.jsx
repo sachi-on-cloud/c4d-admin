@@ -4,110 +4,93 @@ import {
   CardHeader,
   CardBody,
   Typography,
-  Avatar,
   Chip,
-  Tooltip,
-  Progress,
   Button,
   Alert
 } from "@material-tailwind/react";
-import { authorsTableData } from "@/data";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import UserSearch from "@/components/UserSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
-export function UserView() {
-  const [users, setUsers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
+export function CabView() {
+  const [cabs, setCabs] = useState([]);
   const [alert, setAlert] = useState(false);
-  const navigate = useNavigate();
+
   const location = useLocation();
- 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_USERS);
-      if (data?.success) {
-        setUsers(data?.data);
-        setAllUsers(data?.data); // Store all users for local filtering
-      }
-    }; 
-    fetchUsers();
+  const paramsPassed = location.state;
 
-    if (location.state?.userAdded || location.state?.userUpdated) {
-      const action = location.state.userAdded ? 'added' : 'updated';
-      setAlert({
-        message: `${location.state.userName} ${action} successfully!`
-      });
-      setTimeout(() => {
-        setAlert(null);
-      }, 5000);
-      // Clear the state to prevent showing the alert on page refresh
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location]);
+  const navigate = useNavigate();
 
-  const getUsers = async (searchQuery) => {
+  const getCabs = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
-    if (searchQuery && searchQuery.trim() !== "") {
-      
-       const query = searchQuery.toLowerCase().trim();
-      
-       const filteredUsers = allUsers.filter((user) => {
-         const name = (user.name || "").toLowerCase();
-         const phone = (user.phoneNumber || "").toLowerCase();
-         const email = (user.email || "").toLowerCase();
-         
-         return name.startsWith(query) || 
-                phone.startsWith(query) || 
-                email.startsWith(query);
-    });
-      setUsers(filteredUsers);
+    if (searchQuery != "") {
+      const phoneNumberPattern = `^\\+91${searchQuery}`;
+
+      const filteredCustomers = cabs.filter((customer) =>
+        new RegExp(phoneNumberPattern).test(customer.phoneNumber)
+      );
+      setCabs(filteredCustomers)
       // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
       // if (data?.success) {
-      //   setUsers(data?.data);
+      //   setCabs(data?.data);
       // }
     } else {
-      setUsers(allUsers);
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CABS);
+      if (data?.success) {
+        setCabs(data?.data);
+      }
     }
   };
-  // useEffect(() => {
-  //   getUsers('');
-  //   if (paramsPassed?.userAdded || paramsPassed?.userUpdated) {
-  //     setAlert(true);
-  //     setTimeout(() => {
-  //       setAlert(false);
-  //     }, 2000);
-  //   }
-  // }, [])
+  const updateCabs = async (cabId, status) => {
+    let cabData = {
+      cabId,
+      status: status == "ACTIVE" ? "NOT_ACTIVE" : "ACTIVE"
+    };
+    const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVERS, cabData);
+    getCabs('');
+  };
+  useEffect(() => {
+    getCabs('');
+    if (paramsPassed?.cabAdded) {
+      setAlert(true);
+      setTimeout(() => {
+        setAlert(false);
+      }, 2000);
+    }
+  }, [])
 
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
-      {alert && (
-        <div className='mb-2'>
+      {alert && <div className='mb-2'>
         <Alert
           color='blue'
           className='py-3 px-6 rounded-xl'
         >
-          {alert.message}
+          {paramsPassed?.cabName} added successfully!
         </Alert>
-      </div>)}
-      <UserSearch onSearch={getUsers} />
+      </div>}
+      <div className='flex justify-end mr-5'>
+        <button
+          onClick={() => navigate('/dashboard/cab/add')}
+          className="ml-4 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Add new
+        </button>
+      </div>
       <Card>
-        {users.length > 0 ? (
+        {cabs.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
               <Typography variant="h6" color="white">
-                Users List
+                Cabs List
               </Typography>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", "Email", "Status", ""].map((el) => (
+                    {["Name", "Phone Number", "Type", "Intercity", "Outstation", "Status", ""].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -123,9 +106,9 @@ export function UserView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(
-                    ({ id, name, phoneNumber, email, status }, key) => {
-                      const className = `py-3 px-5 ${key === users.length - 1
+                  {cabs.map(
+                    ({ id, name, phoneNumber, carType, status, intercityCount, outstationCount }, key) => {
+                      const className = `py-3 px-5 ${key === cabs.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
                         }`;
@@ -134,7 +117,7 @@ export function UserView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/users/details/${id}`)}>
+                              <div onClick={() => navigate(`/dashboard/cab/details/${id}`)}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -142,6 +125,9 @@ export function UserView() {
                                 >
                                   {name}
                                 </Typography>
+                                {/* <Typography className="text-xs font-normal text-blue-gray-500">
+                                  {email}
+                                </Typography> */}
                               </div>
                             </div>
                           </td>
@@ -152,14 +138,24 @@ export function UserView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {email}
+                              {carType}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600 ">
+                              {intercityCount}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {outstationCount}
                             </Typography>
                           </td>
                           <td className={className}>
                             <Chip
                               variant="gradient"
                               color={status == "ACTIVE" ? "green" : "blue-gray"}
-                              value={status == "ACTIVE" ? "Active" : "In-Active"}
+                              value={status == "ACTIVE" ? "online" : "offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>
@@ -167,19 +163,29 @@ export function UserView() {
                             {/* <td className={className}>
                               <Button
                                 as="a"
-                                onClick={() => navigate(`/dashboard/users/details/${id}`)}
+                                onClick={() => navigate(`/dashboard/cabs/details/${id}`)}
                                 className="text-xs font-semibold text-white"
                               >
                                 View
                               </Button>
                             </td> */}
+
                             <td className={className}>
                               <Button
                                 as="a"
-                                onClick={() => navigate(`/dashboard/users/edit/${id}`)}
+                                onClick={() => navigate(`/dashboard/cab/edit/${id}`)}
                                 className="text-xs font-semibold text-white"
                               >
                                 Edit
+                              </Button>
+                            </td>
+                            <td className={className}>
+                              <Button
+                                as="a"
+                                onClick={() => { updateCabs(id, status) }}
+                                className="text-xs font-semibold text-white"
+                              >
+                                {status == "ACTIVE" ? "Mark Offline" : "Mark Online"}
                               </Button>
                             </td>
                           </div>
@@ -194,7 +200,7 @@ export function UserView() {
           </>) : (
           <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
             <Typography variant="h6" color="white">
-              No Users
+              No Cabs
             </Typography>
           </CardHeader>
         )}
@@ -203,4 +209,4 @@ export function UserView() {
   );
 }
 
-export default UserView;
+export default CabView;

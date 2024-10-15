@@ -139,8 +139,8 @@ export const API_ROUTES = {
     'OTP_VERIFICATION': '/otp-verify',
     'REGISTER_CUSTOMER': '/register',
     'UPDATE_CUSTOMER': '/customer',
-    'REGISTER_DRIVER': '/register/driver',
-    'UPDATE_DRIVER': '/driver/update',
+    'REGISTER_DRIVER': '/register/admin/driver',
+    'UPDATE_DRIVER': '/update/admin/driver',
     'GET_CUSTOMER': '/customer',
     'REGISTER_CAR_DETAILS': '/car-number',
     'ADD_CAR_DETAILS': '/car',
@@ -174,7 +174,7 @@ export const API_ROUTES = {
     'GET_CUSTOMERS': '/admin/customer',
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
-    'GET_DRIVERS': '/get-drivers/',
+    'GET_DRIVERS_PACKAGE': '/get-drivers/',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',
@@ -189,6 +189,13 @@ export const API_ROUTES = {
     'UPDATE_DRIVERS': '/admin-driver/update',
     'ADMIN_BOOKING_STATUS': '/admin-booking-status',
     'ADMIN_BOOKING_PRICE': '/get-booking-price',
+    'UPDATE_WALLET': '/update-wallet',
+    'UPDATE_COMMISSION': '/update/commission',
+    'GET_ALL_CABS': '/admin/cabs',
+    'REGISTER_CAB': '/register/admin/cab',
+    'UPDATE_CAB': '/update/admin/cab',
+    'GET_CAB_BY_ID': '/cab/',
+    'GET_CABS_PACKAGE': '/get-cabs/',
 };
 
 export const ASYNC_STORAGE_KEYS = {

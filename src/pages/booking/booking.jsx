@@ -44,6 +44,7 @@ const Booking = (props) => {
     const [editBooking, setEditBooking] = useState();
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
+    const [selectPickedBooking, setSelectPickedBooking] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -71,8 +72,9 @@ const Booking = (props) => {
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }
-        if (params && params.customerPhoneNumber) {
+        if (params && params.customerPhoneNumber !== undefined) {
             setAddCustomerNumber(params.customerPhoneNumber);
+            setCustomerNumber(params.customerPhoneNumber);
         }
     }, [params]);
 
@@ -95,7 +97,7 @@ const Booking = (props) => {
         serviceType: editBooking?.serviceType ? editBooking?.serviceType : ''
     };
 
-    const handleDateChange = (dates, setFieldValue) => {
+    const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
         const [start, end] = dates;
         setFieldValue('fromDate', start);
         setFieldValue('toDate', end);
@@ -104,9 +106,15 @@ const Booking = (props) => {
             setRange({ startDate: start, endDate: end });
             setDatePickerVisible(false);
         }
+        let startDate = moment(start).format("DD-MM-YYYY");
+        if (rideDate != startDate) {
+            setFieldValue('rideDate', moment(start).format("YYYY-MM-DD"));
+            setBookingTimesForDay(Utils.generateBookingTimesForDay(moment(start).format("YYYY-MM-DD")));
+        }
     };
 
     const countDaysBetween = (date1, date2) => {
+        console.log("countDaysBetween", date1, date2);
         const timeDiff = date2.getTime() - date1.getTime();
         return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
     };
@@ -155,7 +163,8 @@ const Booking = (props) => {
 
         return `${hours}:${minutes} ${period}`;
     }
-    const onAssignDriver = async (data) => {
+    const onAssignDriver = (data) => {
+        setSelectPickedBooking(data?.id);
         setBookingData(data);
         setBookingStage(2);
         setBookingView(false);
@@ -191,7 +200,7 @@ const Booking = (props) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
-                {<BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />}
+                <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} selectPickedBooking={selectPickedBooking} />
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
@@ -213,12 +222,12 @@ const Booking = (props) => {
                         validationSchema={BOOKING_DETAILS_SCHEMA}
                         enableReinitialize={true}
                     >
-                        {({ handleSubmit, values, setFieldValue, isValid, dirty }) => (
+                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange }) => (
                             <>
                                 {customerData && <div className="p-2 flex">
                                     <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
                                         setFieldValue('customerId', val);
-                                        // setSelectedCustomer(val.id)
+                                        setSelectedCustomer(val.id)
                                     }} />
                                     <Button
                                         className="ml-3 w-1/2"
@@ -243,7 +252,7 @@ const Booking = (props) => {
                                             <option value="">Service Type</option>
                                             <option value="DRIVER">Acting Driver</option>
                                             <option value="CAR_WASH">Car Wash</option>
-                                            {/* <option value="CAB">Cab Booking</option> */}
+                                            <option value="CAB">Cab Booking</option>
                                         </Field>
                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -282,11 +291,29 @@ const Booking = (props) => {
                                         >
                                             Outstation
                                         </Button>
+                                        {(values.serviceType === 'CAB' || values.serviceType === 'CAB') &&
+                                            <Button
+                                                color={values.packageTypeSelected === 'Commute' ? 'black' : 'gray'}
+                                                onClick={() => {
+                                                    if (values.packageTypeSelected !== 'Commute') {
+                                                        setFieldValue('packageTypeSelected', 'Commute');
+                                                        setFieldValue('packageSelected', '');
+                                                        setRange({});
+                                                        setFieldValue('fromDate', '');
+                                                        setFieldValue('toDate', '');
+                                                    }
+                                                }}
+                                                disabled={bookingStage === 1}
+                                                variant={values?.packageTypeSelected === 'Commute' ? 'filled' : 'outlined'}
+                                            >
+                                                Commute
+                                            </Button>
+                                        }
                                     </div>
                                 }
 
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <div className="flex-1 mb-2">
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <div className="flex-1 mb-2">
                                     <Typography variant="h6" className="mb-2">
                                         When?
                                     </Typography>
@@ -304,9 +331,15 @@ const Booking = (props) => {
                                     }}
                                 /> */}
                                         <Field type="date" name="rideDate" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} onChange={(e) => {
-                                            setFieldValue('rideDate', moment(e.target.value).format('YYYY-MM-DD'));
-                                            setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(e.target.value)));
-                                        }}></Field>
+                                            const newDate = e.target.value ? moment(e.target.value).format('YYYY-MM-DD') : '';
+                                            setFieldValue('rideDate', newDate);
+                                            if (newDate) {
+                                                setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(newDate)));
+                                            } else {
+                                                setBookingTimesForDay([]);
+                                            }
+                                        }}
+                                        ></Field>
                                         <Field as="select" name="rideTime" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
                                             <option value="">Select time</option>
                                             {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
@@ -334,7 +367,7 @@ const Booking = (props) => {
                                     </div>
                                 }
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <div className="flex-1 mb-4">
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <div className="flex-1 mb-4">
                                     <div>
                                         <Typography variant="h6" className="mb-2">
                                             Choose a package
@@ -367,12 +400,18 @@ const Booking = (props) => {
                                             <div className='w-full'>
                                                 <DatePicker
                                                     selected={values.fromDate}
-                                                    onChange={(dates) => handleDateChange(dates, setFieldValue)}
+                                                    onChange={(dates) => {
+                                                        console.log(values.rideDate, " ", dates.start)
+
+
+                                                        handleDateChange(dates, setFieldValue, handleChange, values.rideDate)
+                                                    }}
                                                     startDate={values.fromDate}
                                                     endDate={values.toDate}
                                                     selectsRange
                                                     inline
                                                     className="w-full h-full"
+                                                    minDate={new Date()}
                                                 />
                                             </div>
                                         )}
@@ -391,20 +430,20 @@ const Booking = (props) => {
                                                     </div>
                                                 </div>
                                                 <Typography variant='h6'>
-                                                    Selected Date: {countDaysBetween(values.fromDate, values.toDate)} days
+                                                    Selected Date: {countDaysBetween(range.startDate, range.endDate)} days
                                                 </Typography>
                                                 <Typography variant='h6'>
-                                                    Total Amount: ₹ {countDaysBetween(values.fromDate, values.toDate) * 1000}
+                                                    Total Amount: ₹ {countDaysBetween(range.startDate, range.endDate) * 1000}
                                                 </Typography>
                                             </Card>
                                         )}
                                     </div>
                                 )}
-                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
+                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <Button
                                     fullWidth
                                     color="black"
                                     onClick={handleSubmit}
-                                    disabled={!dirty || !isValid}
+                                    disabled={!dirty || !isValid || !values.rideDate}
                                     className='my-6 mx-2'
                                 >
                                     Continue
@@ -437,10 +476,13 @@ const Booking = (props) => {
                         onPrev={() => setBookingStage(0)} />
                     }
                     {
-                        bookingStage === 2 && <SearchDrivers bookingData={bookingData} onNext={() => {
-                            setBookingStage(0);
-                        }} />
-                    }
+                        bookingStage === 2 && bookingData && (
+                            <SearchDrivers bookingData={bookingData} onNext={() => {
+                                setBookingStage(0);
+                                setSelectPickedBooking(null);
+                                setBookingData(null);
+                            }} />
+                        )}
                 </>}
                 {bookingView && <>
                     <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />

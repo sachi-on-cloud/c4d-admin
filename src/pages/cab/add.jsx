@@ -44,8 +44,8 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
     );
 };
 
-const DriverAdd = () => {
-    const [driverVal, setDriverVal] = useState({});
+const CabAdd = () => {
+    const [cabVal, setCabVal] = useState({});
     const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
@@ -78,37 +78,40 @@ const DriverAdd = () => {
 
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
-        setDriverVal(data.data);
+        setCabVal(data.data);
     };
 
     const initialValues = {
-        salutation: driverVal?.salutation || "",
-        firstName: driverVal?.firstName || "",
-        phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
-        license: driverVal?.license || "",
-        address: driverVal?.address || "",
-        reference: driverVal?.references || "",
-        preference: driverVal?.preference || "",
-        carType: driverVal?.carType || "",
-        packages: driverVal?.packages || [],
-        wallet: driverVal?.wallet || "",
-        mode: driverVal?.mode || "PREPAID",
+        name: cabVal?.name || "",
+        phoneNumber: cabVal?.phoneNumber ? cabVal?.phoneNumber.replace(/^(\+91)/, '') : "",
+        carNumber: cabVal?.carNumber || "",
+        address: cabVal?.address || "",
+        company: cabVal?.company || "",
+        insurance: cabVal?.insurance || "",
+        withDriver: cabVal?.withDriver || "",
+        driverName: cabVal?.driverName || "",
+        carType: cabVal?.carType || "",
+        packages: cabVal?.packages || [],
+        wallet: cabVal?.wallet || "",
+        mode: cabVal?.mode || "PREPAID",
         prices: []
     };
 
     const validationSchema = Yup.object({
-        salutation: Yup.string().required('Salutation is required'),
-        firstName: Yup.string().required('Name is required'),
+        name: Yup.string().required('Name is required'),
         phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
-        license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
         address: Yup.string().required('Address is required'),
-        reference: Yup.string().required('Reference is required'),
-        preference: Yup.string().required('Preference is required'),
+        company: Yup.string().required('Company is required'),
+        insurance: Yup.string().required('Insurance is required'),
+        withDriver: Yup.string().required('Driver is required'),
+        driverName: Yup.string(),
         mode: Yup.string().required('Mode is required'),
+        carType: Yup.string().required('Car Type is required'),
         packages: Yup.array()
             .of(Yup.string().required('Each package must be selected'))
             .required('At least one package must be selected'),
-            // .min(1, 'At least one package must be selected'),
+        //.min(1, 'At least one package must be selected'),
         wallet: Yup.string().required('Wallet is required'),
         prices: Yup.array().of(
             Yup.object().shape({
@@ -142,64 +145,55 @@ const DriverAdd = () => {
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            const driverDetails = {
-                salutation: values.salutation,
-                firstName: values.firstName,
+            const cabDetails = {
+                name: values.name,
                 phoneNumber: "+91" + values.phoneNumber,
-                license: values.license,
+                carNumber: values.carNumber,
                 curAddress: values.address,
-                references: values.reference,
-                preference: values.preference,
+                company: values.company,
+                withDriver: values.withDriver,
+                driverName: values.driverName,
+                insurance: values.insurance,
                 packages: values.packages,
                 carType: values.carType,
                 wallet: values.wallet,
                 mode: values.mode,
             };
-            let driverData = { driverDetails, prices: values.prices };
-            console.log(driverData);
+            let cabData = { cabDetails, prices: values.prices }
+            console.log(cabData);
             //return;
             let data;
             if (isEditMode) {
-                driverData['driverId'] = id;
-                data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER, driverData);
+                cabData['cabId'] = id;
+                data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, cabData);
             } else {
-                data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
+                data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CAB, cabData);
             }
             if (!data?.success && data?.code === 203) {
-                console.error('Driver already exists');
-                setAlert({
-                    color: 'red',
-                    message: 'Driver already exists'
-                });
-                setTimeout(() => setAlert(null), 5000); 
-                resetForm();
-            } else {
-                navigate('/dashboard/drivers', {
-                    state: {
-                        driverAdded: isEditMode ? false : true,
-                        driverUpdated: isEditMode ? true : false,
-                        driverName: data?.data?.firstName
-                    }
-                });
+                setAlert(true);
+
+                setTimeout(() => {
+                    setAlert(false);
+                    resetForm();
+                }, 2000)
             }
-            console.log('Driver operation:', data.data);
+            console.log('Cab created:', data.data);
+            navigate('/dashboard/cab', {
+                state: {
+                    cabAdded: true,
+                    cabName: data?.data?.name
+                }
+            });
+
         } catch (error) {
-            console.error('Error creating/updating driver:', error);
+            console.error('Error creating driver and car:', error);
         }
         setSubmitting(false);
     };
 
     const isFormValid = (values, errors) => {
-        const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
-        const areRequiredFieldsFilled = requiredFields.every(field => {
-            if (field === 'packages') {
-                return Array.isArray(values[field]) && values[field].length > 0;
-            }
-            if (field === 'wallet') {
-                return values[field] !== undefined && values[field] !== '';
-            }
-            return values[field] && values[field].length > 0;
-        });
+        const requiredFields = ['name', 'phoneNumber', 'carNumber', 'address', 'company', 'withDriver', 'insurance', 'carType', 'mode', 'packages', 'wallet'];
+        const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
 
         const isPricesFilled = values.prices.some(price =>
             price.price || price.extraPrice || price.extraKmPrice ||
@@ -209,20 +203,21 @@ const DriverAdd = () => {
         const hasErrors = Object.keys(errors).length > 0;
 
         return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
-}
+    };
+    const currentDate = () => {
+        return (new Date()).toISOString().split('T')[0];
+    };
     return (
         <div className="p-4 mx-auto">
-            {alert && (
-                <div className='mb-2'>
+            {alert && <div className='mb-2'>
                 <Alert
-                    color={alert.color}
+                    color='red'
                     className='py-3 px-6 rounded-xl'
                 >
-                    {alert.message} 
+                    Cab already exist!
                 </Alert>
-            </div>
-            )}
-            <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
+            </div>}
+            <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
@@ -232,21 +227,11 @@ const DriverAdd = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                    <option value="">Select salutation</option>
-                                    <option value="Mr">Mr</option>
-                                    <option value="Mrs">Mrs</option>
-                                    <option value="Others">Others</option>
-                                </Field>
-                                <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
-                            </div>
 
                             <div>
-                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
-                                <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                                <Field type="text" name="name" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
                             <div>
@@ -256,16 +241,16 @@ const DriverAdd = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
+                                <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
                             </div>
 
-                            {/* <div>
-                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
-                                <Field type="text" name="address" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                            </div> */}
+                            <div>
+                                <label htmlFor="company" className="text-sm font-medium text-gray-700">Company</label>
+                                <Field type="text" name="company" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="company" component="div" className="text-red-500 text-sm" />
+                            </div>
 
                             <div>
                                 <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
@@ -282,9 +267,28 @@ const DriverAdd = () => {
                                 <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</label>
-                                <Field type="text" name="reference" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="reference" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance</label>
+                                <Field type="date" name="insurance" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} ></Field>
+                                <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="withDriver" value="Yes" className="form-radio" />
+                                        <span className="ml-2">Yes</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="withDriver" value="No" className="form-radio" />
+                                        <span className="ml-2">No</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="withDriver" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
+                                <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
@@ -306,24 +310,6 @@ const DriverAdd = () => {
                             </div>
 
                             <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Automatic" className="form-radio" />
-                                        <span className="ml-2">Automatic</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Petrol" className="form-radio" />
-                                        <span className="ml-2">Petrol</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Diesel" className="form-radio" />
-                                        <span className="ml-2">Diesel</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
@@ -339,7 +325,7 @@ const DriverAdd = () => {
                             </div>
                             <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
@@ -363,8 +349,11 @@ const DriverAdd = () => {
                                         setFieldValue("prices", newPrices);
                                     }}
                                     onRemove={(selectedList, removedItem) => {
+                                        //console.log("selectedList", removedItem.id);
                                         setFieldValue("packages", selectedList.map(item => item.id));
+
                                         setFieldValue("prices", values.prices.filter(price => price.packageId !== removedItem.id));
+
                                     }}
                                     placeholder="Select options"
                                     className="w-full rounded-md border-gray-300"
@@ -427,7 +416,7 @@ const DriverAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 // disabled={isEditMode ? false : !dirty || !isValid}
-                                 disabled={!isFormValid(values, errors)}
+                                disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}
@@ -440,4 +429,4 @@ const DriverAdd = () => {
     );
 };
 
-export default DriverAdd;
+export default CabAdd;

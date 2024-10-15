@@ -26,6 +26,12 @@ import AddPriceDetails from "./pages/driver/addPriceDetails";
 import { BookingsList, SearchDrivers } from "./pages/booking";
 import UserDetails from "./pages/users/details";
 import CustomerDetails from "./pages/customer/details";
+import Commission from "./pages/commission/add";
+import DriverEdit from "./pages/driver/edit";
+import { CabView } from "./pages/cab";
+import CabAdd from "./pages/cab/add";
+import CabDetails from "./pages/cab/details";
+import CabEdit from "./pages/cab/edit";
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -104,7 +110,35 @@ export const routes = [
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/drivers/edit/:id",
-        element: <DriverAdd />,
+        element: <DriverEdit />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "cabs",
+        path: "/cab",
+        element: <CabView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "cab",
+        path: "/cab/add",
+        element: <CabAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "cab",
+        path: "/cab/details/:id",
+        element: <CabDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "cab",
+        path: "/cab/edit/:id",
+        element: <CabEdit />,
         display: false
       },
       {
@@ -142,7 +176,7 @@ export const routes = [
         element: <UserDetails />,
         display: false
       },
-      
+
       {
         icon: <HomeModernIcon {...icon} />,
         name: "BookingsList",
@@ -167,7 +201,14 @@ export const routes = [
         path: "/search-drivers",
         element: <SearchDrivers />,
         display: false
-      }
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Commission",
+        path: "/commission",
+        element: <Commission />,
+        display: true
+      },
     ],
   },
   {

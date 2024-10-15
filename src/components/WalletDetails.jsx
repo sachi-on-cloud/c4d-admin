@@ -1,43 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Card,
     CardBody,
     Typography,
     Button
-} from "@material-tailwind/react";
-import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+} from '@material-tailwind/react';
 import { Formik, Form, Field } from 'formik';
-import { useNavigate } from 'react-router-dom';
+import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import { API_ROUTES } from '@/utils/constants';
 
-function PriceTable({ type, id, packages, selectedPackages }) {
-    const [price, setPrice] = useState([]);
-    const [editingId, setEditingId] = useState(null);
+const WalletDetails = ({ wallet, onFetch }) => {
     const navigate = useNavigate();
+    const [editingId, setEditingId] = useState(null);
 
-    const getPrice = async (type, driverId) => {
-
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_PRICE + `?${type}=${driverId}`);
-        if (data?.success) {
-            const priceData = data?.data.filter((el) => selectedPackages.includes(el.packageId));
-            setPrice(priceData);
-        }
+    const handleSave = async (values, { setSubmitting }) => {
+        const walletData = {
+            walletId: values.id,
+            commission: values.commission
+        };
+        const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_WALLET, walletData);
+        setEditingId(null);
+        setSubmitting(false);
+        onFetch();
     };
-    useEffect(() => {
-        getPrice(type, id);
-
-    }, [])
-    function getNameById(id, obj) {
-        for (const key in obj) {
-            if (obj[key].id === id) {
-                return obj[key].period;
-            }
-        }
-        return null;
-    }
 
     const handleEdit = (id) => {
         setEditingId(id);
+        onFetch();
     };
 
     const handleCancel = (resetForm) => {
@@ -45,32 +35,16 @@ function PriceTable({ type, id, packages, selectedPackages }) {
         resetForm();
     };
 
-    const handleSave = async (values, { setSubmitting }) => {
-        const priceData = {
-            packageId: values.packageId,
-            price: values.price,
-            extraPrice: values.extra_price,
-            extraKmPrice: values.extraKmPrice,
-            nightCharge: values.nightCharge,
-            cancelCharge: values.cancelCharge,
-            extraCabType: values.extraCabType,
-            priceId: values.id,
-        };
-        const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_PRICE, priceData);
-        getPrice(type, id);
-        setEditingId(null);
-        setSubmitting(false);
-    };
     return (
         <div>
             <br /><br />
             <div className='flex flex-row justify-between px-2 mb-2'>
-                <h2 className="text-2xl font-bold mb-4">Price Details</h2>
+                <h2 className="text-2xl font-bold mb-4">Wallet Details</h2>
             </div>
             <Card>
-                {price.length > 0 ? (
+                {wallet.length > 0 ? (
                     <Formik
-                        initialValues={price}
+                        initialValues={wallet}
                         onSubmit={(values) => values}
                         enableReinitialize
                     >
@@ -80,7 +54,7 @@ function PriceTable({ type, id, packages, selectedPackages }) {
                                     <table className="w-full min-w-[640px] table-auto">
                                         <thead>
                                             <tr>
-                                                {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type", "Actions"].map((el) => (
+                                                {["Mode", "Commission", "Actions"].map((el) => (
                                                     <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                                         <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
                                                             {el}
@@ -94,10 +68,10 @@ function PriceTable({ type, id, packages, selectedPackages }) {
                                                 <tr key={priceItem.id}>
                                                     <td className="py-3 px-5 border-b border-blue-gray-50">
                                                         <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                            {getNameById(priceItem.packageId, packages)}
+                                                            {priceItem.type}
                                                         </Typography>
                                                     </td>
-                                                    {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+                                                    {['commission'].map((field) => (
                                                         <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                             {editingId === priceItem.id ? (
                                                                 <Field
@@ -136,11 +110,11 @@ function PriceTable({ type, id, packages, selectedPackages }) {
                         )}
                     </Formik>
                 ) : (
-                    <h2 className="text-2xl font-bold mt-4 mb-4 ml-4">No Price</h2>
+                    <h2 className="text-2xl font-bold mt-4 mb-4 ml-4">No Wallet</h2>
                 )}
             </Card>
         </div>
     );
-}
+};
 
-export default PriceTable;
+export default WalletDetails;

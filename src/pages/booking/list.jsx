@@ -16,7 +16,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, selectPickedBooking }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
 
@@ -145,7 +145,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     options={[
                                                         { value: 'All', label: 'All' },
                                                         { value: 'DRIVER', label: 'Acting Driver' },
-                                                        { value: 'CAR_WASH', label: 'Car Wash' }
+                                                        { value: 'CAR_WASH', label: 'Car Wash' },
+                                                        { value: 'CAB', label: 'Cab' }
                                                     ]}
                                                     selectedFilters={serviceTypeFilter}
                                                     onFilterChange={(value) => handleFilterChange('serviceType', value)}
@@ -216,7 +217,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {data?.Driver?.firstName ? data?.Driver?.firstName : ''}
+                                                        {data?.serviceType === "CAB" ? data?.Cab?.name : data?.serviceType == "DRIVER" || data?.serviceType == "CAR_WASH" ? data?.Driver?.firstName : ''}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
@@ -256,8 +257,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                     value={"CANCELLED"}
                                                                     className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                 />
-                                                                : data?.status == "INITIATED" && data?.Driver?.id ?
-                                                                    <Chip
+                                                                : data?.status == "INITIATED" && (data?.Driver?.id || data?.Cab?.id) ?
+                                                                    < Chip
                                                                         variant="gradient"
                                                                         value={"DRIVER ASSIGNED"}
                                                                         className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -282,24 +283,23 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             End Trip
                                                         </Button>
                                                     } */}
-                                                    {data?.status === 'INITIATED' && !data?.Driver?.id &&
+                                                    {data?.status === 'INITIATED' && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                         <Button
                                                             fullWidth
-                                                            onClick={() => {
-                                                                onAssignDriverHandler(data)
-                                                            }}
+                                                            onClick={() => onAssignDriverHandler(data)}
                                                             className="text-xs font-semibold text-white flex-wrap"
                                                         >
                                                             Assign Captain
                                                         </Button>
                                                     }
                                                 </td>
-                                                {data?.id === showPickedBooking && bookingStage === 2 && < td className={className}>
+                                                {data?.id === selectPickedBooking && bookingStage === 2 && (
+                                                    < td className={className}>
                                                     <IconButton>
                                                         <FaArrowRight />
                                                     </IconButton>
 
-                                                </td>}
+                                                </td>)}
                                             </tr>
                                         );
                                     }

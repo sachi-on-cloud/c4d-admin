@@ -38,7 +38,7 @@ const CustomerAdd = (props) => {
         ...(isEditMode
             ? {}
             : {
-                phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
+                phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
                 // carNumber: Yup.string().required('Car number is required'),
                 // nickName: Yup.string().required('Car name is required'),
                 // carType: Yup.string().required('Car type is required'),
@@ -58,46 +58,45 @@ const CustomerAdd = (props) => {
                 customerData['id'] = id;
                 data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CUSTOMER, customerData);
 
-                return navigate('/dashboard/customers');
+                navigate('/dashboard/customers', {
+                    state: { 
+                        customerUpdated: true,
+                        customerName: values.firstName
+                    }
+                });
             } else {
                 customerData['phoneNumber'] = "+91" + values.phoneNumber;
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CUSTOMER, customerData);
-            }
-            //console.log('Customer created:', data);
-
+            
             if (!data?.success && data?.code === 203) {
-                setAlert(true);
-
-                setTimeout(() => {
-                    setAlert(false);
-                    resetForm();
-                }, 2000)
-            }
-            if (props.isQuickCreate) {
-                return navigate('/dashboard/booking', {
-                    state: {
-                        refreshData: true,
-                        customerPhoneNumber: data?.data?.phoneNumber
-                    }
-                });
-            }
-            navigate('/dashboard/customers', {
-                state: {
-                    customerAdded: true,
-                    customerName: data?.data?.firstName
+                setAlert({ message: 'Customer already exists!', color: 'red' });
+                setTimeout(() => setAlert(null),5000);
+                resetForm();
+            } else {
+                // setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
+                // setTimeout(() => {
+                //     resetForm();
+                    navigate('/dashboard/customers', { 
+                        state: { 
+                            customerAdded: true, 
+                            customerName: values.firstName
+                        } 
+                    }); 
                 }
-            });
+            }
         } catch (error) {
-            console.error('Error creating customer and car:', error);
+            console.error('Error creating user and car:', error);
             // Handle error (e.g., show an error message)
         }
         setSubmitting(false);
     };
+
     const handleCancel = () => {
         if (props.isQuickCreate) {
             return navigate('/dashboard/booking', {
                 state: {
                     refreshData: true,
+                    customerPhoneNumber:''
                 }
             });
         } else {
@@ -107,14 +106,16 @@ const CustomerAdd = (props) => {
 
     return (
         <div className="p-4">
-            {alert && <div className='mb-2'>
+            {alert && (
+                <div className='mb-2'>
                 <Alert
-                    color='red'
+                    color={alert.color}
                     className='py-3 px-6 rounded-xl'
                 >
-                    User already exist!
+                    {alert.message}
                 </Alert>
-            </div>}
+            </div>
+            )}
             <h2 className="text-2xl font-bold mb-4">New Customer</h2>
             <Formik
                 initialValues={initialValues}

@@ -9,22 +9,21 @@ import { Button } from '@material-tailwind/react';
 import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 
-const DriverDetails = () => {
+const CabDetails = () => {
     const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
-    // const handlePrintClick = () => {
-    //     setEnablePrint(true);
-    //     if (printRef.current) {
-    //         printRef.current.print();  // Trigger the print action
-    //     }
-    // };
+    const handlePrintClick = () => {
+        setEnablePrint(true);
+        if (printRef.current) {
+            printRef.current.print();  // Trigger the print action
+        }
+    };
 
     const navigate = useNavigate();
-    const [driver, setDriver] = useState({});
+    const [cab, setCab] = useState({});
     const [packageDetails, setPackageDetails] = useState([]);
     const { id } = useParams();
-
     const getPackageListDetails = async () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
@@ -42,28 +41,29 @@ const DriverDetails = () => {
         }
     };
     useEffect(() => {
-        console.log("IDDD", id);
         if (id) {
             getPackageListDetails();
             fetchItem(id);
         }
     }, [id]);
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
-        setDriver(data?.data);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
+        setCab(data?.data);
     };
     const initialValues = {
-        salutation: driver?.result?.salutation || "",
-        firstName: driver?.result?.firstName || "",
-        phoneNumber: driver?.result?.phoneNumber ? driver?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
-        license: driver?.result?.license || "",
-        address: driver?.result?.curAddress || "",
-        reference: driver?.result?.references || "",
-        preference: driver?.result?.preference || "",
-        packages: driver?.result?.packages || "",
-        carType: driver?.result?.carType || "",
-        wallet: driver?.result?.wallet || "",
-        mode: driver?.result?.mode ? driver?.result?.mode === 'PREPAID' ? 'PREPAID' : 'COMMISSION' : ""
+        name: cab?.result?.name || "",
+        phoneNumber: cab?.result?.phoneNumber ? cab?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
+        carNumber: cab?.result?.carNumber || "",
+        address: cab?.result?.curAddress || "",
+        company: cab?.result?.company || "",
+        insurance: cab?.result?.insurance || "",
+        preference: cab?.result?.preference || "",
+        packages: cab?.result?.packages || "",
+        carType: cab?.result?.carType || "",
+        wallet: cab?.result?.wallet || "",
+        mode: cab?.result?.mode ? cab?.result?.mode === 'PREPAID' ? 'PREPAID' : 'COMMISSION' : "",
+        withDriver: cab?.result?.withDriver || "",
+        driverName: cab?.result?.driverName || "",
     };
     return (
         <>
@@ -71,12 +71,7 @@ const DriverDetails = () => {
                 <div className="flex flex-row justify-between pr-5">
                     <h2 className="text-2xl font-bold mb-4">Driver Details</h2>
                     <img src="/img/printing.png" height={30} width={30} alt="" onClick={() => {
-                        console.log("HIIIII");
-                        setEnablePrint(true);
-                        // printRef.current.print();  
-                        // if (printRef.current) {
-                        //     // Trigger the print action
-                        // }
+                        handlePrintClick();
                     }} />
                 </div>
                 <Formik
@@ -87,21 +82,11 @@ const DriverDetails = () => {
                     {({ values }) => (
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                    <Field as="select" name="salutation" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200">
-                                        <option value="">Select salutation</option>
-                                        <option value="Mr">Mr</option>
-                                        <option value="Mrs">Mrs</option>
-                                        <option value="Others">Others</option>
-                                    </Field>
-                                    <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
-                                </div>
 
                                 <div>
-                                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
-                                    <Field type="text" name="firstName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
-                                    <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                                    <Field type="text" name="name" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                    <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
 
                                 <div>
@@ -111,11 +96,16 @@ const DriverDetails = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                    <Field type="text" name="license" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
-                                    <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
+                                    <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
+                                    <Field type="text" name="carNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
+                                    <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
 
+                                <div>
+                                    <label htmlFor="company" className="text-sm font-medium text-gray-700">Company</label>
+                                    <Field type="text" name="company" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
+                                    <ErrorMessage name="company" component="div" className="text-red-500 text-sm" />
+                                </div>
                                 <div>
                                     <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
                                     <Field type="text" name="address" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
@@ -123,9 +113,28 @@ const DriverDetails = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</label>
-                                    <Field type="text" name="reference" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
-                                    <ErrorMessage name="reference" component="div" className="text-red-500 text-sm" />
+                                    <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance</label>
+                                    <Field type="text" name="insurance" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
+                                    <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
+                                    <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="withDriver" disabled value="Yes" className="form-radio" />
+                                            <span className="ml-2">Yes</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="withDriver" disabled value="No" className="form-radio" />
+                                            <span className="ml-2">No</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
+                                    <Field type="text" name="driverName" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
+                                    <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
@@ -146,24 +155,6 @@ const DriverDetails = () => {
                                     <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
                                 </div>
 
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" disabled value="Automatic" className="form-radio" />
-                                            <span className="ml-2">Automatic</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" disabled value="Petrol" className="form-radio" />
-                                            <span className="ml-2">Petrol</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" disabled value="Diesel" className="form-radio" />
-                                            <span className="ml-2">Diesel</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
-                                </div>
                                 <div>
                                     <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
                                     <div className="space-x-4">
@@ -194,12 +185,12 @@ const DriverDetails = () => {
                     )}
                 </Formik>
             </div>
-            {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
-            {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />}
-            {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />}
+            {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
+            {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />}
+            {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} cabId={id} />}
             <div className='flex justify-center w-full'>
                 <Button
-                    onClick={() => { navigate('/dashboard/drivers'); }}
+                    onClick={() => { navigate('/dashboard/cab'); }}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Back
@@ -209,4 +200,4 @@ const DriverDetails = () => {
     );
 };
 
-export default DriverDetails;
+export default CabDetails;

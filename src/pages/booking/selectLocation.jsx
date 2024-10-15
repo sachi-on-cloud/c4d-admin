@@ -228,6 +228,14 @@ const SelectLocation = (props) => {
         });
     }, []);
 
+    const handlePickupAddressChange = (value) => {
+        setPickupAddress(value);
+        if (!value) {
+            setPickupLocation(null);
+        }
+        searchLocations(value, true);
+    };
+
     return (
         <div className="flex flex-col h-screen bg-white w-full my-4">
             <div>
@@ -236,10 +244,7 @@ const SelectLocation = (props) => {
             <div className="p-2 space-y-4">
                 <LocationInput
                     value={pickupAddress}
-                    onChange={(value) => {
-                        setPickupAddress(value);
-                        searchLocations(value, true);
-                    }}
+                    onChange={handlePickupAddressChange}
                     onSelect={(address) => handleSelectLocation(address, true)}
                     placeholder={props.serviceType !== 'CAR_WASH' ? "Enter pickup location" : "Enter location"}
                     suggestions={pickupSuggestions}
