@@ -15,7 +15,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 
 export function SearchDrivers(props) {
-    console.log("val", props?.bookingData);
+    //console.log("val", props?.bookingData);
     const [drivers, setDrivers] = useState([]);
     const [sortField, setSortField] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
@@ -47,11 +47,30 @@ export function SearchDrivers(props) {
                 });
                 setDrivers(filtredOptions);
             } else {
-                console.log('PACKAGE ID :', props?.bookingData?.packageId)
-                const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVERS + props?.bookingData?.packageId, {
+                //console.log('PACKAGE ID :', props?.bookingData)
+                let api = props.bookingData.serviceType == "CAB" ? API_ROUTES.GET_CABS_PACKAGE : API_ROUTES.GET_DRIVERS_PACKAGE;
+                let data = await ApiRequestUtils.getWithQueryParam(api + props?.bookingData?.packageId, {
                     latitude: props?.bookingData?.pickupLat,
-                    longitude: props?.bookingData?.pickupLong
+                    longitude: props?.bookingData?.pickupLong,
+                    type: props.bookingData.packageType
                 });
+                // let data;
+                // if (props.bookingData.serviceType == "CAB") {
+                //     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE + props?.bookingData?.packageId, {
+                //         latitude: props?.bookingData?.pickupLat,
+                //         longitude: props?.bookingData?.pickupLong,
+                //         type: props.bookingData.packageType
+                //     });
+                // } else {
+                //     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVERS_PACKAGE + props?.bookingData?.packageId, {
+                //         latitude: props?.bookingData?.pickupLat,
+                //         longitude: props?.bookingData?.pickupLong,
+                //         type: props.bookingData.packageType
+                //     });
+                // }
+                if (data?.success) {
+                    setDrivers(data?.data);
+                }
                 console.log("driverdata", data);
                 if (data?.success) {
                     setDrivers(data?.data);
@@ -115,7 +134,7 @@ export function SearchDrivers(props) {
             bookingId: props?.bookingData?.id,
 
         };
-        let type = service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
+        service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
         const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
         if (data?.success) {
             props?.onNext();

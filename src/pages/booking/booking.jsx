@@ -114,7 +114,7 @@ const Booking = (props) => {
     };
 
     const countDaysBetween = (date1, date2) => {
-        console.log("countDaysBetween", date1, date2);
+        //console.log("countDaysBetween", date1, date2);
         const timeDiff = date2.getTime() - date1.getTime();
         return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
     };
@@ -205,7 +205,8 @@ const Booking = (props) => {
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
                     <Typography variant="h5" color='#000000'>
-                        {`${bookingView ? 'Booking Details' : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : `Assign Captain - ${bookingData?.bookingNumber} ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''}`}`}
+                        {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
+                        {`${bookingView ? `Booking Details - ${bookingData?.bookingNumber}` : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : bookingData?.serviceType == "CAB" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `}`}
                     </Typography>
                 </div>}
                 {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} customerNumber={customerNumber} />}
@@ -243,7 +244,7 @@ const Booking = (props) => {
                                             Service Type
                                         </Typography>
                                         <Field as="select" name="serviceType" disabled={editBooking || bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
-                                            console.log('e.target.value', e.target.value);
+                                            //console.log('e.target.value', e.target.value);
                                             setFieldValue("serviceType", e.target.value);
                                             if (e.target.value === 'CAR_WASH')
                                                 setFieldValue("packageTypeSelected", "CarWash");
@@ -338,6 +339,11 @@ const Booking = (props) => {
                                             } else {
                                                 setBookingTimesForDay([]);
                                             }
+                                            if (moment(e.target.value).format('YYYY-MM-DD') != values.fromDate) {
+                                                setRange({});
+                                                setFieldValue('fromDate', '');
+                                                setFieldValue('toDate', '');
+                                            }
                                         }}
                                         ></Field>
                                         <Field as="select" name="rideTime" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
@@ -401,9 +407,7 @@ const Booking = (props) => {
                                                 <DatePicker
                                                     selected={values.fromDate}
                                                     onChange={(dates) => {
-                                                        console.log(values.rideDate, " ", dates.start)
-
-
+                                                        //console.log(values.rideDate, " ", dates.start)
                                                         handleDateChange(dates, setFieldValue, handleChange, values.rideDate)
                                                     }}
                                                     startDate={values.fromDate}
