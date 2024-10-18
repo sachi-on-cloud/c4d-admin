@@ -47,7 +47,7 @@ export function CabView() {
       cabId,
       status: status == "ACTIVE" ? "NOT_ACTIVE" : "ACTIVE"
     };
-    const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVERS, cabData);
+    const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB_STATUS, cabData);
     getCabs('');
   };
   useEffect(() => {
