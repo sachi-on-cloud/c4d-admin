@@ -169,6 +169,7 @@ const Booking = (props) => {
         setBookingStage(2);
         setBookingView(false);
         setEditBooking();
+        setSelectedCustomer(0);
     }
     const onEditBooking = async (data) => {
         setEditBooking(data);

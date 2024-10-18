@@ -196,6 +196,7 @@ export const API_ROUTES = {
     'UPDATE_CAB': '/update/admin/cab',
     'GET_CAB_BY_ID': '/cab/',
     'GET_CABS_PACKAGE': '/get-cabs/',
+    'UPDATE_CAB_STATUS': '/admin-cab/update',
 };
 
 export const ASYNC_STORAGE_KEYS = {
