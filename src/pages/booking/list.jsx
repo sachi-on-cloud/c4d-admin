@@ -283,23 +283,23 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             End Trip
                                                         </Button>
                                                     } */}
-                                                    {data?.status === 'INITIATED' && (!data?.Driver?.id && !data?.Cab?.id) &&
+                                                    {data?.status === 'INITIATED' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                         <Button
                                                             fullWidth
                                                             onClick={() => onAssignDriverHandler(data)}
                                                             className="text-xs font-semibold text-white flex-wrap"
                                                         >
-                                                            Assign Captain
+                                                            Assign {data?.serviceType == "CAB" ? "Cab" : "Captain"}
                                                         </Button>
                                                     }
                                                 </td>
                                                 {data?.id === selectPickedBooking && bookingStage === 2 && (
                                                     < td className={className}>
-                                                    <IconButton>
-                                                        <FaArrowRight />
-                                                    </IconButton>
+                                                        <IconButton>
+                                                            <FaArrowRight />
+                                                        </IconButton>
 
-                                                </td>)}
+                                                    </td>)}
                                             </tr>
                                         );
                                     }

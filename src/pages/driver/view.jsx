@@ -24,17 +24,16 @@ export function DriverView() {
   const paramsPassed = location.state;
 
   const navigate = useNavigate();
-
-useEffect(() => {
   const fetchDrivers = async () => {
     const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_DRIVERS);
-    if(data?.success) {
+    if (data?.success) {
       setDrivers(data?.data);
       setAllDrivers(data?.data);
     }
   };
-  fetchDrivers(); 
-},[]);
+  useEffect(() => {
+    fetchDrivers();
+  }, []);
 
   const getDrivers = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
@@ -47,16 +46,16 @@ useEffect(() => {
 
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
 
-        return name.startsWith(query) || 
-               phoneNumberWithoutCountryCode.startsWith(query);
-    });
+        return name.startsWith(query) ||
+          phoneNumberWithoutCountryCode.startsWith(query);
+      });
       setDrivers(filteredDrivers);
       // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
       // if (data?.success) {
       //   setDrivers(data?.data);
       // }
     } else {
-        setDrivers(allDrivers);
+      setDrivers(allDrivers);
     }
   };
   const updateDrivers = async (driverId, status) => {
@@ -65,7 +64,7 @@ useEffect(() => {
       status: status == "ACTIVE" ? "NOT_ACTIVE" : "ACTIVE"
     };
     const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVERS, driverData);
-    getDrivers('');
+    fetchDrivers('');
   };
   useEffect(() => {
     getDrivers('');
