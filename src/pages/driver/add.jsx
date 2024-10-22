@@ -10,6 +10,10 @@ import Multiselect from 'multiselect-react-dropdown';
 const LocationInput = ({ field, form, suggestions, onSearch }) => {
     const [isFocused, setIsFocused] = useState(false);
 
+    useEffect(() => {
+        form.validateField(field.name);
+    }, []);
+
     return (
         <div className="relative">
             <Input
@@ -19,9 +23,14 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                 onChange={(e) => {
                     form.setFieldValue(field.name, e.target.value);
                     onSearch(e.target.value);
+                    form.setFieldTouched(field.name, true, false);
                 }}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                onBlur={(e) => {
+                    field.onBlur(e);
+                    setTimeout(() => setIsFocused(false), 200);
+                    form.validateField(field.name);
+                }}
                 className="pr-10"
             />
             {suggestions.length > 0 && isFocused && (
@@ -32,6 +41,7 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                             onClick={() => {
                                 form.setFieldValue(field.name, suggestion);
                                 setIsFocused(false);
+                                form.validateField(field.name);
                             }}
                             className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
                         >
@@ -427,7 +437,7 @@ const DriverAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 // disabled={isEditMode ? false : !dirty || !isValid}
-                                 disabled={!isFormValid(values, errors)}
+                                disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}

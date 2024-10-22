@@ -11,10 +11,11 @@ import {
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
-
+import CabSearch from '@/components/CabSearch';
 
 export function CabView() {
   const [cabs, setCabs] = useState([]);
+  const [allCabs, setAllCabs] = useState([]);
   const [alert, setAlert] = useState(false);
 
   const location = useLocation();
@@ -22,26 +23,40 @@ export function CabView() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchCabs = async () => {
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CABS);
+      if(data?.success) {
+        setCabs(data?.data);
+        setAllCabs(data?.data);
+      }
+    };
+    fetchCabs(); 
+  },[]);
+
   const getCabs = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
-    if (searchQuery != "") {
-      const phoneNumberPattern = `^\\+91${searchQuery}`;
+    if (searchQuery && searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase().trim();
 
-      const filteredCustomers = cabs.filter((customer) =>
-        new RegExp(phoneNumberPattern).test(customer.phoneNumber)
-      );
-      setCabs(filteredCustomers)
+      const filteredCabs = allCabs.filter((cab) => {
+        const name = (cab.name || "").toLowerCase();
+        const phone = (cab.phoneNumber || "").toLowerCase();
+
+        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
+
+        return name.startsWith(query) || 
+               phoneNumberWithoutCountryCode.startsWith(query);
+    });
+      setCabs(filteredCabs);
       // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
       // if (data?.success) {
-      //   setCabs(data?.data);
+      //   setDrivers(data?.data);
       // }
     } else {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CABS);
-      if (data?.success) {
-        setCabs(data?.data);
-      }
+        setCabs(allCabs);
     }
-  };
+  };  
   const updateCabs = async (cabId, status) => {
     let cabData = {
       cabId,
@@ -70,14 +85,7 @@ export function CabView() {
           {paramsPassed?.cabName} added successfully!
         </Alert>
       </div>}
-      <div className='flex justify-end mr-5'>
-        <button
-          onClick={() => navigate('/dashboard/cab/add')}
-          className="ml-4 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Add new
-        </button>
-      </div>
+      <CabSearch onSearch={getCabs} />
       <Card>
         {cabs.length > 0 ? (
           <>
