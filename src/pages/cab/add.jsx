@@ -10,6 +10,10 @@ import Multiselect from 'multiselect-react-dropdown';
 const LocationInput = ({ field, form, suggestions, onSearch }) => {
     const [isFocused, setIsFocused] = useState(false);
 
+    useEffect(() => {
+        form.validateField(field.name);
+    }, []);
+
     return (
         <div className="relative">
             <Input
@@ -19,9 +23,14 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                 onChange={(e) => {
                     form.setFieldValue(field.name, e.target.value);
                     onSearch(e.target.value);
+                    form.setFieldTouched(field.name, true, false);
                 }}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                onBlur={(e) => {
+                    field.onBlur(e);
+                    setTimeout(() => setIsFocused(false), 200);
+                    form.validateField(field.name);
+                }}
                 className="pr-10"
             />
             {suggestions.length > 0 && isFocused && (
@@ -32,6 +41,7 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                             onClick={() => {
                                 form.setFieldValue(field.name, suggestion);
                                 setIsFocused(false);
+                                form.validateField(field.name);
                             }}
                             className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
                         >
@@ -101,11 +111,32 @@ const CabAdd = () => {
         name: Yup.string().required('Name is required'),
         phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
         carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
-        address: Yup.string().required('Address is required'),
+        address: Yup.string()
+            .required('Address is required')
+            .min(5, 'Address must be at least 5 characters')
+            .matches(
+                /^[a-zA-Z0-9\s,.-/#]+$/,
+                'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+            )
+            .test(
+                'no-multiple-spaces',
+                'Address should not contain multiple consecutive spaces',
+                value => !value || !/\s\s+/.test(value)
+            )
+            .test(
+                'not-only-numbers',
+                'Address cannot contain only numbers',
+                value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
+            )
+            .trim(),
         company: Yup.string().required('Company is required'),
-        insurance: Yup.string().required('Insurance is required'),
+        insurance: Yup.string().required('Insurance Expiry Date is required'),
         withDriver: Yup.string().required('Driver is required'),
-        driverName: Yup.string(),
+        driverName: Yup.string().when('withDriver', {
+            is: 'Yes',
+            then: Yup.string().required('Driver Name is required') .min(1, 'Driver Name is required'),
+            otherwise: Yup.string()
+        }),
         mode: Yup.string().required('Mode is required'),
         carType: Yup.string().required('Car Type is required'),
         packages: Yup.array()
@@ -159,40 +190,44 @@ const CabAdd = () => {
                 wallet: values.wallet,
                 mode: values.mode,
             };
-            let cabData = { cabDetails, prices: values.prices }
+            let cabData = { cabDetails, prices: values.prices };
             console.log(cabData);
             //return;
             let data;
             if (isEditMode) {
                 cabData['cabId'] = id;
                 data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, cabData);
+            
             } else {
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CAB, cabData);
+            
             }
             if (!data?.success && data?.code === 203) {
-                setAlert(true);
-
-                setTimeout(() => {
-                    setAlert(false);
-                    resetForm();
-                }, 2000)
+                setAlert({message: 'Cab already exists', color: 'red'});
+                setTimeout(() => setAlert(null), 2000);
+                resetForm();
+            }else {
+                navigate('/dashboard/cab', {
+                    state: {
+                        cabAdded: isEditMode ? false : true,
+                        cabUpdated: isEditMode ? true : false,
+                        cabName: data?.data?.name
+                    }
+                });
             }
-            console.log('Cab created:', data.data);
-            navigate('/dashboard/cab', {
-                state: {
-                    cabAdded: true,
-                    cabName: data?.data?.name
-                }
-            });
-
-        } catch (error) {
+            } catch (error) {
             console.error('Error creating driver and car:', error);
-        }
+            }  
         setSubmitting(false);
     };
 
     const isFormValid = (values, errors) => {
         const requiredFields = ['name', 'phoneNumber', 'carNumber', 'address', 'company', 'withDriver', 'insurance', 'carType', 'mode', 'packages', 'wallet'];
+        
+        if (values.withDriver === 'Yes' && !values.driverName) {
+            return false;
+        }
+    
         const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
 
         const isPricesFilled = values.prices.some(price =>
@@ -211,10 +246,10 @@ const CabAdd = () => {
         <div className="p-4 mx-auto">
             {alert && <div className='mb-2'>
                 <Alert
-                    color='red'
+                    color={alert.color}
                     className='py-3 px-6 rounded-xl'
                 >
-                    Cab already exist!
+                    {alert.message}
                 </Alert>
             </div>}
             <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
@@ -224,7 +259,7 @@ const CabAdd = () => {
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
-                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
+                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue, touched }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
 
@@ -267,7 +302,7 @@ const CabAdd = () => {
                                 <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance</label>
+                                <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance Expiry Date</label>
                                 <Field type="date" name="insurance" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} ></Field>
                                 <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
                             </div>
@@ -275,11 +310,19 @@ const CabAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="withDriver" value="Yes" className="form-radio" />
+                                        <Field type="radio" name="withDriver" value="Yes" className="form-radio" 
+                                            onChange={e => {
+                                            handleChange(e);
+                                            setFieldValue('driverName', values.driverName, true);
+                                        }}/>
                                         <span className="ml-2">Yes</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="withDriver" value="No" className="form-radio" />
+                                        <Field type="radio" name="withDriver" value="No" className="form-radio" 
+                                            onChange={e => {
+                                                handleChange(e);
+                                                setFieldValue('driverName', '', true);
+                                            }}/>
                                         <span className="ml-2">No</span>
                                     </label>
                                 </div>
@@ -288,7 +331,9 @@ const CabAdd = () => {
                             <div>
                                 <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
                                 <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
+                                {values.withDriver === 'Yes' && !values.driverName && (
+                                    <div className="text-red-500 text-sm">Driver Name is required</div>
+                                )}
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
@@ -406,7 +451,7 @@ const CabAdd = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/drivers'); }}
+                                onClick={() => { navigate('/dashboard/cab'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

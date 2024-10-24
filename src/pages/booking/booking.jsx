@@ -75,6 +75,7 @@ const Booking = (props) => {
         if (params && params.customerPhoneNumber !== undefined) {
             setAddCustomerNumber(params.customerPhoneNumber);
             setCustomerNumber(params.customerPhoneNumber);
+            setSelectedCustomer(params.selectCustomer);
         }
     }, [params]);
 
@@ -84,6 +85,11 @@ const Booking = (props) => {
             setRange({ startDate: params?.bookingDetails?.fromDate, endDate: params?.bookingDetails?.toDate })
         }
     }, []);
+    useEffect(() => {
+        if (editBooking?.packageType === "Outstation" && editBooking?.fromDate && editBooking?.toDate) {
+            setRange({ startDate: new Date(editBooking?.fromDate), endDate: new Date(editBooking?.toDate) })
+        }
+    }, [editBooking]);
     //console.log(editBooking, "editBooking");
     const initialValues = {
         packageTypeSelected: editBooking?.packageType ? editBooking?.packageType : 'Intercity',
@@ -91,10 +97,11 @@ const Booking = (props) => {
         rideDate: editBooking?.date ? editBooking?.date : moment().format('YYYY-MM-DD'),
         carSelected: {},
         packageSelected: editBooking?.packageId ? editBooking?.packageId : "",
-        fromDate: "",
-        toDate: "",
+        fromDate: editBooking?.fromDate ? editBooking?.fromDate : "",
+        toDate: editBooking?.toDate ? editBooking?.toDate : "",
         customerId: editBooking?.customerId ? editBooking?.customerId : '',
-        serviceType: editBooking?.serviceType ? editBooking?.serviceType : ''
+        serviceType: editBooking?.serviceType ? editBooking?.serviceType : '',
+        cabType: editBooking?.cabType ? editBooking?.cabType : ''
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -136,7 +143,8 @@ const Booking = (props) => {
             toDate: values.toDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType
+            serviceType: values.serviceType,
+            cabType: values.cabType
         }
         let data;
         if (editBooking?.id) {
@@ -150,6 +158,7 @@ const Booking = (props) => {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
                 setBookingStage(1);
+                setRange({ startDate: new Date(values?.fromDate), endDate: new Date(values?.toDate) })
                 setBookingData(data?.data);
             }
         }
@@ -172,6 +181,7 @@ const Booking = (props) => {
         setSelectedCustomer(0);
     }
     const onEditBooking = async (data) => {
+        console.log('ON EDIT BOOKING :', data);
         setEditBooking(data);
         setBookingStage(0);
         setBookingView(false);
@@ -198,6 +208,23 @@ const Booking = (props) => {
     //     );
     // }
     const onCancelBookingView = () => { }
+
+    const resetPackageValues = (setFieldValue, newServiceType) => {
+        setFieldValue("packageSelected", "");
+        
+        if (newServiceType === 'CAR_WASH') {
+            setFieldValue("packageTypeSelected", "CarWash");
+        } else if (newServiceType === 'DRIVER' || newServiceType === 'CAB') {
+            setFieldValue("packageTypeSelected", "Intercity");
+        } else {
+            setFieldValue("packageTypeSelected", "");
+        }
+
+        setFieldValue("fromDate", "");
+        setFieldValue("toDate", "");
+        setRange({});
+        setDatePickerVisible(false);
+    };
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
@@ -246,9 +273,11 @@ const Booking = (props) => {
                                         </Typography>
                                         <Field as="select" name="serviceType" disabled={editBooking || bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
                                             //console.log('e.target.value', e.target.value);
-                                            setFieldValue("serviceType", e.target.value);
-                                            if (e.target.value === 'CAR_WASH')
-                                                setFieldValue("packageTypeSelected", "CarWash");
+                                            setFieldValue("serviceType", e.target.value, false);
+                                            resetPackageValues(setFieldValue, e.target.value);
+                                            setFieldValue("serviceType", e.target.value, true);
+                                            // if (e.target.value === 'CAR_WASH')
+                                            //     setFieldValue("packageTypeSelected", "CarWash");
 
                                         }}>
                                             <option value="">Service Type</option>
@@ -357,17 +386,17 @@ const Booking = (props) => {
                                         </Field>
                                     </div></div>}
 
-                                {values.serviceType === 'CAB' &&
+                                {(values.serviceType === 'CAB' || editBooking?.serviceType === 'CAB')&&
                                     <div className="flex-1 mb-4">
                                         <div>
                                             <Typography variant="h6" className="mb-2">
                                                 Cab Type
                                             </Typography>
-                                            <Field as="select" disabled={bookingStage === 1} name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                            <Field as="select" disabled={bookingStage === 1} name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.cabType}>
                                                 <option value="">Cab Type</option>
-                                                <option value="SEDAN">Sedan (5 Seater)</option>
-                                                <option value="HATCHBACK">Hatchback (5 Seater)</option>
-                                                <option value="SUV">Hatchback (7 Seater)</option>
+                                                <option value="Sedan">Sedan (5 Seater)</option>
+                                                <option value="Hatchback">Hatchback (5 Seater)</option>
+                                                <option value="SUV">SUV (7 Seater)</option>
                                             </Field>
                                             <ErrorMessage name="cabType" component="div" className="text-red-500 text-sm" />
                                         </div>
@@ -379,12 +408,32 @@ const Booking = (props) => {
                                         <Typography variant="h6" className="mb-2">
                                             Choose a package
                                         </Typography>
-                                        <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}>
+                                        <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
+                                            onChange={(e) => {
+                                                setFieldValue('packageSelected', e.target.value);
+                                                if (values.packageTypeSelected === 'Outstation') {
+                                                    setDatePickerVisible(false);
+                                                    setRange({});
+                                                    handleChange('fromDate')("");
+                                                    handleChange('toDate')("")
+                                                }
+                                            }}
+                                        >
                                             <option value="">Select Package</option>
                                             {packageTypeSelectedData
-                                                .filter((item) => values.packageTypeSelected === item.type).map((item) => (
+                                                .filter((item) => {
+                                                    if (values.serviceType === 'CAR_WASH') {
+                                                        return item.type === 'CarWash';
+                                                    }
+                                                    return values.packageTypeSelected === item.type;
+                                                })
+                                                    .map((item) => (
                                                     <option key={item.id} value={item.id}>
-                                                        {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''}
+                                                        {/* {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''} */}
+                                                        {values.serviceType === 'CAR_WASH' 
+                                                                    ? item.period
+                                                                    : `${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`
+                                                                }
                                                     </option>
                                                 ))}
                                         </Field>
@@ -420,7 +469,7 @@ const Booking = (props) => {
                                                 />
                                             </div>
                                         )}
-                                        {range.startDate && range.endDate && (
+                                        {(range.startDate && range.endDate) && (
                                             <Card className="p-4">
                                                 <div className="grid grid-cols-2 gap-4 mb-2">
                                                     <div>
@@ -448,7 +497,7 @@ const Booking = (props) => {
                                     fullWidth
                                     color="black"
                                     onClick={handleSubmit}
-                                    disabled={!dirty || !isValid || !values.rideDate}
+                                    disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'CAB' && !values.cabType)}
                                     className='my-6 mx-2'
                                 >
                                     Continue

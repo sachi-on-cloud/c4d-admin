@@ -7,9 +7,8 @@ import ReactDOMServer from 'react-dom/server';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 
-const PrintDriverDetails = forwardRef((props, ref) => {
+const PrintCabDetails = forwardRef((props, ref) => {
   const [driver, setDriver] = useState();
-  const [printRequest,setPrintRequest] = useState(0);
   function getNameById(id, obj) {
     for (const key in obj) {
       if (obj[key].id === id) {
@@ -20,26 +19,22 @@ const PrintDriverDetails = forwardRef((props, ref) => {
   }
 
   const fetchItem = async (itemId) => {
-    const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);  
+    const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
     setDriver(data?.data);
-    if(data?.data) {
-      handlePrint(data?.data);
-    }
+    print(data?.data);
+
   };
 
   useEffect(() => {
-    if(props.driverId && printRequest > 0){
-      fetchItem(props?.driverId);
-    }  
-  },[props.driverId, printRequest]);
-
-  const driverDetails = (driver) => {
+    fetchItem(props?.cabId);
+  }, [])
+  const cabDetails = (driver) => {
     return (
       <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
         <table className="w-full min-w-[640px] table-auto">
           <thead>
             <tr>
-              {["Name", "PhoneNumber", "Car Type", "Preference", "Mode"].map((el) => (
+              {["Name", "Company", "PhoneNumber", "Car Type", "Car Number", "Mode"].map((el) => (
                 <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                   <Typography variant="h6" className="font-bold uppercase text-black">
                     {el}
@@ -52,7 +47,12 @@ const PrintDriverDetails = forwardRef((props, ref) => {
             <tr key={driver?.result?.id}>
               <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography variant="small" color="blue-gray" className="font-semibold">
-                  {driver?.result?.firstName}
+                  {driver?.result?.name}
+                </Typography>
+              </td>
+              <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography variant="small" color="blue-gray" className="font-semibold">
+                  {driver?.result?.company}
                 </Typography>
               </td>
               <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -67,7 +67,7 @@ const PrintDriverDetails = forwardRef((props, ref) => {
               </td>
               <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography variant="small" color="blue-gray" className="font-semibold">
-                  {driver?.result?.preference}
+                  {driver?.result?.carNumber}
                 </Typography>
               </td>
               <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -121,11 +121,11 @@ const PrintDriverDetails = forwardRef((props, ref) => {
     )
   }
   // useImperativeHandle(ref, () => ({
-   const handlePrint = (driver) => {
-      const driverContent = ReactDOMServer.renderToStaticMarkup(driverDetails(driver));
-      const priceContent = ReactDOMServer.renderToStaticMarkup(priceDetails(driver));
-      const printWindow = window.open("", "_blank");
-      printWindow.document.write(`
+  const print = (driver) => {
+    const driverContent = ReactDOMServer.renderToStaticMarkup(cabDetails(driver));
+    const priceContent = ReactDOMServer.renderToStaticMarkup(priceDetails(driver));
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
         <html>
           <head>
             <title>Driver Consent Form</title>
@@ -157,28 +157,16 @@ const PrintDriverDetails = forwardRef((props, ref) => {
           </body>
         </html>
       `);
-      printWindow.document.close();
-      printWindow.focus();
-      try{
-        printWindow.print();
-      } catch (error){
-        console.error("Print operation failed:", error);
-      } finally {
-        printWindow.close();
-      }  
-    };
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }
   // }));
- const triggerPrint = () => {
-  setPrintRequest(prev => prev + 1);
- };
 
- React.useImperativeHandle(ref, () => ({
-  print: triggerPrint
- })); 
- 
   return (
     null
   );
 });
 
-export default PrintDriverDetails;
+export default PrintCabDetails;

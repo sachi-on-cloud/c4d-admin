@@ -59,7 +59,7 @@ const CustomerAdd = (props) => {
                 data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CUSTOMER, customerData);
 
                 navigate('/dashboard/customers', {
-                    state: { 
+                    state: {
                         customerUpdated: true,
                         customerName: values.firstName
                     }
@@ -67,21 +67,29 @@ const CustomerAdd = (props) => {
             } else {
                 customerData['phoneNumber'] = "+91" + values.phoneNumber;
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CUSTOMER, customerData);
-            
-            if (!data?.success && data?.code === 203) {
-                setAlert({ message: 'Customer already exists!', color: 'red' });
-                setTimeout(() => setAlert(null),5000);
-                resetForm();
-            } else {
-                // setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
-                // setTimeout(() => {
-                //     resetForm();
-                    navigate('/dashboard/customers', { 
-                        state: { 
-                            customerAdded: true, 
+
+                if (!data?.success && data?.code === 203) {
+                    setAlert({ message: 'Customer already exists!', color: 'red' });
+                    setTimeout(() => setAlert(null), 5000);
+                    resetForm();
+                } else {
+                    // setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
+                    // setTimeout(() => {
+                    //     resetForm();
+                    if (props.isQuickCreate) {
+                        return navigate('/dashboard/booking', {
+                            state: {
+                                refreshData: true,
+                                customerPhoneNumber: data?.data?.phoneNumber
+                            }
+                        });
+                    }
+                    navigate('/dashboard/customers', {
+                        state: {
+                            customerAdded: true,
                             customerName: values.firstName
-                        } 
-                    }); 
+                        }
+                    });
                 }
             }
         } catch (error) {
@@ -96,7 +104,8 @@ const CustomerAdd = (props) => {
             return navigate('/dashboard/booking', {
                 state: {
                     refreshData: true,
-                    customerPhoneNumber:''
+                    customerPhoneNumber:'',
+                    selectCustomer: 0
                 }
             });
         } else {
@@ -108,13 +117,13 @@ const CustomerAdd = (props) => {
         <div className="p-4">
             {alert && (
                 <div className='mb-2'>
-                <Alert
-                    color={alert.color}
-                    className='py-3 px-6 rounded-xl'
-                >
-                    {alert.message}
-                </Alert>
-            </div>
+                    <Alert
+                        color={alert.color}
+                        className='py-3 px-6 rounded-xl'
+                    >
+                        {alert.message}
+                    </Alert>
+                </div>
             )}
             <h2 className="text-2xl font-bold mb-4">New Customer</h2>
             <Formik

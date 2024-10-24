@@ -10,15 +10,15 @@ import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 
 const DriverDetails = () => {
-    const [enablePrint, setEnablePrint] = useState(false);
+   // const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
-    // const handlePrintClick = () => {
+    const handlePrintClick = () => {
     //     setEnablePrint(true);
-    //     if (printRef.current) {
-    //         printRef.current.print();  // Trigger the print action
-    //     }
-    // };
+       if (printRef.current) {
+           printRef.current.print();  // Trigger the print action
+        }
+ };
 
     const navigate = useNavigate();
     const [driver, setDriver] = useState({});
@@ -70,14 +70,7 @@ const DriverDetails = () => {
             <div className="p-4 mx-auto">
                 <div className="flex flex-row justify-between pr-5">
                     <h2 className="text-2xl font-bold mb-4">Driver Details</h2>
-                    <img src="/img/printing.png" height={30} width={30} alt="" onClick={() => {
-                        console.log("HIIIII");
-                        setEnablePrint(true);
-                        // printRef.current.print();  
-                        // if (printRef.current) {
-                        //     // Trigger the print action
-                        // }
-                    }} />
+                    <img src="/img/printing.png" height={30} width={30} alt="" onClick={handlePrintClick} />
                 </div>
                 <Formik
                     initialValues={initialValues}
@@ -196,7 +189,7 @@ const DriverDetails = () => {
             </div>
             {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />}
-            {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />}
+            <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/drivers'); }}

@@ -43,7 +43,12 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     customerId: Yup.object().shape({
         id: Yup.string().required('Customer ID is required'),
         // Add additional fields and validation rules for the customer object as needed
-    }).required('Customer information is required')
+    }).required('Customer information is required'),
+    cabType: Yup.string().when('serviceType', {
+        is: 'CAB',
+        then: () => Yup.string().required('Cab type is required'),
+        otherwise: () => Yup.string()
+    })
 });
 
 export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
@@ -61,7 +66,24 @@ export const DRIVER_SCHEMA = Yup.object({
     firstName: Yup.string().required('Name is required'),
     phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
-    address: Yup.string().required('Address is required'),
+    address: Yup.string()
+        .required('Address is required')
+        .min(5, 'Address must be at least 5 characters')
+        .matches(
+            /^[a-zA-Z0-9\s,.-/#]+$/,
+            'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+        )
+        .test(
+            'no-multiple-spaces',
+            'Address should not contain multiple consecutive spaces',
+            value => !value || !/\s\s+/.test(value)
+        )
+        .test(
+            'not-only-numbers',
+            'Address cannot contain only numbers',
+            value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
+        )
+        .trim(),
     reference: Yup.string().required('Reference is required'),
     preference: Yup.string().required('Preference is required'),
     mode: Yup.string().required('Mode is required'),
@@ -91,9 +113,26 @@ export const CAB_SCHEMA = Yup.object({
     name: Yup.string().required('Name is required'),
     phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
-    address: Yup.string().required('Address is required'),
+    address: Yup.string()
+        .required('Address is required')
+        .min(5, 'Address must be at least 5 characters')
+        .matches(
+            /^[a-zA-Z0-9\s,.-/#]+$/,
+            'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+        )
+        .test(
+            'no-multiple-spaces',
+            'Address should not contain multiple consecutive spaces',
+            value => !value || !/\s\s+/.test(value)
+        )
+        .test(
+            'not-only-numbers',
+            'Address cannot contain only numbers',
+            value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
+        )
+        .trim(),
     company: Yup.string().required('Company is required'),
-    insurance: Yup.string().required('Insurance is required'),
+    insurance: Yup.string().required('Insurance Expiry Date is required'),
     withDriver: Yup.string().required('Driver is required'),
     driverName: Yup.string(),
     mode: Yup.string().required('Mode is required'),

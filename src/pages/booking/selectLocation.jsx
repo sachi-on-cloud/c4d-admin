@@ -27,12 +27,12 @@ const LocationInput = ({ value, onChange, onSelect, placeholder, suggestions }) 
                 className="pr-10"
             />
             {suggestions.length > 0 && (
-                <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <List className="w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg ">
                     {suggestions.map((suggestion, index) => (
                         <ListItem
                             key={index}
                             onClick={() => onSelect(suggestion)}
-                            className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                            className=" hover:bg-gray-100 cursor-pointer"
                         >
                             <Typography variant="small">{suggestion}</Typography>
                         </ListItem>

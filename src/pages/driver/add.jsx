@@ -10,6 +10,10 @@ import Multiselect from 'multiselect-react-dropdown';
 const LocationInput = ({ field, form, suggestions, onSearch }) => {
     const [isFocused, setIsFocused] = useState(false);
 
+    useEffect(() => {
+        form.validateField(field.name);
+    }, []);
+
     return (
         <div className="relative">
             <Input
@@ -19,9 +23,14 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                 onChange={(e) => {
                     form.setFieldValue(field.name, e.target.value);
                     onSearch(e.target.value);
+                    form.setFieldTouched(field.name, true, false);
                 }}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                onBlur={(e) => {
+                    field.onBlur(e);
+                    setTimeout(() => setIsFocused(false), 200);
+                    form.validateField(field.name);
+                }}
                 className="pr-10"
             />
             {suggestions.length > 0 && isFocused && (
@@ -32,6 +41,7 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                             onClick={() => {
                                 form.setFieldValue(field.name, suggestion);
                                 setIsFocused(false);
+                                form.validateField(field.name);
                             }}
                             className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
                         >
@@ -101,14 +111,31 @@ const DriverAdd = () => {
         firstName: Yup.string().required('Name is required'),
         phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
         license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
-        address: Yup.string().required('Address is required'),
+        address: Yup.string()
+            .required('Address is required')
+            .min(5, 'Address must be at least 5 characters')
+            .matches(
+                /^[a-zA-Z0-9\s,.-/#]+$/,
+                'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+            )
+            .test(
+                'no-multiple-spaces',
+                'Address should not contain multiple consecutive spaces',
+                value => !value || !/\s\s+/.test(value)
+            )
+            .test(
+                'not-only-numbers',
+                'Address cannot contain only numbers',
+                value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
+            )
+            .trim(),
         reference: Yup.string().required('Reference is required'),
         preference: Yup.string().required('Preference is required'),
         mode: Yup.string().required('Mode is required'),
         packages: Yup.array()
             .of(Yup.string().required('Each package must be selected'))
             .required('At least one package must be selected'),
-            // .min(1, 'At least one package must be selected'),
+        // .min(1, 'At least one package must be selected'),
         wallet: Yup.string().required('Wallet is required'),
         prices: Yup.array().of(
             Yup.object().shape({
@@ -171,7 +198,7 @@ const DriverAdd = () => {
                     color: 'red',
                     message: 'Driver already exists'
                 });
-                setTimeout(() => setAlert(null), 5000); 
+                setTimeout(() => setAlert(null), 5000);
                 resetForm();
             } else {
                 navigate('/dashboard/drivers', {
@@ -209,18 +236,18 @@ const DriverAdd = () => {
         const hasErrors = Object.keys(errors).length > 0;
 
         return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
-}
+    }
     return (
         <div className="p-4 mx-auto">
             {alert && (
                 <div className='mb-2'>
-                <Alert
-                    color={alert.color}
-                    className='py-3 px-6 rounded-xl'
-                >
-                    {alert.message} 
-                </Alert>
-            </div>
+                    <Alert
+                        color={alert.color}
+                        className='py-3 px-6 rounded-xl'
+                    >
+                        {alert.message}
+                    </Alert>
+                </div>
             )}
             <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
             <Formik
@@ -427,7 +454,7 @@ const DriverAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 // disabled={isEditMode ? false : !dirty || !isValid}
-                                 disabled={!isFormValid(values, errors)}
+                                disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}

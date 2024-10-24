@@ -82,7 +82,7 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            //console.log(data?.data);
+            console.log("DAATA:",data?.data);
             setBookingDetails(data?.data);
             const msg = (data?.data?.Driver ? `Driver Name: ${data?.data?.Driver.firstName}\n Driver Number: ${data?.data?.Driver.phoneNumber}\n` : '') +
                 `Pickup Address: ${data?.data?.pickupAddress?.name}\n` +
@@ -179,6 +179,14 @@ const ConfirmBooking = (props) => {
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Date:</Typography>
                             <Typography>{`${bookingDetails.date}, ${bookingDetails.time}`}</Typography>
+                        </div>
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Package:</Typography>
+                            <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Intercity" ? "hours" : ""}`}</Typography>
+                        </div>
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Price:</Typography>
+                            <Typography>₹ {bookingDetails.Package.price}</Typography>
                         </div>
                         {/* <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Car:</Typography>
@@ -371,7 +379,7 @@ const ConfirmBooking = (props) => {
                             fullWidth
                             onClick={() => { props.onAssignDriver(bookingDetails) }}
                         >
-                            Assign Captain
+                            {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
                         </Button>
                     }
                     {bookingDetails.status === 'INITIATED' && bookingDetails?.Driver?.id && bookingDetails?.Cab?.id &&
@@ -381,10 +389,10 @@ const ConfirmBooking = (props) => {
                             fullWidth
                             onClick={() => { props.onAssignDriver(bookingDetails) }}
                         >
-                            Choose another Captain
+                            {props.bookingData.serviceType === "CAB" ? "Choose Another Cab" : "Choose Another Captain"}
                         </Button>
                     }
-                    {dateVal && <Button
+                    {dateVal && timeVal && <Button
                         color="black"
                         ripple="light"
                         fullWidth
