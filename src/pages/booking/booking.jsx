@@ -84,6 +84,11 @@ const Booking = (props) => {
             setRange({ startDate: params?.bookingDetails?.fromDate, endDate: params?.bookingDetails?.toDate })
         }
     }, []);
+    useEffect(() => {
+        if (editBooking?.packageType === "Outstation" && editBooking?.fromDate && editBooking?.toDate) {
+            setRange({ startDate: new Date(editBooking?.fromDate), endDate: new Date(editBooking?.toDate) })
+        }
+    }, [editBooking]);
     //console.log(editBooking, "editBooking");
     const initialValues = {
         packageTypeSelected: editBooking?.packageType ? editBooking?.packageType : 'Intercity',
@@ -91,8 +96,8 @@ const Booking = (props) => {
         rideDate: editBooking?.date ? editBooking?.date : moment().format('YYYY-MM-DD'),
         carSelected: {},
         packageSelected: editBooking?.packageId ? editBooking?.packageId : "",
-        fromDate: "",
-        toDate: "",
+        fromDate: editBooking?.fromDate ? editBooking?.fromDate : "",
+        toDate: editBooking?.toDate ? editBooking?.toDate : "",
         customerId: editBooking?.customerId ? editBooking?.customerId : '',
         serviceType: editBooking?.serviceType ? editBooking?.serviceType : '',
         cabType: editBooking?.cabType ? editBooking?.cabType : ''
@@ -152,6 +157,7 @@ const Booking = (props) => {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
                 setBookingStage(1);
+                setRange({ startDate: new Date(values?.fromDate), endDate: new Date(values?.toDate) })
                 setBookingData(data?.data);
             }
         }
@@ -367,8 +373,8 @@ const Booking = (props) => {
                                             </Typography>
                                             <Field as="select" disabled={bookingStage === 1} name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300">
                                                 <option value="">Cab Type</option>
-                                                <option value="SEDAN">Sedan (5 Seater)</option>
-                                                <option value="HATCHBACK">Hatchback (5 Seater)</option>
+                                                <option value="Sedan">Sedan (5 Seater)</option>
+                                                <option value="Hatchback">Hatchback (5 Seater)</option>
                                                 <option value="SUV">SUV (7 Seater)</option>
                                             </Field>
                                             <ErrorMessage name="cabType" component="div" className="text-red-500 text-sm" />
@@ -432,7 +438,7 @@ const Booking = (props) => {
                                                 />
                                             </div>
                                         )}
-                                        {range.startDate && range.endDate && (
+                                        {(range.startDate && range.endDate) && (
                                             <Card className="p-4">
                                                 <div className="grid grid-cols-2 gap-4 mb-2">
                                                     <div>

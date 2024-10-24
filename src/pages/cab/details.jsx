@@ -7,7 +7,7 @@ import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
 import WalletDetails from '@/components/WalletDetails';
-import PrintDriverDetails from '@/components/PrintDriverDetails';
+import PrintCabDetails from '@/components/PrintCabDetails';
 
 const CabDetails = () => {
     const [enablePrint, setEnablePrint] = useState(false);
@@ -187,7 +187,7 @@ const CabDetails = () => {
             </div>
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />}
-            {enablePrint && <PrintDriverDetails ref={printRef} packages={packageDetails} cabId={id} />}
+            {enablePrint && <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />}
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/cab'); }}

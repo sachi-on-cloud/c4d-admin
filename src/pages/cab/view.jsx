@@ -22,17 +22,16 @@ export function CabView() {
   const paramsPassed = location.state;
 
   const navigate = useNavigate();
-
+  const fetchCabs = async () => {
+    const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CABS);
+    if (data?.success) {
+      setCabs(data?.data);
+      setAllCabs(data?.data);
+    }
+  };
   useEffect(() => {
-    const fetchCabs = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CABS);
-      if(data?.success) {
-        setCabs(data?.data);
-        setAllCabs(data?.data);
-      }
-    };
-    fetchCabs(); 
-  },[]);
+    fetchCabs();
+  }, []);
 
   const getCabs = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
@@ -45,25 +44,25 @@ export function CabView() {
 
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
 
-        return name.startsWith(query) || 
-               phoneNumberWithoutCountryCode.startsWith(query);
-    });
+        return name.startsWith(query) ||
+          phoneNumberWithoutCountryCode.startsWith(query);
+      });
       setCabs(filteredCabs);
       // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
       // if (data?.success) {
       //   setDrivers(data?.data);
       // }
     } else {
-        setCabs(allCabs);
+      setCabs(allCabs);
     }
-  };  
+  };
   const updateCabs = async (cabId, status) => {
     let cabData = {
       cabId,
       status: status == "ACTIVE" ? "NOT_ACTIVE" : "ACTIVE"
     };
     const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB_STATUS, cabData);
-    getCabs('');
+    fetchCabs();
   };
   useEffect(() => {
     getCabs('');
