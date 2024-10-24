@@ -49,11 +49,13 @@ export function SearchDrivers(props) {
             } else {
                 //console.log('PACKAGE ID :', props?.bookingData)
                 let api = props.bookingData.serviceType == "CAB" ? API_ROUTES.GET_CABS_PACKAGE : API_ROUTES.GET_DRIVERS_PACKAGE;
-                let data = await ApiRequestUtils.getWithQueryParam(api + props?.bookingData?.packageId, {
+                let queryObj = {
                     latitude: props?.bookingData?.pickupLat,
                     longitude: props?.bookingData?.pickupLong,
-                    type: props.bookingData.packageType
-                });
+                    type: props.bookingData.packageType,
+                }
+                props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
+                let data = await ApiRequestUtils.getWithQueryParam(api + props?.bookingData?.packageId, queryObj);
                 // let data;
                 // if (props.bookingData.serviceType == "CAB") {
                 //     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE + props?.bookingData?.packageId, {

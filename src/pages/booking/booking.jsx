@@ -94,7 +94,8 @@ const Booking = (props) => {
         fromDate: "",
         toDate: "",
         customerId: editBooking?.customerId ? editBooking?.customerId : '',
-        serviceType: editBooking?.serviceType ? editBooking?.serviceType : ''
+        serviceType: editBooking?.serviceType ? editBooking?.serviceType : '',
+        cabType: editBooking?.cabType ? editBooking?.cabType : ''
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -136,7 +137,8 @@ const Booking = (props) => {
             toDate: values.toDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType
+            serviceType: values.serviceType,
+            cabType: values.cabType
         }
         let data;
         if (editBooking?.id) {
@@ -367,7 +369,7 @@ const Booking = (props) => {
                                                 <option value="">Cab Type</option>
                                                 <option value="SEDAN">Sedan (5 Seater)</option>
                                                 <option value="HATCHBACK">Hatchback (5 Seater)</option>
-                                                <option value="SUV">Hatchback (7 Seater)</option>
+                                                <option value="SUV">SUV (7 Seater)</option>
                                             </Field>
                                             <ErrorMessage name="cabType" component="div" className="text-red-500 text-sm" />
                                         </div>
@@ -379,7 +381,17 @@ const Booking = (props) => {
                                         <Typography variant="h6" className="mb-2">
                                             Choose a package
                                         </Typography>
-                                        <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}>
+                                        <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
+                                            onChange={(e) => {
+                                                setFieldValue('packageSelected', e.target.value);
+                                                if (values.packageTypeSelected === 'Outstation') {
+                                                    setDatePickerVisible(false);
+                                                    setRange({});
+                                                    handleChange('fromDate')("");
+                                                    handleChange('toDate')("")
+                                                }
+                                            }}
+                                        >
                                             <option value="">Select Package</option>
                                             {packageTypeSelectedData
                                                 .filter((item) => values.packageTypeSelected === item.type).map((item) => (

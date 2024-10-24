@@ -384,7 +384,7 @@ const ConfirmBooking = (props) => {
                             Choose another Captain
                         </Button>
                     }
-                    {dateVal && <Button
+                    {dateVal && timeVal && <Button
                         color="black"
                         ripple="light"
                         fullWidth
