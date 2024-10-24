@@ -43,7 +43,12 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     customerId: Yup.object().shape({
         id: Yup.string().required('Customer ID is required'),
         // Add additional fields and validation rules for the customer object as needed
-    }).required('Customer information is required')
+    }).required('Customer information is required'),
+    cabType: Yup.string().when('serviceType', {
+        is: 'CAB',
+        then: () => Yup.string().required('Cab type is required'),
+        otherwise: () => Yup.string()
+    })
 });
 
 export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
@@ -127,7 +132,7 @@ export const CAB_SCHEMA = Yup.object({
         )
         .trim(),
     company: Yup.string().required('Company is required'),
-    insurance: Yup.string().required('Insurance is required'),
+    insurance: Yup.string().required('Insurance Expiry Date is required'),
     withDriver: Yup.string().required('Driver is required'),
     driverName: Yup.string(),
     mode: Yup.string().required('Mode is required'),

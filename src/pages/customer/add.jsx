@@ -104,7 +104,8 @@ const CustomerAdd = (props) => {
             return navigate('/dashboard/booking', {
                 state: {
                     refreshData: true,
-                    customerPhoneNumber: ''
+                    customerPhoneNumber:'',
+                    selectCustomer: 0
                 }
             });
         } else {

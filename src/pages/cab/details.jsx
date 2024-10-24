@@ -113,7 +113,7 @@ const CabDetails = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance</label>
+                                    <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance Expiry Date</label>
                                     <Field type="text" name="insurance" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
                                 </div>

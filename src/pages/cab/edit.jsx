@@ -163,6 +163,9 @@ const CabEdit = () => {
         const hasErrors = Object.keys(errors).length > 0;
         return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
     };
+    const currentDate = () => {
+        return (new Date()).toISOString().split('T')[0];
+    };
     return (
         <div className="p-4 mx-auto">
             <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
@@ -215,8 +218,8 @@ const CabEdit = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance</label>
-                                <Field type="text" name="insurance" className="p-2 w-full rounded-md border-gray-300 border" />
+                                <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance Expiry Date</label>
+                                <Field type="date" name="insurance" className="p-2 w-full rounded-md border-gray-300 border"  min={currentDate()} />
                                 <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
@@ -348,7 +351,7 @@ const CabEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/drivers'); }}
+                                onClick={() => { navigate('/dashboard/cab'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

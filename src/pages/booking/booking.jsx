@@ -75,6 +75,7 @@ const Booking = (props) => {
         if (params && params.customerPhoneNumber !== undefined) {
             setAddCustomerNumber(params.customerPhoneNumber);
             setCustomerNumber(params.customerPhoneNumber);
+            setSelectedCustomer(params.selectCustomer);
         }
     }, [params]);
 
@@ -180,6 +181,7 @@ const Booking = (props) => {
         setSelectedCustomer(0);
     }
     const onEditBooking = async (data) => {
+        console.log('ON EDIT BOOKING :', data);
         setEditBooking(data);
         setBookingStage(0);
         setBookingView(false);
@@ -206,6 +208,23 @@ const Booking = (props) => {
     //     );
     // }
     const onCancelBookingView = () => { }
+
+    const resetPackageValues = (setFieldValue, newServiceType) => {
+        setFieldValue("packageSelected", "");
+        
+        if (newServiceType === 'CAR_WASH') {
+            setFieldValue("packageTypeSelected", "CarWash");
+        } else if (newServiceType === 'DRIVER' || newServiceType === 'CAB') {
+            setFieldValue("packageTypeSelected", "Intercity");
+        } else {
+            setFieldValue("packageTypeSelected", "");
+        }
+
+        setFieldValue("fromDate", "");
+        setFieldValue("toDate", "");
+        setRange({});
+        setDatePickerVisible(false);
+    };
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
@@ -254,9 +273,11 @@ const Booking = (props) => {
                                         </Typography>
                                         <Field as="select" name="serviceType" disabled={editBooking || bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
                                             //console.log('e.target.value', e.target.value);
-                                            setFieldValue("serviceType", e.target.value);
-                                            if (e.target.value === 'CAR_WASH')
-                                                setFieldValue("packageTypeSelected", "CarWash");
+                                            setFieldValue("serviceType", e.target.value, false);
+                                            resetPackageValues(setFieldValue, e.target.value);
+                                            setFieldValue("serviceType", e.target.value, true);
+                                            // if (e.target.value === 'CAR_WASH')
+                                            //     setFieldValue("packageTypeSelected", "CarWash");
 
                                         }}>
                                             <option value="">Service Type</option>
@@ -365,13 +386,13 @@ const Booking = (props) => {
                                         </Field>
                                     </div></div>}
 
-                                {values.serviceType === 'CAB' &&
+                                {(values.serviceType === 'CAB' || editBooking?.serviceType === 'CAB')&&
                                     <div className="flex-1 mb-4">
                                         <div>
                                             <Typography variant="h6" className="mb-2">
                                                 Cab Type
                                             </Typography>
-                                            <Field as="select" disabled={bookingStage === 1} name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                            <Field as="select" disabled={bookingStage === 1} name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.cabType}>
                                                 <option value="">Cab Type</option>
                                                 <option value="Sedan">Sedan (5 Seater)</option>
                                                 <option value="Hatchback">Hatchback (5 Seater)</option>
@@ -400,9 +421,19 @@ const Booking = (props) => {
                                         >
                                             <option value="">Select Package</option>
                                             {packageTypeSelectedData
-                                                .filter((item) => values.packageTypeSelected === item.type).map((item) => (
+                                                .filter((item) => {
+                                                    if (values.serviceType === 'CAR_WASH') {
+                                                        return item.type === 'CarWash';
+                                                    }
+                                                    return values.packageTypeSelected === item.type;
+                                                })
+                                                    .map((item) => (
                                                     <option key={item.id} value={item.id}>
-                                                        {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''}
+                                                        {/* {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''} */}
+                                                        {values.serviceType === 'CAR_WASH' 
+                                                                    ? item.period
+                                                                    : `${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`
+                                                                }
                                                     </option>
                                                 ))}
                                         </Field>
@@ -466,7 +497,7 @@ const Booking = (props) => {
                                     fullWidth
                                     color="black"
                                     onClick={handleSubmit}
-                                    disabled={!dirty || !isValid || !values.rideDate}
+                                    disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'CAB' && !values.cabType)}
                                     className='my-6 mx-2'
                                 >
                                     Continue

@@ -9,6 +9,7 @@ import { API_ROUTES } from "@/utils/constants";
 
 const PrintDriverDetails = forwardRef((props, ref) => {
   const [driver, setDriver] = useState();
+  const [printRequest,setPrintRequest] = useState(0);
   function getNameById(id, obj) {
     for (const key in obj) {
       if (obj[key].id === id) {
@@ -21,13 +22,17 @@ const PrintDriverDetails = forwardRef((props, ref) => {
   const fetchItem = async (itemId) => {
     const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);  
     setDriver(data?.data);
-    print(data?.data);
-
+    if(data?.data) {
+      handlePrint(data?.data);
+    }
   };
 
   useEffect(() => {
-    fetchItem(props?.driverId);
-  },[])
+    if(props.driverId && printRequest > 0){
+      fetchItem(props?.driverId);
+    }  
+  },[props.driverId, printRequest]);
+
   const driverDetails = (driver) => {
     return (
       <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
@@ -116,7 +121,7 @@ const PrintDriverDetails = forwardRef((props, ref) => {
     )
   }
   // useImperativeHandle(ref, () => ({
-   const print = (driver) => {
+   const handlePrint = (driver) => {
       const driverContent = ReactDOMServer.renderToStaticMarkup(driverDetails(driver));
       const priceContent = ReactDOMServer.renderToStaticMarkup(priceDetails(driver));
       const printWindow = window.open("", "_blank");
@@ -154,11 +159,23 @@ const PrintDriverDetails = forwardRef((props, ref) => {
       `);
       printWindow.document.close();
       printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }
+      try{
+        printWindow.print();
+      } catch (error){
+        console.error("Print operation failed:", error);
+      } finally {
+        printWindow.close();
+      }  
+    };
   // }));
+ const triggerPrint = () => {
+  setPrintRequest(prev => prev + 1);
+ };
 
+ React.useImperativeHandle(ref, () => ({
+  print: triggerPrint
+ })); 
+ 
   return (
     null
   );

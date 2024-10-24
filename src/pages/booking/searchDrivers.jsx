@@ -233,7 +233,7 @@ export function SearchDrivers(props) {
                                                         onClick={() => { onAssignDriver(props.bookingData.serviceType, id) }}
                                                         className="text-xs font-semibold text-white"
                                                     >
-                                                        Assign Captain
+                                                        {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
                                                     </Button>}
                                                 </td>
                                             </tr>
@@ -256,7 +256,7 @@ export function SearchDrivers(props) {
                     onClick={() => { props?.onNext() }}
                     className='text-white border-2 bg-black rounded-xl'
                 >
-                    Assign Captain Later
+                    {props.bookingData.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
                 </Button>
             </div>
         </div >
