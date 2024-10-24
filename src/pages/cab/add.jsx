@@ -101,7 +101,24 @@ const CabAdd = () => {
         name: Yup.string().required('Name is required'),
         phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
         carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
-        address: Yup.string().required('Address is required'),
+        address: Yup.string()
+            .required('Address is required')
+            .min(5, 'Address must be at least 5 characters')
+            .matches(
+                /^[a-zA-Z0-9\s,.-/#]+$/,
+                'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+            )
+            .test(
+                'no-multiple-spaces',
+                'Address should not contain multiple consecutive spaces',
+                value => !value || !/\s\s+/.test(value)
+            )
+            .test(
+                'not-only-numbers',
+                'Address cannot contain only numbers',
+                value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
+            )
+            .trim(),
         company: Yup.string().required('Company is required'),
         insurance: Yup.string().required('Insurance is required'),
         withDriver: Yup.string().required('Driver is required'),
