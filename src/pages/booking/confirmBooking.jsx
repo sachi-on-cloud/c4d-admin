@@ -82,7 +82,7 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            console.log("DAATA:",data?.data);
+            console.log("DAATA:", data?.data);
             setBookingDetails(data?.data);
             const msg = (data?.data?.Driver ? `Driver Name: ${data?.data?.Driver.firstName}\n Driver Number: ${data?.data?.Driver.phoneNumber}\n` : '') +
                 `Pickup Address: ${data?.data?.pickupAddress?.name}\n` +
@@ -382,7 +382,7 @@ const ConfirmBooking = (props) => {
                             {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
                         </Button>
                     }
-                    {bookingDetails.status === 'INITIATED' && bookingDetails?.Driver?.id && bookingDetails?.Cab?.id &&
+                    {bookingDetails.status === 'INITIATED' && (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) &&
                         <Button
                             color="black"
                             ripple="light"
