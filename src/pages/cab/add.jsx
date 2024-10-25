@@ -133,9 +133,9 @@ const CabAdd = () => {
         insurance: Yup.string().required('Insurance Expiry Date is required'),
         withDriver: Yup.string().required('Driver is required'),
         driverName: Yup.string().when('withDriver', {
-            is: 'Yes',
-            then: Yup.string().required('Driver Name is required') .min(1, 'Driver Name is required'),
-            otherwise: Yup.string()
+            is: (value) => value === 'Yes',
+            then: (schema) => schema.required('Driver Name is required'),
+            otherwise: (schema) => schema,
         }),
         mode: Yup.string().required('Mode is required'),
         carType: Yup.string().required('Car Type is required'),
@@ -236,7 +236,6 @@ const CabAdd = () => {
         );
 
         const hasErrors = Object.keys(errors).length > 0;
-
         return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
     };
     const currentDate = () => {
