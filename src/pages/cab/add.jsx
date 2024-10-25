@@ -114,10 +114,10 @@ const CabAdd = () => {
         address: Yup.string()
             .required('Address is required')
             .min(5, 'Address must be at least 5 characters')
-            .matches(
-                /^[a-zA-Z0-9\s,.-/#]+$/,
-                'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
-            )
+            // .matches(
+            //     /^[a-zA-Z0-9\s,.-/#]+$/,
+            //     'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+            // )
             .test(
                 'no-multiple-spaces',
                 'Address should not contain multiple consecutive spaces',
@@ -197,16 +197,16 @@ const CabAdd = () => {
             if (isEditMode) {
                 cabData['cabId'] = id;
                 data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, cabData);
-            
+
             } else {
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CAB, cabData);
-            
+
             }
             if (!data?.success && data?.code === 203) {
-                setAlert({message: 'Cab already exists', color: 'red'});
+                setAlert({ message: 'Cab already exists', color: 'red' });
                 setTimeout(() => setAlert(null), 2000);
                 resetForm();
-            }else {
+            } else {
                 navigate('/dashboard/cab', {
                     state: {
                         cabAdded: isEditMode ? false : true,
@@ -215,19 +215,19 @@ const CabAdd = () => {
                     }
                 });
             }
-            } catch (error) {
+        } catch (error) {
             console.error('Error creating driver and car:', error);
-            }  
+        }
         setSubmitting(false);
     };
 
     const isFormValid = (values, errors) => {
         const requiredFields = ['name', 'phoneNumber', 'carNumber', 'address', 'company', 'withDriver', 'insurance', 'carType', 'mode', 'packages', 'wallet'];
-        
+
         if (values.withDriver === 'Yes' && !values.driverName) {
             return false;
         }
-    
+
         const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
 
         const isPricesFilled = values.prices.some(price =>
@@ -309,19 +309,19 @@ const CabAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="withDriver" value="Yes" className="form-radio" 
+                                        <Field type="radio" name="withDriver" value="Yes" className="form-radio"
                                             onChange={e => {
-                                            handleChange(e);
-                                            setFieldValue('driverName', values.driverName, true);
-                                        }}/>
+                                                handleChange(e);
+                                                setFieldValue('driverName', values.driverName, true);
+                                            }} />
                                         <span className="ml-2">Yes</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="withDriver" value="No" className="form-radio" 
+                                        <Field type="radio" name="withDriver" value="No" className="form-radio"
                                             onChange={e => {
                                                 handleChange(e);
                                                 setFieldValue('driverName', '', true);
-                                            }}/>
+                                            }} />
                                         <span className="ml-2">No</span>
                                     </label>
                                 </div>
