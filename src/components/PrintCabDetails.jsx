@@ -9,6 +9,7 @@ import { API_ROUTES } from "@/utils/constants";
 
 const PrintCabDetails = forwardRef((props, ref) => {
   const [driver, setDriver] = useState();
+  const [printRequest, setPrintRequest] = useState(0);
   function getNameById(id, obj) {
     for (const key in obj) {
       if (obj[key].id === id) {
@@ -26,8 +27,10 @@ const PrintCabDetails = forwardRef((props, ref) => {
   };
 
   useEffect(() => {
-    fetchItem(props?.cabId);
-  }, [])
+    if (props.cabId && printRequest > 0) {
+      fetchItem(props?.cabId);
+    }
+  }, [props.cabId, printRequest]);
   const cabDetails = (driver) => {
     return (
       <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
@@ -159,10 +162,22 @@ const PrintCabDetails = forwardRef((props, ref) => {
       `);
     printWindow.document.close();
     printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+    try {
+      printWindow.print();
+    } catch (error) {
+      console.error("Print operation failed:", error);
+    } finally {
+      printWindow.close();
+    }
   }
   // }));
+  const triggerPrint = () => {
+    setPrintRequest(prev => prev + 1);
+  };
+
+  React.useImperativeHandle(ref, () => ({
+    print: triggerPrint
+  }));
 
   return (
     null

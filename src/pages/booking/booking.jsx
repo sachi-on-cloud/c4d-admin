@@ -211,7 +211,7 @@ const Booking = (props) => {
 
     const resetPackageValues = (setFieldValue, newServiceType) => {
         setFieldValue("packageSelected", "");
-        
+
         if (newServiceType === 'CAR_WASH') {
             setFieldValue("packageTypeSelected", "CarWash");
         } else if (newServiceType === 'DRIVER' || newServiceType === 'CAB') {
@@ -386,7 +386,7 @@ const Booking = (props) => {
                                         </Field>
                                     </div></div>}
 
-                                {(values.serviceType === 'CAB' || editBooking?.serviceType === 'CAB')&&
+                                {(values.serviceType === 'CAB' || editBooking?.serviceType === 'CAB') &&
                                     <div className="flex-1 mb-4">
                                         <div>
                                             <Typography variant="h6" className="mb-2">
@@ -411,7 +411,7 @@ const Booking = (props) => {
                                         <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
                                             onChange={(e) => {
                                                 setFieldValue('packageSelected', e.target.value);
-                                                if (values.packageTypeSelected === 'Outstation') {
+                                                if (values.packageTypeSelected === 'Outstation' && values.fromDate && values.toDate) {
                                                     setDatePickerVisible(false);
                                                     setRange({});
                                                     handleChange('fromDate')("");
@@ -427,13 +427,13 @@ const Booking = (props) => {
                                                     }
                                                     return values.packageTypeSelected === item.type;
                                                 })
-                                                    .map((item) => (
+                                                .map((item) => (
                                                     <option key={item.id} value={item.id}>
                                                         {/* {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''} */}
-                                                        {values.serviceType === 'CAR_WASH' 
-                                                                    ? item.period
-                                                                    : `${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`
-                                                                }
+                                                        {values.serviceType === 'CAR_WASH'
+                                                            ? item.period
+                                                            : `${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`
+                                                        }
                                                     </option>
                                                 ))}
                                         </Field>
