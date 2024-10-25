@@ -144,7 +144,7 @@ export function SearchDrivers(props) {
     }
     return (
         <div className="flex flex-col w-full gap-y-4">
-            <DriverSearch onSearch={getDriversList} />
+            {/* <DriverSearch onSearch={getDriversList} /> */}
             <Card>
                 {loading ? (
                     <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
