@@ -69,10 +69,10 @@ export const DRIVER_SCHEMA = Yup.object({
     address: Yup.string()
         .required('Address is required')
         .min(5, 'Address must be at least 5 characters')
-        .matches(
-            /^[a-zA-Z0-9\s,.-/#]+$/,
-            'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
-        )
+        // .matches(
+        //     /^[a-zA-Z0-9\s,.-/#]+$/,
+        //     'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+        // )
         .test(
             'no-multiple-spaces',
             'Address should not contain multiple consecutive spaces',
@@ -116,10 +116,10 @@ export const CAB_SCHEMA = Yup.object({
     address: Yup.string()
         .required('Address is required')
         .min(5, 'Address must be at least 5 characters')
-        .matches(
-            /^[a-zA-Z0-9\s,.-/#]+$/,
-            'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
-        )
+        // .matches(
+        //     /^[a-zA-Z0-9\s,.-/#]+$/,
+        //     'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
+        // )
         .test(
             'no-multiple-spaces',
             'Address should not contain multiple consecutive spaces',
@@ -134,7 +134,11 @@ export const CAB_SCHEMA = Yup.object({
     company: Yup.string().required('Company is required'),
     insurance: Yup.string().required('Insurance Expiry Date is required'),
     withDriver: Yup.string().required('Driver is required'),
-    driverName: Yup.string(),
+    driverName: Yup.string().when('withDriver', {
+        is: (value) => value === 'Yes',
+        then: (schema) => schema.required('Driver Name is required'),
+        otherwise: (schema) => schema,
+    }),
     mode: Yup.string().required('Mode is required'),
     carType: Yup.string().required('Car Type is required'),
     packages: Yup.array()
