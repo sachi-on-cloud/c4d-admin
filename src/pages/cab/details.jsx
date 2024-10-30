@@ -10,11 +10,11 @@ import WalletDetails from '@/components/WalletDetails';
 import PrintCabDetails from '@/components/PrintCabDetails';
 
 const CabDetails = () => {
-    const [enablePrint, setEnablePrint] = useState(false);
+   //const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
     const handlePrintClick = () => {
-        setEnablePrint(true);
+     //   setEnablePrint(true);
         if (printRef.current) {
             printRef.current.print();  // Trigger the print action
         }
@@ -70,9 +70,7 @@ const CabDetails = () => {
             <div className="p-4 mx-auto">
                 <div className="flex flex-row justify-between pr-5">
                     <h2 className="text-2xl font-bold mb-4">Driver Details</h2>
-                    <img src="/img/printing.png" height={30} width={30} alt="" onClick={() => {
-                        handlePrintClick();
-                    }} />
+                    <img src="/img/printing.png" height={30} width={30} alt="" onClick={handlePrintClick} />
                 </div>
                 <Formik
                     initialValues={initialValues}
@@ -187,7 +185,7 @@ const CabDetails = () => {
             </div>
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />}
-            {enablePrint && <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />}
+            <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/cab'); }}
