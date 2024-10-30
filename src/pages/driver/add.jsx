@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, CITY_LIST, DISTRICT_LIST, THALUK_LIST, STATE_LIST } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -59,6 +59,14 @@ const DriverAdd = () => {
     const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
+    const [districtSearchText, setDistrictSearchText] = useState("");
+    const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
+    const [citySearchText, setCitySearchText] = useState("");
+    const [isCityListVisible, setIsCityListVisible] = useState(false);
+    const [thalukSearchText, setThalukSearchText] = useState("");
+    const [isThalukListVisible, setIsThalukListVisible ] = useState(false);
+    const [stateSearchText, setStateSearchText] = useState("");
+    const [isStateListVisible, setIsStateListVisible] = useState(false);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -102,6 +110,10 @@ const DriverAdd = () => {
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || [],
         wallet: driverVal?.wallet || "",
+        city: driverVal?.city || "",
+        thaluk: driverVal?.thaluk || "",
+        district: driverVal?.district || "",
+        state: driverVal?.state || "",
         mode: driverVal?.mode || "PREPAID",
         prices: []
     };
@@ -137,6 +149,10 @@ const DriverAdd = () => {
             .required('At least one package must be selected'),
         // .min(1, 'At least one package must be selected'),
         wallet: Yup.string().required('Wallet is required'),
+        city: Yup.string().required('City is required'),
+        thaluk: Yup.string().required('Thaluk is required'),
+        district: Yup.string().required('District is required'),
+        state: Yup.string().required('State is required'),
         prices: Yup.array().of(
             Yup.object().shape({
                 price: Yup.number().required('Price is required'),
@@ -216,27 +232,114 @@ const DriverAdd = () => {
         setSubmitting(false);
     };
 
-    const isFormValid = (values, errors) => {
-        const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
-        const areRequiredFieldsFilled = requiredFields.every(field => {
-            if (field === 'packages') {
-                return Array.isArray(values[field]) && values[field].length > 0;
+    const districtOptions = DISTRICT_LIST.map(district => ({
+        id: district.value,
+        name: district.label
+    }));
+
+    const filteredDistricts = districtOptions.filter(district =>
+        district.name.toLowerCase().includes(districtSearchText.toLowerCase())
+    );
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.district-search-container')) {
+                setIsDistrictListVisible(false);
             }
-            if (field === 'wallet') {
-                return values[field] !== undefined && values[field] !== '';
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const cityOptions = CITY_LIST.map(city => ({
+        id: city.value,
+        name: city.label
+    }));
+
+    const filteredCity = cityOptions.filter(city => 
+        city.name.toLowerCase().includes(citySearchText.toLowerCase()) 
+    );
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.city-search-container')) {
+                setIsCityListVisible(false);
             }
-            return values[field] && values[field].length > 0;
-        });
+        };
 
-        const isPricesFilled = values.prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
-        );
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
-        const hasErrors = Object.keys(errors).length > 0;
+    const thalukOptions = THALUK_LIST.map(thaluk => ({
+        id: thaluk.value,
+        name: thaluk.label
+    }));
 
-        return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
-    }
+    const filteredThaluk = thalukOptions.filter(thaluk => 
+        thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase()) 
+    );
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.thaluk-search-container')) {
+                setIsThalukListVisible(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const stateOptions = STATE_LIST.map(state => ({
+        id: state.value,
+        name: state.label
+    }));
+
+    const filteredState = stateOptions.filter(state => 
+        state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
+    );
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.state-search-container')) {
+                setIsStateListVisible(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+    // const isFormValid = (values, errors) => {
+    //     const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
+    //     const areRequiredFieldsFilled = requiredFields.every(field => {
+    //         if (field === 'packages') {
+    //             return Array.isArray(values[field]) && values[field].length > 0;
+    //         }
+    //         if (field === 'wallet') {
+    //             return values[field] !== undefined && values[field] !== '';
+    //         }
+    //         return values[field] && values[field].length > 0;
+    //     });
+
+    //     const isPricesFilled = values.prices.some(price =>
+    //         price.price || price.extraPrice || price.extraKmPrice ||
+    //         price.nightCharge || price.cancelCharge || price.extraCabType
+    //     );
+
+    //     const hasErrors = Object.keys(errors).length > 0;
+
+    //     return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
+    // }
     return (
         <div className="p-4 mx-auto">
             {alert && (
@@ -277,6 +380,30 @@ const DriverAdd = () => {
                             </div>
 
                             <div>
+                                <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
+                                <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
+                                <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
+                                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" ></Field>
+                                <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
+                                <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+
+                            <div>
                                 <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                 <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
@@ -288,6 +415,57 @@ const DriverAdd = () => {
                                 <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
                             </div>
 
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="licenseType" value="" className="form-radio" />
+                                        <span className="ml-2">Type 1</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="licenseType" value="" className="form-radio" />
+                                        <span className="ml-2">Type 2</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
+                                <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
+                                <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
+                                        <span className="ml-2">Yes</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
+                                        <span className="ml-2">No</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
+                                        <span className="ml-2">Yes</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
+                                        <span className="ml-2">No</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
+                            </div>
+
                             {/* <div>
                                 <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
                                 <Field type="text" name="address" className="p-2 w-full rounded-md border-gray-300" />
@@ -295,7 +473,7 @@ const DriverAdd = () => {
                             </div> */}
 
                             <div>
-                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
+                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
                                 <Field name="address">
                                     {({ field, form }) => (
                                         <LocationInput
@@ -309,9 +487,170 @@ const DriverAdd = () => {
                                 <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</label>
-                                <Field type="text" name="reference" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="reference" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
+                                <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+                            <div>
+                                <label htmlFor="city" className="text-sm font-medium text-gray-700">City</label>
+                                <div className="relative city-search-container">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search City"
+                                        value={citySearchText}
+                                        onChange={(e) => {
+                                            setCitySearchText(e.target.value);
+                                            setIsCityListVisible(true);
+                                        }}
+                                        onFocus={() => setIsCityListVisible(true)}
+                                        className="p-2 w-full rounded-md border-gray-300"
+                                    />
+                                    {isCityListVisible && citySearchText && filteredCity.length > 0 && (
+                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                                            {filteredCity.map((city) => (
+                                                <ListItem
+                                                    key={city.id}
+                                                    onClick={() => {
+                                                        setFieldValue("city", city.id);
+                                                        setCitySearchText(city.name);
+                                                        setIsCityListVisible(false);
+                                                    }}
+                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    {city.name}
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    )}
+                                </div>
+                                <ErrorMessage name="city" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">Thaluk</label>
+                                <div className="relative thaluk-search-container">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search Thaluk"
+                                        value={thalukSearchText}
+                                        onChange={(e) => {
+                                            setThalukSearchText(e.target.value);
+                                            setIsThalukListVisible(true);
+                                        }}
+                                        onFocus={() => setIsThalukListVisible(true)}
+                                        className="p-2 w-full rounded-md border-gray-300"
+                                    />
+                                    {isThalukListVisible && thalukSearchText && filteredThaluk.length > 0 && (
+                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                                            {filteredThaluk.map((thaluk) => (
+                                                <ListItem
+                                                    key={thaluk.id}
+                                                    onClick={() => {
+                                                        setFieldValue("thaluk", thaluk.id);
+                                                        setThalukSearchText(thaluk.name);
+                                                        setIsThalukListVisible(false);
+                                                    }}
+                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    {thaluk.name}
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    )}
+                                </div>
+                                <ErrorMessage name="thaluk" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
+                                <div className="relative district-search-container">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search district"
+                                        value={districtSearchText}
+                                        onChange={(e) => {
+                                            setDistrictSearchText(e.target.value);
+                                            setIsDistrictListVisible(true);
+                                        }}
+                                        onFocus={() => setIsDistrictListVisible(true)}
+                                        className="p-2 w-full rounded-md border-gray-300"
+                                    />
+                                    {isDistrictListVisible && districtSearchText && filteredDistricts.length > 0 && (
+                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                                            {filteredDistricts.map((district) => (
+                                                <ListItem
+                                                    key={district.id}
+                                                    onClick={() => {
+                                                        setFieldValue("district", district.id);
+                                                        setDistrictSearchText(district.name);
+                                                        setIsDistrictListVisible(false);
+                                                    }}
+                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    {district.name}
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    )}
+                                </div>
+                                <ErrorMessage name="district" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="state" className="text-sm font-medium text-gray-700">State</label>
+                                <div className="relative state-search-container">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search State"
+                                        value={stateSearchText}
+                                        onChange={(e) => {
+                                            setStateSearchText(e.target.value);
+                                            setIsStateListVisible(true);
+                                        }}
+                                        onFocus={() => setIsStateListVisible(true)}
+                                        className="p-2 w-full rounded-md border-gray-300"
+                                    />
+                                    {isStateListVisible && stateSearchText && filteredState.length > 0 && (
+                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                                            {filteredState.map((state) => (
+                                                <ListItem
+                                                    key={state.id}
+                                                    onClick={() => {
+                                                        setFieldValue("state", state.id);
+                                                        setStateSearchText(state.name);
+                                                        setIsStateListVisible(false);
+                                                    }}
+                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    {state.name}
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    )}
+                                </div>
+                                <ErrorMessage name="state" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="pinCode" className="text-sm font-medium text-gray-700">Pincode</label>
+                                <Field type="text" name="pinCode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="pinCode" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+                            <div>
+                                <label htmlFor="reference1" className="text-sm font-medium text-gray-700">Reference 1</label>
+                                <Field type="text" name="reference1" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="reference1" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="phoneNumber1" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                <Field type="tel" name="phoneNumber1" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="phoneNumber1" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="reference2" className="text-sm font-medium text-gray-700">Reference 2</label>
+                                <Field type="text" name="reference2" className="p-2 w-full rounded-md border-gray-300" />
+                                <ErrorMessage name="reference2" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="phoneNumber2" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                <Field type="tel" name="phoneNumber2" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
@@ -350,7 +689,7 @@ const DriverAdd = () => {
                                 </div>
                                 <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            {/* <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
@@ -363,7 +702,7 @@ const DriverAdd = () => {
                                     </label>
                                 </div>
                                 <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
                                 <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
@@ -453,8 +792,8 @@ const DriverAdd = () => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                // disabled={isEditMode ? false : !dirty || !isValid}
-                                disabled={!isFormValid(values, errors)}
+                                disabled={isEditMode ? false : !dirty || !isValid}
+                                // disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}
