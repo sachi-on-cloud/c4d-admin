@@ -6,6 +6,7 @@ import { API_ROUTES, CITY_LIST, DISTRICT_LIST, THALUK_LIST, STATE_LIST } from '@
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
+import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
 
 const LocationInput = ({ field, form, suggestions, onSearch }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -102,73 +103,33 @@ const DriverAdd = () => {
     const initialValues = {
         salutation: driverVal?.salutation || "",
         firstName: driverVal?.firstName || "",
+        fatherName: driverVal?.fatherName || "",
+        motherName: driverVal?.motherName || "",
+        dateOfBirth: driverVal?.dob || "",
+        age: driverVal?.age || "",
         phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driverVal?.license || "",
+        licenseType: driverVal?.licenseType || "",
+        licenseExpiryDate: driverVal?.licenseExpiry || "",
+        professionalLicense: driverVal?.professionalLicense || "No",
+        policeClearanceCertificate: driverVal?.policeCertificate || "No",
         address: driverVal?.address || "",
-        reference: driverVal?.references || "",
-        preference: driverVal?.preference || "",
-        carType: driverVal?.carType || "",
-        packages: driverVal?.packages || [],
-        wallet: driverVal?.wallet || "",
+        streetName: driverVal?.street || "",
         city: driverVal?.city || "",
         thaluk: driverVal?.thaluk || "",
         district: driverVal?.district || "",
         state: driverVal?.state || "",
-        mode: driverVal?.mode || "PREPAID",
+        pinCode: driverVal?.pincode || "",
+        reference1: driverVal?.reference1 || "",
+        phoneNumber1: driverVal?.reference1_phone ? driverVal?.reference1_phone.replace(/^(\+91)/, '') : "",
+        reference2: driverVal?.reference2 || "",
+        phoneNumber2: driverVal?.reference2_phone ? driverVal?.reference2_phone.replace(/^(\+91)/, '') : "",
+        preference: driverVal?.preference || "",
+        carType: driverVal?.carType || "",
+        packages: driverVal?.packages || [],
+        wallet: driverVal?.wallet || "",
         prices: []
     };
-
-    const validationSchema = Yup.object({
-        salutation: Yup.string().required('Salutation is required'),
-        firstName: Yup.string().required('Name is required'),
-        phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
-        license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
-        address: Yup.string()
-            .required('Address is required')
-            .min(5, 'Address must be at least 5 characters')
-            // .matches(
-            //     /^[a-zA-Z0-9\s,.-/#]+$/,
-            //     'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
-            // )
-            .test(
-                'no-multiple-spaces',
-                'Address should not contain multiple consecutive spaces',
-                value => !value || !/\s\s+/.test(value)
-            )
-            .test(
-                'not-only-numbers',
-                'Address cannot contain only numbers',
-                value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
-            )
-            .trim(),
-        reference: Yup.string().required('Reference is required'),
-        preference: Yup.string().required('Preference is required'),
-        mode: Yup.string().required('Mode is required'),
-        packages: Yup.array()
-            .of(Yup.string().required('Each package must be selected'))
-            .required('At least one package must be selected'),
-        // .min(1, 'At least one package must be selected'),
-        wallet: Yup.string().required('Wallet is required'),
-        city: Yup.string().required('City is required'),
-        thaluk: Yup.string().required('Thaluk is required'),
-        district: Yup.string().required('District is required'),
-        state: Yup.string().required('State is required'),
-        prices: Yup.array().of(
-            Yup.object().shape({
-                price: Yup.number().required('Price is required'),
-                extraPrice: Yup.number().required('Extra price is required'),
-                extraKmPrice: Yup.number().required('Extra KM price is required'),
-                nightCharge: Yup.number().required('Night charge is required'),
-                cancelCharge: Yup.number().required('Cancel charge is required'),
-                extraCabType: Yup.string().required('Cab type is required'),
-            })
-        ).test('at-least-one-price', 'At least one price must be added', function (prices) {
-            return prices.some(price =>
-                price.price || price.extraPrice || price.extraKmPrice ||
-                price.nightCharge || price.cancelCharge || price.extraCabType
-            );
-        })
-    });
 
     const searchLocations = async (query) => {
         if (query.length > 2) {
@@ -183,20 +144,87 @@ const DriverAdd = () => {
         }
     };
 
+    const renderPriceTable = (title, prices, values) => {
+        if (prices.length === 0) return null;
+        
+        return (
+            <div className="mb-8">
+                <h3 className="text-xl font-bold mb-4">{title}</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
+                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {prices.map((priceItem) => (
+                                    <tr key={priceItem.packageId}>
+                                        <td className="py-3 px-5 border-b border-blue-gray-50">
+                                            <Typography variant="small" color="blue-gray" className="font-semibold">
+                                                {priceItem.period}
+                                            </Typography>
+                                        </td>
+                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Field
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    className="w-full p-1 text-xs border rounded"
+                                                />
+                                                <ErrorMessage 
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
+                                                    component="div" 
+                                                    className="text-red-500 text-xs" 
+                                                />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    }; 
+
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
             const driverDetails = {
                 salutation: values.salutation,
                 firstName: values.firstName,
+                fatherName: values.fatherName || "",
+                motherName: values.motherName || "",
+                dob: values.dateOfBirth || "",
+                age: values.age || "",
                 phoneNumber: "+91" + values.phoneNumber,
                 license: values.license,
-                curAddress: values.address,
-                references: values.reference,
+                licenseType: values.licenseType || "",
+                licenseExpiry: values.licenseExpiryDate || "",
+                professionalLicense: values.professionalLicense || "No",
+                policeCertificate: values.policeClearanceCertificate || "No",
+                address: values.address,
+                street: values.streetName || "",
+                thaluk: values.thaluk,
+                district: values.district,
+                state: values.state,
+                country: "India", 
+                pincode: values.pinCode || "",
+                reference1: values.reference1 || "",
+                reference1_phone: values.phoneNumber1 || "",
+                reference2: values.reference2 || "",
+                reference2_phone: values.phoneNumber2 || "",
                 preference: values.preference,
                 packages: values.packages,
                 carType: values.carType,
                 wallet: values.wallet,
-                mode: values.mode,
             };
             let driverData = { driverDetails, prices: values.prices };
             console.log(driverData);
@@ -319,27 +347,7 @@ const DriverAdd = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
-    // const isFormValid = (values, errors) => {
-    //     const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
-    //     const areRequiredFieldsFilled = requiredFields.every(field => {
-    //         if (field === 'packages') {
-    //             return Array.isArray(values[field]) && values[field].length > 0;
-    //         }
-    //         if (field === 'wallet') {
-    //             return values[field] !== undefined && values[field] !== '';
-    //         }
-    //         return values[field] && values[field].length > 0;
-    //     });
 
-    //     const isPricesFilled = values.prices.some(price =>
-    //         price.price || price.extraPrice || price.extraKmPrice ||
-    //         price.nightCharge || price.cancelCharge || price.extraCabType
-    //     );
-
-    //     const hasErrors = Object.keys(errors).length > 0;
-
-    //     return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
-    // }
     return (
         <div className="p-4 mx-auto">
             {alert && (
@@ -355,7 +363,7 @@ const DriverAdd = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Driver</h2>
             <Formik
                 initialValues={initialValues}
-                validationSchema={validationSchema}
+                validationSchema={DRIVER_ADD_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
@@ -419,11 +427,11 @@ const DriverAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="licenseType" value="" className="form-radio" />
+                                        <Field type="radio" name="licenseType" value="type1" className="form-radio" />
                                         <span className="ml-2">Type 1</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="licenseType" value="" className="form-radio" />
+                                        <Field type="radio" name="licenseType" value="type2" className="form-radio" />
                                         <span className="ml-2">Type 2</span>
                                     </label>
                                 </div>
@@ -564,7 +572,7 @@ const DriverAdd = () => {
                                 <div className="relative district-search-container">
                                     <Input
                                         type="text"
-                                        placeholder="Search district"
+                                        placeholder="Search District"
                                         value={districtSearchText}
                                         onChange={(e) => {
                                             setDistrictSearchText(e.target.value);
@@ -689,20 +697,6 @@ const DriverAdd = () => {
                                 </div>
                                 <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                             </div>
-                            {/* <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="mode" value="PREPAID" className="form-radio" />
-                                        <span className="ml-2">Prepaid</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="mode" value="COMMISSION" className="form-radio" />
-                                        <span className="ml-2">Commission</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
-                            </div> */}
                             <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
                                 <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
@@ -741,7 +735,7 @@ const DriverAdd = () => {
                         {values.packages.length > 0 && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                                <Card>
+                                {/* <Card>
                                     <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                                         <table className="w-full min-w-[640px] table-auto">
                                             <thead>
@@ -777,7 +771,33 @@ const DriverAdd = () => {
                                             </tbody>
                                         </table>
                                     </CardBody>
-                                </Card>
+                                </Card> */}
+                                {renderPriceTable(
+                                    "INTERCITY",
+                                    values.prices.filter(price => {
+                                        const package_ = packageDetails.find(p => p.id === price.packageId);
+                                        return package_?.type === 'Intercity';
+                                    }),
+                                    values
+                                )}
+
+                                {renderPriceTable(
+                                    "OUTSTATION",
+                                    values.prices.filter(price => {
+                                        const package_ = packageDetails.find(p => p.id === price.packageId);
+                                        return package_?.type === 'Outstation';
+                                    }),
+                                    values
+                                )}
+
+                                {renderPriceTable(
+                                    "CAR WASH",
+                                    values.prices.filter(price => {
+                                        const package_ = packageDetails.find(p => p.id === price.packageId);
+                                        return package_?.type === 'CarWash';
+                                    }),
+                                    values
+                                )}
                             </div>
                         )}
                         <div className='flex flex-row'>
