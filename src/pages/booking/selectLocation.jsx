@@ -242,6 +242,7 @@ const SelectLocation = (props) => {
                 <h1 className="text-xl font-bold text-gray-900">Select Location</h1>
             </div>
             <div className="p-2 space-y-4">
+            <label className="block text-sm font-medium text-gray-700">Pickup Location <label className="text-required text-base text-red-500">*</label></label>
                 <LocationInput
                     value={pickupAddress}
                     onChange={handlePickupAddressChange}
@@ -249,7 +250,9 @@ const SelectLocation = (props) => {
                     placeholder={props.serviceType !== 'CAR_WASH' ? "Enter pickup location" : "Enter location"}
                     suggestions={pickupSuggestions}
                 />
-                {props.serviceType !== 'CAR_WASH' && <LocationInput
+                {props.serviceType !== 'CAR_WASH' && <>
+                <label className="block text-sm font-medium text-gray-700">Drop Location</label>
+                <LocationInput
                     value={dropAddress}
                     onChange={(value) => {
                         setDropAddress(value);
@@ -258,7 +261,7 @@ const SelectLocation = (props) => {
                     onSelect={(address) => handleSelectLocation(address, false)}
                     placeholder="Enter drop location (Optional)"
                     suggestions={dropSuggestions}
-                />}
+                /></>}
             </div>
 
             <div className="flex-1">

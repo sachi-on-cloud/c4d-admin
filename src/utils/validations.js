@@ -74,11 +74,11 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
             cutoff.setFullYear(cutoff.getFullYear() - 18);
             return value <= cutoff;
         }),
-    age: Yup.number()
-        .required('Age is required')
-        .min(18, 'Driver must be at least 18 years old')
-        .max(70, 'Driver must be under 70 years old')
-        .typeError('Age must be a number'),
+    // age: Yup.number()
+    //     .required('Age is required')
+    //     .min(18, 'Driver must be at least 18 years old')
+    //     .max(70, 'Driver must be under 70 years old')
+    //     .typeError('Age must be a number'),
     phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
     licenseType: Yup.string().required('License Type is required'),
@@ -110,7 +110,6 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
         )
         .trim(),
     streetName: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
-    city: Yup.string().required('City is required'),
     thaluk: Yup.string().required('Thaluk is required'),
     district: Yup.string().required('District is required'),
     state: Yup.string().required('State is required'),
@@ -154,8 +153,33 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
 export const DRIVER_SCHEMA = Yup.object({
     salutation: Yup.string().required('Salutation is required'),
     firstName: Yup.string().required('Name is required'),
+    fatherName: Yup.string().required('Father Name is required'),
+    motherName: Yup.string().required('Mother Name is required'),
+    dateOfBirth: Yup.date()
+        .max(new Date(), 'Date of birth cannot be in the future')
+        .test('age', 'Driver must be at least 18 years old', function(value) {
+            if (!value) return true;
+            const cutoff = new Date();
+            cutoff.setFullYear(cutoff.getFullYear() - 18);
+            return value <= cutoff;
+        }),
+    age: Yup.number()
+        .required('Age is required')
+        .min(18, 'Driver must be at least 18 years old')
+        .max(70, 'Driver must be under 70 years old')
+        .typeError('Age must be a number'),
     phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+    licenseType: Yup.string().required('License Type is required'),
+    licenseExpiryDate: Yup.date()
+        .min(new Date(), 'License expiry date must be in the future')
+        .required('License expiry date is required'),
+    professionalLicense: Yup.string()
+        .required('Professional License Status is required')
+        .oneOf(['Yes', 'No'], 'Must select Yes or No'),
+    policeClearanceCertificate: Yup.string()
+         .required('Police Certificate Status is required')
+         .oneOf(['Yes', 'No'], 'Must select Yes or No'),
     address: Yup.string()
         .required('Address is required')
         .min(5, 'Address must be at least 5 characters')
@@ -174,9 +198,25 @@ export const DRIVER_SCHEMA = Yup.object({
             value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
         )
         .trim(),
-    reference: Yup.string().required('Reference is required'),
+        streetName: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
+        thaluk: Yup.string().required('Thaluk is required'),
+        district: Yup.string().required('District is required'),
+        state: Yup.string().required('State is required'),
+        pinCode: Yup.string()
+            .required('Pincode is required')
+            .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
+        reference1: Yup.string()
+            .min(2, 'Reference name must be at least 2 characters')
+            .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
+        phoneNumber1: Yup.string()
+            .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
+        reference2: Yup.string()
+            .min(2, 'Reference name must be at least 2 characters')
+            .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
+        phoneNumber2: Yup.string()
+            .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
     preference: Yup.string().required('Preference is required'),
-    mode: Yup.string().required('Mode is required'),
+    carType: Yup.string().required('Car type is required'),
     packages: Yup.array()
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected')

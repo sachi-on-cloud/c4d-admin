@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, CITY_LIST, DISTRICT_LIST, THALUK_LIST, STATE_LIST } from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -62,8 +62,6 @@ const DriverAdd = () => {
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
-    const [citySearchText, setCitySearchText] = useState("");
-    const [isCityListVisible, setIsCityListVisible] = useState(false);
     const [thalukSearchText, setThalukSearchText] = useState("");
     const [isThalukListVisible, setIsThalukListVisible ] = useState(false);
     const [stateSearchText, setStateSearchText] = useState("");
@@ -71,6 +69,27 @@ const DriverAdd = () => {
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
+
+    // Format date to YYYY-MM-DD for input's min attribute
+    const currentDate = () => {
+        return (new Date()).toISOString().split('T')[0];
+    };
+
+    const orderPackages = (packages, type) => {
+        return packages.sort((a, b) => {
+            if (type === 'Intercity') {
+                const hoursA = parseInt(a.period);
+                const hoursB = parseInt(b.period);
+                return hoursA - hoursB;
+            } else if (type === 'CarWash') {
+                const numberA = parseInt(a.period.match(/\d+/)[0]);
+                const numberB = parseInt(b.period.match(/\d+/)[0]);
+                return numberA - numberB;
+            }
+            return 0;
+        });
+    };
+
     const getPackageListDetails = async () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
@@ -81,9 +100,9 @@ const DriverAdd = () => {
                     period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
-            const intercityPackage = packageData.filter(val => val.type === 'Intercity');
+            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Intercity'), 'Intercity');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            const carWashPackage = packageData.filter(val => val.type === 'CarWash');
+            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
         }
     };
@@ -115,7 +134,6 @@ const DriverAdd = () => {
         policeClearanceCertificate: driverVal?.policeCertificate || "No",
         address: driverVal?.address || "",
         streetName: driverVal?.street || "",
-        city: driverVal?.city || "",
         thaluk: driverVal?.thaluk || "",
         district: driverVal?.district || "",
         state: driverVal?.state || "",
@@ -147,6 +165,22 @@ const DriverAdd = () => {
     const renderPriceTable = (title, prices, values) => {
         if (prices.length === 0) return null;
         
+        const sortedPrices = [...prices].sort((a, b) => {
+            const packageA = packageDetails.find(p => p.id === a.packageId);
+            const packageB = packageDetails.find(p => p.id === b.packageId);
+            
+            if (title === "INTERCITY") {
+                const hoursA = parseInt(packageA.period);
+                const hoursB = parseInt(packageB.period);
+                return hoursA - hoursB;
+            } else if (title === "CAR WASH") {
+                const numberA = parseInt(packageA.period.match(/\d+/)[0]);
+                const numberB = parseInt(packageB.period.match(/\d+/)[0]);
+                return numberA - numberB;
+            }
+            return 0;
+        });
+
         return (
             <div className="mb-8">
                 <h3 className="text-xl font-bold mb-4">{title}</h3>
@@ -165,7 +199,7 @@ const DriverAdd = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {prices.map((priceItem) => (
+                                {sortedPrices.map((priceItem) => (
                                     <tr key={priceItem.packageId}>
                                         <td className="py-3 px-5 border-b border-blue-gray-50">
                                             <Typography variant="small" color="blue-gray" className="font-semibold">
@@ -282,28 +316,6 @@ const DriverAdd = () => {
         };
     }, []);
 
-    const cityOptions = CITY_LIST.map(city => ({
-        id: city.value,
-        name: city.label
-    }));
-
-    const filteredCity = cityOptions.filter(city => 
-        city.name.toLowerCase().includes(citySearchText.toLowerCase()) 
-    );
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.city-search-container')) {
-                setIsCityListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     const thalukOptions = THALUK_LIST.map(thaluk => ({
         id: thaluk.value,
         name: thaluk.label
@@ -401,13 +413,31 @@ const DriverAdd = () => {
 
                             <div>
                                 <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
-                                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" ></Field>
+                                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()} 
+                                    onChange={(e) => {
+
+                                        setFieldValue('dateOfBirth', e.target.value);
+                                        
+                                        if (e.target.value) {
+                                            const today = new Date();
+                                            const birthDate = new Date(e.target.value);
+                                            let age = today.getFullYear() - birthDate.getFullYear();
+                                            const monthDiff = today.getMonth() - birthDate.getMonth();
+                                            
+                                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                                age--;
+                                            }
+                                            setFieldValue('age', age);
+                                        } else {
+                                            setFieldValue('age', '');
+                                        }
+                                    }} />
                                 <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
                                 <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
-                                <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                                 <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
@@ -440,7 +470,7 @@ const DriverAdd = () => {
 
                             <div>
                                 <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
-                                <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
+                                <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.licenseExpiryDate} min={currentDate()} ></Field>
                                 <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
                             </div>
 
@@ -498,40 +528,6 @@ const DriverAdd = () => {
                                 <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
                                 <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-                            <div>
-                                <label htmlFor="city" className="text-sm font-medium text-gray-700">City</label>
-                                <div className="relative city-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search City"
-                                        value={citySearchText}
-                                        onChange={(e) => {
-                                            setCitySearchText(e.target.value);
-                                            setIsCityListVisible(true);
-                                        }}
-                                        onFocus={() => setIsCityListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isCityListVisible && citySearchText && filteredCity.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredCity.map((city) => (
-                                                <ListItem
-                                                    key={city.id}
-                                                    onClick={() => {
-                                                        setFieldValue("city", city.id);
-                                                        setCitySearchText(city.name);
-                                                        setIsCityListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {city.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="city" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">Thaluk</label>

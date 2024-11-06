@@ -17,6 +17,11 @@ export function SignIn() {
     email: '',
     password: ''
   });
+  const [errors, setErrors] = useState({
+    email:'',
+    password:''
+  });
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -27,11 +32,27 @@ export function SignIn() {
       ...prevUser,
       [name]: value
     }));
-  };
+  
+  setErrors(prevErrors => ({
+    ...prevErrors,
+    [name]: ''
+  }));
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({email:'', password:''});
+    try{
     const response = await ApiRequestUtils.post(API_ROUTES.USER_LOGIN, newUser);
+    if(response.success == false) {
+      if(response.error === "User not found") {
+        setErrors(prev => ({...prev, email: "User not found"}));
+      } else if (response.error === "Invalid credentials") {
+        setErrors(prev => ({...prev, password: "Invalid credentials"}));
+      }
+      return;
+    }
+
     if (response.code) {
       login(response.code);
 
@@ -41,7 +62,35 @@ export function SignIn() {
       });
       navigate('/dashboard/booking');
     }
-  };
+  } catch (error) {
+    setErrors({
+      email: "An error occured. Please try again.",
+      password: ""
+    });
+  }
+};
+
+const inputErrorClasses = (fieldName) => `
+    !border-t-blue-gray-200 
+    focus:!border-t-gray-900
+    ${errors[fieldName] ? '!border-red-500 !border-2 focus:!border-red-500' : ''}
+  `;
+
+  const inputStyles = (fieldName) => ({
+    container: {
+      className: "min-w-[100px]",
+    },
+    input: {
+      className: errors[fieldName] 
+        ? "!border-red-500 focus:!border-red-500 ring-1 ring-red-500/20" 
+        : "!border-blue-gray-200 focus:!border-gray-900",
+      labelProps: {
+        className: errors[fieldName] 
+          ? "!text-red-500 peer-focus:!text-red-500" 
+          : "text-blue-gray-400 peer-focus:text-gray-900",
+      }
+    }
+  });
 
   return (
     <section className="m-8 flex gap-4">
@@ -58,14 +107,20 @@ export function SignIn() {
             <Input
               size="lg"
               placeholder="name@mail.com"
-              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              containerProps={inputStyles('email').container}
+              variant="outlined"
               name='email'
               value={newUser.email}
               onChange={handleInputChange}
+              error={!!errors.email}
+              {...inputStyles('email').input}
             />
+            {errors.email && (
+              <Typography variant="small" color="red" className="-mt-5 text-red-500 text-base font-medium">{errors.email}</Typography>
+            )}
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Password
             </Typography>
@@ -76,11 +131,17 @@ export function SignIn() {
               value={newUser.password}
               onChange={handleInputChange}
               name='password'
-              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              containerProps={inputStyles('password').container}
+              error={!!errors.password}
+              {...inputStyles('password').input}
+              variant="outlined"
             />
+            {errors.password && (
+              <Typography variant="small" color="red" className="-mt-5 text-red-500 text-base font-medium">{errors.password}</Typography>
+            )}
           </div>
           {/* <Checkbox
             label={
