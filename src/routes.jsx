@@ -1,16 +1,14 @@
 import {
   HomeIcon,
-  UserCircleIcon,
-  TableCellsIcon,
-  InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
+import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 import { CustomerView } from "@/pages/customer";
+import { AccountView } from "@/pages/account";
 import { DriverView } from "@/pages/driver";
 import { UserView } from "@/pages/users";
 import DriverAdd from "./pages/driver/add";
@@ -207,6 +205,13 @@ export const routes = [
         name: "Commission",
         path: "/commission",
         element: <Commission />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Account",
+        path: "/account",
+        element: <AccountView />,
         display: true
       },
     ],
