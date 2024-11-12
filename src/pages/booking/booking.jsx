@@ -225,6 +225,45 @@ const Booking = (props) => {
         setRange({});
         setDatePickerVisible(false);
     };
+    const getStatusDisplay = (status) => {
+        const statusLower = status?.toLowerCase();
+        
+        switch (statusLower) {
+          case 'started':
+            return (
+              <span className="ml-2 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                On Trip
+              </span>
+            );
+          case 'ended':
+            return (
+              <span className="ml-2 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+                Completed
+              </span>
+            );
+          case 'cancelled':
+            return (
+              <span className="ml-2 px-2 py-1 text-white bg-red-600 rounded-md text-sm font-medium">
+                Cancelled
+              </span>
+            );
+          case 'initiated':
+            if (bookingData?.Driver?.id || bookingData?.Cab?.id) {
+              return (
+                <span className="ml-2 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                  Booked
+                </span>
+              );
+            }
+            return (
+              <span className="ml-2 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                Initiated
+              </span>
+            );
+          default:
+            return null;
+        }
+      };
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
@@ -234,7 +273,14 @@ const Booking = (props) => {
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
                     <Typography variant="h5" color='#000000'>
                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
-                        {`${bookingView ? `Booking Details - ${bookingData?.bookingNumber}` : bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : bookingData?.serviceType == "CAB" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `}`}
+                        <div className= "flex items-center">
+                        {bookingView ? (
+                            <>
+                                {`Booking Details - ${bookingData?.bookingNumber}`} 
+                                {bookingData?.status && getStatusDisplay(bookingData.status)}
+                            </>
+                        ) : ( bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : bookingData?.serviceType == "CAB" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
+                        </div>
                     </Typography>
                 </div>}
                 {showQuickCreateCustomer && <CustomerAdd isQuickCreate={true} customerNumber={customerNumber} />}
@@ -431,8 +477,13 @@ const Booking = (props) => {
                                                     <option key={item.id} value={item.id}>
                                                         {/* {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''} */}
                                                         {values.serviceType === 'CAR_WASH'
-                                                            ? item.period
-                                                            : `${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`
+                                                            ? (
+                                                                <span>
+                                                                    <span className="text-base">{item.period}</span>
+                                                                    <span className="text-sm"> - {item.description}</span>
+                                                                </span>
+                                                            )
+                                                            : (`${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`)                                                     
                                                         }
                                                     </option>
                                                 ))}

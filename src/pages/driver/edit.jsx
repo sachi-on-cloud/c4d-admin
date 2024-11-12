@@ -55,6 +55,7 @@ const DriverEdit = () => {
     const [stateSearchText, setStateSearchText] = useState("");
     const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false); 
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -110,8 +111,18 @@ const DriverEdit = () => {
     }, [id]);
 
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
-        setDriverVal(data.data);
+        try{
+            const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
+            if(data?.data) {
+                setDriverVal(data.data);
+            } else {
+                console.error('No driver data received');
+                navigate('/dashboard/drivers');
+         }
+        } catch (error) {
+            console.error('Error fetching driver:', error);
+            navigate('/dashboard/drivers');
+        }    
     };
 
     const initialValues = {
@@ -224,7 +235,9 @@ const DriverEdit = () => {
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
+        if (isSubmitting) return; 
         console.log('onSubmit :', values)
+        setIsSubmitting(true);
         try {
             const driverDetails = {
                 salutation: values.salutation,
@@ -260,17 +273,23 @@ const DriverEdit = () => {
             //return;
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER, driverData);
             console.log('data in driver add :', data);
-            navigate('/dashboard/drivers', {
-                state: {
-                    driverUpdated: true,
-                    driverName: data?.data?.firstName
-                }
-            });
-
+            if (data?.success) {
+                navigate('/dashboard/drivers', {
+                    state: {
+                        driverUpdated: true,
+                        driverName: data?.data?.firstName || values.firstName
+                    }
+                });
+            } else {
+                throw new Error(data?.message || 'Update failed');
+            }
         } catch (error) {
-            console.error('Error creating driver and car:', error);
+            console.error('Error updating driver:', error);
+            alert(error.message || 'Failed to update driver. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+            setSubmitting(false);
         }
-        setSubmitting(false);
     };
 
     const isFormValid = (values, errors) => {
@@ -814,6 +833,7 @@ const DriverEdit = () => {
                                 onClick={handleSubmit}
                                 //disabled={!dirty || !isValid}
                                 // disabled={!isFormValid(values, errors)}
+                                disabled={isSubmitting || !isValid}
                                 className='my-6 mx-2'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}

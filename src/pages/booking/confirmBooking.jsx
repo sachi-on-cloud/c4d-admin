@@ -160,6 +160,26 @@ const ConfirmBooking = (props) => {
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto p-4">
+             <Card className="mb-4">
+                <CardBody>
+                    <div className="flex justify-between mb-2">
+                        <Typography variant="h5">Customer Details </Typography>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Name:</Typography>
+                            <Typography>{bookingDetails?.Customer?.firstName}</Typography>
+                        </div>
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Phone Number:</Typography>
+                            <Typography>
+                                {bookingDetails?.Customer?.phoneNumber}
+                            </Typography>
+                        </div>
+                    </div>
+                </CardBody>
+            </Card>
             <Card className="mb-4">
                 <CardBody>
                     <div className="flex justify-between mb-2">
@@ -170,14 +190,14 @@ const ConfirmBooking = (props) => {
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Service Type:</Typography>
-                            <Typography>{bookingDetails.serviceType}</Typography>
+                            <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType}</Typography>
                         </div>
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
                         </div>
                         <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Date:</Typography>
+                            <Typography color="gray" variant="h6">Trip Date:</Typography>
                             <Typography>{`${bookingDetails.date}, ${bookingDetails.time}`}</Typography>
                         </div>
                         <div className="flex justify-between">
@@ -275,7 +295,7 @@ const ConfirmBooking = (props) => {
                             {bookingDetails?.packageType === "Intercity" || bookingDetails?.packageType === "Outstation" ?
                                 <>
                                     <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
+                                        <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
                                     </div>
                                     <div className="flex justify-between">
@@ -398,7 +418,7 @@ const ConfirmBooking = (props) => {
                         fullWidth
                         onClick={onConfirmPressHandler}
                     >
-                        Confirm
+                        {bookingDetails?.status === 'STARTED' ? 'Complete Trip' : 'Start Trip'}
                     </Button>}
                 </div>
             </>
