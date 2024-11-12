@@ -6,7 +6,7 @@ export const constants = {
 };
 
 export const getBaseUrl = () => {
-    return constants.url_dev + '/api/customer/dev';
+    return constants.url + '/api/customer/dev';
 }
 
 export const GENDER = {
@@ -780,10 +780,13 @@ export const API_ROUTES = {
     'MOBILENUMBER_VERIFICATION': '/verify',
     'OTP_VERIFICATION': '/otp-verify',
     'REGISTER_CUSTOMER': '/register',
+    'CREATE_ACCOUNT': '/register/admin/account',
     'UPDATE_CUSTOMER': '/customer',
+    'UPDATE_ACCOUNT': '/register/admin/account',
     'REGISTER_DRIVER': '/register/admin/driver',
     'UPDATE_DRIVER': '/update/admin/driver',
     'GET_CUSTOMER': '/customer',
+    'GET_ACCOUNT': '/register/admin/account',
     'REGISTER_CAR_DETAILS': '/car-number',
     'ADD_CAR_DETAILS': '/car',
     'GET_ALL_CARS': '/cars',
@@ -797,6 +800,7 @@ export const API_ROUTES = {
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',
     'GET_DRIVERS': '/drivers',
     'GET_DRIVER_BY_ID': '/driver/',
+    'GET_ACCOUNT_BY_ID': '/admin/account',
     'REQUEST_DRIVER': '/request-driver',
     'BASE_AMOUNT': '/base-payment',
     'EXTEND_REQUEST': '/extend-request',
@@ -816,6 +820,7 @@ export const API_ROUTES = {
     'GET_CUSTOMERS': '/admin/customer',
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
+    'GET_ALL_ACCOUNTS': '/register/admin/account',
     'GET_DRIVERS_PACKAGE': '/get-drivers/',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',

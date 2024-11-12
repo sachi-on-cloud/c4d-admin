@@ -7,7 +7,7 @@ import {
   Button,
   Alert
 } from "@material-tailwind/react";
-import CustomerSearch from "@/components/CustomerSearch";
+import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -23,7 +23,7 @@ export function AccountView() {
 
   useEffect(() => {
     const fetchAccounts = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS);
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_ACCOUNTS);
       if (data?.success) {
         setAccounts(data?.data);
         setAllAccounts(data?.data);
@@ -31,10 +31,11 @@ export function AccountView() {
     };
     fetchAccounts();
 
-    if (location.state?.accountAdded || location.state?.customerUpdated) {
+    if (location.state?.accountAdded || location.state?.accountUpdated) {
       const action = location.state.accountAdded ? 'added' : 'updated';
+      const accountName = location.state.accountName || 'Account';
       setAlert({
-        message: `${location.state.accountName} ${action} successfully!`
+        message: `${accountName} ${action} successfully!`
       });
       setTimeout(() => {
         setAlert(null);
@@ -48,7 +49,7 @@ export function AccountView() {
       const query = searchQuery.toLowerCase().trim();
 
       const filteredAccounts = allAccounts.filter((account) => {
-        const name = (account.firstName || "").toLowerCase();
+        const name = (account.name || "").toLowerCase();
         const phone = (account.phoneNumber || "").toLowerCase();
 
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
@@ -74,11 +75,11 @@ export function AccountView() {
             {alert.message}
           </Alert>
         </div>)}
-      <CustomerSearch onSearch={getAccounts} />
+      <AccountSearch onSearch={getAccounts} />
       <Card>
         {accounts.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
               <Typography variant="h6" color="white">
                 Accounts List
               </Typography>
@@ -87,7 +88,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", ""].map((el) => (
+                    {["Name", "Phone Number", "Email", "Type", ""].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -104,7 +105,7 @@ export function AccountView() {
                 </thead>
                 <tbody>
                   {accounts.map(
-                    ({ id, firstName, lastName, phoneNumber, email }, key) => {
+                    ({ id, name, phoneNumber, email, type }, key) => {
                       const className = `py-3 px-5 ${key === accounts.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -120,7 +121,7 @@ export function AccountView() {
                                   color="blue"
                                   className="font-semibold underline"
                                 >
-                                  {firstName}
+                                  {name}
                                 </Typography>
                               </div>
                             </div>
@@ -128,6 +129,16 @@ export function AccountView() {
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
                               {phoneNumber}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {email}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {type}
                             </Typography>
                           </td>
                           <td className={className}>

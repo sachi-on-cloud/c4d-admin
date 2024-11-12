@@ -20,6 +20,7 @@ import Booking from "./pages/booking/booking";
 import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
 import DriverDetails from "./pages/driver/details";
+import AccountDetails from "./pages/account/details";
 import AddPriceDetails from "./pages/driver/addPriceDetails";
 import { BookingsList, SearchDrivers } from "./pages/booking";
 import UserDetails from "./pages/users/details";
@@ -30,6 +31,9 @@ import { CabView } from "./pages/cab";
 import CabAdd from "./pages/cab/add";
 import CabDetails from "./pages/cab/details";
 import CabEdit from "./pages/cab/edit";
+import AccountAdd from "./pages/account/add";
+import AccountEdit from "./pages/account/edit";
+
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -106,9 +110,23 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/accounts/details/:id",
+        element: <AccountDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/drivers/edit/:id",
         element: <DriverEdit />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/accounts/edit/:id",
+        element: <AccountEdit />,
         display: false
       },
       {
@@ -174,7 +192,20 @@ export const routes = [
         element: <UserDetails />,
         display: false
       },
-
+      {
+        icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/accounts/add",
+        element: <AccountAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/admin/account/:accountId",
+        element: <AccountEdit />,
+        display: false
+      },
       {
         icon: <HomeModernIcon {...icon} />,
         name: "BookingsList",

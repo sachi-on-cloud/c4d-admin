@@ -7,7 +7,8 @@ export const ApiRequestUtils = {
         const headers = {
             'Content-Type': 'application/json',
             'token': token,
-            'ngrok-skip-browser-warning': '69420',
+            //'ngrok-skip-browser-warning' : true,
+            //'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -32,7 +33,7 @@ export const ApiRequestUtils = {
         const headers = {
             'Content-Type': 'application/json',
             'token': token,
-            'ngrok-skip-browser-warning': '69420',
+            //'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -59,7 +60,7 @@ export const ApiRequestUtils = {
                 'Content-Type': 'application/json',
                 'token': token,
                 'custID': 63,
-                'ngrok-skip-browser-warning': '69420',
+                //'ngrok-skip-browser-warning': '69420',
             },
             params: params
         });
@@ -80,7 +81,7 @@ export const ApiRequestUtils = {
         const headers = {
             'Content-Type': 'application/json',
             'token': token,
-            'ngrok-skip-browser-warning': '69420',
+            //'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -107,7 +108,7 @@ export const ApiRequestUtils = {
                 'Content-Type': 'application/json',
                 'token': token,
                 'custID': 63,
-                'ngrok-skip-browser-warning': '69420',
+                //'ngrok-skip-browser-warning': '69420',
             },
             data: body
         });

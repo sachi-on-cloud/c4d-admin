@@ -61,6 +61,36 @@ export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
         .required('Email address is required')
 });
 
+export const ACCOUNT_ADD_SCHEMA = Yup.object({
+    name: Yup.string().required('Name is required'),
+    phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),      
+    type: Yup.string().required('Type is required'),   
+    email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
+    street: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
+    district: Yup.string().required('District is required'),
+    state: Yup.string().required('State is required'),
+    pincode: Yup.string()
+        .required('Pincode is required')
+        .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
+    // image1: Yup.object().shape({
+    //     file: Yup.string().required('Image is required'),
+    // }).required('Image is required'),
+});
+export const ACCOUNT_EDIT_SCHEMA = Yup.object({
+    name: Yup.string().required('Name is required'),
+    phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),      
+    type: Yup.string().required('Type is required'),   
+    email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
+    street: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
+    district: Yup.string().required('District is required'),
+    state: Yup.string().required('State is required'),
+    pincode: Yup.string()
+        .required('Pincode is required')
+        .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
+    // image1: Yup.object().shape({
+    //     file: Yup.string().required('Image is required'),
+    // }).required('Image is required'),
+});
 export const DRIVER_ADD_SCHEMA = Yup.object({
     salutation: Yup.string().required('Salutation is required'),
     firstName: Yup.string().required('Name is required'),
