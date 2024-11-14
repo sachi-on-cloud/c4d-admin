@@ -353,20 +353,6 @@ const AccountAdd = (props) => {
                                 />
                             </div> */}
                         </div>
-                        <div classname="mt-4 space-y-4">
-                        <div className="mt-4 p-4 bg-gray-100 rounded text-xs">
-                            <h3 className="font-bold mb-2">Debug Info:</h3>
-                            <div>
-                                <p><strong>Form Values:</strong> {JSON.stringify(values, null, 2)}</p>
-                                <p><strong>Validation Errors:</strong> {JSON.stringify(errors, null, 2)}</p>
-                                <p><strong>Touched Fields:</strong> {JSON.stringify(touched, null, 2)}</p>
-                                <p><strong>Form State:</strong> dirty: {String(dirty)}, isValid: {String(isValid)}</p>
-                            </div>
-                            </div>
-                        </div>
-
-
-
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth

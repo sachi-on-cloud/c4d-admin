@@ -54,22 +54,24 @@ const CabDetails = () => {
         name: cab?.result?.name || "",
         phoneNumber: cab?.result?.phoneNumber ? cab?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cab?.result?.carNumber || "",
-        address: cab?.result?.curAddress || "",
+        address: cab?.result?.address || "",
         company: cab?.result?.company || "",
         insurance: cab?.result?.insurance || "",
-        preference: cab?.result?.preference || "",
+        driverName: cab?.result?.driverName || "",
+        driverPhoneNumber: cab?.result?.driverPhoneNumber || "",
+        driverAddress: cab?.result?.driverAddress || "",
+        licenseNumber: cab?.result?.licenseNumber || "",
+        notify: cab?.result?.notify || "",
         packages: cab?.result?.packages || "",
         carType: cab?.result?.carType || "",
         wallet: cab?.result?.wallet || "",
-        mode: cab?.result?.mode ? cab?.result?.mode === 'PREPAID' ? 'PREPAID' : 'COMMISSION' : "",
-        withDriver: cab?.result?.withDriver || "",
-        driverName: cab?.result?.driverName || "",
+        withDriver: cab?.result?.withDriver || "",   
     };
     return (
         <>
             <div className="p-4 mx-auto">
                 <div className="flex flex-row justify-between pr-5">
-                    <h2 className="text-2xl font-bold mb-4">Driver Details</h2>
+                    <h2 className="text-2xl font-bold mb-4">Cab Details</h2>
                     <img src="/img/printing.png" height={30} width={30} alt="" onClick={handlePrintClick} />
                 </div>
                 <Formik
@@ -82,7 +84,7 @@ const CabDetails = () => {
                             <div className="grid grid-cols-2 gap-4">
 
                                 <div>
-                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Owner Name</label>
                                     <Field type="text" name="name" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
                                     <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
@@ -105,7 +107,7 @@ const CabDetails = () => {
                                     <ErrorMessage name="company" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
+                                    <label htmlFor="address" className="text-sm font-medium text-gray-700">Owner Address</label>
                                     <Field type="text" name="address" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                 </div>
@@ -114,25 +116,6 @@ const CabDetails = () => {
                                     <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance Expiry Date</label>
                                     <Field type="text" name="insurance" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="withDriver" disabled value="Yes" className="form-radio" />
-                                            <span className="ml-2">Yes</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="withDriver" disabled value="No" className="form-radio" />
-                                            <span className="ml-2">No</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
-                                    <Field type="text" name="driverName" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
-                                    <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
@@ -152,21 +135,44 @@ const CabDetails = () => {
                                     </div>
                                     <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
                                 </div>
-
                                 <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Mode</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
                                     <div className="space-x-4">
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="mode" disabled value="PREPAID" className="form-radio" />
-                                            <span className="ml-2">Prepaid</span>
+                                            <Field type="radio" name="withDriver" disabled value="Yes" className="form-radio" />
+                                            <span className="ml-2">Yes</span>
                                         </label>
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="mode" disabled value="COMMISSION" className="form-radio" />
-                                            <span className="ml-2">Commission</span>
+                                            <Field type="radio" name="withDriver" disabled value="No" className="form-radio" />
+                                            <span className="ml-2">No</span>
                                         </label>
                                     </div>
-                                    <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                                    <ErrorMessage name="withDriver" component="div" className="text-red-500 text-sm" />
                                 </div>
+                                {values.withDriver === "Yes" && (
+                                <>
+                                <div>
+                                    <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
+                                    <Field type="text" name="driverName" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
+                                    <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="driverPhoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="tel" name="driverPhoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
+                                    <ErrorMessage name="driverPhoneNumber" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
+                                    <Field type="text" name="driverAddress" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
+                                    <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
+                                    <Field type="text" name="licenseNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
+                                    <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                </>
+                                )}
                                 <div>
                                     <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                     <Multiselect

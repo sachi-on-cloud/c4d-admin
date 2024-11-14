@@ -6,7 +6,7 @@ export const constants = {
 };
 
 export const getBaseUrl = () => {
-    return constants.url + '/api/customer/dev';
+    return constants.url_dev + '/api/customer/dev';
 }
 
 export const GENDER = {
