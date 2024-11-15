@@ -9,7 +9,7 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, COMPANY_NAME, GST_NUMBER } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS, COMPANY_NAME, GST_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, GPAY_NAME, GPAY_NUMBER } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
@@ -39,6 +39,122 @@ const ConfirmBooking = (props) => {
     const paramsPassed = location.state;
 
     const [loading, setLoading] = useState(true);
+
+    const generateWhatsAppMessage = (booking) => {
+        // Initial booking confirmation
+        if (booking.status === "INITIATED" && (booking?.Driver?.id || booking?.Cab?.id)) {
+            return encodeURIComponent(
+                WHATSAPP_DRIVER_ASSIGNED_TEMPLATE
+                    .replace('${bookingNumber}', booking.bookingNumber)
+                    .replace('${customerName}', booking.Customer.firstName)
+                    .replace('${driverName}', booking.Driver?.firstName || 'Not assigned')
+                    .replace('${driverPhone}', booking.Driver?.phoneNumber || 'Not assigned')
+                    .replace('${pickup}', booking.pickupAddress?.name || 'Not specified')
+                    .replace('${drop}', booking.dropAddress?.name || 'Not specified')
+                    .replace('${tripDate}', booking.date || 'Not specified')
+                    .replace('${tripTime}', booking.time || 'Not specified')
+                    .replace('${duration}', `${booking.Package.period} ${booking.packageType === "Outstation" ? "days" : "hours"}`)
+                    .replace('${tripType}', booking.packageType)
+                    .replace('${supportNumber}', supportNumber)
+            );
+        }
+
+        // Trip start message
+        if (booking.status === "STARTED") {
+            const endTime = calculateEndTime(booking.startTime, booking.Package.period);
+            return encodeURIComponent(
+                WHATSAPP_TRIP_START_TEMPLATE
+                    .replace('${bookingNumber}', booking.bookingNumber)
+                    .replace('${customerName}', booking.Customer.firstName)
+                    .replace('${driverName}', booking.Driver?.firstName)
+                    .replace('${startTime}', formatTime(booking.startTime))
+                    .replace('${endTime}', formatTime(endTime))
+                    .replace('${supportNumber}', supportNumber)
+            );
+        }
+
+
+        // Payment request message
+        if (booking.status === "ENDED" && !booking.paymentStatus) {
+            const totalFare = parseFloat(booking.Package.price) + parseFloat(booking.extraPrice);
+            return encodeURIComponent(
+                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
+                    .replace('${bookingNumber}', booking.bookingNumber)
+                    .replace('${customerName}', booking.Customer.firstName)
+                    .replace('${driverName}', booking.Driver?.firstName)
+                    .replace('${startTime}', formatTime(booking.startTime))
+                    .replace('${endTime}', (booking.endTime))
+                    .replace('${baseFare}', booking.Package.price)
+                    .replace('${extraFareCalculation}', `${booking.extraHours} hrs × ₹${booking.extraHourPrice} = ₹${booking.extraPrice}`)
+                    .replace('${totalAmount}', totalFare)
+                    .replace('${gpayNumber}', GPAY_NUMBER)
+                    .replace('${gpayName}', GPAY_NAME)
+                    .replace('${supportNumber}', supportNumber)
+            );
+        }
+
+        if(booking.status === "ENDED" && !booking.paymentStatus) {
+            const totalFare = parseFloat(booking.Package.price) + parseFloat(booking.extraPrice);
+            return encodeURIComponent(
+                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
+                .replace('${bookingNumber}', booking.bookingNumber)
+                .replace('${customerName}', booking.Customer.firstName)
+                .replace('${driverName}', booking.Driver?.firstName)
+                
+            )
+        }
+
+        // Trip completion message
+        if (booking.status === "ENDED" && booking.paymentStatus === "PAID") {
+            const duration = calculateDuration(booking.startTime, booking.endTime);
+            const totalFare = parseFloat(booking.Package.price) + parseFloat(booking.extraPrice);
+            
+            return encodeURIComponent(
+                WHATSAPP_TRIP_COMPLETION_TEMPLATE
+                    .replace('${bookingNumber}', booking.bookingNumber)
+                    .replace('${customerName}', booking.Customer.firstName)
+                    .replace('${driverName}', booking.Driver?.firstName)
+                    .replace('${pickup}', booking.pickupAddress?.name)
+                    .replace('${drop}', booking.dropAddress?.name)
+                    .replace('${startTime}', (booking.startTime))
+                    .replace('${endTime}', formatTime(booking.endTime))
+                    .replace('${totalDuration}', duration.total)
+                    .replace('${packageDuration}', `${booking.Package.period} hours`)
+                    .replace('${extraTime}', duration.extra)
+                    .replace('${baseFare}', booking.Package.price)
+                    .replace('${extraCharges}', booking.extraPrice)
+                    .replace('${totalAmount}', totalFare)
+                    .replace('${transactionId}', booking.transactionId)
+            );
+        }
+
+        // Fallback to simple message for other statuses
+        return encodeURIComponent(
+            (booking?.Driver ? `Driver Name: ${booking?.Driver.firstName}\nDriver Number: ${booking?.Driver.phoneNumber}\n` : '') +
+            `Pickup Address: ${booking?.pickupAddress?.name}\n` +
+            (booking?.dropAddress ? `Drop Address: ${booking?.dropAddress?.name}\n` : '')
+        );
+    };
+    const formatTime = (time) => {
+        return moment(time).format('HH:mm');
+    };
+
+    const calculateEndTime = (startTime, duration) => {
+        return moment(startTime).add(duration, 'hours');
+    };
+
+    const calculateDuration = (startTime, endTime) => {
+        const start = moment(startTime);
+        const end = moment(endTime);
+        const totalHours = end.diff(start, 'hours', true);
+        const packageHours = booking.Package.period;
+        const extraHours = Math.max(0, totalHours - packageHours);
+        
+        return {
+            total: `${Math.floor(totalHours)} hours`,
+            extra: `${extraHours} hours`
+        };
+    };
 
     const onConfirmPressHandler = async () => {
         setLoading(true);
@@ -84,11 +200,7 @@ const ConfirmBooking = (props) => {
         if (data?.success) {
             console.log("DAATA:", data?.data);
             setBookingDetails(data?.data);
-            const msg = (data?.data?.Driver ? `Driver Name: ${data?.data?.Driver.firstName}\n Driver Number: ${data?.data?.Driver.phoneNumber}\n` : '') +
-                `Pickup Address: ${data?.data?.pickupAddress?.name}\n` +
-                (data?.data?.dropAddress ? `Drop Address: ${data?.data?.dropAddress?.name}\n` : '');
-
-            setWhatsappMsg(encodeURIComponent(msg));
+            setWhatsappMsg(generateWhatsAppMessage(data?.data));
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({ price: data?.data?.price, extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0, total: data?.data.endPayment, extraHours: data?.data.extraHours, extraHourPrice: data?.data.extraHourPrice });
             } else {

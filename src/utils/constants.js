@@ -904,6 +904,8 @@ export const supportMessage = `Welcome to C4D.\n Please raise your query!`;
 
 export const COMPANY_NAME = 'C4D';
 export const GST_NUMBER = '1234567890ABC';
+export const GPAY_NUMBER = '8888888888';
+export const GPAY_NAME = 'C4D PRIVATE LIMITED';
 
 export const CAROUSEL_DATA = [
     {
@@ -922,3 +924,97 @@ export const CAROUSEL_DATA = [
         imgUrl: "https://w0.peakpx.com/wallpaper/385/370/HD-wallpaper-new-york-city-street-traffic-jam-manhattan-nyc-traffic-new-york-usa-evening-city-america.jpg",
     },
 ];
+
+export const WHATSAPP_DRIVER_ASSIGNED_TEMPLATE = 
+    `${COMPANY_NAME} Booking Confirmation
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Your acting driver has been assigned to your booking:
+
+    Driver Details:
+    Name: \${driverName}
+    Phone Number: \${driverPhone}
+
+    Trip Details:
+    Pickup: \${pickup}
+    Drop: \${drop}
+    Date: \${tripDate}
+    Time: \${tripTime}
+    Duration: \${duration}
+    Type: \${tripType}
+
+    Please be ready for pickup at the scheduled time. If you have any special instructions, feel free to contact our support team \${supportNumber}
+
+    Thank you,
+    ${COMPANY_NAME} Team`;
+
+export const WHATSAPP_TRIP_START_TEMPLATE = 
+    `${COMPANY_NAME} Trip Update
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Your trip has started with \${driverName}.
+
+    Start Time: \${startTime}
+    Package End Time: \${endTime}
+
+    If you need any assistance, feel free to contact our support team \${supportNumber}. 
+    We hope you enjoy your journey!
+
+    Thank you,
+    ${COMPANY_NAME} Team`;
+
+
+export const WHATSAPP_PAYMENT_REQUEST_TEMPLATE = 
+    `${COMPANY_NAME} Payment Details
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Your trip with \${driverName} has ended.
+
+    Here are the payment details:
+    Start Time: \${startTime}
+    End Time: \${endTime}
+    Base Fare: ₹\${baseFare}
+    Extra Fare: \${extraFareCalculation}
+    Total Fare: ₹\${totalAmount}
+
+    Payment Details:
+    GPay Number: \${gpayNumber}
+    Account Name: \${gpayName}
+
+    Please proceed with the payment to complete your booking.
+    If you have any questions or require assistance, please contact our support team \${supportNumber}.
+
+    Thank you for choosing ${COMPANY_NAME}!
+    Best regards,
+    ${COMPANY_NAME} Team`;
+
+
+export const WHATSAPP_TRIP_COMPLETION_TEMPLATE = 
+    `${COMPANY_NAME} Trip Completed
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Thank you for choosing ${COMPANY_NAME}! Your trip with \${driverName} has been successfully completed.
+
+    Trip Summary:
+    • Pickup: \${pickup}
+    • Drop: \${drop}
+    • Start Time: \${startTime}
+    • End Time: \${endTime}
+    • Total Duration: \${totalDuration}
+    • Package Duration: \${packageDuration}
+    • Extra Time: \${extraTime}
+    • Base Fare: ₹\${baseFare}
+    • Extra Charges: ₹\${extraCharges}
+    • Total Amount Paid: ₹\${totalAmount}
+
+    Payment Received ✅
+    Payment ID: \${transactionId}
+
+    We hope you had a great journey!
+
+    Warm regards,
+    ${COMPANY_NAME} Team`;
