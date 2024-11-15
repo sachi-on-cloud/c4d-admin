@@ -19,6 +19,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, selectPickedBooking }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
+    const [selectedBookingId, setSelectedBookingId] = useState(null);
 
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
@@ -109,6 +110,12 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         setShowPickedBooking(data?.id);
         onAssignDriver(data);
     };
+
+    const handleBookingSelect = (data) => {
+        setSelectedBookingId(data.id);
+        onSelectBooking(data);
+    }
+
     function formatDate(dateString) {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -180,26 +187,16 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                         (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType))
                                     )
                                     .map((data, key) => {
+                                        const isSelected = data.id === selectedBookingId;
                                         const className = `p-3 ${key === bookingsList.length - 1
                                             ? "mb-4"
-                                            : "border-b border-blue-gray-50"
-                                            }`;
-
+                                            : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors duration-200`;
+                                            
                                         return (
-                                            <tr key={data?.id}>
+                                            <tr key={data?.id} className={className}>
                                                 <td className={className}>
                                                     <div className="flex items-center">
-                                                        <div onClick={() => {
-                                                            // navigate("/dashboard/confirm-booking", {
-                                                            // state: {
-                                                            //     bookingId: data?.id,
-                                                            //     customerId: data?.customerId,
-                                                            //     edit: true
-                                                            // }
-                                                            // });
-                                                            onSelectBooking(data);
-                                                        }
-                                                        }>
+                                                        <div onClick={() => handleBookingSelect(data)}>
                                                             <Typography
                                                                 variant="small"
                                                                 color="blue"
