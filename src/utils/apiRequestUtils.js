@@ -8,7 +8,7 @@ export const ApiRequestUtils = {
             'Content-Type': 'application/json',
             'token': token,
             //'ngrok-skip-browser-warning' : true,
-            //'ngrok-skip-browser-warning': '69420',
+            'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -33,7 +33,7 @@ export const ApiRequestUtils = {
         const headers = {
             'Content-Type': 'application/json',
             'token': token,
-            //'ngrok-skip-browser-warning': '69420',
+            'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -60,7 +60,7 @@ export const ApiRequestUtils = {
                 'Content-Type': 'application/json',
                 'token': token,
                 'custID': 63,
-                //'ngrok-skip-browser-warning': '69420',
+                'ngrok-skip-browser-warning': '69420',
             },
             params: params
         });
@@ -81,7 +81,7 @@ export const ApiRequestUtils = {
         const headers = {
             'Content-Type': 'application/json',
             'token': token,
-            //'ngrok-skip-browser-warning': '69420',
+            'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -108,7 +108,7 @@ export const ApiRequestUtils = {
                 'Content-Type': 'application/json',
                 'token': token,
                 'custID': 63,
-                //'ngrok-skip-browser-warning': '69420',
+                'ngrok-skip-browser-warning': '69420',
             },
             data: body
         });
@@ -127,32 +127,19 @@ export const ApiRequestUtils = {
     postDocs: async (apiRoute, body) => {
         const formData = new FormData();
 
-        if (body.type === KYC_PROCESS.LIVE_PHOTO) {
-            formData.append('type', body.type);
-            formData.append('image1', body);
-            formData.append('driverId', 7);
-        } else {
-            formData.append('id', body.id);
-            formData.append('idNumber', body.idNumber);
-            formData.append('image1', {
-                uri: body.image1.uri,
-                type: body.image1.type,
-                name: body.image1.fileName
-            });
-            formData.append('image2', {
-                uri: body.image2.uri,
-                type: body.image2.type,
-                name: body.image2.fileName
-            });
-            formData.append('extImage1', body.image1.fileName.split('.')[1]);
-            formData.append('fileTypeImage1', body.image1.type);
-            formData.append('extImage2', body.image2.fileName.split('.')[1]);
-            formData.append('fileTypeImage2', body.image2.type);
-            formData.append('mobile', body.mobile);
             formData.append('name', body.name);
+            formData.append('image1', body.image1);
+            formData.append('extImage1', body.image1.name.split('.')[1]);
+            formData.append('fileTypeImage1', body.image1.type);
+            formData.append('phoneNumber', body.phoneNumber);
             formData.append('type', body.type);
-        }
+            formData.append('email', body.email);
+            formData.append('street', body.street);
+            formData.append('district', body.district);
+            formData.append('state', body.state);
+            formData.append('pincode', body.pincode);
 
+            console.log('FORM DATA :', formData)
         const token = localStorage.getItem('token');
         const { data } = await axios.post(getBaseUrl() + apiRoute, formData, {
             headers: {
@@ -160,6 +147,26 @@ export const ApiRequestUtils = {
                 'token': token
             }
         });
+        if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
+            // Alert.alert('Failure', data.message, [{
+            //     style: 'default', onPress: () => {
+            //         // navigation.navigate('Welcome');
+            //     }
+            // }]);
+            return;
+        } else {
+            return data;
+        }
+    },
+    postDocs1: async (apiRoute, body, apiMethod) => {
+        const token = localStorage.getItem('token');
+        const { data } = await axios.put(getBaseUrl() + apiRoute, body, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'token': token
+            }
+        });
+        console.log('data in POST DOCS :', data);
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
             // Alert.alert('Failure', data.message, [{
             //     style: 'default', onPress: () => {

@@ -2,19 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, STATE_LIST } from '@/utils/constants';
-import { Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
+import { Button, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
 
 const AccountEdit = () => {
     const [accountVal, setAccountVal] = useState({});
-    const [alert, setAlert] = useState(false);
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
     const [stateSearchText, setStateSearchText] = useState("");
     const [isStateListVisible, setIsStateListVisible] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
     const { id } = useParams();
-    const isEditMode = !!id;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,11 +22,11 @@ const AccountEdit = () => {
 
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
+        console.log(' data - Fetch Item :', data?.data?.Proofs);
         setAccountVal(data.data);
     };
 
     const initialValues = {
-        
         name: accountVal?.name || "",
         phoneNumber: accountVal?.phoneNumber || "",
         type: accountVal?.type || "",
@@ -36,26 +35,32 @@ const AccountEdit = () => {
         district: accountVal?.district || "",
         state: accountVal?.state || "",
         pincode: accountVal?.pincode || "",
+        image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : ''
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         console.log('onSubmit :', values)
         try {
-            const accountData = {
-                name: values.name,
-                phoneNumber: values.phoneNumber,
-                email: values.email,
-                type:values.type,
-                street: values.street || "",
-                district: values.district,
-                state: values.state,
-                pincode: values.pincode || "",
-                accountId: id
-            };
-            // let accountData = { accountDetails }
-            //return;
-            const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, accountData);
-            console.log('data in driver add :', data);
+            const formData = new FormData();
+
+            formData.append('accountId', accountVal.id);
+            formData.append('name', values.name);
+            formData.append('phoneNumber', values.phoneNumber);
+            formData.append('email', values.email);
+            formData.append('street', values.street);
+            formData.append('district', values.district);
+            formData.append('state', values.state);
+            formData.append('pincode', values.pincode);
+            formData.append('documentId', accountVal?.Proofs[0]?.id );
+            if (imagePreview) {
+                formData.append('image1', values.image1);
+                formData.append('extImage1', values.image1.name.split('.')[1]);
+                formData.append('fileTypeImage1', values.image1.type);
+            }
+            formData.append('type', values.type);
+            
+            const data = await ApiRequestUtils.postDocs1(API_ROUTES.UPDATE_ACCOUNT, formData);
+            console.log('data in driver UPDATE :', data);
             navigate('/dashboard/account', {
                 state: {
                     accountUpdated: true,
@@ -140,7 +145,7 @@ const AccountEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                        
+
                             <div>
                                 <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
                                 <Field type="text" name="name" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -174,7 +179,7 @@ const AccountEdit = () => {
                                 <Field type="text" name="street" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="street" component="div" className="text-red-500 text-sm my-1" />
                             </div>
-                            
+
                             <div>
                                 <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
                                 <div className="relative district-search-container">
@@ -248,26 +253,67 @@ const AccountEdit = () => {
                                 <Field type="text" name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                             </div>
-                            
+                            <div>
+                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">
+                                    Aadhaar Image
+                                </label>
+                                <div className="mt-1">
+                                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                        {values?.image1 ? (
+                                            <img
+                                                src={imagePreview ? imagePreview : values?.image1}
+                                                alt="Preview"
+                                                className="w-full h-full object-contain rounded-md"
+                                            />
+                                        ) : (
+                                            <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                        )}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        id="image1"
+                                        name='image1'
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setFieldValue("image1", file);
+
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setImagePreview(reader.result);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        className="hidden" // Hide the native input
+                                    />
+                                    <label
+                                        htmlFor="image1"
+                                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                    >
+                                        Upload Image
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                    
+
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
                                 onClick={() => { navigate('/dashboard/account'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
-                                Cancel
+                                Back
                             </Button>
                             <Button
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                //disabled={!dirty || !isValid}
-                                // disabled={!isFormValid(values, errors)}
+                                disabled={!dirty || !isValid}
                                 className='my-6 mx-2'
                             >
-                                {isEditMode ? 'Update' : 'Continue'}
+                               Update
                             </Button>
                         </div>
                     </Form>

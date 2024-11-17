@@ -72,9 +72,7 @@ export const ACCOUNT_ADD_SCHEMA = Yup.object({
     pincode: Yup.string()
         .required('Pincode is required')
         .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
-    // image1: Yup.object().shape({
-    //     file: Yup.string().required('Image is required'),
-    // }).required('Image is required'),
+    image1: Yup.string().required('Aadhaar Image is required'),
 });
 export const ACCOUNT_EDIT_SCHEMA = Yup.object({
     name: Yup.string().required('Name is required'),
@@ -87,9 +85,7 @@ export const ACCOUNT_EDIT_SCHEMA = Yup.object({
     pincode: Yup.string()
         .required('Pincode is required')
         .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
-    // image1: Yup.object().shape({
-    //     file: Yup.string().required('Image is required'),
-    // }).required('Image is required'),
+    image1: Yup.string().optional(),
 });
 export const DRIVER_ADD_SCHEMA = Yup.object({
     salutation: Yup.string().required('Salutation is required'),

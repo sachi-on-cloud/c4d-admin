@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES} from '@/utils/constants';
 import { Alert, Button} from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
 const AccountDetails = () => {
-    console.log("ACCOUNT DETAILS");
     const navigate = useNavigate();
     const [accountVal, setAccountVal] = useState({});
     const { id } = useParams();
     useEffect(() => {
-        console.log("ID", id);
         if (id) {
             fetchItem(id);
         }
     }, [id]); 
-    console.log("Id2", id);
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
-        console.log('Api response', data);
         setAccountVal(data.data);
     };
     const initialValues = {
@@ -31,7 +26,8 @@ const AccountDetails = () => {
         street: accountVal?.street || '',
         district: accountVal?.district || '',
         state: accountVal?.state || '',
-        pincode: accountVal?.pincode || ''
+        pincode: accountVal?.pincode || '',
+        image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : ''
     };
 
     return (
@@ -91,6 +87,22 @@ const AccountDetails = () => {
                                 <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
                                 <Field type="text" name="pincode" disabled className="p-2 w-full rounded-md border-2 bg-gray-200 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+                            <div>
+                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">Aadhar Image</label>
+                                <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {values?.image1 ? (
+                                                <img
+                                                    src={values?.image1}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                </div>
                             </div>
                             </div>
                         </Form>

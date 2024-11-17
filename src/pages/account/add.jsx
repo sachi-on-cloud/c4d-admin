@@ -1,130 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, STATE_LIST} from '@/utils/constants';
 import { ACCOUNT_ADD_SCHEMA } from '@/utils/validations';
-import { Alert, Button, Input, Typography, List, ListItem} from '@material-tailwind/react';
+import { Alert, Button, Input, List, ListItem} from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
 const AccountAdd = (props) => {
-    const [accountVal, setAccountVal] = useState({});
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
     const [stateSearchText, setStateSearchText] = useState("");
     const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [alert, setAlert] = useState(false);
     const { id } = useParams();
-    const isEditMode = !!id;
     const navigate = useNavigate();
-    const [image1, setImage1] = useState('');
-
-    useEffect(() => {
-        if (isEditMode) {
-            fetchItem(id);
-        }
-    }, [id, isEditMode]);
-    
-    const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_ACCOUNT_BY_ID + `/${itemId}`);
-        console.log('Fetched account data:', data);
-        setAccountVal(data.data);
-    };
-            
+    const [imagePreview, setImagePreview] = useState(null);
+   
     const initialValues = {
-        name: accountVal?.name || '',
-        phoneNumber:  accountVal?.phoneNumber || "",//accountVal?.phoneNumber || "", //props.customerNumber || '',
-        email: accountVal?.email || "",
-        type: accountVal?.type || "",
-        street: accountVal?.street || "",
-        district: accountVal?.district || "",
-        state: accountVal?.state || "",
-        pincode: accountVal?.pincode || "",
+        name: "",
+        phoneNumber:  "",
+        email: "",
+        type: "",
+        street: "",
+        district: "",
+        state: "",
+        pincode: "",
+        image1: ""
     };
-
-    // const ImageUploadPreview = ({ field, form, label = "Upload Image" }) => {
-    //     const [preview, setPreview] = useState(null);
-
-    //     const handleImageChange = async (e) => {
-    //         console.log('TARGET :', e.target.files[0])
-    //         const file = e.target.files[0];
-    //         // if (file) {
-    //         //     // form.setFieldValue(field.name, file);
-
-    //         //     // const reader = new FileReader();
-    //         //     // reader.onloadend = () => {
-    //         //     //     setPreview(reader.result);
-    //         //     // };
-    //         //     // reader.readAsDataURL(file);
-    //         //     const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, {
-    //         //         image1: file,
-    //         //         type: KYC_PROCESS.LIVE_PHOTO,
-    //         //         driverId: 7
-    //         //     });
-    //         //     console.log('data :', data);
-    //         // }
-    //     };
-
-    //     const handleRemoveImage = () => {
-    //         form.setFieldValue(field.name, null);
-    //         setPreview(null);
-    //     };
-
-    //     return (
-    //         <div>
-    //             <label
-    //                 htmlFor={field.name}
-    //                 className="text-sm font-medium text-gray-700"
-    //             >
-    //                 {label}
-    //             </label>
-
-    //             <div className="mt-1">
-    //                 {preview ? (
-    //                     <div className="relative inline-block">
-    //                         <img
-    //                             src={preview}
-    //                             alt="Preview"
-    //                             className="w-32 h-32 object-cover rounded-md border border-gray-300 shadow-sm"
-    //                         />
-    //                         <button
-    //                             type="button"
-    //                             onClick={handleRemoveImage}
-    //                             className="absolute -top-2 -right-2 p-1.5 bg-white border border-gray-300 rounded-full text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors shadow-sm"
-    //                         >
-    //                             X
-    //                             {/* <X size={14} /> */}
-    //                         </button>
-    //                     </div>
-    //                 ) : (
-    //                     <div className="w-full">
-    //                         <input
-    //                             type="file"
-    //                             accept="image/*"
-    //                             onChange={handleImageChange}
-    //                             id={field.name}
-    //                         />
-    //                         {/* <label
-    //                             htmlFor={field.name}
-    //                             className="w-full p-2 flex items-center justify-center border border-gray-300 rounded-md shadow-sm cursor-pointer hover:border-blue-300 focus:outline-none focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors"
-    //                         >
-    //                             <div className="flex items-center space-x-2">
-    //                                 <Camera size={20} className="text-gray-400" />
-    //                                 <span className="text-sm text-gray-500">Click to upload image</span>
-    //                             </div>
-    //                         </label> */}
-    //                     </div>
-    //                 )}
-    //             </div>
-
-    //             {form.errors[field.name] && form.touched[field.name] && (
-    //                 <div className="text-red-500 text-sm my-1">
-    //                     {form.errors[field.name]}
-    //                 </div>
-    //             )}
-    //         </div>
-    //     );
-    // };
 
     const onSubmit = async (values, { setSubmitting, setFieldError}) => {
         console.log('Form submission started with values:', values);
@@ -137,29 +39,21 @@ const AccountAdd = (props) => {
                 street: values.street || undefined,
                 district: values.district || undefined,
                 state: values.state || undefined,
-                pincode: values.pincode 
+                pincode: values.pincode,
+                image1: values.image1 
             };
             
             let data;
-            if (isEditMode) {
-                accountData['accountId'] = id;
-                data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, accountData);
-            }
-             else {
-                data = await ApiRequestUtils.post(API_ROUTES.CREATE_ACCOUNT, accountData);
-            }
+            data = await ApiRequestUtils.postDocs(API_ROUTES.CREATE_ACCOUNT, accountData);
+            console.log('data :', data)
                 if (!data?.success && data?.code === 203) {
                     setAlert({ message: 'Account already exists!', color: 'red' });
                     setTimeout(() => setAlert(null), 5000);
                     resetForm();
                 } else {
-                    // setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
-                    // setTimeout(() => {
-                    //     resetForm();
                     navigate('/dashboard/account', {
                         state: {
-                            accountAdded: isEditMode ? false : true,
-                            accountUpdated: isEditMode ? true : false,
+                            accountAdded:  true,
                             accountName: values.name
                         }
                     });
@@ -344,14 +238,50 @@ const AccountAdd = (props) => {
                                 <Field type="text" name="pincode" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" maxlength={6} />
                                 <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                             </div>
+                            <div>
+                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">
+                                    Aadhaar Image
+                                </label>
+                                <div className="mt-1">
+                                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                        {values?.image1 ? (
+                                            <img
+                                                src={imagePreview ? imagePreview : values?.image1}
+                                                alt="Preview"
+                                                className="w-full h-full object-contain rounded-md"
+                                            />
+                                        ) : (
+                                            <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                        )}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        id="image1"
+                                        name='image1'
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setFieldValue("image1", file);
 
-                            {/* <div>
-                                <Field
-                                    name="image1"
-                                    component={ImageUploadPreview}
-                                    label="Image"
-                                />
-                            </div> */}
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setImagePreview(reader.result);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        className="hidden" // Hide the native input
+                                    />
+                                    <label
+                                        htmlFor="image1"
+                                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                    >
+                                        Upload Image
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
                         <div className='flex flex-row'>
                             <Button
@@ -365,11 +295,10 @@ const AccountAdd = (props) => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                //disabled={!dirty || !isValid}
-                                disabled={isEditMode ? false: !dirty || !isValid}
+                                disabled={!dirty || !isValid}
                                 className='my-6 mx-2'
                             >
-                                {isEditMode ? 'Update' : 'Continue'}
+                                Continue
                             </Button>
                         </div>
                     </Form>
