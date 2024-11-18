@@ -125,23 +125,8 @@ export const ApiRequestUtils = {
 
     },
     postDocs: async (apiRoute, body) => {
-        const formData = new FormData();
-
-            formData.append('name', body.name);
-            formData.append('image1', body.image1);
-            formData.append('extImage1', body.image1.name.split('.')[1]);
-            formData.append('fileTypeImage1', body.image1.type);
-            formData.append('phoneNumber', body.phoneNumber);
-            formData.append('type', body.type);
-            formData.append('email', body.email);
-            formData.append('street', body.street);
-            formData.append('district', body.district);
-            formData.append('state', body.state);
-            formData.append('pincode', body.pincode);
-
-            console.log('FORM DATA :', formData)
         const token = localStorage.getItem('token');
-        const { data } = await axios.post(getBaseUrl() + apiRoute, formData, {
+        const { data } = await axios.post(getBaseUrl() + apiRoute, body, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'token': token
@@ -158,7 +143,7 @@ export const ApiRequestUtils = {
             return data;
         }
     },
-    postDocs1: async (apiRoute, body, apiMethod) => {
+    updateDocs: async (apiRoute, body, apiMethod) => {
         const token = localStorage.getItem('token');
         const { data } = await axios.put(getBaseUrl() + apiRoute, body, {
             headers: {

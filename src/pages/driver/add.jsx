@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST } from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -66,7 +66,18 @@ const DriverAdd = () => {
     const [isThalukListVisible, setIsThalukListVisible ] = useState(false);
     const [stateSearchText, setStateSearchText] = useState("");
     const [isStateListVisible, setIsStateListVisible] = useState(false);
+    const [imagePreviews, setImagePreviews] = useState({
+        aadhaarImage: null,
+        panCardImage: null,
+        livePhoto: null,
+        drivingLicenseImage: null,
+        consentForm: null
+    });      
     const { id } = useParams();
+    const [driverAdded, setDriverAdded] = useState({
+        driverId: "",
+        value: false
+    });
     const isEditMode = !!id;
     const navigate = useNavigate();
 
@@ -109,15 +120,15 @@ const DriverAdd = () => {
 
     useEffect(() => {
         getPackageListDetails();
-        if (isEditMode) {
-            fetchItem(id);
-        }
-    }, [id, isEditMode]);
+        // if (isEditMode) {
+        //     fetchItem(id);
+        // }
+    }, [id]);
 
-    const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
-        setDriverVal(data.data);
-    };
+    // const fetchItem = async (itemId) => {
+    //     const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
+    //     setDriverVal(data.data);
+    // };
 
     const initialValues = {
         salutation: driverVal?.salutation || "",
@@ -146,7 +157,12 @@ const DriverAdd = () => {
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || [],
         wallet: driverVal?.wallet || "",
-        prices: []
+        prices: [],
+        aadhaarImage: '',
+        panCardImage: '',
+        livePhoto: '',
+        drivingLicenseImage: '',
+        consentForm: ''
     };
 
     const searchLocations = async (query) => {
@@ -263,13 +279,8 @@ const DriverAdd = () => {
             let driverData = { driverDetails, prices: values.prices };
             console.log(driverData);
             //return;
-            let data;
-            if (isEditMode) {
-                driverData['driverId'] = id;
-                data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER, driverData);
-            } else {
-                data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
-            }
+            const data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
+            //console.log('Driver operation:', data.data);
             if (!data?.success && data?.code === 203) {
                 console.error('Driver already exists');
                 setAlert({
@@ -279,17 +290,20 @@ const DriverAdd = () => {
                 setTimeout(() => setAlert(null), 5000);
                 resetForm();
             } else {
-                navigate('/dashboard/drivers', {
-                    state: {
-                        driverAdded: isEditMode ? false : true,
-                        driverUpdated: isEditMode ? true : false,
-                        driverName: data?.data?.firstName
-                    }
+                console.log('ELSE IN SUBMIT :');
+                // navigate('/dashboard/drivers', {
+                //     state: {
+                //         driverAdded: true,
+                //         driverName: data?.data?.firstName
+                //     }
+                // });
+                setDriverAdded({
+                    driverId: data?.data?.id,
+                    value: true
                 });
             }
-            console.log('Driver operation:', data.data);
         } catch (error) {
-            console.error('Error creating/updating driver:', error);
+            console.error('Error creating driver:', error);
         }
         setSubmitting(false);
     };
@@ -360,6 +374,73 @@ const DriverAdd = () => {
         };
     }, []);
 
+    const DocumentUpload = ({ label, value, name, onChange, imagePreview }) => {
+        return (
+            <div>
+                <label htmlFor={name} className="text-sm font-medium text-gray-700">
+                    {label}
+                </label>
+                <div className="mt-1">
+                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                        {value ? (
+                            <img
+                                src={imagePreview || value}
+                                alt="Preview"
+                                className="w-full h-full object-contain rounded-md"
+                            />
+                        ) : (
+                            <div className="text-gray-500 font-medium p-2">
+                                No image selected. Click below to upload.
+                            </div>
+                        )}
+                    </div>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        id={name}
+                        name={name}
+                        onChange={onChange}
+                        className="hidden" // Hide the native input
+                    />
+                    <label
+                        htmlFor={name}
+                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                    >
+                        Upload Image
+                    </label>
+                </div>
+            </div>
+        );
+    };
+
+    const handleImageUpload = async (e, setFieldValue, label) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFieldValue(label, file);
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: reader.result, // Update the specific preview
+                }));
+            };
+            reader.readAsDataURL(file);
+
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'panCardImage' ? KYC_PROCESS.PAN : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : KYC_PROCESS.LIVE_PHOTO;
+            const formData = new FormData();
+
+            formData.append('image1', file);
+            formData.append('extImage1', file.name.split('.')[1]);
+            formData.append('fileTypeImage1', file.type);
+            formData.append('type', type);
+            formData.append('driverId', driverAdded.driverId);
+
+            const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+
+            console.log('DATA IN DOC INSERT :', data);
+        }
+    }
     return (
         <div className="p-4 mx-auto">
             {alert && (
@@ -731,43 +812,6 @@ const DriverAdd = () => {
                         {values.packages.length > 0 && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                                {/* <Card>
-                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                                        <table className="w-full min-w-[640px] table-auto">
-                                            <thead>
-                                                <tr>
-                                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
-                                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
-                                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
-                                                                {el}
-                                                            </Typography>
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {values.prices.map((priceItem, index) => (
-                                                    <tr key={priceItem.id}>
-                                                        <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                            <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                                {priceItem.period}
-                                                            </Typography>
-                                                        </td>
-                                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
-                                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                                <Field
-                                                                    name={`prices[${index}].${field}`}
-                                                                    className="w-full p-1 text-xs border rounded"
-                                                                />
-                                                                <ErrorMessage name={`prices[${index}].${field}`} component="div" className="text-red-500 text-xs" />
-                                                            </td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </CardBody>
-                                </Card> */}
                                 {renderPriceTable(
                                     "INTERCITY",
                                     values.prices.filter(price => {
@@ -796,25 +840,75 @@ const DriverAdd = () => {
                                 )}
                             </div>
                         )}
-                        <div className='flex flex-row'>
-                            <Button
-                                fullWidth
-                                onClick={() => { navigate('/dashboard/drivers'); }}
-                                className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                fullWidth
-                                color="black"
-                                onClick={handleSubmit}
-                                disabled={isEditMode ? false : !dirty || !isValid}
-                                // disabled={!isFormValid(values, errors)}
-                                className='my-6 mx-2'
-                            >
-                                {isEditMode ? 'Update' : 'Continue'}
-                            </Button>
-                        </div>
+                        {driverAdded.value && 
+                            <div className='space-y-4'>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <DocumentUpload
+                                        label="Aadhaar Image"
+                                        value={values.aadhaarImage}
+                                        name="aadhaarImage"
+                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage')}
+                                        imagePreview={imagePreviews.aadhaarImage}
+                                    />
+
+                                    {/* PAN Card Image Upload */}
+                                    <DocumentUpload
+                                        label="PAN Card Image"
+                                        value={values.panCardImage}
+                                        name="panCardImage"
+                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'panCardImage')}
+                                        imagePreview={imagePreviews.panCardImage}
+                                    />
+
+                                    {/* Driving License Image Upload */}
+                                    <DocumentUpload
+                                        label="Driving License Image"
+                                        value={values.drivingLicenseImage}
+                                        name="drivingLicenseImage"
+                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage')}
+                                        imagePreview={imagePreviews.drivingLicenseImage}
+                                    />
+
+                                    {/* Consent Form Image Upload */}
+                                    <DocumentUpload
+                                        label="Consent Form Image"
+                                        value={values.consentForm}
+                                        name="consentForm"
+                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'consentForm')}
+                                        imagePreview={imagePreviews.consentForm}
+                                    />
+
+                                    {/* Live Photo Upload */}
+                                    <DocumentUpload
+                                        label="Live Photo"
+                                        value={values.livePhoto}
+                                        name="livePhoto"
+                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'livePhoto')}
+                                        imagePreview={imagePreviews.livePhoto}
+                                    />
+                                </div>
+                            </div>
+                        }
+                        {!driverAdded.value &&
+                            <div className='flex flex-row'>
+                                <Button
+                                    fullWidth
+                                    onClick={() => { navigate('/dashboard/drivers'); }}
+                                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    color="black"
+                                    onClick={handleSubmit}
+                                    disabled={!dirty || !isValid}
+                                    className='my-6 mx-2'
+                                >
+                                    Continue
+                                </Button>
+                            </div>
+                        }
                     </Form>
                 )}
             </Formik>

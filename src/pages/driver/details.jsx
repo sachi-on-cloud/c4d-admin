@@ -49,7 +49,7 @@ const DriverDetails = () => {
         }
     }, [id]);
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVERS_ADMIN + `${itemId}`);
         setDriver(data?.data);
     };
     const initialValues = {

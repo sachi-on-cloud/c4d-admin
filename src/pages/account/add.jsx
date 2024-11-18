@@ -31,20 +31,22 @@ const AccountAdd = (props) => {
     const onSubmit = async (values, { setSubmitting, setFieldError}) => {
         console.log('Form submission started with values:', values);
         try {
-            const accountData = {
-                name: values.name,
-                phoneNumber: values.phoneNumber ,
-                type: values.type,
-                email: values.email,
-                street: values.street || undefined,
-                district: values.district || undefined,
-                state: values.state || undefined,
-                pincode: values.pincode,
-                image1: values.image1 
-            };
+            const formData = new FormData();
+        
+            formData.append('name', values.name);
+            formData.append('image1', values.image1);
+            formData.append('extImage1', values.image1.name.split('.')[1]);
+            formData.append('fileTypeImage1', values.image1.type);
+            formData.append('phoneNumber', values.phoneNumber);
+            formData.append('type', values.type);
+            formData.append('email', values.email);
+            formData.append('street', values.street);
+            formData.append('district', values.district);
+            formData.append('state', values.state);
+            formData.append('pincode', values.pincode);
             
             let data;
-            data = await ApiRequestUtils.postDocs(API_ROUTES.CREATE_ACCOUNT, accountData);
+            data = await ApiRequestUtils.postDocs(API_ROUTES.CREATE_ACCOUNT, formData);
             console.log('data :', data)
                 if (!data?.success && data?.code === 203) {
                     setAlert({ message: 'Account already exists!', color: 'red' });

@@ -59,7 +59,7 @@ const AccountEdit = () => {
             }
             formData.append('type', values.type);
             
-            const data = await ApiRequestUtils.postDocs1(API_ROUTES.UPDATE_ACCOUNT, formData);
+            const data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_ACCOUNT, formData);
             console.log('data in driver UPDATE :', data);
             navigate('/dashboard/account', {
                 state: {
