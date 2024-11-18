@@ -80,6 +80,10 @@ const DriverDetails = () => {
         carType: driver?.result?.carType || "",
         wallet: driver?.result?.wallet || "",
     };
+
+    const getDocumentByType = (type) => {
+        return driver?.result?.Proofs?.find(proof => proof.type === type)?.image1 || "";
+    }
     return (
         <>
             <div className="p-4 mx-auto">
@@ -301,6 +305,91 @@ const DriverDetails = () => {
                                         className="w-full rounded-xl border-gray-300 bg-gray-200 border"
                                         disable={true}
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">License</label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {getDocumentByType('LICENSE') ? (
+                                                <img
+                                                    src={getDocumentByType('LICENSE')}
+                                                    alt="License"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Photo</label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {getDocumentByType('PHOTO') ? (
+                                                <img
+                                                    src={getDocumentByType('PHOTO')}
+                                                    alt="Photo"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">PAN Card</label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {getDocumentByType('PAN') ? (
+                                                <img
+                                                    src={getDocumentByType('PAN')}
+                                                    alt="PAN"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Consent Form</label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {getDocumentByType('CONSENT_FORM') ? (
+                                                <img
+                                                    src={getDocumentByType('CONSENT_FORM')}
+                                                    alt="Consent Form"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Aadhaar Card</label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {getDocumentByType('AADHAAR') ? (
+                                                <img
+                                                    src={getDocumentByType('AADHAAR')}
+                                                    alt="Aadhaar"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
