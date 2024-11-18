@@ -54,8 +54,7 @@ const CabDetails = () => {
         name: cab?.result?.name || "",
         phoneNumber: cab?.result?.phoneNumber ? cab?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cab?.result?.carNumber || "",
-        address: cab?.result?.address || "",
-        company: cab?.result?.company || "",
+        address: cab?.result?.curAddress || "",
         insurance: cab?.result?.insurance || "",
         driverName: cab?.result?.driverName || "",
         driverPhoneNumber: cab?.result?.driverPhoneNumber || "",
@@ -65,7 +64,8 @@ const CabDetails = () => {
         packages: cab?.result?.packages || "",
         carType: cab?.result?.carType || "",
         wallet: cab?.result?.wallet || "",
-        withDriver: cab?.result?.withDriver || "",   
+        withDriver: cab?.result?.withDriver || "", 
+        image1: cab?.result?.Proofs ? cab?.result?.Proofs[0]?.image1 : ''  
     };
     return (
         <>
@@ -99,12 +99,6 @@ const CabDetails = () => {
                                     <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
                                     <Field type="text" name="carNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
                                     <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="company" className="text-sm font-medium text-gray-700">Company</label>
-                                    <Field type="text" name="company" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
-                                    <ErrorMessage name="company" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
                                     <label htmlFor="address" className="text-sm font-medium text-gray-700">Owner Address</label>
@@ -183,6 +177,22 @@ const CabDetails = () => {
                                         className="w-full rounded-xl border-gray-300 bg-gray-200 border"
                                         disable={true}
                                     />
+                                </div>
+                                <div>
+                                    <label htmlFor="image1" className="text-sm font-medium text-gray-700">RC Book</label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {values?.image1 ? (
+                                                <img
+                                                    src={values?.image1}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

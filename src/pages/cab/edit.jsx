@@ -61,6 +61,7 @@ const CabEdit = () => {
     const [ownerAddressSuggestions, setOwnerAddressSuggestions] = useState([]);
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
     const [accountOptions, setAccountOptions] = useState([]);
+    const [imagePreview, setImagePreview] = useState(null);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -125,10 +126,8 @@ const CabEdit = () => {
     useEffect(() => {
         getPackageListDetails();
         getAccountNames();
-        if (isEditMode) {
-            fetchItem(id);
-        }  
-    }, [id, isEditMode]);
+        fetchItem(id);
+    }, [id]);
 
     const fetchItem = async (itemId) => {
         try{
@@ -149,8 +148,7 @@ const CabEdit = () => {
         name: cabVal?.result?.name || "",
         phoneNumber: cabVal?.result?.phoneNumber ? cabVal?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cabVal?.result?.carNumber || "",
-        address: cabVal?.result?.address || "",
-        company: cabVal?.result?.company || "",
+        address: cabVal?.result?.curAddress || "",
         insurance: cabVal?.result?.insurance || "",
         withDriver: cabVal?.result?.withDriver || "",
         driverName: cabVal?.result?.driverName || "",
@@ -161,7 +159,8 @@ const CabEdit = () => {
         packages: cabVal?.result?.packages || "",
         carType: cabVal?.result?.carType || "",
         wallet: cabVal?.result?.wallet || "",
-        prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : []
+        prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
+        image1: cabVal?.result?.Proofs ? cabVal?.result?.Proofs[0]?.image1 : ''
     };
 
     const searchLocations = async (query, type) => {
@@ -262,7 +261,7 @@ const CabEdit = () => {
                 name: values.name,
                 phoneNumber: "+91" + values.phoneNumber,
                 carNumber: values.carNumber,
-                address: values.address,
+                curAddress: values.address,
                 company: values.company,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
@@ -276,10 +275,20 @@ const CabEdit = () => {
                 wallet: values.wallet,
                 cabId: id
             };
-            let cabData = { cabDetails, prices: values.prices }
-            //return;
-            const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, cabData);
-            console.log('data in cab add :', data);
+            const formData = new FormData();
+            
+            if (cabVal?.result?.Proofs) {
+                formData.append('documentId', cabVal?.result?.Proofs[0]?.id);
+            }
+            formData.append('cabDetails', JSON.stringify(cabDetails));
+            formData.append('prices', JSON.stringify(values.prices));
+            if (imagePreview) {
+                formData.append('image1', values.image1);
+                formData.append('extImage1', values.image1.name.split('.')[1]);
+                formData.append('fileTypeImage1', values.image1.type);
+            }
+
+            const data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_CAB, formData);
             if (data?.success) {
                 navigate('/dashboard/cab', {
                     state: {
@@ -292,23 +301,10 @@ const CabEdit = () => {
             }
         } catch (error) {
             console.error('Error updating cab:', error);
-            alert(error.message || 'Failed to update driver. Please try again.');
         } finally {
             setIsSubmitting(false);
             setSubmitting(false);
         }
-    };
-
-    const isFormValid = (values, errors) => {
-        const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
-        const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
-
-        const isPricesFilled = values.prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
-        );
-        const hasErrors = Object.keys(errors).length > 0;
-        return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
     };
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
@@ -352,12 +348,6 @@ const CabEdit = () => {
                                 <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
                                 <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300 border" maxLength={15} />
                                 <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="company" className="text-sm font-medium text-gray-700">Company</label>
-                                <Field type="text" name="company" className="p-2 w-full rounded-md border-gray-300 border" />
-                                <ErrorMessage name="company" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
@@ -465,15 +455,15 @@ const CabEdit = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Notify</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="owner" className="form-radio" />
+                                        <Field type="radio" name="notify" value="OWNER" className="form-radio" />
                                         <span className="ml-2">Owner</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="driver" className="form-radio" />
+                                        <Field type="radio" name="notify" value="DRIVER" className="form-radio" />
                                         <span className="ml-2">Driver</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="both" className="form-radio" />
+                                        <Field type="radio" name="notify" value="BOTH" className="form-radio" />
                                         <span className="ml-2">Both</span>
                                     </label>
                                 </div>
@@ -510,48 +500,54 @@ const CabEdit = () => {
                                     showCheckbox={true}
                                 />
                             </div>
+                            <div>
+                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">
+                                    RC Book
+                                </label>
+                                <div className="mt-1">
+                                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                        {values?.image1 ? (
+                                            <img
+                                                src={imagePreview ? imagePreview : values?.image1}
+                                                alt="Preview"
+                                                className="w-full h-full object-contain rounded-md"
+                                            />
+                                        ) : (
+                                            <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                        )}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        id="image1"
+                                        name='image1'
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setFieldValue("image1", file);
+
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setImagePreview(reader.result);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        className="hidden" // Hide the native input
+                                    />
+                                    <label
+                                        htmlFor="image1"
+                                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                    >
+                                        Upload Image
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         {values.packages.length > 0 && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                                {/* <Card>
-                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                                        <table className="w-full min-w-[640px] table-auto">
-                                            <thead>
-                                                <tr>
-                                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
-                                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
-                                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
-                                                                {el}
-                                                            </Typography>
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {values.prices.map((priceItem, index) => (
-                                                    <tr key={priceItem.id}>
-                                                        <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                            <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                                {getNameById(priceItem.packageId, packageDetails)}
-                                                            </Typography>
-                                                        </td>
-                                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
-                                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                                <Field
-                                                                    name={`prices[${index}].${field}`}
-                                                                    className="w-full p-1 text-xs border rounded"
-                                                                />
-                                                                <ErrorMessage name={`prices[${index}].${field}`} component="div" className="text-red-500 text-xs" />
-                                                            </td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </CardBody>
-                                </Card> */}
-                                 {renderPriceTable(
+                                {renderPriceTable(
                                     "INTERCITY",
                                     values.prices.filter(price => {
                                         const package_ = packageDetails.find(p => p.id === price.packageId);
@@ -595,10 +591,9 @@ const CabEdit = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || !isValid}
-                                // disabled={!isFormValid(values, errors)}
                                 className='my-6 mx-2'
                             >
-                                {isEditMode ? 'Update' : 'Continue'}
+                                Update
                             </Button>
                         </div>
                     </Form>

@@ -6,6 +6,7 @@ import { API_ROUTES } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
+import { CAB_ADD_SCHEMA } from '@/utils/validations';
 
 const LocationInput = ({ field, form, suggestions, onSearch, type}) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -62,7 +63,7 @@ const CabAdd = () => {
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
     const [accountOptions, setAccountOptions] = useState([]);
     const { id } = useParams();
-    const isEditMode = !!id;
+    const [imagePreview, setImagePreview] = useState(null);
     const navigate = useNavigate();
 
     const getAccountNames = async () => {
@@ -116,15 +117,15 @@ const CabAdd = () => {
     useEffect(() => {
         getPackageListDetails();
         getAccountNames();
-        if (isEditMode) {
-            fetchItem(id);
-        }
-    }, [id, isEditMode]);
+        // if (isEditMode) {
+        //     fetchItem(id);
+        // }
+    }, [id]);
 
-    const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
-        setCabVal(data.data);
-    };
+    // const fetchItem = async (itemId) => {
+    //     const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
+    //     setCabVal(data.data);
+    // };
 
     const initialValues = {
         name: cabVal?.name || "",
@@ -142,93 +143,9 @@ const CabAdd = () => {
         carType: cabVal?.carType || "",
         packages: cabVal?.packages || [],
         wallet: cabVal?.wallet || "",
-        prices: []
+        prices: [],
+        image1: ""
     };
-
-    const validationSchema = Yup.object({
-        name: Yup.string().required('Owner Name is required'),
-        phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
-        carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
-        address: Yup.string()
-            .required('Address is required')
-            .min(5, 'Address must be at least 5 characters')
-            // .matches(
-            //     /^[a-zA-Z0-9\s,.-/#]+$/,
-            //     'Address can only contain letters, numbers, spaces, and common symbols (,./#-)'
-            // )
-            .test(
-                'no-multiple-spaces',
-                'Address should not contain multiple consecutive spaces',
-                value => !value || !/\s\s+/.test(value)
-            )
-            .test(
-                'not-only-numbers',
-                'Address cannot contain only numbers',
-                value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
-            )
-            .trim(),
-        company: Yup.string().required('Company is required'),
-        insurance: Yup.string().required('Insurance Expiry Date is required'),
-        withDriver: Yup.string().required('Driver is required'),
-        driverName: Yup.string().when(['withDriver'], {
-            is: (withDriver) => withDriver === 'Yes',
-            then: () => Yup.string().required('Driver Name is required'),
-            otherwise: () => Yup.string()
-        }),
-        driverPhoneNumber: Yup.string().when(['withDriver'], {
-            is: (withDriver) => withDriver === 'Yes',
-            then: () => Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
-            otherwise: () => Yup.string()
-        }),
-        driverAddress: Yup.string().when(['withDriver'], {
-            is: (withDriver) => withDriver === 'Yes',
-            then: () => Yup.string()
-                .required('Address is required')
-                .min(5, 'Address must be at least 5 characters')
-                .test(
-                    'no-multiple-spaces',
-                    'Address should not contain multiple consecutive spaces',
-                    value => !value || !/\s\s+/.test(value)
-                )
-                .test(
-                    'not-only-numbers',
-                    'Address cannot contain only numbers',
-                    value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
-                )
-                .trim(),
-            otherwise: () => Yup.string()
-        }),
-        licenseNumber: Yup.string().when(['withDriver'], {
-            is: (withDriver) => withDriver === 'Yes',
-            then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
-            otherwise: () => Yup.string()
-        }),
-        notify: Yup.string().required('Notification Recipients is required'),
-        carType: Yup.string().required('Car Type is required'),
-        packages: Yup.array()
-            .of(Yup.string().required('Each package must be selected'))
-            .required('At least one package must be selected'),
-        //.min(1, 'At least one package must be selected'),
-        wallet: Yup.string().required('Wallet is required'),
-        prices: Yup.array().of(
-            Yup.object().shape({
-                price: Yup.number().required('Price is required'),
-                extraPrice: Yup.number().required('Extra price is required'),
-                extraKmPrice: Yup.number().required('Extra KM price is required'),
-                nightCharge: Yup.number().required('Night charge is required'),
-                cancelCharge: Yup.number().required('Cancel charge is required'),
-                extraCabType: Yup.string().required('Cab type is required'),
-            })
-        ).test('at-least-one-price', 'At least one price must be added', function (prices) {
-            return prices.some(price =>
-                price.price || price.extraPrice || price.extraKmPrice ||
-                price.nightCharge || price.cancelCharge || price.extraCabType
-            );
-        })
-    });
-    validationSchema.withMutation(() => {
-        validationSchema.shape = validationSchema.shape;
-    });
 
     const searchLocations = async (query, type) => {
         if (query.length > 2) {
@@ -326,8 +243,7 @@ const CabAdd = () => {
                 name: values.name,
                 phoneNumber: "+91" + values.phoneNumber,
                 carNumber: values.carNumber,
-                address: values.address,
-                company: values.company,
+                curAddress: values.address,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
                 driverPhoneNumber: values.driverPhoneNumber,
@@ -339,18 +255,17 @@ const CabAdd = () => {
                 carType: values.carType,
                 wallet: values.wallet,
             };
-            let cabData = { cabDetails, prices: values.prices };
-            console.log(cabData);
-            //return;
-            let data;
-            if (isEditMode) {
-                cabData['cabId'] = id;
-                data = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, cabData);
+            // let cabData = { cabDetails, prices: values.prices };
+            const formData = new FormData();
+        
+            formData.append('cabDetails', JSON.stringify(cabDetails));
+            formData.append('prices', JSON.stringify(values.prices));
+            formData.append('image1', values.image1);
+            formData.append('extImage1', values.image1.name.split('.')[1]);
+            formData.append('fileTypeImage1', values.image1.type);
 
-            } else {
-                data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CAB, cabData);
-
-            }
+            const data = await ApiRequestUtils.postDocs(API_ROUTES.REGISTER_CAB, formData);
+            console.log('CAB DATA :', data);
             if (!data?.success && data?.code === 203) {
                 setAlert({ message: 'Cab already exists', color: 'red' });
                 setTimeout(() => setAlert(null), 2000);
@@ -358,8 +273,7 @@ const CabAdd = () => {
             } else {
                 navigate('/dashboard/cab', {
                     state: {
-                        cabAdded: isEditMode ? false : true,
-                        cabUpdated: isEditMode ? true : false,
+                        cabAdded: true,
                         cabName: data?.data?.name
                     }
                 });
@@ -368,24 +282,6 @@ const CabAdd = () => {
             console.error('Error creating driver and car:', error);
         }
         setSubmitting(false);
-    };
-
-    const isFormValid = (values, errors) => {
-        const requiredFields = ['name', 'phoneNumber', 'carNumber', 'address', 'company', 'withDriver', 'insurance', 'carType', 'mode', 'packages', 'wallet'];
-
-        if (values.withDriver === 'Yes' && !values.driverName) {
-            return false;
-        }
-
-        const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
-
-        const isPricesFilled = values.prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
-        );
-
-        const hasErrors = Object.keys(errors).length > 0;
-        return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
     };
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
@@ -403,7 +299,7 @@ const CabAdd = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
             <Formik
                 initialValues={initialValues}
-                validationSchema={validationSchema}
+                validationSchema={CAB_ADD_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
@@ -441,13 +337,7 @@ const CabAdd = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="company" className="text-sm font-medium text-gray-700">Company</label>
-                                <Field type="text" name="company" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="company" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="address" className="text-sm font-medium text-gray-700"> Owner Address</label>
+                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
                                 <Field name="address">
                                     {({ field, form }) => (
                                         <LocationInput
@@ -550,15 +440,15 @@ const CabAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Notify</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="owner" className="form-radio" />
+                                        <Field type="radio" name="notify" value="OWNER" className="form-radio" />
                                         <span className="ml-2">Owner</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="driver" className="form-radio" />
+                                        <Field type="radio" name="notify" value="DRIVER" className="form-radio" />
                                         <span className="ml-2">Driver</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="both" className="form-radio" />
+                                        <Field type="radio" name="notify" value="BOTH" className="form-radio" />
                                         <span className="ml-2">Both</span>
                                     </label>
                                 </div>
@@ -601,47 +491,53 @@ const CabAdd = () => {
                                     showCheckbox={true}
                                 />
                             </div>
+                            <div>
+                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">
+                                    RC Book
+                                </label>
+                                <div className="mt-1">
+                                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                        {values?.image1 ? (
+                                            <img
+                                                src={imagePreview ? imagePreview : values?.image1}
+                                                alt="Preview"
+                                                className="w-full h-full object-contain rounded-md"
+                                            />
+                                        ) : (
+                                            <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                        )}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        id="image1"
+                                        name='image1'
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setFieldValue("image1", file);
+
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setImagePreview(reader.result);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        className="hidden" // Hide the native input
+                                    />
+                                    <label
+                                        htmlFor="image1"
+                                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                    >
+                                        Upload Image
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         {values.packages.length > 0 && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                                {/* <Card>
-                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                                        <table className="w-full min-w-[640px] table-auto">
-                                            <thead>
-                                                <tr>
-                                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
-                                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
-                                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
-                                                                {el}
-                                                            </Typography>
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {values.prices.map((priceItem, index) => (
-                                                    <tr key={priceItem.id}>
-                                                        <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                            <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                                {priceItem.period}
-                                                            </Typography>
-                                                        </td>
-                                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
-                                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                                <Field
-                                                                    name={`prices[${index}].${field}`}
-                                                                    className="w-full p-1 text-xs border rounded"
-                                                                />
-                                                                <ErrorMessage name={`prices[${index}].${field}`} component="div" className="text-red-500 text-xs" />
-                                                            </td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </CardBody>
-                                </Card> */}
                                 {renderPriceTable(
                                     "INTERCITY",
                                     values.prices.filter(price => {
@@ -682,11 +578,10 @@ const CabAdd = () => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                 disabled={isEditMode ? false : !dirty || !isValid}
-                                //disabled={!isFormValid(values, errors)}
+                                 disabled={!dirty || !isValid}
                                 className='my-6 mx-2'
                             >
-                                {isEditMode ? 'Update' : 'Continue'}
+                                Continue
                             </Button>
                         </div>
                     </Form>
