@@ -845,6 +845,7 @@ export const API_ROUTES = {
     'GET_CABS_PACKAGE': '/get-cabs/',
     'UPDATE_CAB_STATUS': '/admin-cab/update',
     'UPLOAD_PHOTO': '/photo/add',
+    'UPDATE_PHOTO': '/photo/update',
     'GET_DRIVERS_ADMIN': '/admin/driver/'
 };
 

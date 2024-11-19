@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST } from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS } from '@/utils/constants';
 import { Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -55,7 +55,14 @@ const DriverEdit = () => {
     const [stateSearchText, setStateSearchText] = useState("");
     const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
-    const [isSubmitting, setIsSubmitting] = useState(false); 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [imagePreviews, setImagePreviews] = useState({
+        aadhaarImage: null,
+        policeClearance: null,
+        livePhoto: null,
+        drivingLicenseImage: null,
+        consentForm: null
+    }); 
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -112,9 +119,16 @@ const DriverEdit = () => {
 
     const fetchItem = async (itemId) => {
         try{
-            const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
+            const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVERS_ADMIN + `${itemId}`);
             if(data?.data) {
                 setDriverVal(data.data);
+                setImagePreviews({
+                    aadhaarImage: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.AADHAAR),
+                    drivingLicenseImage: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.DRIVING_LICENSE),
+                    policeClearance: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.POLICE_CLEARANCE),
+                    consentForm: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.CONSENT_FORM),
+                    livePhoto: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.LIVE_PHOTO)
+                });
             } else {
                 console.error('No driver data received');
                 navigate('/dashboard/drivers');
@@ -291,18 +305,6 @@ const DriverEdit = () => {
             setSubmitting(false);
         }
     };
-
-    const isFormValid = (values, errors) => {
-        const requiredFields = ['salutation', 'firstName', 'phoneNumber', 'license', 'address', 'reference', 'preference', 'mode', 'packages', 'wallet'];
-        const areRequiredFieldsFilled = requiredFields.every(field => values[field] && values[field].length > 0);
-
-        const isPricesFilled = values.prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
-        );
-        const hasErrors = Object.keys(errors).length > 0;
-        return areRequiredFieldsFilled && isPricesFilled && !hasErrors;
-    };
     const districtOptions = DISTRICT_LIST.map(district => ({
         id: district.value,
         name: district.label
@@ -391,6 +393,87 @@ const DriverEdit = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const getDocumentByType = (value, type) => {
+        return value.find(proof => proof.type === type) || "";
+    };
+
+    const DocumentUpload = ({ label, name, onChange, imagePreview }) => {
+        return (
+            <div>
+                <label htmlFor={name} className="text-sm font-medium text-gray-700">
+                    {label}
+                </label>
+                <div className="mt-1">
+                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                        {imagePreview ? (
+                            <img
+                                src={imagePreview}
+                                alt="Preview"
+                                className="w-full h-full object-contain rounded-md"
+                            />
+                        ) : (
+                            <div className="text-gray-500 font-medium p-2">
+                                No image selected. Click below to upload.
+                            </div>
+                        )}
+                    </div>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        id={name}
+                        name={name}
+                        onChange={onChange}
+                        className="hidden" // Hide the native input
+                    />
+                    <label
+                        htmlFor={name}
+                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                    >
+                        Upload Image
+                    </label>
+                </div>
+            </div>
+        );
+    };
+
+    const handleImageUpload = async (e, setFieldValue, label, docId) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFieldValue(label, file);
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1: reader.result,
+                        id: docId
+                    },
+                }));
+            };
+            reader.readAsDataURL(file);
+
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'policeClearance' ? KYC_PROCESS.POLICE_CLEARANCE : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : KYC_PROCESS.LIVE_PHOTO;
+            const formData = new FormData();
+
+            formData.append('image1', file);
+            formData.append('extImage1', file.name.split('.')[1]);
+            formData.append('fileTypeImage1', file.type);
+            formData.append('type', type);
+            formData.append('driverId', driverVal?.result?.id);
+
+            let data;
+            if (!docId) {
+                data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+            } else {
+                formData.append('documentId', docId);
+                data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+            }
+
+            console.log('DATA IN DOC UPDATE :', data);
+        }
+    }
     return (
         <div className="p-4 mx-auto">
             <h2 className="text-2xl font-bold mb-4">Update Driver</h2>
@@ -747,47 +830,44 @@ const DriverEdit = () => {
                                     showCheckbox={true}
                                 />
                             </div>
+                            <DocumentUpload
+                                label="Consent Form Image"
+                                name="consentForm"
+                                onChange={(e) => handleImageUpload(e, setFieldValue, 'consentForm', imagePreviews?.consentForm?.id)}
+                                imagePreview={imagePreviews.consentForm?.image1}
+                            />
+                            <DocumentUpload
+                                label="Aadhaar Image"
+                                name="aadhaarImage"
+                                onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage', imagePreviews?.aadhaarImage?.id)}
+                                imagePreview={imagePreviews.aadhaarImage?.image1}
+                            />
+                            <DocumentUpload
+                                label="Police Clearance Certificate"
+                                name="policeClearance"
+                                onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance',imagePreviews?.policeClearance?.id)}
+                                imagePreview={imagePreviews.policeClearance?.image1}
+                            />
+
+                            {/* Driving License Image Upload */}
+                            <DocumentUpload
+                                label="Driving License Image"
+                                name="drivingLicenseImage"
+                                onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage', imagePreviews?.drivingLicenseImage?.id)}
+                                imagePreview={imagePreviews.drivingLicenseImage?.image1}
+                            />
+
+                            {/* Live Photo Upload */}
+                            <DocumentUpload
+                                label="Live Photo"
+                                name="livePhoto"
+                                onChange={(e) => handleImageUpload(e, setFieldValue, 'livePhoto', imagePreviews?.livePhoto?.id)}
+                                imagePreview={imagePreviews.livePhoto?.image1}
+                            />
                         </div>
                         {values.packages.length > 0 && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                                {/* <Card>
-                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                                        <table className="w-full min-w-[640px] table-auto">
-                                            <thead>
-                                                <tr>
-                                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
-                                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
-                                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
-                                                                {el}
-                                                            </Typography>
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {values.prices.map((priceItem, index) => (
-                                                    <tr key={priceItem.id}>
-                                                        <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                            <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                                {getNameById(priceItem.packageId, packageDetails)}
-                                                            </Typography>
-                                                        </td>
-                                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
-                                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                                <Field
-                                                                    name={`prices[${index}].${field}`}
-                                                                    className="w-full p-1 text-xs border rounded"
-                                                                />
-                                                                <ErrorMessage name={`prices[${index}].${field}`} component="div" className="text-red-500 text-xs" />
-                                                            </td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </CardBody>
-                                </Card> */}
                                 {renderPriceTable(
                                     "INTERCITY",
                                     values.prices.filter(price => {
@@ -831,12 +911,10 @@ const DriverEdit = () => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                //disabled={!dirty || !isValid}
-                                // disabled={!isFormValid(values, errors)}
-                                disabled={isSubmitting || !isValid}
+                                disabled={!dirty || !isValid}
                                 className='my-6 mx-2'
                             >
-                                {isEditMode ? 'Update' : 'Continue'}
+                                Update
                             </Button>
                         </div>
                     </Form>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// import Select from 'react-select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, STATE_LIST} from '@/utils/constants';
@@ -240,6 +241,17 @@ const AccountAdd = (props) => {
                                 <Field type="text" name="pincode" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" maxlength={6} />
                                 <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                             </div>
+                            {/* <div>
+                                <label htmlFor="location" className="text-sm font-medium text-gray-700">Select Location</label>
+                                <Select
+                                    id="location"
+                                    options={DISTRICT_LIST}
+                                    onChange={(e) => { console.log('on handle change :', e)}}
+                                    placeholder="Search and select..."
+                                    isSearchable
+                                    className="w-full"
+                                />
+                            </div> */}
                             <div>
                                 <label htmlFor="image1" className="text-sm font-medium text-gray-700">
                                     Aadhaar Image

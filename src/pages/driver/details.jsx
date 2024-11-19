@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, KYC_PROCESS } from '@/utils/constants';
 import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
@@ -311,14 +311,14 @@ const DriverDetails = () => {
                                     <label className="text-sm font-medium text-gray-700">License</label>
                                     <div className="mt-1">
                                         <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                            {getDocumentByType('LICENSE') ? (
+                                            {getDocumentByType(KYC_PROCESS.DRIVING_LICENSE) ? (
                                                 <img
-                                                    src={getDocumentByType('LICENSE')}
+                                                    src={getDocumentByType(KYC_PROCESS.DRIVING_LICENSE)}
                                                     alt="License"
                                                     className="w-full h-full object-contain rounded-md"
                                                 />
                                             ) : (
-                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                             )}
                                         </div>
                                     </div>
@@ -335,24 +335,24 @@ const DriverDetails = () => {
                                                     className="w-full h-full object-contain rounded-md"
                                                 />
                                             ) : (
-                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                             )}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700">PAN Card</label>
+                                    <label className="text-sm font-medium text-gray-700">Police Clearance</label>
                                     <div className="mt-1">
                                         <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                            {getDocumentByType('PAN') ? (
+                                            {getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE) ? (
                                                 <img
-                                                    src={getDocumentByType('PAN')}
+                                                    src={getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE)}
                                                     alt="PAN"
                                                     className="w-full h-full object-contain rounded-md"
                                                 />
                                             ) : (
-                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                             )}
                                         </div>
                                     </div>
@@ -362,14 +362,14 @@ const DriverDetails = () => {
                                     <label className="text-sm font-medium text-gray-700">Consent Form</label>
                                     <div className="mt-1">
                                         <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                            {getDocumentByType('CONSENT_FORM') ? (
+                                            {getDocumentByType(KYC_PROCESS.CONSENT_FORM) ? (
                                                 <img
-                                                    src={getDocumentByType('CONSENT_FORM')}
+                                                    src={getDocumentByType(KYC_PROCESS.CONSENT_FORM)}
                                                     alt="Consent Form"
                                                     className="w-full h-full object-contain rounded-md"
                                                 />
                                             ) : (
-                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                             )}
                                         </div>
                                     </div>
@@ -379,14 +379,14 @@ const DriverDetails = () => {
                                     <label className="text-sm font-medium text-gray-700">Aadhaar Card</label>
                                     <div className="mt-1">
                                         <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                            {getDocumentByType('AADHAAR') ? (
+                                            {getDocumentByType(KYC_PROCESS.AADHAAR) ? (
                                                 <img
-                                                    src={getDocumentByType('AADHAAR')}
+                                                    src={getDocumentByType(KYC_PROCESS.AADHAAR)}
                                                     alt="Aadhaar"
                                                     className="w-full h-full object-contain rounded-md"
                                                 />
                                             ) : (
-                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
+                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                             )}
                                         </div>
                                     </div>

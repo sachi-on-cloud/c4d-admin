@@ -169,9 +169,12 @@ const ConfirmBooking = (props) => {
             price: 0,
             extraPrice: 0,
             extraHourPrice: 0,
+            //extra km from UI.
+            //Payment details
         };
         if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
             reqBody.type = "start";
+            //add km
         } else if (bookingDetails.status == BOOKING_STATUS.STARTED) {
             reqBody.type = "end";
             if (amount?.total) {
@@ -493,7 +496,7 @@ const ConfirmBooking = (props) => {
                             >
                                 Cancel
                             </Button>
-                            <Button
+                            {/* <Button
                                 color="gray"
                                 variant="outlined"
                                 ripple="dark"
@@ -501,7 +504,7 @@ const ConfirmBooking = (props) => {
                                 onClick={() => { props.onEdit(bookingDetails) }}
                             >
                                 Edit
-                            </Button>
+                            </Button> */}
                         </>
                     }
                     {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id && !bookingDetails?.Cab?.id &&

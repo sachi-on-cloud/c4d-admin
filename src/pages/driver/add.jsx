@@ -68,7 +68,7 @@ const DriverAdd = () => {
     const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
-        panCardImage: null,
+        policeClearance: null,
         livePhoto: null,
         drivingLicenseImage: null,
         consentForm: null
@@ -120,15 +120,7 @@ const DriverAdd = () => {
 
     useEffect(() => {
         getPackageListDetails();
-        // if (isEditMode) {
-        //     fetchItem(id);
-        // }
-    }, [id]);
-
-    // const fetchItem = async (itemId) => {
-    //     const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_BY_ID + `${itemId}`);
-    //     setDriverVal(data.data);
-    // };
+    }, []);
 
     const initialValues = {
         salutation: driverVal?.salutation || "",
@@ -159,7 +151,7 @@ const DriverAdd = () => {
         wallet: driverVal?.wallet || "",
         prices: [],
         aadhaarImage: '',
-        panCardImage: '',
+        policeClearance: '',
         livePhoto: '',
         drivingLicenseImage: '',
         consentForm: ''
@@ -427,7 +419,7 @@ const DriverAdd = () => {
             };
             reader.readAsDataURL(file);
 
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'panCardImage' ? KYC_PROCESS.PAN : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : KYC_PROCESS.LIVE_PHOTO;
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'policeClearance' ? KYC_PROCESS.POLICE_CLEARANCE : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : KYC_PROCESS.LIVE_PHOTO;
             const formData = new FormData();
 
             formData.append('image1', file);
@@ -584,12 +576,6 @@ const DriverAdd = () => {
                                 </div>
                                 <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
                             </div>
-
-                            {/* <div>
-                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
-                                <Field type="text" name="address" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                            </div> */}
 
                             <div>
                                 <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
@@ -850,14 +836,12 @@ const DriverAdd = () => {
                                         onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage')}
                                         imagePreview={imagePreviews.aadhaarImage}
                                     />
-
-                                    {/* PAN Card Image Upload */}
                                     <DocumentUpload
-                                        label="PAN Card Image"
-                                        value={values.panCardImage}
-                                        name="panCardImage"
-                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'panCardImage')}
-                                        imagePreview={imagePreviews.panCardImage}
+                                        label="Police Clearance Certificate"
+                                        value={values.policeClearance}
+                                        name="policeClearance"
+                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance')}
+                                        imagePreview={imagePreviews.policeClearance}
                                     />
 
                                     {/* Driving License Image Upload */}
