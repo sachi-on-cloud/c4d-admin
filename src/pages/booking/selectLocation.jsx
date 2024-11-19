@@ -237,11 +237,11 @@ const SelectLocation = (props) => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-white w-full my-4">
+        <div className="flex flex-col h-screen bg-white w-full mt-5">
             <div>
                 <h1 className="text-xl font-bold text-gray-900">Select Location</h1>
             </div>
-            <div className="p-2 space-y-4">
+            <div className="p-2 space-y-2">
             <label className="block text-sm font-medium text-gray-700">Pickup Location <label className="text-required text-base text-red-500">*</label></label>
                 <LocationInput
                     value={pickupAddress}
@@ -264,7 +264,7 @@ const SelectLocation = (props) => {
                 /></>}
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 mt-2">
                 {isLoaded && (
                     <GoogleMap
                         mapContainerStyle={{ width: '100%', height: '75%' }}
@@ -298,23 +298,12 @@ const SelectLocation = (props) => {
                         )}
                     </GoogleMap>
                 )}
-            </div>
-            <div className='flex flex-row'>
-                {/* <Button
-                    fullWidth
-                    onClick={() => {
-                        props?.onPrev()
-                    }}
-                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
-                >
-                    Prev
-                </Button> */}
                 <Button
                     fullWidth
                     color="black"
                     onClick={onPressHandler}
                     disabled={!pickupLocation}
-                    className='my-6 mx-2 rounded-xl'
+                    className='my-6 rounded-xl'
                 >
                     Continue
                 </Button>

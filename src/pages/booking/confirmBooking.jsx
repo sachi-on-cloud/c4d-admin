@@ -157,7 +157,7 @@ const ConfirmBooking = (props) => {
     };
 
     const onCancelPressHandler = async () => {
-        const userResponse = confirm("Are you sure you want to cancel the booking");
+        const userResponse = confirm(`Are you sure you want to cancel the booking ${bookingDetails?.bookingNumber}`);
         
         if (userResponse) {
             const reqBody = {
