@@ -1,4 +1,6 @@
 // import { Dimensions } from 'react';
+import moment from "moment";
+import { GPAY_NAME, GPAY_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE } from "./constants";
 
 export const Utils = {
     formatSelectedDate: (date) => {
@@ -33,6 +35,16 @@ export const Utils = {
         }
 
         return `${formattedHours}:${minutes} ${period}`;
+    },
+
+    convertTimeFormat: (time) => {
+        let [hours, minutes, seconds] = time.split(':');
+        hours = parseInt(hours);
+    
+        const period = hours >= 12 ? 'p.m.' : 'a.m.';
+        hours = hours % 12 || 12;
+    
+        return `${hours}:${minutes} ${period}`;
     },
 
     generateBookingTimesForDay: (date) => {
@@ -200,5 +212,121 @@ export const Utils = {
         const displaySeconds = String(totalSeconds % 60).padStart(2, '0');
 
         return `${displayHours}:${displayMinutes}:${displaySeconds}`;
+    },
+    
+    generateWhatsAppMessage: (bookingDetails) => {
+        let text = '';
+        if (bookingDetails?.status === "INITIATED" && (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id)) {
+            text = encodeURIComponent(
+                WHATSAPP_DRIVER_ASSIGNED_TEMPLATE
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${driverName}', bookingDetails.Driver?.firstName || 'Not assigned')
+                    .replace('${driverPhone}', bookingDetails.Driver?.phoneNumber || 'Not assigned')
+                    .replace('${pickup}', bookingDetails.pickupAddress?.name || 'Not specified')
+                    .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
+                    .replace('${tripDate}', bookingDetails.date || 'Not specified')
+                    .replace('${tripTime}', bookingDetails.time || 'Not specified')
+                    .replace('${duration}', `${bookingDetails.Package.period} ${bookingDetails.packageType === "Outstation" ? "days" : "hours"}`)
+                    .replace('${tripType}', bookingDetails.packageType)
+                    .replace('${supportNumber}', supportNumber)
+            );
+        }
+
+        // Trip start message
+        if (bookingDetails?.status === "STARTED") {
+            const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
+            text = encodeURIComponent(
+                WHATSAPP_TRIP_START_TEMPLATE
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${driverName}', bookingDetails.Driver?.firstName)
+                    .replace('${startTime}', Utils.formatTime(bookingDetails.startTime))
+                    .replace('${endTime}', Utils.formatTime(endTime))
+                    .replace('${supportNumber}', supportNumber)
+            );
+        }
+
+
+        // Payment request message
+        if (bookingDetails?.status === "ENDED" && !bookingDetails?.paymentStatus) {
+            const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
+            text = encodeURIComponent(
+                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${driverName}', bookingDetails.Driver?.firstName)
+                    .replace('${startTime}', Utils.formatTime(bookingDetails.startTime))
+                    .replace('${endTime}', (bookingDetails.endTime))
+                    .replace('${baseFare}', bookingDetails.Package.price)
+                    .replace('${extraFareCalculation}', `${bookingDetails.extraHours} hrs × ₹${bookingDetails.extraHourPrice} = ₹${bookingDetails.extraPrice}`)
+                    .replace('${totalAmount}', totalFare)
+                    .replace('${gpayNumber}', GPAY_NUMBER)
+                    .replace('${gpayName}', GPAY_NAME)
+                    .replace('${supportNumber}', supportNumber)
+            );
+        }
+
+        if(bookingDetails?.status === "ENDED" && !bookingDetails?.paymentStatus) {
+            // const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
+            text = encodeURIComponent(
+                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
+                .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                .replace('${customerName}', bookingDetails.Customer.firstName)
+                .replace('${driverName}', bookingDetails.Driver?.firstName)
+            )
+        }
+
+        // Trip completion message
+        if (bookingDetails?.status === "ENDED" && bookingDetails?.paymentStatus === "PAID") {
+            const duration = Utils.calculateDuration(bookingDetails);
+            const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
+            
+            text = encodeURIComponent(
+                WHATSAPP_TRIP_COMPLETION_TEMPLATE
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${driverName}', bookingDetails.Driver?.firstName)
+                    .replace('${pickup}', bookingDetails.pickupAddress?.name)
+                    .replace('${drop}', bookingDetails.dropAddress?.name)
+                    .replace('${startTime}', (bookingDetails.startTime))
+                    .replace('${endTime}', Utils.formatTime(bookingDetails.endTime))
+                    .replace('${totalDuration}', duration.total)
+                    .replace('${packageDuration}', `${bookingDetails.Package.period} hours`)
+                    .replace('${extraTime}', duration.extra)
+                    .replace('${baseFare}', bookingDetails.Package.price)
+                    .replace('${extraCharges}', bookingDetails.extraPrice)
+                    .replace('${totalAmount}', totalFare)
+                    .replace('${transactionId}', bookingDetails.transactionId)
+            );
+        }
+
+        if (text === '') {
+            text = encodeURIComponent(
+                    (bookingDetails?.Driver ? `Driver Name: ${bookingDetails?.Driver.firstName}\nDriver Number: ${bookingDetails?.Driver.phoneNumber}\n` : '') +
+                    `Pickup Address: ${bookingDetails?.pickupAddress?.name}\n` +
+                    (bookingDetails?.dropAddress ? `Drop Address: ${bookingDetails?.dropAddress?.name}\n` : '')
+                );
+        }
+
+        return `https://wa.me/${bookingDetails?.Customer?.phoneNumber.replace(/^(\+91)/, '')}?text=${text}`
+        
+    },
+
+    calculateEndTime: (startTime, duration) => {
+        return moment(startTime).add(duration, 'hours');
+    },
+
+    calculateDuration: (bookingDetails) => {
+        const start = moment(bookingDetails?.startTime);
+        const end = moment(bookingDetails?.endTime);
+        const totalHours = end.diff(start, 'hours', true);
+        const packageHours = bookingDetails?.Package.period;
+        const extraHours = Math.max(0, totalHours - packageHours);
+        
+        return {
+            total: `${Math.floor(totalHours)} hours`,
+            extra: `${extraHours} hours`
+        };
     }
 };

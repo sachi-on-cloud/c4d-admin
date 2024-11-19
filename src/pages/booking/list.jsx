@@ -16,7 +16,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, selectPickedBooking }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -86,6 +86,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         });
         if (data?.success) {
             setBookingsList(data?.data);
+            setSelectedBookingId(null)
         }
     };
 
@@ -109,6 +110,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const onAssignDriverHandler = (data) => {
         setShowPickedBooking(data?.id);
         onAssignDriver(data);
+        setSelectedBookingId(data.id);
     };
 
     const handleBookingSelect = (data) => {
@@ -293,13 +295,6 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         </Button>
                                                     }
                                                 </td>
-                                                {data?.id === selectPickedBooking && bookingStage === 2 && (
-                                                    < td className={className}>
-                                                        <IconButton>
-                                                            <FaArrowRight />
-                                                        </IconButton>
-
-                                                    </td>)}
                                             </tr>
                                         );
                                     }

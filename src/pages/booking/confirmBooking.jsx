@@ -5,6 +5,8 @@ import {
     Typography,
     Button,
     Spinner,
+    Select,
+    Option
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,25 +16,19 @@ import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 
-const currentDate = () => {
-    return (new Date()).toISOString().split('T')[0];
-};
-
-function convertTimeFormat(time) {
-    let [hours, minutes, seconds] = time.split(':');
-    hours = parseInt(hours);
-
-    const period = hours >= 12 ? 'p.m.' : 'a.m.';
-    hours = hours % 12 || 12;
-
-    return `${hours}:${minutes} ${period}`;
-}
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
     const [dateVal, setDateVal] = useState();
+    const [kms, setKms] = useState();
     const [timeVal, setTimeVal] = useState();
     const [amount, setAmount] = useState();
-    const [whatsappMsg, setWhatsappMsg] = useState();
+
+    const [paymentDetails, setPaymentDetails] = useState({
+        paymentCollected: "",
+        paymentMethod: "",
+        paymentStatus: "NOT PAID",
+        enable: false // Default value
+    });
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -40,120 +36,9 @@ const ConfirmBooking = (props) => {
 
     const [loading, setLoading] = useState(true);
 
-    const generateWhatsAppMessage = (booking) => {
-        // Initial booking confirmation
-        if (booking.status === "INITIATED" && (booking?.Driver?.id || booking?.Cab?.id)) {
-            return encodeURIComponent(
-                WHATSAPP_DRIVER_ASSIGNED_TEMPLATE
-                    .replace('${bookingNumber}', booking.bookingNumber)
-                    .replace('${customerName}', booking.Customer.firstName)
-                    .replace('${driverName}', booking.Driver?.firstName || 'Not assigned')
-                    .replace('${driverPhone}', booking.Driver?.phoneNumber || 'Not assigned')
-                    .replace('${pickup}', booking.pickupAddress?.name || 'Not specified')
-                    .replace('${drop}', booking.dropAddress?.name || 'Not specified')
-                    .replace('${tripDate}', booking.date || 'Not specified')
-                    .replace('${tripTime}', booking.time || 'Not specified')
-                    .replace('${duration}', `${booking.Package.period} ${booking.packageType === "Outstation" ? "days" : "hours"}`)
-                    .replace('${tripType}', booking.packageType)
-                    .replace('${supportNumber}', supportNumber)
-            );
-        }
-
-        // Trip start message
-        if (booking.status === "STARTED") {
-            const endTime = calculateEndTime(booking.startTime, booking.Package.period);
-            return encodeURIComponent(
-                WHATSAPP_TRIP_START_TEMPLATE
-                    .replace('${bookingNumber}', booking.bookingNumber)
-                    .replace('${customerName}', booking.Customer.firstName)
-                    .replace('${driverName}', booking.Driver?.firstName)
-                    .replace('${startTime}', formatTime(booking.startTime))
-                    .replace('${endTime}', formatTime(endTime))
-                    .replace('${supportNumber}', supportNumber)
-            );
-        }
-
-
-        // Payment request message
-        if (booking.status === "ENDED" && !booking.paymentStatus) {
-            const totalFare = parseFloat(booking.Package.price) + parseFloat(booking.extraPrice);
-            return encodeURIComponent(
-                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
-                    .replace('${bookingNumber}', booking.bookingNumber)
-                    .replace('${customerName}', booking.Customer.firstName)
-                    .replace('${driverName}', booking.Driver?.firstName)
-                    .replace('${startTime}', formatTime(booking.startTime))
-                    .replace('${endTime}', (booking.endTime))
-                    .replace('${baseFare}', booking.Package.price)
-                    .replace('${extraFareCalculation}', `${booking.extraHours} hrs × ₹${booking.extraHourPrice} = ₹${booking.extraPrice}`)
-                    .replace('${totalAmount}', totalFare)
-                    .replace('${gpayNumber}', GPAY_NUMBER)
-                    .replace('${gpayName}', GPAY_NAME)
-                    .replace('${supportNumber}', supportNumber)
-            );
-        }
-
-        if(booking.status === "ENDED" && !booking.paymentStatus) {
-            const totalFare = parseFloat(booking.Package.price) + parseFloat(booking.extraPrice);
-            return encodeURIComponent(
-                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
-                .replace('${bookingNumber}', booking.bookingNumber)
-                .replace('${customerName}', booking.Customer.firstName)
-                .replace('${driverName}', booking.Driver?.firstName)
-                
-            )
-        }
-
-        // Trip completion message
-        if (booking.status === "ENDED" && booking.paymentStatus === "PAID") {
-            const duration = calculateDuration(booking.startTime, booking.endTime);
-            const totalFare = parseFloat(booking.Package.price) + parseFloat(booking.extraPrice);
-            
-            return encodeURIComponent(
-                WHATSAPP_TRIP_COMPLETION_TEMPLATE
-                    .replace('${bookingNumber}', booking.bookingNumber)
-                    .replace('${customerName}', booking.Customer.firstName)
-                    .replace('${driverName}', booking.Driver?.firstName)
-                    .replace('${pickup}', booking.pickupAddress?.name)
-                    .replace('${drop}', booking.dropAddress?.name)
-                    .replace('${startTime}', (booking.startTime))
-                    .replace('${endTime}', formatTime(booking.endTime))
-                    .replace('${totalDuration}', duration.total)
-                    .replace('${packageDuration}', `${booking.Package.period} hours`)
-                    .replace('${extraTime}', duration.extra)
-                    .replace('${baseFare}', booking.Package.price)
-                    .replace('${extraCharges}', booking.extraPrice)
-                    .replace('${totalAmount}', totalFare)
-                    .replace('${transactionId}', booking.transactionId)
-            );
-        }
-
-        // Fallback to simple message for other statuses
-        return encodeURIComponent(
-            (booking?.Driver ? `Driver Name: ${booking?.Driver.firstName}\nDriver Number: ${booking?.Driver.phoneNumber}\n` : '') +
-            `Pickup Address: ${booking?.pickupAddress?.name}\n` +
-            (booking?.dropAddress ? `Drop Address: ${booking?.dropAddress?.name}\n` : '')
-        );
-    };
-    const formatTime = (time) => {
-        return moment(time).format('HH:mm');
-    };
-
-    const calculateEndTime = (startTime, duration) => {
-        return moment(startTime).add(duration, 'hours');
-    };
-
-    const calculateDuration = (startTime, endTime) => {
-        const start = moment(startTime);
-        const end = moment(endTime);
-        const totalHours = end.diff(start, 'hours', true);
-        const packageHours = booking.Package.period;
-        const extraHours = Math.max(0, totalHours - packageHours);
-        
-        return {
-            total: `${Math.floor(totalHours)} hours`,
-            extra: `${extraHours} hours`
-        };
+    // Handler to update state
+    const handleChange = (field, value) => {
+        setPaymentDetails((prev) => ({ ...prev, [field]: value }));
     };
 
     const onConfirmPressHandler = async () => {
@@ -169,12 +54,10 @@ const ConfirmBooking = (props) => {
             price: 0,
             extraPrice: 0,
             extraHourPrice: 0,
-            //extra km from UI.
-            //Payment details
+            kilometer: bookingDetails?.serviceType !== "CAR_WASH" ? kms : 0
         };
         if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
             reqBody.type = "start";
-            //add km
         } else if (bookingDetails.status == BOOKING_STATUS.STARTED) {
             reqBody.type = "end";
             if (amount?.total) {
@@ -183,13 +66,20 @@ const ConfirmBooking = (props) => {
                 reqBody.price = amount?.price;
                 reqBody.extraPrice = amount?.extraPrice;
                 reqBody.extraHourPrice = amount?.extraHourPrice;
+                reqBody.extraKMs = amount?.extraKMs;
+                reqBody.extraKMPrice = amount?.extraKMPrice;
+                reqBody.extraNightCharge = amount?.extraNightCharge;
+                reqBody.extraNightChargePrice = amount?.extraNightChargePrice;
+                reqBody.paymentCollected = paymentDetails?.paymentCollected;
+                reqBody.paymentMethod = paymentDetails?.paymentMethod;
+                reqBody.paymentStatus = paymentDetails?.paymentStatus;
+                reqBody.endKM = kms;
             } else {
                 alert("Please check price before end the trip");
                 setLoading(false);
                 return false;
             }
         }
-        //console.log("reqBody", reqBody)
         const data = await ApiRequestUtils.update(API_ROUTES.ADMIN_BOOKING_STATUS, reqBody, bookingDetails?.customerId);
         if (data?.success) {
             //navigate("/dashboard/booking");
@@ -201,11 +91,26 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            console.log("DAATA:", data?.data);
+            //console.log("DAATA:", data?.data);
             setBookingDetails(data?.data);
-            setWhatsappMsg(generateWhatsAppMessage(data?.data));
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
-                setAmount({ price: data?.data?.price, extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0, total: data?.data.endPayment, extraHours: data?.data.extraHours, extraHourPrice: data?.data.extraHourPrice });
+                setAmount({ 
+                    price: data?.data?.price, 
+                    extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0, 
+                    total: data?.data.endPayment, 
+                    extraHours: data?.data.extraHours, 
+                    extraHourPrice: data?.data.extraHourPrice, 
+                    extraKMs: data?.data.extraKMs, 
+                    extraKMPrice: data?.data.extraKMPrice,
+                    extraNightCharge: data?.data?.extraNightCharge,
+                    extraNightChargePrice: data?.data?.extraNightChargePrice 
+                });
+                setPaymentDetails({
+                    paymentCollected: data?.data?.paymentCollected,
+                    paymentMethod: data?.data?.paymentMethod,
+                    paymentStatus: data?.data?.paymentStatus,
+                    enable: true
+                })
             } else {
                 setAmount();
             }
@@ -214,9 +119,6 @@ const ConfirmBooking = (props) => {
     };
 
     const getPriceForBooking = async () => {
-        //date && setDateVal(date);
-        //time && setTimeVal(time);
-        //console.log(dateVal, timeVal, "DATETIME");
         if (bookingDetails?.status == BOOKING_STATUS.STARTED && dateVal && timeVal) {
             //const date = moment(dateVal).format("YYYY-MM-DD HH:mm:ss.SSSZ");
             setLoading(true);
@@ -227,9 +129,11 @@ const ConfirmBooking = (props) => {
                 id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
                 date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
                 bookingType: bookingDetails?.serviceType,
+                kilometer: kms
             });
             if (data?.success) {
                 setAmount(data?.data);
+                handleChange('enable', true);
             }
             setLoading(false);
         }
@@ -244,25 +148,29 @@ const ConfirmBooking = (props) => {
 
     useEffect(() => {
         if (props.bookingData) {
-            //console.log("props.bookingData", props.bookingData)
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
     }, [props.bookingData]);
 
-    const onCancelPressHandler = async () => {
-        setLoading(true);
-        const reqBody = {
-            status: BOOKING_STATUS.CANCELLED,
-            bookingId: bookingDetails?.id,
-        };
-        const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody);
-        if (data?.success) {
-            //navigate("/dashboard/booking");
-            props.onConfirm()
-            setLoading(false);
-        }
+    const onBackPressHandler = async () => {
+        props.onConfirm()
     };
 
+    const onCancelPressHandler = async () => {
+        const userResponse = confirm("Are you sure you want to cancel the booking");
+        
+        if (userResponse) {
+            const reqBody = {
+                status: BOOKING_STATUS.CANCELLED,
+                bookingId: bookingDetails?.id,
+            };
+            const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody);
+            if (data?.success) {
+                //navigate("/dashboard/booking");
+                props.onConfirm();
+            }
+        }
+    };
 
     if (loading) {
         return (
@@ -299,7 +207,7 @@ const ConfirmBooking = (props) => {
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Ride Details</Typography>
-                        <Typography variant="h6" color="green"><a target="_blank" href={`https://wa.me/${bookingDetails?.Customer?.phoneNumber.replace(/^(\+91)/, '')}?text=${whatsappMsg}`}>Share on Whatsapp</a></Typography>
+                        <Typography variant="h6" color="green"><a target="_blank" href={Utils.generateWhatsAppMessage(bookingDetails)}>Share on Whatsapp</a></Typography>
                     </div>
                     <hr className="my-2" />
                     <div className="space-y-2">
@@ -353,41 +261,6 @@ const ConfirmBooking = (props) => {
             </Card>
             {amount && (
                 <Card className="my-6">
-                    {/* <CardBody> */}
-                    {/* <Typography variant="h5">
-                            Package Details
-                        </Typography>
-                        <hr className="my-2" /> */}
-                    {/* <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Package:</Typography>
-                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"
-                                    }`}</Typography>
-                            </div>
-                            {amount?.price !== 0 &&
-                                <>
-                                    <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Estimated Base Fare:</Typography>
-                                        <Typography>₹{amount?.price}</Typography>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                            } ${bookingDetails?.packageType === "Outstation" ? "d" : "hr"}:`}</Typography>
-                                        <Typography>₹{amount?.extraPrice}</Typography>
-                                    </div>
-                                </>
-                            }
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Total: </Typography>
-                                <Typography>₹{amount?.total}</Typography>
-                            </div>
-                        </div> */}
-                    {/* <div className="bg-gray-100 p-3 rounded-md mt-4">
-                            <Typography variant="small" color="gray">
-                                Price might vary at the time of trip closure, based on other charges like
-                                parking, toll, trip extension and so on.
-                            </Typography>
-                        </div> */}
                     <div className="border rounded-xl bg-gray-200 p-4">
                         <h2 className="text-2xl font-bold text-center">Invoice</h2>
                         <div className="mt-3">
@@ -418,6 +291,18 @@ const ConfirmBooking = (props) => {
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
                                         <Typography>₹ {amount?.extraPrice}</Typography>
                                     </div>
+                                    {amount.extraKMs && 
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">{`Extra KM's Fare: (${amount.extraKMs} x ${amount.extraKMPrice})`}</Typography>
+                                            <Typography>₹ {amount?.extraKMs * amount?.extraKMPrice}</Typography>
+                                        </div>
+                                    }
+                                    {amount.extraNightCharge && 
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">{`Night Charge: (${amount.extraNightCharge} x ${amount.extraNightChargePrice})`}</Typography>
+                                            <Typography>₹ {amount?.extraNightCharge * amount?.extraNightChargePrice}</Typography>
+                                        </div>
+                                    }
                                 </> : ""
                             }
                             <div className="flex justify-between">
@@ -442,50 +327,140 @@ const ConfirmBooking = (props) => {
                         </Typography>
                         <div className='flex gap-x-5'>
                             <div className=''>
-                                {/* <DatePicker
-                                        //minDate={bookingDetails?.startTime || new Date()}
-                                        //minTime={bookingDetails?.startTime || new Date()}
-                                        selected={dateVal}
-                                        onChange={(date) => { getPriceForBooking(date) }}
-                                        showTimeSelect
-                                        timeFormat="HH:mm"
-                                        timeIntervals={15}
-                                        dateFormat="MMMM d, yyyy hh:mm aa"
-                                    /> */}
                                 <Formik>
-                                    <div className='flex gap-x-2'>
-                                        <Field type="date" name="dateVal" className="p-2 w-full rounded-xl border-2 border-gray-300" min={bookingDetails?.date} onChange={(e) => {
-                                            setDateVal(e.target.value);
-                                        }} value={dateVal}></Field>
-                                        <Field as="select" name="rideTime" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
-                                            setTimeVal(e.target.value);
-                                        }} value={timeVal}>
-                                            <option value="">Select time</option>
-                                            {(bookingTimes).map((item) => (
-                                                <option key={item.id} value={item.id}>
-                                                    {convertTimeFormat(item.id)}
-                                                </option>
-                                            ))}
-                                        </Field>
-                                        {bookingDetails.status == BOOKING_STATUS.STARTED && <Button onClick={getPriceForBooking}>Check Price</Button>}
+                                    <div className="grid grid-cols-2 gap-4 items-center">
+                                        <div className="flex flex-col">
+                                            <label htmlFor="dateVal" className="text-sm font-medium text-gray-700">
+                                                Select Date
+                                            </label>
+                                            <Field
+                                                type="date"
+                                                name="dateVal"
+                                                id="dateVal"
+                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                min={bookingDetails?.date}
+                                                onChange={(e) => setDateVal(e.target.value)}
+                                                value={dateVal}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label htmlFor="rideTime" className="text-sm font-medium text-gray-700">
+                                                Select Time
+                                            </label>
+                                            <Field
+                                                as="select"
+                                                name="rideTime"
+                                                id="rideTime"
+                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                onChange={(e) => setTimeVal(e.target.value)}
+                                                value={timeVal}
+                                            >
+                                                <option value="">Select time</option>
+                                                {bookingTimes.map((item) => (
+                                                    <option key={item.id} value={item.id}>
+                                                        {Utils.convertTimeFormat(item.id)}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                        </div>
+
+                                        {bookingDetails?.serviceType !== 'CAR_WASH' &&
+                                            <div className="flex flex-col">
+                                                <label htmlFor="kms" className="text-sm font-medium text-gray-700">
+                                                    Distance (KM)
+                                                </label>
+                                                <div className="relative flex items-center">
+                                                    <Field
+                                                        type="number"
+                                                        name="kms"
+                                                        id="kms"
+                                                        placeholder="Enter KM"
+                                                        className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                        onChange={(e) => setKms(e.target.value)}
+                                                        value={kms}
+                                                    />
+                                                </div>
+                                            </div>
+                                        }
+                                        {bookingDetails?.serviceType !== 'CAR_WASH' && bookingDetails.status == BOOKING_STATUS.STARTED && (
+                                            <div className="flex flex-col">
+                                                <label htmlFor="kms" className="text-sm font-medium text-white">
+                                                    Distance (KM)
+                                                </label>
+                                                <Button onClick={getPriceForBooking} className=" justify-center items-center">
+                                                    Check Price
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </Formik>
                             </div>
-                            {/* <input
-                                    type="datetime-local"
-                                    value={selectedDate}
-                                    className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                    min={currentDate()}
-                                    onChange={handleDateChange}
-                                /> */}
                         </div>
                     </CardBody>
                 </Card>
                 : ""}
             <>
+                {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
+                    <Card>
+                        <CardBody>
+                            <div className="flex justify-between mb-2">
+                                <Typography variant="h5">Payment Details</Typography>
+                            </div>
+                            <hr className="my-2" />
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    {/* Payment Collected */}
+                                    <div className="flex justify-between items-center gap-x-4">
+                                        <Typography color="gray" variant="h6">Collected By:</Typography>
+                                        <Select
+                                            value={paymentDetails.paymentCollected}
+                                            onChange={(value) => handleChange("paymentCollected", value)}
+                                            disabled={bookingDetails?.status === 'ENDED'}
+                                        >
+                                            <Option value="C4D">C4D</Option>
+                                            <Option value="DRIVER">DRIVER</Option>
+                                        </Select>
+                                    </div>
+                                    {/* Payment Method */}
+                                    <div className="flex justify-between items-center gap-x-4">
+                                        <Typography color="gray" variant="h6">Method:</Typography>
+                                        <Select
+                                            value={paymentDetails.paymentMethod}
+                                            onChange={(value) => handleChange("paymentMethod", value)}
+                                            disabled={bookingDetails?.status === 'ENDED'}
+                                        >
+                                            <Option value="CASH">CASH</Option>
+                                            <Option value="GPAY">GPAY</Option>
+                                        </Select>
+                                    </div>
+                                    {/* Payment Status */}
+                                    <div className="flex justify-between items-center gap-x-4">
+                                        <Typography color="gray" variant="h6">Status:</Typography>
+                                        <Select
+                                            value={paymentDetails.paymentStatus}
+                                            onChange={(value) => handleChange("paymentStatus", value)}
+                                            disabled={bookingDetails?.status === 'ENDED'}
+                                        >
+                                            <Option value="PAID">PAID</Option>
+                                            <Option value="NOT PAID">NOT PAID</Option>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardBody>
+                    </Card>
+                }
                 <div className="mt-6 flex flex-row space-x-4">
+                    <Button
+                        color="black"
+                        ripple="light"
+                        fullWidth
+                        onClick={onBackPressHandler}
+                    >
+                        Back
+                    </Button>
 
-                    {bookingDetails.status != "ENDED" && bookingDetails.status != "STARTED" &&
+                    {bookingDetails.status != "ENDED" && bookingDetails.status != "STARTED" && bookingDetails.status != "CANCELLED" &&
                         <>
                             <Button
                                 color="gray"
@@ -527,7 +502,7 @@ const ConfirmBooking = (props) => {
                             {props.bookingData.serviceType === "CAB" ? "Choose Another Cab" : "Choose Another Captain"}
                         </Button>
                     }
-                    {dateVal && timeVal && <Button
+                    {(bookingDetails.status === 'INITIATED' && dateVal && timeVal && kms) || (bookingDetails.status === 'STARTED' && dateVal && timeVal && kms && paymentDetails?.paymentCollected && paymentDetails?.paymentMethod && paymentDetails?.paymentStatus && paymentDetails?.enable) && <Button
                         color="black"
                         ripple="light"
                         fullWidth

@@ -9,7 +9,7 @@ import {
     Input,
     Spinner,
 } from "@material-tailwind/react";
-import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
 import { API_ROUTES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
@@ -44,7 +44,6 @@ const Booking = (props) => {
     const [editBooking, setEditBooking] = useState();
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
-    const [selectPickedBooking, setSelectPickedBooking] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -173,7 +172,6 @@ const Booking = (props) => {
         return `${hours}:${minutes} ${period}`;
     }
     const onAssignDriver = (data) => {
-        setSelectPickedBooking(data?.id);
         setBookingData(data);
         setBookingStage(2);
         setBookingView(false);
@@ -231,32 +229,32 @@ const Booking = (props) => {
         switch (statusLower) {
           case 'started':
             return (
-              <span className="ml-2 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+              <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
                 On Trip
               </span>
             );
           case 'ended':
             return (
-              <span className="ml-2 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+              <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
                 Completed
               </span>
             );
           case 'cancelled':
             return (
-              <span className="ml-2 px-2 py-1 text-white bg-red-600 rounded-md text-sm font-medium">
+              <span className="mx-3 px-2 py-1 text-white bg-red-600 rounded-md text-sm font-medium">
                 Cancelled
               </span>
             );
           case 'initiated':
             if (bookingData?.Driver?.id || bookingData?.Cab?.id) {
               return (
-                <span className="ml-2 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
                   Booked
                 </span>
               );
             }
             return (
-              <span className="ml-2 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+              <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
                 Initiated
               </span>
             );
@@ -267,7 +265,7 @@ const Booking = (props) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
-                <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} selectPickedBooking={selectPickedBooking} />
+                <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
@@ -584,7 +582,6 @@ const Booking = (props) => {
                         bookingStage === 2 && bookingData && (
                             <SearchDrivers bookingData={bookingData} onNext={() => {
                                 setBookingStage(0);
-                                setSelectPickedBooking(null);
                                 setBookingData(null);
                             }} />
                         )}
