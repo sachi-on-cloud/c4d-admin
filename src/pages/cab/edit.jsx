@@ -60,27 +60,27 @@ const CabEdit = () => {
     const [packageDetails, setPackageDetails] = useState([]);
     const [ownerAddressSuggestions, setOwnerAddressSuggestions] = useState([]);
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
-    const [accountOptions, setAccountOptions] = useState([]);
+    // const [accountOptions, setAccountOptions] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false); 
 
-    const getAccountNames = async () => {
-        try {
-            const data = await ApiRequestUtils.get(API_ROUTES.GET_ACCOUNT);
-            if (data?.success) {
-                setAccountOptions(data.data.map(account => ({
-                    value: account.name,
-                    label: account.name
-                })));
-            }
-        } catch (error) {
-            console.error('Error fetching account names:', error);
-            setAlert({ message: 'Error fetching account names', color: 'red' });
-        }
-    };
+    // const getAccountNames = async () => {
+    //     try {
+    //         const data = await ApiRequestUtils.get(API_ROUTES.GET_ACCOUNT);
+    //         if (data?.success) {
+    //             setAccountOptions(data.data.map(account => ({
+    //                 value: account.name,
+    //                 label: account.name
+    //             })));
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching account names:', error);
+    //         setAlert({ message: 'Error fetching account names', color: 'red' });
+    //     }
+    // };
 
     function getNameById(id, obj) {
         for (const key in obj) {
@@ -125,7 +125,7 @@ const CabEdit = () => {
 
     useEffect(() => {
         getPackageListDetails();
-        getAccountNames();
+        // getAccountNames();
         fetchItem(id);
     }, [id]);
 
@@ -146,6 +146,7 @@ const CabEdit = () => {
 
     const initialValues = {
         name: cabVal?.result?.name || "",
+        ownerName: cabVal?.result?.Account ? cabVal?.result?.Account?.name : "",
         phoneNumber: cabVal?.result?.phoneNumber ? cabVal?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cabVal?.result?.carNumber || "",
         address: cabVal?.result?.curAddress || "",
@@ -321,21 +322,16 @@ const CabEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                        <div>
-                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Owner Name</label>
-                                <Field
-                                    as="select"
-                                    name="name"
-                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                                >
-                                    <option value="">Select Owner</option>
-                                    {accountOptions.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </Field>
+                            <div>
+                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Cab Name</label>
+                                <Field type="text" name="name" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
                                 <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="ownerName" className="text-sm font-medium text-gray-700">Owner Name</label>
+                                <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
                             <div>

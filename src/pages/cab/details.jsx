@@ -52,6 +52,7 @@ const CabDetails = () => {
     };
     const initialValues = {
         name: cab?.result?.name || "",
+        ownerName: cab?.result?.Account ? cab?.result?.Account?.name : "", 
         phoneNumber: cab?.result?.phoneNumber ? cab?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cab?.result?.carNumber || "",
         address: cab?.result?.curAddress || "",
@@ -84,9 +85,15 @@ const CabDetails = () => {
                             <div className="grid grid-cols-2 gap-4">
 
                                 <div>
-                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Owner Name</label>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Cab Name</label>
                                     <Field type="text" name="name" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
                                     <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="ownerName" className="text-sm font-medium text-gray-700">Owner Name</label>
+                                    <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                    <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
 
                                 <div>

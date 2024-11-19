@@ -71,7 +71,7 @@ const CabAdd = () => {
             const data = await ApiRequestUtils.get(API_ROUTES.GET_ACCOUNT);
             if (data?.success) {
                 setAccountOptions(data.data.map(account => ({
-                    value: account.name,
+                    value: account.id,
                     label: account.name
                 })));
             }
@@ -129,6 +129,7 @@ const CabAdd = () => {
 
     const initialValues = {
         name: cabVal?.name || "",
+        accountId: "",
         phoneNumber: cabVal?.phoneNumber ? cabVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cabVal?.carNumber || "",
         address: cabVal?.address || "",
@@ -254,6 +255,7 @@ const CabAdd = () => {
                 packages: values.packages,
                 carType: values.carType,
                 wallet: values.wallet,
+                accountId: values.accountId
             };
             // let cabData = { cabDetails, prices: values.prices };
             const formData = new FormData();
@@ -307,11 +309,16 @@ const CabAdd = () => {
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
 
-                        <div>
-                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Owner Name</label>
+                            <div>
+                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Cab Name</label>
+                                <Field type="text" name="name" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+                            <div>
+                                <label htmlFor="accountId" className="text-sm font-medium text-gray-700">Owner Name</label>
                                 <Field
                                     as="select"
-                                    name="name"
+                                    name="accountId"
                                     className="p-2 w-full rounded-md border-gray-300 shadow-sm"
                                 >
                                     <option value="">Select Owner</option>
