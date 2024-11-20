@@ -502,14 +502,26 @@ const ConfirmBooking = (props) => {
                             {props.bookingData.serviceType === "CAB" ? "Choose Another Cab" : "Choose Another Captain"}
                         </Button>
                     }
-                    {(bookingDetails.status === 'INITIATED' && dateVal && timeVal && kms) || (bookingDetails.status === 'STARTED' && dateVal && timeVal && kms && paymentDetails?.paymentCollected && paymentDetails?.paymentMethod && paymentDetails?.paymentStatus && paymentDetails?.enable) && <Button
+                    {bookingDetails.status === 'INITIATED' && dateVal && timeVal && kms &&
+                        <Button
                         color="black"
                         ripple="light"
                         fullWidth
                         onClick={onConfirmPressHandler}
                     >
-                        {bookingDetails?.status === 'STARTED' ? 'Complete Trip' : 'Start Trip'}
-                    </Button>}
+                        Start Trip
+                    </Button>
+                    }
+                    {bookingDetails.status === 'STARTED' && dateVal && timeVal && kms && paymentDetails.paymentCollected && paymentDetails.paymentMethod && paymentDetails.paymentStatus &&
+                        <Button
+                        color="black"
+                        ripple="light"
+                        fullWidth
+                        onClick={onConfirmPressHandler}
+                    >
+                        End Trip
+                    </Button>
+                    }
                 </div>
             </>
         </div>
