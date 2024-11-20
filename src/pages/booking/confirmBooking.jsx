@@ -291,13 +291,13 @@ const ConfirmBooking = (props) => {
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
                                         <Typography>₹ {amount?.extraPrice}</Typography>
                                     </div>
-                                    {amount.extraKMs && 
+                                    {amount.extraKMs > 0 && 
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">{`Extra KM's Fare: (${amount.extraKMs} x ${amount.extraKMPrice})`}</Typography>
                                             <Typography>₹ {amount?.extraKMs * amount?.extraKMPrice}</Typography>
                                         </div>
                                     }
-                                    {amount.extraNightCharge && 
+                                    {amount.extraNightCharge > 0 && 
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">{`Night Charge: (${amount.extraNightCharge} x ${amount.extraNightChargePrice})`}</Typography>
                                             <Typography>₹ {amount?.extraNightCharge * amount?.extraNightChargePrice}</Typography>
@@ -469,7 +469,7 @@ const ConfirmBooking = (props) => {
                                 fullWidth
                                 onClick={onCancelPressHandler}
                             >
-                                Cancel
+                                Cancel Booking
                             </Button>
                             {/* <Button
                                 color="gray"
