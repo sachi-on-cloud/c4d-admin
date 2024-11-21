@@ -6,7 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
-import WalletDetails from '@/components/WalletDetails';
+// import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 
 const DriverDetails = () => {
@@ -78,7 +78,7 @@ const DriverDetails = () => {
         preference: driver?.result?.preference || "",
         packages: driver?.result?.packages || "",
         carType: driver?.result?.carType || "",
-        wallet: driver?.result?.wallet || "",
+        //wallet: driver?.result?.wallet || "",
     };
 
     const getDocumentByType = (type) => {
@@ -290,11 +290,11 @@ const DriverDetails = () => {
                                     </div>
                                     <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div>
+                                {/* <div>
                                     <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
                                     <Field type="number" name="wallet" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                </div> */}
                                 <div>
                                     <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                     <Multiselect
@@ -397,7 +397,7 @@ const DriverDetails = () => {
                 </Formik>
             </div>
             {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
-            {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />}
+            {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />
             <div className='flex justify-center w-full'>
                 <Button

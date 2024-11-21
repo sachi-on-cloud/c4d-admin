@@ -140,6 +140,7 @@ const sortPrices = (prices, category) => {
                                                     <Field
                                                         name={`[${index}].${field}`}
                                                         className="w-full p-1 text-xs border rounded"
+                                                        type="number"
                                                     />
                                                 ) : (
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">

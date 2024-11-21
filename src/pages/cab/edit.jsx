@@ -147,19 +147,19 @@ const CabEdit = () => {
     const initialValues = {
         name: cabVal?.result?.name || "",
         ownerName: cabVal?.result?.Account ? cabVal?.result?.Account?.name : "",
-        phoneNumber: cabVal?.result?.phoneNumber ? cabVal?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
+        ownerPhoneNumber: cabVal?.result?.ownerPhoneNumber ? cabVal?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cabVal?.result?.carNumber || "",
         address: cabVal?.result?.curAddress || "",
         insurance: cabVal?.result?.insurance || "",
         withDriver: cabVal?.result?.withDriver || "",
         driverName: cabVal?.result?.driverName || "",
-        driverPhoneNumber: cabVal?.result?.driverPhoneNumber || "",
+        phoneNumber: cabVal?.result?.phoneNumber || "",
         driverAddress: cabVal?.result?.driverAddress || "",
-        licenseNumber: cabVal?.result?.licenseNumber || "",
+        licenseNumber: cabVal?.result?.driverLicense || "",
         notify: cabVal?.result?.notify || "",
         packages: cabVal?.result?.packages || "",
         carType: cabVal?.result?.carType || "",
-        wallet: cabVal?.result?.wallet || "",
+       // wallet: cabVal?.result?.wallet || "",
         prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
         image1: cabVal?.result?.Proofs ? cabVal?.result?.Proofs[0]?.image1 : ''
     };
@@ -234,6 +234,7 @@ const CabEdit = () => {
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    type="number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
                                                 <ErrorMessage 
@@ -260,20 +261,20 @@ const CabEdit = () => {
         try {
             const cabDetails = {
                 name: values.name,
-                phoneNumber: "+91" + values.phoneNumber,
+                ownerPhoneNumber: "+91" + values.ownerPhoneNumber,
                 carNumber: values.carNumber,
                 curAddress: values.address,
                 company: values.company,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
-                driverPhoneNumber: values.driverPhoneNumber,
+                phoneNumber: values.phoneNumber,
                 driverAddress: values.driverAddress,
-                licenseNumber: values.licenseNumber,
+                driverLicense: values.licenseNumber,
                 notify: values.notify,
                 insurance: values.insurance,
                 packages: values.packages,
                 carType: values.carType,
-                wallet: values.wallet,
+                //wallet: values.wallet,
                 cabId: id
             };
             const formData = new FormData();
@@ -335,9 +336,9 @@ const CabEdit = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border border-gray-300 " maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="ownerPhoneNumber" className="text-sm font-medium text-gray-700">Owner Phone Number</label>
+                                <Field type="tel" name="ownerPhoneNumber" className="p-2 w-full rounded-md border border-gray-300 " maxLength={10} />
+                                <ErrorMessage name="ownerPhoneNumber" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
@@ -393,7 +394,7 @@ const CabEdit = () => {
                                             onChange={e => {
                                                 handleChange(e);
                                                 setFieldValue('driverName', values.driverName, true);
-                                                setFieldValue('driverPhoneNumber', values.driverPhoneNumber, true);
+                                                setFieldValue('phoneNumber', values.phoneNumber, true);
                                                 setFieldValue('driverAddress', values.driverAddress, true);
                                                 setFieldValue('licenseNumber', values.licenseNumber, true);
                                             }} />
@@ -404,7 +405,7 @@ const CabEdit = () => {
                                             onChange={e => {
                                                 handleChange(e);
                                                 setFieldValue('driverName', '', true);
-                                                setFieldValue('driverPhoneNumber', '', true);
+                                                setFieldValue('phoneNumber', '', true);
                                                 setFieldValue('driverAddress','', true);
                                                 setFieldValue('licenseNumber','' , true);
                                             }} />
@@ -421,9 +422,9 @@ const CabEdit = () => {
                                 <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label htmlFor="driverPhoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="driverPhoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="driverPhoneNumber" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>

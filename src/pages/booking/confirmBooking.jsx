@@ -203,6 +203,28 @@ const ConfirmBooking = (props) => {
                     </div>
                 </CardBody>
             </Card>
+            {bookingDetails?.Driver?.id &&
+            <Card className="mb-4">
+                <CardBody>
+                    <div className="flex justify-between mb-2">
+                        <Typography variant="h5">Driver Details </Typography>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Name:</Typography>
+                            <Typography>{bookingDetails?.Driver?.firstName}</Typography>
+                        </div>
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Phone Number:</Typography>
+                            <Typography>
+                                {bookingDetails?.Driver?.phoneNumber}
+                            </Typography>
+                        </div>
+                    </div>
+                </CardBody>
+            </Card>
+            }
             <Card className="mb-4">
                 <CardBody>
                     <div className="flex justify-between mb-2">
@@ -459,7 +481,19 @@ const ConfirmBooking = (props) => {
                     >
                         Back
                     </Button>
-
+                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id &&
+                        <>
+                            <Button
+                                color="gray"
+                                variant="outlined"
+                                ripple="dark"
+                                fullWidth
+                                onClick={() => { props.onEdit(bookingDetails) }}
+                            >
+                                Edit
+                            </Button>
+                        </>
+                    }
                     {bookingDetails.status != "ENDED" && bookingDetails.status != "STARTED" && bookingDetails.status != "CANCELLED" &&
                         <>
                             <Button
@@ -471,15 +505,6 @@ const ConfirmBooking = (props) => {
                             >
                                 Cancel Booking
                             </Button>
-                            {/* <Button
-                                color="gray"
-                                variant="outlined"
-                                ripple="dark"
-                                fullWidth
-                                onClick={() => { props.onEdit(bookingDetails) }}
-                            >
-                                Edit
-                            </Button> */}
                         </>
                     }
                     {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id && !bookingDetails?.Cab?.id &&

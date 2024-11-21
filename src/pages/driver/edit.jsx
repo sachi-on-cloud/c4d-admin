@@ -165,7 +165,7 @@ const DriverEdit = () => {
         preference: driverVal?.result?.preference || "",
         carType: driverVal?.result?.carType || "",
         packages: driverVal?.result?.packages || "",
-        wallet: driverVal?.result?.wallet || "",
+        //wallet: driverVal?.result?.wallet || "",
         prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : []
     };
 
@@ -229,6 +229,7 @@ const DriverEdit = () => {
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    type="number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
                                                 <ErrorMessage 
@@ -280,7 +281,7 @@ const DriverEdit = () => {
                 preference: values.preference,
                 packages: values.packages,
                 carType: values.carType,
-                wallet: values.wallet,
+                //wallet: values.wallet,
                 driverId: id
             };
             let driverData = { driverDetails, prices: values.prices }

@@ -158,7 +158,7 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected'),
     // .min(1, 'At least one package must be selected'),
-    wallet: Yup.string().required('Wallet is required'),
+    //wallet: Yup.string().required('Wallet is required'),
     prices: Yup.array().of(
         Yup.object().shape({
             price: Yup.number().required('Price is required'),
@@ -247,7 +247,7 @@ export const DRIVER_SCHEMA = Yup.object({
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected')
         .min(1, 'At least one package must be selected'),
-    wallet: Yup.string().required('Wallet is required'),
+    //wallet: Yup.string().required('Wallet is required'),
     prices: Yup.array().of(
         Yup.object().shape({
             price: Yup.number().required('Price is required'),
@@ -267,7 +267,7 @@ export const DRIVER_SCHEMA = Yup.object({
 
 export const CAB_SCHEMA = Yup.object({
     name: Yup.string().required('Owner Name is required'),
-    phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
+    ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
     address: Yup.string()
         .required('Address is required')
@@ -294,7 +294,7 @@ export const CAB_SCHEMA = Yup.object({
         then: () => Yup.string().required('Driver Name is required'),
         otherwise: () => Yup.string()
     }),
-    driverPhoneNumber: Yup.string().when(['withDriver'], {
+    phoneNumber: Yup.string().when(['withDriver'], {
         is: (withDriver) => withDriver === 'Yes',
         then: () => Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
         otherwise: () => Yup.string()
@@ -328,7 +328,7 @@ export const CAB_SCHEMA = Yup.object({
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected')
         .min(1, 'At least one package must be selected'),
-    wallet: Yup.string().required('Wallet is required'),
+    //wallet: Yup.string().required('Wallet is required'),
     prices: Yup.array().of(
         Yup.object().shape({
             price: Yup.number().required('Price is required'),
@@ -349,7 +349,7 @@ export const CAB_SCHEMA = Yup.object({
 
 export const CAB_ADD_SCHEMA = Yup.object({
     name: Yup.string().required('Owner Name is required'),
-    phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
+    ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
     address: Yup.string()
         .required('Address is required')
@@ -376,7 +376,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
         then: () => Yup.string().required('Driver Name is required'),
         otherwise: () => Yup.string()
     }),
-    driverPhoneNumber: Yup.string().when(['withDriver'], {
+    phoneNumber: Yup.string().when(['withDriver'], {
         is: (withDriver) => withDriver === 'Yes',
         then: () => Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
         otherwise: () => Yup.string()
@@ -410,7 +410,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected'),
     //.min(1, 'At least one package must be selected'),
-    wallet: Yup.string().required('Wallet is required'),
+    //wallet: Yup.string().required('Wallet is required'),
     prices: Yup.array().of(
         Yup.object().shape({
             price: Yup.number().required('Price is required'),

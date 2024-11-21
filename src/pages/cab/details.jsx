@@ -6,7 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
-import WalletDetails from '@/components/WalletDetails';
+// import WalletDetails from '@/components/WalletDetails';
 import PrintCabDetails from '@/components/PrintCabDetails';
 
 const CabDetails = () => {
@@ -53,18 +53,18 @@ const CabDetails = () => {
     const initialValues = {
         name: cab?.result?.name || "",
         ownerName: cab?.result?.Account ? cab?.result?.Account?.name : "", 
-        phoneNumber: cab?.result?.phoneNumber ? cab?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
+        ownerPhoneNumber: cab?.result?.ownerPhoneNumber ? cab?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cab?.result?.carNumber || "",
         address: cab?.result?.curAddress || "",
         insurance: cab?.result?.insurance || "",
         driverName: cab?.result?.driverName || "",
-        driverPhoneNumber: cab?.result?.driverPhoneNumber || "",
+        phoneNumber: cab?.result?.phoneNumber || "",
         driverAddress: cab?.result?.driverAddress || "",
-        licenseNumber: cab?.result?.licenseNumber || "",
+        licenseNumber: cab?.result?.driverLicense || "",
         notify: cab?.result?.notify || "",
         packages: cab?.result?.packages || "",
         carType: cab?.result?.carType || "",
-        wallet: cab?.result?.wallet || "",
+        //wallet: cab?.result?.wallet || "",
         withDriver: cab?.result?.withDriver || "", 
         image1: cab?.result?.Proofs ? cab?.result?.Proofs[0]?.image1 : ''  
     };
@@ -97,9 +97,9 @@ const CabDetails = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" name="phoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
-                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                    <label htmlFor="ownerPhoneNumber" className="text-sm font-medium text-gray-700">Owner Phone Number</label>
+                                    <Field type="tel" name="ownerPhoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
+                                    <ErrorMessage name="ownerPhoneNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
 
                                 <div>
@@ -158,9 +158,9 @@ const CabDetails = () => {
                                     <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="driverPhoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" name="driverPhoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
-                                    <ErrorMessage name="driverPhoneNumber" component="div" className="text-red-500 text-sm" />
+                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="tel" name="phoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
+                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
                                     <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
@@ -207,7 +207,7 @@ const CabDetails = () => {
                 </Formik>
             </div>
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
-            {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />}
+            {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />
             <div className='flex justify-center w-full'>
                 <Button

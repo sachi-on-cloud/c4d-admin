@@ -148,7 +148,7 @@ const DriverAdd = () => {
         preference: driverVal?.preference || "",
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || [],
-        wallet: driverVal?.wallet || "",
+        //wallet: driverVal?.wallet || "",
         prices: [],
         aadhaarImage: '',
         policeClearance: '',
@@ -218,6 +218,7 @@ const DriverAdd = () => {
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    type="number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
                                                 <ErrorMessage 
@@ -266,7 +267,7 @@ const DriverAdd = () => {
                 preference: values.preference,
                 packages: values.packages,
                 carType: values.carType,
-                wallet: values.wallet,
+                //wallet: values.wallet,
             };
             let driverData = { driverDetails, prices: values.prices };
             console.log(driverData);
@@ -760,11 +761,11 @@ const DriverAdd = () => {
                                 </div>
                                 <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
                                 <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                 <Multiselect

@@ -130,20 +130,20 @@ const CabAdd = () => {
     const initialValues = {
         name: cabVal?.name || "",
         accountId: "",
-        phoneNumber: cabVal?.phoneNumber ? cabVal?.phoneNumber.replace(/^(\+91)/, '') : "",
+        ownerPhoneNumber: cabVal?.ownerPhoneNumber ? cabVal?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cabVal?.carNumber || "",
         address: cabVal?.address || "",
         company: cabVal?.company || "",
         insurance: cabVal?.insurance || "",
         withDriver: cabVal?.withDriver || "",
         driverName: cabVal?.driverName || "",
-        driverPhoneNumber: cabVal?.driverPhoneNumber || "",
+        phoneNumber: cabVal?.phoneNumber || "",
         driverAddress: cabVal?.driverAddress || "",
-        licenseNumber: cabVal?.licenseNumber || "",
+        licenseNumber: cabVal?.driverLicense || "",
         notify: cabVal?.notify || "",
         carType: cabVal?.carType || "",
         packages: cabVal?.packages || [],
-        wallet: cabVal?.wallet || "",
+        //wallet: cabVal?.wallet || "",
         prices: [],
         image1: ""
     };
@@ -219,6 +219,7 @@ const CabAdd = () => {
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    type= "number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
                                                 <ErrorMessage 
@@ -242,19 +243,19 @@ const CabAdd = () => {
         try {
             const cabDetails = {
                 name: values.name,
-                phoneNumber: "+91" + values.phoneNumber,
+                ownerPhoneNumber: "+91" + values.ownerPhoneNumber,
                 carNumber: values.carNumber,
                 curAddress: values.address,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
-                driverPhoneNumber: values.driverPhoneNumber,
+                phoneNumber: values.phoneNumber,
                 driverAddress: values.driverAddress,
-                licenseNumber: values.licenseNumber,
+                driverLicense: values.licenseNumber,
                 notify: values.notify,
                 insurance: values.insurance,
                 packages: values.packages,
                 carType: values.carType,
-                wallet: values.wallet,
+                //wallet: values.wallet,
                 accountId: values.accountId
             };
             // let cabData = { cabDetails, prices: values.prices };
@@ -332,9 +333,9 @@ const CabAdd = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="ownerPhoneNumber" className="text-sm font-medium text-gray-700">Owner Phone Number</label>
+                                <Field type="tel" name="ownerPhoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="ownerPhoneNumber" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
@@ -389,7 +390,7 @@ const CabAdd = () => {
                                             onChange={e => {
                                                 handleChange(e);
                                                 setFieldValue('driverName', values.driverName, true);
-                                                setFieldValue('driverPhoneNumber', values.driverPhoneNumber, true);
+                                                setFieldValue('phoneNumber', values.phoneNumber, true);
                                                 setFieldValue('driverAddress', values.driverAddress, true);
                                                 setFieldValue('licenseNumber', values.licenseNumber, true);
                                             }} />
@@ -400,7 +401,7 @@ const CabAdd = () => {
                                             onChange={e => {
                                                 handleChange(e);
                                                 setFieldValue('driverName', '', true);
-                                                setFieldValue('driverPhoneNumber', '', true);
+                                                setFieldValue('phoneNumber', '', true);
                                                 setFieldValue('driverAddress','', true);
                                                 setFieldValue('licenseNumber','' , true);
                                             }} />
@@ -417,9 +418,9 @@ const CabAdd = () => {
                                 <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />   
                             </div>
                             <div>
-                                <label htmlFor="driverPhoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="driverPhoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="driverPhoneNumber" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
@@ -461,11 +462,11 @@ const CabAdd = () => {
                                 </div>
                                 <ErrorMessage name="notify" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
                                 <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                 <Multiselect
