@@ -7,6 +7,7 @@ import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
+import Select from 'react-select'
 
 const LocationInput = ({ field, form, suggestions, onSearch }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -61,11 +62,8 @@ const DriverAdd = () => {
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [districtSearchText, setDistrictSearchText] = useState("");
-    const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
     const [thalukSearchText, setThalukSearchText] = useState("");
-    const [isThalukListVisible, setIsThalukListVisible ] = useState(false);
     const [stateSearchText, setStateSearchText] = useState("");
-    const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         policeClearance: null,
@@ -309,20 +307,7 @@ const DriverAdd = () => {
     const filteredDistricts = districtOptions.filter(district =>
         district.name.toLowerCase().includes(districtSearchText.toLowerCase())
     );
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.district-search-container')) {
-                setIsDistrictListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
+    
     const thalukOptions = THALUK_LIST.map(thaluk => ({
         id: thaluk.value,
         name: thaluk.label
@@ -332,19 +317,6 @@ const DriverAdd = () => {
         thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase()) 
     );
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.thaluk-search-container')) {
-                setIsThalukListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     const stateOptions = STATE_LIST.map(state => ({
         id: state.value,
         name: state.label
@@ -353,19 +325,6 @@ const DriverAdd = () => {
     const filteredState = stateOptions.filter(state => 
         state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
     );
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.state-search-container')) {
-                setIsStateListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     const DocumentUpload = ({ label, value, name, onChange, imagePreview }) => {
         return (
@@ -455,6 +414,7 @@ const DriverAdd = () => {
             >
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
+                        <div className={`grid ${driverAdded.value ? 'grid-cols-2' : 'grid-cols-1'} gap-7`}>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
@@ -598,106 +558,76 @@ const DriverAdd = () => {
                                 <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
                             <div>
-                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">Thaluk</label>
-                                <div className="relative thaluk-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search Thaluk"
-                                        value={thalukSearchText}
-                                        onChange={(e) => {
-                                            setThalukSearchText(e.target.value);
-                                            setIsThalukListVisible(true);
-                                        }}
-                                        onFocus={() => setIsThalukListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isThalukListVisible && thalukSearchText && filteredThaluk.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredThaluk.map((thaluk) => (
-                                                <ListItem
-                                                    key={thaluk.id}
-                                                    onClick={() => {
-                                                        setFieldValue("thaluk", thaluk.id);
-                                                        setThalukSearchText(thaluk.name);
-                                                        setIsThalukListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {thaluk.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="thaluk" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
+                                    Thaluk
+                                </label>
+                                <Select
+                                    id="thaluk"
+                                    options={filteredThaluk.map((thaluk) => ({
+                                        value: thaluk.id,
+                                        label: thaluk.name,
+                                    }))}
+                                    onChange={(selectedOption) =>
+                                        setFieldValue("thaluk", selectedOption?.value || "")
+                                    }
+                                    placeholder="Search Thaluk"
+                                    isSearchable
+                                    className="w-full"
+                                    classNamePrefix="react-select"
+                                />
+                                <ErrorMessage
+                                    name="thaluk"
+                                    component="div"
+                                    className="text-red-500 text-sm mt-1"
+                                />
+                            </div>     
+                            <div>
+                                <label htmlFor="district" className="text-sm font-medium text-gray-700">
+                                    District
+                                </label>
+                                <Select
+                                    id="district"
+                                    options={filteredDistricts.map((district) => ({
+                                        value: district.id,
+                                        label: district.name,
+                                    }))}
+                                    onChange={(selectedOption) =>
+                                        setFieldValue("district", selectedOption?.value || "")
+                                    }
+                                    placeholder="Select District"
+                                    isSearchable
+                                    className="w-full"
+                                    classNamePrefix="react-select"
+                                />
+                                <ErrorMessage
+                                    name="district"
+                                    component="div"
+                                    className="text-red-500 text-sm mt-1"
+                                />
                             </div>
                             <div>
-                                <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
-                                <div className="relative district-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search District"
-                                        value={districtSearchText}
-                                        onChange={(e) => {
-                                            setDistrictSearchText(e.target.value);
-                                            setIsDistrictListVisible(true);
-                                        }}
-                                        onFocus={() => setIsDistrictListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isDistrictListVisible && districtSearchText && filteredDistricts.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredDistricts.map((district) => (
-                                                <ListItem
-                                                    key={district.id}
-                                                    onClick={() => {
-                                                        setFieldValue("district", district.id);
-                                                        setDistrictSearchText(district.name);
-                                                        setIsDistrictListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {district.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="district" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="state" className="text-sm font-medium text-gray-700">State</label>
-                                <div className="relative state-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search State"
-                                        value={stateSearchText}
-                                        onChange={(e) => {
-                                            setStateSearchText(e.target.value);
-                                            setIsStateListVisible(true);
-                                        }}
-                                        onFocus={() => setIsStateListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isStateListVisible && stateSearchText && filteredState.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredState.map((state) => (
-                                                <ListItem
-                                                    key={state.id}
-                                                    onClick={() => {
-                                                        setFieldValue("state", state.id);
-                                                        setStateSearchText(state.name);
-                                                        setIsStateListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {state.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="state" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                                    State
+                                </label>
+                                <Select
+                                    id="state"
+                                    options={filteredState.map((state) => ({
+                                        value: state.id,
+                                        label: state.name,
+                                    }))}
+                                    onChange={(selectedOption) =>
+                                        setFieldValue("state", selectedOption?.value || "")
+                                    }
+                                    placeholder="Select State"
+                                    isSearchable
+                                    className="w-full"
+                                    classNamePrefix="react-select"
+                                />
+                                <ErrorMessage
+                                    name="state"
+                                    component="div"
+                                    className="text-red-500 text-sm mt-1"
+                                />
                             </div>
                             <div>
                                 <label htmlFor="pinCode" className="text-sm font-medium text-gray-700">Pincode</label>
@@ -796,38 +726,7 @@ const DriverAdd = () => {
                                 />
                             </div>
                         </div>
-                        {values.packages.length > 0 && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                                {renderPriceTable(
-                                    "INTERCITY",
-                                    values.prices.filter(price => {
-                                        const package_ = packageDetails.find(p => p.id === price.packageId);
-                                        return package_?.type === 'Intercity';
-                                    }),
-                                    values
-                                )}
-
-                                {renderPriceTable(
-                                    "OUTSTATION",
-                                    values.prices.filter(price => {
-                                        const package_ = packageDetails.find(p => p.id === price.packageId);
-                                        return package_?.type === 'Outstation';
-                                    }),
-                                    values
-                                )}
-
-                                {renderPriceTable(
-                                    "CAR WASH",
-                                    values.prices.filter(price => {
-                                        const package_ = packageDetails.find(p => p.id === price.packageId);
-                                        return package_?.type === 'CarWash';
-                                    }),
-                                    values
-                                )}
-                            </div>
-                        )}
-                        {driverAdded.value && 
+                        {driverAdded.value  && // driverAdded.value should be here
                             <div className='space-y-4'>
                                 <div className="grid grid-cols-2 gap-6">
                                     <DocumentUpload
@@ -874,6 +773,38 @@ const DriverAdd = () => {
                                 </div>
                             </div>
                         }
+                        </div>
+                        {values.packages.length > 0 && (
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">Price Details</h2>
+                                {renderPriceTable(
+                                    "INTERCITY",
+                                    values.prices.filter(price => {
+                                        const package_ = packageDetails.find(p => p.id === price.packageId);
+                                        return package_?.type === 'Intercity';
+                                    }),
+                                    values
+                                )}
+
+                                {renderPriceTable(
+                                    "OUTSTATION",
+                                    values.prices.filter(price => {
+                                        const package_ = packageDetails.find(p => p.id === price.packageId);
+                                        return package_?.type === 'Outstation';
+                                    }),
+                                    values
+                                )}
+
+                                {renderPriceTable(
+                                    "CAR WASH",
+                                    values.prices.filter(price => {
+                                        const package_ = packageDetails.find(p => p.id === price.packageId);
+                                        return package_?.type === 'CarWash';
+                                    }),
+                                    values
+                                )}
+                            </div>
+                        )}
                         {!driverAdded.value &&
                             <div className='flex flex-row'>
                                 <Button
@@ -894,6 +825,7 @@ const DriverAdd = () => {
                                 </Button>
                             </div>
                         }
+                        
                     </Form>
                 )}
             </Formik>

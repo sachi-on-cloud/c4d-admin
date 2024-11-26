@@ -6,6 +6,7 @@ import { Button, Card, CardBody, Typography, Input, List, ListItem } from '@mate
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_SCHEMA } from '@/utils/validations';
+import Select from 'react-select';
 
 const LocationInput = ({ field, form, suggestions, onSearch }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -49,11 +50,8 @@ const DriverEdit = () => {
     const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
     const [districtSearchText, setDistrictSearchText] = useState("");
-    const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
     const [thalukSearchText, setThalukSearchText] = useState("");
-    const [isThalukListVisible, setIsThalukListVisible ] = useState(false);
     const [stateSearchText, setStateSearchText] = useState("");
-    const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imagePreviews, setImagePreviews] = useState({
@@ -311,9 +309,6 @@ const DriverEdit = () => {
         name: district.label
     }));
 
-    const filteredDistricts = districtOptions.filter(district =>
-        district.name.toLowerCase().includes(districtSearchText.toLowerCase())
-    );
     useEffect(() => {
         if (initialValues.district) {
             const selectedDistrict = districtOptions.find(district => district.id === initialValues.district);
@@ -323,27 +318,12 @@ const DriverEdit = () => {
         }
     }, [initialValues.district]);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.district-search-container')) {
-                setIsDistrictListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     const thalukOptions = THALUK_LIST.map(thaluk => ({
         id: thaluk.value,
         name: thaluk.label
     }));
 
-    const filteredThaluk = thalukOptions.filter(thaluk => 
-        thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase()) 
-    );
     useEffect(() => {
         if (initialValues.thaluk) {
             const selectedThaluk = thalukOptions.find(thaluk => thaluk.id === initialValues.thaluk);
@@ -352,27 +332,12 @@ const DriverEdit = () => {
             }
         }
     }, [initialValues.thaluk]);
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.thaluk-search-container')) {
-                setIsThalukListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     const stateOptions = STATE_LIST.map(state => ({
         id: state.value,
         name: state.label
     }));
 
-    const filteredState = stateOptions.filter(state => 
-        state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
-    );
     useEffect(() => {
         if (initialValues.state) {
             const selectedState = stateOptions.find(state => state.id === initialValues.state);
@@ -381,19 +346,6 @@ const DriverEdit = () => {
             }
         }
     }, [initialValues.state]);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.state-search-container')) {
-                setIsStateListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     const getDocumentByType = (value, type) => {
         return value.find(proof => proof.type === type) || "";
@@ -475,6 +427,7 @@ const DriverEdit = () => {
             console.log('DATA IN DOC UPDATE :', data);
         }
     }
+
     return (
         <div className="p-4 mx-auto">
             <h2 className="text-2xl font-bold mb-4">Update Driver</h2>
@@ -486,385 +439,355 @@ const DriverEdit = () => {
             >
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                    <option value="">Select salutation</option>
-                                    <option value="Mr">Mr</option>
-                                    <option value="Mrs">Mrs</option>
-                                    <option value="Others">Others</option>
-                                </Field>
-                                <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
-                            </div>
+                        <div className='grid grid-cols-2 gap-7'>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
+                                    <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select salutation</option>
+                                        <option value="Mr">Mr</option>
+                                        <option value="Mrs">Mrs</option>
+                                        <option value="Others">Others</option>
+                                    </Field>
+                                    <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
+                                </div>
 
-                            <div>
-                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
-                                <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
+                                <div>
+                                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
+                                    <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
 
-                            <div>
-                                <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
-                                <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
+                                <div>
+                                    <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
+                                    <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
 
-                            <div>
-                                <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
-                                <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
+                                <div>
+                                    <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
+                                    <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
 
-                            <div>
-                                <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
-                                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
-                                    onChange={(e) => {
-                                        setFieldValue('dateOfBirth', e.target.value);
+                                <div>
+                                    <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
+                                    <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
+                                        onChange={(e) => {
+                                            setFieldValue('dateOfBirth', e.target.value);
 
-                                        if(e.target.value) {
-                                            const today = new Date();
-                                            const birthDate = new Date(e.target.value);
-                                            let age = today.getFullYear() - birthDate.getFullYear();
-                                            const monthDiff = today.getMonth() - birthDate.getMonth();
+                                            if(e.target.value) {
+                                                const today = new Date();
+                                                const birthDate = new Date(e.target.value);
+                                                let age = today.getFullYear() - birthDate.getFullYear();
+                                                const monthDiff = today.getMonth() - birthDate.getMonth();
 
-                                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                                                age--;
+                                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                                    age--;
+                                                }
+                                                setFieldValue('age',age);
+                                            }else {
+                                                setFieldValue('age','');
                                             }
-                                            setFieldValue('age',age);
-                                        }else {
-                                            setFieldValue('age','');
-                                        }
-                                    }}
-                                />
-                                <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
-                                <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
-                                <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="licenseType" value="type1" className="form-radio" />
-                                        <span className="ml-2">Type 1</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="licenseType" value="type2" className="form-radio" />
-                                        <span className="ml-2">Type 2</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
-                                <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
-                                <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
-                                        <span className="ml-2">Yes</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
-                                        <span className="ml-2">No</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
-                                        <span className="ml-2">Yes</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
-                                        <span className="ml-2">No</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
-                                <Field name="address">
-                                    {({ field, form }) => (
-                                        <LocationInput
-                                            field={field}
-                                            form={form}
-                                            suggestions={addressSuggestions}
-                                            onSearch={searchLocations}
-                                        />
-                                    )}
-                                </Field>
-                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
-                                <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-                            <div>
-                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">Thaluk</label>
-                                <div className="relative thaluk-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search Thaluk"
-                                        value={thalukSearchText}
-                                        onChange={(e) => {
-                                            setThalukSearchText(e.target.value);
-                                            setIsThalukListVisible(true);
                                         }}
-                                        onFocus={() => setIsThalukListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
                                     />
-                                    {isThalukListVisible && thalukSearchText && filteredThaluk.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredThaluk.map((thaluk) => (
-                                                <ListItem
-                                                    key={thaluk.id}
-                                                    onClick={() => {
-                                                        setFieldValue("thaluk", thaluk.id);
-                                                        setThalukSearchText(thaluk.name);
-                                                        setIsThalukListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {thaluk.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
+                                    <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <ErrorMessage name="thaluk" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
-                                <div className="relative district-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search District"
-                                        value={districtSearchText}
-                                        onChange={(e) => {
-                                            setDistrictSearchText(e.target.value);
-                                            setIsDistrictListVisible(true);
-                                        }}
-                                        onFocus={() => setIsDistrictListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isDistrictListVisible && districtSearchText && filteredDistricts.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredDistricts.map((district) => (
-                                                <ListItem
-                                                    key={district.id}
-                                                    onClick={() => {
-                                                        setFieldValue("district", district.id);
-                                                        setDistrictSearchText(district.name);
-                                                        setIsDistrictListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {district.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="district" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="state" className="text-sm font-medium text-gray-700">State</label>
-                                <div className="relative state-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search State"
-                                        value={stateSearchText}
-                                        onChange={(e) => {
-                                            setStateSearchText(e.target.value);
-                                            setIsStateListVisible(true);
-                                        }}
-                                        onFocus={() => setIsStateListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isStateListVisible && stateSearchText && filteredState.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredState.map((state) => (
-                                                <ListItem
-                                                    key={state.id}
-                                                    onClick={() => {
-                                                        setFieldValue("state", state.id);
-                                                        setStateSearchText(state.name);
-                                                        setIsStateListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {state.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="state" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="pinCode" className="text-sm font-medium text-gray-700">Pincode</label>
-                                <Field type="text" name="pinCode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="pinCode" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-                            <div>
-                                <label htmlFor="reference1" className="text-sm font-medium text-gray-700">Reference 1</label>
-                                <Field type="text" name="reference1" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="reference1" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumber1" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber1" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber1" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="reference2" className="text-sm font-medium text-gray-700">Reference 2</label>
-                                <Field type="text" name="reference2" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="reference2" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumber2" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber2" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
-                            </div>
-                        
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
-                                        <span className="ml-2">Sedan</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="SUV" className="form-radio" />
-                                        <span className="ml-2">SUV</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
-                                        <span className="ml-2">Hatchback</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                            </div>
 
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Automatic" className="form-radio" />
-                                        <span className="ml-2">Automatic</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Petrol" className="form-radio" />
-                                        <span className="ml-2">Petrol</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Diesel" className="form-radio" />
-                                        <span className="ml-2">Diesel</span>
-                                    </label>
+                                <div>
+                                    <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
+                                    <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                                    <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
-                                <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
-                            </div>
+
+                                <div>
+                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
+                                    <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                    <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
+                                    <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="licenseType" value="type1" className="form-radio" />
+                                            <span className="ml-2">Type 1</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="licenseType" value="type2" className="form-radio" />
+                                            <span className="ml-2">Type 2</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
+                                    <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
+                                    <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
+                                    <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
+                                            <span className="ml-2">Yes</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
+                                            <span className="ml-2">No</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
+                                    <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
+                                            <span className="ml-2">Yes</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
+                                            <span className="ml-2">No</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
+                                    <Field name="address">
+                                        {({ field, form }) => (
+                                            <LocationInput
+                                                field={field}
+                                                form={form}
+                                                suggestions={addressSuggestions}
+                                                onSearch={searchLocations}
+                                            />
+                                        )}
+                                    </Field>
+                                    <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
+                                    <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="streetName" className="text-sm font-medium text-gray-700">
+                                        Street Name
+                                    </label>
+                                    <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
+                                        Thaluk
+                                    </label>
+                                    <select
+                                        id="thaluk"
+                                        name="thaluk"
+                                        value={values.thaluk}
+                                        onChange={(e) => setFieldValue('thaluk', e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="" disabled>Select Thaluk</option>
+                                        {thalukOptions.map((thaluk) => (
+                                            <option key={thaluk.id} value={thaluk.id}>
+                                                {thaluk.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage name="thaluk" component="div" className="text-red-500 text-sm mt-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">
+                                        District
+                                    </label>
+                                    <select
+                                        id="district"
+                                        name="district"
+                                        value={values.district}
+                                        onChange={(e) => setFieldValue('district', e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="" disabled>Select District</option>
+                                        {districtOptions.map((district) => (
+                                            <option key={district.id} value={district.id}>
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage name="district" component="div" className="text-red-500 text-sm mt-1" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                                        State
+                                    </label>
+                                    <select
+                                        id="state"
+                                        name="state"
+                                        value={values.state}
+                                        onChange={(e) => setFieldValue('state', e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="" disabled>Select State</option>
+                                        {stateOptions.map((state) => (
+                                            <option key={state.id} value={state.id}>
+                                                {state.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage name="state" component="div" className="text-red-500 text-sm mt-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="pinCode" className="text-sm font-medium text-gray-700">Pincode</label>
+                                    <Field type="text" name="pinCode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="pinCode" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="reference1" className="text-sm font-medium text-gray-700">Reference 1</label>
+                                    <Field type="text" name="reference1" className="p-2 w-full rounded-md border-gray-300" />
+                                    <ErrorMessage name="reference1" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="phoneNumber1" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="tel" name="phoneNumber1" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                    <ErrorMessage name="phoneNumber1" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="reference2" className="text-sm font-medium text-gray-700">Reference 2</label>
+                                    <Field type="text" name="reference2" className="p-2 w-full rounded-md border-gray-300" />
+                                    <ErrorMessage name="reference2" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="phoneNumber2" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="tel" name="phoneNumber2" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                    <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
+                                </div>
                             
-                            {/* <div>
-                                <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                            </div> */}
-                            <div>
-                                <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
-                                <Multiselect
-                                    options={packageDetails}
-                                    displayValue="period"
-                                    selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
-                                    onSelect={(selectedList) => {
-                                        setFieldValue("packages", selectedList.map(item => item.id));
-                                        const newPrices = selectedList.filter((el) => !values.packages.includes(el.id)).map(item => ({
-                                            packageId: item.id,
-                                            period: item.period,
-                                            price: item.price,
-                                            extraPrice: item.extra_price,
-                                            extraKmPrice: item.extraKmPrice,
-                                            nightCharge: item.nightCharge,
-                                            cancelCharge: item.cancelCharge,
-                                            extraCabType: item.extraCabType
-                                        }));
-                                        setFieldValue("prices", [...values.prices, ...newPrices]);
-                                    }}
-                                    onRemove={(selectedList) => {
-                                        setFieldValue("packages", selectedList.map(item => item.id));
-                                        setFieldValue("prices", values.prices.filter(price =>
-                                            selectedList.some(item => item.id === price.packageId)
-                                        ));
-                                    }}
-                                    placeholder="Select options"
-                                    className="w-full rounded-md border-gray-300"
-                                    showCheckbox={true}
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
+                                    <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="carType" value="Sedan" className="form-radio" />
+                                            <span className="ml-2">Sedan</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="carType" value="SUV" className="form-radio" />
+                                            <span className="ml-2">SUV</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
+                                            <span className="ml-2">Hatchback</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
+                                    <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="preference" value="Automatic" className="form-radio" />
+                                            <span className="ml-2">Automatic</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="preference" value="Petrol" className="form-radio" />
+                                            <span className="ml-2">Petrol</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field type="radio" name="preference" value="Diesel" className="form-radio" />
+                                            <span className="ml-2">Diesel</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                
+                                {/* <div>
+                                    <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
+                                    <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                    <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
+                                </div> */}
+                                <div>
+                                    <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
+                                    <Multiselect
+                                        options={packageDetails}
+                                        displayValue="period"
+                                        selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
+                                        onSelect={(selectedList) => {
+                                            setFieldValue("packages", selectedList.map(item => item.id));
+                                            const newPrices = selectedList.filter((el) => !values.packages.includes(el.id)).map(item => ({
+                                                packageId: item.id,
+                                                period: item.period,
+                                                price: item.price,
+                                                extraPrice: item.extra_price,
+                                                extraKmPrice: item.extraKmPrice,
+                                                nightCharge: item.nightCharge,
+                                                cancelCharge: item.cancelCharge,
+                                                extraCabType: item.extraCabType
+                                            }));
+                                            setFieldValue("prices", [...values.prices, ...newPrices]);
+                                        }}
+                                        onRemove={(selectedList) => {
+                                            setFieldValue("packages", selectedList.map(item => item.id));
+                                            setFieldValue("prices", values.prices.filter(price =>
+                                                selectedList.some(item => item.id === price.packageId)
+                                            ));
+                                        }}
+                                        placeholder="Select options"
+                                        className="w-full rounded-md border-gray-300"
+                                        showCheckbox={true}
+                                    />
+                                </div>
+                            </div>
+                            <div className='grid grid-cols-2'>
+                                <DocumentUpload
+                                    label="Consent Form Image"
+                                    name="consentForm"
+                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'consentForm', imagePreviews?.consentForm?.id)}
+                                    imagePreview={imagePreviews.consentForm?.image1}
+                                />
+                                <DocumentUpload
+                                    label="Aadhaar Image"
+                                    name="aadhaarImage"
+                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage', imagePreviews?.aadhaarImage?.id)}
+                                    imagePreview={imagePreviews.aadhaarImage?.image1}
+                                />
+                                <DocumentUpload
+                                    label="Police Clearance Certificate"
+                                    name="policeClearance"
+                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance',imagePreviews?.policeClearance?.id)}
+                                    imagePreview={imagePreviews.policeClearance?.image1}
+                                />
+
+                                {/* Driving License Image Upload */}
+                                <DocumentUpload
+                                    label="Driving License Image"
+                                    name="drivingLicenseImage"
+                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage', imagePreviews?.drivingLicenseImage?.id)}
+                                    imagePreview={imagePreviews.drivingLicenseImage?.image1}
+                                />
+
+                                {/* Live Photo Upload */}
+                                <DocumentUpload
+                                    label="Live Photo"
+                                    name="livePhoto"
+                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'livePhoto', imagePreviews?.livePhoto?.id)}
+                                    imagePreview={imagePreviews.livePhoto?.image1}
                                 />
                             </div>
-                            <DocumentUpload
-                                label="Consent Form Image"
-                                name="consentForm"
-                                onChange={(e) => handleImageUpload(e, setFieldValue, 'consentForm', imagePreviews?.consentForm?.id)}
-                                imagePreview={imagePreviews.consentForm?.image1}
-                            />
-                            <DocumentUpload
-                                label="Aadhaar Image"
-                                name="aadhaarImage"
-                                onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage', imagePreviews?.aadhaarImage?.id)}
-                                imagePreview={imagePreviews.aadhaarImage?.image1}
-                            />
-                            <DocumentUpload
-                                label="Police Clearance Certificate"
-                                name="policeClearance"
-                                onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance',imagePreviews?.policeClearance?.id)}
-                                imagePreview={imagePreviews.policeClearance?.image1}
-                            />
-
-                            {/* Driving License Image Upload */}
-                            <DocumentUpload
-                                label="Driving License Image"
-                                name="drivingLicenseImage"
-                                onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage', imagePreviews?.drivingLicenseImage?.id)}
-                                imagePreview={imagePreviews.drivingLicenseImage?.image1}
-                            />
-
-                            {/* Live Photo Upload */}
-                            <DocumentUpload
-                                label="Live Photo"
-                                name="livePhoto"
-                                onChange={(e) => handleImageUpload(e, setFieldValue, 'livePhoto', imagePreviews?.livePhoto?.id)}
-                                imagePreview={imagePreviews.livePhoto?.image1}
-                            />
                         </div>
                         {values.packages.length > 0 && (
                             <div>
