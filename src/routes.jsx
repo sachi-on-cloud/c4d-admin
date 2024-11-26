@@ -33,6 +33,7 @@ import CabDetails from "./pages/cab/details";
 import CabEdit from "./pages/cab/edit";
 import AccountAdd from "./pages/account/add";
 import AccountEdit from "./pages/account/edit";
+import { DocumentVerificationView } from "./pages/docVerification/view";
 
 // import { SearchDrivers } from "./pages/booking";
 
@@ -243,6 +244,13 @@ export const routes = [
         name: "Account",
         path: "/account",
         element: <AccountView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Document Verification",
+        path: "/doc-verification",
+        element: <DocumentVerificationView />,
         display: true
       },
     ],

@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
-const AccountSearch = ({ onSearch }) => {
+const AccountSearch = ({ onSearch , addAccBtn}) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [addAccountBtn,setAddAccountBtn] = useState(true)
 
   useEffect(() => {
     onSearch(searchQuery.trim());
-  }, [searchQuery]);
+    setAddAccountBtn(addAccBtn)
+  }, [searchQuery,addAccBtn]);
   return (
     <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
       <div className="flex items-center justify-between">
@@ -23,12 +25,12 @@ const AccountSearch = ({ onSearch }) => {
             <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
           </div>
         </div>
-        <button 
+        {addAccountBtn && <button 
           onClick={() => navigate(`/dashboard/accounts/add`)}
           className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Add new
-        </button>
+        </button>}
       </div>
     </div>
   );

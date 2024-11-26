@@ -846,7 +846,8 @@ export const API_ROUTES = {
     'UPDATE_CAB_STATUS': '/admin-cab/update',
     'UPLOAD_PHOTO': '/photo/add',
     'UPDATE_PHOTO': '/photo/update',
-    'GET_DRIVERS_ADMIN': '/admin/driver/'
+    'GET_DRIVERS_ADMIN': '/admin/driver/',
+    'GET_DOCUMENT_DETAILS' : '/admin/documents'
 };
 
 export const KYC_PROCESS = {
