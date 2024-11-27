@@ -847,7 +847,8 @@ export const API_ROUTES = {
     'UPLOAD_PHOTO': '/photo/add',
     'UPDATE_PHOTO': '/photo/update',
     'GET_DRIVERS_ADMIN': '/admin/driver/',
-    'GET_DOCUMENT_DETAILS' : '/admin/documents'
+    'GET_DOCUMENT_DETAILS' : '/admin/documents',
+    'GET_ONLINE_REGISTER_DETAILS':'/online-register'
 };
 
 export const KYC_PROCESS = {

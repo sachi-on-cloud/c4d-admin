@@ -726,7 +726,7 @@ const DriverAdd = () => {
                                 />
                             </div>
                         </div>
-                        {driverAdded.value  && // driverAdded.value should be here
+                        {driverAdded.value  &&
                             <div className='space-y-4'>
                                 <div className="grid grid-cols-2 gap-6">
                                     <DocumentUpload
@@ -743,7 +743,6 @@ const DriverAdd = () => {
                                         onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance')}
                                         imagePreview={imagePreviews.policeClearance}
                                     />
-
                                     {/* Driving License Image Upload */}
                                     <DocumentUpload
                                         label="Driving License Image"
@@ -752,7 +751,6 @@ const DriverAdd = () => {
                                         onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage')}
                                         imagePreview={imagePreviews.drivingLicenseImage}
                                     />
-
                                     {/* Consent Form Image Upload */}
                                     <DocumentUpload
                                         label="Consent Form Image"

@@ -31,7 +31,6 @@ export function DocumentVerificationView() {
   useEffect(() => {
     const fetchDoc = async () => {
       const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS);
-      console.log(data.data);
       if (data?.success) {
         setAccounts(data?.data);
         setAllAccounts(data?.data);
@@ -134,7 +133,7 @@ export function DocumentVerificationView() {
     <div className="mt-6 mb-8 flex flex-col gap-12">
       <AccountSearch onSearch={getDocuments} addAccBtn={false} />
       <Card>
-        {
+        {accounts.length > 0 ? (
           <>
             <CardHeader
               variant="gradient"
@@ -259,7 +258,13 @@ export function DocumentVerificationView() {
                 </tbody>
               </table>
             </CardBody>
-          </>
+          </>):(
+            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+              <Typography variant="h6" color="white">
+                No Accounts
+              </Typography>
+            </CardHeader>
+          )
         }
       </Card>
     </div>

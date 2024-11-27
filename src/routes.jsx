@@ -34,6 +34,7 @@ import CabEdit from "./pages/cab/edit";
 import AccountAdd from "./pages/account/add";
 import AccountEdit from "./pages/account/edit";
 import { DocumentVerificationView } from "./pages/docVerification/view";
+import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
 
 // import { SearchDrivers } from "./pages/booking";
 
@@ -251,6 +252,13 @@ export const routes = [
         name: "Document Verification",
         path: "/doc-verification",
         element: <DocumentVerificationView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Online Registration",
+        path: "/online-registration",
+        element: <OnlineRegistrationView />,
         display: true
       },
     ],
