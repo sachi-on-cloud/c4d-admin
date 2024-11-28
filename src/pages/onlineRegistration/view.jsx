@@ -17,7 +17,7 @@ export function OnlineRegistrationView(){
     useEffect(()=>{
         const fetchData = async ()=> {
             const data = await ApiRequestUtils.get(API_ROUTES.GET_ONLINE_REGISTER_DETAILS);
-            console.log("DATA",data.document)
+            console.log("DTATTATTATTTTATTAA",data)
             if(data?.success){
                 setAccounts(data?.document);
                 setAllAccounts(data?.document);
@@ -28,10 +28,16 @@ export function OnlineRegistrationView(){
 
     const getDeatils = async (searchQuery) => {
         if (searchQuery && searchQuery.trim() !== "") {
-          const query = searchQuery.toLowerCase().trim();
-          const filteredAccounts = allAccounts.filter((acc) => {
+            const query = searchQuery.toLowerCase().trim();
+            const filteredAccounts = allAccounts.filter((acc) => {
             const name = (acc.firstName || "").toLowerCase();
-            return name.startsWith(query);
+            const phone = (acc.phoneNumber || "").toLowerCase();
+            const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
+            return (
+                name.startsWith(query) || 
+                phone.startsWith(query) || 
+                phoneNumberWithoutCountryCode.startsWith(query)
+            );
           });
           setAccounts(filteredAccounts);
         } else {
@@ -93,7 +99,7 @@ export function OnlineRegistrationView(){
                                     <div className="flex flex-col space-y-3">
                                     <div className="flex items-center justify-between">
                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        License
+                                        LICENSE
                                         </Typography>
                                         <Typography
                                         className={`text-xs font-semibold ${
@@ -111,7 +117,7 @@ export function OnlineRegistrationView(){
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        Aadhar
+                                        AADHAAR
                                         </Typography>
                                         <Typography
                                         className={`text-xs font-semibold ${
@@ -129,7 +135,7 @@ export function OnlineRegistrationView(){
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        Police Clearance
+                                        RC COPY
                                         </Typography>
                                         <Typography
                                         className={`text-xs font-semibold ${
@@ -147,7 +153,7 @@ export function OnlineRegistrationView(){
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        Live Photo
+                                        PHOTO
                                         </Typography>
                                         <Typography
                                         className={`text-xs font-semibold ${
@@ -165,34 +171,42 @@ export function OnlineRegistrationView(){
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        Consent Form
+                                        PAN
                                         </Typography>
                                         <Typography
                                         className={`text-xs font-semibold ${
-                                            documents.PANCARD === "APPROVED"
+                                            documents.PAN === "APPROVED"
                                             ? "text-green-500"
-                                            : documents.PANCARD === "PENDING"
+                                            : documents.PAN === "PENDING"
                                             ? "text-yellow-500"
-                                            : documents.PANCARD === "DECLINED"
+                                            : documents.PAN === "DECLINED"
                                             ? "text-red-500"
                                             : "text-gray-500"
                                         }`}
                                         >
-                                        {documents.PANCARD}
+                                        {documents.PAN}
                                         </Typography>
                                     </div>
                                     </div>
                                 </td>
                                 <td className={className}>
-                                    <Button
-                                    as="a"
-                                    className="mr-5 text-xs font-semibold text-black bg-white border border-black"
-                                    >
-                                    Create Driver
-                                    </Button>
-                                    <Button as="a" className="text-xs font-semibold text-white">
-                                    Create Owner
-                                    </Button>
+                                    {
+                                        documents.PAN === "APPROVED" &&
+                                        documents.PHOTO === "APPROVED" &&
+                                        documents.AADHAAR === "APPROVED" &&
+                                        (documents.LICENSE === "APPROVED" || documents.RC_COPY === "APPROVED") && (
+                                        <>
+                                            <Button
+                                            as="a"
+                                            className="mr-5 text-xs font-semibold text-black bg-white border border-black"
+                                            >
+                                            Create Driver
+                                            </Button>
+                                            <Button as="a" className="text-xs font-semibold text-white">
+                                            Create Owner
+                                            </Button>
+                                        </>
+                                    )}
                                 </td>
                                 </tr>
                             );

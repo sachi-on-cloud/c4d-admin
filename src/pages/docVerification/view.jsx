@@ -31,6 +31,7 @@ export function DocumentVerificationView() {
   useEffect(() => {
     const fetchDoc = async () => {
       const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS);
+      console.log("DOC VERIFATION",data)
       if (data?.success) {
         setAccounts(data?.data);
         setAllAccounts(data?.data);
@@ -39,16 +40,29 @@ export function DocumentVerificationView() {
     fetchDoc();
   }, []);
 
-  const getDocuments = async (searchQuery) => {
+  const getDetails = async (searchQuery) => {
     if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-      const filteredAccounts = allAccounts.filter((acc) => {
-        const name = (acc.name || "").toLowerCase();
-        return name.startsWith(query);
-      });
-      setAccounts(filteredAccounts);
+        const query = searchQuery.toLowerCase().trim();
+        
+        const filteredAccounts = allAccounts.filter((acc) => {
+            const name = (
+                acc?.Register?.firstName || 
+                acc?.Driver?.firstName || 
+                acc?.Account?.name || 
+                acc?.Cab?.name||
+                ""  
+            ).toLowerCase();
+            const phone = acc?.Register?.phoneNumber || acc?.Driver?.phoneNumber || acc?.Account?.phoneNumber || "";
+            const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
+            return (
+                name.startsWith(query) || 
+                phone.startsWith(query) || 
+                phoneNumberWithoutCountryCode.startsWith(query)
+            );
+        });
+        setAccounts(filteredAccounts);
     } else {
-      setAccounts(allAccounts);
+        setAccounts(allAccounts);
     }
   };
 
@@ -131,7 +145,7 @@ export function DocumentVerificationView() {
   
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
-      <AccountSearch onSearch={getDocuments} addAccBtn={false} />
+      <AccountSearch onSearch={getDetails} addAccBtn={false} />
       <Card>
         {accounts.length > 0 ? (
           <>
@@ -149,7 +163,10 @@ export function DocumentVerificationView() {
                 <thead>
                   <tr>
                     {[
-                      "Name",
+                      "Type",
+                      "Name",,
+                      "ID Number",
+                      "Phone Number",
                       "Document Type",
                       "Uploaded Date",
                       "KYC Status",
@@ -158,7 +175,7 @@ export function DocumentVerificationView() {
                     ].map((el, index) => (
                       <th
                         key={index}
-                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                        className="border-b border-blue-gray-50 py-3 px-3 text-left"
                       >
                         {el==='KYC Status' ? (
                           <FilterPopover
@@ -186,18 +203,36 @@ export function DocumentVerificationView() {
                   {accounts.filter((account) =>
                   statusFilter.includes("All") || statusFilter.includes(account.status)
                     ).map(
-                    ({ id, name, status, type, updated_at, image1 }, key) => {
-                      const className = `py-3 px-5 ${
+                    ({ id, Register, Account, Driver, status, type, Cab, updated_at, image1,idNumber }, key) => {
+                      const className = `py-3 px-3 ${
                         key === accounts.length - 1
                           ? ""
                           : "border-b border-blue-gray-50"
                       }`;
+                      const name = Register?.firstName || Driver?.firstName || Account?.name || Cab.name || "";
+                      const nameType = Register ? "Register" : Driver ? "Driver" : Account ? "Account" : Cab ? "Cab" :"";
+                      const number = Register?.phoneNumber || Driver?.phoneNumber || Account?.phoneNumber || Cab?.phoneNumber || "";
                       return (
                         <>
                           <tr key={id}>
                             <td className={className}>
                               <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {nameType}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
                                 {name}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {idNumber}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {number}
                               </Typography>
                             </td>
                             <td className={className}>
@@ -235,7 +270,7 @@ export function DocumentVerificationView() {
                               </div>
                             </td>
                             <td className={className}>
-                              <Button
+                              {status == "PENDING" && <><Button
                                 as="a"
                                 className="mr-5 text-xs font-semibold text-black bg-white border border-black"
                                 onClick={() => handleStatusChange(id, 'APPROVED')}
@@ -248,7 +283,7 @@ export function DocumentVerificationView() {
                                 onClick={() => handleStatusChange(id, 'DECLINED')}
                               >
                                 Decline
-                              </Button>
+                              </Button></>}
                             </td>
                           </tr>
                         </>
