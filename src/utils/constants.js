@@ -848,7 +848,16 @@ export const API_ROUTES = {
     'UPDATE_PHOTO': '/photo/update',
     'GET_DRIVERS_ADMIN': '/admin/driver/',
     'GET_DOCUMENT_DETAILS' : '/admin/documents',
-    'GET_ONLINE_REGISTER_DETAILS':'/online-register'
+    'GET_ONLINE_REGISTER_DETAILS':'/online-register',
+    'GET_CREATE_DRIVER':'/register/driver/',
+    'GET_CREATE_OWNER':'/register/account/',
+    'GET_SUBCRIPTION_PLAN':'/admin/plan', // for subscription 
+    'GET_SUBSCRIPTION_LIST':'/admin/subscription', // for subscription 
+    'CREATE_SUBSCRIPTION':'/admin/subscription/create', //for subscription
+    
+    'GET_ACCOUNTS':'/admin/accounts', // for subscription
+    'GET_DRIVERS':'/admin/subscription/drivers', // for subscription
+    'GET_ACCOUNT_CABS':'/account/cabs/:accountId', // for subscription
 };
 
 export const KYC_PROCESS = {

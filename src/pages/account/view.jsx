@@ -75,7 +75,7 @@ export function AccountView() {
             {alert.message}
           </Alert>
         </div>)}
-      <AccountSearch onSearch={getAccounts} addAccBtn={true}/>
+      <AccountSearch onSearch={getAccounts}/>
       <Card>
         {accounts.length > 0 ? (
           <>

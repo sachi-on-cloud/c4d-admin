@@ -1,6 +1,6 @@
-import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from "react";
 import {
     Card,
@@ -8,16 +8,19 @@ import {
     CardHeader,
     Typography,
     Button,
+    Alert
   } from "@material-tailwind/react";
 
 export function OnlineRegistrationView(){
     const [accounts, setAccounts] = useState([]);
     const [allAccounts, setAllAccounts] = useState([]);
+    const [alert, setAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(()=>{
         const fetchData = async ()=> {
             const data = await ApiRequestUtils.get(API_ROUTES.GET_ONLINE_REGISTER_DETAILS);
-            console.log("DTATTATTATTTTATTAA",data)
             if(data?.success){
                 setAccounts(data?.document);
                 setAllAccounts(data?.document);
@@ -25,6 +28,10 @@ export function OnlineRegistrationView(){
         }
         fetchData();
     },[])
+
+    useEffect(() => {
+        getDeatils(searchQuery.trim());
+    }, [searchQuery]);
 
     const getDeatils = async (searchQuery) => {
         if (searchQuery && searchQuery.trim() !== "") {
@@ -45,9 +52,50 @@ export function OnlineRegistrationView(){
         }
     };
 
+    const getCreateDriver= async(registerId)=>{
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CREATE_DRIVER+`${registerId}`)
+        // setAlertMessage(data?.message)
+        // setAlert(true);
+        // setTimeout(() => {
+        //     setAlert(false);
+        // }, 5000);
+    }
+
+    const getCreateOwner = async (registerId)=>{
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CREATE_OWNER+`${registerId}`)
+        // setAlertMessage(data?.message)
+        // setAlert(true);
+        // setTimeout(() => {
+        //     setAlert(false);
+        // }, 5000);
+    }
+
     return (    
         <div className="mt-6 mb-8 flex flex-col gap-12">
-            <AccountSearch onSearch={getDeatils} addAccBtn={false} />
+            {alert && 
+            <div className='mb-2'>
+                <Alert
+                color='blue'
+                className='py-3 px-6 rounded-xl'
+                >
+                {alertMessage}
+                </Alert>
+            </div>}
+            <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
+                <div className="flex items-center justify-between">
+                    <div className="relative flex-grow max-w-[500px]">
+                        <input
+                            type="text"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Search Account"
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
+                        </div>
+                    </div>
+                </div>
+            </div>
             <Card>
                 {accounts.length > 0  ? (
                 <>
@@ -76,7 +124,7 @@ export function OnlineRegistrationView(){
                             </tr>
                         </thead>
                         <tbody>
-                            {accounts.map(({ id, firstName, phoneNumber, documents }, key) => {
+                            {accounts.map(({ id, firstName, phoneNumber, documents, accountId, driverId }, key) => {
                             const className = `py-3 px-5 ${
                                 key === accounts.length - 1 ? "" : "border-b border-blue-gray-50"
                             }`;
@@ -190,24 +238,46 @@ export function OnlineRegistrationView(){
                                     </div>
                                 </td>
                                 <td className={className}>
-                                    {
-                                        documents.PAN === "APPROVED" &&
-                                        documents.PHOTO === "APPROVED" &&
-                                        documents.AADHAAR === "APPROVED" &&
-                                        (documents.LICENSE === "APPROVED" || documents.RC_COPY === "APPROVED") && (
-                                        <>
-                                            <Button
-                                            as="a"
-                                            className="mr-5 text-xs font-semibold text-black bg-white border border-black"
-                                            >
-                                            Create Driver
-                                            </Button>
-                                            <Button as="a" className="text-xs font-semibold text-white">
-                                            Create Owner
-                                            </Button>
-                                        </>
-                                    )}
-                                </td>
+                                    {(() => {
+                                        if (accountId) {
+                                            return (
+                                                <Typography className="text-xs font-semibold text-blue-600">
+                                                    Account Created
+                                                </Typography>
+                                            );
+                                        } else if (driverId) {
+                                            return (
+                                                <Typography className="text-xs font-semibold text-blue-600">
+                                                    Driver Created
+                                                </Typography>
+                                            );
+                                        } else if (
+                                            documents.PAN === "APPROVED" &&
+                                            documents.PHOTO === "APPROVED" &&
+                                            documents.AADHAAR === "APPROVED" &&
+                                            (documents.LICENSE === "APPROVED" || documents.RC_COPY === "APPROVED")
+                                        ) {
+                                            return (
+                                                <>
+                                                    <Button
+                                                        as="a"
+                                                        className="mr-5 text-xs font-semibold text-black bg-white border border-black"
+                                                        onClick={() => getCreateDriver(id)}
+                                                    >
+                                                        Create Driver
+                                                    </Button>
+                                                    <Button
+                                                        as="a"
+                                                        className="text-xs font-semibold text-white"
+                                                        onClick={() => getCreateOwner(id)}
+                                                    >
+                                                        Create Owner
+                                                    </Button>
+                                                </>
+                                            );
+                                        }
+                                    })()}
+                                    </td>  
                                 </tr>
                             );
                             })}

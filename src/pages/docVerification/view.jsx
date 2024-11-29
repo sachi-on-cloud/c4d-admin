@@ -1,7 +1,7 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useEffect, useState } from "react";
-import AccountSearch from "@/components/AccountSearch";
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import {
   Card,
   CardBody,
@@ -27,6 +27,7 @@ export function DocumentVerificationView() {
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState(["All"]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchDoc = async () => {
@@ -39,6 +40,10 @@ export function DocumentVerificationView() {
     };
     fetchDoc();
   }, []);
+
+  useEffect(() => {
+    getDetails(searchQuery.trim());
+  }, [searchQuery]);
 
   const getDetails = async (searchQuery) => {
     if (searchQuery && searchQuery.trim() !== "") {
@@ -145,7 +150,21 @@ export function DocumentVerificationView() {
   
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
-      <AccountSearch onSearch={getDetails} addAccBtn={false} />
+      <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="relative flex-grow max-w-[500px]">
+                <input
+                    type="text"
+                    className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Search Account"
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
+                </div>
+            </div>
+          </div>
+      </div>
       <Card>
         {accounts.length > 0 ? (
           <>

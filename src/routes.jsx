@@ -35,6 +35,8 @@ import AccountAdd from "./pages/account/add";
 import AccountEdit from "./pages/account/edit";
 import { DocumentVerificationView } from "./pages/docVerification/view";
 import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
+import {SubscriptionView} from './pages/subscription/view';
+import SubscriptionAdd from "./pages/subscription/add";
 
 // import { SearchDrivers } from "./pages/booking";
 
@@ -238,7 +240,7 @@ export const routes = [
         name: "Commission",
         path: "/commission",
         element: <Commission />,
-        display: true
+        display: false
       },
       {
         icon: <UserIcon {...icon} />,
@@ -260,6 +262,20 @@ export const routes = [
         path: "/online-registration",
         element: <OnlineRegistrationView />,
         display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "subscription",
+        path: "/subscription",
+        element: <SubscriptionView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "subscription",
+        path: "/subscription/add",
+        element: <SubscriptionAdd />,
+        display: false
       },
     ],
   },
