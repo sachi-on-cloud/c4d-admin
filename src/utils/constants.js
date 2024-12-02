@@ -856,8 +856,8 @@ export const API_ROUTES = {
     'CREATE_SUBSCRIPTION':'/admin/subscription/create', //for subscription
     
     'GET_ACCOUNTS':'/admin/accounts', // for subscription
-    'GET_DRIVERS':'/admin/subscription/drivers', // for subscription
-    'GET_ACCOUNT_CABS':'/account/cabs/:accountId', // for subscription
+    'GET_DRIVERS_FOR_SUBSCRIPTION':'/admin/subscription/drivers', // for subscription
+    'GET_ACCOUNT_CABS':'/account/cabs/', // for subscription
 };
 
 export const KYC_PROCESS = {

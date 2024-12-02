@@ -21,7 +21,7 @@ export function SubscriptionView(){
 
     useEffect(()=>{
         const fetchData = async ()=> {
-            const data = await ApiRequestUtils.get(API_ROUTES.GET_SUBCRIPTION_PLAN);
+            const data = await ApiRequestUtils.get(API_ROUTES.GET_SUBSCRIPTION_LIST);
             console.log("SUBBBDATAAAAA",data)
             // if(data?.success){
             //     setAccounts(data?.document);
@@ -109,7 +109,7 @@ export function SubscriptionView(){
                 <>
                     <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
                     <Typography variant="h6" color="white">
-                        Accounts List
+                        Subscription List
                     </Typography>
                     </CardHeader>
                     <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
@@ -139,7 +139,7 @@ export function SubscriptionView(){
                 </>) : (
                 <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                     <Typography variant="h6" color="white">
-                    No Accounts
+                    No Subscriptions
                     </Typography>
                 </CardHeader>
                 )}
