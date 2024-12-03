@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { Alert, Option, Select, Typography } from "@material-tailwind/react";
+import { SUBSCRIPTION_ADD_SCHEME } from "@/utils/validations";
+import { Alert } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
+import { useNavigate } from 'react-router-dom';
+
 
 const SubscriptionAdd = () => {
   const [alert, setAlert] = useState(false);
+  const navigate = useNavigate();
   const [owners, setOwners] = useState([]);
   const [cabs, setCabs] = useState([]);
   const [plans, setPlans] = useState([]);
@@ -37,22 +41,31 @@ const SubscriptionAdd = () => {
   }, []);
 
   const initialValues = {
+    subscriptionType: selectedOption,
     owner: "",
     cab: "",
     driver: "",
     paymentMethod: ""
   };
-
-  const handleSubmit = async (values) => {
+  
+  const onSubmit = async (values) => {
     console.log("Form Values:", values);
+    let subscriptionDetails = {};
     try {
-      const subscriptionDetails = {
-        driverId: values.driver,
-        ownerId: values.owner,
-        cabId: values.cab,
-        planId: plans?.id,
-        paymentMethod: values.paymentMethod
+      if (values.driver) {
+        subscriptionDetails = {
+          driverId: values.driver,
+          planId: plans?.id,
+          paymentMethod: values.paymentMethod,
+        };
+      } else if (values.owner && values.cab) {
+        subscriptionDetails = {
+          ownerId: values.owner,
+          cabId: values.cab,
+          planId: plans?.id,
+          paymentMethod: values.paymentMethod,
       };
+    }
       const data = await ApiRequestUtils.post(API_ROUTES.CREATE_SUBSCRIPTION, subscriptionDetails);
       // if (!data?.success && data?.code === 203) {
       //   console.error('Driver already exists');
@@ -75,14 +88,23 @@ const SubscriptionAdd = () => {
       //     value: true
       //   });
       // }
+      if (data?.success) {
+        console.log("Subscription created successfully:", data);
+        return navigate("/dashboard/subscription");
+      }
     } catch (error) {
-      console.error('Error creating subscription:', error);
+        if (error.response?.status === 400 && error.response?.data?.error === "Driver has an overlapping subscription") {
+        setAlert({
+          color: "black",
+          message: "This account is already subscribed. Please check the subscription details.",
+        });
+        setTimeout(() => setAlert(null), 5000);
+      }
     }
   };
 
   const onOwnerChangeHandler = async (val) => {
     const cabData = await ApiRequestUtils.get(API_ROUTES.GET_ACCOUNT_CABS + val);
-    //add logic if no cabs available for selected owner.
     setCabs(cabData?.data);
   }
   const date = new Date();
@@ -90,7 +112,7 @@ const SubscriptionAdd = () => {
   const formatDate = (date) => {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear().toString().slice(-2); // Extract last 2 digits of the year
+    const year = date.getFullYear().toString().slice(-2);
 
     return `${day}/${month}/${year}`;
   }
@@ -101,7 +123,7 @@ const SubscriptionAdd = () => {
 
     const day = today.getDate().toString().padStart(2, '0');
     const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const year = today.getFullYear().toString().slice(-2); // Extract last 2 digits of the year
+    const year = today.getFullYear().toString().slice(-2);
 
     return `${day}/${month}/${year}`;
   }
@@ -116,38 +138,42 @@ const SubscriptionAdd = () => {
         </div>
       )}
       <h2 className="text-2xl font-bold mb-4">Add Subscription</h2>
-      <div className="mb-4">
-        <label className="mr-4">
-          <input
-            type="radio"
-            name="subscriptionType"
-            value="owner"
-            checked={selectedOption === "owner"}
-            onChange={() => setSelectedOption("owner")}
-            className="mr-2"
-          />
-          Owner
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="subscriptionType"
-            value="driver"
-            checked={selectedOption === "driver"}
-            onChange={() => setSelectedOption("driver")}
-            className="mr-2"
-          />
-          Driver
-        </label>
-      </div>
-
       <Formik
         initialValues={initialValues}
-        // validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        validationSchema={SUBSCRIPTION_ADD_SCHEME}
+        onSubmit={onSubmit}
+        enableReinitialize={true}
       >
-        {({ values,setFieldValue }) => (
+        {({handleSubmit, values ,setFieldValue ,errors}) => (
           <Form>
+            <div className="mb-4">
+              <label className="mr-4">
+                <Field
+                  type="radio"
+                  name="subscriptionType"
+                  value="owner"
+                  className="mr-2"
+                  onChange={(e) => {
+                    setFieldValue("subscriptionType", e.target.value);
+                    setSelectedOption(e.target.value);
+                  }}
+                />
+                Owner
+              </label>
+              <label>
+                <Field
+                  type="radio"
+                  name="subscriptionType"
+                  value="driver"
+                  className="mr-2"
+                  onChange={(e) => {
+                    setFieldValue("subscriptionType", e.target.value);
+                    setSelectedOption(e.target.value);
+                  }}
+                />
+                Driver
+              </label>
+            </div>
             <div className="p-4 border rounded-md bg-gray-50">
                 <div className="p-4 border rounded-md bg-gray-50 grid grid-cols-2 gap-4">
                 {selectedOption === "owner" &&
@@ -182,7 +208,6 @@ const SubscriptionAdd = () => {
                     />
                   </div>
                 }
-
                 {selectedOption === "owner" &&
                   <div className="mb-4">
                     <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -208,6 +233,11 @@ const SubscriptionAdd = () => {
                       component="div"
                       className="text-red-500 text-sm mt-1"
                     />
+                    {values.owner && cabs.length === 0 && (
+                      <div className="text-red-500 text-sm mt-1">
+                        No cabs for the selected owner. Please add more to subscribe.
+                      </div>
+                    )}
                   </div>
                 }
                 {selectedOption === "driver" &&
@@ -283,7 +313,8 @@ const SubscriptionAdd = () => {
                 </div>
               <div className="mt-4 flex justify-center">
                 <button
-                  type="submit"
+                  type='submit'
+                  onClick={handleSubmit}
                   className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
                 >
                   Submit

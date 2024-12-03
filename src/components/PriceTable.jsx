@@ -30,7 +30,6 @@ function PriceTable({ type, id, packages, selectedPackages }) {
     
  const getPackageDetails = (packageId) => {
     const packageItem = packages.find(pkg => pkg.id === packageId);
-    console.log('Found package:', packageItem); 
     return packageItem || null;
 };
 

@@ -851,13 +851,12 @@ export const API_ROUTES = {
     'GET_ONLINE_REGISTER_DETAILS':'/online-register',
     'GET_CREATE_DRIVER':'/register/driver/',
     'GET_CREATE_OWNER':'/register/account/',
-    'GET_SUBCRIPTION_PLAN':'/admin/plan', // for subscription 
-    'GET_SUBSCRIPTION_LIST':'/admin/subscription', // for subscription 
-    'CREATE_SUBSCRIPTION':'/admin/subscription/create', //for subscription
-    
-    'GET_ACCOUNTS':'/admin/accounts', // for subscription
-    'GET_DRIVERS_FOR_SUBSCRIPTION':'/admin/subscription/drivers', // for subscription
-    'GET_ACCOUNT_CABS':'/account/cabs/', // for subscription
+    'GET_SUBCRIPTION_PLAN':'/admin/plan', 
+    'GET_SUBSCRIPTION_LIST':'/admin/subscription', 
+    'CREATE_SUBSCRIPTION':'/admin/subscription/create',
+    'GET_ACCOUNTS':'/admin/accounts',
+    'GET_DRIVERS_FOR_SUBSCRIPTION':'/admin/subscription/drivers',
+    'GET_ACCOUNT_CABS':'/account/cabs/',
 };
 
 export const KYC_PROCESS = {

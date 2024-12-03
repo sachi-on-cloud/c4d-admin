@@ -79,6 +79,8 @@ const DriverDetails = () => {
         packages: driver?.result?.packages || "",
         carType: driver?.result?.carType || "",
         //wallet: driver?.result?.wallet || "",
+        withOwner:driver?.result?.Account ? "Yes" : "No",
+        ownerName:driver?.result?.Account?.name,
     };
 
     const getDocumentByType = (type) => {
@@ -142,6 +144,29 @@ const DriverDetails = () => {
                                         </div>
 
                                         <div>
+                                            <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                            <div className="space-x-4">
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="withOwner" disabled value="Yes" className="form-radio" />
+                                                    <span className="ml-2">Yes</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="withOwner"  disabled value="No" className="form-radio" />
+                                                    <span className="ml-2">No</span>
+                                                </label>
+                                            </div>
+                                            <ErrorMessage name="withOwner" component="div" className="text-red-500 text-sm" />
+                                        </div>
+
+                                        {driver?.result?.Account?.name &&
+                                        <div>
+                                            <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
+                                            <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                            <ErrorMessage name="ownerNameownerName" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        }
+
+                                        <div>
                                             <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                             <Field type="tel" name="phoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
                                             <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
@@ -188,6 +213,7 @@ const DriverDetails = () => {
                                             </div>
                                             <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
                                         </div>
+
                                         <div>
                                             <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
                                             <div className="space-x-4">

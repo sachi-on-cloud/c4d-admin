@@ -164,7 +164,9 @@ const DriverEdit = () => {
         carType: driverVal?.result?.carType || "",
         packages: driverVal?.result?.packages || "",
         //wallet: driverVal?.result?.wallet || "",
-        prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : []
+        prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : [],
+        withOwner: driverVal?.result?.Account? "Yes":"No",
+        ownerName:driverVal?.result?.Account?.name || "",
     };
 
     const searchLocations = async (query) => {
@@ -499,6 +501,45 @@ const DriverEdit = () => {
                                     <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                                     <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
+
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                    <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field
+                                            type="radio"
+                                            name="withOwner"
+                                            value="Yes"
+                                            className="form-radio"
+                                            disabled
+                                        />
+                                        <span className="ml-2">Yes</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field
+                                            type="radio"
+                                            name="withOwner"
+                                            value="No"
+                                            className="form-radio"
+                                            disabled
+                                        />
+                                        <span className="ml-2">No</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage
+                                    name="withOwner"
+                                    component="div"
+                                    className="text-red-500 text-sm"
+                                />
+                                </div>
+
+                                {values.withOwner == "Yes" && 
+                                <div>
+                                    <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
+                                    <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                    <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm" />
+                                </div>  
+                                }
 
                                 <div>
                                     <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>

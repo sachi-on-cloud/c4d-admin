@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
@@ -64,6 +63,7 @@ const DriverAdd = () => {
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [thalukSearchText, setThalukSearchText] = useState("");
     const [stateSearchText, setStateSearchText] = useState("");
+    const [owner , setOwners] = useState([])
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         policeClearance: null,
@@ -116,8 +116,14 @@ const DriverAdd = () => {
         }
     };
 
+    const getOwnersList = async () => {
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_ACCOUNTS);
+        setOwners(data?.data);
+    }
+
     useEffect(() => {
         getPackageListDetails();
+        getOwnersList();
     }, []);
 
     const initialValues = {
@@ -266,6 +272,7 @@ const DriverAdd = () => {
                 packages: values.packages,
                 carType: values.carType,
                 //wallet: values.wallet,
+                accountId : values.accountId,
             };
             let driverData = { driverDetails, prices: values.prices };
             console.log(driverData);
@@ -474,6 +481,64 @@ const DriverAdd = () => {
                                 <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                                 <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                             </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field
+                                            type="radio"
+                                            name="withOwner"
+                                            value="Yes"
+                                            className="form-radio"
+                                        />
+                                        <span className="ml-2">Yes</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field
+                                            type="radio"
+                                            name="withOwner"
+                                            value="No"
+                                            className="form-radio"
+                                        />
+                                        <span className="ml-2">No</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage
+                                    name="withOwner"
+                                    component="div"
+                                    className="text-red-500 text-sm"
+                                />
+                            </div>
+
+                            <Field name="withOwner">
+                                {({ field }) =>
+                                    field.value === "Yes" ? (
+                                        <div className="mb-4">
+                                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                                                Select Owner
+                                            </label>
+                                            <Field
+                                                as="select"
+                                                name="accountId"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                            >
+                                                <option value="">Select Owner</option>
+                                                {owner.map((owner, index) => (
+                                                    <option key={index} value={owner.id}>
+                                                        {owner.name}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                            <ErrorMessage
+                                                name="accountId"
+                                                component="div"
+                                                className="text-red-500 text-sm mt-1"
+                                            />
+                                        </div>
+                                    ) : null
+                                }
+                            </Field>
 
                             <div>
                                 <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>

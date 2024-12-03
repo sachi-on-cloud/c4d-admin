@@ -105,6 +105,14 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
     //     .min(18, 'Driver must be at least 18 years old')
     //     .max(70, 'Driver must be under 70 years old')
     //     .typeError('Age must be a number'),
+    withOwner: Yup.string()
+        .required("Please choose whether this is with or without an owner")
+        .oneOf(["Yes", "No"], "Invalid selection"),
+    accountId: Yup.string().when(["withOwner"], {
+        is: (val) =>val ==='Yes',
+        then: ()=> Yup.string().required("Owner must be selected"),
+        otherwise: ()=> Yup.string().nullable(),
+    }),
     phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
     licenseType: Yup.string().required('License Type is required'),
@@ -428,3 +436,23 @@ export const CAB_ADD_SCHEMA = Yup.object({
     }),
     image1: Yup.string().required('RC Book Image is required'),
 });
+
+export const SUBSCRIPTION_ADD_SCHEME = Yup.object().shape({
+    subscriptionType: Yup.string().required('Subscription type is required'),
+    owner: Yup.string().when(['subscriptionType'], {
+      is: (val) => val === 'owner',
+      then: ()=> Yup.string().required('Owner is required'),
+      otherwise: ()=> Yup.string(),
+    }),
+    cab: Yup.string().when('subscriptionType', {
+      is: (val) => val === 'owner',
+      then: ()=> Yup.string().required('Cab is required'),
+      otherwise: ()=> Yup.string(),
+    }),
+    driver: Yup.string().when('subscriptionType', {
+      is: (val) => val === 'driver',
+      then:()=> Yup.string().required('Driver is required'),
+      otherwise:()=> Yup.string(),
+    }),
+    paymentMethod: Yup.string().required('Payment method is required'),
+  });
