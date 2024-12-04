@@ -1,16 +1,14 @@
 import {
   HomeIcon,
-  UserCircleIcon,
-  TableCellsIcon,
-  InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
+import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 import { CustomerView } from "@/pages/customer";
+import { AccountView } from "@/pages/account";
 import { DriverView } from "@/pages/driver";
 import { UserView } from "@/pages/users";
 import DriverAdd from "./pages/driver/add";
@@ -22,6 +20,7 @@ import Booking from "./pages/booking/booking";
 import ConfirmBooking from "./pages/booking/confirmBooking";
 import SelectLocation from "./pages/booking/selectLocation";
 import DriverDetails from "./pages/driver/details";
+import AccountDetails from "./pages/account/details";
 import AddPriceDetails from "./pages/driver/addPriceDetails";
 import { BookingsList, SearchDrivers } from "./pages/booking";
 import UserDetails from "./pages/users/details";
@@ -32,6 +31,13 @@ import { CabView } from "./pages/cab";
 import CabAdd from "./pages/cab/add";
 import CabDetails from "./pages/cab/details";
 import CabEdit from "./pages/cab/edit";
+import AccountAdd from "./pages/account/add";
+import AccountEdit from "./pages/account/edit";
+import { DocumentVerificationView } from "./pages/docVerification/view";
+import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
+import {SubscriptionView} from './pages/subscription/view';
+import SubscriptionAdd from "./pages/subscription/add";
+
 // import { SearchDrivers } from "./pages/booking";
 
 
@@ -108,9 +114,23 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/accounts/details/:id",
+        element: <AccountDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/drivers/edit/:id",
         element: <DriverEdit />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/accounts/edit/:id",
+        element: <AccountEdit />,
         display: false
       },
       {
@@ -176,7 +196,20 @@ export const routes = [
         element: <UserDetails />,
         display: false
       },
-
+      {
+        icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/accounts/add",
+        element: <AccountAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "accounts",
+        path: "/admin/account/:accountId",
+        element: <AccountEdit />,
+        display: false
+      },
       {
         icon: <HomeModernIcon {...icon} />,
         name: "BookingsList",
@@ -207,7 +240,42 @@ export const routes = [
         name: "Commission",
         path: "/commission",
         element: <Commission />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Account",
+        path: "/account",
+        element: <AccountView />,
         display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Document Verification",
+        path: "/doc-verification",
+        element: <DocumentVerificationView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Online Registration",
+        path: "/online-registration",
+        element: <OnlineRegistrationView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "subscription",
+        path: "/subscription",
+        element: <SubscriptionView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "subscription",
+        path: "/subscription/add",
+        element: <SubscriptionAdd />,
+        display: false
       },
     ],
   },

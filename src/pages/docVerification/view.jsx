@@ -1,0 +1,326 @@
+import { ApiRequestUtils } from "@/utils/apiRequestUtils";
+import { API_ROUTES } from "@/utils/constants";
+import { useEffect, useState } from "react";
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Typography,
+  Button,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Checkbox,
+} from "@material-tailwind/react";
+import { FaFilter } from "react-icons/fa";
+
+const formatDate = (isoDate) => {
+  const date = new Date(isoDate);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+export function DocumentVerificationView() {
+  const [accounts, setAccounts] = useState([]);
+  const [allAccounts, setAllAccounts] = useState([]);
+  const [statusFilter, setStatusFilter] = useState(["All"]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchDoc = async () => {
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS);
+      console.log("DOC VERIFATION",data)
+      if (data?.success) {
+        setAccounts(data?.data);
+        setAllAccounts(data?.data);
+      }
+    };
+    fetchDoc();
+  }, []);
+
+  useEffect(() => {
+    getDetails(searchQuery.trim());
+  }, [searchQuery]);
+
+  const getDetails = async (searchQuery) => {
+    if (searchQuery && searchQuery.trim() !== "") {
+        const query = searchQuery.toLowerCase().trim();
+        
+        const filteredAccounts = allAccounts.filter((acc) => {
+            const name = (
+                acc?.Register?.firstName || 
+                acc?.Driver?.firstName || 
+                acc?.Account?.name || 
+                acc?.Cab?.name||
+                ""  
+            ).toLowerCase();
+            const phone = acc?.Register?.phoneNumber || acc?.Driver?.phoneNumber || acc?.Account?.phoneNumber || "";
+            const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
+            return (
+                name.startsWith(query) || 
+                phone.startsWith(query) || 
+                phoneNumberWithoutCountryCode.startsWith(query)
+            );
+        });
+        setAccounts(filteredAccounts);
+    } else {
+        setAccounts(allAccounts);
+    }
+  };
+
+  const handleOpenDocument = (documentUrl) => {
+    window.open(documentUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return "text-blue-500";
+      case "approved":
+        return "text-green-500";
+      case "declined":
+        return "text-red-500";
+      default:
+        return "text-gray-500";
+    }
+  };
+  
+  const handleStatusChange = async (id,status) => {
+    const docData = {
+      documentId:id,
+      status : status,
+    };
+    const data = await ApiRequestUtils.update(API_ROUTES.GET_DOCUMENT_DETAILS, docData);
+    if (data?.success) {
+      alert(`Document status updated to ${status}`);
+      const updatedData = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS);
+      if (updatedData?.success) {
+        setAccounts(updatedData?.data);
+        setAllAccounts(updatedData?.data);
+      }
+    } else {
+      alert("Failed to update status. Please try again.");
+    }
+  };
+
+  const handleFilterChange = (value) => {
+    setStatusFilter((prev) => {
+      if (value === "All") {
+        return ["All"];
+      }
+      const newFilter = prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev.filter((item) => item !== "All"), value];
+      return newFilter.length === 0 ? ["All"] : newFilter;
+    });
+  };
+
+  const FilterPopover = ({ title, options }) => (
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <div className="flex items-center cursor-pointer">
+          <Typography
+            variant="small"
+            className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1"
+          >
+            {title}
+          </Typography>
+          <FaFilter className="text-blue-gray-400 text-xs" />
+        </div>
+      </PopoverHandler>
+      <PopoverContent className="p-2">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center mb-2">
+            <Checkbox
+              color="blue"
+              checked={statusFilter.includes(option.value)}
+              onChange={() => handleFilterChange(option.value)}
+            />
+            <Typography color="blue-gray" className="font-medium ml-2">
+              {option.label}
+            </Typography>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+  
+  return (
+    <div className="mt-6 mb-8 flex flex-col gap-12">
+      <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="relative flex-grow max-w-[500px]">
+                <input
+                    type="text"
+                    className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Search Account"
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
+                </div>
+            </div>
+          </div>
+      </div>
+      <Card>
+        {accounts.length > 0 ? (
+          <>
+            <CardHeader
+              variant="gradient"
+              color="gray"
+              className="mb-8 p-6 flex-1 justify-between items-center"
+            >
+              <Typography variant="h6" color="white">
+                Documents List
+              </Typography>
+            </CardHeader>
+            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+              <table className="w-full min-w-[640px] table-auto">
+                <thead>
+                  <tr>
+                    {[
+                      "Type",
+                      "Name",,
+                      "ID Number",
+                      "Phone Number",
+                      "Document Type",
+                      "Uploaded Date",
+                      "KYC Status",
+                      "",
+                      "",
+                    ].map((el, index) => (
+                      <th
+                        key={index}
+                        className="border-b border-blue-gray-50 py-3 px-3 text-left"
+                      >
+                        {el==='KYC Status' ? (
+                          <FilterPopover
+                            title={el}
+                            options={[
+                              { value: "All", label: "All" },
+                              { value: "PENDING", label: "Pending" },
+                              { value: "APPROVED", label: "Approved" },
+                              { value: "DECLINED", label: "Declined" },
+                            ]}
+                        />
+                        ) : (
+                        <Typography
+                          variant="small"
+                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          >
+                            {el}
+                          </Typography>
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {accounts.filter((account) =>
+                  statusFilter.includes("All") || statusFilter.includes(account.status)
+                    ).map(
+                    ({ id, Register, Account, Driver, status, type, Cab, updated_at, image1, idNumber}, key) => {
+                      const className = `py-3 px-3 ${
+                        key === accounts.length - 1
+                          ? ""
+                          : "border-b border-blue-gray-50"
+                      }`;
+                      const name  = Register?.firstName || Driver?.firstName || Account?.name || Cab?.name || " ";
+                      const nameType = Register ? "Register" : Driver ? "Driver" : Account ? "Account" : Cab ? "Cab" : "";
+                      const number = Register?.phoneNumber || Driver?.phoneNumber || Account?.phoneNumber || Cab?.phoneNumber || "";
+                      return (
+                        <>
+                          <tr key={id}>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {nameType}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {name}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {idNumber}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {number}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {type}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {formatDate(updated_at)}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography
+                                className={`text-xs font-semibold ${getStatusColor(
+                                  status
+                                )}`}
+                              >
+                                {status}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <div className="flex items-center gap-4">
+                                <div>
+                                  <Typography
+                                    variant="small"
+                                    className="font-semibold underline cursor-pointer text-blue-900"
+                                    onClick={() => {
+                                      handleOpenDocument(image1);
+                                    }}
+                                  >
+                                    View Details
+                                  </Typography>
+                                </div>
+                              </div>
+                            </td>
+                            <td className={className}>
+                              {status == "PENDING" && <><Button
+                                as="a"
+                                className="mr-5 text-xs font-semibold text-black bg-white border border-black"
+                                onClick={() => handleStatusChange(id, 'APPROVED')}
+                              >
+                                Accept
+                              </Button>
+                              <Button
+                                as="a"
+                                className="text-xs font-semibold text-white"
+                                onClick={() => handleStatusChange(id, 'DECLINED')}
+                              >
+                                Decline
+                              </Button></>}
+                            </td>
+                          </tr>
+                        </>
+                      );
+                    }
+                  )}
+                </tbody>
+              </table>
+            </CardBody>
+          </>):(
+            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+              <Typography variant="h6" color="white">
+                No Accounts
+              </Typography>
+            </CardHeader>
+          )
+        }
+      </Card>
+    </div>
+  );
+}

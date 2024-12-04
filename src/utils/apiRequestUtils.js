@@ -1,12 +1,14 @@
 import axios from 'axios';
-import { getBaseUrl } from "./constants";
+import { ASYNC_STORAGE_KEYS, getBaseUrl, KYC_PROCESS } from "./constants";
 
 export const ApiRequestUtils = {
     post: async (apiRoute, body, custID = 0) => {
         const token = localStorage.getItem('token');
         const headers = {
             'Content-Type': 'application/json',
-            'token': token
+            'token': token,
+            //'ngrok-skip-browser-warning' : true,
+            // 'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -30,7 +32,8 @@ export const ApiRequestUtils = {
         const token = localStorage.getItem('token');
         const headers = {
             'Content-Type': 'application/json',
-            'token': token
+            'token': token,
+            // 'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -56,7 +59,8 @@ export const ApiRequestUtils = {
             headers: {
                 'Content-Type': 'application/json',
                 'token': token,
-                'custID': 63
+                'custID': 63,
+                // 'ngrok-skip-browser-warning': '69420',
             },
             params: params
         });
@@ -76,7 +80,8 @@ export const ApiRequestUtils = {
         const token = localStorage.getItem('token');
         const headers = {
             'Content-Type': 'application/json',
-            'token': token
+            'token': token,
+            // 'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {
             headers['custID'] = custID;
@@ -102,7 +107,8 @@ export const ApiRequestUtils = {
             headers: {
                 'Content-Type': 'application/json',
                 'token': token,
-                'custID': 63
+                'custID': 63,
+                // 'ngrok-skip-browser-warning': '69420',
             },
             data: body
         });
@@ -117,6 +123,45 @@ export const ApiRequestUtils = {
             return data;
         }
 
-    }
+    },
+    postDocs: async (apiRoute, body) => {
+        const token = localStorage.getItem('token');
+        const { data } = await axios.post(getBaseUrl() + apiRoute, body, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'token': token
+            }
+        });
+        if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
+            // Alert.alert('Failure', data.message, [{
+            //     style: 'default', onPress: () => {
+            //         // navigation.navigate('Welcome');
+            //     }
+            // }]);
+            return;
+        } else {
+            return data;
+        }
+    },
+    updateDocs: async (apiRoute, body, apiMethod) => {
+        const token = localStorage.getItem('token');
+        const { data } = await axios.put(getBaseUrl() + apiRoute, body, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'token': token
+            }
+        });
+        console.log('data in POST DOCS :', data);
+        if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
+            // Alert.alert('Failure', data.message, [{
+            //     style: 'default', onPress: () => {
+            //         // navigation.navigate('Welcome');
+            //     }
+            // }]);
+            return;
+        } else {
+            return data;
+        }
+    },
 };
 

@@ -16,9 +16,10 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, selectPickedBooking }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
+    const [selectedBookingId, setSelectedBookingId] = useState(null);
 
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
@@ -85,6 +86,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         });
         if (data?.success) {
             setBookingsList(data?.data);
+            setSelectedBookingId(null)
         }
     };
 
@@ -108,7 +110,14 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const onAssignDriverHandler = (data) => {
         setShowPickedBooking(data?.id);
         onAssignDriver(data);
+        setSelectedBookingId(data.id);
     };
+
+    const handleBookingSelect = (data) => {
+        setSelectedBookingId(data.id);
+        onSelectBooking(data);
+    }
+
     function formatDate(dateString) {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -134,7 +143,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
-                                    {["Booking ID", "Service Type", "Driver Name", "Customer Name", "Date", "Created Date", "Status", "", ""].map((el) => (
+                                    {["Booking ID", "Service Type", "Customer Name", "Driver Name", "Booking Date", "Created Date", "Status", "", ""].map((el) => (
                                         <th
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -180,26 +189,16 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                         (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType))
                                     )
                                     .map((data, key) => {
+                                        const isSelected = data.id === selectedBookingId;
                                         const className = `p-3 ${key === bookingsList.length - 1
                                             ? "mb-4"
-                                            : "border-b border-blue-gray-50"
-                                            }`;
-
+                                            : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors duration-200`;
+                                            
                                         return (
-                                            <tr key={data?.id}>
+                                            <tr key={data?.id} className={className}>
                                                 <td className={className}>
                                                     <div className="flex items-center">
-                                                        <div onClick={() => {
-                                                            // navigate("/dashboard/confirm-booking", {
-                                                            // state: {
-                                                            //     bookingId: data?.id,
-                                                            //     customerId: data?.customerId,
-                                                            //     edit: true
-                                                            // }
-                                                            // });
-                                                            onSelectBooking(data);
-                                                        }
-                                                        }>
+                                                        <div onClick={() => handleBookingSelect(data)}>
                                                             <Typography
                                                                 variant="small"
                                                                 color="blue"
@@ -212,17 +211,20 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {data?.serviceType}
-                                                    </Typography>
-                                                </td>
-                                                <td className={className}>
-                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {data?.serviceType === "CAB" ? data?.Cab?.name : data?.serviceType == "DRIVER" || data?.serviceType == "CAR_WASH" ? data?.Driver?.firstName : ''}
+                                                    {data?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : data?.serviceType}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
                                                         {data?.Customer?.firstName}
+                                                    </Typography>
+                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        {data?.Customer?.phoneNumber}
+                                                    </Typography>
+                                                </td>
+                                                <td className={className}>
+                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        {data?.serviceType === "CAB" ? data?.Cab?.name : data?.serviceType == "DRIVER" || data?.serviceType == "CAR_WASH" ? data?.Driver?.firstName : ''}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
@@ -260,7 +262,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 : data?.status == "INITIATED" && (data?.Driver?.id || data?.Cab?.id) ?
                                                                     < Chip
                                                                         variant="gradient"
-                                                                        value={"DRIVER ASSIGNED"}
+                                                                        value={"BOOKED"}
                                                                         className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                     />
 
@@ -293,13 +295,6 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         </Button>
                                                     }
                                                 </td>
-                                                {data?.id === selectPickedBooking && bookingStage === 2 && (
-                                                    < td className={className}>
-                                                        <IconButton>
-                                                            <FaArrowRight />
-                                                        </IconButton>
-
-                                                    </td>)}
                                             </tr>
                                         );
                                     }

@@ -22,8 +22,9 @@ const PrintCabDetails = forwardRef((props, ref) => {
   const fetchItem = async (itemId) => {
     const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
     setDriver(data?.data);
-    print(data?.data);
-
+    if(data?.data) {
+      handlePrint(data?.data);
+    }
   };
 
   useEffect(() => {
@@ -124,7 +125,7 @@ const PrintCabDetails = forwardRef((props, ref) => {
     )
   }
   // useImperativeHandle(ref, () => ({
-  const print = (driver) => {
+  const handlePrint = (driver) => {
     const driverContent = ReactDOMServer.renderToStaticMarkup(cabDetails(driver));
     const priceContent = ReactDOMServer.renderToStaticMarkup(priceDetails(driver));
     const printWindow = window.open("", "_blank");

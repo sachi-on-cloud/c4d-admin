@@ -18,6 +18,7 @@ const UserAdd = () => {
         { id: 'Drivers', name: 'Drivers' },
         { id: 'Users', name: 'Users' },
         { id: 'Bookings', name: 'Bookings' },
+        { id: 'Cabs', name: 'Cabs'}
     ];
     useEffect(() => {
         if (isEditMode) {
