@@ -222,14 +222,14 @@ export function DocumentVerificationView() {
                   {accounts.filter((account) =>
                   statusFilter.includes("All") || statusFilter.includes(account.status)
                     ).map(
-                    ({ id, Register, Account, Driver, status, type, Cab, updated_at, image1,idNumber }, key) => {
+                    ({ id, Register, Account, Driver, status, type, Cab, updated_at, image1, idNumber}, key) => {
                       const className = `py-3 px-3 ${
                         key === accounts.length - 1
                           ? ""
                           : "border-b border-blue-gray-50"
                       }`;
-                      const name = Register?.firstName || Driver?.firstName || Account?.name || Cab.name || "";
-                      const nameType = Register ? "Register" : Driver ? "Driver" : Account ? "Account" : Cab ? "Cab" :"";
+                      const name  = Register?.firstName || Driver?.firstName || Account?.name || Cab?.name || " ";
+                      const nameType = Register ? "Register" : Driver ? "Driver" : Account ? "Account" : Cab ? "Cab" : "";
                       const number = Register?.phoneNumber || Driver?.phoneNumber || Account?.phoneNumber || Cab?.phoneNumber || "";
                       return (
                         <>

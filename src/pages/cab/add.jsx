@@ -332,11 +332,11 @@ const CabAdd = () => {
                                 <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
-                            <div>
+                            {/* <div>
                                 <label htmlFor="ownerPhoneNumber" className="text-sm font-medium text-gray-700">Owner Phone Number</label>
                                 <Field type="tel" name="ownerPhoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="ownerPhoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
 
                             <div>
                                 <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
