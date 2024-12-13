@@ -64,6 +64,7 @@ const CabAdd = () => {
     const [accountOptions, setAccountOptions] = useState([]);
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
+    const [insuranceImagePreview , setInsuranceImagePreview] = useState(null);
     const navigate = useNavigate();
 
     const getAccountNames = async () => {
@@ -145,7 +146,8 @@ const CabAdd = () => {
         packages: cabVal?.packages || [],
         //wallet: cabVal?.wallet || "",
         prices: [],
-        image1: ""
+        image1: "",
+        insuranceImg:""
     };
 
     const searchLocations = async (query, type) => {
@@ -263,6 +265,9 @@ const CabAdd = () => {
         
             formData.append('cabDetails', JSON.stringify(cabDetails));
             formData.append('prices', JSON.stringify(values.prices));
+            formData.append('insuranceImg',values.insuranceImg);
+            formData.append('extInsurance',values.insuranceImg.name.split('.')[1]);
+            formData.append('fileTypeInsurance',values.insuranceImg.type);
             formData.append('image1', values.image1);
             formData.append('extImage1', values.image1.name.split('.')[1]);
             formData.append('fileTypeImage1', values.image1.type);
@@ -359,6 +364,7 @@ const CabAdd = () => {
                                 </Field>
                                 <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                             </div>
+
                             <div>
                                 <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance Expiry Date</label>
                                 <Field type="date" name="insurance" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} ></Field>
@@ -499,47 +505,94 @@ const CabAdd = () => {
                                     showCheckbox={true}
                                 />
                             </div>
-                            <div>
-                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">
-                                    RC Book
-                                </label>
-                                <div className="mt-1">
-                                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                        {values?.image1 ? (
-                                            <img
-                                                src={imagePreview ? imagePreview : values?.image1}
-                                                alt="Preview"
-                                                className="w-full h-full object-contain rounded-md"
-                                            />
-                                        ) : (
-                                            <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
-                                        )}
-                                    </div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        id="image1"
-                                        name='image1'
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                setFieldValue("image1", file);
 
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                    setImagePreview(reader.result);
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-                                        }}
-                                        className="hidden" // Hide the native input
-                                    />
-                                    <label
-                                        htmlFor="image1"
-                                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                    >
-                                        Upload Image
+                            <div className='grid grid-cols-2'>
+                                <div>
+                                    <label htmlFor="insuranceImg" className="text-sm font-medium text-gray-700">
+                                        Insurance
                                     </label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {values?.insuranceImg ? (
+                                                <img
+                                                    src={insuranceImagePreview ? insuranceImagePreview : values?.insuranceImg}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            id="insuranceImg"
+                                            name='insuranceImg'
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    setFieldValue("insuranceImg", file);
+
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setInsuranceImagePreview(reader.result);
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            className="hidden" // Hide the native input
+                                        />
+                                        <label
+                                            htmlFor="insuranceImg"
+                                            className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                        >
+                                            Upload Image
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="image1" className="text-sm font-medium text-gray-700">
+                                        RC Book
+                                    </label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {values?.image1 ? (
+                                                <img
+                                                    src={imagePreview ? imagePreview : values?.image1}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            id="image1"
+                                            name='image1'
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    setFieldValue("image1", file);
+
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setImagePreview(reader.result);
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            className="hidden" // Hide the native input
+                                        />
+                                        <label
+                                            htmlFor="image1"
+                                            className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                        >
+                                            Upload Image
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

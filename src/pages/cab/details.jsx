@@ -66,7 +66,8 @@ const CabDetails = () => {
         carType: cab?.result?.carType || "",
         //wallet: cab?.result?.wallet || "",
         withDriver: cab?.result?.withDriver || "", 
-        image1: cab?.result?.Proofs ? cab?.result?.Proofs[0]?.image1 : ''  
+        image1: cab?.result?.Proofs ? cab?.result?.Proofs[0]?.image1 : '',
+        insuranceImg : cab?.result?.Proofs ? cab?.result?.Proofs[1]?.image1 :'',
     };
     return (
         <>
@@ -185,6 +186,24 @@ const CabDetails = () => {
                                         disable={true}
                                     />
                                 </div>
+
+                                <div>
+                                    <label htmlFor="insuranceImg" className="text-sm font-medium text-gray-700">Insurance</label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {values?.insuranceImg ? (
+                                                <img
+                                                    src={values?.insuranceImg}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label htmlFor="image1" className="text-sm font-medium text-gray-700">RC Book</label>
                                     <div className="mt-1">

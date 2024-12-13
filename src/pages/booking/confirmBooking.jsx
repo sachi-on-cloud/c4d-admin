@@ -398,7 +398,12 @@ const ConfirmBooking = (props) => {
                                                         id="kms"
                                                         placeholder="Enter KM"
                                                         className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                        onChange={(e) => setKms(e.target.value)}
+                                                        onChange={(e) => {
+                                                            const value = parseFloat(e.target.value);
+                                                            if (value > 0) { 
+                                                                setKms(value);
+                                                            }
+                                                        }}
                                                         value={kms}
                                                     />
                                                 </div>
@@ -472,7 +477,7 @@ const ConfirmBooking = (props) => {
                         </CardBody>
                     </Card>
                 }
-                <div className="mt-6 flex flex-row space-x-4">
+                <div className="grid grid-cols-3 gap-4">
                     <Button
                         color="black"
                         ripple="light"
@@ -481,21 +486,22 @@ const ConfirmBooking = (props) => {
                     >
                         Back
                     </Button>
-                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id &&
-                        <>
-                            <Button
-                                color="gray"
-                                variant="outlined"
-                                ripple="dark"
-                                fullWidth
-                                onClick={() => { props.onEdit(bookingDetails) }}
-                            >
-                                Edit
-                            </Button>
-                        </>
-                    }
-                    {bookingDetails.status != "ENDED" && bookingDetails.status != "STARTED" && bookingDetails.status != "CANCELLED" &&
-                        <>
+
+                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id && (
+                        <Button
+                            color="gray"
+                            variant="outlined"
+                            ripple="dark"
+                            fullWidth
+                            onClick={() => { props.onEdit(bookingDetails); }}
+                        >
+                            Edit
+                        </Button>
+                    )}
+
+                    {bookingDetails.status !== "ENDED" &&
+                        bookingDetails.status !== "STARTED" &&
+                        bookingDetails.status !== "CANCELLED" && (
                             <Button
                                 color="gray"
                                 variant="outlined"
@@ -505,49 +511,70 @@ const ConfirmBooking = (props) => {
                             >
                                 Cancel Booking
                             </Button>
-                        </>
-                    }
-                    {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id && !bookingDetails?.Cab?.id &&
-                        <Button
-                            color="black"
-                            ripple="light"
-                            fullWidth
-                            onClick={() => { props.onAssignDriver(bookingDetails) }}
-                        >
-                            {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
-                        </Button>
-                    }
-                    {bookingDetails.status === 'INITIATED' && (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) &&
-                        <Button
-                            color="black"
-                            ripple="light"
-                            fullWidth
-                            onClick={() => { props.onAssignDriver(bookingDetails) }}
-                        >
-                            {props.bookingData.serviceType === "CAB" ? "Choose Another Cab" : "Choose Another Captain"}
-                        </Button>
-                    }
-                    {bookingDetails.status === 'INITIATED' && dateVal && timeVal && kms &&
-                        <Button
-                        color="black"
-                        ripple="light"
-                        fullWidth
-                        onClick={onConfirmPressHandler}
-                    >
-                        Start Trip
-                    </Button>
-                    }
-                    {bookingDetails.status === 'STARTED' && dateVal && timeVal && kms && paymentDetails.paymentCollected && paymentDetails.paymentMethod && paymentDetails.paymentStatus &&
-                        <Button
-                        color="black"
-                        ripple="light"
-                        fullWidth
-                        onClick={onConfirmPressHandler}
-                    >
-                        End Trip
-                    </Button>
-                    }
+                        )}
+
+                    {bookingDetails.status === 'INITIATED' &&
+                        bookingDetails?.pickupAddress &&
+                        !bookingDetails?.Driver?.id &&
+                        !bookingDetails?.Cab?.id && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType === "CAB"
+                                    ? "Assign Cab"
+                                    : "Assign Captain"}
+                            </Button>
+                        )}
+
+                    {bookingDetails.status === 'INITIATED' &&
+                        (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType === "CAB"
+                                    ? "Choose Another Cab"
+                                    : "Choose Another Captain"}
+                            </Button>
+                        )}
+
+                    {bookingDetails.status === 'INITIATED' &&
+                        dateVal &&
+                        timeVal &&
+                        kms && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                Start Trip
+                            </Button>
+                        )}
+
+                    {bookingDetails.status === 'STARTED' &&
+                        dateVal &&
+                        timeVal &&
+                        kms &&
+                        paymentDetails.paymentCollected &&
+                        paymentDetails.paymentMethod &&
+                        paymentDetails.paymentStatus && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                End Trip
+                            </Button>
+                        )}
                 </div>
+
             </>
         </div>
     );
