@@ -199,7 +199,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
-        path: "/accounts/add",
+        path: "/account/add",
         element: <AccountAdd />,
         display: false
       },

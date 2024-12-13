@@ -67,6 +67,7 @@ export const ACCOUNT_ADD_SCHEMA = Yup.object({
     type: Yup.string().required('Type is required'),   
     email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
     street: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
+    thaluk : Yup.string().required('Thaluk is required'),
     district: Yup.string().required('District is required'),
     state: Yup.string().required('State is required'),
     pincode: Yup.string()
@@ -80,6 +81,7 @@ export const ACCOUNT_EDIT_SCHEMA = Yup.object({
     type: Yup.string().required('Type is required'),   
     email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
     street: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
+    thaluk : Yup.string().required('Thaluk is required'),
     district: Yup.string().required('District is required'),
     state: Yup.string().required('State is required'),
     pincode: Yup.string()
@@ -275,7 +277,7 @@ export const DRIVER_SCHEMA = Yup.object({
 
 export const CAB_SCHEMA = Yup.object({
     name: Yup.string().required('Owner Name is required'),
-    ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
+    // ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
     address: Yup.string()
         .required('Address is required')
@@ -352,12 +354,13 @@ export const CAB_SCHEMA = Yup.object({
             price.nightCharge || price.cancelCharge || price.extraCabType
         );
     }),
+    insuranceImg: Yup.string().optional(),
     image1: Yup.string().optional(),
 });
 
 export const CAB_ADD_SCHEMA = Yup.object({
     name: Yup.string().required('Owner Name is required'),
-    ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
+    // ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
     address: Yup.string()
         .required('Address is required')
@@ -434,6 +437,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
             price.nightCharge || price.cancelCharge || price.extraCabType
         );
     }),
+    insuranceImg: Yup.string().required('Insurance Image is required'),
     image1: Yup.string().required('RC Book Image is required'),
 });
 

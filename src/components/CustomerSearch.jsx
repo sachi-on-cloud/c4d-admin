@@ -81,7 +81,7 @@ const CustomerSearch = ({ onSearch }) => {
           <input
             type="text"
             className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Search customer"
+            placeholder="Search Customer"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
