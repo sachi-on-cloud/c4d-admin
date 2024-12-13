@@ -62,6 +62,7 @@ const CabAdd = () => {
     const [owneraddressSuggestions, setOwnerAddressSuggestions] = useState([]);
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
     const [accountOptions, setAccountOptions] = useState([]);
+    const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
     const [insuranceImagePreview , setInsuranceImagePreview] = useState(null);
@@ -97,7 +98,15 @@ const CabAdd = () => {
         });
     };
 
+    const getAccountRelatedDrivers = async (accountId) => {
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS, {
+            accountId: accountId
+        });
 
+        if (data?.success && data?.data.length > 0) {
+            setAccountRelatedDrivers(data?.data);
+        }
+    }
     const getPackageListDetails = async () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
@@ -115,9 +124,15 @@ const CabAdd = () => {
         }
     };
 
+    // const checkDriver = async () => {
+    //     const data = await ApiRequestUtils.get(API_ROUTES.CHECK_DRIVER + '+916666666666');
+    //     console.log('checkDriver - data :', data);
+    // };
+
     useEffect(() => {
         getPackageListDetails();
         getAccountNames();
+        // checkDriver();
         // if (isEditMode) {
         //     fetchItem(id);
         // }
@@ -137,6 +152,8 @@ const CabAdd = () => {
         company: cabVal?.company || "",
         insurance: cabVal?.insurance || "",
         withDriver: cabVal?.withDriver || "",
+        assignOrAddDriver: cabVal?.assignOrAddDriver || "",
+        driverId: cabVal?.driverId || "",
         driverName: cabVal?.driverName || "",
         phoneNumber: cabVal?.phoneNumber || "",
         driverAddress: cabVal?.driverAddress || "",
@@ -258,7 +275,8 @@ const CabAdd = () => {
                 packages: values.packages,
                 carType: values.carType,
                 //wallet: values.wallet,
-                accountId: values.accountId
+                accountId: values.accountId,
+                driverId: values.driverId
             };
             // let cabData = { cabDetails, prices: values.prices };
             const formData = new FormData();
@@ -326,6 +344,17 @@ const CabAdd = () => {
                                     as="select"
                                     name="accountId"
                                     className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                    onChange={(e) => {
+                                        const selectedAccountId = e.target.value;
+                            
+                                        // Set the value in Formik state
+                                        setFieldValue('accountId', selectedAccountId);
+                            
+                                        // Call your method to fetch data
+                                        if (selectedAccountId) {
+                                            getAccountRelatedDrivers(selectedAccountId);
+                                        }
+                                    }}
                                 >
                                     <option value="">Select Owner</option>
                                     {accountOptions.map((option) => (
@@ -395,10 +424,6 @@ const CabAdd = () => {
                                         <Field type="radio" name="withDriver" value="Yes" className="form-radio"
                                             onChange={e => {
                                                 handleChange(e);
-                                                setFieldValue('driverName', values.driverName, true);
-                                                setFieldValue('phoneNumber', values.phoneNumber, true);
-                                                setFieldValue('driverAddress', values.driverAddress, true);
-                                                setFieldValue('licenseNumber', values.licenseNumber, true);
                                             }} />
                                         <span className="ml-2">Yes</span>
                                     </label>
@@ -406,10 +431,6 @@ const CabAdd = () => {
                                         <Field type="radio" name="withDriver" value="No" className="form-radio"
                                             onChange={e => {
                                                 handleChange(e);
-                                                setFieldValue('driverName', '', true);
-                                                setFieldValue('phoneNumber', '', true);
-                                                setFieldValue('driverAddress','', true);
-                                                setFieldValue('licenseNumber','' , true);
                                             }} />
                                         <span className="ml-2">No</span>
                                     </label>
@@ -419,16 +440,69 @@ const CabAdd = () => {
                             {values.withDriver === 'Yes' && (
                             <>
                             <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Assign or Add Driver</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="assignOrAddDriver" value="Assign" className="form-radio"
+                                            onChange={e => {
+                                                handleChange(e);
+                                                setFieldValue('driverId', values.driverId, true);
+                                                // setFieldValue('phoneNumber', values.phoneNumber, true);
+                                                // setFieldValue('driverAddress', values.driverAddress, true);
+                                                // setFieldValue('licenseNumber', values.licenseNumber, true);
+                                            }} />
+                                        <span className="ml-2">Assign</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="assignOrAddDriver" value="Add" className="form-radio"
+                                            onChange={e => {
+                                                handleChange(e);
+                                                // setFieldValue('driverName', '', true);
+                                                // setFieldValue('phoneNumber', '', true);
+                                                // setFieldValue('driverAddress','', true);
+                                                // setFieldValue('licenseNumber','' , true);
+                                            }} />
+                                        <span className="ml-2">Add</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="assignOrAddDriver" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            {values?.assignOrAddDriver === 'Assign' && accountRelatedDrivers.length > 0 && 
+                            <div>
+                                <label htmlFor="driverId" className="text-sm font-medium text-gray-700">Driver</label>
+                                <Field
+                                    as="select"
+                                    name="driverId"
+                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                    // onChange={(e) => {
+                                    //     const selectedAccountId = e.target.value;
+                                    //     console.log('selectedAccountId :', selectedAccountId)
+                                    //     if (selectedAccountId) {
+                                    //         getAccountRelatedDrivers(selectedAccountId);
+                                    //     }
+                                    // }}
+                                >
+                                    <option value="">Select Driver</option>
+                                    {accountRelatedDrivers.map((option) => (
+                                        <option key={option.id} value={option.id}>
+                                            {option.firstName}
+                                        </option>
+                                    ))}
+                                </Field>
+                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+                            }
+                            {values?.assignOrAddDriver === 'Add' && <div>
                                 <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
                                 <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />   
-                            </div>
-                            <div>
+                            </div>}
+                            {values?.assignOrAddDriver === 'Add' &&<div>
                                 <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                 <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
+                            </div>}
+                            {values?.assignOrAddDriver === 'Add' && <div>
                                 <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
                                 <Field name="driverAddress">
                                     {({ field, form }) => (
@@ -442,12 +516,12 @@ const CabAdd = () => {
                                     )}
                                 </Field>
                                 <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
+                            </div>}
+                            {values?.assignOrAddDriver === 'Add' &&<div>
                                 <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
                                 <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
                                 <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div>}
                             </>
                             )}
                             <div>
