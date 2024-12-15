@@ -100,7 +100,7 @@ export function SubscriptionView() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Name", "Mobile Number", "Type", "Cab Details", "Amount", "Start Date", "End Date"].map((el) => (
+                                        {["Name", "Mobile Number", "Type", "Cab Details", "Amount", "Remaining Rides", "Start Date", "End Date"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -123,6 +123,7 @@ export function SubscriptionView() {
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{account.Driver?.firstName ? "Driver" : account.Cab?.name ? "Owner": " "}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{account.Cab?.name || account.Driver?.firstName }</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">1000</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{account?.remainingRides}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(account.startDate)}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(account.endDate)}</td>
                                         </tr>

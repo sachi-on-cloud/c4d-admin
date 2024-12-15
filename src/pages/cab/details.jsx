@@ -57,7 +57,7 @@ const CabDetails = () => {
         carNumber: cab?.result?.carNumber || "",
         address: cab?.result?.curAddress || "",
         insurance: cab?.result?.insurance || "",
-        driverName: cab?.result?.driverName || "",
+        driverName: cab?.result?.Drivers[0] ? cab?.result?.Drivers[0].firstName : "",
         phoneNumber: cab?.result?.phoneNumber || "",
         driverAddress: cab?.result?.driverAddress || "",
         licenseNumber: cab?.result?.driverLicense || "",
@@ -158,21 +158,21 @@ const CabDetails = () => {
                                     <Field type="text" name="driverName" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div>
+                                {values.phoneNumber && <div>
                                     <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                     <Field type="tel" name="phoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
                                     <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
+                                </div>}
+                                {values.driverAddress && <div>
                                     <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
                                     <Field type="text" name="driverAddress" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
+                                </div>}
+                                {values.licenseNumber && <div>
                                     <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
                                     <Field type="text" name="licenseNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
                                     <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                </div>}
                                 </>
                                 )}
                                 <div>

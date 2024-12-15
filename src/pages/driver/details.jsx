@@ -342,7 +342,7 @@ const DriverDetails = () => {
                                     <div className='grid grid-cols-2'>
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">License</label>
-                                            <div className="mt-1">
+                                            <div className="my-2">
                                                 <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
                                                     {getDocumentByType(KYC_PROCESS.DRIVING_LICENSE) ? (
                                                         <div className='grid grid-cols-1'>

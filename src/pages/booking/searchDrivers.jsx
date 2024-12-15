@@ -73,7 +73,7 @@ export function SearchDrivers(props) {
                 if (data?.success) {
                     setDrivers(data?.data);
                 }
-                console.log("driverdata", data);
+                // console.log("driverdata", data);
                 if (data?.success) {
                     setDrivers(data?.data);
                 } else {
@@ -149,7 +149,7 @@ export function SearchDrivers(props) {
                 {loading ? (
                     <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                         <Typography variant="h6" color="white">
-                            Loading drivers...
+                        {`Loading ${props.bookingData.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
                         </Typography>
                     </CardHeader>
                 ) : drivers.length > 0 ? (
@@ -206,7 +206,7 @@ export function SearchDrivers(props) {
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {(Drivers[0]?.distance && props.bookingData.serviceType == "CAB") ? `${Math.round(Drivers[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
+                                                        {(props.bookingData.serviceType == "CAB" && Drivers[0]?.distance) ? `${Math.round(Drivers[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
@@ -245,7 +245,7 @@ export function SearchDrivers(props) {
                     </CardBody>) : (
                     <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                         <Typography variant="h6" color="white">
-                            No Drivers Near By
+                            {`No ${props.bookingData.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
                         </Typography>
                     </CardHeader>
                 )}

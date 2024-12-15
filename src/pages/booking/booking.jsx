@@ -268,7 +268,7 @@ const Booking = (props) => {
                 <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
-                {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-4'>
+                {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-8'>
                     <Typography variant="h5" color='#000000'>
                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
                         <div className= "flex items-center">

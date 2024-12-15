@@ -63,6 +63,7 @@ const CabEdit = () => {
     // const [accountOptions, setAccountOptions] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
     const [insuranceImagePreview ,setInsuranceImagePreview] = useState(null);
+    const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
@@ -82,6 +83,16 @@ const CabEdit = () => {
     //         setAlert({ message: 'Error fetching account names', color: 'red' });
     //     }
     // };
+
+    const getAccountRelatedDrivers = async (accountId) => {
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS, {
+                accountId: accountId
+            });
+    
+            if (data?.success && data?.data.length > 0) {
+                setAccountRelatedDrivers(data?.data);
+            }
+        }
 
     function getNameById(id, obj) {
         for (const key in obj) {
@@ -135,6 +146,7 @@ const CabEdit = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
         if(data?.data) {
             setCabVal(data.data);
+            getAccountRelatedDrivers(data?.data?.result?.Account?.id)
         } else {
             console.error('No cab data received');
             navigate('/dashboard/cab');
@@ -148,11 +160,13 @@ const CabEdit = () => {
     const initialValues = {
         name: cabVal?.result?.name || "",
         ownerName: cabVal?.result?.Account ? cabVal?.result?.Account?.name : "",
-        ownerPhoneNumber: cabVal?.result?.ownerPhoneNumber ? cabVal?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
+        // ownerPhoneNumber: cabVal?.result?.ownerPhoneNumber ? cabVal?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
+        driverId: cabVal?.result?.Drivers[0]?.id || "",
         carNumber: cabVal?.result?.carNumber || "",
         address: cabVal?.result?.curAddress || "",
         insurance: cabVal?.result?.insurance || "",
         withDriver: cabVal?.result?.withDriver || "",
+        assignOrAddDriver: "Assign",
         driverName: cabVal?.result?.driverName || "",
         phoneNumber: cabVal?.result?.phoneNumber || "",
         driverAddress: cabVal?.result?.driverAddress || "",
@@ -279,6 +293,9 @@ const CabEdit = () => {
                 //wallet: values.wallet,
                 cabId: id
             };
+            if (!cabDetails?.driverName) {
+                cabDetails['driverId'] = values?.driverId
+            }
             const formData = new FormData();
             
             if (cabVal?.result?.Proofs) {
@@ -423,38 +440,91 @@ const CabEdit = () => {
                                 <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
                             </div>
                             {values.withDriver === 'Yes' && (
-                            <>
-                            <div>
-                                <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
-                                <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300 border" />
-                                <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
-                                <Field name="driverAddress">
-                                    {({ field, form }) => (
-                                        <LocationInput
-                                            field={field}
-                                            form={form}
-                                            suggestions={driverAddressSuggestions}
-                                            onSearch={searchLocations}
-                                            type="driver"
-                                        />
-                                    )}
-                                </Field>
-                                <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            </>
+                                <>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Assign or Add Driver</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="assignOrAddDriver" value="Assign" className="form-radio"
+                                                    onChange={e => {
+                                                        handleChange(e);
+                                                        setFieldValue('driverId', values.driverId, true);
+                                                        // setFieldValue('phoneNumber', values.phoneNumber, true);
+                                                        // setFieldValue('driverAddress', values.driverAddress, true);
+                                                        // setFieldValue('licenseNumber', values.licenseNumber, true);
+                                                    }} />
+                                                <span className="ml-2">Assign</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="assignOrAddDriver" value="Add" className="form-radio"
+                                                    onChange={e => {
+                                                        handleChange(e);
+                                                        // setFieldValue('driverName', '', true);
+                                                        // setFieldValue('phoneNumber', '', true);
+                                                        // setFieldValue('driverAddress','', true);
+                                                        // setFieldValue('licenseNumber','' , true);
+                                                    }} />
+                                                <span className="ml-2">Add</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="assignOrAddDriver" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    {values?.assignOrAddDriver === 'Assign' && accountRelatedDrivers.length > 0 &&
+                                        <div>
+                                            <label htmlFor="driverId" className="text-sm font-medium text-gray-700">Driver</label>
+                                            <Field
+                                                as="select"
+                                                name="driverId"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                            // onChange={(e) => {
+                                            //     const selectedAccountId = e.target.value;
+                                            //     console.log('selectedAccountId :', selectedAccountId)
+                                            //     if (selectedAccountId) {
+                                            //         getAccountRelatedDrivers(selectedAccountId);
+                                            //     }
+                                            // }}
+                                            >
+                                                <option value="">Select Driver</option>
+                                                {accountRelatedDrivers.map((option) => (
+                                                    <option key={option.id} value={option.id}>
+                                                        {option.firstName}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                            <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                        </div>
+                                    }
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
+                                        <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300" />
+                                        <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
+                                        <Field name="driverAddress">
+                                            {({ field, form }) => (
+                                                <LocationInput
+                                                    field={field}
+                                                    form={form}
+                                                    suggestions={driverAddressSuggestions}
+                                                    onSearch={searchLocations}
+                                                    type="driver"
+                                                />
+                                            )}
+                                        </Field>
+                                        <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
+                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                </>
                             )}
                             <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">Notify</p>

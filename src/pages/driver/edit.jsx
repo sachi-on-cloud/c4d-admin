@@ -357,13 +357,13 @@ const DriverEdit = () => {
                         className="hidden"
                     />
                     <div className="flex space-x-2 mt-2">
-                        <button
+                        {imagePreview && <button
                             type="button"
                             onClick={() => onView(imagePreview)}
                             className="p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
                         >
                             View
-                        </button>
+                        </button>}
                         <label
                             htmlFor={name}
                             className="p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
@@ -605,13 +605,6 @@ const DriverEdit = () => {
 
                                 <div>
                                     <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
-                                    <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
-                                <div>
-                                    <label htmlFor="streetName" className="text-sm font-medium text-gray-700">
-                                        Street Name
-                                    </label>
                                     <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
                                 </div>

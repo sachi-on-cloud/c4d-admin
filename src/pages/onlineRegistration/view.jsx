@@ -52,8 +52,21 @@ export function OnlineRegistrationView(){
         }
     };
 
-    const getCreateDriver= async(registerId)=>{
+    const getCreateDriver= async(registerId, firstName)=>{
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CREATE_DRIVER+`${registerId}`)
+        if (data?.success) {
+            setAlertMessage(`${firstName} - Driver account has been created successfully!`)
+            setAlert(true);
+            setTimeout(() => {
+                setAlert(false);
+            }, 5000);
+        } else {
+            setAlertMessage(`Failed to create ${firstName} - Driver account`)
+            setAlert(true);
+            setTimeout(() => {
+                setAlert(false);
+            }, 5000);
+        }
         // setAlertMessage(data?.message)
         // setAlert(true);
         // setTimeout(() => {
@@ -61,8 +74,21 @@ export function OnlineRegistrationView(){
         // }, 5000);
     }
 
-    const getCreateOwner = async (registerId)=>{
+    const getCreateOwner = async (registerId, firstName)=>{
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CREATE_OWNER+`${registerId}`)
+        if (data?.success) {
+            setAlertMessage(`${firstName} - Owner account has been created successfully!`)
+            setAlert(true);
+            setTimeout(() => {
+                setAlert(false);
+            }, 5000);
+        } else {
+            setAlertMessage(`Failed to create ${firstName} - Owner account`)
+            setAlert(true);
+            setTimeout(() => {
+                setAlert(false);
+            }, 5000);
+        }
         // setAlertMessage(data?.message)
         // setAlert(true);
         // setTimeout(() => {
@@ -262,14 +288,14 @@ export function OnlineRegistrationView(){
                                                     <Button
                                                         as="a"
                                                         className="mr-5 text-xs font-semibold text-black bg-white border border-black"
-                                                        onClick={() => getCreateDriver(id)}
+                                                        onClick={() => getCreateDriver(id, firstName)}
                                                     >
                                                         Create Driver
                                                     </Button>
                                                     <Button
                                                         as="a"
                                                         className="text-xs font-semibold text-white"
-                                                        onClick={() => getCreateOwner(id)}
+                                                        onClick={() => getCreateOwner(id, firstName)}
                                                     >
                                                         Create Owner
                                                     </Button>
