@@ -16,7 +16,6 @@ export function SubscriptionView() {
     const [accounts, setAccounts] = useState([]);
     const [allAccounts, setAllAccounts] = useState([]);
 
-    // Fetch data on component mount
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -34,7 +33,6 @@ export function SubscriptionView() {
         fetchData();
     }, []);
 
-    // Filter accounts based on the search query
     useEffect(() => {
         getDetails(searchQuery.trim());
     }, [searchQuery]);
@@ -69,14 +67,13 @@ export function SubscriptionView() {
 
     return (
         <div className="mt-6 mb-8 flex flex-col gap-12">
-            {/* Search and Add Button */}
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
                             className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Search Account"
+                            placeholder="Search Subscription"
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -91,8 +88,6 @@ export function SubscriptionView() {
                     </button>
                 </div>
             </div>
-
-            {/* Subscription List */}
             <Card>
                 {accounts.length > 0 ? (
                     <>
@@ -105,7 +100,7 @@ export function SubscriptionView() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Name", "Mobile Number", "Type", "Cab Details", "Amount", "Start Date", "End Date"].map((el) => (
+                                        {["Name", "Mobile Number", "Type", "Cab Details", "Amount", "Remaining Rides", "Start Date", "End Date"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -128,6 +123,7 @@ export function SubscriptionView() {
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{account.Driver?.firstName ? "Driver" : account.Cab?.name ? "Owner": " "}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{account.Cab?.name || account.Driver?.firstName }</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">1000</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{account?.remainingRides}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(account.startDate)}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(account.endDate)}</td>
                                         </tr>

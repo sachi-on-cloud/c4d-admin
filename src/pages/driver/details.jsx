@@ -86,6 +86,12 @@ const DriverDetails = () => {
     const getDocumentByType = (type) => {
         return driver?.result?.Proofs?.find(proof => proof.type === type)?.image1 || "";
     }
+
+    const handleOpenDocument = (type) => {
+        const documentUrl = getDocumentByType(type);
+        window.open(documentUrl, "_blank", "noopener,noreferrer");
+    };
+
     return (
         <>
             <div className="p-4 mx-auto">
@@ -336,14 +342,23 @@ const DriverDetails = () => {
                                     <div className='grid grid-cols-2'>
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">License</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            <div className="my-2">
+                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
                                                     {getDocumentByType(KYC_PROCESS.DRIVING_LICENSE) ? (
+                                                        <div className='grid grid-cols-1'>
                                                         <img
                                                             src={getDocumentByType(KYC_PROCESS.DRIVING_LICENSE)}
                                                             alt="License"
                                                             className="w-full h-full object-contain rounded-md"
                                                         />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOpenDocument(KYC_PROCESS.DRIVING_LICENSE)}
+                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                                        >
+                                                            View
+                                                        </button>
+                                                        </div>
                                                     ) : (
                                                         <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                                     )}
@@ -354,13 +369,22 @@ const DriverDetails = () => {
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Photo</label>
                                             <div className="mt-1">
-                                                <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
                                                     {getDocumentByType('PHOTO') ? (
+                                                        <div className='grid grid-cols-1'>
                                                         <img
                                                             src={getDocumentByType('PHOTO')}
                                                             alt="Photo"
                                                             className="w-full h-full object-contain rounded-md"
                                                         />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOpenDocument('PHOTO')}
+                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                                        >
+                                                            View
+                                                        </button>
+                                                        </div>
                                                     ) : (
                                                         <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                                     )}
@@ -371,13 +395,22 @@ const DriverDetails = () => {
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Police Clearance</label>
                                             <div className="mt-1">
-                                                <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
                                                     {getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE) ? (
+                                                        <div className='grid grid-cols-1'>
                                                         <img
                                                             src={getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE)}
                                                             alt="PAN"
                                                             className="w-full h-full object-contain rounded-md"
                                                         />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOpenDocument(KYC_PROCESS.POLICE_CLEARANCE)}
+                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                                        >
+                                                            View
+                                                        </button>
+                                                        </div>
                                                     ) : (
                                                         <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                                     )}
@@ -388,13 +421,22 @@ const DriverDetails = () => {
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Consent Form</label>
                                             <div className="mt-1">
-                                                <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
                                                     {getDocumentByType(KYC_PROCESS.CONSENT_FORM) ? (
-                                                        <img
-                                                            src={getDocumentByType(KYC_PROCESS.CONSENT_FORM)}
-                                                            alt="Consent Form"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
+                                                        <div className='grid grid-cols-1'>
+                                                            <img
+                                                                src={getDocumentByType(KYC_PROCESS.CONSENT_FORM)}
+                                                                alt="Consent Form"
+                                                                className="w-full h-full object-contain rounded-md"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleOpenDocument(KYC_PROCESS.CONSENT_FORM)}
+                                                                className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                                            >
+                                                                View
+                                                            </button>
+                                                        </div>
                                                     ) : (
                                                         <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                                     )}
@@ -405,13 +447,22 @@ const DriverDetails = () => {
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Aadhaar Card</label>
                                             <div className="mt-1">
-                                                <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
                                                     {getDocumentByType(KYC_PROCESS.AADHAAR) ? (
-                                                        <img
-                                                            src={getDocumentByType(KYC_PROCESS.AADHAAR)}
-                                                            alt="Aadhaar"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
+                                                        <div className='grid grid-cols-1'>
+                                                            <img
+                                                                src={getDocumentByType(KYC_PROCESS.AADHAAR)}
+                                                                alt="Aadhaar"
+                                                                className="w-full h-full object-contain rounded-md"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleOpenDocument(KYC_PROCESS.AADHAAR)}
+                                                                className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                                            >
+                                                                View
+                                                            </button>
+                                                        </div>
                                                     ) : (
                                                         <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
                                                     )}

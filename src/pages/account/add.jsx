@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 // import Select from 'react-select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, STATE_LIST} from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, STATE_LIST ,THALUK_LIST} from '@/utils/constants';
 import { ACCOUNT_ADD_SCHEMA } from '@/utils/validations';
 import { Alert, Button, Input, List, ListItem} from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
+import Select from 'react-select'
 
 const AccountAdd = (props) => {
     const [districtSearchText, setDistrictSearchText] = useState("");
-    const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
+    const [thalukSearchText, setThalukSearchText] = useState("");
     const [stateSearchText, setStateSearchText] = useState("");
-    const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [alert, setAlert] = useState(false);
     const { id } = useParams();
     const navigate = useNavigate();
@@ -23,6 +23,7 @@ const AccountAdd = (props) => {
         email: "",
         type: "",
         street: "",
+        thaluk: "",
         district: "",
         state: "",
         pincode: "",
@@ -42,6 +43,7 @@ const AccountAdd = (props) => {
             formData.append('type', values.type);
             formData.append('email', values.email);
             formData.append('street', values.street);
+            formData.append('thaluk', values.thaluk);
             formData.append('district', values.district);
             formData.append('state', values.state);
             formData.append('pincode', values.pincode);
@@ -72,22 +74,18 @@ const AccountAdd = (props) => {
         name: district.label
     }));
 
+    const thalukOptions = THALUK_LIST.map(thaluk=>({
+        id:thaluk.value,
+        name:thaluk.label
+    }))
+
     const filteredDistricts = districtOptions.filter(district =>
         district.name.toLowerCase().includes(districtSearchText.toLowerCase())
     );
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.district-search-container')) {
-                setIsDistrictListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const filteredThaluk = thalukOptions.filter(thaluk =>
+        thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase())
+    );
 
     const stateOptions = STATE_LIST.map(state => ({
         id: state.value,
@@ -97,19 +95,6 @@ const AccountAdd = (props) => {
     const filteredState = stateOptions.filter(state => 
         state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
     );
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.state-search-container')) {
-                setIsStateListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     return (
         <div className="p-4">
@@ -165,77 +150,81 @@ const AccountAdd = (props) => {
                                 <ErrorMessage name="street" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
+                            
                             <div>
-                                <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
-                                <div className="relative district-search-container">
-                                        <Input
-                                        type="text"
-                                        placeholder="Search District"
-                                        value={districtSearchText}
-                                        onChange={(e) => {
-                                            setDistrictSearchText(e.target.value);
-                                            setIsDistrictListVisible(true);
-                                            //setFieldValue("district", "");
-                                        }}
-                                        onFocus={() => setIsDistrictListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isDistrictListVisible && districtSearchText && filteredDistricts.length > 0 &&(
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                         {filteredDistricts.map((district) => (
-                                                <ListItem
-                                                    key={district.id}
-                                                    onClick={() => {
-                                                        setFieldValue("district", district.id);
-                                                        setDistrictSearchText(district.name);
-                                                        setIsDistrictListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {district.name}
-                                                </ListItem>
-                                            ))}   
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="district" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
+                                    Thaluk
+                                </label>
+                                <Select
+                                    id="thaluk"
+                                    options={filteredThaluk.map((thaluk) => ({
+                                        value: thaluk.id,
+                                        label: thaluk.name,
+                                    }))}
+                                    onChange={(selectedOption) =>
+                                        setFieldValue("thaluk", selectedOption?.value || "")
+                                    }
+                                    placeholder="Search Thaluk"
+                                    isSearchable
+                                    className="w-full"
+                                    classNamePrefix="react-select"
+                                />
+                                <ErrorMessage
+                                    name="thaluk"
+                                    component="div"
+                                    className="text-red-500 text-sm mt-1"
+                                />
+                            </div>     
+                            <div>
+                                <label htmlFor="district" className="text-sm font-medium text-gray-700">
+                                    District
+                                </label>
+                                <Select
+                                    id="district"
+                                    options={filteredDistricts.map((district) => ({
+                                        value: district.id,
+                                        label: district.name,
+                                    }))}
+                                    onChange={(selectedOption) =>
+                                        setFieldValue("district", selectedOption?.value || "")
+                                    }
+                                    placeholder="Select District"
+                                    isSearchable
+                                    className="w-full"
+                                    classNamePrefix="react-select"
+                                />
+                                <ErrorMessage
+                                    name="district"
+                                    component="div"
+                                    className="text-red-500 text-sm mt-1"
+                                />
                             </div>
                             <div>
-                                <label htmlFor="state" className="text-sm font-medium text-gray-700">State</label>
-                                <div className="relative state-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search State"
-                                        value={stateSearchText}
-                                        onChange={(e) => {
-                                            setStateSearchText(e.target.value);
-                                            setIsStateListVisible(true);
-                                            //setFieldValue("state", "");
-                                        }}
-                                        onFocus={() => setIsStateListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isStateListVisible && stateSearchText && filteredState.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                          {filteredState.map((state) => (
-                                                <ListItem
-                                                    key={state.id}
-                                                    onClick={() => {
-                                                        setFieldValue("state", state.id);
-                                                        setStateSearchText(state.name);
-                                                        setIsStateListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {state.name}
-                                                </ListItem>
-                                            ))}  
-                                        </List>
-                                    )}
-                                    
-                                </div>
-                                <ErrorMessage name="state" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                                    State
+                                </label>
+                                <Select
+                                    id="state"
+                                    options={filteredState.map((state) => ({
+                                        value: state.id,
+                                        label: state.name,
+                                    }))}
+                                    onChange={(selectedOption) =>
+                                        setFieldValue("state", selectedOption?.value || "")
+                                    }
+                                    placeholder="Select State"
+                                    isSearchable
+                                    className="w-full"
+                                    classNamePrefix="react-select"
+                                />
+                                <ErrorMessage
+                                    name="state"
+                                    component="div"
+                                    className="text-red-500 text-sm mt-1"
+                                />
                             </div>
+
+
                             <div>
                                 <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
                                 <Field type="text" name="pincode" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" maxlength={6} />

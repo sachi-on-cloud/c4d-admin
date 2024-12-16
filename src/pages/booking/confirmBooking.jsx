@@ -91,7 +91,7 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            //console.log("DAATA:", data?.data);
+            console.log("DAATA:", data?.data);
             setBookingDetails(data?.data);
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({ 
@@ -249,10 +249,15 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Package:</Typography>
                             <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Intercity" ? "hours" : ""}`}</Typography>
                         </div>
-                        <div className="flex justify-between">
+                        {/* need to add logic for price */}
+                        {bookingDetails?.status === BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
-                            <Typography>₹ {bookingDetails.Package.price}</Typography>
-                        </div>
+                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
+                        </div>}
+                        {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Price:</Typography>
+                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
+                        </div>}
                         {/* <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Car:</Typography>
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
@@ -281,63 +286,6 @@ const ConfirmBooking = (props) => {
                     </div>
                 </CardBody>
             </Card>
-            {amount && (
-                <Card className="my-6">
-                    <div className="border rounded-xl bg-gray-200 p-4">
-                        <h2 className="text-2xl font-bold text-center">Invoice</h2>
-                        <div className="mt-3">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Company Name: </Typography>
-                                <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
-                            </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">GST Number: </Typography>
-                                <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
-                            </div>
-                        </div>
-                        <hr className="my-2 border border-black" />
-                        <div className="mt-4">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Package:</Typography>
-                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""
-                                    }`}</Typography>
-                            </div>
-                            {bookingDetails?.packageType === "Intercity" || bookingDetails?.packageType === "Outstation" ?
-                                <>
-                                    <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Base Fare:</Typography>
-                                        <Typography>₹ {amount?.price}</Typography>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                            } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
-                                        <Typography>₹ {amount?.extraPrice}</Typography>
-                                    </div>
-                                    {amount.extraKMs > 0 && 
-                                        <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">{`Extra KM's Fare: (${amount.extraKMs} x ${amount.extraKMPrice})`}</Typography>
-                                            <Typography>₹ {amount?.extraKMs * amount?.extraKMPrice}</Typography>
-                                        </div>
-                                    }
-                                    {amount.extraNightCharge > 0 && 
-                                        <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">{`Night Charge: (${amount.extraNightCharge} x ${amount.extraNightChargePrice})`}</Typography>
-                                            <Typography>₹ {amount?.extraNightCharge * amount?.extraNightChargePrice}</Typography>
-                                        </div>
-                                    }
-                                </> : ""
-                            }
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Total:</Typography>
-                                <Typography style={{
-                                    fontWeight: 'bold'
-                                }}>₹ {amount?.total}</Typography>
-                            </div>
-                        </div>
-                    </div>
-                    {/* </CardBody> */}
-                </Card>
-            )}
 
             {(bookingDetails?.status === 'STARTED') ||
                 (bookingDetails?.status === 'INITIATED' && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) ?
@@ -398,7 +346,12 @@ const ConfirmBooking = (props) => {
                                                         id="kms"
                                                         placeholder="Enter KM"
                                                         className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                        onChange={(e) => setKms(e.target.value)}
+                                                        onChange={(e) => {
+                                                            const value = parseFloat(e.target.value);
+                                                            if (value > 0) { 
+                                                                setKms(value);
+                                                            }
+                                                        }}
                                                         value={kms}
                                                     />
                                                 </div>
@@ -421,6 +374,63 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
                 : ""}
+            {amount && (
+                <Card className="my-6">
+                    <div className="border rounded-xl bg-gray-200 p-4">
+                        <h2 className="text-2xl font-bold text-center">Invoice</h2>
+                        <div className="mt-3">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Company Name: </Typography>
+                                <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">GST Number: </Typography>
+                                <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
+                            </div>
+                        </div>
+                        <hr className="my-2 border border-black" />
+                        <div className="mt-4">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Package:</Typography>
+                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""
+                                    }`}</Typography>
+                            </div>
+                            {bookingDetails?.packageType === "Intercity" || bookingDetails?.packageType === "Outstation" ?
+                                <>
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Base Fare:</Typography>
+                                        <Typography>₹ {amount?.price}</Typography>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                            } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
+                                        <Typography>₹ {amount?.extraPrice}</Typography>
+                                    </div>
+                                    {amount.extraKMs > 0 &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">{`Extra KM's Fare: (${amount.extraKMs} x ${amount.extraKMPrice})`}</Typography>
+                                            <Typography>₹ {amount?.extraKMs * amount?.extraKMPrice}</Typography>
+                                        </div>
+                                    }
+                                    {amount.extraNightCharge > 0 &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">{`Night Charge: (${amount.extraNightCharge} x ${amount.extraNightChargePrice})`}</Typography>
+                                            <Typography>₹ {amount?.extraNightCharge * amount?.extraNightChargePrice}</Typography>
+                                        </div>
+                                    }
+                                </> : ""
+                            }
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Total:</Typography>
+                                <Typography style={{
+                                    fontWeight: 'bold'
+                                }}>₹ {amount?.total}</Typography>
+                            </div>
+                        </div>
+                    </div>
+                    {/* </CardBody> */}
+                </Card>
+            )}
             <>
                 {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
                     <Card>
@@ -472,7 +482,7 @@ const ConfirmBooking = (props) => {
                         </CardBody>
                     </Card>
                 }
-                <div className="mt-6 flex flex-row space-x-4">
+                <div className="grid grid-cols-3 gap-4 my-4">
                     <Button
                         color="black"
                         ripple="light"
@@ -481,21 +491,22 @@ const ConfirmBooking = (props) => {
                     >
                         Back
                     </Button>
-                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id &&
-                        <>
-                            <Button
-                                color="gray"
-                                variant="outlined"
-                                ripple="dark"
-                                fullWidth
-                                onClick={() => { props.onEdit(bookingDetails) }}
-                            >
-                                Edit
-                            </Button>
-                        </>
-                    }
-                    {bookingDetails.status != "ENDED" && bookingDetails.status != "STARTED" && bookingDetails.status != "CANCELLED" &&
-                        <>
+
+                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id && (
+                        <Button
+                            color="gray"
+                            variant="outlined"
+                            ripple="dark"
+                            fullWidth
+                            onClick={() => { props.onEdit(bookingDetails); }}
+                        >
+                            Edit
+                        </Button>
+                    )}
+
+                    {bookingDetails.status !== "ENDED" &&
+                        bookingDetails.status !== "STARTED" &&
+                        bookingDetails.status !== "CANCELLED" && (
                             <Button
                                 color="gray"
                                 variant="outlined"
@@ -505,49 +516,70 @@ const ConfirmBooking = (props) => {
                             >
                                 Cancel Booking
                             </Button>
-                        </>
-                    }
-                    {bookingDetails.status === 'INITIATED' && bookingDetails?.pickupAddress && !bookingDetails?.Driver?.id && !bookingDetails?.Cab?.id &&
-                        <Button
-                            color="black"
-                            ripple="light"
-                            fullWidth
-                            onClick={() => { props.onAssignDriver(bookingDetails) }}
-                        >
-                            {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
-                        </Button>
-                    }
-                    {bookingDetails.status === 'INITIATED' && (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) &&
-                        <Button
-                            color="black"
-                            ripple="light"
-                            fullWidth
-                            onClick={() => { props.onAssignDriver(bookingDetails) }}
-                        >
-                            {props.bookingData.serviceType === "CAB" ? "Choose Another Cab" : "Choose Another Captain"}
-                        </Button>
-                    }
-                    {bookingDetails.status === 'INITIATED' && dateVal && timeVal && kms &&
-                        <Button
-                        color="black"
-                        ripple="light"
-                        fullWidth
-                        onClick={onConfirmPressHandler}
-                    >
-                        Start Trip
-                    </Button>
-                    }
-                    {bookingDetails.status === 'STARTED' && dateVal && timeVal && kms && paymentDetails.paymentCollected && paymentDetails.paymentMethod && paymentDetails.paymentStatus &&
-                        <Button
-                        color="black"
-                        ripple="light"
-                        fullWidth
-                        onClick={onConfirmPressHandler}
-                    >
-                        End Trip
-                    </Button>
-                    }
+                        )}
+
+                    {bookingDetails.status === 'INITIATED' &&
+                        bookingDetails?.pickupAddress &&
+                        !bookingDetails?.Driver?.id &&
+                        !bookingDetails?.Cab?.id && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType === "CAB"
+                                    ? "Assign Cab"
+                                    : "Assign Captain"}
+                            </Button>
+                        )}
+
+                    {bookingDetails.status === 'INITIATED' &&
+                        (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType === "CAB"
+                                    ? "Choose Another Cab"
+                                    : "Choose Another Captain"}
+                            </Button>
+                        )}
+
+                    {bookingDetails.status === 'INITIATED' &&
+                        dateVal &&
+                        timeVal &&
+                        kms && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                Start Trip
+                            </Button>
+                        )}
+
+                    {bookingDetails.status === 'STARTED' &&
+                        dateVal &&
+                        timeVal &&
+                        kms &&
+                        paymentDetails.paymentCollected &&
+                        paymentDetails.paymentMethod &&
+                        paymentDetails.paymentStatus && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                End Trip
+                            </Button>
+                        )}
                 </div>
+
             </>
         </div>
     );

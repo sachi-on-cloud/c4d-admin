@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, STATE_LIST } from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Button, Input, List, ListItem } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
 
 const AccountEdit = () => {
     const [accountVal, setAccountVal] = useState({});
-    const [districtSearchText, setDistrictSearchText] = useState("");
-    const [isDistrictListVisible, setIsDistrictListVisible] = useState(false);
-    const [stateSearchText, setStateSearchText] = useState("");
-    const [isStateListVisible, setIsStateListVisible] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
@@ -22,7 +18,7 @@ const AccountEdit = () => {
 
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
-        console.log(' data - Fetch Item :', data?.data?.Proofs);
+        console.log(' data - Fetch Item :', data?.data);
         setAccountVal(data.data);
     };
 
@@ -32,6 +28,7 @@ const AccountEdit = () => {
         type: accountVal?.type || "",
         email: accountVal?.email || "",
         street: accountVal?.street || "",
+        thaluk: accountVal?.thaluk || "",
         district: accountVal?.district || "",
         state: accountVal?.state || "",
         pincode: accountVal?.pincode || "",
@@ -48,6 +45,7 @@ const AccountEdit = () => {
             formData.append('phoneNumber', values.phoneNumber);
             formData.append('email', values.email);
             formData.append('street', values.street);
+            formData.append('thaluk',values.thaluk);
             formData.append('district', values.district);
             formData.append('state', values.state);
             formData.append('pincode', values.pincode);
@@ -79,60 +77,16 @@ const AccountEdit = () => {
         name: district.label
     }));
 
-    const filteredDistricts = districtOptions.filter(district =>
-        district.name.toLowerCase().includes(districtSearchText.toLowerCase())
-    );
-    useEffect(() => {
-        if (initialValues.district) {
-            const selectedDistrict = districtOptions.find(district => district.id === initialValues.district);
-            if (selectedDistrict) {
-                setDistrictSearchText(selectedDistrict.name);
-            }
-        }
-    }, [initialValues.district]);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.district-search-container')) {
-                setIsDistrictListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const thalukOptions = THALUK_LIST.map(thaluk => ({
+        id: thaluk.value,
+        name: thaluk.label
+    }));
 
     const stateOptions = STATE_LIST.map(state => ({
         id: state.value,
         name: state.label
     }));
 
-    const filteredState = stateOptions.filter(state => 
-        state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
-    );
-    useEffect(() => {
-        if (initialValues.state) {
-            const selectedState = stateOptions.find(state => state.id === initialValues.state);
-            if (selectedState) {
-                setStateSearchText(selectedState.name);
-            }
-        }
-    }, [initialValues.state]);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.state-search-container')) {
-                setIsStateListVisible(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
     return (
         <div className="p-4 mx-auto">
             <h2 className="text-2xl font-bold mb-4">Update Account</h2>
@@ -142,7 +96,7 @@ const AccountEdit = () => {
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
-                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
+                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (                    
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
 
@@ -180,74 +134,70 @@ const AccountEdit = () => {
                                 <ErrorMessage name="street" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
+                            
                             <div>
-                                <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
-                                <div className="relative district-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search District"
-                                        value={districtSearchText}
-                                        onChange={(e) => {
-                                            setDistrictSearchText(e.target.value);
-                                            setIsDistrictListVisible(true);
-                                        }}
-                                        onFocus={() => setIsDistrictListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isDistrictListVisible && districtSearchText && filteredDistricts.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredDistricts.map((district) => (
-                                                <ListItem
-                                                    key={district.id}
-                                                    onClick={() => {
-                                                        setFieldValue("district", district.id);
-                                                        setDistrictSearchText(district.name);
-                                                        setIsDistrictListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {district.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="district" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
+                                    Thaluk
+                                </label>
+                                <select
+                                    id="thaluk"
+                                    name="thaluk"
+                                    value={values.thaluk}
+                                    onChange={(e) => setFieldValue('thaluk', e.target.value)}
+                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                >
+                                    <option value="" disabled>Select Thaluk</option>
+                                    {thalukOptions.map((thaluk) => (
+                                        <option key={thaluk.id} value={thaluk.id}>
+                                            {thaluk.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <ErrorMessage name="thaluk" component="div" className="text-red-500 text-sm mt-1" />
                             </div>
                             <div>
-                                <label htmlFor="state" className="text-sm font-medium text-gray-700">State</label>
-                                <div className="relative state-search-container">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search State"
-                                        value={stateSearchText}
-                                        onChange={(e) => {
-                                            setStateSearchText(e.target.value);
-                                            setIsStateListVisible(true);
-                                        }}
-                                        onFocus={() => setIsStateListVisible(true)}
-                                        className="p-2 w-full rounded-md border-gray-300"
-                                    />
-                                    {isStateListVisible && stateSearchText && filteredState.length > 0 && (
-                                        <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                                            {filteredState.map((state) => (
-                                                <ListItem
-                                                    key={state.id}
-                                                    onClick={() => {
-                                                        setFieldValue("state", state.id);
-                                                        setStateSearchText(state.name);
-                                                        setIsStateListVisible(false);
-                                                    }}
-                                                    className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {state.name}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    )}
-                                </div>
-                                <ErrorMessage name="state" component="div" className="text-red-500 text-sm" />
+                                <label htmlFor="district" className="text-sm font-medium text-gray-700">
+                                    District
+                                </label>
+                                <select
+                                    id="district"
+                                    name="district"
+                                    value={values.district}
+                                    onChange={(e) => setFieldValue('district', e.target.value)}
+                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                >
+                                    <option value="" disabled>Select District</option>
+                                    {districtOptions.map((district) => (
+                                        <option key={district.id} value={district.id}>
+                                            {district.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <ErrorMessage name="district" component="div" className="text-red-500 text-sm mt-1" />
                             </div>
+
+                            <div>
+                                <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                                    State
+                                </label>
+                                <select
+                                    id="state"
+                                    name="state"
+                                    value={values.state}
+                                    onChange={(e) => setFieldValue('state', e.target.value)}
+                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                >
+                                    <option value="" disabled>Select State</option>
+                                    {stateOptions.map((state) => (
+                                        <option key={state.id} value={state.id}>
+                                            {state.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <ErrorMessage name="state" component="div" className="text-red-500 text-sm mt-1" />
+                            </div>
+
+
                             <div>
                                 <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
                                 <Field type="text" name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

@@ -62,8 +62,10 @@ const CabAdd = () => {
     const [owneraddressSuggestions, setOwnerAddressSuggestions] = useState([]);
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
     const [accountOptions, setAccountOptions] = useState([]);
+    const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
+    const [insuranceImagePreview , setInsuranceImagePreview] = useState(null);
     const navigate = useNavigate();
 
     const getAccountNames = async () => {
@@ -96,7 +98,15 @@ const CabAdd = () => {
         });
     };
 
+    const getAccountRelatedDrivers = async (accountId) => {
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS, {
+            accountId: accountId
+        });
 
+        if (data?.success && data?.data.length > 0) {
+            setAccountRelatedDrivers(data?.data);
+        }
+    }
     const getPackageListDetails = async () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
@@ -114,9 +124,15 @@ const CabAdd = () => {
         }
     };
 
+    // const checkDriver = async () => {
+    //     const data = await ApiRequestUtils.get(API_ROUTES.CHECK_DRIVER + '+916666666666');
+    //     console.log('checkDriver - data :', data);
+    // };
+
     useEffect(() => {
         getPackageListDetails();
         getAccountNames();
+        // checkDriver();
         // if (isEditMode) {
         //     fetchItem(id);
         // }
@@ -136,6 +152,8 @@ const CabAdd = () => {
         company: cabVal?.company || "",
         insurance: cabVal?.insurance || "",
         withDriver: cabVal?.withDriver || "",
+        assignOrAddDriver: cabVal?.assignOrAddDriver || "",
+        driverId: cabVal?.driverId || "",
         driverName: cabVal?.driverName || "",
         phoneNumber: cabVal?.phoneNumber || "",
         driverAddress: cabVal?.driverAddress || "",
@@ -145,7 +163,8 @@ const CabAdd = () => {
         packages: cabVal?.packages || [],
         //wallet: cabVal?.wallet || "",
         prices: [],
-        image1: ""
+        image1: "",
+        insuranceImg:""
     };
 
     const searchLocations = async (query, type) => {
@@ -256,13 +275,17 @@ const CabAdd = () => {
                 packages: values.packages,
                 carType: values.carType,
                 //wallet: values.wallet,
-                accountId: values.accountId
+                accountId: values.accountId,
+                driverId: values.driverId
             };
             // let cabData = { cabDetails, prices: values.prices };
             const formData = new FormData();
         
             formData.append('cabDetails', JSON.stringify(cabDetails));
             formData.append('prices', JSON.stringify(values.prices));
+            formData.append('insuranceImg',values.insuranceImg);
+            formData.append('extInsurance',values.insuranceImg.name.split('.')[1]);
+            formData.append('fileTypeInsurance',values.insuranceImg.type);
             formData.append('image1', values.image1);
             formData.append('extImage1', values.image1.name.split('.')[1]);
             formData.append('fileTypeImage1', values.image1.type);
@@ -321,6 +344,17 @@ const CabAdd = () => {
                                     as="select"
                                     name="accountId"
                                     className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                    onChange={(e) => {
+                                        const selectedAccountId = e.target.value;
+                            
+                                        // Set the value in Formik state
+                                        setFieldValue('accountId', selectedAccountId);
+                            
+                                        // Call your method to fetch data
+                                        if (selectedAccountId) {
+                                            getAccountRelatedDrivers(selectedAccountId);
+                                        }
+                                    }}
                                 >
                                     <option value="">Select Owner</option>
                                     {accountOptions.map((option) => (
@@ -359,6 +393,7 @@ const CabAdd = () => {
                                 </Field>
                                 <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                             </div>
+
                             <div>
                                 <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance Expiry Date</label>
                                 <Field type="date" name="insurance" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} ></Field>
@@ -389,10 +424,6 @@ const CabAdd = () => {
                                         <Field type="radio" name="withDriver" value="Yes" className="form-radio"
                                             onChange={e => {
                                                 handleChange(e);
-                                                setFieldValue('driverName', values.driverName, true);
-                                                setFieldValue('phoneNumber', values.phoneNumber, true);
-                                                setFieldValue('driverAddress', values.driverAddress, true);
-                                                setFieldValue('licenseNumber', values.licenseNumber, true);
                                             }} />
                                         <span className="ml-2">Yes</span>
                                     </label>
@@ -400,10 +431,6 @@ const CabAdd = () => {
                                         <Field type="radio" name="withDriver" value="No" className="form-radio"
                                             onChange={e => {
                                                 handleChange(e);
-                                                setFieldValue('driverName', '', true);
-                                                setFieldValue('phoneNumber', '', true);
-                                                setFieldValue('driverAddress','', true);
-                                                setFieldValue('licenseNumber','' , true);
                                             }} />
                                         <span className="ml-2">No</span>
                                     </label>
@@ -413,16 +440,69 @@ const CabAdd = () => {
                             {values.withDriver === 'Yes' && (
                             <>
                             <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Assign or Add Driver</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="assignOrAddDriver" value="Assign" className="form-radio"
+                                            onChange={e => {
+                                                handleChange(e);
+                                                setFieldValue('driverId', values.driverId, true);
+                                                // setFieldValue('phoneNumber', values.phoneNumber, true);
+                                                // setFieldValue('driverAddress', values.driverAddress, true);
+                                                // setFieldValue('licenseNumber', values.licenseNumber, true);
+                                            }} />
+                                        <span className="ml-2">Assign</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="assignOrAddDriver" value="Add" className="form-radio"
+                                            onChange={e => {
+                                                handleChange(e);
+                                                // setFieldValue('driverName', '', true);
+                                                // setFieldValue('phoneNumber', '', true);
+                                                // setFieldValue('driverAddress','', true);
+                                                // setFieldValue('licenseNumber','' , true);
+                                            }} />
+                                        <span className="ml-2">Add</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="assignOrAddDriver" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            {values?.assignOrAddDriver === 'Assign' && accountRelatedDrivers.length > 0 && 
+                            <div>
+                                <label htmlFor="driverId" className="text-sm font-medium text-gray-700">Driver</label>
+                                <Field
+                                    as="select"
+                                    name="driverId"
+                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                    // onChange={(e) => {
+                                    //     const selectedAccountId = e.target.value;
+                                    //     console.log('selectedAccountId :', selectedAccountId)
+                                    //     if (selectedAccountId) {
+                                    //         getAccountRelatedDrivers(selectedAccountId);
+                                    //     }
+                                    // }}
+                                >
+                                    <option value="">Select Driver</option>
+                                    {accountRelatedDrivers.map((option) => (
+                                        <option key={option.id} value={option.id}>
+                                            {option.firstName}
+                                        </option>
+                                    ))}
+                                </Field>
+                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+                            }
+                            {values?.assignOrAddDriver === 'Add' && <div>
                                 <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
                                 <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />   
-                            </div>
-                            <div>
+                            </div>}
+                            {values?.assignOrAddDriver === 'Add' &&<div>
                                 <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                 <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
+                            </div>}
+                            {values?.assignOrAddDriver === 'Add' && <div>
                                 <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
                                 <Field name="driverAddress">
                                     {({ field, form }) => (
@@ -436,12 +516,12 @@ const CabAdd = () => {
                                     )}
                                 </Field>
                                 <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
+                            </div>}
+                            {values?.assignOrAddDriver === 'Add' &&<div>
                                 <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
                                 <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
                                 <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div>}
                             </>
                             )}
                             <div>
@@ -499,47 +579,94 @@ const CabAdd = () => {
                                     showCheckbox={true}
                                 />
                             </div>
-                            <div>
-                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">
-                                    RC Book
-                                </label>
-                                <div className="mt-1">
-                                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                        {values?.image1 ? (
-                                            <img
-                                                src={imagePreview ? imagePreview : values?.image1}
-                                                alt="Preview"
-                                                className="w-full h-full object-contain rounded-md"
-                                            />
-                                        ) : (
-                                            <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
-                                        )}
-                                    </div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        id="image1"
-                                        name='image1'
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                setFieldValue("image1", file);
 
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                    setImagePreview(reader.result);
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-                                        }}
-                                        className="hidden" // Hide the native input
-                                    />
-                                    <label
-                                        htmlFor="image1"
-                                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                    >
-                                        Upload Image
+                            <div className='grid grid-cols-2'>
+                                <div>
+                                    <label htmlFor="insuranceImg" className="text-sm font-medium text-gray-700">
+                                        Insurance
                                     </label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {values?.insuranceImg ? (
+                                                <img
+                                                    src={insuranceImagePreview ? insuranceImagePreview : values?.insuranceImg}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            id="insuranceImg"
+                                            name='insuranceImg'
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    setFieldValue("insuranceImg", file);
+
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setInsuranceImagePreview(reader.result);
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            className="hidden" // Hide the native input
+                                        />
+                                        <label
+                                            htmlFor="insuranceImg"
+                                            className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                        >
+                                            Upload Image
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="image1" className="text-sm font-medium text-gray-700">
+                                        RC Book
+                                    </label>
+                                    <div className="mt-1">
+                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
+                                            {values?.image1 ? (
+                                                <img
+                                                    src={imagePreview ? imagePreview : values?.image1}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain rounded-md"
+                                                />
+                                            ) : (
+                                                <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            id="image1"
+                                            name='image1'
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    setFieldValue("image1", file);
+
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setImagePreview(reader.result);
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            className="hidden" // Hide the native input
+                                        />
+                                        <label
+                                            htmlFor="image1"
+                                            className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                                        >
+                                            Upload Image
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

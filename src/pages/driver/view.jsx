@@ -103,7 +103,7 @@ export function DriverView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", "Intercity", "Outstation", "Status", ""].map((el) => (
+                    {["Name", "Phone Number", "Intercity", "Outstation", "Type", "Status", ""].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -120,7 +120,7 @@ export function DriverView() {
                 </thead>
                 <tbody>
                   {drivers.map(
-                    ({ id, firstName, lastName, phoneNumber, email, status, intercityCount, outstationCount, curAddress }, key) => {
+                    ({ id, firstName, lastName, phoneNumber, email, status, intercityCount, outstationCount, curAddress, driverType }, key) => {
                       const className = `py-3 px-5 ${key === drivers.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -160,6 +160,11 @@ export function DriverView() {
                             </Typography>
                           </td>
                           <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {driverType}
+                            </Typography>
+                          </td>
+                          <td className={className}>
                             <Chip
                               variant="gradient"
                               color={status == "ACTIVE" ? "green" : "blue-gray"}
@@ -178,7 +183,7 @@ export function DriverView() {
                               </Button>
                             </td> */}
 
-                            <td className={className}>
+                            {status === "ACTIVE" && <td className={className}>
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
@@ -186,7 +191,7 @@ export function DriverView() {
                               >
                                 Edit
                               </Button>
-                            </td>
+                            </td>}
                             <td className={className}>
                               <Button
                                 as="a"

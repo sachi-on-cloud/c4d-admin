@@ -49,9 +49,6 @@ const DriverEdit = () => {
     const [driverVal, setDriverVal] = useState({});
     const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
-    const [districtSearchText, setDistrictSearchText] = useState("");
-    const [thalukSearchText, setThalukSearchText] = useState("");
-    const [stateSearchText, setStateSearchText] = useState("");
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imagePreviews, setImagePreviews] = useState({
@@ -311,49 +308,27 @@ const DriverEdit = () => {
         name: district.label
     }));
 
-    useEffect(() => {
-        if (initialValues.district) {
-            const selectedDistrict = districtOptions.find(district => district.id === initialValues.district);
-            if (selectedDistrict) {
-                setDistrictSearchText(selectedDistrict.name);
-            }
-        }
-    }, [initialValues.district]);
-
 
     const thalukOptions = THALUK_LIST.map(thaluk => ({
         id: thaluk.value,
         name: thaluk.label
     }));
 
-    useEffect(() => {
-        if (initialValues.thaluk) {
-            const selectedThaluk = thalukOptions.find(thaluk => thaluk.id === initialValues.thaluk);
-            if (selectedThaluk) {
-                setThalukSearchText(selectedThaluk.name);
-            }
-        }
-    }, [initialValues.thaluk]);
-
     const stateOptions = STATE_LIST.map(state => ({
         id: state.value,
         name: state.label
     }));
 
-    useEffect(() => {
-        if (initialValues.state) {
-            const selectedState = stateOptions.find(state => state.id === initialValues.state);
-            if (selectedState) {
-                setStateSearchText(selectedState.name);
-            }
-        }
-    }, [initialValues.state]);
-
     const getDocumentByType = (value, type) => {
         return value.find(proof => proof.type === type) || "";
     };
 
-    const DocumentUpload = ({ label, name, onChange, imagePreview }) => {
+    
+    const handleOpenDocument = (documentUrl) => {
+        window.open(documentUrl, "_blank", "noopener,noreferrer");
+    };
+
+    const DocumentUpload = ({ label, name, onChange, imagePreview, onView }) => {
         return (
             <div>
                 <label htmlFor={name} className="text-sm font-medium text-gray-700">
@@ -379,18 +354,27 @@ const DriverEdit = () => {
                         id={name}
                         name={name}
                         onChange={onChange}
-                        className="hidden" // Hide the native input
+                        className="hidden"
                     />
-                    <label
-                        htmlFor={name}
-                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                    >
-                        Upload Image
-                    </label>
+                    <div className="flex space-x-2 mt-2">
+                        {imagePreview && <button
+                            type="button"
+                            onClick={() => onView(imagePreview)}
+                            className="p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                        >
+                            View
+                        </button>}
+                        <label
+                            htmlFor={name}
+                            className="p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                        >
+                            Upload Image
+                        </label>
+                    </div>
                 </div>
             </div>
         );
-    };
+    };    
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
         const file = e.target.files[0];
@@ -625,13 +609,6 @@ const DriverEdit = () => {
                                     <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
                                 <div>
-                                    <label htmlFor="streetName" className="text-sm font-medium text-gray-700">
-                                        Street Name
-                                    </label>
-                                    <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
-                                <div>
                                     <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
                                         Thaluk
                                     </label>
@@ -799,18 +776,21 @@ const DriverEdit = () => {
                                     name="consentForm"
                                     onChange={(e) => handleImageUpload(e, setFieldValue, 'consentForm', imagePreviews?.consentForm?.id)}
                                     imagePreview={imagePreviews.consentForm?.image1}
+                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
                                 />
                                 <DocumentUpload
                                     label="Aadhaar Image"
                                     name="aadhaarImage"
                                     onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage', imagePreviews?.aadhaarImage?.id)}
                                     imagePreview={imagePreviews.aadhaarImage?.image1}
+                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
                                 />
                                 <DocumentUpload
                                     label="Police Clearance Certificate"
                                     name="policeClearance"
                                     onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance',imagePreviews?.policeClearance?.id)}
                                     imagePreview={imagePreviews.policeClearance?.image1}
+                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
                                 />
 
                                 {/* Driving License Image Upload */}
@@ -819,6 +799,7 @@ const DriverEdit = () => {
                                     name="drivingLicenseImage"
                                     onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage', imagePreviews?.drivingLicenseImage?.id)}
                                     imagePreview={imagePreviews.drivingLicenseImage?.image1}
+                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
                                 />
 
                                 {/* Live Photo Upload */}
@@ -827,6 +808,7 @@ const DriverEdit = () => {
                                     name="livePhoto"
                                     onChange={(e) => handleImageUpload(e, setFieldValue, 'livePhoto', imagePreviews?.livePhoto?.id)}
                                     imagePreview={imagePreviews.livePhoto?.image1}
+                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
                                 />
                             </div>
                         </div>

@@ -1,6 +1,7 @@
 export const constants = {
     andriodUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
+    // url_dev: 'https://special-kiwi-apparent.ngrok-free.app',
     url_dev: 'https://becoming-careful-fish.ngrok-free.app',
     url: 'https://api.c4d.smartapis.cyou'
 };
@@ -857,6 +858,8 @@ export const API_ROUTES = {
     'GET_ACCOUNTS':'/admin/accounts',
     'GET_DRIVERS_FOR_SUBSCRIPTION':'/admin/subscription/drivers',
     'GET_ACCOUNT_CABS':'/account/cabs/',
+    'GET_ACCOUNT_RELATED_DRIVERS': '/account/drivers',
+    'CHECK_DRIVER': '/check-driver/'
 };
 
 export const KYC_PROCESS = {

@@ -24,10 +24,12 @@ const AccountDetails = () => {
         type: accountVal?.type || '',
         email: accountVal?.email || '',
         street: accountVal?.street || '',
+        thaluk: accountVal?.thaluk || '',
         district: accountVal?.district || '',
         state: accountVal?.state || '',
         pincode: accountVal?.pincode || '',
-        image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : ''
+        image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : '',
+        
     };
 
     return (
@@ -73,6 +75,13 @@ const AccountDetails = () => {
                                 <Field type="text" name="street" disabled className="p-2 w-full rounded-md border-2 bg-gray-200 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="street" component="div" className="text-red-500 text-sm my-1" />
                             </div>
+
+                            <div>
+                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">Thaluk</label>
+                                <Field type="text" name="thaluk" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200 border-2 shadow-sm" />
+                                <ErrorMessage name="thaluk" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+
                             <div>
                                 <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
                                 <Field type="text" name="district" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200 border-2 shadow-sm" />
