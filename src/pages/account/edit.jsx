@@ -24,7 +24,7 @@ const AccountEdit = () => {
 
     const initialValues = {
         name: accountVal?.name || "",
-        phoneNumber: accountVal?.phoneNumber || "",
+        phoneNumber: accountVal?.phoneNumber ? accountVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         type: accountVal?.type || "",
         email: accountVal?.email || "",
         street: accountVal?.street || "",

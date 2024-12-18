@@ -57,7 +57,7 @@ const CabDetails = () => {
         carNumber: cab?.result?.carNumber || "",
         address: cab?.result?.curAddress || "",
         insurance: cab?.result?.insurance || "",
-        driverName: cab?.result?.Drivers[0] ? cab?.result?.Drivers[0].firstName : "",
+        driverName: cab?.result?.Drivers[0] ? cab?.result?.Drivers[0].firstName : cab?.result?.driverName ? cab?.result?.driverName : "",
         phoneNumber: cab?.result?.phoneNumber || "",
         driverAddress: cab?.result?.driverAddress || "",
         licenseNumber: cab?.result?.driverLicense || "",

@@ -22,7 +22,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
                 {...field}
                 onChange={(e) => {
                     form.setFieldValue(field.name, e.target.value);
-                    onSearch(e.target.value);
+                    onSearch(e.target.value, type);
                     form.setFieldTouched(field.name, true, false);
                 }}
                 onFocus={() => setIsFocused(true)}
@@ -34,16 +34,15 @@ const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
                 className="pr-10"
             />
             {suggestions.length > 0 && isFocused && (
-                <List className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <List className="w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg ">
                     {suggestions.map((suggestion, index) => (
                         <ListItem
                             key={index}
                             onClick={() => {
                                 form.setFieldValue(field.name, suggestion);
                                 setIsFocused(false);
-                                form.validateField(field.name);
                             }}
-                            className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                            className=" hover:bg-gray-100 cursor-pointer"
                         >
                             <Typography variant="small">{suggestion}</Typography>
                         </ListItem>
@@ -301,6 +300,11 @@ const CabEdit = () => {
             if (cabVal?.result?.Proofs) {
                 formData.append('documentId', cabVal?.result?.Proofs[0]?.id);
             }
+
+            if (cabVal?.result?.Proofs) {
+                formData.append('documentIdInsurance', cabVal?.result?.Proofs[1]?.id);
+            }
+
             formData.append('cabDetails', JSON.stringify(cabDetails));
             formData.append('prices', JSON.stringify(values.prices));
             if (imagePreview) {
@@ -373,7 +377,7 @@ const CabEdit = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Owner Address</label>
+                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Address</label>
                                 <Field name="address">
                                     {({ field, form }) => (
                                         <LocationInput
