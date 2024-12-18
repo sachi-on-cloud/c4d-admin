@@ -236,13 +236,14 @@ export const Utils = {
         // Trip start message
         if (bookingDetails?.status === "STARTED") {
             const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
+            const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
             text = encodeURIComponent(
                 WHATSAPP_TRIP_START_TEMPLATE
                     .replace('${bookingNumber}', bookingDetails.bookingNumber)
                     .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', bookingDetails.Driver?.firstName)
-                    .replace('${startTime}', Utils.formatTime(bookingDetails.startTime))
-                    .replace('${endTime}', Utils.formatTime(endTime))
+                    .replace('${driverName}',driverName)
+                    .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
+                    .replace('${endTime}', moment(endTime).format('hh:mm A'))
                     .replace('${supportNumber}', supportNumber)
             );
         }
@@ -281,23 +282,25 @@ export const Utils = {
         if (bookingDetails?.status === "ENDED" && bookingDetails?.paymentStatus === "PAID") {
             const duration = Utils.calculateDuration(bookingDetails);
             const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
+            const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
+            const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
             
             text = encodeURIComponent(
                 WHATSAPP_TRIP_COMPLETION_TEMPLATE
                     .replace('${bookingNumber}', bookingDetails.bookingNumber)
                     .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', bookingDetails.Driver?.firstName)
+                    .replace('${driverName}', driverName)
                     .replace('${pickup}', bookingDetails.pickupAddress?.name)
-                    .replace('${drop}', bookingDetails.dropAddress?.name)
-                    .replace('${startTime}', (bookingDetails.startTime))
-                    .replace('${endTime}', Utils.formatTime(bookingDetails.endTime))
-                    .replace('${totalDuration}', duration.total)
+                    .replace('${drop}', bookingDetails.dropAddress?.name ? bookingDetails.dropAddress?.name : 'Not Added')
+                    .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
+                    .replace('${endTime}', moment(endTime).format('hh:mm A'))
+                    .replace('${totalDuration}', isNaN(duration.total) ? "0 hours" : duration.total)
                     .replace('${packageDuration}', `${bookingDetails.Package.period} hours`)
-                    .replace('${extraTime}', duration.extra)
+                    .replace('${extraTime}', isNaN(duration.extra) ? "0 hours" : duration.extra)
                     .replace('${baseFare}', bookingDetails.Package.price)
                     .replace('${extraCharges}', bookingDetails.extraPrice)
                     .replace('${totalAmount}', totalFare)
-                    .replace('${transactionId}', bookingDetails.transactionId)
+                    .replace('${transactionId}', bookingDetails.transactionId ? bookingDetails.transactionId :'Processing')
             );
         }
 
@@ -319,14 +322,14 @@ export const Utils = {
 
     calculateDuration: (bookingDetails) => {
         const start = moment(bookingDetails?.startTime);
-        const end = moment(bookingDetails?.endTime);
-        const totalHours = end.diff(start, 'hours', true);
-        const packageHours = bookingDetails?.Package.period;
+        const end = moment(`${start.format("YYYY-MM-DD")}T${bookingDetails?.endTime}`);
+        const packageHours = parseFloat(bookingDetails?.Package?.period);
+        const totalHours = end.diff(start, "hours", true);
         const extraHours = Math.max(0, totalHours - packageHours);
-        
+
         return {
             total: `${Math.floor(totalHours)} hours`,
-            extra: `${extraHours} hours`
+            extra: `${Math.floor(extraHours)} hours`
         };
     }
 };

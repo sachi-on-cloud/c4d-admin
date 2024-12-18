@@ -115,7 +115,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
-        path: "/accounts/details/:id",
+        path: "/account/details/:id",
         element: <AccountDetails />,
         display: false
       },
@@ -129,7 +129,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
-        path: "/accounts/edit/:id",
+        path: "/account/edit/:id",
         element: <AccountEdit />,
         display: false
       },

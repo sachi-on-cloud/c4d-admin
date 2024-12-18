@@ -129,7 +129,7 @@ const ConfirmBooking = (props) => {
                 id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
                 date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
                 bookingType: bookingDetails?.serviceType,
-                kilometer: kms
+                kilometer: kms? kms : 0
             });
             if (data?.success) {
                 setAmount(data?.data);
@@ -347,17 +347,26 @@ const ConfirmBooking = (props) => {
                                                         placeholder="Enter KM"
                                                         className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                         onChange={(e) => {
-                                                            const value = parseFloat(e.target.value);
-                                                            if (value > 0) { 
-                                                                setKms(value);
+                                                            const inputValue = e.target.value;
+                                                            const value = parseFloat(inputValue);
+                                                            if (inputValue === "" || (value > 0 && !isNaN(value))) {
+                                                                setKms(inputValue);
                                                             }
+
                                                         }}
                                                         value={kms}
                                                     />
                                                 </div>
                                             </div>
                                         }
-                                        {bookingDetails?.serviceType !== 'CAR_WASH' && bookingDetails.status == BOOKING_STATUS.STARTED && (
+                                        {/* {bookingDetails?.serviceType === 'CAR_WASH' && bookingDetails.status == BOOKING_STATUS.STARTED && (
+                                            <div className="flex flex-col">
+                                                <Button onClick={getPriceForBooking} className=" justify-center items-center">
+                                                    Check Price
+                                                </Button>
+                                            </div>    
+                                        )} */}
+                                        {bookingDetails.status == BOOKING_STATUS.STARTED && (
                                             <div className="flex flex-col">
                                                 <label htmlFor="kms" className="text-sm font-medium text-white">
                                                     Distance (KM)
@@ -548,10 +557,10 @@ const ConfirmBooking = (props) => {
                             </Button>
                         )}
 
-                    {bookingDetails.status === 'INITIATED' &&
+                        {(bookingDetails.status === 'INITIATED' &&
                         dateVal &&
                         timeVal &&
-                        kms && (
+                        kms) ? (
                             <Button
                                 color="black"
                                 ripple="light"
@@ -560,15 +569,26 @@ const ConfirmBooking = (props) => {
                             >
                                 Start Trip
                             </Button>
-                        )}
+                            ) : 
+                        (bookingDetails?.serviceType === 'CAR_WASH' && bookingDetails.status === 'INITIATED' && dateVal && timeVal ) ?
+                            (<Button
+                                    color="black"
+                                    ripple="light"
+                                    fullWidth
+                                    onClick={onConfirmPressHandler}
+                                >
+                                    Start Trip
+                            </Button> 
+                        ) : <></>
+                    }
 
-                    {bookingDetails.status === 'STARTED' &&
+                    {(bookingDetails.status === 'STARTED' &&
                         dateVal &&
                         timeVal &&
                         kms &&
                         paymentDetails.paymentCollected &&
                         paymentDetails.paymentMethod &&
-                        paymentDetails.paymentStatus && (
+                        paymentDetails.paymentStatus ) ? (
                             <Button
                                 color="black"
                                 ripple="light"
@@ -577,7 +597,24 @@ const ConfirmBooking = (props) => {
                             >
                                 End Trip
                             </Button>
-                        )}
+                        ) : (
+                        bookingDetails?.serviceType === 'CAR_WASH' &&
+                        bookingDetails.status === 'STARTED' &&
+                        dateVal &&
+                        timeVal &&
+                        paymentDetails.paymentCollected &&
+                        paymentDetails.paymentMethod &&
+                        paymentDetails.paymentStatus) ? (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                End Trip
+                            </Button>
+                        ) :<></>
+                    }
                 </div>
 
             </>

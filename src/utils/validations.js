@@ -305,7 +305,7 @@ export const CAB_SCHEMA = Yup.object({
         otherwise: () => Yup.string()
     }),
     driverId: Yup.string().when(['assignOrAddDriver'], {
-        is: (assignOrAddDriver) => assignOrAddDriver === 'Assign',
+        is: (assignOrAddDriver) => assignOrAddDriver === 'Yes',
         then: () => Yup.string().required('Driver Id is required'),
         otherwise: () => Yup.string()
     }),
