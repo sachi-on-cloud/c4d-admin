@@ -130,13 +130,19 @@ export function SearchDrivers(props) {
         }
     }, [props.bookingData]);
 
-    const onAssignDriver = async (service, driverId) => {
+    const onAssignDriver = async (service, driverId, cabDriverId) => {
+        console.log("PROPS DATA--->",cabDriverId)
 
         const reqBody = {
             bookingId: props?.bookingData?.id,
-
         };
-        service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
+        //service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
+        if(service == "CAB"){
+            reqBody.cabId = driverId;
+            reqBody.driverId = cabDriverId;
+        }else{
+            reqBody.driverId = driverId;
+        }
         const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
         if (data?.success) {
             props?.onNext();
@@ -230,7 +236,7 @@ export function SearchDrivers(props) {
                                                 <td className={className}>
                                                     {status === "ACTIVE" && <Button
                                                         as="a"
-                                                        onClick={() => { onAssignDriver(props.bookingData.serviceType, id) }}
+                                                        onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, Drivers[0]?.id) }}
                                                         className="text-xs font-semibold text-white"
                                                     >
                                                         {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
