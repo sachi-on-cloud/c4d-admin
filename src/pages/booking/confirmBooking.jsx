@@ -56,7 +56,7 @@ const ConfirmBooking = (props) => {
             extraHourPrice: 0,
             kilometer: bookingDetails?.serviceType !== "CAR_WASH" ? kms : 0
         };
-        if (bookingDetails.status == BOOKING_STATUS.INITIATED) {
+        if (bookingDetails.status == BOOKING_STATUS.INITIATED || bookingDetails.status === 'BOOKING_ACCEPTED') {
             reqBody.type = "start";
         } else if (bookingDetails.status == BOOKING_STATUS.STARTED) {
             reqBody.type = "end";
@@ -70,6 +70,8 @@ const ConfirmBooking = (props) => {
                 reqBody.extraKMPrice = amount?.extraKMPrice;
                 reqBody.extraNightCharge = amount?.extraNightCharge;
                 reqBody.extraNightChargePrice = amount?.extraNightChargePrice;
+                reqBody.totalPrice = amount?.total;
+                reqBody.totalDistance = amount?.totalKM;
                 reqBody.paymentCollected = paymentDetails?.paymentCollected;
                 reqBody.paymentMethod = paymentDetails?.paymentMethod;
                 reqBody.paymentStatus = paymentDetails?.paymentStatus;
@@ -288,7 +290,7 @@ const ConfirmBooking = (props) => {
             </Card>
 
             {(bookingDetails?.status === 'STARTED') ||
-                (bookingDetails?.status === 'INITIATED' && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) ?
+                ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) ?
 
                 <Card className="my-4 gap-4">
                     <CardBody >
@@ -557,7 +559,7 @@ const ConfirmBooking = (props) => {
                             </Button>
                         )}
 
-                        {(bookingDetails.status === 'INITIATED' &&
+                        {(bookingDetails.status === 'INITIATED' || bookingDetails.status === 'BOOKING_ACCEPTED' &&
                         dateVal &&
                         timeVal &&
                         kms) ? (
