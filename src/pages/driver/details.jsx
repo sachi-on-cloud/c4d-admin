@@ -9,7 +9,7 @@ import { Button } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 
-const DriverDetails = () => {
+const DriverDetails = ({btnShow = false}) => {
    // const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
@@ -107,6 +107,7 @@ const DriverDetails = () => {
                     {({ values }) => (
                         <div className="space-y-4">
                             <div className='grid grid-cols-2 gap-7'>
+                                <div className="grid grid-cols-1 gap-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
@@ -236,10 +237,16 @@ const DriverDetails = () => {
                                         </div>
 
                                         <div>
-                                            <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
+                                            <label htmlFor="address" className="text-sm font-medium text-gray-700">Current Address</label>
                                             <Field type="text" name="address" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                             <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                         </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
                                             <Field type="text" name="streetName" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
@@ -312,12 +319,8 @@ const DriverDetails = () => {
                                                     <span className="ml-2">Automatic</span>
                                                 </label>
                                                 <label className="inline-flex items-center">
-                                                    <Field type="radio" name="preference" disabled value="Petrol" className="form-radio" />
-                                                    <span className="ml-2">Petrol</span>
-                                                </label>
-                                                <label className="inline-flex items-center">
-                                                    <Field type="radio" name="preference" disabled value="Diesel" className="form-radio" />
-                                                    <span className="ml-2">Diesel</span>
+                                                    <Field type="radio" name="preference" disabled value="Manual" className="form-radio" />
+                                                    <span className="ml-2">Manual</span>
                                                 </label>
                                             </div>
                                             <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
@@ -338,6 +341,8 @@ const DriverDetails = () => {
                                                 disable={true}
                                             />
                                         </div>
+                                    </div>
+                                    </div>
                                     </div>
                                     <div className='grid grid-cols-2'>
                                         <div>
@@ -478,14 +483,21 @@ const DriverDetails = () => {
             {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />
-            <div className='flex justify-center w-full'>
+            {!btnShow && <div className='flex w-full'>
                 <Button
-                    onClick={() => { navigate('/dashboard/drivers'); }}
-                    className='my-6 px-8 text-white border-2 rounded-xl'
+                    fullWidth
+                    onClick={() => navigate('/dashboard/drivers')}
+                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                 >
                     Back
                 </Button>
-            </div>
+                <Button 
+                    fullWidth
+                    onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
+                    className='my-6 mx-2'>
+                    Edit
+                </Button>
+            </div>}
         </>
     );
 };

@@ -64,6 +64,13 @@ export function CustomerView() {
     }
   };
 
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
+    }
+    return `+91${phoneNumber}`;}
+  }
+
   // useEffect(() => {
   //   if (paramsPassed?.customerAdded) {
   //     setAlert(true);
@@ -139,7 +146,7 @@ export function CustomerView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           {/* <td className={className}>

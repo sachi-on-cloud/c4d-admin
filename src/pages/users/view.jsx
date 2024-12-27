@@ -73,6 +73,14 @@ export function UserView() {
       setUsers(allUsers);
     }
   };
+
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
+    }
+    return `+91${phoneNumber}`;}
+  }
+
   // useEffect(() => {
   //   getUsers('');
   //   if (paramsPassed?.userAdded || paramsPassed?.userUpdated) {
@@ -147,7 +155,7 @@ export function UserView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           <td className={className}>

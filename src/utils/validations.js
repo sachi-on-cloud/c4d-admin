@@ -152,16 +152,36 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
     pinCode: Yup.string()
         .required('Pincode is required')
         .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
-    reference1: Yup.string()
-        .min(2, 'Reference name must be at least 2 characters')
-        .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
-    phoneNumber1: Yup.string()
-        .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
-    reference2: Yup.string()
-        .min(2, 'Reference name must be at least 2 characters')
-        .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
-    phoneNumber2: Yup.string()
-        .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
+    reference1: Yup.string().when("withOwner", {
+        is: "No",
+        then: () => Yup.string()
+            .required('Reference 1 is required')
+            .min(2, 'Reference name must be at least 2 characters')
+            .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
+        otherwise: () => Yup.string().nullable(),
+    }),
+    phoneNumber1: Yup.string().when("withOwner", {
+        is: "No",
+        then: () => Yup.string()
+            .required('Phone number 1 is required')
+            .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
+        otherwise: () => Yup.string().nullable(),
+    }),
+    reference2: Yup.string().when("withOwner", {
+        is: "No",
+        then: () => Yup.string()
+            .required('Reference 2 is required')
+            .min(2, 'Reference name must be at least 2 characters')
+            .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
+        otherwise: () => Yup.string().nullable(),
+    }),
+    phoneNumber2: Yup.string().when("withOwner", {
+        is: "No",
+        then: () => Yup.string()
+            .required('Phone number 2 is required')
+            .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
+        otherwise: () => Yup.string().nullable(),
+    }),
     preference: Yup.string().required('Preference is required'),
     carType: Yup.string().required('Car type is required'),
     packages: Yup.array()

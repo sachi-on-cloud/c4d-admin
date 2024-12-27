@@ -9,7 +9,7 @@ import { Button } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintCabDetails from '@/components/PrintCabDetails';
 
-const CabDetails = () => {
+const CabDetails = ({btnShow = false}) => {
    //const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
@@ -228,14 +228,14 @@ const CabDetails = () => {
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />
-            <div className='flex justify-center w-full'>
+            {!btnShow && <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/cab'); }}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Back
                 </Button>
-            </div>
+            </div>}
         </>
     );
 };

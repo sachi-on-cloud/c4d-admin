@@ -8,7 +8,7 @@ import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
 import Select from 'react-select'
 
-const LocationInput = ({ field, form, suggestions, onSearch }) => {
+const LocationInput = ({ field, form, suggestions, onSearch, disabled}) => {
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
@@ -33,6 +33,7 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                     form.validateField(field.name);
                 }}
                 className="pr-10"
+                disabled={disabled}
             />
             {suggestions.length > 0 && isFocused && (
                 <List className="w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
@@ -63,7 +64,8 @@ const DriverAdd = () => {
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [thalukSearchText, setThalukSearchText] = useState("");
     const [stateSearchText, setStateSearchText] = useState("");
-    const [owner , setOwners] = useState([])
+    const [owner , setOwners] = useState([]);
+    const [isEditable, setIsEditable] = useState(true);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         policeClearance: null,
@@ -224,6 +226,7 @@ const DriverAdd = () => {
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
                                                     type="number"
                                                     className="w-full p-1 text-xs border rounded"
+                                                    disabled={!isEditable} 
                                                 />
                                                 <ErrorMessage 
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
@@ -299,6 +302,7 @@ const DriverAdd = () => {
                     driverId: data?.data?.id,
                     value: true
                 });
+                setIsEditable(false);
             }
         } catch (error) {
             console.error('Error creating driver:', error);
@@ -421,377 +425,375 @@ const DriverAdd = () => {
             >
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
-                        <div className={`grid ${driverAdded.value ? 'grid-cols-2' : 'grid-cols-1'} gap-7`}>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                    <option value="">Select salutation</option>
-                                    <option value="Mr">Mr</option>
-                                    <option value="Mrs">Mrs</option>
-                                    <option value="Others">Others</option>
-                                </Field>
-                                <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
-                            </div>
+                        <div className={`grid ${driverAdded.value? 'grid-cols-2' : 'grid-cols-1'} gap-7`}>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
+                                        <Field as="select" name="salutation" disabled={!isEditable} className={`p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${!isEditable ? "bg-gray-100" : ""}`}>
+                                            <option value="">Select salutation</option>
+                                            <option value="Mr">Mr</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Others">Others</option>
+                                        </Field>
+                                        <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
+                                        <Field type="text" name="firstName" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
+                                        <Field type="text" name="fatherName" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
+                                        <Field type="text" name="motherName" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
+                                        <Field type="date" disabled={!isEditable}  name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()} 
+                                            onChange={(e) => {
 
-                            <div>
-                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
-                                <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
-                                <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
-                                <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
-                                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()} 
-                                    onChange={(e) => {
-
-                                        setFieldValue('dateOfBirth', e.target.value);
-                                        
-                                        if (e.target.value) {
-                                            const today = new Date();
-                                            const birthDate = new Date(e.target.value);
-                                            let age = today.getFullYear() - birthDate.getFullYear();
-                                            const monthDiff = today.getMonth() - birthDate.getMonth();
-                                            
-                                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                                                age--;
-                                            }
-                                            setFieldValue('age', age);
-                                        } else {
-                                            setFieldValue('age', '');
-                                        }
-                                    }} />
-                                <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
-                                <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
-                                <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field
-                                            type="radio"
-                                            name="withOwner"
-                                            value="Yes"
-                                            className="form-radio"
-                                        />
-                                        <span className="ml-2">Yes</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field
-                                            type="radio"
-                                            name="withOwner"
-                                            value="No"
-                                            className="form-radio"
-                                        />
-                                        <span className="ml-2">No</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage
-                                    name="withOwner"
-                                    component="div"
-                                    className="text-red-500 text-sm"
-                                />
-                            </div>
-
-                            <Field name="withOwner">
-                                {({ field }) =>
-                                    field.value === "Yes" ? (
-                                        <div className="mb-4">
-                                            <label className="block mb-2 text-sm font-medium text-gray-700">
-                                                Select Owner
+                                                setFieldValue('dateOfBirth', e.target.value);
+                                                
+                                                if (e.target.value) {
+                                                    const today = new Date();
+                                                    const birthDate = new Date(e.target.value);
+                                                    let age = today.getFullYear() - birthDate.getFullYear();
+                                                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                                                    
+                                                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                                        age--;
+                                                    }
+                                                    setFieldValue('age', age);
+                                                } else {
+                                                    setFieldValue('age', '');
+                                                }
+                                            }} />
+                                        <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
+                                        <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                                        <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field
+                                                    type="radio"
+                                                    name="withOwner"
+                                                    value="Yes"
+                                                    className="form-radio"
+                                                    disabled={!isEditable} 
+                                                />
+                                                <span className="ml-2">Yes</span>
                                             </label>
-                                            <Field
-                                                as="select"
-                                                name="accountId"
-                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                                            >
-                                                <option value="">Select Owner</option>
-                                                {owner.map((owner, index) => (
-                                                    <option key={index} value={owner.id}>
-                                                        {owner.name}
-                                                    </option>
-                                                ))}
-                                            </Field>
+                                            <label className="inline-flex items-center">
+                                                <Field
+                                                    type="radio"
+                                                    name="withOwner"
+                                                    value="No"
+                                                    className="form-radio"
+                                                    disabled={!isEditable} 
+                                                />
+                                                <span className="ml-2">No</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage
+                                            name="withOwner"
+                                            component="div"
+                                            className="text-red-500 text-sm"
+                                        />
+                                    </div>
+                                    <Field name="withOwner" disabled={!isEditable} >
+                                        {({ field }) =>
+                                            field.value === "Yes" ? (
+                                                <div className="mb-4">
+                                                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                                                        Select Owner
+                                                    </label>
+                                                    <Field
+                                                        as="select"
+                                                        name="accountId"
+                                                        disabled={!isEditable} 
+                                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                                    >
+                                                        <option value="">Select Owner</option>
+                                                        {owner.map((owner, index) => (
+                                                            <option key={index} value={owner.id}>
+                                                                {owner.name}
+                                                            </option>
+                                                        ))}
+                                                    </Field>
+                                                    <ErrorMessage
+                                                        name="accountId"
+                                                        component="div"
+                                                        className="text-red-500 text-sm mt-1"
+                                                    />
+                                                </div>
+                                            ) : null
+                                        }
+                                    </Field>
+                                    <div>
+                                        <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                        <Field type="tel" name="phoneNumber" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
+                                        <Field type="text" name="license" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="licenseType" disabled={!isEditable}  value="type1" className="form-radio" />
+                                                <span className="ml-2">Type 1</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="licenseType" disabled={!isEditable}  value="type2" className="form-radio" />
+                                                <span className="ml-2">Type 2</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
+                                        <Field type="date" name="licenseExpiryDate" disabled={!isEditable}  className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.licenseExpiryDate} min={currentDate()} ></Field>
+                                        <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="professionalLicense" disabled={!isEditable}  value="Yes" className="form-radio" />
+                                                <span className="ml-2">Yes</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="professionalLicense" disabled={!isEditable}  value="No" className="form-radio" />
+                                                <span className="ml-2">No</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="policeClearanceCertificate" disabled={!isEditable}  value="Yes" className="form-radio" />
+                                                <span className="ml-2">Yes</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="policeClearanceCertificate"  disabled={!isEditable} value="No" className="form-radio" />
+                                                <span className="ml-2">No</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="address" className="text-sm font-medium text-gray-700">Current Address</label>
+                                        <Field name="address">
+                                            {({ field, form }) => (
+                                                <LocationInput
+                                                    field={field}
+                                                    form={form}
+                                                    suggestions={addressSuggestions}
+                                                    onSearch={searchLocations}
+                                                    disabled={!isEditable} 
+                                                />
+                                            )}
+                                        </Field>
+                                        <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
+                                            <Field type="text" name="streetName" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
+                                                Thaluk
+                                            </label>
+                                            <Select
+                                                id="thaluk"
+                                                options={filteredThaluk.map((thaluk) => ({
+                                                    value: thaluk.id,
+                                                    label: thaluk.name,
+                                                }))}
+                                                onChange={(selectedOption) =>
+                                                    setFieldValue("thaluk", selectedOption?.value || "")
+                                                }
+                                                placeholder="Search Thaluk"
+                                                isSearchable
+                                                className="w-full"
+                                                classNamePrefix="react-select"
+                                                isDisabled={!isEditable}
+                                            />
                                             <ErrorMessage
-                                                name="accountId"
+                                                name="thaluk"
+                                                component="div"
+                                                className="text-red-500 text-sm mt-1"
+                                            />
+                                        </div>     
+                                        <div>
+                                            <label htmlFor="district" className="text-sm font-medium text-gray-700">
+                                                District
+                                            </label>
+                                            <Select
+                                                id="district"
+                                                options={filteredDistricts.map((district) => ({
+                                                    value: district.id,
+                                                    label: district.name,
+                                                }))}
+                                                onChange={(selectedOption) =>
+                                                    setFieldValue("district", selectedOption?.value || "")
+                                                }
+                                                placeholder="Select District"
+                                                isSearchable
+                                                className="w-full"
+                                                classNamePrefix="react-select"
+                                                isDisabled={!isEditable}
+                                            />
+                                            <ErrorMessage
+                                                name="district"
                                                 component="div"
                                                 className="text-red-500 text-sm mt-1"
                                             />
                                         </div>
-                                    ) : null
-                                }
-                            </Field>
-
-                            <div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="licenseType" value="type1" className="form-radio" />
-                                        <span className="ml-2">Type 1</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="licenseType" value="type2" className="form-radio" />
-                                        <span className="ml-2">Type 2</span>
-                                    </label>
+                                        <div>
+                                            <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                                                State
+                                            </label>
+                                            <Select
+                                                id="state"
+                                                options={filteredState.map((state) => ({
+                                                    value: state.id,
+                                                    label: state.name,
+                                                }))}
+                                                onChange={(selectedOption) =>
+                                                    setFieldValue("state", selectedOption?.value || "")
+                                                }
+                                                placeholder="Select State"
+                                                isSearchable
+                                                className="w-full"
+                                                classNamePrefix="react-select"
+                                                isDisabled={!isEditable}
+                                            />
+                                            <ErrorMessage
+                                                name="state"
+                                                component="div"
+                                                className="text-red-500 text-sm mt-1"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="pinCode" className="text-sm font-medium text-gray-700">Pincode</label>
+                                            <Field type="text" name="pinCode" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="pinCode" component="div" className="text-red-500 text-sm my-1" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="reference1" className="text-sm font-medium text-gray-700">Reference 1</label>
+                                            <Field type="text" name="reference1" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" />
+                                            <ErrorMessage name="reference1" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="phoneNumber1" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                            <Field type="tel" name="phoneNumber1" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                            <ErrorMessage name="phoneNumber1" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="reference2" className="text-sm font-medium text-gray-700">Reference 2</label>
+                                            <Field type="text" name="reference2" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" />
+                                            <ErrorMessage name="reference2" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="phoneNumber2" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                            <Field type="tel" name="phoneNumber2" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                            <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
+                                            <div className="space-x-4">
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="carType" disabled={!isEditable}  value="Sedan" className="form-radio" />
+                                                    <span className="ml-2">Sedan</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="carType" disabled={!isEditable}  value="SUV" className="form-radio" />
+                                                    <span className="ml-2">SUV</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="carType" disabled={!isEditable}  value="Hatchback" className="form-radio" />
+                                                    <span className="ml-2">Hatchback</span>
+                                                </label>
+                                            </div>
+                                            <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
+                                            <div className="space-x-4">
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" disabled={!isEditable}  name="preference" value="Automatic" className="form-radio" />
+                                                    <span className="ml-2">Automatic</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" disabled={!isEditable}  name="preference" value="Manual" className="form-radio" />
+                                                    <span className="ml-2">Manual</span>
+                                                </label>
+                                            </div>
+                                            <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        {/* <div>
+                                            <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
+                                            <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
+                                            <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
+                                        </div> */}
+                                        <div>
+                                            <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
+                                            <Multiselect
+                                                options={packageDetails}
+                                                displayValue="period"
+                                                selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
+                                                onSelect={(selectedList) => {
+                                                    setFieldValue("packages", selectedList.map(item => item.id));
+                                                    const newPrices = selectedList.map(item => ({
+                                                        packageId: item.id,
+                                                        period: item.period,
+                                                        price: item.price,
+                                                        extraPrice: item.extra_price,
+                                                        extraKmPrice: item.extraKmPrice,
+                                                        nightCharge: item.nightCharge,
+                                                        cancelCharge: item.cancelCharge,
+                                                        extraCabType: item.extraCabType
+                                                    }));
+                                                    setFieldValue("prices", newPrices);
+                                                }}
+                                                onRemove={(selectedList, removedItem) => {
+                                                    setFieldValue("packages", selectedList.map(item => item.id));
+                                                    setFieldValue("prices", values.prices.filter(price => price.packageId !== removedItem.id));
+                                                }}
+                                                placeholder="Select options"
+                                                className="w-full rounded-md border-gray-300"
+                                                showCheckbox={true}
+                                                disable={!isEditable}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
                             </div>
-
-                            <div>
-                                <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
-                                <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.licenseExpiryDate} min={currentDate()} ></Field>
-                                <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
-                                        <span className="ml-2">Yes</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
-                                        <span className="ml-2">No</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
-                                        <span className="ml-2">Yes</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
-                                        <span className="ml-2">No</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
-                                <Field name="address">
-                                    {({ field, form }) => (
-                                        <LocationInput
-                                            field={field}
-                                            form={form}
-                                            suggestions={addressSuggestions}
-                                            onSearch={searchLocations}
-                                        />
-                                    )}
-                                </Field>
-                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
-                                <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-                            <div>
-                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
-                                    Thaluk
-                                </label>
-                                <Select
-                                    id="thaluk"
-                                    options={filteredThaluk.map((thaluk) => ({
-                                        value: thaluk.id,
-                                        label: thaluk.name,
-                                    }))}
-                                    onChange={(selectedOption) =>
-                                        setFieldValue("thaluk", selectedOption?.value || "")
-                                    }
-                                    placeholder="Search Thaluk"
-                                    isSearchable
-                                    className="w-full"
-                                    classNamePrefix="react-select"
-                                />
-                                <ErrorMessage
-                                    name="thaluk"
-                                    component="div"
-                                    className="text-red-500 text-sm mt-1"
-                                />
-                            </div>     
-                            <div>
-                                <label htmlFor="district" className="text-sm font-medium text-gray-700">
-                                    District
-                                </label>
-                                <Select
-                                    id="district"
-                                    options={filteredDistricts.map((district) => ({
-                                        value: district.id,
-                                        label: district.name,
-                                    }))}
-                                    onChange={(selectedOption) =>
-                                        setFieldValue("district", selectedOption?.value || "")
-                                    }
-                                    placeholder="Select District"
-                                    isSearchable
-                                    className="w-full"
-                                    classNamePrefix="react-select"
-                                />
-                                <ErrorMessage
-                                    name="district"
-                                    component="div"
-                                    className="text-red-500 text-sm mt-1"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="state" className="text-sm font-medium text-gray-700">
-                                    State
-                                </label>
-                                <Select
-                                    id="state"
-                                    options={filteredState.map((state) => ({
-                                        value: state.id,
-                                        label: state.name,
-                                    }))}
-                                    onChange={(selectedOption) =>
-                                        setFieldValue("state", selectedOption?.value || "")
-                                    }
-                                    placeholder="Select State"
-                                    isSearchable
-                                    className="w-full"
-                                    classNamePrefix="react-select"
-                                />
-                                <ErrorMessage
-                                    name="state"
-                                    component="div"
-                                    className="text-red-500 text-sm mt-1"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="pinCode" className="text-sm font-medium text-gray-700">Pincode</label>
-                                <Field type="text" name="pinCode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="pinCode" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-                            <div>
-                                <label htmlFor="reference1" className="text-sm font-medium text-gray-700">Reference 1</label>
-                                <Field type="text" name="reference1" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="reference1" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumber1" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber1" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber1" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="reference2" className="text-sm font-medium text-gray-700">Reference 2</label>
-                                <Field type="text" name="reference2" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="reference2" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumber2" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber2" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
-                                        <span className="ml-2">Sedan</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="SUV" className="form-radio" />
-                                        <span className="ml-2">SUV</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
-                                        <span className="ml-2">Hatchback</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Automatic" className="form-radio" />
-                                        <span className="ml-2">Automatic</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Petrol" className="form-radio" />
-                                        <span className="ml-2">Petrol</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="preference" value="Diesel" className="form-radio" />
-                                        <span className="ml-2">Diesel</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {/* <div>
-                                <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                            </div> */}
-                            <div>
-                                <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
-                                <Multiselect
-                                    options={packageDetails}
-                                    displayValue="period"
-                                    selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
-                                    onSelect={(selectedList) => {
-                                        setFieldValue("packages", selectedList.map(item => item.id));
-                                        const newPrices = selectedList.map(item => ({
-                                            packageId: item.id,
-                                            period: item.period,
-                                            price: item.price,
-                                            extraPrice: item.extra_price,
-                                            extraKmPrice: item.extraKmPrice,
-                                            nightCharge: item.nightCharge,
-                                            cancelCharge: item.cancelCharge,
-                                            extraCabType: item.extraCabType
-                                        }));
-                                        setFieldValue("prices", newPrices);
-                                    }}
-                                    onRemove={(selectedList, removedItem) => {
-                                        setFieldValue("packages", selectedList.map(item => item.id));
-                                        setFieldValue("prices", values.prices.filter(price => price.packageId !== removedItem.id));
-                                    }}
-                                    placeholder="Select options"
-                                    className="w-full rounded-md border-gray-300"
-                                    showCheckbox={true}
-                                />
-                            </div>
-                        </div>
-                        {driverAdded.value  &&
+                            {driverAdded.value &&
                             <div className='space-y-4'>
                                 <div className="grid grid-cols-2 gap-6">
                                     <DocumentUpload
@@ -834,8 +836,7 @@ const DriverAdd = () => {
                                         imagePreview={imagePreviews.livePhoto}
                                     />
                                 </div>
-                            </div>
-                        }
+                            </div>}
                         </div>
                         {values.packages.length > 0 && (
                             <div>
@@ -872,7 +873,7 @@ const DriverAdd = () => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => { navigate('/dashboard/drivers'); }}
+                                    onClick={() => navigate('/dashboard/drivers')}
                                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                                 >
                                     Cancel
@@ -888,7 +889,38 @@ const DriverAdd = () => {
                                 </Button>
                             </div>
                         }
-                        
+                        {driverAdded.value &&
+                            <div className='flex flex-row'>
+                                <Button
+                                    fullWidth
+                                    onClick={() => navigate(`/dashboard/drivers/details/${driverAdded.driverId}`)}
+                                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                                >
+                                    Back
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    color='black'
+                                    onClick={() => navigate(`/dashboard/drivers/edit/${driverAdded.driverId}`)}
+                                    className='my-6 mx-2'
+                                >
+                                    Edit
+                                </Button>
+                            </div>   
+                        }
+                        {/* {driverAdded.value && isEditable && 
+                            <div className='flex flex-row'>
+                            <Button
+                                fullWidth
+                                color="black"
+                                onClick={handleSubmit}
+                                disabled={!dirty || !isValid}
+                                className='my-6 mx-2'
+                            >
+                                Save
+                            </Button>
+                        </div>  
+                        } */}
                     </Form>
                 )}
             </Formik>

@@ -12,26 +12,25 @@ import {
   PopoverHandler,
   PopoverContent,
   Checkbox,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import { FaFilter } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 
-const formatDate = (isoDate) => {
-  const date = new Date(isoDate);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-};
 
 export function DocumentVerificationView() {
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState(["All"]);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDoc = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS);
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS_LIST);
       console.log("DOC VERIFATION",data)
       if (data?.success) {
         setAccounts(data?.data);
@@ -47,62 +46,27 @@ export function DocumentVerificationView() {
 
   const getDetails = async (searchQuery) => {
     if (searchQuery && searchQuery.trim() !== "") {
-        const query = searchQuery.toLowerCase().trim();
-        
-        const filteredAccounts = allAccounts.filter((acc) => {
-            const name = (
-                acc?.Register?.firstName || 
-                acc?.Driver?.firstName || 
-                acc?.Account?.name || 
-                acc?.Cab?.name||
-                ""  
-            ).toLowerCase();
-            const phone = acc?.Register?.phoneNumber || acc?.Driver?.phoneNumber || acc?.Account?.phoneNumber || "";
-            const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-            return (
-                name.startsWith(query) || 
-                phone.startsWith(query) || 
-                phoneNumberWithoutCountryCode.startsWith(query)
-            );
-        });
-        setAccounts(filteredAccounts);
-    } else {
-        setAccounts(allAccounts);
-    }
-  };
+      const query = searchQuery.toLowerCase().trim();
 
-  const handleOpenDocument = (documentUrl) => {
-    window.open(documentUrl, "_blank", "noopener,noreferrer");
-  };
-
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return "text-blue-500";
-      case "approved":
-        return "text-green-500";
-      case "declined":
-        return "text-red-500";
-      default:
-        return "text-gray-500";
-    }
-  };
-  
-  const handleStatusChange = async (id,status) => {
-    const docData = {
-      documentId:id,
-      status : status,
-    };
-    const data = await ApiRequestUtils.update(API_ROUTES.GET_DOCUMENT_DETAILS, docData);
-    if (data?.success) {
-      alert(`Document status updated to ${status}`);
-      const updatedData = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS);
-      if (updatedData?.success) {
-        setAccounts(updatedData?.data);
-        setAllAccounts(updatedData?.data);
-      }
+      const filteredAccounts = allAccounts.filter((acc) => {
+        const name = (
+          acc?.Register?.firstName ||
+          acc?.Driver?.firstName ||
+          acc?.Account?.name ||
+          acc?.Cab?.name||
+          ""
+        ).toLowerCase();
+        const phone = acc?.Register?.phoneNumber || acc?.Driver?.phoneNumber || acc?.Account?.phoneNumber || "";
+        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
+        return (
+          name.startsWith(query) ||
+          phone.startsWith(query) ||
+          phoneNumberWithoutCountryCode.startsWith(query)
+        );
+      });
+      setAccounts(filteredAccounts);
     } else {
-      alert("Failed to update status. Please try again.");
+      setAccounts(allAccounts);
     }
   };
 
@@ -117,6 +81,12 @@ export function DocumentVerificationView() {
       return newFilter.length === 0 ? ["All"] : newFilter;
     });
   };
+
+  const onClickName = ( id , type) =>{
+    return navigate(`/dashboard/doc-verification/documents-details/${id}`,{
+      state :{type:type},
+    })
+  }
 
   const FilterPopover = ({ title, options }) => (
     <Popover placement="bottom-start">
@@ -147,23 +117,23 @@ export function DocumentVerificationView() {
       </PopoverContent>
     </Popover>
   );
-  
+
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="relative flex-grow max-w-[500px]">
-                <input
-                    type="text"
-                    className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Search Document"
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
-                </div>
+        <div className="flex items-center justify-between">
+          <div className="relative flex-grow max-w-[500px]">
+            <input
+              type="text"
+              className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Search Document"
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
             </div>
           </div>
+        </div>
       </div>
       <Card>
         {accounts.length > 0 ? (
@@ -182,19 +152,14 @@ export function DocumentVerificationView() {
                 <thead>
                   <tr>
                     {[
+                      "Name",
                       "Type",
-                      "Name",,
-                      "ID Number",
                       "Phone Number",
-                      "Document Type",
-                      "Uploaded Date",
                       "KYC Status",
-                      "",
-                      "",
                     ].map((el, index) => (
                       <th
                         key={index}
-                        className="border-b border-blue-gray-50 py-3 px-3 text-left"
+                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
                         {el==='KYC Status' ? (
                           <FilterPopover
@@ -203,13 +168,12 @@ export function DocumentVerificationView() {
                               { value: "All", label: "All" },
                               { value: "PENDING", label: "Pending" },
                               { value: "APPROVED", label: "Approved" },
-                              { value: "DECLINED", label: "Declined" },
                             ]}
-                        />
+                          />
                         ) : (
-                        <Typography
-                          variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          <Typography
+                            variant="small"
+                            className="text-[11px] font-bold uppercase text-blue-gray-400"
                           >
                             {el}
                           </Typography>
@@ -219,107 +183,72 @@ export function DocumentVerificationView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {accounts.filter((account) =>
-                  statusFilter.includes("All") || statusFilter.includes(account.status)
-                    ).map(
-                    ({ id, Register, Account, Driver, status, type, Cab, updated_at, image1, idNumber}, key) => {
-                      const className = `py-3 px-3 ${
-                        key === accounts.length - 1
-                          ? ""
-                          : "border-b border-blue-gray-50"
-                      }`;
-                      const name  = Register?.firstName || Driver?.firstName || Account?.name || Cab?.name || " ";
-                      const nameType = Register ? "Register" : Driver ? "Driver" : Account ? "Account" : Cab ? "Cab" : "";
-                      const number = Register?.phoneNumber || Driver?.phoneNumber || Account?.phoneNumber || Cab?.phoneNumber || "";
-                      return (
-                        <>
-                          <tr key={id}>
-                            <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
-                                {nameType}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
-                                {name}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
-                                {idNumber}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
-                                {number}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
-                                {type}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
-                                {formatDate(updated_at)}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <Typography
-                                className={`text-xs font-semibold ${getStatusColor(
-                                  status
-                                )}`}
-                              >
-                                {status}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <div className="flex items-center gap-4">
-                                <div>
-                                  <Typography
-                                    variant="small"
-                                    className="font-semibold underline cursor-pointer text-blue-900"
-                                    onClick={() => {
-                                      handleOpenDocument(image1);
-                                    }}
-                                  >
-                                    View Details
-                                  </Typography>
+                  {accounts.filter((account) => {
+                        const status = account.isComplete ? "APPROVED" : "PENDING";
+                        return (
+                          statusFilter.includes("All") || statusFilter.includes(status)
+                        );
+                      })
+                      .map((data, key) => {
+                        const className = `py-3 px-3 ${
+                          key === accounts.length - 1 ? "" : "border-b border-blue-gray-50"
+                        }`;
+
+                        const status = data.isComplete ? "APPROVED" : "PENDING";
+                        const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
+                        const nameType = data['Register.id'] ? "Register" : data['Driver.id'] ? "Driver" : data['Account.id'] ? "Account" : data['Cab.id'] ? "Cab" : "";
+                        const number = (() => {
+                          const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
+                          return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
+                        })();
+                        return (
+                          <>
+                            <tr key={data?.id}>
+                              <td className={className}>
+                                <div className="flex items-center gap-4">
+                                  <div onClick={() => onClickName(data.id, nameType)}>
+                                    <Typography 
+                                      variant="small"
+                                      color="blue"
+                                      className="font-semibold underline">
+                                      {name}
+                                    </Typography>
+                                  </div>
                                 </div>
-                              </div>
-                            </td>
-                            <td className={className}>
-                              {status == "PENDING" && <><Button
-                                as="a"
-                                className="mr-5 text-xs font-semibold text-black bg-white border border-black"
-                                onClick={() => handleStatusChange(id, 'APPROVED')}
-                              >
-                                Accept
-                              </Button>
-                              <Button
-                                as="a"
-                                className="text-xs font-semibold text-white"
-                                onClick={() => handleStatusChange(id, 'DECLINED')}
-                              >
-                                Decline
-                              </Button></>}
-                            </td>
-                          </tr>
-                        </>
-                      );
-                    }
-                  )}
+                              </td>
+                              <td className={className}>
+                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                  {nameType}
+                                </Typography>
+                              </td>
+                              <td className={className}>
+                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                  {number}
+                                </Typography>
+                              </td>
+                              <td className={className}>
+                                <Typography
+                                  className={`text-xs font-semibold ${data.isComplete ? "text-green-500" : "text-blue-500"}`}
+                                >
+                                  {status}
+                                </Typography>
+                              </td>
+                            </tr>
+                          </>
+                        );
+                      }
+                    )}
                 </tbody>
               </table>
             </CardBody>
           </>):(
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-              <Typography variant="h6" color="white">
-                No Documents
-              </Typography>
-            </CardHeader>
-          )
-        }
+          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+            <Typography variant="h6" color="white">
+              No Documents
+            </Typography>
+          </CardHeader>
+        )
+      }
       </Card>
     </div>
   );

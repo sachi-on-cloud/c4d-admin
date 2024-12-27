@@ -64,6 +64,13 @@ export function AccountView() {
     }
   };
 
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
+    }
+    return `+91${phoneNumber}`;}
+  }
+
   return (
     <div className="mt-6 mb-8 flex flex-col gap-12">
       {alert && (
@@ -128,7 +135,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           <td className={className}>

@@ -426,183 +426,189 @@ const DriverEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className='grid grid-cols-2 gap-7'>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                    <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="">Select salutation</option>
-                                        <option value="Mr">Mr</option>
-                                        <option value="Mrs">Mrs</option>
-                                        <option value="Others">Others</option>
-                                    </Field>
-                                    <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
-                                </div>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
+                                        <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="">Select salutation</option>
+                                            <option value="Mr">Mr</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Others">Others</option>
+                                        </Field>
+                                        <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
-                                    <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
+                                    <div>
+                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
+                                        <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
-                                    <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
+                                    <div>
+                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
+                                        <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
-                                    <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
+                                    <div>
+                                        <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
+                                        <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
-                                    <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
-                                        onChange={(e) => {
-                                            setFieldValue('dateOfBirth', e.target.value);
+                                    <div>
+                                        <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
+                                        <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
+                                            onChange={(e) => {
+                                                setFieldValue('dateOfBirth', e.target.value);
 
-                                            if(e.target.value) {
-                                                const today = new Date();
-                                                const birthDate = new Date(e.target.value);
-                                                let age = today.getFullYear() - birthDate.getFullYear();
-                                                const monthDiff = today.getMonth() - birthDate.getMonth();
+                                                if(e.target.value) {
+                                                    const today = new Date();
+                                                    const birthDate = new Date(e.target.value);
+                                                    let age = today.getFullYear() - birthDate.getFullYear();
+                                                    const monthDiff = today.getMonth() - birthDate.getMonth();
 
-                                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                                                    age--;
+                                                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                                        age--;
+                                                    }
+                                                    setFieldValue('age',age);
+                                                }else {
+                                                    setFieldValue('age','');
                                                 }
-                                                setFieldValue('age',age);
-                                            }else {
-                                                setFieldValue('age','');
-                                            }
-                                        }}
-                                    />
-                                    <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
-                                    <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
-                                    <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
-
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
-                                    <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field
-                                            type="radio"
-                                            name="withOwner"
-                                            value="Yes"
-                                            className="form-radio"
-                                            disabled
+                                            }}
                                         />
-                                        <span className="ml-2">Yes</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field
-                                            type="radio"
-                                            name="withOwner"
-                                            value="No"
-                                            className="form-radio"
-                                            disabled
-                                        />
-                                        <span className="ml-2">No</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage
-                                    name="withOwner"
-                                    component="div"
-                                    className="text-red-500 text-sm"
-                                />
-                                </div>
-
-                                {values.withOwner == "Yes" && 
-                                <div>
-                                    <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
-                                    <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
-                                    <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm" />
-                                </div>  
-                                }
-
-                                <div>
-                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                    <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                    <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="licenseType" value="type1" className="form-radio" />
-                                            <span className="ml-2">Type 1</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="licenseType" value="type2" className="form-radio" />
-                                            <span className="ml-2">Type 2</span>
-                                        </label>
+                                        <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                    <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
-                                </div>
 
-                                <div>
-                                    <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
-                                    <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
-                                    <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
-                                            <span className="ml-2">Yes</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
-                                            <span className="ml-2">No</span>
-                                        </label>
+                                    <div>
+                                        <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
+                                        <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                                        <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
-                                    <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
-                                </div>
 
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
-                                    <div className="space-x-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                        <div className="space-x-4">
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
-                                            <span className="ml-2">Yes</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
-                                            <span className="ml-2">No</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
-                                    <Field name="address">
-                                        {({ field, form }) => (
-                                            <LocationInput
-                                                field={field}
-                                                form={form}
-                                                suggestions={addressSuggestions}
-                                                onSearch={searchLocations}
+                                            <Field
+                                                type="radio"
+                                                name="withOwner"
+                                                value="Yes"
+                                                className="form-radio"
+                                                disabled
                                             />
-                                        )}
-                                    </Field>
-                                    <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                            <span className="ml-2">Yes</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="withOwner"
+                                                value="No"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">No</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="withOwner"
+                                        component="div"
+                                        className="text-red-500 text-sm"
+                                    />
+                                    </div>
 
+                                    {values.withOwner == "Yes" && 
+                                    <div>
+                                        <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
+                                        <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                        <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm" />
+                                    </div>  
+                                    }
+
+                                    <div>
+                                        <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
+                                        <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="licenseType" value="type1" className="form-radio" />
+                                                <span className="ml-2">Type 1</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="licenseType" value="type2" className="form-radio" />
+                                                <span className="ml-2">Type 2</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
+                                        <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
+                                        <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
+                                                <span className="ml-2">Yes</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
+                                                <span className="ml-2">No</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
+                                                <span className="ml-2">Yes</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
+                                                <span className="ml-2">No</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="address" className="text-sm font-medium text-gray-700">Current address</label>
+                                        <Field name="address">
+                                            {({ field, form }) => (
+                                                <LocationInput
+                                                    field={field}
+                                                    form={form}
+                                                    suggestions={addressSuggestions}
+                                                    onSearch={searchLocations}
+                                                />
+                                            )}
+                                        </Field>
+                                        <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
                                     <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -722,12 +728,8 @@ const DriverEdit = () => {
                                             <span className="ml-2">Automatic</span>
                                         </label>
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" value="Petrol" className="form-radio" />
-                                            <span className="ml-2">Petrol</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" value="Diesel" className="form-radio" />
-                                            <span className="ml-2">Diesel</span>
+                                            <Field type="radio" name="preference" value="Manual" className="form-radio" />
+                                            <span className="ml-2">Manual</span>
                                         </label>
                                     </div>
                                     <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
@@ -769,6 +771,8 @@ const DriverEdit = () => {
                                         showCheckbox={true}
                                     />
                                 </div>
+                            </div>
+                            </div>    
                             </div>
                             <div className='grid grid-cols-2'>
                                 <DocumentUpload
@@ -849,10 +853,10 @@ const DriverEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/drivers'); }}
+                                onClick={() => navigate(`/dashboard/drivers/details/${id}`)}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
-                                Cancel
+                                Back
                             </Button>
                             <Button
                                 fullWidth

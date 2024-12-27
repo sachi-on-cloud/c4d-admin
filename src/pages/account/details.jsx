@@ -5,7 +5,7 @@ import { API_ROUTES} from '@/utils/constants';
 import { Alert, Button} from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
-const AccountDetails = () => {
+const AccountDetails = ({btnShow = false}) => {
     const navigate = useNavigate();
     const [accountVal, setAccountVal] = useState({});
     const { id } = useParams();
@@ -120,12 +120,12 @@ const AccountDetails = () => {
             </div>
 
             <div className='flex justify-center w-full'>
-                <Button
+                {!btnShow && <Button
                     onClick={() => { navigate('/dashboard/account'); }}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Back
-                </Button>
+                </Button>}
             </div>
         </>
     );

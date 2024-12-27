@@ -183,7 +183,7 @@ export function DriverView() {
                               </Button>
                             </td> */}
 
-                            {status === "ACTIVE" && <td className={className}>
+                            {/* {status === "ACTIVE" && <td className={className}>
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
@@ -191,7 +191,7 @@ export function DriverView() {
                               >
                                 Edit
                               </Button>
-                            </td>}
+                            </td>} */}
                             <td className={className}>
                               <Button
                                 as="a"

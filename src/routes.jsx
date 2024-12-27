@@ -34,6 +34,7 @@ import CabEdit from "./pages/cab/edit";
 import AccountAdd from "./pages/account/add";
 import AccountEdit from "./pages/account/edit";
 import { DocumentVerificationView } from "./pages/docVerification/view";
+import DocumentsDetails from './pages/docVerification/details'
 import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
 import {SubscriptionView} from './pages/subscription/view';
 import SubscriptionAdd from "./pages/subscription/add";
@@ -170,7 +171,7 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
-        name: "users",
+        name: "Admin User",
         path: "/users",
         element: <UserView />,
         display: true
@@ -258,7 +259,7 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
-        name: "Online Registration",
+        name: "Mobile user registration",
         path: "/online-registration",
         element: <OnlineRegistrationView />,
         display: true
@@ -275,6 +276,13 @@ export const routes = [
         name: "subscription",
         path: "/subscription/add",
         element: <SubscriptionAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Documents details",
+        path: "/doc-verification/documents-details/:id",
+        element: <DocumentsDetails />,
         display: false
       },
     ],
