@@ -54,7 +54,7 @@ export function SignIn() {
     }
 
     if (response.code) {
-      login(response.code);
+      login(response.code, response.user);
 
       setNewUser({
         email: '',

@@ -15,11 +15,14 @@ import {
     DialogBody,
     DialogFooter,
 } from "@material-tailwind/react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 
 const DocumentsDetails = () => {
     const location = useLocation();
     const {type} = location.state || {};
     const [documentData, setdocumentData] = useState([]);
+    const [user, setUser] = useState('');
+    const [initialValues, setInitialValues] = useState({});
     const [modalData, setModalData] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
@@ -27,11 +30,23 @@ const DocumentsDetails = () => {
     useEffect(()=>{
         const fetchData = async () =>{
             console.log("TYPE--->",type);
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            const name = JSON.parse(loggedInUser).name;
+            console.log('name ->', name);
+            setUser(name);
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
                 "id": id,
                 "user": type.toLowerCase()
             })
-            console.log("DATA IN DETAILS DOC",data)
+            console.log("DATA IN DETAILS DOC",data);
+            if (type == 'Register') {
+              setInitialValues({
+                salutation: data?.data?.salutation || '',
+                firstName: data?.data?.firstName || '',
+                phoneNumber: data?.data?.phoneNumber ? data?.data?.phoneNumber.replace(/^(\+91)/, '') : "",
+
+              })
+            }
             if(data.success){
                 setdocumentData(data?.data?.Proofs);
             }
@@ -56,7 +71,7 @@ const DocumentsDetails = () => {
         const docData = {
           documentId: docId,
           status : status,
-          //verifiedBy : "verify"
+          verifiedBy : user
         };
         const data = await ApiRequestUtils.update(API_ROUTES.GET_DOCUMENT_DETAILS_LIST, docData);
         console.log("DATAAA",data)
@@ -80,6 +95,47 @@ const DocumentsDetails = () => {
             {type == 'Driver' && <DriverDetails btnShow={true}/>}
             {type == 'Cab' && <CabDetails btnShow={true}/>}
             {type == 'Account' && <AccountDetails btnShow={true}/>}
+            {type == 'Register' && <>
+                        <div className="p-4">
+            
+                            <h2 className="text-2xl font-bold mb-4">Registered User Details</h2>
+                            <Formik
+                                initialValues={initialValues}
+                                onSubmit={() => { }}
+                                enableReinitialize={true}
+                            >
+                                {({ values }) => (
+                                    <Form className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
+                                                <Field as="select" disabled name="salutation" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                    <option value="">Select salutation</option>
+                                                    <option value="Mr">Mr</option>
+                                                    <option value="Mrs">Mrs</option>
+                                                    <option value="Others">Others</option>
+                                                </Field>
+                                                <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
+                                            </div>
+            
+                                            <div>
+                                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</label>
+                                                <Field type="text" disabled name="firstName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                                            </div>
+                                            <div>
+                                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                                <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md bg-gray-200 border border-gray-300" maxLength={10} />
+                                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                            </div>
+            
+                                        </div>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </div>
+                    </>
+                    }
         </div>
         <div className='flex flex-row justify-between px-2 mb-2'>
             <h2 className="text-2xl font-bold mb-4">Documents</h2>
@@ -94,8 +150,8 @@ const DocumentsDetails = () => {
                     {[
                       "Type",
                       "Status",
-                      "Verified By",
-                      "View Details"
+                      "View Details",
+                      "Verified By"
                     ].map((el, index) => (
                       <th
                         key={index}
@@ -113,7 +169,7 @@ const DocumentsDetails = () => {
                 </thead>
                 <tbody>
                   {documentData.map(
-                      ({id, type, image1, status},key) => {
+                      ({id, type, image1, status, verifiedBy},key) => {
                         const className = `py-3 px-5 ${ 
                           key === documentData.length - 1 
                           ? "" 
@@ -140,11 +196,6 @@ const DocumentsDetails = () => {
                                 </Typography>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                  verifiedBy
-                                </Typography>
-                              </td>
-                              <td className={className}>
                                 <div className="flex items-center gap-4">
                                   <div>
                                     <Typography
@@ -155,6 +206,7 @@ const DocumentsDetails = () => {
                                           id,
                                           image: image1,
                                           status,
+                                          user
                                         });
                                       }}
                                     >
@@ -163,6 +215,11 @@ const DocumentsDetails = () => {
                                   </div>
                                 </div>
                               </td>
+                              {status !== 'PENDING' && <td className={className}>
+                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                  {verifiedBy}
+                                </Typography>
+                              </td>}
                             </tr>
                           </>
                         );
@@ -203,9 +260,9 @@ const DocumentsDetails = () => {
                         <Typography variant="body1" className="text-gray-600">
                             Document Status: <span className={getStatusColor(modalData.status)}>{modalData.status}</span>
                         </Typography>
-                        <Typography variant="body1" className="text-gray-600">
-                            Verified By : Admin Name
-                        </Typography>
+                        {modalData.status !== 'PENDING' && <Typography variant="body1" className="text-gray-600">
+                            Verified By : {user}
+                        </Typography>}
                     </div>
                     </DialogBody>
             <DialogFooter>
