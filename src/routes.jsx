@@ -38,6 +38,10 @@ import DocumentsDetails from './pages/docVerification/details'
 import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
 import {SubscriptionView} from './pages/subscription/view';
 import SubscriptionAdd from "./pages/subscription/add";
+import CabBookingsList from "./pages/booking/cabBookingList";
+import CarWashBookingsList from "./pages/booking/carWashBookingList";
+import ActingDriverBookingsList from "./pages/booking/actingDriverBookingList";
+import { PendingDocList } from "./pages/docVerification/pendingDocList";
 
 // import { SearchDrivers } from "./pages/booking";
 
@@ -95,7 +99,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/drivers",
+        path: "/vendors/drivers", // /drivers
         element: <DriverView />,
         display: true
       },
@@ -283,6 +287,34 @@ export const routes = [
         name: "Documents details",
         path: "/doc-verification/documents-details/:id",
         element: <DocumentsDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Cab bookings",
+        path: "/booking/list/cabBooking",
+        element: <CabBookingsList />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Car Wash Bookings",
+        path: "/booking/list/carWash",
+        element: <CarWashBookingsList/>,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Acting Driver Bookings",
+        path: "/booking/list/actingDriver",
+        element: <ActingDriverBookingsList/>,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Document Verification",
+        path: "/doc-verification/pending",
+        element: <PendingDocList />,
         display: false
       },
     ],

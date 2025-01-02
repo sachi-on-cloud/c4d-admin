@@ -66,7 +66,7 @@ export function SubscriptionView() {
     }
 
     return (
-        <div className="mt-6 mb-8 flex flex-col gap-12">
+        <div className="mb-8 flex flex-col gap-12">
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                     <div className="relative flex-grow max-w-[500px]">

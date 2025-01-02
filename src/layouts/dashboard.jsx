@@ -15,20 +15,22 @@ export function Dashboard() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavType } = controller;
   return (
-    <div className="min-h-screen bg-blue-gray-50/50">
-      {/* <Sidenav
-        routes={routes}
-        brandImg={
-          sidenavType === "dark" ? "/img/logo-ct.png" : "/img/logo-ct-dark.png"
-        }
-      /> */}
-      <Topnav 
+    <div className="flex h-screen bg-gray-50">
+      <div className="w-72">
+        <Sidenav
+          routes={routes}
+          brandImg={
+            "/img/logo-ct.png"
+          }
+        />
+      </div>
+      {/* <Topnav 
         routes={routes}
         brandImg={
           "/img/logo-ct.png"
         }
-      />
-      <div className="p-4 ">
+      /> */}
+      <div className="flex-1 pl-5 pt-4 overflow-y-auto">
         {/* <DashboardNavbar /> */}
         {/* <Configurator />
         <IconButton

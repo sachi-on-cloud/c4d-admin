@@ -42,7 +42,6 @@ const DriverDetails = ({btnShow = false}) => {
         }
     };
     useEffect(() => {
-        console.log("IDDD", id);
         if (id) {
             getPackageListDetails();
             fetchItem(id);
@@ -149,6 +148,12 @@ const DriverDetails = ({btnShow = false}) => {
                                             <Field type="text" name="age" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
                                             <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                         </div>
+
+                                        {/* <div>
+                                            <label htmlFor="docStatus" className="text-sm font-medium text-gray-700">Document Status</label>
+                                            <Field type="text" name="docStatus" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200"/>
+                                            <ErrorMessage name="docStatus" component="div" className="text-red-500 text-sm" />
+                                        </div> */}
 
                                         <div>
                                             <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>

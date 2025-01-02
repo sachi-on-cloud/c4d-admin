@@ -81,7 +81,7 @@ export function DriverView() {
   // }, [searchQuery]);
 
   return (
-    <div className="mt-6 mb-8 flex flex-col gap-12">
+    <div className="mb-8 flex flex-col gap-12">
       {alert && <div className='mb-2'>
         <Alert
           color='blue'

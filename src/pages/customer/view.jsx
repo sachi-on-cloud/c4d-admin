@@ -55,7 +55,7 @@ export function CustomerView() {
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
 
         return name.startsWith(query) || 
-               phoneNumberWithoutCountryCode.startsWith(query);
+          phoneNumberWithoutCountryCode.startsWith(query);
       });
       setCustomers(filteredCustomers);
       
@@ -80,7 +80,7 @@ export function CustomerView() {
   //   }
   // }, []);
   return (
-    <div className="mt-6 mb-8 flex flex-col gap-12">
+    <div className="mb-8 flex flex-col gap-12">
       {alert && (
         <div className='mb-2'>
         <Alert

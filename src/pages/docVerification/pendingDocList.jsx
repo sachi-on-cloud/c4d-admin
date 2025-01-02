@@ -21,7 +21,7 @@ import { FaFilter } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
 
-export function DocumentVerificationView() {
+export function PendingDocList() {
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState(["All"]);
@@ -48,14 +48,8 @@ export function DocumentVerificationView() {
       const query = searchQuery.toLowerCase().trim();
 
       const filteredAccounts = allAccounts.filter((acc) => {
-        const name = (
-          acc?.Register?.firstName ||
-          acc?.Driver?.firstName ||
-          acc?.Account?.name ||
-          acc?.Cab?.name||
-          ""
-        ).toLowerCase();
-        const phone = acc?.Register?.phoneNumber || acc?.Driver?.phoneNumber || acc?.Account?.phoneNumber || "";
+        const name  = (acc['Register.firstName'] || acc['Driver.firstName'] || acc['Account.name'] || acc['Cab.name'] || "").toLowerCase();
+        const phone = acc["Register.phoneNumber"] || acc["Driver.phoneNumber"] || acc["Account.phoneNumber"] || acc["Cab.phoneNumber"] || "";
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
         return (
           name.startsWith(query) ||
@@ -160,7 +154,7 @@ export function DocumentVerificationView() {
                         key={index}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
-                        {el==='KYC Status' ? (
+                        {/* {el==='KYC Status' ? (
                           <FilterPopover
                             title={el}
                             options={[
@@ -169,14 +163,14 @@ export function DocumentVerificationView() {
                               { value: "APPROVED", label: "Approved" },
                             ]}
                           />
-                        ) : (
+                        ) : ( */}
                           <Typography
                             variant="small"
                             className="text-[11px] font-bold uppercase text-blue-gray-400"
                           >
                             {el}
                           </Typography>
-                        )}
+                        {/* )} */}
                       </th>
                     ))}
                   </tr>
