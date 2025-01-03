@@ -83,6 +83,7 @@ export function CarWashBookingsList({ customerId = 0, bookingStage, onAssignDriv
     const getBookingsList = async () => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
             "customerId": customerId,
+            "type":"CAR_WASH"
         });
         if (data?.success) {
             setBookingsList(data?.data);
@@ -143,7 +144,7 @@ export function CarWashBookingsList({ customerId = 0, bookingStage, onAssignDriv
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
-                                    {["Booking ID", /*"Service Type",*/ "Customer Name", "Driver Name", "Booking Date", "Created Date", "Status", "", ""].map((el) => (
+                                    {["Booking ID", "Service Type", "Customer Name", "Driver Name", "Booking Date", "Created Date", "Status", "", ""].map((el) => (
                                         <th
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -197,11 +198,11 @@ export function CarWashBookingsList({ customerId = 0, bookingStage, onAssignDriv
                                                         </div>
                                                     </div>
                                                 </td>
-                                                {/* <td className={className}>
+                                                <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {data?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : data?.serviceType}
                                                     </Typography>
-                                                </td> */}
+                                                </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
                                                         {data?.Customer?.firstName}

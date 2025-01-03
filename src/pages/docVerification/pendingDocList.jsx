@@ -76,7 +76,7 @@ export function PendingDocList() {
   };
 
   const onClickName = ( id , type) =>{
-    return navigate(`/dashboard/doc-verification/documents-details/${id}`,{
+    return navigate(`/dashboard/doc-verification/pending/documents-details/${id}`,{
       state :{type:type},
     })
   }

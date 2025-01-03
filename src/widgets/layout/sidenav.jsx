@@ -321,7 +321,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
             </li>
           </ul>)}
           <li>
-            <NavLink to={`/dashboard/vendors`}>
+            <NavLink to={`/dashboard/vendors/account`}>
               {({ isActive }) => (
                 <Button
                   variant={isActive ? "gradient" : "text"}
@@ -348,32 +348,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
           </li>
           {openSubMenu === 'vendors' && (<ul className="mb-4 ml-4 flex flex-col gap-1">
             <li>
-              <NavLink to={`/dashboard/vendors`} end>
-                {({ isActive }) => (
-                  <Button
-                    variant={isActive ? "gradient" : "text"}
-                    color={
-                      isActive
-                        ? sidenavColor
-                        : sidenavType === "dark"
-                          ? "white"
-                          : "blue-gray"
-                    }
-                    className="flex items-center gap-4 px-4 capitalize"
-                    fullWidth
-                  >
-                    <Typography
-                      color="inherit"
-                      className="font-medium capitalize"
-                    >
-                      All Vehicles
-                    </Typography>
-                  </Button>
-                )}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to={`/dashboard/vendors/cabOwners`}>
+              <NavLink to={`/dashboard/vendors/account`}>
                 {({ isActive }) => (
                   <Button
                     variant={isActive ? "gradient" : "text"}
@@ -417,6 +392,31 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       className="font-medium capitalize"
                     >
                       Drivers
+                    </Typography>
+                  </Button>
+                )}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`/dashboard/vendors/allVehicles`} end>
+                {({ isActive }) => (
+                  <Button
+                    variant={isActive ? "gradient" : "text"}
+                    color={
+                      isActive
+                        ? sidenavColor
+                        : sidenavType === "dark"
+                          ? "white"
+                          : "blue-gray"
+                    }
+                    className="flex items-center gap-4 px-4 capitalize"
+                    fullWidth
+                  >
+                    <Typography
+                      color="inherit"
+                      className="font-medium capitalize"
+                    >
+                      All Vehicles
                     </Typography>
                   </Button>
                 )}

@@ -873,7 +873,7 @@ const DriverAdd = () => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate('/dashboard/drivers')}
+                                    onClick={() => navigate('/dashboard/vendors/drivers')}
                                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                                 >
                                     Cancel
@@ -893,7 +893,7 @@ const DriverAdd = () => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate(`/dashboard/drivers/details/${driverAdded.driverId}`)}
+                                    onClick={() => navigate(`/dashboard/vendors/drivers/details/${driverAdded.driverId}`)}
                                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                                 >
                                     Back
@@ -901,7 +901,7 @@ const DriverAdd = () => {
                                 <Button
                                     fullWidth
                                     color='black'
-                                    onClick={() => navigate(`/dashboard/drivers/edit/${driverAdded.driverId}`)}
+                                    onClick={() => navigate(`/dashboard/vendors/drivers/edit/${driverAdded.driverId}`)}
                                     className='my-6 mx-2'
                                 >
                                     Edit

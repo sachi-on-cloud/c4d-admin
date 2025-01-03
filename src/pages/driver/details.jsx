@@ -491,14 +491,14 @@ const DriverDetails = ({btnShow = false}) => {
             {!btnShow && <div className='flex w-full'>
                 <Button
                     fullWidth
-                    onClick={() => navigate('/dashboard/drivers')}
+                    onClick={() => navigate('/dashboard/vendors/drivers')}
                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                 >
                     Back
                 </Button>
                 <Button 
                     fullWidth
-                    onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
+                    onClick={() => navigate(`/dashboard/vendors/drivers/edit/${id}`)}
                     className='my-6 mx-2'>
                     Edit
                 </Button>

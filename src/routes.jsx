@@ -99,21 +99,21 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/vendors/drivers", // /drivers
+        path: "/vendors/drivers",
         element: <DriverView />,
         display: true
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/drivers/add",
+        path: "/vendors/drivers/add",
         element: <DriverAdd />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/drivers/details/:id",
+        path: "/vendors/drivers/details/:id",
         element: <DriverDetails />,
         display: false
       },
@@ -127,7 +127,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/drivers/edit/:id",
+        path: "/vendors/drivers/edit/:id",
         element: <DriverEdit />,
         display: false
       },
@@ -250,7 +250,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Account",
-        path: "/account",
+        path: "/vendors/account",
         element: <AccountView />,
         display: true
       },
@@ -315,6 +315,13 @@ export const routes = [
         name: "Document Verification",
         path: "/doc-verification/pending",
         element: <PendingDocList />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Documents details",
+        path: "/doc-verification/pending/documents-details/:id",
+        element: <DocumentsDetails />,
         display: false
       },
     ],

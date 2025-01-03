@@ -853,7 +853,7 @@ const DriverEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => navigate(`/dashboard/drivers/details/${id}`)}
+                                onClick={() => navigate(`/dashboard/vendors/drivers/details/${id}`)}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Back
