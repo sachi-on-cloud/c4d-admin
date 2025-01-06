@@ -8,6 +8,7 @@ import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
+import DocumentsList from '@/components/DocumentsList';
 
 const DriverDetails = ({btnShow = false}) => {
    // const [enablePrint, setEnablePrint] = useState(false);
@@ -105,7 +106,6 @@ const DriverDetails = ({btnShow = false}) => {
                 >
                     {({ values }) => (
                         <div className="space-y-4">
-                            <div className='grid grid-cols-2 gap-7'>
                                 <div className="grid grid-cols-1 gap-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
@@ -249,7 +249,7 @@ const DriverDetails = ({btnShow = false}) => {
                                 </div>
                                 <div className="grid grid-cols-1 gap-4">
                                     <div>
-                                        <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                                        <p className="text-2xl font-bold text-gray-800 my-2">Permanent Address</p>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
@@ -349,142 +349,11 @@ const DriverDetails = ({btnShow = false}) => {
                                     </div>
                                     </div>
                                     </div>
-                                    <div className='grid grid-cols-2'>
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">License</label>
-                                            <div className="my-2">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.DRIVING_LICENSE) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                        <img
-                                                            src={getDocumentByType(KYC_PROCESS.DRIVING_LICENSE)}
-                                                            alt="License"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleOpenDocument(KYC_PROCESS.DRIVING_LICENSE)}
-                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                        >
-                                                            View
-                                                        </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Photo</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType('PHOTO') ? (
-                                                        <div className='grid grid-cols-1'>
-                                                        <img
-                                                            src={getDocumentByType('PHOTO')}
-                                                            alt="Photo"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleOpenDocument('PHOTO')}
-                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                        >
-                                                            View
-                                                        </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Police Clearance</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                        <img
-                                                            src={getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE)}
-                                                            alt="PAN"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleOpenDocument(KYC_PROCESS.POLICE_CLEARANCE)}
-                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                        >
-                                                            View
-                                                        </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Consent Form</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.CONSENT_FORM) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                            <img
-                                                                src={getDocumentByType(KYC_PROCESS.CONSENT_FORM)}
-                                                                alt="Consent Form"
-                                                                className="w-full h-full object-contain rounded-md"
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleOpenDocument(KYC_PROCESS.CONSENT_FORM)}
-                                                                className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                            >
-                                                                View
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Aadhaar Card</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.AADHAAR) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                            <img
-                                                                src={getDocumentByType(KYC_PROCESS.AADHAAR)}
-                                                                alt="Aadhaar"
-                                                                className="w-full h-full object-contain rounded-md"
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleOpenDocument(KYC_PROCESS.AADHAAR)}
-                                                                className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                            >
-                                                                View
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                </div>
-                            </div>
                         </div>
                     )}
                 </Formik>
             </div>
+            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} buttonShow={false}/>}
             {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />

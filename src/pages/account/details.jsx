@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES} from '@/utils/constants';
-import { Alert, Button} from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
+import DocumentsList from '@/components/DocumentsList';
+import { Button } from '@material-tailwind/react';
 
 const AccountDetails = ({btnShow = false}) => {
     const navigate = useNavigate();
@@ -97,31 +98,15 @@ const AccountDetails = ({btnShow = false}) => {
                                 <Field type="text" name="pincode" disabled className="p-2 w-full rounded-md border-2 bg-gray-200 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                             </div>
-                            <div>
-                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">Aadhar Image</label>
-                                <div className="mt-1">
-                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                            {values?.image1 ? (
-                                                <img
-                                                    src={values?.image1}
-                                                    alt="Preview"
-                                                    className="w-full h-full object-contain rounded-md"
-                                                />
-                                            ) : (
-                                                <div className="text-gray-500 font-medium p-2">No image uploaded.</div>
-                                            )}
-                                        </div>
-                                </div>
-                            </div>
                             </div>
                         </Form>
                     )}
                 </Formik>
             </div>
-
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} buttonShow={false}/>}
             <div className='flex justify-center w-full'>
                 {!btnShow && <Button
-                    onClick={() => { navigate('/dashboard/account'); }}
+                    onClick={() => { navigate('/dashboard/vendors/account'); }}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Back

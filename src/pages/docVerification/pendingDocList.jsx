@@ -30,7 +30,7 @@ export function PendingDocList() {
 
   useEffect(() => {
     const fetchDoc = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS_LIST);
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'Pending');
       if (data?.success) {
         setAccounts(data?.data);
         setAllAccounts(data?.data);

@@ -41,6 +41,7 @@ import SubscriptionAdd from "./pages/subscription/add";
 import AllBookingsLists from "./pages/booking/allBookingLists";
 import { PendingDocList } from "./pages/docVerification/pendingDocList";
 import { BOOKING_SERVICE_TYPE } from "./utils/constants";
+import { AllVehicles } from "./pages/vendor";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -125,6 +126,13 @@ export const routes = [
         name: "drivers",
         path: "/vendors/drivers/edit/:id",
         element: <DriverEdit />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "vehicles",
+        path: "/vendors/allVehicles",
+        element: <AllVehicles />,
         display: false
       },
       {

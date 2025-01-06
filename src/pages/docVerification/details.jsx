@@ -16,6 +16,7 @@ import {
     DialogFooter,
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import DocumentsList from "@/components/DocumentsList";
 
 const DocumentsDetails = () => {
     const location = useLocation();
@@ -44,7 +45,7 @@ const DocumentsDetails = () => {
                 salutation: data?.data?.salutation || '',
                 firstName: data?.data?.firstName || '',
                 phoneNumber: data?.data?.phoneNumber ? data?.data?.phoneNumber.replace(/^(\+91)/, '') : "",
-
+                id: data?.data?.id || ''
               })
             }
             if(data.success){
@@ -134,10 +135,11 @@ const DocumentsDetails = () => {
                                 )}
                             </Formik>
                         </div>
+                        {initialValues && initialValues?.id && <DocumentsList id={initialValues.id} type={'register'}/>}
                     </>
                     }
         </div>
-        <div className='flex flex-row justify-between px-2 mb-2'>
+        {/* <div className='flex flex-row justify-between px-2 mb-2'>
             <h2 className="text-2xl font-bold mb-4">Documents</h2>
         </div>
         <Card>
@@ -283,7 +285,7 @@ const DocumentsDetails = () => {
             </>}
             </DialogFooter>
         </Dialog>      
-      )}
+      )} */}
     </>)
 };
 
