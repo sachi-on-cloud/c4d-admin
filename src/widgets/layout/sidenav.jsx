@@ -111,7 +111,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
           </ul>
         ))}
       </div> */}
-      <div className="m-4">
+      <div className="m-4 h-[calc(100vh-150px)] overflow-y-auto">
         <ul className="flex flex-col gap-1">
           <li>
             <NavLink to={`/dashboard/booking`} end>
@@ -655,7 +655,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
               )}
             </NavLink>
           </li>
-          <li>
+          <li className="pb-10">
             <NavLink to={`/dashboard/users`}>
               {({ isActive }) => (
                 <Button

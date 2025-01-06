@@ -38,13 +38,9 @@ import DocumentsDetails from './pages/docVerification/details'
 import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
 import {SubscriptionView} from './pages/subscription/view';
 import SubscriptionAdd from "./pages/subscription/add";
-import CabBookingsList from "./pages/booking/cabBookingList";
-import CarWashBookingsList from "./pages/booking/carWashBookingList";
-import ActingDriverBookingsList from "./pages/booking/actingDriverBookingList";
+import AllBookingsLists from "./pages/booking/allBookingLists";
 import { PendingDocList } from "./pages/docVerification/pendingDocList";
-
-// import { SearchDrivers } from "./pages/booking";
-
+import { BOOKING_SERVICE_TYPE } from "./utils/constants";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -216,13 +212,6 @@ export const routes = [
         display: false
       },
       {
-        icon: <HomeModernIcon {...icon} />,
-        name: "BookingsList",
-        path: "/booking/list",
-        element: <BookingsList />,
-        display: false,
-      },
-      {
         name: "SelectLocation",
         path: "/select-location",
         element: <SelectLocation />,
@@ -291,23 +280,31 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
-        name: "Cab bookings",
-        path: "/booking/list/cabBooking",
-        element: <CabBookingsList />,
+        name: "All bookings List",
+        path: "/booking/list",
+        element: <AllBookingsLists type={''}/>,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Cab bookings",
+        path: "/booking/list/cabBooking",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAB_BOOKING}/>,
+        display: false
+      },
+      
+      {
+        icon: <UserIcon {...icon} />,
         name: "Car Wash Bookings",
         path: "/booking/list/carWash",
-        element: <CarWashBookingsList/>,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAR_WASH}/>,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Acting Driver Bookings",
         path: "/booking/list/actingDriver",
-        element: <ActingDriverBookingsList/>,
+        element: <AllBookingsLists  type={BOOKING_SERVICE_TYPE.DRIVER}/>,
         display: false
       },
       {

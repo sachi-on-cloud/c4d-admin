@@ -30,7 +30,7 @@ export function Dashboard() {
           "/img/logo-ct.png"
         }
       /> */}
-      <div className="flex-1 pl-5 pt-4 overflow-y-auto">
+      <div className="flex-1 pl-7 pt-4 overflow-y-auto">
         {/* <DashboardNavbar /> */}
         {/* <Configurator />
         <IconButton

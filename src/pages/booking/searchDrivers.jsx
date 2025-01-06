@@ -131,8 +131,6 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId) => {
-        console.log("PROPS DATA--->",cabDriverId)
-
         const reqBody = {
             bookingId: props?.bookingData?.id,
         };
@@ -236,7 +234,7 @@ export function SearchDrivers(props) {
                                                 <td className={className}>
                                                     {status === "ACTIVE" && <Button
                                                         as="a"
-                                                        onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, Drivers[0]?.id) }}
+                                                        onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER'? 0 : Drivers[0]?.id) }}
                                                         className="text-xs font-semibold text-white"
                                                     >
                                                         {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
