@@ -100,7 +100,7 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                 </thead>
                                 <tbody>
                                     {documentData.map(
-                                        ({ id, type, image1, status, verifiedBy }, key) => {
+                                        ({ id, type, image1, status, User }, key) => {
                                             const className = `py-3 px-5 ${key === documentData.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -135,7 +135,7 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                                                                 id,
                                                                                 image: image1,
                                                                                 status,
-                                                                                verifiedBy
+                                                                                User
                                                                             });
                                                                         }}
                                                                     >
@@ -146,7 +146,7 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                                         </td>
                                                         {status !== 'PENDING' && <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {verifiedBy}
+                                                                {User ? User?.name : ''}
                                                             </Typography>
                                                         </td>}
                                                     </tr>
@@ -190,7 +190,7 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                 Document Status: <span className={getStatusColor(modalData.status)}>{modalData.status}</span>
                             </Typography>
                             {modalData.status !== 'PENDING' && <Typography variant="body1" className="text-gray-600">
-                                Verified By : {modalData.verifiedBy}
+                                Verified By : {modalData.User ? modalData?.User?.name : ''}
                             </Typography>}
                         </div>
                     </DialogBody>
