@@ -148,11 +148,11 @@ const CabEdit = () => {
             getAccountRelatedDrivers(data?.data?.result?.Account?.id)
         } else {
             console.error('No cab data received');
-            navigate('/dashboard/cab');
+            navigate('/dashboard/vendors/allVehicles');
          }
         } catch (error) {
             console.error('Error fetching driver:', error);
-            navigate('/dashboard/cab');
+            navigate('/dashboard/vendors/allVehicles');
         }
     };
 
@@ -321,7 +321,7 @@ const CabEdit = () => {
 
             const data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_CAB, formData);
             if (data?.success) {
-                navigate('/dashboard/cab', {
+                navigate('/dashboard/vendors/allVehicles', {
                     state: {
                         cabAdded: true,
                         cabName: data?.data?.name
@@ -707,7 +707,7 @@ const CabEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/cab'); }}
+                                onClick={() => { navigate('/dashboard/vendors/allVehicles'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS } from '@/utils/constants';
-import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
+import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem,Dialog, DialogHeader, DialogBody} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
@@ -73,6 +73,7 @@ const DriverAdd = () => {
         drivingLicenseImage: null,
         consentForm: null
     });      
+    const [modalData, setModalData] = useState(null);
     const { id } = useParams();
     const [driverAdded, setDriverAdded] = useState({
         driverId: "",
@@ -337,42 +338,95 @@ const DriverAdd = () => {
         state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
     );
 
-    const DocumentUpload = ({ label, value, name, onChange, imagePreview }) => {
+    const DocumentUpload = ({ label, value, name, onChange, setModalData }) => {
         return (
-            <div>
-                <label htmlFor={name} className="text-sm font-medium text-gray-700">
-                    {label}
-                </label>
-                <div className="mt-1">
-                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                        {value ? (
-                            <img
-                                src={imagePreview || value}
-                                alt="Preview"
-                                className="w-full h-full object-contain rounded-md"
-                            />
-                        ) : (
-                            <div className="text-gray-500 font-medium p-2">
-                                No image selected. Click below to upload.
-                            </div>
-                        )}
-                    </div>
+            // <tr>
+            //     <td className="py-3 px-5 border-b border-blue-gray-50">
+            //         <span className="text-sm font-medium text-gray-700">{label}</span>
+            //     </td>
+            //     <td className="py-3 px-5 border-b border-blue-gray-50">
+            //         <span className={`text-sm font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}>
+            //             {value ? "UPLOADED" : "NO DOCUMENTS"}
+            //         </span>
+            //     </td>
+            //     <td className="py-3 px-5 border-b border-blue-gray-50">
+            //         <div className="flex items-center gap-2">
+            //             <label
+            //                 htmlFor={name}
+            //                 className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+            //             >
+            //                 Upload
+            //             </label>
+            //             <input
+            //                 type="file"
+            //                 accept="image/*"
+            //                 id={name}
+            //                 name={name}
+            //                 onChange={onChange}
+            //                 className="hidden" // Hide the native input
+            //             />
+            //         </div>
+            //     </td>
+            //     <td className="py-3 px-5 border-b border-blue-gray-50">
+            //         {value && (
+            //             <span
+            //                 className="font-semibold underline cursor-pointer text-blue-900"
+            //                 onClick={() =>
+            //                     setModalData({
+            //                         image: URL.createObjectURL(value),
+            //                     })
+            //                 }
+            //             >
+            //                 View Details
+            //             </span>
+            //         )}
+            //     </td>
+            // </tr>
+            <tr>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography
+                    className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}
+                >
+                    {value ? "UPLOADED" : "NO DOCUMENTS"}
+                </Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <div className="flex items-center gap-2">
+                    <label
+                        htmlFor={name}
+                        className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                    >
+                        Upload
+                    </label>
                     <input
                         type="file"
                         accept="image/*"
                         id={name}
                         name={name}
                         onChange={onChange}
-                        className="hidden" // Hide the native input
+                        className="hidden"
                     />
-                    <label
-                        htmlFor={name}
-                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                    >
-                        Upload Image
-                    </label>
                 </div>
-            </div>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                {value && (
+                    <Typography
+                        variant="small"
+                        className="font-semibold underline cursor-pointer text-blue-900"
+                        onClick={() =>
+                            setModalData({
+                                image: URL.createObjectURL(value),
+                            })
+                        }
+                    >
+                        View Details
+                    </Typography>
+                )}
+            </td>
+        </tr>
         );
     };
 
@@ -793,50 +847,6 @@ const DriverAdd = () => {
                                     </div>
                                 </div>
                             </div>
-                            {driverAdded.value &&
-                            <div className='space-y-4'>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <DocumentUpload
-                                        label="Aadhaar Image"
-                                        value={values.aadhaarImage}
-                                        name="aadhaarImage"
-                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage')}
-                                        imagePreview={imagePreviews.aadhaarImage}
-                                    />
-                                    <DocumentUpload
-                                        label="Police Clearance Certificate"
-                                        value={values.policeClearance}
-                                        name="policeClearance"
-                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance')}
-                                        imagePreview={imagePreviews.policeClearance}
-                                    />
-                                    {/* Driving License Image Upload */}
-                                    <DocumentUpload
-                                        label="Driving License Image"
-                                        value={values.drivingLicenseImage}
-                                        name="drivingLicenseImage"
-                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage')}
-                                        imagePreview={imagePreviews.drivingLicenseImage}
-                                    />
-                                    {/* Consent Form Image Upload */}
-                                    <DocumentUpload
-                                        label="Consent Form Image"
-                                        value={values.consentForm}
-                                        name="consentForm"
-                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'consentForm')}
-                                        imagePreview={imagePreviews.consentForm}
-                                    />
-
-                                    {/* Live Photo Upload */}
-                                    <DocumentUpload
-                                        label="Live Photo"
-                                        value={values.livePhoto}
-                                        name="livePhoto"
-                                        onChange={(e) => handleImageUpload(e, setFieldValue, 'livePhoto')}
-                                        imagePreview={imagePreviews.livePhoto}
-                                    />
-                                </div>
-                            </div>}
                         </div>
                         {values.packages.length > 0 && (
                             <div>
@@ -889,6 +899,75 @@ const DriverAdd = () => {
                                 </Button>
                             </div>
                         }
+                        {driverAdded.value && //driverAdded.value
+                            <div className="mt-6">
+                            <div className="flex flex-row justify-between px-2 mb-2">
+                                <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
+                                    Document Upload
+                                </Typography>
+                            </div>
+                            <Card>
+                                <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+                                    <table className="w-full min-w-[640px] table-auto">
+                                        <thead>
+                                            <tr>
+                                                {["Type", "Status", "Action", ""].map((el, index) => (
+                                                    <th
+                                                        key={index}
+                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                    >
+                                                        <Typography
+                                                            variant="small"
+                                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                        >
+                                                            {el}
+                                                        </Typography>
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <DocumentUpload
+                                                label="Aadhaar Image"
+                                                value={values.aadhaarImage}
+                                                name="aadhaarImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
+                                                setModalData={setModalData}
+                                            />
+                                            <DocumentUpload
+                                                label="Police Clearance Certificate"
+                                                value={values.policeClearance}
+                                                name="policeClearance"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "policeClearance")}
+                                                setModalData={setModalData}
+                                            />
+                                            <DocumentUpload
+                                                label="Driving License Image"
+                                                value={values.drivingLicenseImage}
+                                                name="drivingLicenseImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
+                                                setModalData={setModalData}
+                                            />
+                                            <DocumentUpload
+                                                label="Consent Form Image"
+                                                value={values.consentForm}
+                                                name="consentForm"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "consentForm")}
+                                                setModalData={setModalData}
+                                            />
+                                            <DocumentUpload
+                                                label="Live Photo"
+                                                value={values.livePhoto}
+                                                name="livePhoto"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto")}
+                                                setModalData={setModalData}
+                                            />
+                                        </tbody>
+                                    </table>
+                                </CardBody>
+                            </Card>
+                        </div> 
+                        }
                         {driverAdded.value &&
                             <div className='flex flex-row'>
                                 <Button
@@ -924,6 +1003,31 @@ const DriverAdd = () => {
                     </Form>
                 )}
             </Formik>
+            {modalData && (
+                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                    <DialogHeader>
+                    <div className="flex justify-between items-center w-full">
+                        <Typography variant="h6">Document Details</Typography>
+                        <button
+                        className="text-gray-600 hover:text-gray-900"
+                        onClick={() => setModalData(null)}
+                        >
+                        X
+                        </button>
+                    </div>
+                    </DialogHeader>
+                    <DialogBody divider>
+                    <div className="flex flex-col items-center">
+                        <img
+                        src={modalData.image}
+                        alt="Document"
+                        className="max-w-full rounded-lg shadow-md"
+                        style={{ height: "45vh", objectFit: "contain" }}
+                        />
+                    </div>
+                    </DialogBody>
+                </Dialog>
+            )}
         </div>
     );
 };

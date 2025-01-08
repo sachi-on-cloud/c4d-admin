@@ -119,7 +119,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
-        path: "/account/details/:id",
+        path: "/vendors/account/details/:id",
         element: <AccountDetails />,
         display: false
       },
@@ -140,7 +140,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
-        path: "/account/edit/:id",
+        path: "/vendors/account/edit/:id",
         element: <AccountEdit />,
         display: false
       },
@@ -154,21 +154,21 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
-        path: "/cab/add",
+        path: "/vendors/allVehicles/add",
         element: <CabAdd />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
-        path: "/cab/details/:id",
+        path: "/vendors/allVehicles/details/:id",
         element: <CabDetails />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
-        path: "/cab/edit/:id",
+        path: "/vendors/allVehicles/edit/:id",
         element: <CabEdit />,
         display: false
       },
@@ -210,7 +210,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
-        path: "/account/add",
+        path: "/vendors/account/add",
         element: <AccountAdd />,
         display: false
       },

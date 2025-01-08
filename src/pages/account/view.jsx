@@ -122,7 +122,7 @@ export function AccountView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/account/details/${id}`)}>
+                              <div onClick={() => navigate(`/dashboard/vendors/account/details/${id}`)}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -151,7 +151,7 @@ export function AccountView() {
                           <td className={className}>
                             <Button
                               as='a'
-                              onClick={() => navigate(`/dashboard/account/edit/${id}`)}
+                              onClick={() => navigate(`/dashboard/vendors/account/edit/${id}`)}
                               className="text-xs font-semibold text-white"
                             >
                               Edit

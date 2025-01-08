@@ -230,7 +230,7 @@ const CabDetails = ({btnShow = false}) => {
             <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />
             {!btnShow && <div className='flex justify-center w-full'>
                 <Button
-                    onClick={() => { navigate('/dashboard/cab'); }}
+                    onClick={() => { navigate('/dashboard/vendors/allVehicles'); }}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Back

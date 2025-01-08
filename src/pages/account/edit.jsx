@@ -59,7 +59,7 @@ const AccountEdit = () => {
             
             const data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_ACCOUNT, formData);
             console.log('data in driver UPDATE :', data);
-            navigate('/dashboard/account', {
+            navigate('/dashboard/vendors/account', {
                 state: {
                     accountUpdated: true,
                     accountName: data?.data?.name
@@ -251,7 +251,7 @@ const AccountEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/account'); }}
+                                onClick={() => { navigate('/dashboard/vendors/account'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Back

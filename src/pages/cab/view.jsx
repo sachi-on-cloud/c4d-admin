@@ -133,7 +133,7 @@ export function CabView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/cab/details/${id}`)}>
+                              <div onClick={() => navigate(`/dashboard/vendors/allVehicles/details/${id}`)}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -189,7 +189,7 @@ export function CabView() {
                             <td className={className}>
                               <Button
                                 as="a"
-                                onClick={() => navigate(`/dashboard/cab/edit/${id}`)}
+                                onClick={() => navigate(`/dashboard/vendors/allVehicles/edit/${id}`)}
                                 className="text-xs font-semibold text-white"
                               >
                                 Edit
