@@ -476,7 +476,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
               </NavLink>
             </li>
             <li>
-              <NavLink to={`/dashboard/finance/cabSubscription`}>
+              <NavLink to={`/dashboard/finance/cab-subscription`}>
                 {({ isActive }) => (
                   <Button
                     variant={isActive ? "gradient" : "text"}

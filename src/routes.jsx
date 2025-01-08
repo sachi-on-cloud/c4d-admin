@@ -42,6 +42,8 @@ import AllBookingsLists from "./pages/booking/allBookingLists";
 import { PendingDocList } from "./pages/docVerification/pendingDocList";
 import { BOOKING_SERVICE_TYPE } from "./utils/constants";
 import { AllVehicles } from "./pages/vendor";
+import { CabSubscriptionView } from "./pages/finance/subscription/cab-subscription-view";
+import CabSubscriptionAdd from "./pages/finance/subscription/cab-subscription-add";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -327,6 +329,20 @@ export const routes = [
         name: "Documents details",
         path: "/doc-verification/pending/documents-details/:id",
         element: <DocumentsDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Cab Subscription",
+        path: "/finance/cab-subscription",
+        element: <CabSubscriptionView />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Add Subscription",
+        path: "/finance/cab-subscription/add",
+        element: <CabSubscriptionAdd />,
         display: false
       },
     ],
