@@ -5,6 +5,7 @@ import { API_ROUTES} from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
+import OwnersCabList from '@/components/OwnersCabList';
 
 const AccountDetails = ({btnShow = false}) => {
     const navigate = useNavigate();
@@ -103,6 +104,7 @@ const AccountDetails = ({btnShow = false}) => {
                     )}
                 </Formik>
             </div>
+            {accountVal && accountVal?.Cabs && <OwnersCabList cabsList={accountVal?.Cabs}/>}
             {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} buttonShow={false}/>}
             <div className='flex justify-center w-full'>
                 {!btnShow && <Button

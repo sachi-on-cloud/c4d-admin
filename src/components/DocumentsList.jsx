@@ -12,6 +12,7 @@ import {
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
+import moment from "moment";
 
 const DocumentsList = ({ id, type, buttonShow=true}) => {
     const [documentData, setdocumentData] = useState([]);
@@ -82,7 +83,9 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                             "Type",
                                             "Status",
                                             "View Details",
-                                            "Verified By"
+                                            "Created At",
+                                            "Verified By",
+                                            "Verified At"
                                         ].map((el, index) => (
                                             <th
                                                 key={index}
@@ -90,7 +93,7 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                             >
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                    className="text-[11px] font-bold uppercase text-blue-gray-700"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -100,7 +103,7 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                 </thead>
                                 <tbody>
                                     {documentData.map(
-                                        ({ id, type, image1, status, User }, key) => {
+                                        ({ id, type, image1, status, User, created_at, updated_at }, key) => {
                                             const className = `py-3 px-5 ${key === documentData.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -144,11 +147,21 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        {status !== 'PENDING' && <td className={className}>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {moment(created_at).format("DD-MM-YYYY")}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {User ? User?.name : ''}
                                                             </Typography>
-                                                        </td>}
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {status !== 'PENDING' ? moment(updated_at).format("DD-MM-YYYY") : ""}
+                                                            </Typography>
+                                                        </td>
                                                     </tr>
                                                 </>
                                             );
