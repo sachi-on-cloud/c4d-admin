@@ -16,7 +16,7 @@ export function Dashboard() {
   const { sidenavType, sidenavColor } = controller;
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 mr-2">
       <div className="w-72">
         <Sidenav
           routes={routes}

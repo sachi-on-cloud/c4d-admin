@@ -161,7 +161,9 @@ const DriverAdd = () => {
         policeClearance: '',
         livePhoto: '',
         drivingLicenseImage: '',
-        consentForm: ''
+        consentForm: '',
+        jobType: "CAB",
+        accountId: null,
     };
 
     const searchLocations = async (query) => {
@@ -277,6 +279,8 @@ const DriverAdd = () => {
                 carType: values.carType,
                 //wallet: values.wallet,
                 accountId : values.accountId,
+                withOwner: values.withOwner,
+                jobType: values.jobType,
             };
             let driverData = { driverDetails, prices: values.prices };
             console.log(driverData);
@@ -340,48 +344,6 @@ const DriverAdd = () => {
 
     const DocumentUpload = ({ label, value, name, onChange, setModalData }) => {
         return (
-            // <tr>
-            //     <td className="py-3 px-5 border-b border-blue-gray-50">
-            //         <span className="text-sm font-medium text-gray-700">{label}</span>
-            //     </td>
-            //     <td className="py-3 px-5 border-b border-blue-gray-50">
-            //         <span className={`text-sm font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}>
-            //             {value ? "UPLOADED" : "NO DOCUMENTS"}
-            //         </span>
-            //     </td>
-            //     <td className="py-3 px-5 border-b border-blue-gray-50">
-            //         <div className="flex items-center gap-2">
-            //             <label
-            //                 htmlFor={name}
-            //                 className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-            //             >
-            //                 Upload
-            //             </label>
-            //             <input
-            //                 type="file"
-            //                 accept="image/*"
-            //                 id={name}
-            //                 name={name}
-            //                 onChange={onChange}
-            //                 className="hidden" // Hide the native input
-            //             />
-            //         </div>
-            //     </td>
-            //     <td className="py-3 px-5 border-b border-blue-gray-50">
-            //         {value && (
-            //             <span
-            //                 className="font-semibold underline cursor-pointer text-blue-900"
-            //                 onClick={() =>
-            //                     setModalData({
-            //                         image: URL.createObjectURL(value),
-            //                     })
-            //                 }
-            //             >
-            //                 View Details
-            //             </span>
-            //         )}
-            //     </td>
-            // </tr>
             <tr>
             <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
@@ -535,39 +497,88 @@ const DriverAdd = () => {
                                         <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                                         <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
+
                                     <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
                                                 <Field
                                                     type="radio"
-                                                    name="withOwner"
-                                                    value="Yes"
+                                                    name="jobType"
+                                                    value="CAB"
                                                     className="form-radio"
-                                                    disabled={!isEditable} 
+                                                    disabled={!isEditable}
                                                 />
-                                                <span className="ml-2">Yes</span>
+                                                <span className="ml-2">Cab Driver</span>
                                             </label>
                                             <label className="inline-flex items-center">
                                                 <Field
                                                     type="radio"
-                                                    name="withOwner"
-                                                    value="No"
+                                                    name="jobType"
+                                                    value="ACTING_DRIVER"
                                                     className="form-radio"
-                                                    disabled={!isEditable} 
+                                                    disabled={!isEditable}
                                                 />
-                                                <span className="ml-2">No</span>
+                                                <span className="ml-2">Acting Driver</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field
+                                                    type="radio"
+                                                    name="jobType"
+                                                    value="BOTH"
+                                                    className="form-radio"
+                                                    disabled={!isEditable}
+                                                />
+                                                <span className="ml-2">Both</span>
                                             </label>
                                         </div>
                                         <ErrorMessage
-                                            name="withOwner"
+                                            name="jobType"
                                             component="div"
                                             className="text-red-500 text-sm"
                                         />
                                     </div>
-                                    <Field name="withOwner" disabled={!isEditable} >
+
+                                    <Field name="jobType">
                                         {({ field }) =>
-                                            field.value === "Yes" ? (
+                                            field.value === "CAB" && (
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                                    <div className="space-x-4">
+                                                        <label className="inline-flex items-center">
+                                                            <Field
+                                                                type="radio"
+                                                                name="withOwner"
+                                                                value="Yes"
+                                                                className="form-radio"
+                                                                disabled={!isEditable}
+                                                            />
+                                                            <span className="ml-2">Yes</span>
+                                                        </label>
+                                                        <label className="inline-flex items-center">
+                                                            <Field
+                                                                type="radio"
+                                                                name="withOwner"
+                                                                value="No"
+                                                                className="form-radio"
+                                                                disabled={!isEditable}
+                                                            />
+                                                            <span className="ml-2">No</span>
+                                                        </label>
+                                                    </div>
+                                                    <ErrorMessage
+                                                        name="withOwner"
+                                                        component="div"
+                                                        className="text-red-500 text-sm"
+                                                    />
+                                                </div>
+                                            )
+                                        }
+                                    </Field>
+
+                                    <Field name="withOwner">
+                                        {({ field }) =>
+                                            field.value === "Yes" && (
                                                 <div className="mb-4">
                                                     <label className="block mb-2 text-sm font-medium text-gray-700">
                                                         Select Owner
@@ -575,7 +586,7 @@ const DriverAdd = () => {
                                                     <Field
                                                         as="select"
                                                         name="accountId"
-                                                        disabled={!isEditable} 
+                                                        disabled={!isEditable}
                                                         className="p-2 w-full rounded-md border-gray-300 shadow-sm"
                                                     >
                                                         <option value="">Select Owner</option>
@@ -591,9 +602,10 @@ const DriverAdd = () => {
                                                         className="text-red-500 text-sm mt-1"
                                                     />
                                                 </div>
-                                            ) : null
+                                            )
                                         }
                                     </Field>
+
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                         <Field type="tel" name="phoneNumber" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
@@ -883,7 +895,7 @@ const DriverAdd = () => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate('/dashboard/vendors/drivers')}
+                                    onClick={() => navigate('/dashboard/vendors/account/drivers')}
                                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                                 >
                                     Cancel
@@ -899,7 +911,7 @@ const DriverAdd = () => {
                                 </Button>
                             </div>
                         }
-                        {driverAdded.value && //driverAdded.value
+                        {driverAdded.value && 
                             <div className="mt-6">
                             <div className="flex flex-row justify-between px-2 mb-2">
                                 <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
@@ -972,7 +984,7 @@ const DriverAdd = () => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate(`/dashboard/vendors/drivers/details/${driverAdded.driverId}`)}
+                                    onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${driverAdded.driverId}`)}
                                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                                 >
                                     Back
@@ -980,7 +992,7 @@ const DriverAdd = () => {
                                 <Button
                                     fullWidth
                                     color='black'
-                                    onClick={() => navigate(`/dashboard/vendors/drivers/edit/${driverAdded.driverId}`)}
+                                    onClick={() => navigate(`/dashboard/vendors/account/drivers/edit/${driverAdded.driverId}`)}
                                     className='my-6 mx-2'
                                 >
                                     Edit

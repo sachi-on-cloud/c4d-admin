@@ -299,7 +299,7 @@ const CabAdd = () => {
                 setTimeout(() => setAlert(null), 2000);
                 resetForm();
             } else {
-                navigate('/dashboard/vendors/allVehicles', {
+                navigate('/dashboard/vendors/account/allVehicles', {
                     state: {
                         cabAdded: true,
                         cabName: data?.data?.name
@@ -583,153 +583,153 @@ const CabAdd = () => {
                             </div>
                         </div>
                         <div className="mt-6">
-  <div className="flex flex-row justify-between px-2 mb-2">
-    <h3 className="text-2xl font-bold">Document Upload</h3>
-  </div>
-  <Card>
-    <>
-      <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-        <table className="w-full min-w-[640px] table-auto">
-          <thead>
-            <tr>
-              {["Type", "Status", "Action", ""].map((el, index) => (
-                <th
-                  key={index}
-                  className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                >
-                  <Typography
-                    variant="small"
-                    className="text-[11px] font-bold uppercase text-blue-gray-400"
-                  >
-                    {el}
-                  </Typography>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">
-                  Insurance
-                </Typography>
-              </td>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography
-                  className={`text-xs font-semibold ${values.insuranceImg ? 'text-green-500' : 'text-blue-500'}`}
-                >
-                  {values.insuranceImg ? "UPLOADED" : "NO DOCUMENTS"}
-                </Typography>
-              </td>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="insuranceImg"
-                    className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-                  >
-                    Upload
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="insuranceImg"
-                    name="insuranceImg"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setFieldValue("insuranceImg", file);
+                        <div className="flex flex-row justify-between px-2 mb-2">
+                            <h3 className="text-2xl font-bold">Document Upload</h3>
+                        </div>
+                        <Card>
+                            <>
+                            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                                <table className="w-full min-w-[640px] table-auto">
+                                <thead>
+                                    <tr>
+                                    {["Type", "Status", "Action", ""].map((el, index) => (
+                                        <th
+                                        key={index}
+                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                        >
+                                        <Typography
+                                            variant="small"
+                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                        >
+                                            {el}
+                                        </Typography>
+                                        </th>
+                                    ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                        Insurance
+                                        </Typography>
+                                    </td>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        <Typography
+                                        className={`text-xs font-semibold ${values.insuranceImg ? 'text-green-500' : 'text-blue-500'}`}
+                                        >
+                                        {values.insuranceImg ? "UPLOADED" : "NO DOCUMENTS"}
+                                        </Typography>
+                                    </td>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        <div className="flex items-center gap-2">
+                                        <label
+                                            htmlFor="insuranceImg"
+                                            className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                                        >
+                                            Upload
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            id="insuranceImg"
+                                            name="insuranceImg"
+                                            onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setFieldValue("insuranceImg", file);
 
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setInsuranceImagePreview(reader.result);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    className="hidden"
-                  />
-                </div>
-              </td>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                {values.insuranceImg && (
-                  <Typography
-                    variant="small"
-                    className="font-semibold underline cursor-pointer text-blue-900"
-                    onClick={() =>
-                      setModalData({
-                        image: insuranceImagePreview,
-                      })
-                    }
-                  >
-                    View Details
-                  </Typography>
-                )}
-              </td>
-            </tr>
-            <tr>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">
-                  RC Book
-                </Typography>
-              </td>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography
-                  className={`text-xs font-semibold ${values.image1 ? 'text-green-500' : 'text-blue-500'}`}
-                >
-                  {values.image1 ? "UPLOADED" : "NO DOCUMENTS"}
-                </Typography>
-              </td>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="image1"
-                    className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-                  >
-                    Upload
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="image1"
-                    name="image1"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setFieldValue("image1", file);
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                setInsuranceImagePreview(reader.result);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                            }}
+                                            className="hidden"
+                                        />
+                                        </div>
+                                    </td>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        {values.insuranceImg && (
+                                        <Typography
+                                            variant="small"
+                                            className="font-semibold underline cursor-pointer text-blue-900"
+                                            onClick={() =>
+                                            setModalData({
+                                                image: insuranceImagePreview,
+                                            })
+                                            }
+                                        >
+                                            View Details
+                                        </Typography>
+                                        )}
+                                    </td>
+                                    </tr>
+                                    <tr>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                        RC Book
+                                        </Typography>
+                                    </td>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        <Typography
+                                        className={`text-xs font-semibold ${values.image1 ? 'text-green-500' : 'text-blue-500'}`}
+                                        >
+                                        {values.image1 ? "UPLOADED" : "NO DOCUMENTS"}
+                                        </Typography>
+                                    </td>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        <div className="flex items-center gap-2">
+                                        <label
+                                            htmlFor="image1"
+                                            className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                                        >
+                                            Upload
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            id="image1"
+                                            name="image1"
+                                            onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setFieldValue("image1", file);
 
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setImagePreview(reader.result);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    className="hidden"
-                  />
-                </div>
-              </td>
-              <td className="py-3 px-5 border-b border-blue-gray-50">
-                {values.image1 && (
-                  <Typography
-                    variant="small"
-                    className="font-semibold underline cursor-pointer text-blue-900"
-                    onClick={() =>
-                      setModalData({
-                        image: imagePreview,
-                      })
-                    }
-                  >
-                    View Details
-                  </Typography>
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </CardBody>
-    </>
-  </Card>
-</div>
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                setImagePreview(reader.result);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                            }}
+                                            className="hidden"
+                                        />
+                                        </div>
+                                    </td>
+                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        {values.image1 && (
+                                        <Typography
+                                            variant="small"
+                                            className="font-semibold underline cursor-pointer text-blue-900"
+                                            onClick={() =>
+                                            setModalData({
+                                                image: imagePreview,
+                                            })
+                                            }
+                                        >
+                                            View Details
+                                        </Typography>
+                                        )}
+                                    </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </CardBody>
+                            </>
+                        </Card>
+                        </div>
 
                         {values.packages.length > 0 && (
                             <div>
@@ -765,7 +765,7 @@ const CabAdd = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/vendors/allVehicles'); }}
+                                onClick={() => { navigate('/dashboard/vendors/account/allVehicles'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

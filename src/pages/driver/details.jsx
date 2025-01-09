@@ -79,6 +79,7 @@ const DriverDetails = ({btnShow = false}) => {
         packages: driver?.result?.packages || "",
         carType: driver?.result?.carType || "",
         //wallet: driver?.result?.wallet || "",
+        // jobType : driver?.,
         withOwner:driver?.result?.Account ? "Yes" : "No",
         ownerName:driver?.result?.Account?.name,
     };
@@ -154,6 +155,25 @@ const DriverDetails = ({btnShow = false}) => {
                                             <Field type="text" name="docStatus" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200"/>
                                             <ErrorMessage name="docStatus" component="div" className="text-red-500 text-sm" />
                                         </div> */}
+
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
+                                            <div className="space-x-4">
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="jobType" disabled value="Cab Driver" className="form-radio" />
+                                                    <span className="ml-2">Cab Driver</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="jobType"  disabled value="Acting Driver" className="form-radio" />
+                                                    <span className="ml-2">Acting Driver</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="jobType"  disabled value="Both" className="form-radio" />
+                                                    <span className="ml-2">Both</span>
+                                                </label>
+                                            </div>
+                                            <ErrorMessage name="jobType" component="div" className="text-red-500 text-sm" />
+                                        </div>
 
                                         <div>
                                             <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
@@ -353,21 +373,21 @@ const DriverDetails = ({btnShow = false}) => {
                     )}
                 </Formik>
             </div>
-            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} buttonShow={false}/>}
             {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />
+            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'}/>}
             {!btnShow && <div className='flex w-full'>
                 <Button
                     fullWidth
-                    onClick={() => navigate('/dashboard/vendors/drivers')}
+                    onClick={() => navigate('/dashboard/vendors/account/drivers')}
                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                 >
                     Back
                 </Button>
                 <Button 
                     fullWidth
-                    onClick={() => navigate(`/dashboard/vendors/drivers/edit/${id}`)}
+                    onClick={() => navigate(`/dashboard/vendors/account/drivers/edit/${id}`)}
                     className='my-6 mx-2'>
                     Edit
                 </Button>

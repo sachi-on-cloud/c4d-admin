@@ -14,7 +14,7 @@ import { API_ROUTES } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
-const DocumentsList = ({ id, type, buttonShow=true}) => {
+const DocumentsList = ({ id, type}) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
@@ -175,9 +175,6 @@ const DocumentsList = ({ id, type, buttonShow=true}) => {
                 )
                 }
             </Card>
-            {buttonShow && <div className="flex justify-center mt-5">
-                <Button className="" onClick={() => navigate(`/dashboard/doc-verification`)} >Back</Button>
-            </div>}
             {modalData && (
                 <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
                     <DialogHeader>

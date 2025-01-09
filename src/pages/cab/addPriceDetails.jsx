@@ -75,7 +75,7 @@ const AddPriceDetails = () => {
                 data = await ApiRequestUtils.post(API_ROUTES.ADD_PRICE, priceData);
             }
             //console.log('User created:', data.data);
-            navigate(`/dashboard/vendors/allVehicles/details/${paramsPassed?.driverId}`);
+            navigate(`/dashboard/vendors/account/allVehicles/details/${paramsPassed?.driverId}`);
 
         } catch (error) {
             console.error('Error creating price:', error);

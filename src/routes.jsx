@@ -98,21 +98,21 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/vendors/drivers",
+        path: "/vendors/account/drivers",
         element: <DriverView />,
         display: true
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/vendors/drivers/add",
+        path: "/vendors/account/drivers/add",
         element: <DriverAdd />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/vendors/drivers/details/:id",
+        path: "/vendors/account/drivers/details/:id",
         element: <DriverDetails />,
         display: false
       },
@@ -126,14 +126,14 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
-        path: "/vendors/drivers/edit/:id",
+        path: "/vendors/account/drivers/edit/:id",
         element: <DriverEdit />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "vehicles",
-        path: "/vendors/allVehicles",
+        path: "/vendors/account/allVehicles",
         element: <AllVehicles />,
         display: false
       },
@@ -154,21 +154,21 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
-        path: "/vendors/allVehicles/add",
+        path: "/vendors/account/allVehicles/add",
         element: <CabAdd />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
-        path: "/vendors/allVehicles/details/:id",
+        path: "/vendors/account/allVehicles/details/:id",
         element: <CabDetails />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
-        path: "/vendors/allVehicles/edit/:id",
+        path: "/vendors/account/allVehicles/edit/:id",
         element: <CabEdit />,
         display: false
       },

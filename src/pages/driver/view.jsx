@@ -130,7 +130,7 @@ export function DriverView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/vendors/drivers/details/${id}`)}>
+                              <div onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${id}`)}>
                                 <Typography
                                   variant="small"
                                   color="blue"

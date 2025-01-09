@@ -56,7 +56,7 @@ const OwnersCabList = ({ cabsList}) => {
                                                         <td className={className}>
                                                             <Typography 
                                                                 className="font-semibold underline cursor-pointer text-blue-900"
-                                                                onClick={() => navigate(`/dashboard/vendors/allVehicles/details/${id}`)}
+                                                                onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
                                                             >
                                                                 {name}
                                                             </Typography>
@@ -76,7 +76,7 @@ const OwnersCabList = ({ cabsList}) => {
                                                                 className="font-semibold underline cursor-pointer text-blue-900"
                                                                 onClick={() =>{
                                                                         if (Drivers.length > 0) {
-                                                                            navigate(`/dashboard/vendors/drivers/details/${Drivers[0]?.id}`)
+                                                                            navigate(`/dashboard/vendors/account/drivers/details/${Drivers[0]?.id}`)
                                                                         }
                                                                     }
                                                                 }

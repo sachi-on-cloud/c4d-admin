@@ -9,27 +9,27 @@ export function Topnav({ sidenavColor, sidenavType = "dark" }) {
   // Define submenu structure matching sidenav
   const submenus = {
     "/dashboard/booking/list": [
-      { path: "/dashboard/booking/list", label: "All" },
+      { path: "/dashboard/booking/list", label: "All" , end:true},
       { path: "/dashboard/booking/list/actingDriver", label: "Acting Drivers" },
       { path: "/dashboard/booking/list/cabBooking", label: "Cab Booking" },
       { path: "/dashboard/booking/list/carWash", label: "Car Wash" }
     ],
     "/dashboard/customers": [
-      { path: "/dashboard/customers", label: "All" }
+      { path: "/dashboard/customers", label: "All", end:true }
     ],
     "/dashboard/vendors/account": [
-      { path: "/dashboard/vendors/account", label: "Cab Owners" },
-      { path: "/dashboard/vendors/drivers", label: "Drivers" },
-      { path: "/dashboard/vendors/allVehicles", label: "All Vehicles" }
+      { path: "/dashboard/vendors/account", label: "Cab Owners", end:true},
+      { path: "/dashboard/vendors/account/drivers", label: "Drivers" },
+      { path: "/dashboard/vendors/account/allVehicles", label: "All Vehicles" }
     ],
     "/dashboard/finance": [
-      { path: "/dashboard/finance", label: "All Payments" },
+      { path: "/dashboard/finance", label: "All Payments", end:true},
       { path: "/dashboard/finance/cab-subscription", label: "Cab Subscription" },
       { path: "/dashboard/finance/payable", label: "Payable" },
       { path: "/dashboard/finance/receivables", label: "Receivables" }
     ],
     "/dashboard/doc-verification": [
-      { path: "/dashboard/doc-verification", label: "All" },
+      { path: "/dashboard/doc-verification", label: "All" ,end:true},
       { path: "/dashboard/doc-verification/pending", label: "Pending Documents" }
     ]
   };
@@ -50,23 +50,23 @@ export function Topnav({ sidenavColor, sidenavType = "dark" }) {
 
   return (
     // <div className="bg-white shadow-sm m-4">
-      <div className="flex items-center gap-4 px-4 py-2">
+      <div className="flex items-center gap-7 px-5 py-3 mt-4 ml-6 rounded-xl border border-blue-gray-100 bg-white">
         {currentSubmenu.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
-            end={item.path.split("/").length <= 4}
+            end={item.path.split("/").length <= 4 && item.end? item.end : false} 
           >
             {({ isActive }) => (
               <Button
                 variant={isActive ? "gradient" : "text"}
                 color={isActive ? sidenavColor : sidenavType === "dark" ? "white" : "blue-gray"}
-                className="flex items-center gap-4 px-4 capitalize"
-                size="sm"
+                className="flex items-center gap-4 px-4 capitalize rounded-2xl"
+                size="md"
               >
                 <Typography
                   color="inherit"
-                  className="font-medium capitalize"
+                  className="font-medium capitalize text-lg"
                 >
                   {item.label}
                 </Typography>

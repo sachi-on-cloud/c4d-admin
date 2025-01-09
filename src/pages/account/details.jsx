@@ -105,7 +105,7 @@ const AccountDetails = ({btnShow = false}) => {
                 </Formik>
             </div>
             {accountVal && accountVal?.Cabs && <OwnersCabList cabsList={accountVal?.Cabs}/>}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} buttonShow={false}/>}
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'}/>}
             <div className='flex justify-center w-full'>
                 {!btnShow && <Button
                     onClick={() => { navigate('/dashboard/vendors/account'); }}
