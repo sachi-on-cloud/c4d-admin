@@ -13,52 +13,38 @@ import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
 
 export function Dashboard() {
   const [controller, dispatch] = useMaterialTailwindController();
-  const { sidenavType } = controller;
+  const { sidenavType, sidenavColor } = controller;
+
   return (
     <div className="flex h-screen bg-gray-50">
       <div className="w-72">
         <Sidenav
           routes={routes}
-          brandImg={
-            "/img/logo-ct.png"
-          }
+          brandImg={"/img/logo-ct.png"}
         />
       </div>
-      {/* <Topnav 
-        routes={routes}
-        brandImg={
-          "/img/logo-ct.png"
-        }
-      /> */}
-      <div className="flex-1 pl-7 pt-4 overflow-y-auto">
-        {/* <DashboardNavbar /> */}
-        {/* <Configurator />
-        <IconButton
-          size="lg"
-          color="white"
-          className="fixed bottom-8 right-8 z-40 rounded-full shadow-blue-gray-900/10"
-          ripple={false}
-          onClick={() => setOpenConfigurator(dispatch, true)}
-        >
-          <Cog6ToothIcon className="h-5 w-5" />
-        </IconButton> */}
-        <Routes>
-          {routes.map(
-            ({ layout, pages }) =>
-              layout === "dashboard" &&
-              pages.map(({ path, element }) => (
-                <Route exact path={path} element={element} />
-              ))
-          )}
-        </Routes>
-        <div className="text-blue-gray-600">
-          <Footer />
+      <div className="flex-1 flex flex-col">
+        <Topnav 
+          sidenavColor={sidenavColor}
+          sidenavType={sidenavType}
+        />
+        <div className="flex-1 pl-7 pt-4 overflow-y-auto">
+          <Routes>
+            {routes.map(
+              ({ layout, pages }) =>
+                layout === "dashboard" &&
+                pages.map(({ path, element }) => (
+                  <Route exact path={path} element={element} />
+                ))
+            )}
+          </Routes>
+          <div className="text-blue-gray-600">
+            <Footer />
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-Dashboard.displayName = "/src/layout/dashboard.jsx";
 
 export default Dashboard;
