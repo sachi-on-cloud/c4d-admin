@@ -45,6 +45,8 @@ import { AllVehicles } from "./pages/vendor";
 import { CabSubscriptionView } from "./pages/finance/subscription/cab-subscription-view";
 import CabSubscriptionAdd from "./pages/finance/subscription/cab-subscription-add";
 import ReassignDriver from "./components/ReassignDriver";
+import PayableView from "./pages/finance/payable/view";
+import PayableDetails from "./pages/finance/payable/details";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -351,6 +353,20 @@ export const routes = [
         name: "Assign Driver",
         path: "/vendors/account/allVehicles/assignDriver/:id",
         element: <ReassignDriver />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Payable",
+        path: "/finance/payable",
+        element: <PayableView />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Payable Details",
+        path: "/finance/payable/details/:id",
+        element: <PayableDetails />,
         display: false
       },
     ],
