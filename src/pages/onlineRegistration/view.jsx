@@ -74,8 +74,11 @@ export function OnlineRegistrationView(){
         // }, 5000);
     }
 
-    const getCreateOwner = async (registerId, firstName)=>{
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_CREATE_OWNER+`${registerId}`)
+    const getCreateOwner = async (registerId, firstName, type)=>{
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CREATE_OWNER, {
+            registerId: registerId,
+            type: type
+        })
         if (data?.success) {
             setAlertMessage(`${firstName} - Owner account has been created successfully!`)
             setAlert(true);
@@ -287,17 +290,24 @@ export function OnlineRegistrationView(){
                                                 <>
                                                     <Button
                                                         as="a"
-                                                        className="mr-5 text-xs font-semibold text-black bg-white border border-black"
+                                                        className="mx-2 text-xs font-semibold text-black bg-white border border-black"
                                                         onClick={() => getCreateDriver(id, firstName)}
                                                     >
                                                         Create Driver
                                                     </Button>
                                                     <Button
                                                         as="a"
-                                                        className="text-xs font-semibold text-white"
-                                                        onClick={() => getCreateOwner(id, firstName)}
+                                                        className="mx-2 text-xs font-semibold text-white"
+                                                        onClick={() => getCreateOwner(id, firstName, 'Company')}
                                                     >
                                                         Create Owner
+                                                    </Button>
+                                                    <Button
+                                                        as="a"
+                                                        className="mx-2 text-xs font-semibold text-white"
+                                                        onClick={() => getCreateOwner(id, firstName, 'Individual')}
+                                                    >
+                                                        Create Individual Owner
                                                     </Button>
                                                 </>
                                             );

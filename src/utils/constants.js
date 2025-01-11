@@ -852,7 +852,7 @@ export const API_ROUTES = {
     'GET_DOCUMENT_DETAILS':'/admin/user/documents',
     'GET_ONLINE_REGISTER_DETAILS':'/online-register',
     'GET_CREATE_DRIVER':'/register/driver/',
-    'GET_CREATE_OWNER':'/register/account/',
+    'GET_CREATE_OWNER':'/register/account',
     'GET_SUBCRIPTION_PLAN':'/admin/plan', 
     'GET_SUBSCRIPTION_LIST':'/admin/subscription', 
     'CREATE_SUBSCRIPTION':'/admin/subscription/create',
