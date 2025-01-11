@@ -79,7 +79,7 @@ const DriverDetails = ({btnShow = false}) => {
         packages: driver?.result?.packages || "",
         carType: driver?.result?.carType || "",
         //wallet: driver?.result?.wallet || "",
-        // jobType : driver?.,
+        jobType : driver?.result?.jobType || "",
         withOwner:driver?.result?.Account ? "Yes" : "No",
         ownerName:driver?.result?.Account?.name,
     };
@@ -160,22 +160,22 @@ const DriverDetails = ({btnShow = false}) => {
                                             <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
                                             <div className="space-x-4">
                                                 <label className="inline-flex items-center">
-                                                    <Field type="radio" name="jobType" disabled value="Cab Driver" className="form-radio" />
+                                                    <Field type="radio" name="jobType" disabled value="CAB" className="form-radio" />
                                                     <span className="ml-2">Cab Driver</span>
                                                 </label>
                                                 <label className="inline-flex items-center">
-                                                    <Field type="radio" name="jobType"  disabled value="Acting Driver" className="form-radio" />
+                                                    <Field type="radio" name="jobType"  disabled value="ACTING_DRIVER" className="form-radio" />
                                                     <span className="ml-2">Acting Driver</span>
                                                 </label>
                                                 <label className="inline-flex items-center">
-                                                    <Field type="radio" name="jobType"  disabled value="Both" className="form-radio" />
+                                                    <Field type="radio" name="jobType"  disabled value="BOTH" className="form-radio" />
                                                     <span className="ml-2">Both</span>
                                                 </label>
                                             </div>
                                             <ErrorMessage name="jobType" component="div" className="text-red-500 text-sm" />
                                         </div>
 
-                                        <div>
+                                        {driver?.result?.jobType === "CAB" && <div>
                                             <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
                                             <div className="space-x-4">
                                                 <label className="inline-flex items-center">
@@ -188,7 +188,7 @@ const DriverDetails = ({btnShow = false}) => {
                                                 </label>
                                             </div>
                                             <ErrorMessage name="withOwner" component="div" className="text-red-500 text-sm" />
-                                        </div>
+                                        </div>}
 
                                         {driver?.result?.Account?.name &&
                                         <div>

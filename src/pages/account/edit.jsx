@@ -298,7 +298,7 @@ const AccountEdit = () => {
                                                     </td>
                                                     <td className="py-3 px-5 border-b border-blue-gray-50">
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {moment(values?.docDates?.updated_at).format("DD-MM-YYYY")}
+                                                            {values.image1 && moment(values?.docDates?.updated_at).format("DD-MM-YYYY")}
                                                         </Typography>
                                                     </td>
                                                 </tr>

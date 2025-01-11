@@ -123,7 +123,7 @@ export function AllVehicles() {
                 </thead>
                 <tbody>
                   {cabs.map(
-                    ({ id, name, phoneNumber, carType, Drivers, status, intercityCount, outstationCount }, key) => {
+                    ({ id, name, phoneNumber, carType, Drivers, status, intercityCount, outstationCount, Account}, key) => {
                       const className = `py-3 px-5 ${key === cabs.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -210,10 +210,10 @@ export function AllVehicles() {
                                 {status == "ACTIVE" ? "Mark Offline" : "Mark Online"}
                               </Button>
                             </td>
-                            {Drivers.length > 0 && <td className={className}>
+                            {Drivers.length > 0 && Account?.type !== "Individual" && <td className={className}>
                               <Button
                                 as="a"
-                                // onClick={() => { updateCabs(id, status) }}
+                                onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
                                 className="text-xs font-semibold text-white"
                               >
                                 RE ASSIGN

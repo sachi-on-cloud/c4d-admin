@@ -44,6 +44,7 @@ import { BOOKING_SERVICE_TYPE } from "./utils/constants";
 import { AllVehicles } from "./pages/vendor";
 import { CabSubscriptionView } from "./pages/finance/subscription/cab-subscription-view";
 import CabSubscriptionAdd from "./pages/finance/subscription/cab-subscription-add";
+import ReassignDriver from "./components/ReassignDriver";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -343,6 +344,13 @@ export const routes = [
         name: "Add Subscription",
         path: "/finance/cab-subscription/add",
         element: <CabSubscriptionAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Assign Driver",
+        path: "/vendors/account/allVehicles/assignDriver/:id",
+        element: <ReassignDriver />,
         display: false
       },
     ],

@@ -167,6 +167,7 @@ const DriverEdit = () => {
         prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : [],
         withOwner: driverVal?.result?.Account? "Yes":"No",
         ownerName:driverVal?.result?.Account?.name || "",
+        jobType: driverVal?.result?.jobType || "",
     };
 
     const searchLocations = async (query) => {
@@ -502,6 +503,47 @@ const DriverEdit = () => {
                                     </div>
 
                                     <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
+                                        <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="jobType"
+                                                value="CAB"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">Cab Driver</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="jobType"
+                                                value="ACTING_DRIVER"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">Acting Driver</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="jobType"
+                                                value="BOTH"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">Both</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="withOwner"
+                                        component="div"
+                                        className="text-red-500 text-sm"
+                                    />
+                                    </div>
+
+                                    {values.jobType === "CAB" && <div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
                                         <div className="space-x-4">
                                         <label className="inline-flex items-center">
@@ -530,9 +572,9 @@ const DriverEdit = () => {
                                         component="div"
                                         className="text-red-500 text-sm"
                                     />
-                                    </div>
+                                    </div>}
 
-                                    {values.withOwner == "Yes" && 
+                                    {values.withOwner == "Yes" && values.jobType == "CAB" && 
                                     <div>
                                         <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
                                         <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
 const OwnersCabList = ({ cabsList}) => {
+    console.log("CAB",cabsList);
     const navigate = useNavigate();
 
     return (
@@ -24,10 +25,11 @@ const OwnersCabList = ({ cabsList}) => {
                                     <tr>
                                         {[
                                             "Name",
-                                            "Cab Number",
                                             "Cab Type",
+                                            "Cab Number",
                                             "Drivers",
-                                            "Created At"
+                                            "Created At",
+                                            "Assign/Reassign"
                                         ].map((el, index) => (
                                             <th
                                                 key={index}
@@ -89,6 +91,15 @@ const OwnersCabList = ({ cabsList}) => {
                                                                 {moment(created_at).format("DD-MM-YYYY")}
                                                             </Typography>
                                                         </td>
+                                                        {Drivers?.length>0 && <td className={className}>
+                                                            <Button
+                                                            as="a"
+                                                            onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
+                                                            className="text-xs font-semibold text-white"
+                                                            >
+                                                            RE ASSIGN
+                                                            </Button>
+                                                        </td>}
                                                     </tr>
                                                 </>
                                             );

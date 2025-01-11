@@ -111,17 +111,16 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
     jobType: Yup.string()
         .required("Job type is required"),
 
-    withOwner: Yup.string().when("jobType", {
-        is: "CAB",
-        then: Yup.string()
-            .required("Please choose whether this is with or without an owner"),
-        otherwise: Yup.string().nullable(),
+    withOwner: Yup.string().when(['jobType'], {
+        is: (jobType) => jobType === 'CAB',
+        then: () => Yup.string().required('Please choose whether this is with or without an owner'),
+        otherwise: () => Yup.string().nullable(),
     }),
-
-    accountId: Yup.string().when("withOwner", {
-        is: "Yes",
-        then: Yup.string().required("Owner must be selected"),
-        otherwise: Yup.string().nullable(),
+ 
+    accountId: Yup.string().when(['withOwner'], {
+        is: (withOwner) => withOwner === 'Yes',
+        then: () => Yup.string().required('Owner must be selected'),
+        otherwise: () => Yup.string().nullable(),
     }),
 
     phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
@@ -161,57 +160,56 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
     pinCode: Yup.string()
         .required('Pincode is required')
         .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
-    reference1: Yup.string().when("withOwner", {
-        is: "No",
-        then: () => Yup.string()
-            .required('Reference 1 is required')
-            .min(2, 'Reference name must be at least 2 characters')
-            .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
-        otherwise: () => Yup.string().nullable(),
-    }),
-    phoneNumber1: Yup.string().when("withOwner", {
-        is: "No",
-        then: () => Yup.string()
-            .required('Phone number 1 is required')
-            .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
-        otherwise: () => Yup.string().nullable(),
-    }),
-    reference2: Yup.string().when("withOwner", {
-        is: "No",
-        then: () => Yup.string()
-            .required('Reference 2 is required')
-            .min(2, 'Reference name must be at least 2 characters')
-            .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
-        otherwise: () => Yup.string().nullable(),
-    }),
-    phoneNumber2: Yup.string().when("withOwner", {
-        is: "No",
-        then: () => Yup.string()
-            .required('Phone number 2 is required')
-            .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
-        otherwise: () => Yup.string().nullable(),
-    }),
+    reference1: Yup.string()
+        .required('Reference 1 is required')
+        .min(2, 'Reference name must be at least 2 characters')
+        .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
+    phoneNumber1: Yup.string()
+        .required('Phone number 1 is required')
+        .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
+    reference2: Yup.string()
+        .required('Reference 2 is required')
+        .min(2, 'Reference name must be at least 2 characters')
+        .matches(/^[a-zA-Z\s]*$/, 'Reference name can only contain letters'),
+    phoneNumber2: Yup.string()
+        .required('Phone number 2 is required')
+        .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
     preference: Yup.string().required('Preference is required'),
     carType: Yup.string().required('Car type is required'),
-    packages: Yup.array()
-        .of(Yup.string().required('Each package must be selected'))
-        .required('At least one package must be selected'),
-    // .min(1, 'At least one package must be selected'),
-    //wallet: Yup.string().required('Wallet is required'),
-    prices: Yup.array().of(
-        Yup.object().shape({
-            price: Yup.number().required('Price is required'),
-            extraPrice: Yup.number().required('Extra price is required'),
-            extraKmPrice: Yup.number().required('Extra KM price is required'),
-            nightCharge: Yup.number().required('Night charge is required'),
-            cancelCharge: Yup.number().required('Cancel charge is required'),
-            extraCabType: Yup.string().required('Cab type is required'),
-        })
-    ).test('at-least-one-price', 'At least one price must be added', function (prices) {
-        return prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
-        );
+    packages: Yup.array().when(['jobType'], {
+        is: (jobType) => jobType === 'CAB',
+        then: () =>
+            Yup.array()
+                .of(Yup.string().required('Each package must be selected'))
+                .required('At least one package must be selected'),
+        otherwise: () => Yup.array().nullable(),
+    }),
+    prices: Yup.array().when(['jobType'], {
+        is: (jobType) => jobType !== 'CAB',
+        then: () =>
+            Yup.array()
+                .of(
+                    Yup.object().shape({
+                        price: Yup.number().required('Price is required'),
+                        extraPrice: Yup.number().required('Extra price is required'),
+                        extraKmPrice: Yup.number().required('Extra KM price is required'),
+                        nightCharge: Yup.number().required('Night charge is required'),
+                        cancelCharge: Yup.number().required('Cancel charge is required'),
+                        extraCabType: Yup.string().required('Cab type is required'),
+                    })
+                )
+                .test(
+                    'at-least-one-price',
+                    'At least one price must be added',
+                    function (prices) {
+                        return prices && prices.some(price =>
+                            price.price || price.extraPrice || price.extraKmPrice ||
+                            price.nightCharge || price.cancelCharge || price.extraCabType
+                        );
+                    }
+                )
+                .required('At least one price must be added'),
+        otherwise: () => Yup.array().nullable(),
     })
 });
 
@@ -396,6 +394,53 @@ export const CAB_SCHEMA = Yup.object({
     insuranceImg: Yup.string().optional(),
     image1: Yup.string().optional(),
 });
+
+export const REASSIGN_DRIVER = Yup.object({
+    withDriver: Yup.string().required('Driver is required'),
+    assignOrAddDriver: Yup.string().when(['withDriver'], {
+        is: (withDriver) => withDriver === 'Yes',
+        then: () => Yup.string().required('Assign Or Add Driver is required'),
+        otherwise: () => Yup.string()
+    }),
+    driverId: Yup.string().when(['assignOrAddDriver'], {
+        is: (assignOrAddDriver) => assignOrAddDriver === 'Yes',
+        then: () => Yup.string().required('Driver Id is required'),
+        otherwise: () => Yup.string()
+    }),
+    driverName: Yup.string().when(['assignOrAddDriver'], {
+        is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
+        then: () => Yup.string().required('Driver Name is required'),
+        otherwise: () => Yup.string()
+    }),
+    phoneNumber: Yup.string().when(['assignOrAddDriver'], {
+        is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
+        then: () => Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
+        otherwise: () => Yup.string()
+    }),
+    driverAddress: Yup.string().when(['assignOrAddDriver'], {
+        is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
+        then: () => Yup.string()
+            .required('Address is required')
+            .min(5, 'Address must be at least 5 characters')
+            .test(
+                'no-multiple-spaces',
+                'Address should not contain multiple consecutive spaces',
+                value => !value || !/\s\s+/.test(value)
+            )
+            .test(
+                'not-only-numbers',
+                'Address cannot contain only numbers',
+                value => !value || !/^\d+$/.test(value.replace(/[\s,.-/#]/g, ''))
+            )
+            .trim(),
+        otherwise: () => Yup.string()
+    }),
+    licenseNumber: Yup.string().when(['assignOrAddDriver'], {
+        is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
+        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        otherwise: () => Yup.string()
+    }),
+})
 
 export const CAB_ADD_SCHEMA = Yup.object({
     name: Yup.string().required('Owner Name is required'),

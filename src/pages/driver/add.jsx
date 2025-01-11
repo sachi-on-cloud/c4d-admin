@@ -162,7 +162,7 @@ const DriverAdd = () => {
         livePhoto: '',
         drivingLicenseImage: '',
         consentForm: '',
-        jobType: "CAB",
+        jobType: "",
         accountId: null,
     };
 
@@ -441,7 +441,7 @@ const DriverAdd = () => {
             >
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
-                        <div className={`grid ${driverAdded.value? 'grid-cols-2' : 'grid-cols-1'} gap-7`}>
+                        <div className={`grid grid-cols-1 gap-7`}>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
@@ -576,36 +576,40 @@ const DriverAdd = () => {
                                         }
                                     </Field>
 
-                                    <Field name="withOwner">
-                                        {({ field }) =>
-                                            field.value === "Yes" && (
-                                                <div className="mb-4">
-                                                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                                                        Select Owner
-                                                    </label>
-                                                    <Field
-                                                        as="select"
-                                                        name="accountId"
-                                                        disabled={!isEditable}
-                                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                                                    >
-                                                        <option value="">Select Owner</option>
-                                                        {owner.map((owner, index) => (
-                                                            <option key={index} value={owner.id}>
-                                                                {owner.name}
-                                                            </option>
-                                                        ))}
-                                                    </Field>
-                                                    <ErrorMessage
-                                                        name="accountId"
-                                                        component="div"
-                                                        className="text-red-500 text-sm mt-1"
-                                                    />
-                                                </div>
-                                            )
-                                        }
+                                    <Field name="jobType">
+                                        {({field}) => field.value ==="CAB" && (
+                                            <Field name="withOwner">
+                                            {({ field }) =>
+                                                field.value === "Yes" && (
+                                                    <div className="mb-4">
+                                                        <label className="block mb-2 text-sm font-medium text-gray-700">
+                                                            Select Owner
+                                                        </label>
+                                                        <Field
+                                                            as="select"
+                                                            name="accountId"
+                                                            disabled={!isEditable}
+                                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                                        >
+                                                            <option value="">Select Owner</option>
+                                                            {owner.map((owner, index) => (
+                                                                <option key={index} value={owner.id}>
+                                                                    {owner.name}
+                                                                </option>
+                                                            ))}
+                                                        </Field>
+                                                        <ErrorMessage
+                                                            name="accountId"
+                                                            component="div"
+                                                            className="text-red-500 text-sm mt-1"
+                                                        />
+                                                    </div>
+                                                )
+                                            }
+                                        </Field>
+                                        ) }
                                     </Field>
-
+                                    
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                         <Field type="tel" name="phoneNumber" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
@@ -826,7 +830,7 @@ const DriverAdd = () => {
                                             <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                             <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                                         </div> */}
-                                        <div>
+                                        {values.jobType !== "CAB" && <div>
                                             <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                             <Multiselect
                                                 options={packageDetails}
@@ -855,12 +859,12 @@ const DriverAdd = () => {
                                                 showCheckbox={true}
                                                 disable={!isEditable}
                                             />
-                                        </div>
+                                        </div>}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {values.packages.length > 0 && (
+                        {values.packages.length > 0 && values.jobType !== "CAB" && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
                                 {renderPriceTable(
@@ -997,7 +1001,7 @@ const DriverAdd = () => {
                                 >
                                     Edit
                                 </Button>
-                            </div>   
+                            </div>
                         }
                         {/* {driverAdded.value && isEditable && 
                             <div className='flex flex-row'>
