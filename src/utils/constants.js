@@ -860,7 +860,11 @@ export const API_ROUTES = {
     'GET_DRIVERS_FOR_SUBSCRIPTION':'/admin/subscription/drivers',
     'GET_ACCOUNT_CABS':'/account/cabs/',
     'GET_ACCOUNT_RELATED_DRIVERS': '/account/drivers',
-    'CHECK_DRIVER': '/check-driver/'
+    'CHECK_DRIVER': '/check-driver/',
+    'GET_PAYABLE':'/payment-request',
+    'GET_PAYABLE_DETAILS':'/invoice-trip-details',
+    'REVIEW_PAYMENT_REQUEST':'/update-payment-request',
+    'APPROVE_PAYMENT_REQUEST':'/approve-payment-request',
 };
 
 export const KYC_PROCESS = {

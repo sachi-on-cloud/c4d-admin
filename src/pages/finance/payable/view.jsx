@@ -5,71 +5,60 @@ import {
   CardBody,
   Typography,
   Button,
-  Alert
+  Alert, 
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import moment from 'moment';
 
 
 export function PayableView() {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
-  const [allAccounts, setAllAccounts] = useState([]);
   const [alert, setAlert] = useState(false);
+  const [modalData, setModalData] = useState(null);
+  const [transactionId, setTransactionId] = useState("");
+  const [comments, setComments] = useState("");
+  const [transactionIdError, setTransactionIdError] = useState(false);
 
-  const location = useLocation();
 
   useEffect(() => {
     const fetchAccounts = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_ACCOUNTS);
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_PAYABLE);
+      console.log("PAYABLE",data)
       if (data?.success) {
         setAccounts(data?.data);
-        setAllAccounts(data?.data);
       }
     };
     fetchAccounts();
+  }, []);
 
-    if (location.state?.accountAdded || location.state?.accountUpdated) {
-      const action = location.state.accountAdded ? 'added' : 'updated';
-      const accountName = location.state.accountName || 'Account';
-      setAlert({
-        message: `${accountName} ${action} successfully!`
-      });
-      setTimeout(() => {
-        setAlert(null);
-      }, 5000);
-      navigate(location.pathname, { replace: true, state: {} });
+  const handleVerify = async (type, id, status, transactionId, commments = "") =>{
+    if(type === 'Approve'){
+      const payData = {
+        requestId: id,
+        status: status,
+        transactionId : transactionId,
+        commments : commments
+      };
+      const data = await ApiRequestUtils.update(API_ROUTES.APPROVE_PAYMENT_REQUEST, payData);
+      console.log("APPROVER PAU+YMENT REQESR",data);
+    }else{
+      const payData ={
+        requestId: id,
+        status: status,
+      }
+      const data = await ApiRequestUtils.update(API_ROUTES.REVIEW_PAYMENT_REQUEST, payData);
+      console.log("PAYADATA CONSOLE",data);
     }
-  }, [location, navigate]);
-
-  const getAccounts = async (searchQuery) => {
-    if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-
-      const filteredAccounts = allAccounts.filter((account) => {
-        const name = (account.name || "").toLowerCase();
-        const phone = (account.phoneNumber || "").toLowerCase();
-
-        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-
-        return name.startsWith(query) ||
-          phoneNumberWithoutCountryCode.startsWith(query);
-      });
-      setAccounts(filteredAccounts);
-
-    } else {
-      setAccounts(allAccounts);
-    }
-  };
-
-  function formatPhoneNumber(phoneNumber) {
-    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
-      return phoneNumber;
-    }
-    return `+91${phoneNumber}`;}
-  }
+    setModalData(null);
+  } 
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -108,7 +97,7 @@ export function PayableView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", "Email", "Type", ""].map((el) => (
+                    {["Invoice Number", "Total Amount", "Total Payout", "Cash", "Online", "Commission" , "Payables",  "Reviewed By", "Reviewed Date","Approved By","Approved Date", "Status",""].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -125,14 +114,14 @@ export function PayableView() {
                 </thead>
                 <tbody>
                   {accounts.map(
-                    ({ id, name, phoneNumber, email, type }, key) => {
+                    ({invoiceNumber, status, totalPayables, totalAmount, totalPayout, commissionAmount, cashAmount, onlineAmount, reviewedBy, approver, reviewer, reviewedTime, approvedBy, approvedTime, id, transactionId, comments}, key) => {
                       const className = `py-3 px-5 ${key === accounts.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
                         }`;
 
                       return (
-                        <tr key={id}>
+                        <tr key={""}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
                               <div onClick={() => {navigate(`/dashboard/finance/payable/details/${id}`)}}>
@@ -141,34 +130,97 @@ export function PayableView() {
                                   color="blue"
                                   className="font-semibold underline"
                                 >
-                                  {name}
+                                  {invoiceNumber}
                                 </Typography>
                               </div>
                             </div>
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {formatPhoneNumber(phoneNumber)}
+                              {totalAmount}
                             </Typography>
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {email}
+                              {totalPayout}
                             </Typography>
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {type}
+                              {cashAmount}
                             </Typography>
                           </td>
                           <td className={className}>
-                            <Button
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {onlineAmount}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {commissionAmount}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {totalPayables}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {/* {approvedBy} */}{reviewer?.name}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {moment(reviewedTime).format("DD-MM-YYYY")}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {/* {approvedBy} */}{approver?.name}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {moment(approvedTime).format("DD-MM-YYYY")}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {status}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            {!reviewer?.name && <Button
                               as='a'
-                              onClick={() => {}}
+                              onClick={() => {
+                                setModalData({
+                                  id,
+                                  status,
+                                  totalPayables,
+                                  "type":"Review",
+                                  invoiceNumber
+                                });
+                            }}
+                              className="mr-3 text-xs font-semibold text-black bg-white border border-black"
+                            >
+                              Review
+                            </Button>}
+                            {!approver?.name && <Button
+                              as='a'
+                              onClick={() => {
+                                setModalData({
+                                  id,
+                                  status,
+                                  totalPayables,
+                                  "type":"Approve",
+                                  invoiceNumber
+                                });
+                              }}
                               className="text-xs font-semibold text-white"
                             >
-                              Edit
-                            </Button>
+                              Approve
+                            </Button>}
                           </td>
                         </tr>
                       );
@@ -180,11 +232,143 @@ export function PayableView() {
           </>) : (
           <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
             <Typography variant="h6" color="white">
-              No Accounts
+              No Payables
             </Typography>
           </CardHeader>
         )}
       </Card>
+      {modalData && (
+        <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="sm">
+            <DialogHeader>
+                <div className="flex justify-between items-center w-full">
+                    <Typography variant="h6" className="font-bold text-gray-800">
+                        {modalData.type}
+                    </Typography>
+                    <button
+                        className="text-gray-500 hover:text-gray-900 transition duration-150"
+                        onClick={() => setModalData(null)}
+                        aria-label="Close"
+                    >
+                        ✖
+                    </button>
+                </div>
+            </DialogHeader>
+            <DialogBody divider>
+                <div className="flex flex-col items-start gap-y-4">
+                    <div className="flex flex-col items-start">
+                        <Typography className="font-semibold text-gray-800 text-sm">
+                            Invoice Number:
+                        </Typography>
+                        <Typography className="text-gray-700 text-base font-medium">
+                          {modalData.invoiceNumber}
+                        </Typography>
+                    </div>
+                    <div className="flex flex-col items-start">
+                        <Typography className="font-semibold text-gray-800 text-sm">
+                            Status:
+                        </Typography>
+                        <Typography className="text-base font-medium">{modalData.status}</Typography>
+                    </div>
+                    <div className="flex flex-col items-start">
+                        <Typography className="font-semibold text-gray-800 text-sm">
+                            Amount:
+                        </Typography>
+                        <Typography className="text-gray-700 text-base font-medium">
+                            {modalData.totalPayables}
+                        </Typography>
+                    </div>
+
+                    {modalData.type === "Approve" && (
+                        <>
+                            <div className="flex flex-col">
+                                <label htmlFor="transactionId" className="text-sm font-semibold text-gray-800">
+                                    Transaction ID <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="transactionId"
+                                    value={transactionId}
+                                    onChange={(e) => setTransactionId(e.target.value)}
+                                    className={`border rounded-md px-3 py-2 focus:ring ${
+                                        transactionIdError ? "border-red-500" : "focus:ring-blue-500"
+                                    }`}
+                                    placeholder="Enter Transaction ID"
+                                />
+                                {transactionIdError && (
+                                    <span className="text-red-500 text-xs mt-1">
+                                        Transaction ID is required.
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col">
+                                <label htmlFor="comments" className="text-sm font-semibold text-gray-800">
+                                    Comments
+                                </label>
+                                <textarea
+                                    id="comments"
+                                    value={comments}
+                                    onChange={(e) => setComments(e.target.value)}
+                                    className="border rounded-md px-3 py-2 focus:ring focus:ring-blue-500"
+                                    placeholder="Enter Comments"
+                                />
+                            </div>
+                        </>
+                    )}
+                </div>
+            </DialogBody>
+            <DialogFooter>
+                <div className="flex justify-end w-full gap-x-3">
+                    {modalData.type === "Review" && (
+                        <>
+                            <Button
+                                onClick={() => handleVerify(modalData.type, modalData.id, "VERIFIED")}
+                                className="mr-3 text-xs font-semibold text-black bg-white border border-black"
+                            >
+                                Verify
+                            </Button>
+                            <Button
+                                onClick={() => handleVerify(modalData.type, modalData.id, "CANCELLED")}
+                                className="text-xs font-semibold text-white"
+                            >
+                                Cancel
+                            </Button>
+                        </>
+                    )}
+                    {modalData.type === "Approve" && (
+                        <>
+                            <Button
+                                onClick={() => {
+                                    if (!transactionId.trim()) {
+                                        setTransactionIdError(true);
+                                        return;
+                                    }
+                                    setTransactionIdError(false);
+                                    handleVerify(
+                                        modalData.type,
+                                        modalData.id,
+                                        "COMPLETED",
+                                        transactionId,
+                                        comments
+                                    );
+                                }}
+                                className="mr-3 text-xs font-semibold text-black bg-white border border-black"
+                            >
+                                Completed
+                            </Button>
+                            <Button
+                                onClick={() => handleVerify(modalData.type, modalData.id, "CANCELLED", transactionId, comments)}
+                                className="text-xs font-semibold text-white"
+                            >
+                                Cancel
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </DialogFooter>
+        </Dialog>
+      )}
+
     </div>
   );
 }

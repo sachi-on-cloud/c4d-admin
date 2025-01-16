@@ -205,12 +205,12 @@ export function SearchDrivers(props) {
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {(props?.bookingData?.serviceType === "CAB" && Drivers[0]?.phoneNumber) ? Drivers[0]?.phoneNumber : phoneNumber}
+                                                        {(props?.bookingData?.serviceType === "CAB" && Drivers?.[0]?.phoneNumber) ? Drivers?.[0]?.phoneNumber : phoneNumber}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {(props?.bookingData?.serviceType == "CAB" && Drivers[0]?.distance) ? `${Math.round(Drivers[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
+                                                        {(props?.bookingData?.serviceType == "CAB" && Drivers?.[0]?.distance) ? `${Math.round(Drivers?.[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
