@@ -114,7 +114,7 @@ const sortPrices = (prices, category) => {
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
-                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type", "Actions"].map((el) => (
+                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type", ...(type == 'cabId' ? ['Actions']: [])].map((el) => (
                                         <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
                                                 {el}
@@ -148,7 +148,7 @@ const sortPrices = (prices, category) => {
                                                 )}
                                             </td>
                                         ))}
-                                        <td className="py-3 px-5 border-b border-blue-gray-50">
+                                        {type =='cabId' && <td className="py-3 px-5 border-b border-blue-gray-50">
                                             {editingId === priceItem.id ? (
                                                 <>
                                                     <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
@@ -163,7 +163,7 @@ const sortPrices = (prices, category) => {
                                                     Edit
                                                 </Button>
                                             )}
-                                        </td>
+                                        </td>}
                                     </tr>
                                     );
 })}

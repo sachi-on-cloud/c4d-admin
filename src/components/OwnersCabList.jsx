@@ -1,0 +1,120 @@
+import {
+    Card,
+    CardBody,
+    Typography,
+    Button
+} from "@material-tailwind/react";
+import { useNavigate } from "react-router-dom";
+import moment from "moment";
+
+const OwnersCabList = ({ cabsList}) => {
+    console.log("CAB",cabsList);
+    const navigate = useNavigate();
+
+    return (
+        <>
+            <div className='flex flex-row justify-between px-2 mb-2 mt-4'>
+                <h2 className="text-2xl font-bold mb-4">Cabs List</h2>
+            </div>
+            <Card>
+                {cabsList && cabsList.length > 0 ? (
+                    <>
+                        <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                            <table className="w-full min-w-[640px] table-auto">
+                                <thead>
+                                    <tr>
+                                        {[
+                                            "Name",
+                                            "Cab Type",
+                                            "Cab Number",
+                                            "Drivers",
+                                            "Created At",
+                                            "Assign/Reassign"
+                                        ].map((el, index) => (
+                                            <th
+                                                key={index}
+                                                className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                            >
+                                                <Typography
+                                                    variant="small"
+                                                    className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                >
+                                                    {el}
+                                                </Typography>
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {cabsList.map(
+                                        ({ id, name, carType, car_number, Drivers, created_at }, key) => {
+                                            const className = `py-3 px-5 ${key === cabsList.length - 1
+                                                    ? ""
+                                                    : "border-b border-blue-gray-50"
+                                                }`;
+                                            return (
+                                                <>
+                                                    <tr key={id}>
+                                                        <td className={className}>
+                                                            <Typography 
+                                                                className="font-semibold underline cursor-pointer text-blue-900"
+                                                                onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
+                                                            >
+                                                                {name}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {carType}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {car_number}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography 
+                                                                className="font-semibold underline cursor-pointer text-blue-900"
+                                                                onClick={() =>{
+                                                                        if (Drivers.length > 0) {
+                                                                            navigate(`/dashboard/vendors/account/drivers/details/${Drivers[0]?.id}`)
+                                                                        }
+                                                                    }
+                                                                }
+                                                            >
+                                                                {Drivers.length > 0 ? Drivers[0]?.firstName : ''}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {moment(created_at).format("DD-MM-YYYY")}
+                                                            </Typography>
+                                                        </td>
+                                                        {Drivers?.length>0 && <td className={className}>
+                                                            <Button
+                                                            as="a"
+                                                            onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
+                                                            className="text-xs font-semibold text-white"
+                                                            >
+                                                            RE ASSIGN
+                                                            </Button>
+                                                        </td>}
+                                                    </tr>
+                                                </>
+                                            );
+                                        }
+                                    )}
+                                </tbody>
+                            </table>
+                        </CardBody>
+                    </>) : (
+                    <h2 className="text-lg font-medium p-4">No Cabs</h2>
+                )
+                }
+            </Card>
+        </>
+    )
+};
+
+export default OwnersCabList;

@@ -559,7 +559,7 @@ const ConfirmBooking = (props) => {
                             </Button>
                         )}
 
-                        {(bookingDetails.status === 'INITIATED' || bookingDetails.status === 'BOOKING_ACCEPTED' &&
+                        {(bookingDetails.status === 'BOOKING_ACCEPTED' &&
                         dateVal &&
                         timeVal &&
                         kms) ? (

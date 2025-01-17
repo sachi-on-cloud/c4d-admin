@@ -16,7 +16,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type}) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -83,6 +83,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const getBookingsList = async () => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
             "customerId": customerId,
+            'type': type ? type : ''
         });
         if (data?.success) {
             setBookingsList(data?.data);
@@ -93,7 +94,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     useEffect(() => {
         //console.log("LLIISST", bookingStage);
         getBookingsList();
-    }, [customerId, bookingStage]);
+    }, [customerId, bookingStage, type]);
 
     const onEndTrip = async (bookingId, driverId) => {
         const reqBody = {
@@ -130,7 +131,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3 mb-2'>
                 <Typography variant="h5" color='#000000'>
-                    Bookings List
+                    {type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Acting Driver' : ''} Bookings List
                 </Typography>
             </div>
             <Card>
@@ -148,7 +149,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                             key={el}
                                             className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                         >
-                                            {el === "Service Type" ? (
+                                            {el === "Service Type" && type === "" ? (
                                                 <FilterPopover
                                                     title={el}
                                                     options={[

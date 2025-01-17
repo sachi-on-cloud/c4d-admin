@@ -8,8 +8,9 @@ import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
+import DocumentsList from '@/components/DocumentsList';
 
-const DriverDetails = () => {
+const DriverDetails = ({btnShow = false}) => {
    // const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
@@ -42,7 +43,6 @@ const DriverDetails = () => {
         }
     };
     useEffect(() => {
-        console.log("IDDD", id);
         if (id) {
             getPackageListDetails();
             fetchItem(id);
@@ -79,6 +79,7 @@ const DriverDetails = () => {
         packages: driver?.result?.packages || "",
         carType: driver?.result?.carType || "",
         //wallet: driver?.result?.wallet || "",
+        jobType : driver?.result?.jobType || "",
         withOwner:driver?.result?.Account ? "Yes" : "No",
         ownerName:driver?.result?.Account?.name,
     };
@@ -106,7 +107,7 @@ const DriverDetails = () => {
                 >
                     {({ values }) => (
                         <div className="space-y-4">
-                            <div className='grid grid-cols-2 gap-7'>
+                                <div className="grid grid-cols-1 gap-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
@@ -149,7 +150,32 @@ const DriverDetails = () => {
                                             <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                         </div>
 
+                                        {/* <div>
+                                            <label htmlFor="docStatus" className="text-sm font-medium text-gray-700">Document Status</label>
+                                            <Field type="text" name="docStatus" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200"/>
+                                            <ErrorMessage name="docStatus" component="div" className="text-red-500 text-sm" />
+                                        </div> */}
+
                                         <div>
+                                            <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
+                                            <div className="space-x-4">
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="jobType" disabled value="CAB" className="form-radio" />
+                                                    <span className="ml-2">Cab Driver</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="jobType"  disabled value="ACTING_DRIVER" className="form-radio" />
+                                                    <span className="ml-2">Acting Driver</span>
+                                                </label>
+                                                <label className="inline-flex items-center">
+                                                    <Field type="radio" name="jobType"  disabled value="BOTH" className="form-radio" />
+                                                    <span className="ml-2">Both</span>
+                                                </label>
+                                            </div>
+                                            <ErrorMessage name="jobType" component="div" className="text-red-500 text-sm" />
+                                        </div>
+
+                                        {driver?.result?.jobType === "CAB" && <div>
                                             <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
                                             <div className="space-x-4">
                                                 <label className="inline-flex items-center">
@@ -162,7 +188,7 @@ const DriverDetails = () => {
                                                 </label>
                                             </div>
                                             <ErrorMessage name="withOwner" component="div" className="text-red-500 text-sm" />
-                                        </div>
+                                        </div>}
 
                                         {driver?.result?.Account?.name &&
                                         <div>
@@ -236,10 +262,16 @@ const DriverDetails = () => {
                                         </div>
 
                                         <div>
-                                            <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
+                                            <label htmlFor="address" className="text-sm font-medium text-gray-700">Current Address</label>
                                             <Field type="text" name="address" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                             <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                         </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <p className="text-2xl font-bold text-gray-800 my-2">Permanent Address</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
                                             <Field type="text" name="streetName" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
@@ -312,12 +344,8 @@ const DriverDetails = () => {
                                                     <span className="ml-2">Automatic</span>
                                                 </label>
                                                 <label className="inline-flex items-center">
-                                                    <Field type="radio" name="preference" disabled value="Petrol" className="form-radio" />
-                                                    <span className="ml-2">Petrol</span>
-                                                </label>
-                                                <label className="inline-flex items-center">
-                                                    <Field type="radio" name="preference" disabled value="Diesel" className="form-radio" />
-                                                    <span className="ml-2">Diesel</span>
+                                                    <Field type="radio" name="preference" disabled value="Manual" className="form-radio" />
+                                                    <span className="ml-2">Manual</span>
                                                 </label>
                                             </div>
                                             <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
@@ -339,138 +367,8 @@ const DriverDetails = () => {
                                             />
                                         </div>
                                     </div>
-                                    <div className='grid grid-cols-2'>
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">License</label>
-                                            <div className="my-2">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.DRIVING_LICENSE) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                        <img
-                                                            src={getDocumentByType(KYC_PROCESS.DRIVING_LICENSE)}
-                                                            alt="License"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleOpenDocument(KYC_PROCESS.DRIVING_LICENSE)}
-                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                        >
-                                                            View
-                                                        </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Photo</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType('PHOTO') ? (
-                                                        <div className='grid grid-cols-1'>
-                                                        <img
-                                                            src={getDocumentByType('PHOTO')}
-                                                            alt="Photo"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleOpenDocument('PHOTO')}
-                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                        >
-                                                            View
-                                                        </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Police Clearance</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                        <img
-                                                            src={getDocumentByType(KYC_PROCESS.POLICE_CLEARANCE)}
-                                                            alt="PAN"
-                                                            className="w-full h-full object-contain rounded-md"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleOpenDocument(KYC_PROCESS.POLICE_CLEARANCE)}
-                                                            className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                        >
-                                                            View
-                                                        </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Consent Form</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.CONSENT_FORM) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                            <img
-                                                                src={getDocumentByType(KYC_PROCESS.CONSENT_FORM)}
-                                                                alt="Consent Form"
-                                                                className="w-full h-full object-contain rounded-md"
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleOpenDocument(KYC_PROCESS.CONSENT_FORM)}
-                                                                className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                            >
-                                                                View
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Aadhaar Card</label>
-                                            <div className="mt-1">
-                                                <div className="relative w-40 h-41 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                                    {getDocumentByType(KYC_PROCESS.AADHAAR) ? (
-                                                        <div className='grid grid-cols-1'>
-                                                            <img
-                                                                src={getDocumentByType(KYC_PROCESS.AADHAAR)}
-                                                                alt="Aadhaar"
-                                                                className="w-full h-full object-contain rounded-md"
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleOpenDocument(KYC_PROCESS.AADHAAR)}
-                                                                className="mt-2 p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                                            >
-                                                                View
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                </div>
-                            </div>
+                                    </div>
+                                    </div>
                         </div>
                     )}
                 </Formik>
@@ -478,14 +376,22 @@ const DriverDetails = () => {
             {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />
-            <div className='flex justify-center w-full'>
+            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'}/>}
+            {!btnShow && <div className='flex w-full'>
                 <Button
-                    onClick={() => { navigate('/dashboard/drivers'); }}
-                    className='my-6 px-8 text-white border-2 rounded-xl'
+                    fullWidth
+                    onClick={() => navigate('/dashboard/vendors/account/drivers')}
+                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                 >
                     Back
                 </Button>
-            </div>
+                <Button 
+                    fullWidth
+                    onClick={() => navigate(`/dashboard/vendors/account/drivers/edit/${id}`)}
+                    className='my-6 mx-2'>
+                    Edit
+                </Button>
+            </div>}
         </>
     );
 };

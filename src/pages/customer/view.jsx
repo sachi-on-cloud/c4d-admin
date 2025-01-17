@@ -55,7 +55,7 @@ export function CustomerView() {
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
 
         return name.startsWith(query) || 
-               phoneNumberWithoutCountryCode.startsWith(query);
+          phoneNumberWithoutCountryCode.startsWith(query);
       });
       setCustomers(filteredCustomers);
       
@@ -63,6 +63,13 @@ export function CustomerView() {
       setCustomers(allCustomers);
     }
   };
+
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
+    }
+    return `+91${phoneNumber}`;}
+  }
 
   // useEffect(() => {
   //   if (paramsPassed?.customerAdded) {
@@ -73,7 +80,7 @@ export function CustomerView() {
   //   }
   // }, []);
   return (
-    <div className="mt-6 mb-8 flex flex-col gap-12">
+    <div className="mb-8 flex flex-col gap-12">
       {alert && (
         <div className='mb-2'>
         <Alert
@@ -139,7 +146,7 @@ export function CustomerView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           {/* <td className={className}>

@@ -64,8 +64,15 @@ export function AccountView() {
     }
   };
 
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
+    }
+    return `+91${phoneNumber}`;}
+  }
+
   return (
-    <div className="mt-6 mb-8 flex flex-col gap-12">
+    <div className="mb-8 flex flex-col gap-12">
       {alert && (
         <div className='mb-2'>
           <Alert
@@ -115,7 +122,7 @@ export function AccountView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/account/details/${id}`)}>
+                              <div onClick={() => navigate(`/dashboard/vendors/account/details/${id}`)}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -128,7 +135,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           <td className={className}>
@@ -144,7 +151,7 @@ export function AccountView() {
                           <td className={className}>
                             <Button
                               as='a'
-                              onClick={() => navigate(`/dashboard/account/edit/${id}`)}
+                              onClick={() => navigate(`/dashboard/vendors/account/edit/${id}`)}
                               className="text-xs font-semibold text-white"
                             >
                               Edit

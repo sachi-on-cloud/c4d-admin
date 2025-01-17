@@ -76,8 +76,15 @@ export function CabView() {
     }
   }, []);
 
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
+    }
+    return `+91${phoneNumber}`;}
+  }
+
   return (
-    <div className="mt-6 mb-8 flex flex-col gap-12">
+    <div className="mb-8 flex flex-col gap-12">
       {alert && <div className='mb-2'>
         <Alert
           color='blue'
@@ -126,7 +133,7 @@ export function CabView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/cab/details/${id}`)}>
+                              <div onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -142,7 +149,7 @@ export function CabView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           <td className={className}>
@@ -182,7 +189,7 @@ export function CabView() {
                             <td className={className}>
                               <Button
                                 as="a"
-                                onClick={() => navigate(`/dashboard/cab/edit/${id}`)}
+                                onClick={() => navigate(`/dashboard/vendors/account/allVehicles/edit/${id}`)}
                                 className="text-xs font-semibold text-white"
                               >
                                 Edit

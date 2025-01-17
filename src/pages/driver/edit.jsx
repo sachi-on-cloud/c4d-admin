@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS } from '@/utils/constants';
-import { Button, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
+import { Button, Card, CardBody, Typography, Input, List, ListItem ,Dialog, DialogHeader, DialogBody} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_SCHEMA } from '@/utils/validations';
 import Select from 'react-select';
+import moment from "moment";
+
 
 const LocationInput = ({ field, form, suggestions, onSearch }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -61,6 +63,7 @@ const DriverEdit = () => {
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
+    const [modalData,setModalData] = useState(null);
 
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
@@ -126,11 +129,11 @@ const DriverEdit = () => {
                 });
             } else {
                 console.error('No driver data received');
-                navigate('/dashboard/drivers');
+                navigate('/dashboard/vendors/account/drivers');
          }
         } catch (error) {
             console.error('Error fetching driver:', error);
-            navigate('/dashboard/drivers');
+            navigate('/dashboard/vendors/account/drivers');
         }    
     };
 
@@ -164,6 +167,7 @@ const DriverEdit = () => {
         prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : [],
         withOwner: driverVal?.result?.Account? "Yes":"No",
         ownerName:driverVal?.result?.Account?.name || "",
+        jobType: driverVal?.result?.jobType || "",
     };
 
     const searchLocations = async (query) => {
@@ -286,7 +290,7 @@ const DriverEdit = () => {
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER, driverData);
             console.log('data in driver add :', data);
             if (data?.success) {
-                navigate('/dashboard/drivers', {
+                navigate('/dashboard/vendors/account/drivers', {
                     state: {
                         driverUpdated: true,
                         driverName: data?.data?.firstName || values.firstName
@@ -328,53 +332,66 @@ const DriverEdit = () => {
         window.open(documentUrl, "_blank", "noopener,noreferrer");
     };
 
-    const DocumentUpload = ({ label, name, onChange, imagePreview, onView }) => {
+    const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal}) => {
         return (
-            <div>
-                <label htmlFor={name} className="text-sm font-medium text-gray-700">
-                    {label}
-                </label>
-                <div className="mt-1">
-                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                        {imagePreview ? (
-                            <img
-                                src={imagePreview}
-                                alt="Preview"
-                                className="w-full h-full object-contain rounded-md"
-                            />
-                        ) : (
-                            <div className="text-gray-500 font-medium p-2">
-                                No image selected. Click below to upload.
-                            </div>
-                        )}
-                    </div>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        id={name}
-                        name={name}
-                        onChange={onChange}
-                        className="hidden"
-                    />
-                    <div className="flex space-x-2 mt-2">
-                        {imagePreview && <button
-                            type="button"
-                            onClick={() => onView(imagePreview)}
-                            className="p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                        >
-                            View
-                        </button>}
+            <tr>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
+                </td>
+                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography
+                        className={`text-xs font-semibold ${value ? "text-green-500" : "text-blue-500"}`}
+                    >
+                        {value ? "UPLOADED" : "NO DOCUMENTS"}
+                    </Typography>
+                </td>
+                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <div className="flex items-center gap-2">
                         <label
                             htmlFor={name}
-                            className="p-2 text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
+                            className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
                         >
-                            Upload Image
+                            Update
                         </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            id={name}
+                            name={name}
+                            onChange={onChange}
+                            className="hidden"
+                        />
                     </div>
-                </div>
-            </div>
+                </td>
+                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                    {value && (
+                        <Typography
+                            variant="small"
+                            className="font-semibold underline cursor-pointer text-blue-900"
+                            onClick={() =>
+                                setModalData({
+                                    image: typeof value === "string" ? value : URL.createObjectURL(value)
+                                })
+                            }
+                        >
+                            View Details
+                        </Typography>
+                    )}
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                        {moment(fullDocVal?.created_at).format("DD-MM-YYYY")}
+                    </Typography>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                        {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY"):""}
+                    </Typography>
+                </td>
+            </tr>
         );
-    };    
+    };
+    
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
         const file = e.target.files[0];
@@ -426,183 +443,228 @@ const DriverEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className='grid grid-cols-2 gap-7'>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                    <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="">Select salutation</option>
-                                        <option value="Mr">Mr</option>
-                                        <option value="Mrs">Mrs</option>
-                                        <option value="Others">Others</option>
-                                    </Field>
-                                    <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                    <div>
+                                        <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
+                                        <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="">Select salutation</option>
+                                            <option value="Mr">Mr</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Others">Others</option>
+                                        </Field>
+                                        <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
-                                    <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
+                                    <div>
+                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
+                                        <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
-                                    <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
+                                    <div>
+                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
+                                        <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
-                                    <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
+                                    <div>
+                                        <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
+                                        <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
-                                    <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
-                                        onChange={(e) => {
-                                            setFieldValue('dateOfBirth', e.target.value);
+                                    <div>
+                                        <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
+                                        <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
+                                            onChange={(e) => {
+                                                setFieldValue('dateOfBirth', e.target.value);
 
-                                            if(e.target.value) {
-                                                const today = new Date();
-                                                const birthDate = new Date(e.target.value);
-                                                let age = today.getFullYear() - birthDate.getFullYear();
-                                                const monthDiff = today.getMonth() - birthDate.getMonth();
+                                                if(e.target.value) {
+                                                    const today = new Date();
+                                                    const birthDate = new Date(e.target.value);
+                                                    let age = today.getFullYear() - birthDate.getFullYear();
+                                                    const monthDiff = today.getMonth() - birthDate.getMonth();
 
-                                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                                                    age--;
+                                                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                                        age--;
+                                                    }
+                                                    setFieldValue('age',age);
+                                                }else {
+                                                    setFieldValue('age','');
                                                 }
-                                                setFieldValue('age',age);
-                                            }else {
-                                                setFieldValue('age','');
-                                            }
-                                        }}
-                                    />
-                                    <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
-                                    <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
-                                    <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
-                                </div>
-
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
-                                    <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field
-                                            type="radio"
-                                            name="withOwner"
-                                            value="Yes"
-                                            className="form-radio"
-                                            disabled
+                                            }}
                                         />
-                                        <span className="ml-2">Yes</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field
-                                            type="radio"
-                                            name="withOwner"
-                                            value="No"
-                                            className="form-radio"
-                                            disabled
-                                        />
-                                        <span className="ml-2">No</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage
-                                    name="withOwner"
-                                    component="div"
-                                    className="text-red-500 text-sm"
-                                />
-                                </div>
-
-                                {values.withOwner == "Yes" && 
-                                <div>
-                                    <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
-                                    <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
-                                    <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm" />
-                                </div>  
-                                }
-
-                                <div>
-                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                    <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                    <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="licenseType" value="type1" className="form-radio" />
-                                            <span className="ml-2">Type 1</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="licenseType" value="type2" className="form-radio" />
-                                            <span className="ml-2">Type 2</span>
-                                        </label>
+                                        <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                    <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
-                                </div>
 
-                                <div>
-                                    <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
-                                    <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
-                                    <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
-                                            <span className="ml-2">Yes</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
-                                            <span className="ml-2">No</span>
-                                        </label>
+                                    <div>
+                                        <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
+                                        <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                                        <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
-                                    <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
-                                </div>
 
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
-                                    <div className="space-x-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
+                                        <div className="space-x-4">
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
-                                            <span className="ml-2">Yes</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
-                                            <span className="ml-2">No</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="address" className="text-sm font-medium text-gray-700">Live Address</label>
-                                    <Field name="address">
-                                        {({ field, form }) => (
-                                            <LocationInput
-                                                field={field}
-                                                form={form}
-                                                suggestions={addressSuggestions}
-                                                onSearch={searchLocations}
+                                            <Field
+                                                type="radio"
+                                                name="jobType"
+                                                value="CAB"
+                                                className="form-radio"
+                                                disabled
                                             />
-                                        )}
-                                    </Field>
-                                    <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                            <span className="ml-2">Cab Driver</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="jobType"
+                                                value="ACTING_DRIVER"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">Acting Driver</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="jobType"
+                                                value="BOTH"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">Both</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="withOwner"
+                                        component="div"
+                                        className="text-red-500 text-sm"
+                                    />
+                                    </div>
 
+                                    {values.jobType === "CAB" && <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
+                                        <div className="space-x-4">
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="withOwner"
+                                                value="Yes"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">Yes</span>
+                                        </label>
+                                        <label className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="withOwner"
+                                                value="No"
+                                                className="form-radio"
+                                                disabled
+                                            />
+                                            <span className="ml-2">No</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage
+                                        name="withOwner"
+                                        component="div"
+                                        className="text-red-500 text-sm"
+                                    />
+                                    </div>}
+
+                                    {values.withOwner == "Yes" && values.jobType == "CAB" && 
+                                    <div>
+                                        <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
+                                        <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                        <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm" />
+                                    </div>  
+                                    }
+
+                                    <div>
+                                        <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
+                                        <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="licenseType" value="type1" className="form-radio" />
+                                                <span className="ml-2">Type 1</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="licenseType" value="type2" className="form-radio" />
+                                                <span className="ml-2">Type 2</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
+                                        <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
+                                        <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
+                                                <span className="ml-2">Yes</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
+                                                <span className="ml-2">No</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
+                                                <span className="ml-2">Yes</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
+                                                <span className="ml-2">No</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="address" className="text-sm font-medium text-gray-700">Current address</label>
+                                        <Field name="address">
+                                            {({ field, form }) => (
+                                                <LocationInput
+                                                    field={field}
+                                                    form={form}
+                                                    suggestions={addressSuggestions}
+                                                    onSearch={searchLocations}
+                                                />
+                                            )}
+                                        </Field>
+                                        <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
                                     <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -722,12 +784,8 @@ const DriverEdit = () => {
                                             <span className="ml-2">Automatic</span>
                                         </label>
                                         <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" value="Petrol" className="form-radio" />
-                                            <span className="ml-2">Petrol</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" value="Diesel" className="form-radio" />
-                                            <span className="ml-2">Diesel</span>
+                                            <Field type="radio" name="preference" value="Manual" className="form-radio" />
+                                            <span className="ml-2">Manual</span>
                                         </label>
                                     </div>
                                     <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
@@ -769,48 +827,79 @@ const DriverEdit = () => {
                                         showCheckbox={true}
                                     />
                                 </div>
+                            </div>    
+                            <div className="mt-6">
+                            <div className="flex flex-row justify-between px-2 mb-2">
+                                <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
+                                    Document Upload
+                                </Typography>
                             </div>
-                            <div className='grid grid-cols-2'>
-                                <DocumentUpload
-                                    label="Consent Form Image"
-                                    name="consentForm"
-                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'consentForm', imagePreviews?.consentForm?.id)}
-                                    imagePreview={imagePreviews.consentForm?.image1}
-                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
-                                />
-                                <DocumentUpload
-                                    label="Aadhaar Image"
-                                    name="aadhaarImage"
-                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'aadhaarImage', imagePreviews?.aadhaarImage?.id)}
-                                    imagePreview={imagePreviews.aadhaarImage?.image1}
-                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
-                                />
-                                <DocumentUpload
-                                    label="Police Clearance Certificate"
-                                    name="policeClearance"
-                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'policeClearance',imagePreviews?.policeClearance?.id)}
-                                    imagePreview={imagePreviews.policeClearance?.image1}
-                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
-                                />
-
-                                {/* Driving License Image Upload */}
-                                <DocumentUpload
-                                    label="Driving License Image"
-                                    name="drivingLicenseImage"
-                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'drivingLicenseImage', imagePreviews?.drivingLicenseImage?.id)}
-                                    imagePreview={imagePreviews.drivingLicenseImage?.image1}
-                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
-                                />
-
-                                {/* Live Photo Upload */}
-                                <DocumentUpload
-                                    label="Live Photo"
-                                    name="livePhoto"
-                                    onChange={(e) => handleImageUpload(e, setFieldValue, 'livePhoto', imagePreviews?.livePhoto?.id)}
-                                    imagePreview={imagePreviews.livePhoto?.image1}
-                                    onView={(documentUrl) => handleOpenDocument(documentUrl)}
-                                />
-                            </div>
+                            <Card>
+                                <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+                                    <table className="w-full min-w-[640px] table-auto">
+                                        <thead>
+                                            <tr>
+                                                {["Type", "Status", "Action","View Details","Created At","Verified At"].map((el, index) => (
+                                                    <th
+                                                        key={index}
+                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                    >
+                                                        <Typography
+                                                            variant="small"
+                                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                        >
+                                                            {el}
+                                                        </Typography>
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <DocumentUpload
+                                                label="Aadhaar Image"
+                                                value={imagePreviews.aadhaarImage?.image1}
+                                                name="aadhaarImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage",imagePreviews?.aadhaarImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.aadhaarImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Police Clearance Certificate"
+                                                value={imagePreviews.policeClearance?.image1}
+                                                name="policeClearance"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "policeClearance",imagePreviews?.policeClearance?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.policeClearance}
+                                            />
+                                            <DocumentUpload
+                                                label="Driving License Image"
+                                                value={imagePreviews.drivingLicenseImage?.image1}
+                                                name="drivingLicenseImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage",imagePreviews?.drivingLicenseImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.drivingLicenseImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Consent Form Image"
+                                                value={imagePreviews.consentForm?.image1}
+                                                name="consentForm"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "consentForm",imagePreviews?.consentForm?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.consentForm}
+                                            />
+                                            <DocumentUpload
+                                                label="Live Photo"
+                                                value={imagePreviews.livePhoto?.image1}
+                                                name="livePhoto"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto",imagePreviews?.livePhoto?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.livePhoto}
+                                            />
+                                        </tbody>
+                                    </table>
+                                </CardBody>
+                            </Card>
+                        </div>
                         </div>
                         {values.packages.length > 0 && (
                             <div>
@@ -849,10 +938,10 @@ const DriverEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/drivers'); }}
+                                onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${id}`)}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
-                                Cancel
+                                Back
                             </Button>
                             <Button
                                 fullWidth
@@ -867,6 +956,31 @@ const DriverEdit = () => {
                     </Form>
                 )}
             </Formik>
+            {modalData && (
+                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                    <DialogHeader>
+                    <div className="flex justify-between items-center w-full">
+                        <Typography variant="h6">Document Details</Typography>
+                        <button
+                        className="text-gray-600 hover:text-gray-900"
+                        onClick={() => setModalData(null)}
+                        >
+                        X
+                        </button>
+                    </div>
+                    </DialogHeader>
+                    <DialogBody divider>
+                    <div className="flex flex-col items-center">
+                        <img
+                        src={modalData.image}
+                        alt="Document"
+                        className="max-w-full rounded-lg shadow-md"
+                        style={{ height: "45vh", objectFit: "contain" }}
+                        />
+                    </div>
+                    </DialogBody>
+                </Dialog>
+            )}
         </div>
     );
 };

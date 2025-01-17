@@ -8,8 +8,9 @@ import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintCabDetails from '@/components/PrintCabDetails';
+import DocumentsList from '@/components/DocumentsList';
 
-const CabDetails = () => {
+const CabDetails = ({btnShow = false}) => {
    //const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
@@ -186,40 +187,6 @@ const CabDetails = () => {
                                         disable={true}
                                     />
                                 </div>
-
-                                <div>
-                                    <label htmlFor="insuranceImg" className="text-sm font-medium text-gray-700">Insurance</label>
-                                    <div className="mt-1">
-                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                            {values?.insuranceImg ? (
-                                                <img
-                                                    src={values?.insuranceImg}
-                                                    alt="Preview"
-                                                    className="w-full h-full object-contain rounded-md"
-                                                />
-                                            ) : (
-                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="image1" className="text-sm font-medium text-gray-700">RC Book</label>
-                                    <div className="mt-1">
-                                        <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                            {values?.image1 ? (
-                                                <img
-                                                    src={values?.image1}
-                                                    alt="Preview"
-                                                    className="w-full h-full object-contain rounded-md"
-                                                />
-                                            ) : (
-                                                <div className="text-gray-500 font-medium p-2 text-center">No image uploaded.</div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     )}
@@ -228,14 +195,15 @@ const CabDetails = () => {
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />
-            <div className='flex justify-center w-full'>
+            {cab && cab?.result?.id && <DocumentsList id={cab?.result?.id} type={'cab'}/>}
+            {!btnShow && <div className='flex justify-center w-full'>
                 <Button
-                    onClick={() => { navigate('/dashboard/cab'); }}
+                    onClick={() => { navigate('/dashboard/vendors/account/allVehicles'); }}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Back
                 </Button>
-            </div>
+            </div>}
         </>
     );
 };

@@ -52,7 +52,7 @@ export function SearchDrivers(props) {
                 let queryObj = {
                     latitude: props?.bookingData?.pickupLat,
                     longitude: props?.bookingData?.pickupLong,
-                    type: props.bookingData.packageType,
+                    type: props?.bookingData?.packageType,
                 }
                 props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
                 let data = await ApiRequestUtils.getWithQueryParam(api + props?.bookingData?.packageId, queryObj);
@@ -131,8 +131,6 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId) => {
-        console.log("PROPS DATA--->",cabDriverId)
-
         const reqBody = {
             bookingId: props?.bookingData?.id,
         };
@@ -155,11 +153,11 @@ export function SearchDrivers(props) {
                 {loading ? (
                     <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                         <Typography variant="h6" color="white">
-                        {`Loading ${props.bookingData.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
+                        {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
                         </Typography>
                     </CardHeader>
                 ) : drivers.length > 0 ? (
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 max-h-screen">
+                    <CardBody className="overflow-x-auto overflow-y-auto max-w-[500px] px-0 pt-0 pb-2">
                         <table className="w-full table-auto">
                             <thead>
                                 <tr>
@@ -200,19 +198,19 @@ export function SearchDrivers(props) {
                                                                 color="blue-gray"
                                                                 className="font-semibold"
                                                             >
-                                                                {props.bookingData.serviceType == "CAB" ? name : firstName}
+                                                                {props?.bookingData?.serviceType == "CAB" ? name : firstName}
                                                             </Typography>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {(props.bookingData.serviceType === "CAB" && Drivers[0]?.phoneNumber) ? Drivers[0]?.phoneNumber : phoneNumber}
+                                                        {(props?.bookingData?.serviceType === "CAB" && Drivers?.[0]?.phoneNumber) ? Drivers?.[0]?.phoneNumber : phoneNumber}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {(props.bookingData.serviceType == "CAB" && Drivers[0]?.distance) ? `${Math.round(Drivers[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
+                                                        {(props?.bookingData?.serviceType == "CAB" && Drivers?.[0]?.distance) ? `${Math.round(Drivers?.[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
                                                     </Typography>
                                                 </td>
                                                 <td className={className}>
@@ -236,10 +234,10 @@ export function SearchDrivers(props) {
                                                 <td className={className}>
                                                     {status === "ACTIVE" && <Button
                                                         as="a"
-                                                        onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, Drivers[0]?.id) }}
+                                                        onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER'? 0 : Drivers[0]?.id) }}
                                                         className="text-xs font-semibold text-white"
                                                     >
-                                                        {props.bookingData.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
+                                                        {props?.bookingData?.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
                                                     </Button>}
                                                 </td>
                                             </tr>
@@ -251,7 +249,7 @@ export function SearchDrivers(props) {
                     </CardBody>) : (
                     <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                         <Typography variant="h6" color="white">
-                            {`No ${props.bookingData.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
+                            {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
                         </Typography>
                     </CardHeader>
                 )}
@@ -262,7 +260,7 @@ export function SearchDrivers(props) {
                     onClick={() => { props?.onNext() }}
                     className='text-white border-2 bg-black rounded-xl'
                 >
-                    {props.bookingData.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
+                    {props?.bookingData?.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
                 </Button>
             </div>
         </div >

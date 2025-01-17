@@ -10,7 +10,7 @@ import {
 } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 
-export function SubscriptionView() {
+export function CabSubscriptionView() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [accounts, setAccounts] = useState([]);
@@ -81,7 +81,7 @@ export function SubscriptionView() {
                         </div>
                     </div>
                     <button
-                        onClick={() => navigate('/dashboard/subscription/add')}
+                        onClick={() => navigate('/dashboard/finance/cab-subscription/add')}
                         className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                         Add new

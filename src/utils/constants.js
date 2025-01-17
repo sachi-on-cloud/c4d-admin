@@ -848,10 +848,11 @@ export const API_ROUTES = {
     'UPLOAD_PHOTO': '/photo/add',
     'UPDATE_PHOTO': '/photo/update',
     'GET_DRIVERS_ADMIN': '/admin/driver/',
-    'GET_DOCUMENT_DETAILS' : '/admin/documents',
+    'GET_DOCUMENT_DETAILS_LIST' : '/admin/documents',
+    'GET_DOCUMENT_DETAILS':'/admin/user/documents',
     'GET_ONLINE_REGISTER_DETAILS':'/online-register',
     'GET_CREATE_DRIVER':'/register/driver/',
-    'GET_CREATE_OWNER':'/register/account/',
+    'GET_CREATE_OWNER':'/register/account',
     'GET_SUBCRIPTION_PLAN':'/admin/plan', 
     'GET_SUBSCRIPTION_LIST':'/admin/subscription', 
     'CREATE_SUBSCRIPTION':'/admin/subscription/create',
@@ -859,7 +860,11 @@ export const API_ROUTES = {
     'GET_DRIVERS_FOR_SUBSCRIPTION':'/admin/subscription/drivers',
     'GET_ACCOUNT_CABS':'/account/cabs/',
     'GET_ACCOUNT_RELATED_DRIVERS': '/account/drivers',
-    'CHECK_DRIVER': '/check-driver/'
+    'CHECK_DRIVER': '/check-driver/',
+    'GET_PAYABLE':'/payment-request',
+    'GET_PAYABLE_DETAILS':'/invoice-trip-details',
+    'REVIEW_PAYMENT_REQUEST':'/update-payment-request',
+    'APPROVE_PAYMENT_REQUEST':'/approve-payment-request',
 };
 
 export const KYC_PROCESS = {
@@ -888,6 +893,12 @@ export const BOOKING_STATUS = {
     STARTED: 'STARTED',
     ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
     ENDED: 'ENDED',
+};
+
+export const BOOKING_SERVICE_TYPE = {
+    DRIVER: 'DRIVER',
+    CAB_BOOKING: 'CAB',
+    CAR_WASH: 'CAR_WASH',
 };
 
 export const PUSH_NOTIFICATION_TYPE = {

@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST } from '@/utils/constants';
-import { Button, Input, List, ListItem } from '@material-tailwind/react';
+import { Button, Input, List, ListItem,Dialog, DialogHeader, DialogBody,Typography,Card,CardBody} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
+import moment from 'moment';
 
 const AccountEdit = () => {
     const [accountVal, setAccountVal] = useState({});
     const [imagePreview, setImagePreview] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [modalData,setModalData] = useState(null);
 
     useEffect(() => {
         fetchItem(id);
@@ -32,7 +34,8 @@ const AccountEdit = () => {
         district: accountVal?.district || "",
         state: accountVal?.state || "",
         pincode: accountVal?.pincode || "",
-        image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : ''
+        image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : '',
+        docDates:accountVal?.Proofs,
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -59,7 +62,7 @@ const AccountEdit = () => {
             
             const data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_ACCOUNT, formData);
             console.log('data in driver UPDATE :', data);
-            navigate('/dashboard/account', {
+            navigate('/dashboard/vendors/account', {
                 state: {
                     accountUpdated: true,
                     accountName: data?.data?.name
@@ -203,55 +206,114 @@ const AccountEdit = () => {
                                 <Field type="text" name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                             </div>
-                            <div>
-                                <label htmlFor="image1" className="text-sm font-medium text-gray-700">
-                                    Aadhaar Image
-                                </label>
-                                <div className="mt-1">
-                                    <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center bg-gray-50">
-                                        {values?.image1 ? (
-                                            <img
-                                                src={imagePreview ? imagePreview : values?.image1}
-                                                alt="Preview"
-                                                className="w-full h-full object-contain rounded-md"
-                                            />
-                                        ) : (
-                                            <div className="text-gray-500 font-medium p-2">No image selected. Click below to upload.</div>
-                                        )}
-                                    </div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        id="image1"
-                                        name='image1'
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                setFieldValue("image1", file);
-
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                    setImagePreview(reader.result);
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-                                        }}
-                                        className="hidden" // Hide the native input
-                                    />
-                                    <label
-                                        htmlFor="image1"
-                                        className="p-2 mt-2 inline-block text-center text-white border border-gray-400 bg-black rounded-xl cursor-pointer"
-                                    >
-                                        Upload Image
-                                    </label>
-                                </div>
-                            </div>
                         </div>
+                        <div className="mt-6">
+                            <div className="flex flex-row justify-between px-2 mb-2">
+                                <h3 className="text-2xl font-bold">Document Upload</h3>
+                            </div>
+                            <Card>
+                                <>
+                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                                        <table className="w-full min-w-[640px] table-auto">
+                                            <thead>
+                                                <tr>
+                                                    {["Type", "Status", "Action","View Details","Created At","Verified At"].map((el, index) => (
+                                                        <th
+                                                            key={index}
+                                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                        >
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                            >
+                                                                {el}
+                                                            </Typography>
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                            Aadhaar
+                                                        </Typography>
+                                                    </td>
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        <Typography
+                                                            className={`text-xs font-semibold ${
+                                                                values.image1 ? "text-green-500" : "text-blue-500"
+                                                            }`}
+                                                        >
+                                                            {values.image1 ? "UPLOADED" : "NO DOCUMENTS"}
+                                                        </Typography>
+                                                    </td>
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        <div className="flex items-center gap-2">
+                                                            <label
+                                                                htmlFor="image1"
+                                                                className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                                                            >
+                                                                {values.image1 ? "Update" : "Upload"}
+                                                            </label>
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                id="image1"
+                                                                name="image1"
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files[0];
+                                                                    if (file) {
+                                                                        setFieldValue("image1", file);
+                                                                        const reader = new FileReader();
+                                                                        reader.onloadend = () => {
+                                                                            setImagePreview(reader.result);
+                                                                        };
+                                                                        reader.readAsDataURL(file);
+                                                                    }
+                                                                }}
+                                                                className="hidden"
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        {values.image1 && (
+                                                            <Typography
+                                                                variant="small"
+                                                                className="font-semibold underline cursor-pointer text-blue-900"
+                                                                onClick={() =>
+                                                                    setModalData({
+                                                                        image: imagePreview || values.image1,
+                                                                    })
+                                                                }
+                                                            >
+                                                                View Details
+                                                            </Typography>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                            {moment(values?.docDates?.created_at).format("DD-MM-YYYY")}
+                                                        </Typography>
+                                                    </td>
+                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                            {values.image1 && moment(values?.docDates?.updated_at).format("DD-MM-YYYY")}
+                                                        </Typography>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </CardBody>
+                                </>
+                            </Card>
+                        </div>
+
 
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/account'); }}
+                                onClick={() => { navigate('/dashboard/vendors/account'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Back
@@ -269,6 +331,31 @@ const AccountEdit = () => {
                     </Form>
                 )}
             </Formik>
+            {modalData && (
+                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                    <DialogHeader>
+                    <div className="flex justify-between items-center w-full">
+                        <Typography variant="h6">Document Details</Typography>
+                        <button
+                        className="text-gray-600 hover:text-gray-900"
+                        onClick={() => setModalData(null)}
+                        >
+                        X
+                        </button>
+                    </div>
+                    </DialogHeader>
+                    <DialogBody divider>
+                    <div className="flex flex-col items-center">
+                        <img
+                        src={modalData.image}
+                        alt="Document"
+                        className="max-w-full rounded-lg shadow-md"
+                        style={{ height: "45vh", objectFit: "contain" }}
+                        />
+                    </div>
+                    </DialogBody>
+                </Dialog>
+            )}
         </div>
     );
 };

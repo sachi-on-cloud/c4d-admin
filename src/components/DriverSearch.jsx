@@ -24,7 +24,7 @@ const DriverSearch = ({ onSearch }) => {
           </div>
         </div>
         <button 
-          onClick={() => navigate(`/dashboard/drivers/add`)}
+          onClick={() => navigate(`/dashboard/vendors/account/drivers/add`)}
           className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Add new
