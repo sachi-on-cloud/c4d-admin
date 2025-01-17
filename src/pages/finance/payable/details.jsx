@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES} from '@/utils/constants';
+import { API_ROUTES } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Card, CardBody, Typography, Dialog, DialogHeader, DialogBody, DialogFooter} from '@material-tailwind/react';
+import { Button, Card, CardBody, Typography, Dialog, DialogHeader, DialogBody, DialogFooter } from '@material-tailwind/react';
 import moment from 'moment';
 
 const PayableDetails = () => {
     const navigate = useNavigate();
     const [accountVal, setAccountVal] = useState({});
     const { id } = useParams();
-    const [modalData, setModalData]= useState(null);
+    const [modalData, setModalData] = useState(null);
 
     useEffect(() => {
         if (id) {
             fetchItem(id);
         }
-    }, [id]); 
+    }, [id]);
 
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_PAYABLE_DETAILS}/${itemId}`);
-        console.log("DATA OF PAYABLE DETAILS",data?.data);
+        console.log("DATA OF PAYABLE DETAILS", data?.data);
         setAccountVal(data.data);
     };
 
@@ -67,10 +67,10 @@ const PayableDetails = () => {
                                         </thead>
                                         <tbody>
                                             {accountVal.map(
-                                                ({BookingId, Booking, status, Driver, total, commissionAmount, amount, commission, paymentType}, key) => {
+                                                ({ BookingId, Booking, status, Driver, total, commissionAmount, amount, commission, paymentType }, key) => {
                                                     const className = `py-3 px-5 ${key === accountVal.length - 1
-                                                            ? ""
-                                                            : "border-b border-blue-gray-50"
+                                                        ? ""
+                                                        : "border-b border-blue-gray-50"
                                                         }`;
                                                     return (
                                                         <>
@@ -79,16 +79,17 @@ const PayableDetails = () => {
                                                                     <div className="flex items-center gap-4">
                                                                         <div onClick={() => {
                                                                             setModalData({
-                                                                                Booking
+                                                                                Booking,
+                                                                                Driver
                                                                             });
                                                                         }}>
-                                                                        <Typography
-                                                                            variant="small"
-                                                                            color="blue"
-                                                                            className="font-semibold underline"
-                                                                        >
-                                                                            {Booking?.bookingNumber}
-                                                                        </Typography>
+                                                                            <Typography
+                                                                                variant="small"
+                                                                                color="blue"
+                                                                                className="font-semibold underline"
+                                                                            >
+                                                                                {Booking?.bookingNumber}
+                                                                            </Typography>
                                                                         </div>
                                                                     </div>
                                                                 </td>
@@ -210,12 +211,12 @@ const PayableDetails = () => {
                                     <div className="space-y-2">
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Name:</Typography>
-                                            <Typography>{modalData?.Booking?.Driver?.firstName}</Typography>
+                                            <Typography>{modalData?.Driver?.firstName}</Typography>
                                         </div>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Phone Number:</Typography>
                                             <Typography>
-                                                {modalData?.Booking?.Driver?.phoneNumber}
+                                                {modalData?.Driver?.phoneNumber}
                                             </Typography>
                                         </div>
                                     </div>
@@ -230,22 +231,35 @@ const PayableDetails = () => {
                                     <div className="space-y-2">
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Service Type:</Typography>
+                                            <Typography>
+                                                {modalData?.Booking?.serviceType}
+                                            </Typography>
                                         </div>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Package Type:</Typography>
+                                            <Typography>
+                                                {modalData?.Booking?.packageType}
+                                            </Typography>
                                         </div>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Trip Date:</Typography>
+                                            <Typography>
+                                                {modalData?.Booking?.startTime}
+                                            </Typography>
                                         </div>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Package:</Typography>
+                                            <Typography>
+                                                {modalData?.Booking?.Package?.period}
+                                                {modalData?.Booking?.packageType == "Intercity" ? ' hr' : ' days'}
+                                            </Typography>
                                         </div>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Price:</Typography>
                                         </div>
-                                        <div className="flex justify-between">
+                                        {/* <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Price:</Typography>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </CardBody>
                             </Card>
@@ -258,9 +272,15 @@ const PayableDetails = () => {
                                     <div className="space-y-2">
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Pickup:</Typography>
+                                            <Typography>
+                                                {modalData?.Booking?.pickupAddress?.name}
+                                            </Typography>
                                         </div>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Drop-off:</Typography>
+                                            <Typography>
+                                                {modalData?.Booking?.dropAddress?.name}
+                                            </Typography>
                                         </div>
                                     </div>
                                 </CardBody>
@@ -275,47 +295,72 @@ const PayableDetails = () => {
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center gap-x-4">
                                                 <Typography color="gray" variant="h6">Collected By:</Typography>
+                                                <Typography>
+                                                    {modalData?.Booking?.paymentCollected}
+                                                </Typography>
                                             </div>
                                             <div className="flex justify-between items-center gap-x-4">
                                                 <Typography color="gray" variant="h6">Method:</Typography>
+                                                <Typography>
+                                                    {modalData?.Booking?.paymentMethod}
+                                                </Typography>
                                             </div>
                                             <div className="flex justify-between items-center gap-x-4">
                                                 <Typography color="gray" variant="h6">Status:</Typography>
+                                                <Typography>
+                                                    {modalData?.Booking?.paymentStatus}
+                                                </Typography>
                                             </div>
                                         </div>
                                     </div>
                                 </CardBody>
                             </Card>
-                            <Card className="my-6">
+                            {/* <Card className="my-6">
                                 <div className="border rounded-xl bg-gray-200 p-4">
                                     <h2 className="text-2xl font-bold text-center">Invoice</h2>
                                     <div className="mt-3">
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Company Name: </Typography>
+                                            <Typography>
+                                                Rathaa
+                                            </Typography>
                                         </div>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">GST Number: </Typography>
+                                            <Typography>
+                                                33TMSKDSHKHH
+                                            </Typography>
                                         </div>
                                     </div>
                                     <hr className="my-2 border border-black" />
                                     <div className="mt-4">
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Package:</Typography>
+                                            <Typography>
+                                                {modalData?.Booking?.Package?.period}
+                                                {modalData?.Booking?.packageType == "Intercity" ? ' hr' : ' days'}
+                                            </Typography>
                                         </div>
-                                            <>
-                                                <div className="flex justify-between">
-                                                    <Typography color="gray" variant="h6">Base Fare:</Typography>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <Typography color="gray" variant="h6"></Typography>
-                                                </div>
-                                            </>
+                                        <>
+                                            <div className="flex justify-between">
+                                                <Typography color="gray" variant="h6">Base Fare:</Typography>
+                                                <Typography>
+                                                    Rs. {modalData?.Booking?.Package?.price}
+                                                </Typography>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <Typography color="gray" variant="h6"></Typography>
+                                            </div>
+                                        </>
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">Total:</Typography>
+                                            <Typography>
+                                                Rs. {modalData?.Booking?.totalPrice}
+                                            </Typography>
                                         </div>
                                     </div>
                                 </div>
-                            </Card>
+                            </Card> */}
                         </div>
 
                     </DialogBody>
