@@ -48,14 +48,12 @@ export function PayableView() {
         commments : commments
       };
       const data = await ApiRequestUtils.update(API_ROUTES.APPROVE_PAYMENT_REQUEST, payData);
-      console.log("APPROVER PAU+YMENT REQESR",data);
     }else{
       const payData ={
         requestId: id,
         status: status,
       }
       const data = await ApiRequestUtils.update(API_ROUTES.REVIEW_PAYMENT_REQUEST, payData);
-      console.log("PAYADATA CONSOLE",data);
     }
     setModalData(null);
   } 
@@ -121,10 +119,30 @@ export function PayableView() {
                         }`;
 
                       return (
-                        <tr key={""}>
+                        <tr key={key}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => {navigate(`/dashboard/finance/payable/details/${id}`)}}>
+                              <div onClick={() => {navigate(`/dashboard/finance/payable/details/${id}`,{
+                                state:{
+                                  invoiceNumber: invoiceNumber,
+                                  status: status,
+                                  totalPayables: totalPayables,
+                                  totalAmount: totalAmount,
+                                  totalPayout: totalPayout,
+                                  commissionAmount: commissionAmount,
+                                  cashAmount: cashAmount,
+                                  onlineAmount: onlineAmount,
+                                  reviewedBy: reviewedBy,
+                                  approver: approver,
+                                  reviewer: reviewer,
+                                  reviewedTime: reviewedTime,
+                                  approvedBy: approvedBy,
+                                  approvedTime: approvedTime,
+                                  id: id,
+                                  transactionId: transactionId,
+                                  comments: comments,
+                                }
+                              })}}>
                                 <Typography
                                   variant="small"
                                   color="blue"

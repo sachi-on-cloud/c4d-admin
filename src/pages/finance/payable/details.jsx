@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Button, Card, CardBody, Typography, Dialog, DialogHeader, DialogBody, DialogFooter } from '@material-tailwind/react';
 import moment from 'moment';
 
@@ -11,6 +10,8 @@ const PayableDetails = () => {
     const [accountVal, setAccountVal] = useState({});
     const { id } = useParams();
     const [modalData, setModalData] = useState(null);
+    const location = useLocation();
+    const {state} = location;
 
     useEffect(() => {
         if (id) {
@@ -20,7 +21,7 @@ const PayableDetails = () => {
 
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_PAYABLE_DETAILS}/${itemId}`);
-        console.log("DATA OF PAYABLE DETAILS", data?.data);
+        console.log("PROPDATA",location)
         setAccountVal(data.data);
     };
 
@@ -29,6 +30,86 @@ const PayableDetails = () => {
             <div className="p-4">
 
                 <h2 className="text-2xl font-bold mb-4">Invoice Number - {accountVal[0]?.PaymentRequest?.invoiceNumber}</h2>
+                <div className="grid grid-cols-3 gap-4 p-4 bg-white rounded-md shadow-md">
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Total Amount</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.totalAmount}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Total Payout</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.totalPayout}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Cash Amount</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.cashAmount}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Online Amount</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.onlineAmount}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Commission Amount</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.commissionAmount}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Total Payables</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.totalPayables}
+                        </div>
+                    </div>
+
+                    {state.reviewer?.name && <div>
+                        <label className="text-sm font-medium text-gray-700">Reviewer</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.reviewer?.name}
+                        </div>
+                    </div>}
+
+                    {state.reviewedTime && <div>
+                        <label className="text-sm font-medium text-gray-700">Reviewed Time</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {moment(state?.reviewedTime).format("DD-MM-YYYY")}
+                        </div>
+                    </div>}
+
+                    {state.approver?.name && <div>
+                        <label className="text-sm font-medium text-gray-700">Approver</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.approver?.name}
+                        </div>
+                    </div>}
+
+                    {state.approvedTime && <div>
+                        <label className="text-sm font-medium text-gray-700">Approved Time</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {moment(state?.approvedTime).format("DD-MM-YYYY")}
+                        </div>
+                    </div>}
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Status</label>
+                        <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
+                        {state?.status}
+                        </div>
+                    </div>
+                    </div>
+
                 <>
                     <div className='flex flex-row justify-between px-2 mb-2 mt-4'>
                         <h2 className="text-2xl font-bold mb-4">Trip Details</h2>
