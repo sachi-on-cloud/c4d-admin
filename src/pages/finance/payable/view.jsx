@@ -69,21 +69,8 @@ export function PayableView() {
             {alert.message}
           </Alert>
         </div>)}
-        <div className="flex items-center justify-between">
-            <div className="relative flex-grow max-w-[500px]">
-            <input
-                type="text"
-                className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Search User"
-                onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
-            </div>
-            </div>
-        </div>
 
-      <Card>
+      <Card className='mt-7'>
         {accounts.length > 0 ? (
           <>
             <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">

@@ -49,13 +49,13 @@ export function DocumentVerificationView() {
 
       const filteredAccounts = allAccounts.filter((acc) => {
         const name = (
-          acc?.Register?.firstName ||
-          acc?.Driver?.firstName ||
-          acc?.Account?.name ||
-          acc?.Cab?.name||
+          acc["Register.firstName"] ||
+          acc["Driver.firstName"] ||
+          acc["Account.name"] ||
+          acc["Cab.name"]||
           ""
         ).toLowerCase();
-        const phone = acc?.Register?.phoneNumber || acc?.Driver?.phoneNumber || acc?.Account?.phoneNumber || "";
+        const phone = acc["Register.phoneNumber"] || acc["Driver.phoneNumber"] || acc["Account.phoneNumber"] || "";
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
         return (
           name.startsWith(query) ||

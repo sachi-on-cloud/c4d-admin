@@ -41,8 +41,8 @@ export function CabSubscriptionView() {
         if (searchQuery && searchQuery.trim() !== "") {
             const query = searchQuery.toLowerCase();
             const filteredAccounts = allAccounts.filter((acc) => {
-                const name = (acc.firstName || "").toLowerCase();
-                const phone = (acc.phoneNumber || "").toLowerCase();
+                const name = (acc?.Cab?.Account?.name || "").toLowerCase();
+                const phone = (acc?.Cab?.Account?.phoneNumber || "").toLowerCase();
                 const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
 
                 return (
