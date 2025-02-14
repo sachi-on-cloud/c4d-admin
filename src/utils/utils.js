@@ -297,9 +297,9 @@ export const Utils = {
                     .replace('${totalDuration}', isNaN(duration.total) ? "0 hours" : duration.total)
                     .replace('${packageDuration}', `${bookingDetails.Package.period} hours`)
                     .replace('${extraTime}', isNaN(duration.extra) ? "0 hours" : duration.extra)
-                    .replace('${baseFare}', bookingDetails.Package.price)
+                    // .replace('${baseFare}', bookingDetails.Package.price)
                     .replace('${extraCharges}', bookingDetails.extraPrice)
-                    .replace('${totalAmount}', totalFare)
+                    .replace('${totalAmount}', bookingDetails.totalPrice)
                     .replace('${transactionId}', bookingDetails.transactionId ? bookingDetails.transactionId :'Processing')
             );
         }

@@ -676,7 +676,7 @@ const CabEdit = () => {
                                                         </td>
                                                         <td className="py-3 px-5 border-b border-blue-gray-50">
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {values.fullDocVal[0]?.status !== 'PENDING' ? moment(updated_at).format("DD-MM-YYYY") : ""}
+                                                                {values.fullDocVal[0]?.status !== 'PENDING' ? moment(values.fullDocVal[0]?.updated_at).format("DD-MM-YYYY") : ""}
                                                             </Typography>
                                                         </td></>}
                                                     </tr>
@@ -747,7 +747,7 @@ const CabEdit = () => {
                                                         </td>
                                                         <td className="py-3 px-5 border-b border-blue-gray-50">
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {values.fullDocVal[1]?.status !== 'PENDING' ? moment(updated_at).format("DD-MM-YYYY") : ""}
+                                                                {values.fullDocVal[1]?.status !== 'PENDING' ? moment(values.fullDocVal[1]?.updated_at).format("DD-MM-YYYY") : ""}
                                                             </Typography>
                                                         </td></>}
                                                     </tr>

@@ -27,7 +27,7 @@ const OwnersCabList = ({ cabsList}) => {
                                             "Name",
                                             "Cab Type",
                                             "Cab Number",
-                                            "Drivers",
+                                            "Driver",
                                             "Created At",
                                             "Assign/Reassign"
                                         ].map((el, index) => (
@@ -91,15 +91,15 @@ const OwnersCabList = ({ cabsList}) => {
                                                                 {moment(created_at).format("DD-MM-YYYY")}
                                                             </Typography>
                                                         </td>
-                                                        {Drivers?.length>0 && <td className={className}>
-                                                            <Button
+                                                        <td className={className}>
+                                                        {Drivers?.length>0 && <Button
                                                             as="a"
                                                             onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
                                                             className="text-xs font-semibold text-white"
                                                             >
                                                             RE ASSIGN
-                                                            </Button>
-                                                        </td>}
+                                                            </Button>}
+                                                        </td>
                                                     </tr>
                                                 </>
                                             );

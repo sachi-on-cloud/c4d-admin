@@ -208,20 +208,22 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         selectedFilters={serviceTypeFilter}
                                                         onFilterChange={(value) => handleFilterChange('serviceType', value)}
                                                     />
-                                                ) : el === "Status" ? (
-                                                    <FilterPopover
-                                                        title={el}
-                                                        options={[
-                                                            { value: 'All', label: 'All' },
-                                                            { value: 'INITIATED', label: 'Initiated' },
-                                                            { value: 'STARTED', label: 'Started' },
-                                                            { value: 'ENDED', label: 'Ended' },
-                                                            { value: 'CANCELLED', label: 'Cancelled' },
-                                                        ]}
-                                                        selectedFilters={statusFilter}
-                                                        onFilterChange={(value) => handleFilterChange('status', value)}
-                                                    />
-                                                ) : (
+                                                ) 
+                                                // : el === "Status" ? (
+                                                //     <FilterPopover
+                                                //         title={el}
+                                                //         options={[
+                                                //             { value: 'All', label: 'All' },
+                                                //             { value: 'INITIATED', label: 'Initiated' },
+                                                //             { value: 'STARTED', label: 'Started' },
+                                                //             { value: 'ENDED', label: 'Ended' },
+                                                //             { value: 'CANCELLED', label: 'Cancelled' },
+                                                //         ]}
+                                                //         selectedFilters={statusFilter}
+                                                //         onFilterChange={(value) => handleFilterChange('status', value)}
+                                                //     />
+                                                // ) 
+                                                : (
                                                     <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
                                                         {el}
                                                     </Typography>
@@ -285,7 +287,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             {formatDate(data?.created_at)}
                                                         </Typography>
                                                     </td>
-                                                    <td className={className}>
+                                                    {/* <td className={className}>
                                                         {data?.status == "STARTED" ?
                                                             <Chip
                                                                 variant="gradient"
@@ -322,6 +324,14 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                         />
                                                         }
+                                                    </td> */}
+                                                    <td>
+                                                        <Chip
+                                                            variant="gradient"
+                                                            // color={"blue"}
+                                                            value={data?.status}
+                                                            className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                        />
                                                     </td>
                                                     <td className={className}>
                                                         {/* {data?.status === 'STARTED' &&
@@ -334,6 +344,15 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             </Button>
                                                         } */}
                                                         {data?.status === 'INITIATED' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
+                                                            <Button
+                                                                fullWidth
+                                                                onClick={() => onAssignDriverHandler(data)}
+                                                                className="text-xs font-semibold text-white flex-wrap"
+                                                            >
+                                                                Assign {data?.serviceType == "CAB" ? "Cab" : "Captain"}
+                                                            </Button>
+                                                        }
+                                                        {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
