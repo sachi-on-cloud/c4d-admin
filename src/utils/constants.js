@@ -935,6 +935,31 @@ export const GST_NUMBER = '1234567890ABC';
 export const GPAY_NUMBER = '8888888888';
 export const GPAY_NAME = 'C4D PRIVATE LIMITED';
 
+export const USER_ROLE = [
+    { id: 'SUPER_USER', role: 'Super user' },
+    { id: 'SALES', role: 'Sales' },
+    { id: 'SUPPORT', role: 'Support' },
+    { id: 'FINANCE', role: 'Finance' }
+];
+
+// Role-based permissions
+export const ROLE_PERMISSIONS = {
+    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification', 'Users'],
+    'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
+    'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
+    'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
+};
+
+export const PERMISSION_OPTIONS = [
+        { name: 'Home', id: 'Home' },
+        { name: 'All bookings', id: 'All bookings' },
+        { name: 'Customers', id: 'Customers' },
+        { name: 'Vendors', id: 'Vendors' },
+        { name: 'Finance', id: 'Finance' },
+        { name: 'Document verification', id: 'Document verification' },
+        { name: 'Users', id: 'Users' },
+    ];
+
 export const CAROUSEL_DATA = [
     {
         title: "Aenean leo",

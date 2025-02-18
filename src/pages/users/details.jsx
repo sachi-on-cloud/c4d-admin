@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, PERMISSION_OPTIONS, USER_ROLE } from '@/utils/constants';
 import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -12,13 +12,7 @@ const UserDetails = () => {
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
-    const options = [
-        { id: 'Customers', name: 'Customers' },
-        { id: 'Drivers', name: 'Drivers' },
-        { id: 'Users', name: 'Users' },
-        { id: 'Bookings', name: 'Bookings' },
-        {id: 'Cabs', name: 'Cabs'}
-    ];
+
     useEffect(() => {
         if (id) {
             fetchItem(id);
@@ -33,7 +27,8 @@ const UserDetails = () => {
         phoneNumber: userVal?.phoneNumber || "",
         email: userVal?.email || "",
         password: "",
-        permission: userVal?.permission || ""
+        permission: userVal?.permission || "",
+        role: USER_ROLE.find(item => item.id === userVal?.role)?.role || ''
     };
     return (
         <>
@@ -66,11 +61,16 @@ const UserDetails = () => {
                                     <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
+                                <label htmlFor="role" className="text-sm font-medium text-gray-700">Role</label>
+                                <Field type="text" name="role" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" disabled />
+                                <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
+                            </div>
+                                <div>
                                     <label htmlFor="permission" className="text-sm font-medium text-gray-700">Permission</label>
                                     <Multiselect
-                                        options={options}
+                                        options={PERMISSION_OPTIONS}
                                         displayValue="name"
-                                        selectedValues={options.filter(option => values.permission.includes(option.id))}
+                                        selectedValues={PERMISSION_OPTIONS.filter(option => values.permission.includes(option.id))}
                                         placeholder=""
                                         className="w-full rounded-md border-gray-300 border bg-gray-200"
                                         disable={true}

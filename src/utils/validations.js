@@ -32,6 +32,29 @@ export const VEHICLEINFO_SCHEMA = Yup.object().shape({
     //     }),
 });
 
+export const ADD_USER_SCHEMA = Yup.object({
+    name: Yup.string().required('Name is required'),
+    phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
+    email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
+    role: Yup.string().required('Role is required'),
+    permission: Yup.array()
+        .of(Yup.string().required('Each permission must be selected'))
+        .required('At least one permission must be selected')
+        .min(1, 'At least one permission must be selected')
+});
+
+export const EDIT_USER_SCHEMA = Yup.object({
+    name: Yup.string().required('Name is required'),
+    phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
+    email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
+    role: Yup.string().required('Role is required'),
+    permission: Yup.array()
+        .of(Yup.string().required('Each permission must be selected'))
+        .required('At least one permission must be selected')
+        .min(1, 'At least one permission must be selected'),
+    password: Yup.string().required('Password is required'),
+});
+
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     packageTypeSelected: Yup.string().required('Package Type is required'),
     rideTime: Yup.string().required('RideTime is required'),
