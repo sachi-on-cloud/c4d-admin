@@ -56,6 +56,15 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
         setFilteredOptions(newFilteredOptions);
         setIsOpen(true);
     }
+
+    const handleClear = (e) => {
+        e.stopPropagation();
+        setSearchText('');
+        setSelectedValue(null);
+        onSelect(options);
+        setIsOpen(false);
+    };
+
     const handleOptionClick = (option) => {
         setSearchText(`${option.firstName} - ${option.phoneNumber}`); // Update the input with the selected option's details
         onSelect(option); // Notify the parent component of the selection
@@ -77,17 +86,25 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
 
     return (
         <div className="w-full" ref={dropdownRef} onClick={() => setIsOpen(!isOpen)}>
-            <input
-                type="text"
-                value={searchText}
-                onChange={handleSearchChange}
-                onFocus={() => setIsOpen(true)}
-                // onClick={() => setIsOpen(!isOpen)}
-                placeholder="Search customers"
-                className="p-2 border rounded-xl w-full"
-                // readOnly={selectedValue}
-                // disabled={selectedValue}
-            />
+            <div className="relative">
+                <input
+                    type="text"
+                    value={searchText}
+                    onChange={handleSearchChange}
+                    onFocus={() => setIsOpen(true)}
+                    placeholder="Search customers"
+                    className="p-2 border rounded-xl w-full pr-10"
+                />
+                {searchText && (
+                    <button
+                        type="button"
+                        onClick={handleClear}
+                        className="absolute inset-y-0 right-2 flex items-center text-black hover:text-black"
+                    >
+                        ✕
+                    </button>
+                )}
+            </div>
             {isOpen && (
                 <div className="absolute z-10 max-w-max max-h-64 mt-1 overflow-y-auto bg-white border border-gray-300 rounded shadow-lg">
                     {filteredOptions.length > 0 ? (

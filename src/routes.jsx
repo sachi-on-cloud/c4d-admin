@@ -47,6 +47,7 @@ import CabSubscriptionAdd from "./pages/finance/subscription/cab-subscription-ad
 import ReassignDriver from "./components/ReassignDriver";
 import PayableView from "./pages/finance/payable/view";
 import PayableDetails from "./pages/finance/payable/details";
+import UserEdit from "./pages/users/edit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -200,7 +201,7 @@ export const routes = [
         icon: <UserIcon {...icon} />,
         name: "users",
         path: "/users/edit/:id",
-        element: <UserAdd />,
+        element: <UserEdit />,
         display: false
       },
       {

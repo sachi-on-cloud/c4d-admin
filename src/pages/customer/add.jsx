@@ -7,7 +7,7 @@ import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
 const CustomerAdd = (props) => {
-    const [driverVal, setDriverVal] = useState({});
+    const [customerVal, setCustomerVal] = useState({});
     const [alert, setAlert] = useState(false);
     const { id } = useParams();
     const isEditMode = !!id;
@@ -19,22 +19,24 @@ const CustomerAdd = (props) => {
     }, [id, isEditMode]);
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CUSTOMER + `/${itemId}`);
-        setDriverVal(data.data);
+        setCustomerVal(data.data);
     };
     const initialValues = {
-        salutation: driverVal?.salutation || '',
-        firstName: driverVal?.firstName || '',
-        phoneNumber: props.customerNumber || '', //driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, ''): "",
+        salutation: customerVal?.salutation || '',
+        firstName: customerVal?.firstName || '',
+        phoneNumber: props.customerNumber || '', //customerVal?.phoneNumber ? customerVal?.phoneNumber.replace(/^(\+91)/, ''): "",
         carNumber: '',
         nickName: '',
         carType: '',
         fuelType: '',
-        transmissionType: ''
+        transmissionType: '',
+        source: customerVal?.source || '',
     };
 
     const validationSchema = Yup.object({
         salutation: Yup.string().required('Salutation is required'),
         firstName: Yup.string().required('Name is required'),
+        source: Yup.string().required('source is required'),
         ...(isEditMode
             ? {}
             : {
@@ -52,6 +54,7 @@ const CustomerAdd = (props) => {
             const customerData = {
                 salutation: values.salutation,
                 firstName: values.firstName,
+                source: values.source,
             };
             let data;
             if (isEditMode) {
@@ -141,13 +144,14 @@ const CustomerAdd = (props) => {
                                     <option value="">Select salutation</option>
                                     <option value="Mr">Mr</option>
                                     <option value="Mrs">Mrs</option>
+                                    <option value="Miss">Miss</option>
                                     <option value="Others">Others</option>
                                 </Field>
                                 <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div>
-                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</label>
+                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Full Name</label>
                                 <Field type="text" name="firstName" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
@@ -156,10 +160,31 @@ const CustomerAdd = (props) => {
                                 <>
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-2 border-gray-300" maxLength={10} />
+                                        <div className="flex items-center p-2 w-full rounded-md border-2 border-gray-300">
+                                            <span className="text-gray-700 font-medium">+91</span>
+                                            <Field 
+                                                type="tel" 
+                                                name="phoneNumber" 
+                                                className="ml-2 flex-1 outline-none bg-transparent" 
+                                                maxLength={10} 
+                                            />
+                                        </div>
                                         <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                        <text className='text-[10px] text-gray-700 font-normal'>Please enter a phone number with 10 digits</text>
                                     </div>
-                                </>)}
+                                </>
+                            )}
+                            <div>
+                                <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
+                                <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="">Select Source</option>
+                                    <option value="walkIn">Walk In</option>
+                                    <option value="mobileApp">Mobile App</option>
+                                    <option value="website">Website</option>
+                                    <option value="call">Call</option>
+                                </Field>
+                                <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
+                            </div>
                         </div>
 
                         <div className='flex flex-row'>

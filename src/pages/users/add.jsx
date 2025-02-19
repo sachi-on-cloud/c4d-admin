@@ -54,8 +54,8 @@ const UserAdd = () => {
                 //     resetForm();
                 navigate('/dashboard/users', {
                     state: {
-                        userAdded: isEditMode ? false : true,
-                        userUpdated: isEditMode ? true : false,
+                        userAdded: true,
+                        userUpdated: false,
                         userName: values.name
                     }
                 });

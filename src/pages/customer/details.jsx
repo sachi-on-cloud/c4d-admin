@@ -23,7 +23,7 @@ const CustomerDetails = () => {
         salutation: driverVal?.salutation || '',
         firstName: driverVal?.firstName || '',
         phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
-
+        source: driverVal?.source || '',
     };
 
 
@@ -60,6 +60,18 @@ const CustomerDetails = () => {
                                     <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                     <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md bg-gray-200 border border-gray-300" maxLength={10} />
                                     <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
+                                    <Field as="select" disabled name="source" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Source</option>
+                                        <option value="walkIn">Walk In</option>
+                                        <option value="mobileApp">Mobile App</option>
+                                        <option value="website">Website</option>
+                                        <option value="call">Call</option>
+                                    </Field>
+                                    <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                                 </div>
 
                             </div>

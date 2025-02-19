@@ -17,12 +17,11 @@ const UserEdit = () => {
     
     // const initialRoleValue = USER_ROLE.find(user => user.id === role);
 
-    // Handle role selection
     const handleRoleChange = (selectedOption, setFieldValue) => {
         const selectedRole = selectedOption?.value || '';
+        setRole(selectedRole);
         setFieldValue('role', selectedRole);
         setFieldValue('permission', ROLE_PERMISSIONS[selectedRole] || [])
-        setRole(selectedRole);
     };
 
     useEffect(() => {
@@ -30,6 +29,13 @@ const UserEdit = () => {
             fetchItem(id);
         }
     }, [id]);
+
+    useEffect(() => {
+        if (userVal.role) {
+            setRole(userVal.role);
+        }
+    }, [userVal.role]); 
+    
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + `${itemId}`);
         setUserVal(data.data);
@@ -49,11 +55,14 @@ const UserEdit = () => {
                 name: values.name,
                 phoneNumber: values.phoneNumber,
                 email: values.email,
-                permission: values.permission,
+                permission: values.permission, // permisions need to be updated 
                 role: role,
-                password: values.password,
                 userId: id
             };
+
+            if (values.password) {
+                userData.password = values.password; // Pasword not updating backend Issue
+            }
                 
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_USER, userData);
             
@@ -67,8 +76,8 @@ const UserEdit = () => {
                 //     resetForm();
                 navigate('/dashboard/users', {
                     state: {
-                        userAdded: isEditMode ? false : true,
-                        userUpdated: isEditMode ? true : false,
+                        userAdded: false,
+                        userUpdated: true,
                         userName: values.name
                     }
                 });
@@ -134,7 +143,9 @@ const UserEdit = () => {
                                         value: user.id,
                                         label: user.role,
                                     }))}
-                                    value={initialRoleValue ? { value: initialRoleValue.id, label: initialRoleValue.role } : null}
+                                    value={USER_ROLE.find(user => user.id === role) 
+                                        ? { value: role, label: USER_ROLE.find(user => user.id === role).role } 
+                                        : null}
                                     onChange={(val) => handleRoleChange(val,setFieldValue)}
                                     placeholder="Select Role"
                                     className="w-full"
@@ -171,7 +182,7 @@ const UserEdit = () => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                disabled={!dirty || !isValid}
+                                disabled={!isValid}
                                 className='my-6 mx-2'
                             >
                                 Update

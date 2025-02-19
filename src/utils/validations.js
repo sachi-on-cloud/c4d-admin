@@ -52,7 +52,10 @@ export const EDIT_USER_SCHEMA = Yup.object({
         .of(Yup.string().required('Each permission must be selected'))
         .required('At least one permission must be selected')
         .min(1, 'At least one permission must be selected'),
-    password: Yup.string().required('Password is required'),
+    password: Yup.lazy((value) =>
+            !value
+                ? Yup.string().notRequired()
+                : Yup.string().min(3, 'Password must be at least 3 characters')),
 });
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
