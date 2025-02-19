@@ -10,6 +10,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '@/context/auth';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from "@/utils/constants";
+// import { setUser } from '../redux/store';
+// import { useDispatch} from 'react-redux';
 
 
 export function SignIn() {
@@ -24,6 +26,7 @@ export function SignIn() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  // const dispatch = useDispatch();
 
 
   const handleInputChange = (e) => {
@@ -60,6 +63,16 @@ export function SignIn() {
         email: '',
         password: ''
       });
+
+      // const responseData1 = {
+      //   user: {
+      //     name: 'John Doe',
+      //     role: 'sales', // Role is not important here
+      //   },
+      //   permissions: ['Home','Customers','Users'], // Example permissions array
+      // };
+      // dispatch(setUser({ user: responseData1.user, permissions: responseData1.permissions }));
+      
       navigate('/dashboard/booking');
     }
   } catch (error) {
