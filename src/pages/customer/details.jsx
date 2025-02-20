@@ -66,10 +66,10 @@ const CustomerDetails = () => {
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
                                     <Field as="select" disabled name="source" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select Source</option>
-                                        <option value="walkIn">Walk In</option>
-                                        <option value="mobileApp">Mobile App</option>
-                                        <option value="website">Website</option>
-                                        <option value="call">Call</option>
+                                        <option value="Walk In">Walk In</option>
+                                        <option value="MobileApp">Mobile App</option>
+                                        <option value="Website">Website</option>
+                                        <option value="Call">Call</option>
                                     </Field>
                                     <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                                 </div>
