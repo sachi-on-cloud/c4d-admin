@@ -5,19 +5,28 @@ import {
   CardBody,
   Typography,
   Chip,
-  Button,
-  Alert
+  Alert,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Checkbox,
 } from "@material-tailwind/react";
+import { FaFilter } from 'react-icons/fa';
+import moment from "moment";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import DriverSearch from '@/components/DriverSearch';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 export function DriverView() {
   const [drivers, setDrivers] = useState([]);
   const [allDrivers, setAllDrivers] = useState([]);
   const [alert, setAlert] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(['All']);
+  const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
+
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   // const [searchQuery, setSearchQuery] = useState('');
 
   const location = useLocation();
@@ -80,6 +89,82 @@ export function DriverView() {
   //   getDrivers(searchQuery.trim());
   // }, [searchQuery]);
 
+  const handleFilterChange = (filterType, value) => {
+    console.log('filterType, value :', filterType, value)
+    if (filterType === 'availableStatus') {
+      setStatusFilter(prev => {
+        if (value === 'All') {
+          return ['All'];
+        } else {
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      });
+    } else if (filterType === 'serviceType') {
+      setServiceTypeFilter(prev => {
+        if (value === 'All') {
+          return ['All'];
+        } else {
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      });
+    }
+  };
+  const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <div className="flex items-center cursor-pointer">
+          <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+            {title}
+          </Typography>
+          <FaFilter className="text-blue-gray-400 text-xs" />
+        </div>
+      </PopoverHandler>
+      <PopoverContent className="p-2">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center mb-2">
+            <Checkbox
+              color="blue"
+              checked={selectedFilters.includes(option.value)}
+              onChange={() => onFilterChange(option.value)}
+            />
+            <Typography color="blue-gray" className="font-medium ml-2">
+              {option.label}
+            </Typography>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+
+    const sortedDrivers = [...drivers].sort((a, b) => {
+      if (key === 'created_at') {
+        return direction === 'ascending'
+          ? new Date(a[key]) - new Date(b[key])
+          : new Date(b[key]) - new Date(a[key]);
+      } else {
+        const aValue = a[key]?.toLowerCase() || '';
+        const bValue = b[key]?.toLowerCase() || '';
+        if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
+        if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
+        return 0;
+      }
+    });
+
+    setDrivers(sortedDrivers);
+  };
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && <div className='mb-2'>
@@ -103,109 +188,129 @@ export function DriverView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", "Intercity", "Outstation", "Type", "Status", ""].map((el) => (
+                    <th onClick={() => handleSort('created_at')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer flex items-center">
+                      <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Created Date</Typography>
+                      {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 mx-1 justify-center items-center text-black" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
+                    </th>
+                    <th onClick={() => handleSort('firstName')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
+                      <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
+                      {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
+                    </th>
+                    {["Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "Driver Status", "KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
-                        <Typography
+                        {el === "Available Status" ? (
+                          <FilterPopover
+                            title={el}
+                            options={[
+                              { value: 'ALL', label: 'All' },
+                              { value: 'ACTIVE', label: 'Online' },
+                              { value: 'NOT_ACTIVE', label: 'Offline' }
+                            ]}
+                            selectedFilters={statusFilter}
+                            onFilterChange={(value) => handleFilterChange('availableStatus', value)}
+                          />
+                        ) : (<Typography
                           variant="small"
                           className="text-[11px] font-bold uppercase text-blue-gray-400"
                         >
                           {el}
-                        </Typography>
+                        </Typography>)}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {drivers.map(
-                    ({ id, firstName, lastName, phoneNumber, email, status, intercityCount, outstationCount, curAddress, driverType }, key) => {
-                      const className = `py-3 px-5 ${key === drivers.length - 1
-                        ? ""
-                        : "border-b border-blue-gray-50"
-                        }`;
+                  {drivers.
+                    filter(driver =>
+                      (statusFilter.includes('All') || statusFilter.includes(driver.status))
+                    ).map(
+                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at }, key) => {
+                        const className = `py-3 px-5 ${key === drivers.length - 1
+                          ? ""
+                          : "border-b border-blue-gray-50"
+                          }`;
 
-                      return (
-                        <tr key={id}>
-                          <td className={className}>
-                            <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${id}`)}>
-                                <Typography
-                                  variant="small"
-                                  color="blue"
-                                  className="font-semibold underline"
-                                >
-                                  {firstName}
-                                </Typography>
-                                {/* <Typography className="text-xs font-normal text-blue-gray-500">
+                        return (
+                          <tr key={id}>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {moment(created_at).format("DD-MM-YYYY")}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <div className="flex items-center gap-4">
+                                <div onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${id}`)}>
+                                  <Typography
+                                    variant="small"
+                                    color="blue"
+                                    className="font-semibold underline"
+                                  >
+                                    {firstName}
+                                  </Typography>
+                                  {/* <Typography className="text-xs font-normal text-blue-gray-500">
                                   {email}
                                 </Typography> */}
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {phoneNumber}
-                            </Typography>
-                          </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600 ">
-                              {intercityCount}
-                            </Typography>
-                          </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {outstationCount}
-                            </Typography>
-                          </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {driverType}
-                            </Typography>
-                          </td>
-                          <td className={className}>
-                            <Chip
-                              variant="gradient"
-                              color={status == "ACTIVE" ? "green" : "blue-gray"}
-                              value={status == "ACTIVE" ? "online" : "offline"}
-                              className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                            />
-                          </td>
-                          <div>
-                            {/* <td className={className}>
-                              <Button
-                                as="a"
-                                onClick={() => navigate(`/dashboard/drivers/details/${id}`)}
-                                className="text-xs font-semibold text-white"
-                              >
-                                View
-                              </Button>
-                            </td> */}
-
-                            {/* {status === "ACTIVE" && <td className={className}>
-                              <Button
-                                as="a"
-                                onClick={() => navigate(`/dashboard/drivers/edit/${id}`)}
-                                className="text-xs font-semibold text-white"
-                              >
-                                Edit
-                              </Button>
-                            </td>} */}
-                            <td className={className}>
-                              <Button
-                                as="a"
-                                onClick={() => { updateDrivers(id, status) }}
-                                className="text-xs font-semibold text-white"
-                              >
-                                {status == "ACTIVE" ? "Mark Offline" : "Mark Online"}
-                              </Button>
                             </td>
-                          </div>
-                        </tr>
-                      );
-                    }
-                  )}
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {phoneNumber}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600 ">
+                                {localCount}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {outstationCount}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {source}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                                {driverType}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Chip
+                                variant="gradient"
+                                color={status == "ACTIVE" ? "green" : "blue-gray"}
+                                value={status == "ACTIVE" ? "online" : "offline"}
+                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                              />
+                            </td>
+                            <td className={className}>
+                              <Chip
+                                variant="gradient"
+                                color={status == "ACTIVE" ? "green" : "blue-gray"}
+                                value={status == "ACTIVE" ? "online" : "offline"}
+                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                              />
+                            </td>
+                            <td className={className}>
+                              <Chip
+                                variant="gradient"
+                                color={status == "ACTIVE" ? "green" : "blue-gray"}
+                                value={status == "ACTIVE" ? "online" : "offline"}
+                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                              />
+                            </td>
+                            <div>
+                            </div>
+                          </tr>
+                        );
+                      }
+                    )}
                 </tbody>
               </table>
             </CardBody>
@@ -220,6 +325,7 @@ export function DriverView() {
       </Card>
     </div >
   );
+
 }
 
 export default DriverView;
