@@ -67,7 +67,7 @@ const CustomerDetails = () => {
                                     <Field as="select" disabled name="source" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select Source</option>
                                         <option value="Walk In">Walk In</option>
-                                        <option value="MobileApp">Mobile App</option>
+                                        <option value="Mobile App">Mobile App</option>
                                         <option value="Website">Website</option>
                                         <option value="Call">Call</option>
                                     </Field>

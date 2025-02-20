@@ -8,7 +8,7 @@ import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
 import Select from 'react-select'
 
-const LocationInput = ({ field, form, suggestions, onSearch, disabled}) => {
+const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect}) => {
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
@@ -42,6 +42,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, disabled}) => {
                             key={index}
                             onClick={() => {
                                 form.setFieldValue(field.name, suggestion);
+                                onSelect(suggestion);
                                 setIsFocused(false);
                                 form.validateField(field.name);
                             }}
@@ -80,6 +81,7 @@ const DriverAdd = () => {
         driverId: "",
         value: false
     });
+    const [isSameAddress, setIsSameAddress] = useState(false);
     const isEditMode = !!id;
     const navigate = useNavigate();
 
@@ -172,6 +174,7 @@ const DriverAdd = () => {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
                 address: query
             });
+            console.log("data",data)
             if (data?.success && data?.data) {
                 setAddressSuggestions(data?.data)
             }
@@ -282,9 +285,9 @@ const DriverAdd = () => {
                 accountId : values.accountId,
                 withOwner: values.withOwner,
                 jobType: values.jobType,
+                source: values.source,
             };
             let driverData = { driverDetails, prices: values.prices };
-            console.log(driverData);
             //return;
             const data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             //console.log('Driver operation:', data.data);
@@ -421,6 +424,58 @@ const DriverAdd = () => {
             console.log('DATA IN DOC INSERT :', data);
         }
     }
+
+    const parseAddress = (address) => {
+        if (!address || typeof address !== "string") {
+            console.error("parseAddress received an undefined or invalid address");
+            return {
+                street: "",
+                taluk: "",
+                district: "",
+                state: "",
+                country: "",
+                pincode: "",
+            };
+        }
+    
+        const parts = address.split(", ").reverse();
+        return {
+            street: parts[4] || "",
+            taluk: parts[3] || "",
+            district: parts[2] || "",
+            state: parts[1] || "",
+            country: parts[0] || "",
+            pincode: "",
+        };
+    };
+    
+    const extractPincode = (addressComponents) => {
+        const pincodeObj = addressComponents.find((comp) =>
+            comp.types.includes("postal_code")
+        );
+        return pincodeObj ? pincodeObj.long_name : "";
+    };
+
+    const handleGoogleAddressSelect = (place) => {
+        if (!place || !place.formatted_address) {
+            console.error("Google Address selection is invalid", place);
+            return;
+        }
+    
+        const parsedAddress = parseAddress(place.formatted_address);
+        parsedAddress.pincode = extractPincode(place.address_components);
+    
+        setFieldValue("address", place.formatted_address);
+    
+        if (isSameAddress) {
+            setFieldValue("streetName", parsedAddress.street);
+            setFieldValue("thaluk", parsedAddress.taluk);
+            setFieldValue("district", parsedAddress.district);
+            setFieldValue("state", parsedAddress.state);
+            setFieldValue("pinCode", parsedAddress.pincode);
+        }
+    };
+    
     return (
         <div className="p-4 mx-auto">
             {alert && (
@@ -595,12 +650,45 @@ const DriverAdd = () => {
                                                     suggestions={addressSuggestions}
                                                     onSearch={searchLocations}
                                                     disabled={!isEditable} 
+                                                    onSelect={handleGoogleAddressSelect}
                                                 />
                                             )}
                                         </Field>
                                         <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 </div>
+
+                                <div className="flex items-center mt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="sameAddress"
+                                        checked={isSameAddress}
+                                        onChange={(e) => {
+                                            setIsSameAddress(e.target.checked);
+                                            if (e.target.checked) {
+                                                const currentAddress = parseAddress(values.address); // Parse the current address again
+                                        
+                                                setFieldValue("streetName", currentAddress.street);
+                                                setFieldValue("thaluk", currentAddress.taluk);
+                                                setFieldValue("district", currentAddress.district);
+                                                setFieldValue("state", currentAddress.state);
+                                                setFieldValue("pinCode", currentAddress.pincode);
+                                            } else {
+                                                setFieldValue("streetName", "");
+                                                setFieldValue("thaluk", "");
+                                                setFieldValue("district", "");
+                                                setFieldValue("state", "");
+                                                setFieldValue("pinCode", "");
+                                            }
+                                        }}                                        
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="sameAddress" className="text-sm text-gray-700">
+                                        Same as Current Address
+                                    </label>
+                                </div>
+
+
                                 <div className="grid grid-cols-1 gap-4">
                                     <div>
                                         <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
@@ -615,21 +703,21 @@ const DriverAdd = () => {
                                             <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
                                                 Thaluk
                                             </label>
-                                            <Select
+                                            <select
                                                 id="thaluk"
-                                                options={filteredThaluk.map((thaluk) => ({
-                                                    value: thaluk.id,
-                                                    label: thaluk.name,
-                                                }))}
-                                                onChange={(selectedOption) =>
-                                                    setFieldValue("thaluk", selectedOption?.value || "")
-                                                }
-                                                placeholder="Search Thaluk"
-                                                isSearchable
-                                                className="w-full"
-                                                classNamePrefix="react-select"
-                                                isDisabled={!isEditable}
-                                            />
+                                                name="thaluk"
+                                                value={values.thaluk}
+                                                onChange={(e) => setFieldValue("thaluk", e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                disabled={!isEditable}
+                                            >
+                                                <option value="" disabled>Select Thaluk</option>
+                                                {filteredThaluk.map((thaluk) => (
+                                                    <option key={thaluk.id} value={thaluk.id}>
+                                                        {thaluk.name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <ErrorMessage
                                                 name="thaluk"
                                                 component="div"
@@ -640,21 +728,21 @@ const DriverAdd = () => {
                                             <label htmlFor="district" className="text-sm font-medium text-gray-700">
                                                 District
                                             </label>
-                                            <Select
+                                            <select
                                                 id="district"
-                                                options={filteredDistricts.map((district) => ({
-                                                    value: district.id,
-                                                    label: district.name,
-                                                }))}
-                                                onChange={(selectedOption) =>
-                                                    setFieldValue("district", selectedOption?.value || "")
-                                                }
-                                                placeholder="Select District"
-                                                isSearchable
-                                                className="w-full"
-                                                classNamePrefix="react-select"
-                                                isDisabled={!isEditable}
-                                            />
+                                                name="district"
+                                                value={values.district}
+                                                onChange={(e) => setFieldValue("district", e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                disabled={!isEditable}
+                                            >
+                                                <option value="" disabled>Select District</option>
+                                                {filteredDistricts.map((district) => (
+                                                    <option key={district.id} value={district.id}>
+                                                        {district.name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <ErrorMessage
                                                 name="district"
                                                 component="div"
@@ -665,21 +753,21 @@ const DriverAdd = () => {
                                             <label htmlFor="state" className="text-sm font-medium text-gray-700">
                                                 State
                                             </label>
-                                            <Select
+                                            <select
                                                 id="state"
-                                                options={filteredState.map((state) => ({
-                                                    value: state.id,
-                                                    label: state.name,
-                                                }))}
-                                                onChange={(selectedOption) =>
-                                                    setFieldValue("state", selectedOption?.value || "")
-                                                }
-                                                placeholder="Select State"
-                                                isSearchable
-                                                className="w-full"
-                                                classNamePrefix="react-select"
-                                                isDisabled={!isEditable}
-                                            />
+                                                name="state"
+                                                value={values.state}
+                                                onChange={(e) => setFieldValue("state", e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                disabled={!isEditable}
+                                            >
+                                                <option value="" disabled>Select State</option>
+                                                {filteredState.map((state) => (
+                                                    <option key={state.id} value={state.id}>
+                                                        {state.name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <ErrorMessage
                                                 name="state"
                                                 component="div"

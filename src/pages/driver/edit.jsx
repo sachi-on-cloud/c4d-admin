@@ -164,7 +164,7 @@ const DriverEdit = () => {
         carType: driverVal?.result?.carType || "",
         packages: driverVal?.result?.packages || "",
         //wallet: driverVal?.result?.wallet || "",
-        prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages.includes(el.packageId)) : [],
+        prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages?.includes(el.packageId)) : [],
         withOwner: driverVal?.result?.Account? "Yes":"No",
         ownerName:driverVal?.result?.Account?.name || "",
         jobType: driverVal?.result?.jobType || "",
@@ -355,7 +355,7 @@ const DriverEdit = () => {
                         </label>
                         <input
                             type="file"
-                            accept="image/*"
+                            accept="image/*, application/pdf" 
                             id={name}
                             name={name}
                             onChange={onChange}
@@ -368,10 +368,11 @@ const DriverEdit = () => {
                         <Typography
                             variant="small"
                             className="font-semibold underline cursor-pointer text-blue-900"
-                            onClick={() =>
+                            onClick={() =>{
+                                console.log("MODAL URL",value);
                                 setModalData({
                                     image: typeof value === "string" ? value : URL.createObjectURL(value)
-                                })
+                                })}
                             }
                         >
                             View Details
@@ -398,17 +399,17 @@ const DriverEdit = () => {
         if (file) {
             setFieldValue(label, file);
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviews((prev) => ({
-                    ...prev,
-                    [label]: {
-                        image1: reader.result,
-                        id: docId
-                    },
-                }));
-            };
-            reader.readAsDataURL(file);
+            // const reader = new FileReader();
+            // reader.onloadend = () => {
+            //     // setImagePreviews((prev) => ({
+            //     //     ...prev,
+            //     //     [label]: {
+            //     //         image1: reader.result,
+            //     //         id: docId
+            //     //     },
+            //     // }));
+            // };
+            // reader.readAsDataURL(file);
 
             const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'policeClearance' ? KYC_PROCESS.POLICE_CLEARANCE : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : KYC_PROCESS.LIVE_PHOTO;
             const formData = new FormData();
@@ -425,6 +426,15 @@ const DriverEdit = () => {
             } else {
                 formData.append('documentId', docId);
                 data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+            }
+            if(data?.success){
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1: data?.data?.image1,
+                        id: data?.data?.id,
+                    },
+                }));
             }
 
             console.log('DATA IN DOC UPDATE :', data);
@@ -971,12 +981,30 @@ const DriverEdit = () => {
                     </DialogHeader>
                     <DialogBody divider>
                     <div className="flex flex-col items-center">
-                        <img
-                        src={modalData.image}
-                        alt="Document"
-                        className="max-w-full rounded-lg shadow-md"
-                        style={{ height: "45vh", objectFit: "contain" }}
-                        />
+                        {modalData.image.endsWith(".pdf") ? (
+                            <iframe
+                                src={modalData.image}
+                                className="w-full rounded-lg shadow-md"
+                                style={{ height: "45vh" }}
+                            />
+                        ) : (
+                            <img
+                                src={modalData.image}
+                                alt="Document"
+                                className="max-w-full rounded-lg shadow-md"
+                                style={{ height: "45vh", objectFit: "contain" }}
+                            />
+                        )}
+                    </div>
+                    <div className="flex justify-center mt-4">
+                        <a
+                            href={modalData.image}
+                            download = "doucument.pdf"
+                            target='_blank'
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                            Download
+                        </a>
                     </div>
                     </DialogBody>
                 </Dialog>
