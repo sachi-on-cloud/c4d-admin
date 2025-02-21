@@ -352,7 +352,20 @@ const DriverEdit = () => {
                         {value ? "UPLOADED" : "NO DOCUMENTS"}
                     </Typography>
                 </td>
-                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                        {moment(fullDocVal?.created_at).format("DD-MM-YYYY")}
+                    </Typography>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">{fullDocVal?.User?.name}</Typography>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                        {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY"):""}
+                    </Typography>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
                     <div className="flex items-center gap-2">
                         <label
                             htmlFor={name}
@@ -370,7 +383,7 @@ const DriverEdit = () => {
                         />
                     </div>
                 </td>
-                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                <td className="py-3 px-5 border-b border-blue-gray-50">
                     {value && (
                         <Typography
                             variant="small"
@@ -382,19 +395,9 @@ const DriverEdit = () => {
                                 })}
                             }
                         >
-                            View Details
+                            View/Download
                         </Typography>
                     )}
-                </td>
-                <td className="py-3 px-5 border-b border-blue-gray-50">
-                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                        {moment(fullDocVal?.created_at).format("DD-MM-YYYY")}
-                    </Typography>
-                </td>
-                <td className="py-3 px-5 border-b border-blue-gray-50">
-                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                        {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY"):""}
-                    </Typography>
                 </td>
             </tr>
         );
@@ -841,7 +844,7 @@ const DriverEdit = () => {
                             <div className="mt-6">
                             <div className="flex flex-row justify-between px-2 mb-2">
                                 <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
-                                    Document Upload
+                                    Documents
                                 </Typography>
                             </div>
                             <Card>
@@ -849,7 +852,7 @@ const DriverEdit = () => {
                                     <table className="w-full min-w-[640px] table-auto">
                                         <thead>
                                             <tr>
-                                                {["Type", "Status", "Action","View Details","Created At","Verified At"].map((el, index) => (
+                                                {["Type", "KYC Status", "Created At", "Verfied By", "Verified At", "Action", "View Details"].map((el, index) => (
                                                     <th
                                                         key={index}
                                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
