@@ -10,7 +10,7 @@ import Select from 'react-select';
 import moment from "moment";
 
 
-const LocationInput = ({ field, form, suggestions, onSearch }) => {
+const LocationInput = ({ field, form, suggestions, onSearch, onSelect }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     return (
@@ -34,6 +34,7 @@ const LocationInput = ({ field, form, suggestions, onSearch }) => {
                             key={index}
                             onClick={() => {
                                 form.setFieldValue(field.name, suggestion);
+                                onSelect(suggestion);
                                 setIsFocused(false);
                             }}
                             className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
@@ -64,6 +65,8 @@ const DriverEdit = () => {
     const isEditMode = !!id;
     const navigate = useNavigate();
     const [modalData,setModalData] = useState(null);
+    const [isSameAddress, setIsSameAddress] = useState(false);
+
 
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
@@ -80,7 +83,7 @@ const DriverEdit = () => {
 
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
-            if (type === 'Intercity') {
+            if (type === 'Local') {
                 const hoursA = parseInt(a.period);
                 const hoursB = parseInt(b.period);
                 return hoursA - hoursB;
@@ -97,13 +100,13 @@ const DriverEdit = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Intercity' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
+                const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
                 return {
                     ...option,
                     period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
-            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Intercity'), 'Intercity');
+            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
             const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'),'CarWash');
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
@@ -160,7 +163,7 @@ const DriverEdit = () => {
         phoneNumber1: driverVal?.result?.reference1_phone ? driverVal?.result?.reference1_phone.replace(/^(\+91)/, '') : "",
         reference2: driverVal?.result?.reference2 || "",
         phoneNumber2: driverVal?.result?.reference2_phone ? driverVal?.result?.reference2_phone.replace(/^(\+91)/, '') : "",
-        preference: driverVal?.result?.preference || "",
+        transmissionType: driverVal?.result?.transmissionType || "",
         carType: driverVal?.result?.carType || "",
         packages: driverVal?.result?.packages || "",
         //wallet: driverVal?.result?.wallet || "",
@@ -168,6 +171,8 @@ const DriverEdit = () => {
         withOwner: driverVal?.result?.Account? "Yes":"No",
         ownerName:driverVal?.result?.Account?.name || "",
         jobType: driverVal?.result?.jobType || "",
+        source : driverVal?.result?.source || "",
+        serviceType: driverVal?.result?.serviceType || "",
     };
 
     const searchLocations = async (query) => {
@@ -190,7 +195,7 @@ const DriverEdit = () => {
             const packageA = packageDetails.find(p => p.id === a.packageId);
             const packageB = packageDetails.find(p => p.id === b.packageId);
             
-            if (title === "INTERCITY") {
+            if (title === "LOCAL") {
                 const hoursA = parseInt(packageA.period);
                 const hoursB = parseInt(packageB.period);
                 return hoursA - hoursB;
@@ -279,11 +284,13 @@ const DriverEdit = () => {
                 reference1_phone: values.phoneNumber1 || "",
                 reference2: values.reference2 || "",
                 reference2_phone: values.phoneNumber2 || "",
-                preference: values.preference,
+                transmissionType: values.transmissionType,
                 packages: values.packages,
                 carType: values.carType,
                 //wallet: values.wallet,
-                driverId: id
+                driverId: id,
+                source: values.source,
+                serviceType: values.serviceType,
             };
             let driverData = { driverDetails, prices: values.prices }
             //return;
@@ -441,6 +448,57 @@ const DriverEdit = () => {
         }
     }
 
+    const parseAddress = (address) => {
+        if (!address || typeof address !== "string") {
+            console.error("parseAddress received an undefined or invalid address");
+            return {
+                street: "",
+                taluk: "",
+                district: "",
+                state: "",
+                country: "",
+                pincode: "",
+            };
+        }
+    
+        const parts = address.split(", ").reverse();
+        return {
+            street: parts[4] || "",
+            taluk: parts[3] || "",
+            district: parts[2] || "",
+            state: parts[1] || "",
+            country: parts[0] || "",
+            pincode: "",
+        };
+    };
+
+    const extractPincode = (addressComponents) => {
+        const pincodeObj = addressComponents.find((comp) =>
+            comp.types.includes("postal_code")
+        );
+        return pincodeObj ? pincodeObj.long_name : "";
+    };
+
+    const handleGoogleAddressSelect = (place) => {
+        if (!place || !place.formatted_address) {
+            console.error("Google Address selection is invalid", place);
+            return;
+        }
+    
+        const parsedAddress = parseAddress(place.formatted_address);
+        parsedAddress.pincode = extractPincode(place.address_components);
+    
+        setFieldValue("address", place.formatted_address);
+    
+        if (isSameAddress) {
+            setFieldValue("streetName", parsedAddress.street);
+            setFieldValue("thaluk", parsedAddress.taluk);
+            setFieldValue("district", parsedAddress.district);
+            setFieldValue("state", parsedAddress.state);
+            setFieldValue("pinCode", parsedAddress.pincode);
+        }
+    };
+
     return (
         <div className="p-4 mx-auto">
             <h2 className="text-2xl font-bold mb-4">Update Driver</h2>
@@ -465,21 +523,15 @@ const DriverEdit = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
+                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Full Name</label>
                                         <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                         <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
 
                                     <div>
-                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
+                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700">Father / Guardian Name</label>
                                         <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                         <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
-                                        <Field type="text" name="motherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
 
                                     <div>
@@ -513,86 +565,6 @@ const DriverEdit = () => {
                                     </div>
 
                                     <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
-                                        <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field
-                                                type="radio"
-                                                name="jobType"
-                                                value="CAB"
-                                                className="form-radio"
-                                                disabled
-                                            />
-                                            <span className="ml-2">Cab Driver</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field
-                                                type="radio"
-                                                name="jobType"
-                                                value="ACTING_DRIVER"
-                                                className="form-radio"
-                                                disabled
-                                            />
-                                            <span className="ml-2">Acting Driver</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field
-                                                type="radio"
-                                                name="jobType"
-                                                value="BOTH"
-                                                className="form-radio"
-                                                disabled
-                                            />
-                                            <span className="ml-2">Both</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage
-                                        name="withOwner"
-                                        component="div"
-                                        className="text-red-500 text-sm"
-                                    />
-                                    </div>
-
-                                    {values.jobType === "CAB" && <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
-                                        <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field
-                                                type="radio"
-                                                name="withOwner"
-                                                value="Yes"
-                                                className="form-radio"
-                                                disabled
-                                            />
-                                            <span className="ml-2">Yes</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field
-                                                type="radio"
-                                                name="withOwner"
-                                                value="No"
-                                                className="form-radio"
-                                                disabled
-                                            />
-                                            <span className="ml-2">No</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage
-                                        name="withOwner"
-                                        component="div"
-                                        className="text-red-500 text-sm"
-                                    />
-                                    </div>}
-
-                                    {values.withOwner == "Yes" && values.jobType == "CAB" && 
-                                    <div>
-                                        <label htmlFor='ownerName' className='text-sm font-medium text-gray-700'>Owner Name</label>
-                                        <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
-                                        <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm" />
-                                    </div>  
-                                    }
-
-                                    <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                         <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                         <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
@@ -609,11 +581,11 @@ const DriverEdit = () => {
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
                                                 <Field type="radio" name="licenseType" value="type1" className="form-radio" />
-                                                <span className="ml-2">Type 1</span>
+                                                <span className="ml-2">White Board</span>
                                             </label>
                                             <label className="inline-flex items-center">
                                                 <Field type="radio" name="licenseType" value="type2" className="form-radio" />
-                                                <span className="ml-2">Type 2</span>
+                                                <span className="ml-2">Yellow Board</span>
                                             </label>
                                         </div>
                                         <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
@@ -626,33 +598,68 @@ const DriverEdit = () => {
                                     </div>
 
                                     <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="professionalLicense" value="Yes" className="form-radio" />
-                                                <span className="ml-2">Yes</span>
+                                                <Field type="radio" name="transmissionType" value="Automatic" className="form-radio" />
+                                                <span className="ml-2">Automatic</span>
                                             </label>
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="professionalLicense" value="No" className="form-radio" />
-                                                <span className="ml-2">No</span>
+                                                <Field type="radio" name="transmissionType" value="Manual" className="form-radio" />
+                                                <span className="ml-2">Manual</span>
                                             </label>
                                         </div>
-                                        <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
+                                        <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    
+                                    <div>
+                                        <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
+                                        <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="">Select Source</option>
+                                            <option value="Walk In">Walk In</option>
+                                            <option value="Mobile App">Mobile App</option>
+                                            <option value="Website">Website</option>
+                                            <option value="Call">Call</option>
+                                        </Field>
+                                        <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                                     </div>
 
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
+                                     <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Service Type</p>
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="policeClearanceCertificate" value="Yes" className="form-radio" />
-                                                <span className="ml-2">Yes</span>
+                                                <Field
+                                                    type="radio"
+                                                    name="serviceType"
+                                                    value="DRIVER"
+                                                    className="form-radio"
+                                                />
+                                                <span className="ml-2">Driver Only</span>
                                             </label>
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="policeClearanceCertificate" value="No" className="form-radio" />
-                                                <span className="ml-2">No</span>
+                                                <Field
+                                                    type="radio"
+                                                    name="serviceType"
+                                                    value="DRIVER_WITH_CAB"
+                                                    className="form-radio"
+                                                />
+                                                <span className="ml-2">Driver With Vehicle</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field
+                                                    type="radio"
+                                                    name="serviceType"
+                                                    value="OWNER"
+                                                    className="form-radio"
+                                                />
+                                                <span className="ml-2">OWNER</span>
                                             </label>
                                         </div>
-                                        <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
+                                        <ErrorMessage
+                                            name="serviceType"
+                                            component="div"
+                                            className="text-red-500 text-sm"
+                                        />
                                     </div>
 
                                     <div>
@@ -664,12 +671,44 @@ const DriverEdit = () => {
                                                     form={form}
                                                     suggestions={addressSuggestions}
                                                     onSearch={searchLocations}
+                                                    onSelect={handleGoogleAddressSelect}
                                                 />
                                             )}
                                         </Field>
                                         <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 </div>
+
+                                <div className="flex items-center mt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="sameAddress"
+                                        checked={isSameAddress}
+                                        onChange={(e) => {
+                                            setIsSameAddress(e.target.checked);
+                                            if (e.target.checked) {
+                                                const currentAddress = parseAddress(values.address);
+                                        
+                                                setFieldValue("streetName", currentAddress.street);
+                                                setFieldValue("thaluk", currentAddress.taluk);
+                                                setFieldValue("district", currentAddress.district);
+                                                setFieldValue("state", currentAddress.state);
+                                                setFieldValue("pinCode", currentAddress.pincode);
+                                            } else {
+                                                setFieldValue("streetName", "");
+                                                setFieldValue("thaluk", "");
+                                                setFieldValue("district", "");
+                                                setFieldValue("state", "");
+                                                setFieldValue("pinCode", "");
+                                            }
+                                        }}                                        
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="sameAddress" className="text-sm text-gray-700">
+                                        Same as Current Address
+                                    </label>
+                                </div>
+
                                 <div className="grid grid-cols-1 gap-4">
                                     <div>
                                         <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
@@ -766,46 +805,7 @@ const DriverEdit = () => {
                                     <Field type="tel" name="phoneNumber2" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                     <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
                                 </div>
-                            
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="carType" value="Sedan" className="form-radio" />
-                                            <span className="ml-2">Sedan</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="carType" value="SUV" className="form-radio" />
-                                            <span className="ml-2">SUV</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
-                                            <span className="ml-2">Hatchback</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                                </div>
 
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" value="Automatic" className="form-radio" />
-                                            <span className="ml-2">Automatic</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="preference" value="Manual" className="form-radio" />
-                                            <span className="ml-2">Manual</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                
-                                {/* <div>
-                                    <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                    <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
-                                    <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                                </div> */}
                                 <div>
                                     <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                     <Multiselect
@@ -915,10 +915,10 @@ const DriverEdit = () => {
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
                                 {renderPriceTable(
-                                    "INTERCITY",
+                                    "LOCAL",
                                     values.prices.filter(price => {
                                         const package_ = packageDetails.find(p => p.id === price.packageId);
-                                        return package_?.type === 'Intercity';
+                                        return package_?.type === 'Local';
                                     }),
                                     values,
                                     packageDetails
@@ -948,7 +948,7 @@ const DriverEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${id}`)}
+                                onClick={() => navigate(`/dashboard/vendors/account/drivers`)}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Back

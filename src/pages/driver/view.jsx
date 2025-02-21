@@ -25,6 +25,7 @@ export function DriverView() {
   const [alert, setAlert] = useState(false);
   const [statusFilter, setStatusFilter] = useState(['All']);
   const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
+  const [documentTypeFilter, setDocumentTypeFilter] = useState(['All'])
 
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   // const [searchQuery, setSearchQuery] = useState('');
@@ -102,18 +103,18 @@ export function DriverView() {
           return newFilter.length === 0 ? ['All'] : newFilter;
         }
       });
-    } else if (filterType === 'serviceType') {
-      setServiceTypeFilter(prev => {
-        if (value === 'All') {
-          return ['All'];
-        } else {
-          const newFilter = prev.includes(value)
-            ? prev.filter(item => item !== value)
-            : [...prev.filter(item => item !== 'All'), value];
-          return newFilter.length === 0 ? ['All'] : newFilter;
-        }
+    } else if (filterType === 'documentStatus') {
+      setDocumentTypeFilter(prev => {
+          if (value === 'All') {
+              return ['All'];
+          } else {
+              const newFilter = prev.includes(value)
+                  ? prev.filter(item => item !== value)
+                  : [...prev.filter(item => item !== 'All'), value];
+              return newFilter.length === 0 ? ['All'] : newFilter;
+          }
       });
-    }
+  }
   };
   const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
     <Popover placement="bottom-start">
@@ -198,36 +199,52 @@ export function DriverView() {
                     </th>
                     {["Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "Driver Status", "KYC Status"].map((el) => (
                       <th
-                        key={el}
-                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                      >
-                        {el === "Available Status" ? (
-                          <FilterPopover
-                            title={el}
-                            options={[
-                              { value: 'ALL', label: 'All' },
-                              { value: 'ACTIVE', label: 'Online' },
-                              { value: 'NOT_ACTIVE', label: 'Offline' }
-                            ]}
-                            selectedFilters={statusFilter}
-                            onFilterChange={(value) => handleFilterChange('availableStatus', value)}
-                          />
-                        ) : (<Typography
+                      key={el}
+                      className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                    >
+                      {el === "Available Status" ? (
+                        <FilterPopover
+                          title={el}
+                          options={[
+                            { value: "All", label: "All" },
+                            { value: "ACTIVE", label: "Online" },
+                            { value: "IN_ACTIVE", label: "Offline" }
+                          ]}
+                          selectedFilters={statusFilter}
+                          onFilterChange={(value) => handleFilterChange("availableStatus", value)}
+                        />
+                      ) : el === "KYC Status" ? (
+                        <FilterPopover
+                          title={el}
+                          options={[
+                            { value: "All", label: "All" },
+                            { value: "PENDING", label: "Pending" },
+                            { value: "VERIFIED", label: "Verified" },
+                            { value: "DECLINED", label: "Declined" }
+                          ]}
+                          selectedFilters={documentTypeFilter}
+                          onFilterChange={(value) => handleFilterChange("documentStatus", value)}
+                        />
+                      ) : (
+                        <Typography
                           variant="small"
                           className="text-[11px] font-bold uppercase text-blue-gray-400"
                         >
                           {el}
-                        </Typography>)}
-                      </th>
+                        </Typography>
+                      )}
+                    </th>
+                    
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {drivers.
                     filter(driver =>
-                      (statusFilter.includes('All') || statusFilter.includes(driver.status))
+                      (statusFilter.includes('All') || statusFilter.includes(driver?.status)) && 
+                      (documentTypeFilter.includes('All') || documentTypeFilter.includes(driver?.documentStatus?.status) )
                     ).map(
-                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at }, key) => {
+                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus}, key) => {
                         const className = `py-3 px-5 ${key === drivers.length - 1
                           ? ""
                           : "border-b border-blue-gray-50"
@@ -292,16 +309,16 @@ export function DriverView() {
                             <td className={className}>
                               <Chip
                                 variant="gradient"
-                                color={status == "ACTIVE" ? "green" : "blue-gray"}
-                                value={status == "ACTIVE" ? "online" : "offline"}
+                                color={subscriptionStatus == "ACTIVE" ? "green" : subscriptionStatus == "BLOCKED" ? "red" : "blue-gray"}
+                                value={subscriptionStatus}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
                             </td>
                             <td className={className}>
                               <Chip
                                 variant="gradient"
-                                color={status == "ACTIVE" ? "green" : "blue-gray"}
-                                value={status == "ACTIVE" ? "online" : "offline"}
+                                color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "blue-gray"}
+                                value={documentStatus?.status}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
                             </td>
