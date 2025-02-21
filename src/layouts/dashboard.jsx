@@ -17,13 +17,13 @@ export function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50 mr-2">
-      <div className="w-72">
+      <div className="w-72 h-full fixed top-0 left-0 z-10">
         <Sidenav
           routes={routes}
           brandImg={"/img/logo-ct.png"}
         />
       </div>
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-72">
         <Topnav 
           sidenavColor={sidenavColor}
           sidenavType={sidenavType}

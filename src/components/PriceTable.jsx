@@ -50,7 +50,7 @@ const sortPrices = (prices, category) => {
         
         if (!packageA || !packageB) return 0;
 
-        if (category === 'Intercity') {
+        if (category === 'Local') {
             return extractHours(packageA.period) - extractHours(packageB.period);
         } else if (category === 'CarWash') {
             return extractCarWashNumber(packageA.period) - extractCarWashNumber(packageB.period);
@@ -63,11 +63,11 @@ const sortPrices = (prices, category) => {
         const filteredPrices = prices.filter(priceItem => {
             const packageDetails = getPackageDetails(priceItem.packageId);
             if(!packageDetails) return false;
-            if (category === 'Intercity') {
-                return packageDetails.type === 'Intercity';
+            if (category === 'Local') {
+                return packageDetails.type === 'Local';
             } else if (category === 'Outstation') {
                 
-                return packageDetails.type === 'Outstation' && packageDetails.period === '1 d';
+                return packageDetails.type === 'Local' && packageDetails.period === '1 d';
             } else if (category === 'CarWash') {
                 return packageDetails.type === 'CarWash';
             }
@@ -195,8 +195,8 @@ const sortPrices = (prices, category) => {
                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
             </div>
              <CategorySection 
-                title="INTERCITY" 
-                category="Intercity" 
+                title="LOCAL" 
+                category="Local" 
             />
             
             <CategorySection 
@@ -204,10 +204,10 @@ const sortPrices = (prices, category) => {
                 category="Outstation" 
             />
             
-            <CategorySection 
+            {/* <CategorySection 
                 title="CAR WASH" 
                 category="CarWash" 
-            />
+            /> */}
         </div>
     );
 }

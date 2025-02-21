@@ -18,9 +18,9 @@ export function Topnav({ sidenavColor, sidenavType = "dark" }) {
       { path: "/dashboard/customers", label: "All", end:true }
     ],
     "/dashboard/vendors/account": [
-      { path: "/dashboard/vendors/account", label: "Cab Owners", end:true},
-      { path: "/dashboard/vendors/account/drivers", label: "Drivers" },
-      { path: "/dashboard/vendors/account/allVehicles", label: "All Vehicles" }
+      { path: "/dashboard/vendors/account", label: "Owners", end:true},
+      { path: "/dashboard/vendors/account/drivers", label: "Drivers Only" },
+      // { path: "/dashboard/vendors/account/allVehicles", label: "All Vehicles" }
     ],
     "/dashboard/finance": [
       { path: "/dashboard/finance", label: "All Payments", end:true},

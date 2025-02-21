@@ -49,13 +49,13 @@ export function DocumentVerificationView() {
 
       const filteredAccounts = allAccounts.filter((acc) => {
         const name = (
-          acc?.Register?.firstName ||
-          acc?.Driver?.firstName ||
-          acc?.Account?.name ||
-          acc?.Cab?.name||
+          acc["Register.firstName"] ||
+          acc["Driver.firstName"] ||
+          acc["Account.name"] ||
+          acc["Cab.name"]||
           ""
         ).toLowerCase();
-        const phone = acc?.Register?.phoneNumber || acc?.Driver?.phoneNumber || acc?.Account?.phoneNumber || "";
+        const phone = acc["Register.phoneNumber"] || acc["Driver.phoneNumber"] || acc["Account.phoneNumber"] || "";
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
         return (
           name.startsWith(query) ||
@@ -151,9 +151,11 @@ export function DocumentVerificationView() {
                 <thead>
                   <tr>
                     {[
-                      "Name",
-                      "Type",
+                      "Full Name",
                       "Phone Number",
+                      "Type",
+                      "Source",
+                      "Created Date",
                       "KYC Status",
                     ].map((el, index) => (
                       <th
@@ -167,6 +169,16 @@ export function DocumentVerificationView() {
                               { value: "All", label: "All" },
                               { value: "PENDING", label: "Pending" },
                               { value: "APPROVED", label: "Approved" },
+                            ]}
+                          />
+                        ) : el === "Type" ? (
+                          <FilterPopover
+                            title={el}
+                            options={[
+                              { value: "All", label: "All" },
+                              { value: "Driver", label: "Driver" },
+                              { value: "Account", label: "Account" },
+                              { value: "Cab", label: "Cab" },
                             ]}
                           />
                         ) : (
@@ -200,6 +212,7 @@ export function DocumentVerificationView() {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
                         })();
+                        const source = data["Driver.source"];
                         return (
                           <>
                             <tr key={data?.id}>
@@ -217,12 +230,22 @@ export function DocumentVerificationView() {
                               </td>
                               <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
+                                  {number}
+                                </Typography>
+                              </td>
+                              <td className={className}>
+                                <Typography className="text-xs font-semibold text-blue-gray-600">
                                   {nameType}
                                 </Typography>
                               </td>
                               <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                  {number}
+                                  {source}
+                                </Typography>
+                              </td>
+                              <td className={className}>
+                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                  
                                 </Typography>
                               </td>
                               <td className={className}>

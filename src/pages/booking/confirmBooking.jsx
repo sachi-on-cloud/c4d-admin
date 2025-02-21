@@ -289,9 +289,8 @@ const ConfirmBooking = (props) => {
                 </CardBody>
             </Card>
 
-            {(bookingDetails?.status === 'STARTED') ||
-                ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) ?
-
+            {/*{(bookingDetails?.status === 'STARTED') ||
+                ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) &&
                 <Card className="my-4 gap-4">
                     <CardBody >
                         <Typography variant="h5" className="mb-2">
@@ -361,13 +360,6 @@ const ConfirmBooking = (props) => {
                                                 </div>
                                             </div>
                                         }
-                                        {/* {bookingDetails?.serviceType === 'CAR_WASH' && bookingDetails.status == BOOKING_STATUS.STARTED && (
-                                            <div className="flex flex-col">
-                                                <Button onClick={getPriceForBooking} className=" justify-center items-center">
-                                                    Check Price
-                                                </Button>
-                                            </div>    
-                                        )} */}
                                         {bookingDetails.status == BOOKING_STATUS.STARTED && (
                                             <div className="flex flex-col">
                                                 <label htmlFor="kms" className="text-sm font-medium text-white">
@@ -383,8 +375,8 @@ const ConfirmBooking = (props) => {
                             </div>
                         </div>
                     </CardBody>
-                </Card>
-                : ""}
+                </Card>  
+            }*/}
             {amount && (
                 <Card className="my-6">
                     <div className="border rounded-xl bg-gray-200 p-4">
@@ -412,11 +404,11 @@ const ConfirmBooking = (props) => {
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
                                     </div>
-                                    <div className="flex justify-between">
+                                    {amount.extraKMs > 0 && <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
                                         <Typography>₹ {amount?.extraPrice}</Typography>
-                                    </div>
+                                    </div>}
                                     {amount.extraKMs > 0 &&
                                         <div className="flex justify-between">
                                             <Typography color="gray" variant="h6">{`Extra KM's Fare: (${amount.extraKMs} x ${amount.extraKMPrice})`}</Typography>
@@ -439,7 +431,6 @@ const ConfirmBooking = (props) => {
                             </div>
                         </div>
                     </div>
-                    {/* </CardBody> */}
                 </Card>
             )}
             <>
@@ -545,6 +536,22 @@ const ConfirmBooking = (props) => {
                             </Button>
                         )}
 
+                    {bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
+                        bookingDetails?.pickupAddress &&
+                        !bookingDetails?.Driver?.id &&
+                        !bookingDetails?.Cab?.id && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType === "CAB"
+                                    ? "Assign Cab"
+                                    : "Assign Captain"}
+                            </Button>
+                        )}
+
                     {bookingDetails.status === 'INITIATED' &&
                         (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
                             <Button
@@ -559,7 +566,7 @@ const ConfirmBooking = (props) => {
                             </Button>
                         )}
 
-                        {(bookingDetails.status === 'BOOKING_ACCEPTED' &&
+                    {/* {(bookingDetails.status === 'BOOKING_ACCEPTED' && //start
                         dateVal &&
                         timeVal &&
                         kms) ? (
@@ -582,9 +589,9 @@ const ConfirmBooking = (props) => {
                                     Start Trip
                             </Button> 
                         ) : <></>
-                    }
+                    } */}
 
-                    {(bookingDetails.status === 'STARTED' &&
+                    {/* {(bookingDetails.status === 'STARTED' &&
                         dateVal &&
                         timeVal &&
                         kms &&
@@ -616,7 +623,7 @@ const ConfirmBooking = (props) => {
                                 End Trip
                             </Button>
                         ) :<></>
-                    }
+                    } */}
                 </div>
 
             </>

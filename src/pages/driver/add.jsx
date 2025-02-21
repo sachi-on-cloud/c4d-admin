@@ -8,7 +8,7 @@ import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
 import Select from 'react-select'
 
-const LocationInput = ({ field, form, suggestions, onSearch, disabled}) => {
+const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect}) => {
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
@@ -42,6 +42,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, disabled}) => {
                             key={index}
                             onClick={() => {
                                 form.setFieldValue(field.name, suggestion);
+                                onSelect(suggestion);
                                 setIsFocused(false);
                                 form.validateField(field.name);
                             }}
@@ -71,7 +72,8 @@ const DriverAdd = () => {
         policeClearance: null,
         livePhoto: null,
         drivingLicenseImage: null,
-        consentForm: null
+        consentForm: null,
+        panImage:null
     });      
     const [modalData, setModalData] = useState(null);
     const { id } = useParams();
@@ -79,6 +81,7 @@ const DriverAdd = () => {
         driverId: "",
         value: false
     });
+    const [isSameAddress, setIsSameAddress] = useState(false);
     const isEditMode = !!id;
     const navigate = useNavigate();
 
@@ -89,7 +92,7 @@ const DriverAdd = () => {
 
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
-            if (type === 'Intercity') {
+            if (type === 'Local') {
                 const hoursA = parseInt(a.period);
                 const hoursB = parseInt(b.period);
                 return hoursA - hoursB;
@@ -106,13 +109,13 @@ const DriverAdd = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Intercity' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
+                const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
                 return {
                     ...option,
                     period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
-            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Intercity'), 'Intercity');
+            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
             const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
@@ -133,31 +136,30 @@ const DriverAdd = () => {
         salutation: driverVal?.salutation || "",
         firstName: driverVal?.firstName || "",
         fatherName: driverVal?.fatherName || "",
-        motherName: driverVal?.motherName || "",
         dateOfBirth: driverVal?.dob || "",
         age: driverVal?.age || "",
         phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driverVal?.license || "",
         licenseType: driverVal?.licenseType || "",
         licenseExpiryDate: driverVal?.licenseExpiry || "",
-        professionalLicense: driverVal?.professionalLicense || "No",
-        policeClearanceCertificate: driverVal?.policeCertificate || "No",
+        transmissionType: driverVal?.transmissionType || "",
         address: driverVal?.address || "",
         streetName: driverVal?.street || "",
         thaluk: driverVal?.thaluk || "",
         district: driverVal?.district || "",
         state: driverVal?.state || "",
         pinCode: driverVal?.pincode || "",
+        source: driverVal?.source || "",
         reference1: driverVal?.reference1 || "",
         phoneNumber1: driverVal?.reference1_phone ? driverVal?.reference1_phone.replace(/^(\+91)/, '') : "",
         reference2: driverVal?.reference2 || "",
         phoneNumber2: driverVal?.reference2_phone ? driverVal?.reference2_phone.replace(/^(\+91)/, '') : "",
-        preference: driverVal?.preference || "",
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || [],
         //wallet: driverVal?.wallet || "",
         prices: [],
         aadhaarImage: '',
+        panImage: '',
         policeClearance: '',
         livePhoto: '',
         drivingLicenseImage: '',
@@ -171,6 +173,7 @@ const DriverAdd = () => {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
                 address: query
             });
+            console.log("data",data)
             if (data?.success && data?.data) {
                 setAddressSuggestions(data?.data)
             }
@@ -186,7 +189,7 @@ const DriverAdd = () => {
             const packageA = packageDetails.find(p => p.id === a.packageId);
             const packageB = packageDetails.find(p => p.id === b.packageId);
             
-            if (title === "INTERCITY") {
+            if (title === "LOCAL") {
                 const hoursA = parseInt(packageA.period);
                 const hoursB = parseInt(packageB.period);
                 return hoursA - hoursB;
@@ -254,7 +257,6 @@ const DriverAdd = () => {
                 salutation: values.salutation,
                 firstName: values.firstName,
                 fatherName: values.fatherName || "",
-                motherName: values.motherName || "",
                 dob: values.dateOfBirth || "",
                 age: values.age || "",
                 phoneNumber: "+91" + values.phoneNumber,
@@ -262,7 +264,6 @@ const DriverAdd = () => {
                 licenseType: values.licenseType || "",
                 licenseExpiry: values.licenseExpiryDate || "",
                 professionalLicense: values.professionalLicense || "No",
-                policeCertificate: values.policeClearanceCertificate || "No",
                 address: values.address,
                 street: values.streetName || "",
                 thaluk: values.thaluk,
@@ -274,16 +275,13 @@ const DriverAdd = () => {
                 reference1_phone: values.phoneNumber1 || "",
                 reference2: values.reference2 || "",
                 reference2_phone: values.phoneNumber2 || "",
-                preference: values.preference,
+                transmissionType: values.transmissionType,
                 packages: values.packages,
                 carType: values.carType,
-                //wallet: values.wallet,
-                accountId : values.accountId,
-                withOwner: values.withOwner,
-                jobType: values.jobType,
+                serviceType: values.serviceType,
+                source: values.source,
             };
             let driverData = { driverDetails, prices: values.prices };
-            console.log(driverData);
             //return;
             const data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             //console.log('Driver operation:', data.data);
@@ -406,7 +404,7 @@ const DriverAdd = () => {
             };
             reader.readAsDataURL(file);
 
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'policeClearance' ? KYC_PROCESS.POLICE_CLEARANCE : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : KYC_PROCESS.LIVE_PHOTO;
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'policeClearance' ? KYC_PROCESS.POLICE_CLEARANCE : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
             const formData = new FormData();
 
             formData.append('image1', file);
@@ -420,6 +418,58 @@ const DriverAdd = () => {
             console.log('DATA IN DOC INSERT :', data);
         }
     }
+
+    const parseAddress = (address) => {
+        if (!address || typeof address !== "string") {
+            console.error("parseAddress received an undefined or invalid address");
+            return {
+                street: "",
+                taluk: "",
+                district: "",
+                state: "",
+                country: "",
+                pincode: "",
+            };
+        }
+    
+        const parts = address.split(", ").reverse();
+        return {
+            street: parts[4] || "",
+            taluk: parts[3] || "",
+            district: parts[2] || "",
+            state: parts[1] || "",
+            country: parts[0] || "",
+            pincode: "",
+        };
+    };
+    
+    const extractPincode = (addressComponents) => {
+        const pincodeObj = addressComponents.find((comp) =>
+            comp.types.includes("postal_code")
+        );
+        return pincodeObj ? pincodeObj.long_name : "";
+    };
+
+    const handleGoogleAddressSelect = (place) => {
+        if (!place || !place.formatted_address) {
+            console.error("Google Address selection is invalid", place);
+            return;
+        }
+    
+        const parsedAddress = parseAddress(place.formatted_address);
+        parsedAddress.pincode = extractPincode(place.address_components);
+    
+        setFieldValue("address", place.formatted_address);
+    
+        if (isSameAddress) {
+            setFieldValue("streetName", parsedAddress.street);
+            setFieldValue("thaluk", parsedAddress.taluk);
+            setFieldValue("district", parsedAddress.district);
+            setFieldValue("state", parsedAddress.state);
+            setFieldValue("pinCode", parsedAddress.pincode);
+        }
+    };
+    
     return (
         <div className="p-4 mx-auto">
             {alert && (
@@ -455,27 +505,20 @@ const DriverAdd = () => {
                                         <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Name</label>
+                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Full Name</label>
                                         <Field type="text" name="firstName" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                         <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
                                     <div>
-                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700"> Father Name</label>
+                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700">Father / Guardian Name</label>
                                         <Field type="text" name="fatherName" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                         <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="motherName" className="text-sm font-medium text-gray-700">Mother Name</label>
-                                        <Field type="text" name="motherName" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        <ErrorMessage name="motherName" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
                                     <div>
                                         <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
                                         <Field type="date" disabled={!isEditable}  name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()} 
                                             onChange={(e) => {
-
                                                 setFieldValue('dateOfBirth', e.target.value);
-                                                
                                                 if (e.target.value) {
                                                     const today = new Date();
                                                     const birthDate = new Date(e.target.value);
@@ -497,119 +540,6 @@ const DriverAdd = () => {
                                         <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                                         <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
-
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Job Type</p>
-                                        <div className="space-x-4">
-                                            <label className="inline-flex items-center">
-                                                <Field
-                                                    type="radio"
-                                                    name="jobType"
-                                                    value="CAB"
-                                                    className="form-radio"
-                                                    disabled={!isEditable}
-                                                />
-                                                <span className="ml-2">Cab Driver</span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <Field
-                                                    type="radio"
-                                                    name="jobType"
-                                                    value="ACTING_DRIVER"
-                                                    className="form-radio"
-                                                    disabled={!isEditable}
-                                                />
-                                                <span className="ml-2">Acting Driver</span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <Field
-                                                    type="radio"
-                                                    name="jobType"
-                                                    value="BOTH"
-                                                    className="form-radio"
-                                                    disabled={!isEditable}
-                                                />
-                                                <span className="ml-2">Both</span>
-                                            </label>
-                                        </div>
-                                        <ErrorMessage
-                                            name="jobType"
-                                            component="div"
-                                            className="text-red-500 text-sm"
-                                        />
-                                    </div>
-
-                                    <Field name="jobType">
-                                        {({ field }) =>
-                                            field.value === "CAB" && (
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-700 mb-2">With Owner</p>
-                                                    <div className="space-x-4">
-                                                        <label className="inline-flex items-center">
-                                                            <Field
-                                                                type="radio"
-                                                                name="withOwner"
-                                                                value="Yes"
-                                                                className="form-radio"
-                                                                disabled={!isEditable}
-                                                            />
-                                                            <span className="ml-2">Yes</span>
-                                                        </label>
-                                                        <label className="inline-flex items-center">
-                                                            <Field
-                                                                type="radio"
-                                                                name="withOwner"
-                                                                value="No"
-                                                                className="form-radio"
-                                                                disabled={!isEditable}
-                                                            />
-                                                            <span className="ml-2">No</span>
-                                                        </label>
-                                                    </div>
-                                                    <ErrorMessage
-                                                        name="withOwner"
-                                                        component="div"
-                                                        className="text-red-500 text-sm"
-                                                    />
-                                                </div>
-                                            )
-                                        }
-                                    </Field>
-
-                                    <Field name="jobType">
-                                        {({field}) => field.value ==="CAB" && (
-                                            <Field name="withOwner">
-                                            {({ field }) =>
-                                                field.value === "Yes" && (
-                                                    <div className="mb-4">
-                                                        <label className="block mb-2 text-sm font-medium text-gray-700">
-                                                            Select Owner
-                                                        </label>
-                                                        <Field
-                                                            as="select"
-                                                            name="accountId"
-                                                            disabled={!isEditable}
-                                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                                                        >
-                                                            <option value="">Select Owner</option>
-                                                            {owner.map((owner, index) => (
-                                                                <option key={index} value={owner.id}>
-                                                                    {owner.name}
-                                                                </option>
-                                                            ))}
-                                                        </Field>
-                                                        <ErrorMessage
-                                                            name="accountId"
-                                                            component="div"
-                                                            className="text-red-500 text-sm mt-1"
-                                                        />
-                                                    </div>
-                                                )
-                                            }
-                                        </Field>
-                                        ) }
-                                    </Field>
-                                    
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                         <Field type="tel" name="phoneNumber" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
@@ -625,11 +555,11 @@ const DriverAdd = () => {
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
                                                 <Field type="radio" name="licenseType" disabled={!isEditable}  value="type1" className="form-radio" />
-                                                <span className="ml-2">Type 1</span>
+                                                <span className="ml-2">White Board</span>
                                             </label>
                                             <label className="inline-flex items-center">
                                                 <Field type="radio" name="licenseType" disabled={!isEditable}  value="type2" className="form-radio" />
-                                                <span className="ml-2">Type 2</span>
+                                                <span className="ml-2">Yellow Board</span>
                                             </label>
                                         </div>
                                         <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
@@ -640,32 +570,69 @@ const DriverAdd = () => {
                                         <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Professional License</p>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="professionalLicense" disabled={!isEditable}  value="Yes" className="form-radio" />
-                                                <span className="ml-2">Yes</span>
+                                                <Field type="radio" disabled={!isEditable}  name="transmissionType" value="Automatic" className="form-radio" />
+                                                <span className="ml-2">Automatic</span>
                                             </label>
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="professionalLicense" disabled={!isEditable}  value="No" className="form-radio" />
-                                                <span className="ml-2">No</span>
+                                                <Field type="radio" disabled={!isEditable}  name="transmissionType" value="Manual" className="form-radio" />
+                                                <span className="ml-2">Manual</span>
                                             </label>
                                         </div>
-                                        <ErrorMessage name="professionalLicense" component="div" className="text-red-500 text-sm" />
+                                        <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Police Clearance Certificate</p>
+                                        <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
+                                        <Field as="select" name="source" disabled={!isEditable} className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="">Select Source</option>
+                                            <option value="Walk In">Walk In</option>
+                                            <option value="Mobile App">Mobile App</option>
+                                            <option value="Website">Website</option>
+                                            <option value="Call">Call</option>
+                                        </Field>
+                                        <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Service Type</p>
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="policeClearanceCertificate" disabled={!isEditable}  value="Yes" className="form-radio" />
-                                                <span className="ml-2">Yes</span>
+                                                <Field
+                                                    type="radio"
+                                                    name="serviceType"
+                                                    value="DRIVER"
+                                                    className="form-radio"
+                                                    disabled={!isEditable}
+                                                />
+                                                <span className="ml-2">Driver Only</span>
                                             </label>
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="policeClearanceCertificate"  disabled={!isEditable} value="No" className="form-radio" />
-                                                <span className="ml-2">No</span>
+                                                <Field
+                                                    type="radio"
+                                                    name="serviceType"
+                                                    value="DRIVER_WITH_CAB"
+                                                    className="form-radio"
+                                                    disabled={!isEditable}
+                                                />
+                                                <span className="ml-2">Driver With Vehicle</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field
+                                                    type="radio"
+                                                    name="serviceType"
+                                                    value="OWNER"
+                                                    className="form-radio"
+                                                    disabled={!isEditable}
+                                                />
+                                                <span className="ml-2">OWNER</span>
                                             </label>
                                         </div>
-                                        <ErrorMessage name="policeClearanceCertificate" component="div" className="text-red-500 text-sm" />
+                                        <ErrorMessage
+                                            name="serviceType"
+                                            component="div"
+                                            className="text-red-500 text-sm"
+                                        />
                                     </div>
                                     <div>
                                         <label htmlFor="address" className="text-sm font-medium text-gray-700">Current Address</label>
@@ -677,12 +644,45 @@ const DriverAdd = () => {
                                                     suggestions={addressSuggestions}
                                                     onSearch={searchLocations}
                                                     disabled={!isEditable} 
+                                                    onSelect={handleGoogleAddressSelect}
                                                 />
                                             )}
                                         </Field>
                                         <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 </div>
+
+                                <div className="flex items-center mt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="sameAddress"
+                                        checked={isSameAddress}
+                                        onChange={(e) => {
+                                            setIsSameAddress(e.target.checked);
+                                            if (e.target.checked) {
+                                                const currentAddress = parseAddress(values.address); // Parse the current address again
+                                        
+                                                setFieldValue("streetName", currentAddress.street);
+                                                setFieldValue("thaluk", currentAddress.taluk);
+                                                setFieldValue("district", currentAddress.district);
+                                                setFieldValue("state", currentAddress.state);
+                                                setFieldValue("pinCode", currentAddress.pincode);
+                                            } else {
+                                                setFieldValue("streetName", "");
+                                                setFieldValue("thaluk", "");
+                                                setFieldValue("district", "");
+                                                setFieldValue("state", "");
+                                                setFieldValue("pinCode", "");
+                                            }
+                                        }}                                        
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="sameAddress" className="text-sm text-gray-700">
+                                        Same as Current Address
+                                    </label>
+                                </div>
+
+
                                 <div className="grid grid-cols-1 gap-4">
                                     <div>
                                         <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
@@ -697,21 +697,21 @@ const DriverAdd = () => {
                                             <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
                                                 Thaluk
                                             </label>
-                                            <Select
+                                            <select
                                                 id="thaluk"
-                                                options={filteredThaluk.map((thaluk) => ({
-                                                    value: thaluk.id,
-                                                    label: thaluk.name,
-                                                }))}
-                                                onChange={(selectedOption) =>
-                                                    setFieldValue("thaluk", selectedOption?.value || "")
-                                                }
-                                                placeholder="Search Thaluk"
-                                                isSearchable
-                                                className="w-full"
-                                                classNamePrefix="react-select"
-                                                isDisabled={!isEditable}
-                                            />
+                                                name="thaluk"
+                                                value={values.thaluk}
+                                                onChange={(e) => setFieldValue("thaluk", e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                disabled={!isEditable}
+                                            >
+                                                <option value="" disabled>Select Thaluk</option>
+                                                {filteredThaluk.map((thaluk) => (
+                                                    <option key={thaluk.id} value={thaluk.id}>
+                                                        {thaluk.name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <ErrorMessage
                                                 name="thaluk"
                                                 component="div"
@@ -722,21 +722,21 @@ const DriverAdd = () => {
                                             <label htmlFor="district" className="text-sm font-medium text-gray-700">
                                                 District
                                             </label>
-                                            <Select
+                                            <select
                                                 id="district"
-                                                options={filteredDistricts.map((district) => ({
-                                                    value: district.id,
-                                                    label: district.name,
-                                                }))}
-                                                onChange={(selectedOption) =>
-                                                    setFieldValue("district", selectedOption?.value || "")
-                                                }
-                                                placeholder="Select District"
-                                                isSearchable
-                                                className="w-full"
-                                                classNamePrefix="react-select"
-                                                isDisabled={!isEditable}
-                                            />
+                                                name="district"
+                                                value={values.district}
+                                                onChange={(e) => setFieldValue("district", e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                disabled={!isEditable}
+                                            >
+                                                <option value="" disabled>Select District</option>
+                                                {filteredDistricts.map((district) => (
+                                                    <option key={district.id} value={district.id}>
+                                                        {district.name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <ErrorMessage
                                                 name="district"
                                                 component="div"
@@ -747,21 +747,21 @@ const DriverAdd = () => {
                                             <label htmlFor="state" className="text-sm font-medium text-gray-700">
                                                 State
                                             </label>
-                                            <Select
+                                            <select
                                                 id="state"
-                                                options={filteredState.map((state) => ({
-                                                    value: state.id,
-                                                    label: state.name,
-                                                }))}
-                                                onChange={(selectedOption) =>
-                                                    setFieldValue("state", selectedOption?.value || "")
-                                                }
-                                                placeholder="Select State"
-                                                isSearchable
-                                                className="w-full"
-                                                classNamePrefix="react-select"
-                                                isDisabled={!isEditable}
-                                            />
+                                                name="state"
+                                                value={values.state}
+                                                onChange={(e) => setFieldValue("state", e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                disabled={!isEditable}
+                                            >
+                                                <option value="" disabled>Select State</option>
+                                                {filteredState.map((state) => (
+                                                    <option key={state.id} value={state.id}>
+                                                        {state.name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <ErrorMessage
                                                 name="state"
                                                 component="div"
@@ -793,7 +793,7 @@ const DriverAdd = () => {
                                             <Field type="tel" name="phoneNumber2" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                             <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
                                         </div>
-                                        <div>
+                                        {/* <div>
                                             <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                             <div className="space-x-4">
                                                 <label className="inline-flex items-center">
@@ -810,27 +810,14 @@ const DriverAdd = () => {
                                                 </label>
                                             </div>
                                             <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
-                                            <div className="space-x-4">
-                                                <label className="inline-flex items-center">
-                                                    <Field type="radio" disabled={!isEditable}  name="preference" value="Automatic" className="form-radio" />
-                                                    <span className="ml-2">Automatic</span>
-                                                </label>
-                                                <label className="inline-flex items-center">
-                                                    <Field type="radio" disabled={!isEditable}  name="preference" value="Manual" className="form-radio" />
-                                                    <span className="ml-2">Manual</span>
-                                                </label>
-                                            </div>
-                                            <ErrorMessage name="preference" component="div" className="text-red-500 text-sm" />
-                                        </div>
+                                        </div> */}
                                         {/* <div>
                                             <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
                                             <Field type="number" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
                                             <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                                         </div> */}
-                                        {values.jobType !== "CAB" && <div>
+                                        {/* {values.jobType !== "CAB" &&  */}
+                                        <div>
                                             <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                             <Multiselect
                                                 options={packageDetails}
@@ -859,7 +846,8 @@ const DriverAdd = () => {
                                                 showCheckbox={true}
                                                 disable={!isEditable}
                                             />
-                                        </div>}
+                                        </div>
+                                        {/* } */}
                                     </div>
                                 </div>
                             </div>
@@ -868,10 +856,10 @@ const DriverAdd = () => {
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
                                 {renderPriceTable(
-                                    "INTERCITY",
+                                    "LOCAL",
                                     values.prices.filter(price => {
                                         const package_ = packageDetails.find(p => p.id === price.packageId);
-                                        return package_?.type === 'Intercity';
+                                        return package_?.type === 'Local';
                                     }),
                                     values
                                 )}
@@ -951,26 +939,19 @@ const DriverAdd = () => {
                                                 setModalData={setModalData}
                                             />
                                             <DocumentUpload
-                                                label="Police Clearance Certificate"
-                                                value={values.policeClearance}
-                                                name="policeClearance"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "policeClearance")}
+                                                label="PAN Image"
+                                                value={values.panImage}
+                                                name="panImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
                                                 setModalData={setModalData}
                                             />
-                                            <DocumentUpload
+                                            {values.serviceType !== 'OWNER' &&<DocumentUpload
                                                 label="Driving License Image"
                                                 value={values.drivingLicenseImage}
                                                 name="drivingLicenseImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
                                                 setModalData={setModalData}
-                                            />
-                                            <DocumentUpload
-                                                label="Consent Form Image"
-                                                value={values.consentForm}
-                                                name="consentForm"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "consentForm")}
-                                                setModalData={setModalData}
-                                            />
+                                            />}
                                             <DocumentUpload
                                                 label="Live Photo"
                                                 value={values.livePhoto}
@@ -978,6 +959,27 @@ const DriverAdd = () => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto")}
                                                 setModalData={setModalData}
                                             />
+                                            {values.serviceType !== 'DRIVER' && <DocumentUpload
+                                                label="RC"
+                                                value={values.rc}
+                                                name="rc"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
+                                                setModalData={setModalData}
+                                            />}
+                                            {values.serviceType !== 'DRIVER' &&<DocumentUpload
+                                                label="Insurance"
+                                                value={values.insurance}
+                                                name="insurance"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
+                                                setModalData={setModalData}
+                                            />}
+                                            {values.serviceType !== 'DRIVER' &&<DocumentUpload
+                                                label="Bank Statement"
+                                                value={values.bankStatement}
+                                                name="bankStatement"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement")}
+                                                setModalData={setModalData}
+                                            />}
                                         </tbody>
                                     </table>
                                 </CardBody>
@@ -988,7 +990,7 @@ const DriverAdd = () => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${driverAdded.driverId}`)}
+                                    onClick={() => navigate(`/dashboard/vendors/account/drivers`)}
                                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                                 >
                                     Back

@@ -6,29 +6,47 @@ import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import Select from 'react-select';
-import { ADD_USER_SCHEMA } from '@/utils/validations';
+import { ADD_USER_SCHEMA, EDIT_USER_SCHEMA } from '@/utils/validations';
 
-const UserAdd = () => {
+const UserEdit = () => {
     const [userVal, setUserVal] = useState({});
     const [alert, setAlert] = useState(false);
     const [role, setRole] = useState('');
     const { id } = useParams();
     const navigate = useNavigate();
     
-    // Handle role selection
+    // const initialRoleValue = USER_ROLE.find(user => user.id === role);
+
     const handleRoleChange = (selectedOption, setFieldValue) => {
         const selectedRole = selectedOption?.value || '';
+        setRole(selectedRole);
         setFieldValue('role', selectedRole);
         setFieldValue('permission', ROLE_PERMISSIONS[selectedRole] || [])
-        setRole(selectedRole);
+    };
+
+    useEffect(() => {
+        if (id) {
+            fetchItem(id);
+        }
+    }, [id]);
+
+    useEffect(() => {
+        if (userVal.role) {
+            setRole(userVal.role);
+        }
+    }, [userVal.role]); 
+    
+    const fetchItem = async (itemId) => {
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + `${itemId}`);
+        setUserVal(data.data);
     };
     const initialValues = {
-        name: "",
-        phoneNumber: "",
-        email: "",
+        name: userVal?.name || "",
+        phoneNumber: userVal?.phoneNumber || "",
+        email: userVal?.email || "",
         password: "",
-        permission: null,
-        role: ""
+        permission: userVal?.permission || "",
+        role: userVal?.role || "",
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -37,15 +55,19 @@ const UserAdd = () => {
                 name: values.name,
                 phoneNumber: values.phoneNumber,
                 email: values.email,
-                permission: values.permission,
+                permission: values.permission, // permisions need to be updated 
                 role: role,
-                password: values.password
+                userId: id
             };
+
+            if (values.password) {
+                userData.password = values.password; // Pasword not updating backend Issue
+            }
                 
-            const data = await ApiRequestUtils.post(API_ROUTES.ADD_USER, userData);
+            const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_USER, userData);
             
             if (!data?.success && data?.code === 203) {
-                setAlert({ message: 'User already exists!', color: 'red' });
+                setAlert({ message: 'User Update Failed!', color: 'red' });
                 setTimeout(() => setAlert(null), 5000);
                 resetForm();
             } else {
@@ -54,15 +76,15 @@ const UserAdd = () => {
                 //     resetForm();
                 navigate('/dashboard/users', {
                     state: {
-                        userAdded: true,
-                        userUpdated: false,
+                        userAdded: false,
+                        userUpdated: true,
                         userName: values.name
                     }
                 });
             }
 
         } catch (error) {
-            console.error('Error creating user and car:', error);
+            console.error('Error updating user :', error);
             // Handle error (e.g., show an error message)
         }
         setSubmitting(false);
@@ -80,13 +102,12 @@ const UserAdd = () => {
                     </Alert>
                 </div>
             )}
-            <h2 className="text-2xl font-bold mb-4">Add New User</h2>
+            <h2 className="text-2xl font-bold mb-4">Edit User</h2>
             <Formik
                 initialValues={initialValues}
-                validationSchema={ADD_USER_SCHEMA}
+                validationSchema={EDIT_USER_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
-
             >
                 {({ handleSubmit, values, dirty, isValid, setFieldValue, errors }) => (
                     <Form className="space-y-4">
@@ -122,6 +143,9 @@ const UserAdd = () => {
                                         value: user.id,
                                         label: user.role,
                                     }))}
+                                    value={USER_ROLE.find(user => user.id === role) 
+                                        ? { value: role, label: USER_ROLE.find(user => user.id === role).role } 
+                                        : null}
                                     onChange={(val) => handleRoleChange(val,setFieldValue)}
                                     placeholder="Select Role"
                                     className="w-full"
@@ -133,7 +157,7 @@ const UserAdd = () => {
                                 <Multiselect
                                     options={PERMISSION_OPTIONS}
                                     displayValue="name"
-                                    selectedValues={PERMISSION_OPTIONS.filter(option => ROLE_PERMISSIONS[role]?.includes(option.id))}
+                                    selectedValues={PERMISSION_OPTIONS.filter(option => ROLE_PERMISSIONS[values?.role]?.includes(option.id))}
                                     placeholder="Select options"
                                     className="w-full rounded-md border-gray-300"
                                     showCheckbox={true}
@@ -158,10 +182,10 @@ const UserAdd = () => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                disabled={!dirty || !isValid}
+                                disabled={!isValid}
                                 className='my-6 mx-2'
                             >
-                                Continue
+                                Update
                             </Button>
                         </div>
                     </Form>
@@ -171,4 +195,4 @@ const UserAdd = () => {
     );
 };
 
-export default UserAdd;
+export default UserEdit;
