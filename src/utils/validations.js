@@ -119,7 +119,6 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
     salutation: Yup.string().required('Salutation is required'),
     firstName: Yup.string().required('Name is required'),
     fatherName: Yup.string().optional(),
-    motherName: Yup.string().optional(),
     dateOfBirth: Yup.date()
         .max(new Date(), 'Date of birth cannot be in the future')
         .test('age', 'Driver must be at least 18 years old', function(value) {
@@ -128,39 +127,16 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
             cutoff.setFullYear(cutoff.getFullYear() - 18);
             return value <= cutoff;
         }),
-    // age: Yup.number()
-    //     .required('Age is required')
-    //     .min(18, 'Driver must be at least 18 years old')
-    //     .max(70, 'Driver must be under 70 years old')
-    //     .typeError('Age must be a number'),
-
-    jobType: Yup.string()
-        .required("Job type is required"),
-
-    withOwner: Yup.string().when(['jobType'], {
-        is: (jobType) => jobType === 'CAB',
-        then: () => Yup.string().required('Please choose whether this is with or without an owner'),
-        otherwise: () => Yup.string().nullable(),
-    }),
- 
-    accountId: Yup.string().when(['withOwner'], {
-        is: (withOwner) => withOwner === 'Yes',
-        then: () => Yup.string().required('Owner must be selected'),
-        otherwise: () => Yup.string().nullable(),
-    }),
-
     phoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     license: Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
     licenseType: Yup.string().required('License Type is required'),
     licenseExpiryDate: Yup.date()
         .min(new Date(), 'License expiry date must be in the future')
         .required('License expiry date is required'),
-    professionalLicense: Yup.string()
-        .required('Professional License Status is required')
-        .oneOf(['Yes', 'No'], 'Must select Yes or No'),
-    policeClearanceCertificate: Yup.string()
-         .required('Police Certificate Status is required')
-         .oneOf(['Yes', 'No'], 'Must select Yes or No'),
+    source: Yup.string()
+        .required("Source is required"),
+    serviceType: Yup.string()
+        .required("Service type is required"),
     address: Yup.string()
         .required('Address is required')
         .min(5, 'Address must be at least 5 characters')
@@ -200,8 +176,7 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
     phoneNumber2: Yup.string()
         .required('Phone number 2 is required')
         .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
-    preference: Yup.string().required('Preference is required'),
-    carType: Yup.string().required('Car type is required'),
+    transmissionType: Yup.string().required('Transmission Type is required'),
     packages: Yup.array().when(['jobType'], {
         is: (jobType) => jobType === 'CAB',
         then: () =>

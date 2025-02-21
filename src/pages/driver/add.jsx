@@ -990,7 +990,7 @@ const DriverAdd = () => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${driverAdded.driverId}`)}
+                                    onClick={() => navigate(`/dashboard/vendors/account/drivers`)}
                                     className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                                 >
                                     Back
