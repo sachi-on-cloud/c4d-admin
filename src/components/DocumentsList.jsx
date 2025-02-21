@@ -220,43 +220,45 @@ const DocumentsList = ({ id, type}) => {
                             </div>
                         )}
                     </DialogBody>
-                    <DialogFooter className="flex flex-col items-center">
-                    {!isDeclining ? (
-                        <div className="flex space-x-5">
-                            <Button
-                                onClick={() => handleStatusChange(modalData.id, "APPROVED", "")}
-                                className="text-xs font-semibold text-black bg-white border border-black px-4 py-2"
-                            >
-                                Approve
-                            </Button>
-                            <Button
-                                onClick={() => setIsDeclining(true)}
-                                className="text-xs font-semibold text-white bg-black px-4 py-2"
-                            >
-                                Decline
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="flex space-x-4">
-                            <Button
-                                onClick={() => setIsDeclining(false)}
-                                className="text-xs font-semibold text-black bg-gray-300 px-4 py-2"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    handleStatusChange(modalData.id, "DECLINED", declineReason);
-                                    setIsDeclining(false);
-                                }}
-                                className="bg-blue-400 text-white px-4 py-2"
-                                disabled={!declineReason.trim()}
-                            >
-                                Send
-                            </Button>
-                        </div>
+                    {modalData.status === "PENDING" && (
+                        <DialogFooter className="flex flex-col items-center">
+                        {!isDeclining ? (
+                            <div className="flex space-x-5">
+                                <Button
+                                    onClick={() => handleStatusChange(modalData.id, "APPROVED", "")}
+                                    className="text-xs font-semibold text-black bg-white border border-black px-4 py-2"
+                                >
+                                    Approve
+                                </Button>
+                                <Button
+                                    onClick={() => setIsDeclining(true)}
+                                    className="text-xs font-semibold text-white bg-black px-4 py-2"
+                                >
+                                    Decline
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="flex space-x-4">
+                                <Button
+                                    onClick={() => setIsDeclining(false)}
+                                    className="text-xs font-semibold text-black bg-gray-300 px-4 py-2"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        handleStatusChange(modalData.id, "DECLINED", declineReason);
+                                        setIsDeclining(false);
+                                    }}
+                                    className="bg-blue-400 text-white px-4 py-2"
+                                    disabled={!declineReason.trim()}
+                                >
+                                    Send
+                                </Button>
+                            </div>
+                        )}
+                        </DialogFooter>
                     )}
-                    </DialogFooter>
                 </Dialog>
             )}
         </>
