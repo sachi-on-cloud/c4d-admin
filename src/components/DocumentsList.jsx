@@ -18,6 +18,8 @@ const DocumentsList = ({ id, type}) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
+    const [isDeclining, setIsDeclining] = useState(false);
+    const [declineReason, setDeclineReason] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -46,10 +48,11 @@ const DocumentsList = ({ id, type}) => {
         }
     };
 
-    const handleStatusChange = async (docId,status) => {
+    const handleStatusChange = async (docId,status,reason) => {
         const docData = {
           documentId: docId,
-          status : status
+          status : status,
+          comments: reason,
         };
         const data = await ApiRequestUtils.update(API_ROUTES.GET_DOCUMENT_DETAILS_LIST, docData);
         // console.log("DATAAA",data)
@@ -203,23 +206,56 @@ const DocumentsList = ({ id, type}) => {
                                 Verified By : {modalData.User ? modalData?.User?.name : ''}
                             </Typography>}
                         </div>
+                        {isDeclining && (
+                            <div className="mt-4 w-full">
+                                <Typography variant="body2" className="text-gray-600 mb-2">
+                                    Please enter a reason for declining:
+                                </Typography>
+                                <textarea
+                                    className="p-2 border rounded-md w-full text-black"
+                                    placeholder="Enter reason here..."
+                                    value={declineReason}
+                                    onChange={(e) => setDeclineReason(e.target.value)}
+                                />
+                            </div>
+                        )}
                     </DialogBody>
-                    <DialogFooter>
-                        {modalData.status != "APPROVED" &&
-                            <>
-                                <Button
-                                    onClick={() => handleStatusChange(modalData.id, "APPROVED")}
-                                    className="mr-5 text-xs font-semibold text-black bg-white border border-black"
-                                >
-                                    Approve
-                                </Button>
-                                <Button
-                                    onClick={() => handleStatusChange(modalData.id, "DECLINED")}
-                                    className="text-xs font-semibold text-white"
-                                >
-                                    Decline
-                                </Button>
-                            </>}
+                    <DialogFooter className="flex flex-col items-center">
+                    {!isDeclining ? (
+                        <div className="flex space-x-5">
+                            <Button
+                                onClick={() => handleStatusChange(modalData.id, "APPROVED", "")}
+                                className="text-xs font-semibold text-black bg-white border border-black px-4 py-2"
+                            >
+                                Approve
+                            </Button>
+                            <Button
+                                onClick={() => setIsDeclining(true)}
+                                className="text-xs font-semibold text-white bg-black px-4 py-2"
+                            >
+                                Decline
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex space-x-4">
+                            <Button
+                                onClick={() => setIsDeclining(false)}
+                                className="text-xs font-semibold text-black bg-gray-300 px-4 py-2"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    handleStatusChange(modalData.id, "DECLINED", declineReason);
+                                    setIsDeclining(false);
+                                }}
+                                className="bg-blue-400 text-white px-4 py-2"
+                                disabled={!declineReason.trim()}
+                            >
+                                Send
+                            </Button>
+                        </div>
+                    )}
                     </DialogFooter>
                 </Dialog>
             )}
