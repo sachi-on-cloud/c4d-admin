@@ -156,7 +156,6 @@ const DriverAdd = () => {
         phoneNumber2: driverVal?.reference2_phone ? driverVal?.reference2_phone.replace(/^(\+91)/, '') : "",
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || [],
-        kycStatus: driverVal?.kycStatus || "",
         //wallet: driverVal?.wallet || "",
         prices: [],
         aadhaarImage: '',
@@ -258,7 +257,6 @@ const DriverAdd = () => {
                 salutation: values.salutation,
                 firstName: values.firstName,
                 fatherName: values.fatherName || "",
-                motherName: values.motherName || "",
                 dob: values.dateOfBirth || "",
                 age: values.age || "",
                 phoneNumber: "+91" + values.phoneNumber,
@@ -266,7 +264,6 @@ const DriverAdd = () => {
                 licenseType: values.licenseType || "",
                 licenseExpiry: values.licenseExpiryDate || "",
                 professionalLicense: values.professionalLicense || "No",
-                policeCertificate: values.policeClearanceCertificate || "No",
                 address: values.address,
                 street: values.streetName || "",
                 thaluk: values.thaluk,
@@ -281,10 +278,7 @@ const DriverAdd = () => {
                 transmissionType: values.transmissionType,
                 packages: values.packages,
                 carType: values.carType,
-                //wallet: values.wallet,
-                accountId : values.accountId,
-                withOwner: values.withOwner,
-                jobType: values.jobType,
+                serviceType: values.serviceType,
                 source: values.source,
             };
             let driverData = { driverDetails, prices: values.prices };
@@ -591,7 +585,7 @@ const DriverAdd = () => {
                                     </div>
                                     <div>
                                         <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
-                                        <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <Field as="select" name="source" disabled={!isEditable} className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                             <option value="">Select Source</option>
                                             <option value="Walk In">Walk In</option>
                                             <option value="Mobile App">Mobile App</option>
@@ -799,11 +793,6 @@ const DriverAdd = () => {
                                             <Field type="tel" name="phoneNumber2" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                             <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
                                         </div>
-                                        <div>
-                                            <label htmlFor="kycStatus" className="text-sm font-medium text-gray-700">KYC Status</label>
-                                            <Field type="text" name="kycStatus" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" />
-                                            <ErrorMessage name="kycStatus" component="div" className="text-red-500 text-sm" />
-                                        </div>
                                         {/* <div>
                                             <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                             <div className="space-x-4">
@@ -956,20 +945,13 @@ const DriverAdd = () => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
                                                 setModalData={setModalData}
                                             />
-                                            <DocumentUpload
+                                            {values.serviceType !== 'OWNER' &&<DocumentUpload
                                                 label="Driving License Image"
                                                 value={values.drivingLicenseImage}
                                                 name="drivingLicenseImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
                                                 setModalData={setModalData}
-                                            />
-                                            {/* <DocumentUpload // Profile Info
-                                                label="Consent Form Image"
-                                                value={values.consentForm}
-                                                name="consentForm"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "consentForm")}
-                                                setModalData={setModalData}
-                                            /> */}
+                                            />}
                                             <DocumentUpload
                                                 label="Live Photo"
                                                 value={values.livePhoto}
@@ -977,6 +959,27 @@ const DriverAdd = () => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto")}
                                                 setModalData={setModalData}
                                             />
+                                            {values.serviceType !== 'DRIVER' && <DocumentUpload
+                                                label="RC"
+                                                value={values.rc}
+                                                name="rc"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
+                                                setModalData={setModalData}
+                                            />}
+                                            {values.serviceType !== 'DRIVER' &&<DocumentUpload
+                                                label="Insurance"
+                                                value={values.insurance}
+                                                name="insurance"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
+                                                setModalData={setModalData}
+                                            />}
+                                            {values.serviceType !== 'DRIVER' &&<DocumentUpload
+                                                label="Bank Statement"
+                                                value={values.bankStatement}
+                                                name="bankStatement"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement")}
+                                                setModalData={setModalData}
+                                            />}
                                         </tbody>
                                     </table>
                                 </CardBody>
