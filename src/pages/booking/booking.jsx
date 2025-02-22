@@ -91,7 +91,7 @@ const Booking = (props) => {
     }, [editBooking]);
     //console.log(editBooking, "editBooking");
     const initialValues = {
-        packageTypeSelected: editBooking?.packageType ? editBooking?.packageType : 'Intercity',
+        packageTypeSelected: editBooking?.packageType ? editBooking?.packageType : 'Local',
         rideTime: editBooking?.time ? editBooking?.time : '',
         rideDate: editBooking?.date ? editBooking?.date : moment().format('YYYY-MM-DD'),
         carSelected: {},
@@ -143,7 +143,10 @@ const Booking = (props) => {
             customerId: values.customerId?.id,
             adminBooking: true,
             serviceType: values.serviceType,
-            cabType: values.cabType
+            cabType: values.cabType,
+            bookingType:values.tripType,
+            transmissionType : values.transmissionType,
+            carType: values.carType,
         }
         let data;
         if (editBooking?.id) {
@@ -213,7 +216,7 @@ const Booking = (props) => {
         if (newServiceType === 'CAR_WASH') {
             setFieldValue("packageTypeSelected", "CarWash");
         } else if (newServiceType === 'DRIVER' || newServiceType === 'CAB') {
-            setFieldValue("packageTypeSelected", "Intercity");
+            setFieldValue("packageTypeSelected", "Local");
         } else {
             setFieldValue("packageTypeSelected", "");
         }
@@ -325,53 +328,21 @@ const Booking = (props) => {
 
                                         }}>
                                             <option value="">Service Type</option>
-                                            <option value="DRIVER">Acting Driver</option>
-                                            <option value="CAR_WASH">Car Wash</option>
-                                            <option value="CAB">Cab Booking</option>
+                                            <option value="DRIVER">Driver</option>
+                                            <option value="RENTALS">Rentals</option>
+                                            <option value="RIDES">Rides</option>
                                         </Field>
                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 </div>
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') &&
-                                    <div className="grid grid-cols-2 gap-4 mb-2">
-                                        <Button
-                                            color={values.packageTypeSelected === 'Intercity' ? 'black' : 'gray'}
-                                            onClick={() => {
-                                                if (values.packageTypeSelected !== 'Intercity') {
-                                                    setFieldValue('packageTypeSelected', 'Intercity');
-                                                    setFieldValue('packageSelected', '');
-                                                    setRange({});
-                                                    setFieldValue('fromDate', '');
-                                                    setFieldValue('toDate', '');
-                                                }
-                                            }}
-                                            disabled={bookingStage === 1}
-                                            variant={values?.packageTypeSelected === 'Intercity' ? 'filled' : 'outlined'}
-                                        >
-                                            Intercity
-                                        </Button>
-                                        <Button
-                                            color={values.packageTypeSelected === 'Outstation' ? 'black' : 'gray'}
-                                            onClick={() => {
-                                                if (values.packageTypeSelected !== 'Outstation') {
-                                                    setFieldValue('packageTypeSelected', 'Outstation');
-                                                    setFieldValue('packageSelected', '');
-                                                    setRange({});
-                                                    setFieldValue('fromDate', '');
-                                                    setFieldValue('toDate', '');
-                                                }
-                                            }}
-                                            disabled={bookingStage === 1}
-                                            variant={values?.packageTypeSelected === 'Outstation' ? 'filled' : 'outlined'}
-                                        >
-                                            Outstation
-                                        </Button>
-                                        {(values.serviceType === 'CAB' || values.serviceType === 'CAB') &&
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && (
+                                    <div className="space-y-3 my-3">
+                                        <div className="grid grid-cols-2 gap-4">
                                             <Button
-                                                color={values.packageTypeSelected === 'Commute' ? 'black' : 'gray'}
+                                                color={values.packageTypeSelected === 'Local' ? 'black' : 'gray'}
                                                 onClick={() => {
-                                                    if (values.packageTypeSelected !== 'Commute') {
-                                                        setFieldValue('packageTypeSelected', 'Commute');
+                                                    if (values.packageTypeSelected !== 'Local') {
+                                                        setFieldValue('packageTypeSelected', 'Local');
                                                         setFieldValue('packageSelected', '');
                                                         setRange({});
                                                         setFieldValue('fromDate', '');
@@ -379,13 +350,82 @@ const Booking = (props) => {
                                                     }
                                                 }}
                                                 disabled={bookingStage === 1}
-                                                variant={values?.packageTypeSelected === 'Commute' ? 'filled' : 'outlined'}
+                                                variant={values?.packageTypeSelected === 'Local' ? 'filled' : 'outlined'}
                                             >
-                                                Commute
+                                                Local
                                             </Button>
-                                        }
+                                            <Button
+                                                color={values.packageTypeSelected === 'Outstation' ? 'black' : 'gray'}
+                                                onClick={() => {
+                                                    if (values.packageTypeSelected !== 'Outstation') {
+                                                        setFieldValue('packageTypeSelected', 'Outstation');
+                                                        setFieldValue('packageSelected', '');
+                                                        setRange({});
+                                                        setFieldValue('fromDate', '');
+                                                        setFieldValue('toDate', '');
+                                                    }
+                                                }}
+                                                disabled={bookingStage === 1}
+                                                variant={values?.packageTypeSelected === 'Outstation' ? 'filled' : 'outlined'}
+                                            >
+                                                Outstation
+                                            </Button>
+                                        </div>
+                                        <div>
+                                            <Typography className="text-sm font-medium text-gray-700">Trip Type</Typography>
+                                            <div className="grid grid-cols-2 gap-4 mt-2">
+                                                <Button
+                                                    color={values.tripType === 'Drop Only' ? 'black' : 'gray'}
+                                                    onClick={() => setFieldValue('tripType', 'Drop Only')}
+                                                    variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
+                                                >
+                                                    Drop Only
+                                                </Button>
+                                                <Button
+                                                    color={values.tripType === 'Round Trip' ? 'black' : 'gray'}
+                                                    onClick={() => setFieldValue('tripType', 'Round Trip')}
+                                                    variant={values?.tripType === 'Round Trip' ? 'filled' : 'outlined'}
+                                                >
+                                                    Round Trip
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Car Type</label>
+                                            <div className="grid grid-cols-4 mt-2">
+                                                {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
+                                                    <label key={carType} className="flex items-center space-x-2">
+                                                        <Field
+                                                            type="radio"
+                                                            name="carType"
+                                                            value={carType}
+                                                            className="h-4 w-4 text-blue-600"
+                                                        />
+                                                        <span className="text-gray-700">{carType}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                            <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Transmission Type</label>
+                                            <div className="grid grid-cols-2 mt-2">
+                                                {['Manual', 'Automatic'].map((transType) => (
+                                                    <label key={transType} className="flex items-center space-x-2">
+                                                        <Field
+                                                            type="radio"
+                                                            name="transmissionType"
+                                                            value={transType}
+                                                            className="h-4 w-4 text-blue-600"
+                                                        />
+                                                        <span className="text-gray-700">{transType}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                            <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
+                                        </div>
                                     </div>
-                                }
+                                )}
 
 
                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <div className="flex-1 mb-2">
@@ -473,7 +513,7 @@ const Booking = (props) => {
                                                 })
                                                 .map((item) => (
                                                     <option key={item.id} value={item.id}>
-                                                        {/* {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''} */}
+                                                        {/* {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Local' ? 'hr' : ''} */}
                                                         {values.serviceType === 'CAR_WASH'
                                                             ? (
                                                                 <span>
