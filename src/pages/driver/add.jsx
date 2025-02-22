@@ -363,7 +363,7 @@ const DriverAdd = () => {
                     </label>
                     <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*, application/pdf" 
                         id={name}
                         name={name}
                         onChange={onChange}
@@ -378,11 +378,11 @@ const DriverAdd = () => {
                         className="font-semibold underline cursor-pointer text-blue-900"
                         onClick={() =>
                             setModalData({
-                                image: URL.createObjectURL(value),
+                                image: typeof value === "string" ? value : URL.createObjectURL(value)
                             })
                         }
                     >
-                        View Details
+                        View/Download
                     </Typography>
                 )}
             </td>
@@ -1036,12 +1036,30 @@ const DriverAdd = () => {
                     </DialogHeader>
                     <DialogBody divider>
                     <div className="flex flex-col items-center">
-                        <img
-                        src={modalData.image}
-                        alt="Document"
-                        className="max-w-full rounded-lg shadow-md"
-                        style={{ height: "45vh", objectFit: "contain" }}
-                        />
+                        {modalData.image.endsWith(".pdf") ? (
+                            <iframe
+                                src={modalData.image}
+                                className="w-full rounded-lg shadow-md"
+                                style={{ height: "45vh" }}
+                            />
+                        ) : (
+                            <img
+                                src={modalData.image}
+                                alt="Document"
+                                className="max-w-full rounded-lg shadow-md"
+                                style={{ height: "45vh", objectFit: "contain" }}
+                            />
+                        )}
+                    </div>
+                    <div className="flex justify-center mt-4">
+                        <a
+                            href={modalData.image}
+                            download = "doucument.pdf"
+                            target='_blank'
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                            Download
+                        </a>
                     </div>
                     </DialogBody>
                 </Dialog>

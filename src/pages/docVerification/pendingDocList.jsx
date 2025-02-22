@@ -24,7 +24,7 @@ import { useNavigate } from 'react-router-dom';
 export function PendingDocList() {
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
-  const [statusFilter, setStatusFilter] = useState(["All"]);
+  const [typeFilter, setTypeFilter] = useState(["All"]);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -64,10 +64,8 @@ export function PendingDocList() {
   };
 
   const handleFilterChange = (value) => {
-    setStatusFilter((prev) => {
-      if (value === "All") {
-        return ["All"];
-      }
+    setTypeFilter((prev) => {
+      if (value === "All") return ["All"];
       const newFilter = prev.includes(value)
         ? prev.filter((item) => item !== value)
         : [...prev.filter((item) => item !== "All"), value];
@@ -99,7 +97,7 @@ export function PendingDocList() {
           <div key={option.value} className="flex items-center mb-2">
             <Checkbox
               color="blue"
-              checked={statusFilter.includes(option.value)}
+              checked={typeFilter.includes(option.value)}
               onChange={() => handleFilterChange(option.value)}
             />
             <Typography color="blue-gray" className="font-medium ml-2">
@@ -145,41 +143,44 @@ export function PendingDocList() {
                 <thead>
                   <tr>
                     {[
-                      "Name",
-                      "Type",
+                      "Full Name",
                       "Phone Number",
+                      "Type",
+                      "Source",
+                      "Created Date",
                       "KYC Status",
                     ].map((el, index) => (
                       <th
                         key={index}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
-                        {/* {el==='KYC Status' ? (
+                        {el==='Type' ? (
                           <FilterPopover
                             title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "PENDING", label: "Pending" },
-                              { value: "APPROVED", label: "Approved" },
+                              { value: "Driver", label: "Driver" },
+                              { value: "Account", label: "Account" },
+                              { value: "Cab", label: "Cab" },
                             ]}
                           />
-                        ) : ( */}
+                        ) : (
                           <Typography
                             variant="small"
                             className="text-[11px] font-bold uppercase text-blue-gray-400"
                           >
                             {el}
                           </Typography>
-                        {/* )} */}
+                         )} 
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {accounts.filter((account) => {
-                        const status = account.isComplete ? "APPROVED" : "PENDING";
+                        const type = account["Register.id"] ? "Driver": account["Driver.id"] ? "Driver": account["Account.id"] ? "Account": account["Cab.id"] ? "Cab": "";
                         return (
-                          statusFilter.includes("All") || statusFilter.includes(status)
+                          typeFilter.includes("All") || typeFilter.includes(type)
                         );
                       })
                       .map((data, key) => {
@@ -190,16 +191,18 @@ export function PendingDocList() {
                         const status = data.isComplete ? "APPROVED" : "PENDING";
                         const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
                         const nameType = data['Register.id'] ? "Register" : data['Driver.id'] ? "Driver" : data['Account.id'] ? "Account" : data['Cab.id'] ? "Cab" : "";
+                        const source = data["Driver.source"];
                         const number = (() => {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
                         })();
+                        const id = data["Cab.id"] ? data["Cab.id"] : data["Driver.id"] ?  data["Driver.id"] : data["Account.id"] ? data["Account.id"] : data["Register.id"] ? data["Register.id"] : data.id;
                         return (
                           <>
                             <tr key={data?.id}>
                               <td className={className}>
                                 <div className="flex items-center gap-4">
-                                  <div onClick={() => onClickName(data.id, nameType)}>
+                                  <div onClick={() => onClickName(id, nameType)}>
                                     <Typography 
                                       variant="small"
                                       color="blue"
@@ -211,12 +214,22 @@ export function PendingDocList() {
                               </td>
                               <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
+                                  {number}
+                                </Typography>
+                              </td>
+                              <td className={className}>
+                                <Typography className="text-xs font-semibold text-blue-gray-600">
                                   {nameType}
                                 </Typography>
                               </td>
                               <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                  {number}
+                                  {source}
+                                </Typography>
+                              </td>
+                              <td className={className}>
+                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                  
                                 </Typography>
                               </td>
                               <td className={className}>
