@@ -20,6 +20,7 @@ export function ReceiptList() {
         const fetchData = async () => {
             try {
                 // const data = await ApiRequestUtils.get(API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST);
+                // Sorting needs to be done after api implementation
                 const data = [
                     {
                       "receiptNumber": "REC-20240201-001",
