@@ -530,21 +530,33 @@ export const CAB_ADD_SCHEMA = Yup.object({
 });
 
 export const SUBSCRIPTION_ADD_SCHEME = Yup.object().shape({
-    subscriptionType: Yup.string().required('Subscription type is required'),
-    owner: Yup.string().when(['subscriptionType'], {
-      is: (val) => val === 'owner',
-      then: ()=> Yup.string().required('Owner is required'),
-      otherwise: ()=> Yup.string(),
+    serviceType: Yup.string().required("Service Type is required"),
+    packagePrice: Yup.number()
+      .typeError("Subscription Amount must be a number")
+      .positive("Subscription Amount must be greater than zero")
+      .required("Subscription Amount is required"),
+    price: Yup.number()
+      .typeError("Earnings Threshold must be a number")
+      .positive("Earnings Threshold must be greater than zero")
+      .required("Earnings Threshold is required"),
+    discount: Yup.number()
+      .typeError("Discount must be a number")
+      .min(0, "Discount cannot be negative")
+      .max(100, "Discount cannot exceed 100%")
+      .notRequired(),
+    discountPrice: Yup.number()
+      .typeError("Discount Price must be a number")
+      .min(0, "Discount Price cannot be negative")
+      .notRequired(),
+    discountStartDate: Yup.date().nullable().notRequired(),
+    discountEndDate: Yup.date()
+    .nullable()
+    .notRequired()
+    .test("required-if-start-exists", "Discount End Date is required if Start Date is entered", function (value) {
+      return !this.parent.discountStartDate || value;
+    })
+    .test("valid-end-date", "Discount End Date must be after Start Date", function (value) {
+      const { discountStartDate } = this.parent;
+      return !discountStartDate || !value || new Date(value) > new Date(discountStartDate);
     }),
-    cab: Yup.string().when('subscriptionType', {
-      is: (val) => val === 'owner',
-      then: ()=> Yup.string().required('Cab is required'),
-      otherwise: ()=> Yup.string(),
-    }),
-    driver: Yup.string().when('subscriptionType', {
-      is: (val) => val === 'driver',
-      then:()=> Yup.string().required('Driver is required'),
-      otherwise:()=> Yup.string(),
-    }),
-    paymentMethod: Yup.string().required('Payment method is required'),
-  });
+});

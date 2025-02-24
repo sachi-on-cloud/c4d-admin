@@ -14,7 +14,7 @@ import { API_ROUTES } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
-const DocumentsList = ({ id, type}) => {
+const DocumentsList = ({ id, type, noApprove = true}) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
@@ -238,7 +238,7 @@ const DocumentsList = ({ id, type}) => {
                             </div>
                         )}
                     </DialogBody>
-                    {modalData.status === "PENDING" && (
+                    {modalData.status === "PENDING" && noApprove && (
                         <DialogFooter className="flex flex-col items-center">
                         {!isDeclining ? (
                             <div className="flex space-x-5">

@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useNavigate } from 'react-router-dom';
+import {Button} from '@material-tailwind/react'
 
 
 const MasterSubscriptionAdd = () => {
@@ -19,8 +20,8 @@ const MasterSubscriptionAdd = () => {
     price: '',
     packagePrice: '',
     serviceType: '',
-    discount: '',
-    discountPrice: '',
+    discount: 0,
+    discountPrice: 0,
     discountStartDate: '',
     discountEndDate: ''
   };
@@ -63,11 +64,21 @@ const MasterSubscriptionAdd = () => {
       <h2 className="text-2xl font-bold mb-4">Add Master Subscription</h2>
       <Formik
         initialValues={initialValues}
-        // validationSchema={SUBSCRIPTION_ADD_SCHEME} //Schema need to be added newly.
+        validationSchema={SUBSCRIPTION_ADD_SCHEME}
         onSubmit={onSubmit}
         enableReinitialize={true}
       >
-        {({ handleSubmit, values, setFieldValue, errors }) => (
+        {({ handleSubmit, values, setFieldValue, errors, isValid, dirty }) => {
+          const calculateDiscountPrice = () => {
+            if(values.discount){
+              const amount = parseFloat(values.packagePrice) || 0;
+              const discount = parseFloat(values.discount) || 0;
+              return amount - (amount * (discount / 100));
+            }
+            return 0;
+          };
+
+          return(
           <Form>
             <div className="p-4 bg-gray-50 grid grid-cols-2 gap-4">
               <div>
@@ -81,7 +92,13 @@ const MasterSubscriptionAdd = () => {
               </div>
               <div>
                 <label htmlFor="packagePrice" className="text-sm font-medium text-gray-700">Subscription Amount (INR)</label>
-                <Field type="number" name="packagePrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                <Field type="number" name="packagePrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" 
+                  onChange={(e)=>{
+                    setFieldValue('packagePrice',e.target.value);
+                    setFieldValue('discountPrice',calculateDiscountPrice())
+                    }
+                  }
+                />
                 <ErrorMessage name="packagePrice" component="div" className="text-red-500 text-sm my-1" />
               </div>
               <div>
@@ -96,12 +113,12 @@ const MasterSubscriptionAdd = () => {
               </div>
               <div>
                 <label htmlFor="discountPrice" className="text-sm font-medium text-gray-700">Discount Price</label>
-                <Field type="number" name="discountPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                <Field type="number" name="discountPrice" disabled value={calculateDiscountPrice()} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                 <ErrorMessage name="discountPrice" component="div" className="text-red-500 text-sm my-1" />
               </div>
               <div>
                 <label htmlFor="discountStartDate" className="text-sm font-medium text-gray-700">Discount Start Date</label>
-                <Field type="date" name="discountStartDate" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.discountStartDate} max={currentDate()}
+                <Field type="date" name="discountStartDate" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.discountStartDate} min={currentDate()}
                   onChange={(e) => {
                     setFieldValue('discountStartDate', e.target.value);
                   }} />
@@ -109,25 +126,33 @@ const MasterSubscriptionAdd = () => {
               </div>
               <div>
                 <label htmlFor="discountEndDate" className="text-sm font-medium text-gray-700">Discount End Date</label>
-                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.discountEndDate} max={currentDate()}
+                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.discountEndDate} min={currentDate()}
                   onChange={(e) => {
                     setFieldValue('discountEndDate', e.target.value);
                   }} />
                 <ErrorMessage name="discountEndDate" component="div" className="text-red-500 text-sm" />
               </div>
             </div>
-            <div className="mt-4 flex justify-center">
-              <button
-                type='submit'
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+            <div className='flex flex-row'>
+              <Button
+                  fullWidth
+                  onClick={()=>navigate('/dashboard/finance/master-subscription')}
+                  className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
               >
-                Submit
-              </button>
+                  Cancel
+              </Button>
+              <Button
+                  fullWidth
+                  color="black"
+                  onClick={handleSubmit}
+                  disabled={!dirty || !isValid}
+                  className='my-6 mx-2'
+              >
+                  Submit
+              </Button>
             </div>
-            {/* </div> */}
           </Form>
-        )}
+        )}}
       </Formik>
     </div>
   );

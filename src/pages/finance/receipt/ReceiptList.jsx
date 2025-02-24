@@ -10,20 +10,56 @@ import {
 } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 
-export function MasterSubscriptionView() {
+export function ReceiptList() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
-    const [masterSubscriptionList, setMasterSubscriptionList] = useState([]);
+    const [receiptsList, setReceiptsList] = useState([]);
     const [allAccounts, setAllAccounts] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await ApiRequestUtils.get(API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST);
-                
-                if (data?.result) {
-                    setMasterSubscriptionList(data.result);
-                    setAllAccounts(data.result);
+                // const data = await ApiRequestUtils.get(API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST);
+                const data = [
+                    {
+                      "receiptNumber": "REC-20240201-001",
+                      "receiptType": "Subscription",
+                      "contractNumber": {
+                        "value": "CN-20240201-DR001",
+                        "link": "/contracts/CN-20240201-DR001"
+                      },
+                      "createdDate": "2024-02-01",
+                      "packageType": "Premium Driver Package",
+                      "driverName": {
+                        "value": "John Doe",
+                        "link": "/drivers/DR001"
+                      },
+                      "driverPhoneNumber": "+91 9876543210",
+                      "paymentMethod": "Online",
+                      "totalAmount": "₹2500"
+                    },
+                    {
+                      "receiptNumber": "REC-20240201-002",
+                      "receiptType": "Subscription",
+                      "contractNumber": {
+                        "value": "CN-20240201-DR002",
+                        "link": "/contracts/CN-20240201-DR002"
+                      },
+                      "createdDate": "2024-02-01",
+                      "packageType": "Basic Driver Package",
+                      "driverName": {
+                        "value": "Jane Smith",
+                        "link": "/drivers/DR002"
+                      },
+                      "driverPhoneNumber": "+91 9876543211",
+                      "paymentMethod": "Online",
+                      "totalAmount": "₹1500"
+                    }
+                ];
+
+                if (data) {
+                    setReceiptsList(data);
+                    setAllAccounts(data);
                 }
             } catch (error) {
                 console.error("Error fetching subscription data:", error);
@@ -32,9 +68,9 @@ export function MasterSubscriptionView() {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        getDetails(searchQuery.trim());
-    }, [searchQuery]);
+    // useEffect(() => {
+    //     getDetails(searchQuery.trim());
+    // }, [searchQuery]);
 
     const getDetails = (searchQuery) => {
         if (searchQuery && searchQuery.trim() !== "") {
@@ -50,9 +86,9 @@ export function MasterSubscriptionView() {
                     phoneNumberWithoutCountryCode.startsWith(query)
                 );
             });
-            setMasterSubscriptionList(filteredAccounts);
+            setReceiptsList(filteredAccounts);
         } else {
-            setMasterSubscriptionList(allAccounts);
+            setReceiptsList(allAccounts);
         }
     };
 
@@ -79,27 +115,21 @@ export function MasterSubscriptionView() {
                             <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
                         </div>
                     </div>
-                    <button
-                        onClick={() => navigate('/dashboard/finance/master-subscription/add')}
-                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        Add new
-                    </button>
                 </div>
             </div>
             <Card>
-                {masterSubscriptionList.length > 0 ? (
+                {receiptsList.length > 0 ? (
                     <>
                         <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
                             <Typography variant="h6" color="white">
-                               Master Subscription List
+                               Receipts List
                             </Typography>
                         </CardHeader>
                         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Service Type", "Subscription Amount", "Earnings Threshold", "Discount", "Discount Price", "Discount Start Date", "Discount End Date"].map((el) => (
+                                        {["Receipt Number","Type","Created Date","Driver Name"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -115,15 +145,24 @@ export function MasterSubscriptionView() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {masterSubscriptionList.map((masterSubscription, index) => (
+                                    {receiptsList.map((receipt,index) => (
                                         <tr key={index} className="text-sm">
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.serviceType}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.packagePrice == 0 ? 'Free' : masterSubscription.packagePrice}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.price == 0 ? 'Free' : masterSubscription.price}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.discount ? masterSubscription.discount : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.discountPrice ? masterSubscription.discountPrice : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(masterSubscription.discountStartDate)}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(masterSubscription.discountEndDate)}</td>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                            <div className="flex items-center gap-4">
+                                                <div onClick={() => navigate(`/dashboard/finance/receipt/details/${1}`)}>
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue"
+                                                    className="font-semibold underline"
+                                                >
+                                                    {receipt.receiptNumber}
+                                                </Typography>
+                                                </div>
+                                            </div>
+                                            </td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.receiptType}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.createdDate}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.driverName.value}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -133,7 +172,7 @@ export function MasterSubscriptionView() {
                 ) : (
                     <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                         <Typography variant="h6" color="white">
-                            No Master Subscriptions
+                            No Receipts
                         </Typography>
                     </CardHeader>
                 )}
