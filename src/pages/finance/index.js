@@ -1,2 +1,2 @@
-export * from "@/pages/finance/subscription/cab-subscription-view";
-export * from "@/pages/finance/subscription/cab-subscription-add";
+export * from "@/pages/finance/subscription/MasterSubscriptionView";
+export * from "@/pages/finance/subscription/MasterSubscriptionAdd";

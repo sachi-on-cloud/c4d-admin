@@ -48,6 +48,8 @@ import ReassignDriver from "./components/ReassignDriver";
 import PayableView from "./pages/finance/payable/view";
 import PayableDetails from "./pages/finance/payable/details";
 import UserEdit from "./pages/users/edit";
+import { MasterSubscriptionView } from "./pages/finance/masterSubscription/MasterSubscriptionView";
+import MasterSubscriptionAdd from "./pages/finance/masterSubscription/MasterSubscriptionAdd";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -347,6 +349,20 @@ export const routes = [
         name: "Add Subscription",
         path: "/finance/cab-subscription/add",
         element: <CabSubscriptionAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Receipt",
+        path: "/finance/master-subscription",
+        element: <MasterSubscriptionView />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Subscription Add",
+        path: "/finance/master-subscription/add",
+        element: <MasterSubscriptionAdd />,
         display: false
       },
       {
