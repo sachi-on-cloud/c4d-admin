@@ -865,6 +865,8 @@ export const API_ROUTES = {
     'GET_PAYABLE_DETAILS':'/invoice-trip-details',
     'REVIEW_PAYMENT_REQUEST':'/update-payment-request',
     'APPROVE_PAYMENT_REQUEST':'/approve-payment-request',
+    'ADD_MASTER_SUBSCRIPTION_ADD': '/admin/plan/create',
+    'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan'
 };
 
 export const KYC_PROCESS = {

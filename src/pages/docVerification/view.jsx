@@ -25,6 +25,7 @@ export function DocumentVerificationView() {
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState(["All"]);
+  const [typeFilter, setTypeFilter] = useState(["All"])
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -69,16 +70,24 @@ export function DocumentVerificationView() {
     }
   };
 
-  const handleFilterChange = (value) => {
-    setStatusFilter((prev) => {
-      if (value === "All") {
-        return ["All"];
-      }
-      const newFilter = prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev.filter((item) => item !== "All"), value];
-      return newFilter.length === 0 ? ["All"] : newFilter;
-    });
+  const handleFilterChange = (filterType, value) => {
+    if (filterType === "status") {
+      setStatusFilter((prev) => {
+        if (value === "All") return ["All"];
+        const newFilter = prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev.filter((item) => item !== "All"), value];
+        return newFilter.length === 0 ? ["All"] : newFilter;
+      });
+    } else if (filterType === "type") {
+      setTypeFilter((prev) => {
+        if (value === "All") return ["All"];
+        const newFilter = prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev.filter((item) => item !== "All"), value];
+        return newFilter.length === 0 ? ["All"] : newFilter;
+      });
+    }
   };
 
   const onClickName = ( id , type) =>{
@@ -87,7 +96,7 @@ export function DocumentVerificationView() {
     })
   }
 
-  const FilterPopover = ({ title, options }) => (
+  const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
     <Popover placement="bottom-start">
       <PopoverHandler>
         <div className="flex items-center cursor-pointer">
@@ -105,8 +114,8 @@ export function DocumentVerificationView() {
           <div key={option.value} className="flex items-center mb-2">
             <Checkbox
               color="blue"
-              checked={statusFilter.includes(option.value)}
-              onChange={() => handleFilterChange(option.value)}
+              checked={selectedFilters.includes(option.value)}
+              onChange={() => onFilterChange(option.value)}
             />
             <Typography color="blue-gray" className="font-medium ml-2">
               {option.label}
@@ -162,7 +171,7 @@ export function DocumentVerificationView() {
                         key={index}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
-                        {el==='KYC Status' ? (
+                        {el === "KYC Status" ? (
                           <FilterPopover
                             title={el}
                             options={[
@@ -170,6 +179,8 @@ export function DocumentVerificationView() {
                               { value: "PENDING", label: "Pending" },
                               { value: "APPROVED", label: "Approved" },
                             ]}
+                            selectedFilters={statusFilter}
+                            onFilterChange={(value) => handleFilterChange("status", value)}
                           />
                         ) : el === "Type" ? (
                           <FilterPopover
@@ -180,6 +191,8 @@ export function DocumentVerificationView() {
                               { value: "Account", label: "Account" },
                               { value: "Cab", label: "Cab" },
                             ]}
+                            selectedFilters={typeFilter} 
+                            onFilterChange={(value) => handleFilterChange("type", value)}
                           />
                         ) : (
                           <Typography
@@ -196,8 +209,10 @@ export function DocumentVerificationView() {
                 <tbody>
                   {accounts.filter((account) => {
                         const status = account.isComplete ? "APPROVED" : "PENDING";
+                        const type = account["Register.id"] ? "Driver": account["Driver.id"] ? "Driver": account["Account.id"] ? "Account": account["Cab.id"] ? "Cab": "";
                         return (
-                          statusFilter.includes("All") || statusFilter.includes(status)
+                          (statusFilter.includes("All") || statusFilter.includes(status)) && 
+                          (typeFilter.includes("All") || typeFilter.includes(type))
                         );
                       })
                       .map((data, key) => {
@@ -213,12 +228,13 @@ export function DocumentVerificationView() {
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
                         })();
                         const source = data["Driver.source"];
+                        const id = data["Cab.id"] ? data["Cab.id"] : data["Driver.id"] ?  data["Driver.id"] : data["Account.id"] ? data["Account.id"] : data["Register.id"] ? data["Register.id"] : data.id;
                         return (
                           <>
                             <tr key={data?.id}>
                               <td className={className}>
                                 <div className="flex items-center gap-4">
-                                  <div onClick={() => onClickName(data.id, nameType)}>
+                                  <div onClick={() => onClickName(id, nameType)}>
                                     <Typography 
                                       variant="small"
                                       color="blue"

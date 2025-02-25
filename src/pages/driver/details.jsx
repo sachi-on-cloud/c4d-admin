@@ -10,7 +10,7 @@ import { Button } from '@material-tailwind/react';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 import DocumentsList from '@/components/DocumentsList';
 
-const DriverDetails = ({ btnShow = false }) => {
+const DriverDetails = ({ btnShow = false, noApprove = false }) => {
     // const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
@@ -325,7 +325,7 @@ const DriverDetails = ({ btnShow = false }) => {
             {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />
-            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} />}
+            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} noApprove ={noApprove}/>}
             {!btnShow && <div className='flex w-full'>
                 <Button
                     fullWidth

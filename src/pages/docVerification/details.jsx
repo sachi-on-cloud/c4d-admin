@@ -93,9 +93,9 @@ const DocumentsDetails = () => {
     return(
     <>
         <div>
-            {type == 'Driver' && <DriverDetails btnShow={true}/>}
-            {type == 'Cab' && <CabDetails btnShow={true}/>}
-            {type == 'Account' && <AccountDetails btnShow={true}/>}
+            {type == 'Driver' && <DriverDetails btnShow={true} noApprove={true}/>}
+            {type == 'Cab' && <CabDetails btnShow={true} noApprove={true}/>}
+            {type == 'Account' && <AccountDetails btnShow={true} noApprove={true}/>}
             {type == 'Register' && <>
                         <div className="p-4">
             
@@ -135,7 +135,7 @@ const DocumentsDetails = () => {
                                 )}
                             </Formik>
                         </div>
-                        {initialValues && initialValues?.id && <DocumentsList id={initialValues.id} type={'register'}/>}
+                        {initialValues && initialValues?.id && <DocumentsList id={initialValues.id} type={'register'}  noApprove ={true}/>}
                     </>
                     }
                     <div className="flex justify-center mt-5">

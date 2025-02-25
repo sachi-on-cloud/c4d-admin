@@ -24,9 +24,12 @@ export function Topnav({ sidenavColor, sidenavType = "dark" }) {
     ],
     "/dashboard/finance": [
       { path: "/dashboard/finance", label: "All Payments", end:true},
-      { path: "/dashboard/finance/cab-subscription", label: "Cab Subscription" },
-      { path: "/dashboard/finance/payable", label: "Payable" },
-      { path: "/dashboard/finance/receivables", label: "Receivables" }
+      // { path: "/dashboard/finance/cab-subscription", label: "Cab Subscription" },
+      // { path: "/dashboard/finance/payable", label: "Payable" },
+      // { path: "/dashboard/finance/receivables", label: "Receivables" },
+      { path: "/dashboard/finance/invoice", label: "Invoice" },
+      { path: "/dashboard/finance/receipt", label: "Receipt" },
+      { path: "/dashboard/finance/master-subscription", label: "Master Subscription" },
     ],
     "/dashboard/doc-verification": [
       { path: "/dashboard/doc-verification", label: "All" ,end:true},

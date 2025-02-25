@@ -14,7 +14,7 @@ import { API_ROUTES } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
-const DocumentsList = ({ id, type}) => {
+const DocumentsList = ({ id, type, noApprove = true}) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
@@ -192,13 +192,31 @@ const DocumentsList = ({ id, type}) => {
                         </div>
                     </DialogHeader>
                     <DialogBody divider>
-                        <div className="flex flex-col items-center">
-                            <img
-                                src={modalData.image}
-                                alt="Document"
-                                className="max-w-full rounded-lg shadow-md mb-4"
-                                style={{ height: "45vh", objectFit: "contain" }}
-                            />
+                        <div className="flex flex-col items-center space-y-3">
+                            {modalData.image.toLowerCase().endsWith(".pdf") ? (
+                                <iframe
+                                    src={modalData.image}
+                                    className="w-full rounded-lg shadow-md"
+                                    style={{ height: "45vh" }}
+                                />
+                            ) : (
+                                <img
+                                    src={modalData.image}
+                                    alt="Document"
+                                    className="max-w-full rounded-lg shadow-md"
+                                    style={{ height: "45vh", objectFit: "contain" }}
+                                />
+                            )}
+                            <div className="flex justify-center mt-4">
+                                <a
+                                    href={modalData.image}
+                                    download
+                                    target="_blank"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    Download
+                                </a>
+                            </div>
                             <Typography variant="body1" className="text-gray-600">
                                 Document Status: <span className={getStatusColor(modalData.status)}>{modalData.status}</span>
                             </Typography>
@@ -220,7 +238,7 @@ const DocumentsList = ({ id, type}) => {
                             </div>
                         )}
                     </DialogBody>
-                    {modalData.status === "PENDING" && (
+                    {modalData.status === "PENDING" && noApprove && (
                         <DialogFooter className="flex flex-col items-center">
                         {!isDeclining ? (
                             <div className="flex space-x-5">

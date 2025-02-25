@@ -48,6 +48,12 @@ import ReassignDriver from "./components/ReassignDriver";
 import PayableView from "./pages/finance/payable/view";
 import PayableDetails from "./pages/finance/payable/details";
 import UserEdit from "./pages/users/edit";
+import { MasterSubscriptionView } from "./pages/finance/masterSubscription/MasterSubscriptionView";
+import MasterSubscriptionAdd from "./pages/finance/masterSubscription/MasterSubscriptionAdd";
+import { ReceiptList } from "./pages/finance/receipt/ReceiptList";
+import ReceiptDetails from "./pages/finance/receipt/ReceiptDetails";
+import { InvoiceList } from "./pages/finance/invoice/InvoiceList";
+import InvoiceDetails from "./pages/finance/invoice/InvoiceDetails";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -351,6 +357,20 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Receipt",
+        path: "/finance/master-subscription",
+        element: <MasterSubscriptionView />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Subscription Add",
+        path: "/finance/master-subscription/add",
+        element: <MasterSubscriptionAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Assign Driver",
         path: "/vendors/account/allVehicles/assignDriver/:id",
         element: <ReassignDriver />,
@@ -368,6 +388,34 @@ export const routes = [
         name: "Payable Details",
         path: "/finance/payable/details/:id",
         element: <PayableDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Receipt",
+        path: "/finance/receipt",
+        element: <ReceiptList />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Receipt Details",
+        path: "/finance/receipt/details/:id",
+        element: <ReceiptDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Receipt",
+        path: "/finance/invoice",
+        element: <InvoiceList />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Receipt Details",
+        path: "/finance/invoice/details/:id",
+        element: <InvoiceDetails />,
         display: false
       },
     ],

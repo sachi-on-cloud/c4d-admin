@@ -7,7 +7,7 @@ import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
 import OwnersCabList from '@/components/OwnersCabList';
 
-const AccountDetails = ({btnShow = false}) => {
+const AccountDetails = ({btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
     const [accountVal, setAccountVal] = useState({});
     const { id } = useParams();
@@ -105,7 +105,7 @@ const AccountDetails = ({btnShow = false}) => {
                 </Formik>
             </div>
             {accountVal && accountVal?.Cabs && <OwnersCabList cabsList={accountVal?.Cabs}/>}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'}/>}
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove}/>}
             <div className='flex justify-center w-full'>
                 {!btnShow && <Button
                     onClick={() => { navigate('/dashboard/vendors/account'); }}

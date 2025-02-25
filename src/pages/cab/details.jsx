@@ -10,7 +10,7 @@ import { Button } from '@material-tailwind/react';
 import PrintCabDetails from '@/components/PrintCabDetails';
 import DocumentsList from '@/components/DocumentsList';
 
-const CabDetails = ({btnShow = false}) => {
+const CabDetails = ({btnShow = false, noApprove = false }) => {
    //const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
@@ -195,7 +195,7 @@ const CabDetails = ({btnShow = false}) => {
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}
             <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} />
-            {cab && cab?.result?.id && <DocumentsList id={cab?.result?.id} type={'cab'}/>}
+            {cab && cab?.result?.id && <DocumentsList id={cab?.result?.id} type={'cab'} noApprove={noApprove}/>}
             {!btnShow && <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/vendors/account/allVehicles'); }}
