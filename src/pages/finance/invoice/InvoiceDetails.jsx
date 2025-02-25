@@ -22,30 +22,31 @@ const InvoiceDetails = () => {
     const fetchInvoice = async (invoiceId) => {
         try {
             // const data = await ApiRequestUtils.get(`${API_ROUTES.GET_RECEIPT_DETAILS}/${receiptId}`);
-            const data = [
-                {
-                    "invoiceNumber": "INV-20240201-001",
-                    "invoiceType": "Subscription",
-                    "invoiceCreatedDate": "2024-02-01",
-                    "package": "Premium Driver Package",
-                    "driverName": { "value": "John Doe", "link": "/drivers/DR001" },
-                    "driverPhoneNumber": "+91 9876543210",
-                    "status": "Pending Payment",
-                    "paymentMethod": "Online",
-                    "amount": "₹2500"
-                },
-                {
-                    "invoiceNumber": "INV-20240201-002",
-                    "invoiceType": "Subscription",
-                    "invoiceCreatedDate": "2024-02-02",
-                    "package": "Basic Driver Package",
-                    "driverName": { "value": "Jane Smith", "link": "/drivers/DR002" },
-                    "driverPhoneNumber": "+91 9876543211",
-                    "status": "Pending Payment",
-                    "paymentMethod": "Online",
-                    "amount": "₹1500"
-                }
-            ];
+            // const data = [
+            //     {
+            //         "invoiceNumber": "INV-20240201-001",
+            //         "invoiceType": "Subscription",
+            //         "invoiceCreatedDate": "2024-02-01",
+            //         "package": "Premium Driver Package",
+            //         "driverName": { "value": "John Doe", "link": "/drivers/DR001" },
+            //         "driverPhoneNumber": "+91 9876543210",
+            //         "status": "Pending Payment",
+            //         "paymentMethod": "Online",
+            //         "amount": "₹2500"
+            //     },
+            //     {
+            //         "invoiceNumber": "INV-20240201-002",
+            //         "invoiceType": "Subscription",
+            //         "invoiceCreatedDate": "2024-02-02",
+            //         "package": "Basic Driver Package",
+            //         "driverName": { "value": "Jane Smith", "link": "/drivers/DR002" },
+            //         "driverPhoneNumber": "+91 9876543211",
+            //         "status": "Pending Payment",
+            //         "paymentMethod": "Online",
+            //         "amount": "₹1500"
+            //     }
+            // ];
+            const data =[];
             
             setInvoice(data[0]);
             if(data[0].status == "Pending Payment"){
@@ -145,7 +146,7 @@ const InvoiceDetails = () => {
                         Save
                     </Button>
                 )}
-                <Button onClick={() => navigate('/dashboard/finance/invoices')} className='my-6 px-8 text-white border-2 bg-black rounded-xl'>
+                <Button onClick={() => navigate('/dashboard/finance/invoice')} className='my-6 px-8 text-white border-2 bg-black rounded-xl'>
                     Back
                 </Button>
                 <Button onClick={handleDownloadPDF} className="my-6 px-8 text-white border-2 bg-blue-600 rounded-xl">

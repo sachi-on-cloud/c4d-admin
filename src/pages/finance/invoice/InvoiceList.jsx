@@ -21,37 +21,37 @@ export function InvoiceList() {
             try {
                 // const data = await ApiRequestUtils.get(API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST);
                 // Sorting needs to be done after api implementation
-                const data = [
-                    {
-                      "invoiceNumber": "INV-20240201-001",
-                      "invoiceType": "Subscription",
-                      "invoiceCreatedDate": "2024-02-01",
-                      "package": "Premium Driver Package",
-                      "driverName": {
-                        "value": "John Doe",
-                        "link": "/drivers/DR001"
-                      },
-                      "driverPhoneNumber": "+91 9876543210",
-                      "status": "Pending Payment",
-                      "paymentMethod": "Online",
-                      "amount": "₹2500"
-                    },
-                    {
-                      "invoiceNumber": "INV-20240201-002",
-                      "invoiceType": "Subscription",
-                      "invoiceCreatedDate": "2024-02-02",
-                      "package": "Basic Driver Package",
-                      "driverName": {
-                        "value": "Jane Smith",
-                        "link": "/drivers/DR002"
-                      },
-                      "driverPhoneNumber": "+91 9876543211",
-                      "status": "Pending Payment",
-                      "paymentMethod": "Online",
-                      "amount": "₹1500"
-                    }
-                ];                  
-
+                // const data = [
+                //     {
+                //       "invoiceNumber": "INV-20240201-001",
+                //       "invoiceType": "Subscription",
+                //       "invoiceCreatedDate": "2024-02-01",
+                //       "package": "Premium Driver Package",
+                //       "driverName": {
+                //         "value": "John Doe",
+                //         "link": "/drivers/DR001"
+                //       },
+                //       "driverPhoneNumber": "+91 9876543210",
+                //       "status": "Pending Payment",
+                //       "paymentMethod": "Online",
+                //       "amount": "₹2500"
+                //     },
+                //     {
+                //       "invoiceNumber": "INV-20240201-002",
+                //       "invoiceType": "Subscription",
+                //       "invoiceCreatedDate": "2024-02-02",
+                //       "package": "Basic Driver Package",
+                //       "driverName": {
+                //         "value": "Jane Smith",
+                //         "link": "/drivers/DR002"
+                //       },
+                //       "driverPhoneNumber": "+91 9876543211",
+                //       "status": "Pending Payment",
+                //       "paymentMethod": "Online",
+                //       "amount": "₹1500"
+                //     }
+                // ];                  
+                const data = [];
                 if (data) {
                     setInvoiceList(data);
                     setAllAccounts(data);

@@ -279,7 +279,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {formatDate(data?.date)}
+                                                            {formatDate(data?.fromDate)}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>

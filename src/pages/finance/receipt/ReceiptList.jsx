@@ -21,42 +21,43 @@ export function ReceiptList() {
             try {
                 // const data = await ApiRequestUtils.get(API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST);
                 // Sorting needs to be done after api implementation
-                const data = [
-                    {
-                      "receiptNumber": "REC-20240201-001",
-                      "receiptType": "Subscription",
-                      "contractNumber": {
-                        "value": "CN-20240201-DR001",
-                        "link": "/contracts/CN-20240201-DR001"
-                      },
-                      "createdDate": "2024-02-01",
-                      "packageType": "Premium Driver Package",
-                      "driverName": {
-                        "value": "John Doe",
-                        "link": "/drivers/DR001"
-                      },
-                      "driverPhoneNumber": "+91 9876543210",
-                      "paymentMethod": "Online",
-                      "totalAmount": "₹2500"
-                    },
-                    {
-                      "receiptNumber": "REC-20240201-002",
-                      "receiptType": "Subscription",
-                      "contractNumber": {
-                        "value": "CN-20240201-DR002",
-                        "link": "/contracts/CN-20240201-DR002"
-                      },
-                      "createdDate": "2024-02-01",
-                      "packageType": "Basic Driver Package",
-                      "driverName": {
-                        "value": "Jane Smith",
-                        "link": "/drivers/DR002"
-                      },
-                      "driverPhoneNumber": "+91 9876543211",
-                      "paymentMethod": "Online",
-                      "totalAmount": "₹1500"
-                    }
-                ];
+                // const data = [
+                //     {
+                //       "receiptNumber": "REC-20240201-001",
+                //       "receiptType": "Subscription",
+                //       "contractNumber": {
+                //         "value": "CN-20240201-DR001",
+                //         "link": "/contracts/CN-20240201-DR001"
+                //       },
+                //       "createdDate": "2024-02-01",
+                //       "packageType": "Premium Driver Package",
+                //       "driverName": {
+                //         "value": "John Doe",
+                //         "link": "/drivers/DR001"
+                //       },
+                //       "driverPhoneNumber": "+91 9876543210",
+                //       "paymentMethod": "Online",
+                //       "totalAmount": "₹2500"
+                //     },
+                //     {
+                //       "receiptNumber": "REC-20240201-002",
+                //       "receiptType": "Subscription",
+                //       "contractNumber": {
+                //         "value": "CN-20240201-DR002",
+                //         "link": "/contracts/CN-20240201-DR002"
+                //       },
+                //       "createdDate": "2024-02-01",
+                //       "packageType": "Basic Driver Package",
+                //       "driverName": {
+                //         "value": "Jane Smith",
+                //         "link": "/drivers/DR002"
+                //       },
+                //       "driverPhoneNumber": "+91 9876543211",
+                //       "paymentMethod": "Online",
+                //       "totalAmount": "₹1500"
+                //     }
+                // ];
+                const data = [];
 
                 if (data) {
                     setReceiptsList(data);
