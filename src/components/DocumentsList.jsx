@@ -13,6 +13,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import Swal from "sweetalert2";
 
 const DocumentsList = ({ id, type, noApprove = true}) => {
     const [documentData, setdocumentData] = useState([]);
@@ -57,16 +58,27 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
         const data = await ApiRequestUtils.update(API_ROUTES.GET_DOCUMENT_DETAILS_LIST, docData);
         // console.log("DATAAA",data)
         if (data?.success) {
-          alert(`Document status updated to ${status}`);
+            setModalData(null)
+            Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: `Document status updated to ${status}`,
+                showConfirmButton: false,
+                timer: 1500
+            });
           const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
             "id": id,
             "user":type
           })
-          if (data?.success) {
-            setModalData(null)
-          }
         } else {
-          alert("Failed to update status. Please try again.");
+            setModalData(null)
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: "Failed to update status. Please try again.",
+                showConfirmButton: false,
+                timer: 1500
+            });
         }
     };
 

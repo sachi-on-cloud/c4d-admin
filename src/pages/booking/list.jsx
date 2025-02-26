@@ -191,7 +191,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                             <table className="w-full table-auto">
                                 <thead>
                                     <tr>
-                                        {["Booking ID", "Service Type", "Customer Name", "Driver Name", "Booking Date", "Created Date", "Status", "", ""].map((el) => (
+                                        {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Owner", "Status", "Assign Captain"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -209,20 +209,33 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         onFilterChange={(value) => handleFilterChange('serviceType', value)}
                                                     />
                                                 ) 
-                                                // : el === "Status" ? (
-                                                //     <FilterPopover
-                                                //         title={el}
-                                                //         options={[
-                                                //             { value: 'All', label: 'All' },
-                                                //             { value: 'INITIATED', label: 'Initiated' },
-                                                //             { value: 'STARTED', label: 'Started' },
-                                                //             { value: 'ENDED', label: 'Ended' },
-                                                //             { value: 'CANCELLED', label: 'Cancelled' },
-                                                //         ]}
-                                                //         selectedFilters={statusFilter}
-                                                //         onFilterChange={(value) => handleFilterChange('status', value)}
-                                                //     />
-                                                // ) 
+                                                : el === "Status" ? (
+                                                    <FilterPopover
+                                                        title={el}
+                                                        options={[
+                                                            { value: 'All', label: 'All' },
+                                                            { value: 'INITIATED', label: 'Initiated' },
+                                                            { value: 'STARTED', label: 'Started' },
+                                                            { value: 'ENDED', label: 'Ended' },
+                                                            { value: 'CANCELLED', label: 'Cancelled' },
+                                                        ]}
+                                                        selectedFilters={statusFilter}
+                                                        onFilterChange={(value) => handleFilterChange('status', value)}
+                                                    />
+                                                ) : el === "Source" ? (
+                                                    <FilterPopover
+                                                        title={el}
+                                                        options={[
+                                                            { value: 'All', label: 'All' },
+                                                            { value: 'Walk In', label: 'Walk In' },
+                                                            { value: 'Mobile App', label: 'Mobile App' },
+                                                            { value: 'Website', label: 'Website' },
+                                                            { value: 'Call', label: 'Call' },
+                                                        ]}
+                                                        selectedFilters={statusFilter}
+                                                        onFilterChange={(value) => handleFilterChange('status', value)}
+                                                    />
+                                                ) 
                                                 : (
                                                     <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
                                                         {el}
@@ -261,30 +274,32 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {data?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : data?.serviceType}
+                                                            {data?.Customer?.firstName ? data?.Customer?.firstName : '-'}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {data?.Customer?.firstName}
-                                                        </Typography>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {data?.Customer?.phoneNumber}
+                                                            {data?.Driver?.firstName ? data?.Driver?.firstName : '-'}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {data?.serviceType === "CAB" ? data?.Cab?.name : data?.serviceType == "DRIVER" || data?.serviceType == "CAR_WASH" ? data?.Driver?.firstName : ''}
+                                                            {data?.source ? data?.source : '-'}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {formatDate(data?.date)}
+                                                            {formatDate(data?.fromDate)}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
                                                             {formatDate(data?.created_at)}
+                                                        </Typography>
+                                                    </td>
+                                                    <td className={className}>
+                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                            {data?.owner ? data?.owner : '-'} {/* owner should be verified */}
                                                         </Typography>
                                                     </td>
                                                     {/* <td className={className}>
