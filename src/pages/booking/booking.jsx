@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Button,
@@ -22,6 +22,8 @@ import SearchableDropdown from '@/components/SearchableDropdown';
 import CustomerAdd from '../customer/add';
 import SelectLocation from './selectLocation';
 import BookingItem from "./confirmBooking"
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+
 
 // Format date to YYYY-MM-DD for input's min attribute
 const currentDate = () => {
@@ -47,6 +49,11 @@ const Booking = (props) => {
 
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
+    const [pickupLocation, setPickupLocation] = useState(null);
+    const [dropLocation, setDropLocation] = useState(null);
+    const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
+    const [mapZoom, setMapZoom] = useState(10);
+    const mapRef = useRef(null);
 
     const fetchData = async () => {
         try {
@@ -150,7 +157,8 @@ const Booking = (props) => {
             bookingType:values.tripType.toUpperCase(),
             transmissionType : values.transmissionType,
             carType: values.carType,
-            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss"),    
+            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss"),   
+            toDate: moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss"),
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
             pickupAddress: {
@@ -160,7 +168,8 @@ const Booking = (props) => {
             dropLong: values.dropLocation?.lng,
             dropAddress: values.dropLocation ? {
                 name: values.dropAddress
-            } : null
+            } : null,
+            source: 'Call',
         }
         console.log("VALYESS",values);
         let data;
@@ -265,14 +274,56 @@ const Booking = (props) => {
             if (isPickup) {
                 setFieldValue("pickupAddress", address);
                 setFieldValue("pickupLocation", location);
+                setPickupLocation(location);
                 setPickupSuggestions([]);
             } else {
                 setFieldValue("dropAddress", address);
                 setFieldValue("dropLocation", location);
+                setDropLocation(location);
                 setDropSuggestions([]);
             }
         }
     };
+
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: "AIzaSyBophy4_QEc4vRjYu222kNHtuNiDga29Uo"
+    });
+
+    
+    const handlePickupMarkerDragEnd = useCallback((event) => {
+        const newLat = event.latLng.lat();
+        const newLng = event.latLng.lng();
+        setPickupLocation({ lat: newLat, lng: newLng });
+
+        // Fetch the address using Geocoding API
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                setPickupAddress(results[0].formatted_address);
+                setFieldValue("pickupAddress", results[0].formatted_address);
+            } else {
+                setPickupAddress('Address not found');
+            }
+        });
+    }, []);
+
+    const handleDropMarkerDragEnd = useCallback((event) => {
+        const newLat = event.latLng.lat();
+        const newLng = event.latLng.lng();
+        setDropLocation({ lat: newLat, lng: newLng });
+
+        // Fetch the address using Geocoding API
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                setFieldValue("dropAddress", results[0].formatted_address);
+                setDropAddress(results[0].formatted_address);
+            } else {
+                setDropAddress('Address not found');
+            }
+        });
+    }, []);
 
     const getStatusDisplay = (status) => {
         const statusLower = status?.toLowerCase();
@@ -346,7 +397,7 @@ const Booking = (props) => {
                         validationSchema={BOOKING_DETAILS_SCHEMA}
                         enableReinitialize={true}
                     >
-                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange }) => (
+                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
                             <>
                                 {customerData && <div className="p-2 flex">
                                     <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
@@ -744,6 +795,42 @@ const Booking = (props) => {
                                         )}
                                     </div>
                                 )}
+
+                                {values.pickupAddress && isLoaded && (
+                                    <GoogleMap
+                                        mapContainerStyle={{ width: '100%', height: '50%' }}
+                                        center={mapCenter}
+                                        zoom={mapZoom}
+                                        onLoad={(map) => {
+                                            mapRef.current = map;
+                                        }}
+                                    >
+                                        {pickupLocation && (
+                                            <Marker
+                                                position={pickupLocation}
+                                                draggable={true}
+                                                icon={{
+                                                    url: '/img/Pickup-Location.png',
+                                                    scaledSize: new window.google.maps.Size(40, 40),
+                                                }}
+                                                onDragEnd={handlePickupMarkerDragEnd}
+                                            />
+                                        )}
+                                        {dropLocation && (
+                                            <Marker
+                                                position={dropLocation}
+                                                draggable={true}
+                                                icon={{
+                                                    url: '/img/Drop-Location.png',
+                                                    scaledSize: new window.google.maps.Size(40, 40)
+                                                }}
+                                                onDragEnd={handleDropMarkerDragEnd}
+                                            />
+                                        )}
+                                    </GoogleMap>
+                                )}
+
+                                {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
 
                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <Button
                                     fullWidth

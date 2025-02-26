@@ -183,7 +183,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
               )}
             </NavLink>
           </li>
-          <li>
+          {/* <li>
             <NavLink to={`/dashboard/online-registration`}>
               {({ isActive }) => (
                 <Button
@@ -204,7 +204,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 </Button>
               )}
             </NavLink>
-          </li>
+          </li> */}
           <li className="pb-10">
             <NavLink to={`/dashboard/users`}>
               {({ isActive }) => (
