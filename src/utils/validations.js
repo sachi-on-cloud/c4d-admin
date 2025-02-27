@@ -59,13 +59,17 @@ export const EDIT_USER_SCHEMA = Yup.object({
 });
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
-    packageTypeSelected: Yup.string().required('Package Type is required'),
+    packageTypeSelected: Yup.string().when('serviceType', {
+        is: (val) => val !== 'Outstation',
+        then: (schema) => schema.required('Package Type is required'),
+        otherwise: (schema) => schema.notRequired(),
+    }),
     rideTime: Yup.string().required('RideTime is required'),
     rideDate: Yup.string().required('RideDate is required'),
     // carSelected: Yup.object().test('carSelected', 'Car details are required', (value) => {
     //     return value && Object.values(value).some(field => field !== '');
     // }).optional(),
-    packageSelected: Yup.number().required('Ride Package is required'),
+    // packageSelected: Yup.number().required('Ride Package is required'),
     customerId: Yup.object().shape({
         id: Yup.string().required('Customer ID is required'),
     }).required('Customer information is required'),

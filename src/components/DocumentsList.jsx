@@ -118,7 +118,7 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                 </thead>
                                 <tbody>
                                     {documentData.map(
-                                        ({ id, type, image1, status, User, created_at, updated_at }, key) => {
+                                        ({ id, type, image1, status, User, created_at, updated_at, image2 }, key) => {
                                             const className = `py-3 px-5 ${key === documentData.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -152,6 +152,7 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                                                             setModalData({
                                                                                 id,
                                                                                 image: image1,
+                                                                                image2: image2,
                                                                                 status,
                                                                                 User
                                                                             });
@@ -205,20 +206,40 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                     </DialogHeader>
                     <DialogBody divider>
                         <div className="flex flex-col items-center space-y-3">
-                            {modalData.image.toLowerCase().endsWith(".pdf") ? (
-                                <iframe
-                                    src={modalData.image}
-                                    className="w-full rounded-lg shadow-md"
-                                    style={{ height: "45vh" }}
-                                />
-                            ) : (
-                                <img
-                                    src={modalData.image}
-                                    alt="Document"
-                                    className="max-w-full rounded-lg shadow-md"
-                                    style={{ height: "45vh", objectFit: "contain" }}
-                                />
-                            )}
+                            <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
+                                {modalData.image.toLowerCase().endsWith(".pdf") ? (
+                                    <iframe
+                                        src={modalData.image}
+                                        className="w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh" }}
+                                    />
+                                    ) : (
+                                        <img
+                                            src={modalData.image}
+                                            alt="Document"
+                                            className="rounded-lg shadow-md"
+                                            style={{width :"45%" , height: "45vh", objectFit: "contain" }}
+                                        />
+                                    )
+                                }
+                                {modalData.image2 && (
+                                    modalData.image2.toLowerCase().endsWith(".pdf") ? (
+                                        <iframe
+                                            src={modalData.image2}
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%" }}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={modalData.image2}
+                                            alt="Document"
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%", objectFit: "contain" }}
+                                        />
+                                    )
+                                )}
+                            </div>
+                            
                             <div className="flex justify-center mt-4">
                                 <a
                                     href={modalData.image}
@@ -226,8 +247,18 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                     target="_blank"
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                 >
-                                    Download
+                                    Download Image 1
                                 </a>
+                                {modalData.image2 && (
+                                    <a
+                                        href={modalData.image2}
+                                        download
+                                        target="_blank"
+                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    >
+                                        Download Image 2
+                                    </a>
+                                )}
                             </div>
                             <Typography variant="body1" className="text-gray-600">
                                 Document Status: <span className={getStatusColor(modalData.status)}>{modalData.status}</span>

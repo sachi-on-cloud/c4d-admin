@@ -54,6 +54,7 @@ const Booking = (props) => {
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
     const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
+    const [quoteDetails, setQuoteDetails] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -75,6 +76,23 @@ const Booking = (props) => {
         }
     }, []);
 
+    const getQuoteOutstationDetails = async (values) =>{
+        const quoteData = {
+            bookingType: values.tripType.toUpperCase(),
+            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            toDate: moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            carType: values.carType,
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            dropLat: values.dropLocation.lat,
+            dropLong: values.dropLocation.lng,
+        };
+        const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
+        console.log("QOYTEE DATA",data);
+        if (data.success) {
+            setQuoteDetails(data.data);
+        }
+    }
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
@@ -654,28 +672,30 @@ const Booking = (props) => {
                                     </div>
                                 }
                                 
-                                {values.packageSelected && <Card className="my-6">
-                                    <div className="border rounded-xl bg-gray-200 p-4">
-                                        <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
-                                        <hr className="my-2 border border-black" />
-                                        <div className="mt-4">
-                                            <div className="flex justify-between">
-                                                <Typography color="gray" variant="h6">Package:</Typography>
-                                                <Typography>
-                                                    {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
-                                                </Typography>
-                                            </div>
-                                            <>
+                                {values.packageSelected && 
+                                    <Card className="my-6">
+                                        <div className="border rounded-xl bg-gray-200 p-4">
+                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                            <hr className="my-2 border border-black" />
+                                            <div className="mt-4">
                                                 <div className="flex justify-between">
-                                                    <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                    <Typography color="gray" variant="h6">Package:</Typography>
                                                     <Typography>
-                                                        ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
+                                                        {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
                                                     </Typography>
                                                 </div>
-                                            </>
+                                                <>
+                                                    <div className="flex justify-between">
+                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                        <Typography>
+                                                            ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
+                                                        </Typography>
+                                                    </div>
+                                                </>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Card>}
+                                    </Card>
+                                }
 
                                 {/* {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && (
                                     <div className="space-y-4 mb-4">
@@ -795,6 +815,31 @@ const Booking = (props) => {
                                         )}
                                     </div>
                                 )}
+
+                                {/* {quoteDetails && 
+                                    <Card className="my-6">
+                                        <div className="border rounded-xl bg-gray-200 p-4">
+                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                            <hr className="my-2 border border-black" />
+                                            <div className="mt-4">
+                                                <div className="flex justify-between">
+                                                    <Typography color="gray" variant="h6">Package:</Typography>
+                                                    <Typography>
+                                                        {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
+                                                    </Typography>
+                                                </div>
+                                                <>
+                                                    <div className="flex justify-between">
+                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                        <Typography>
+                                                            ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
+                                                        </Typography>
+                                                    </div>
+                                                </>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                } */}
 
                                 {values.pickupAddress && isLoaded && (
                                     <GoogleMap

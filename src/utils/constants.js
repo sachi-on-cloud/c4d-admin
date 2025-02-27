@@ -866,7 +866,8 @@ export const API_ROUTES = {
     'REVIEW_PAYMENT_REQUEST':'/update-payment-request',
     'APPROVE_PAYMENT_REQUEST':'/approve-payment-request',
     'ADD_MASTER_SUBSCRIPTION_ADD': '/admin/plan/create',
-    'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan'
+    'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan',
+    'GET_QUOTE_OUTSTATION' : '/get-quote',
 };
 
 export const KYC_PROCESS = {
