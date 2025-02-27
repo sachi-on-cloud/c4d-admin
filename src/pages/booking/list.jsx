@@ -358,7 +358,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 End Trip
                                                             </Button>
                                                         } */}
-                                                        {data?.status === 'INITIATED' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
+                                                        {data?.status === 'INITIATED' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
