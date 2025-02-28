@@ -15,7 +15,7 @@ const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home" },
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
-  { name: "Vendors", path: "/dashboard/vendors/account", permission: "Drivers" },
+  { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { name: "Finance", path: "/dashboard/finance", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Admin Users", path: "/dashboard/users", permission: "Users" },
@@ -39,7 +39,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
     const dataFromStorage = localStorage.getItem('loggedInUser');
     if (dataFromStorage) {
       const user = JSON.parse(dataFromStorage);
-      console.log(user.permission)
       setUserPermissions(user.permission || []);
     }
   }, []); 
