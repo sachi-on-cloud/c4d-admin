@@ -8,8 +8,18 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth";
+
+const menuItems = [
+  { name: "Home", path: "/dashboard/booking", permission: "Home" },
+  { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
+  { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
+  { name: "Vendors", path: "/dashboard/vendors/account", permission: "Drivers" },
+  { name: "Finance", path: "/dashboard/finance", permission: "Finance" },
+  { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
+  { name: "Admin Users", path: "/dashboard/users", permission: "Users" },
+];
 
 export function Sidenav({ brandImg, brandName, routes }) {
   const [controller, dispatch] = useMaterialTailwindController();
@@ -22,6 +32,21 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
   const navigate = useNavigate();
   const { logout } = useAuth();
+
+  const [userPermissions, setUserPermissions] = useState(null);
+
+  useEffect(() => {
+    const dataFromStorage = localStorage.getItem('loggedInUser');
+    if (dataFromStorage) {
+      const user = JSON.parse(dataFromStorage);
+      console.log(user.permission)
+      setUserPermissions(user.permission || []);
+    }
+  }, []); 
+
+  if (userPermissions === null) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <aside
@@ -51,182 +76,26 @@ export function Sidenav({ brandImg, brandName, routes }) {
       </div>
       <div className="m-4 h-[calc(100vh-150px)] overflow-y-auto">
         <ul className="flex flex-col gap-1">
-          <li>
-            <NavLink to={`/dashboard/booking`} end>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    Home
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={`/dashboard/booking/list`}>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    All Bookings
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={`/dashboard/customers`}>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    Customers
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={`/dashboard/vendors/account`}>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    Vendors
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={`/dashboard/finance`}>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    Finance
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={`/dashboard/doc-verification`}>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    Document Verification
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li>
-          {/* <li>
-            <NavLink to={`/dashboard/online-registration`}>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    Online Registration
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li> */}
-          <li className="pb-10">
-            <NavLink to={`/dashboard/users`}>
-              {({ isActive }) => (
-                <Button
-                  variant={isActive ? "gradient" : "text"}
-                  color={
-                    isActive
-                      ? sidenavColor
-                      : sidenavType === "dark"
-                      ? "white"
-                      : "blue-gray"
-                  }
-                  className="flex items-center gap-4 px-4 capitalize"
-                  fullWidth
-                >
-                  <Typography color="inherit" className="font-medium capitalize">
-                    Admin Users
-                  </Typography>
-                </Button>
-              )}
-            </NavLink>
-          </li>
+        {menuItems
+            .filter(item => userPermissions.includes(item.permission))
+            .map(({ name, path }) => (
+              <li key={name}>
+                <NavLink to={path}>
+                  {({ isActive }) => (
+                    <Button
+                      variant={isActive ? "gradient" : "text"}
+                      color={isActive ? sidenavColor : sidenavType === "dark" ? "white" : "blue-gray"}
+                      className="flex items-center gap-4 px-4 capitalize"
+                      fullWidth
+                    >
+                      <Typography color="inherit" className="font-medium capitalize">
+                        {name}
+                      </Typography>
+                    </Button>
+                  )}
+                </NavLink>
+              </li>
+            ))}
         </ul>
       </div>
       <Link
