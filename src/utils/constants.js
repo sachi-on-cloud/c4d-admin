@@ -961,7 +961,12 @@ export const PERMISSION_OPTIONS = [
         { name: 'Finance', id: 'Finance' },
         { name: 'Document verification', id: 'Document verification' },
         { name: 'Users', id: 'Users' },
-    ];
+];
+
+export const STATUS_OPTIONS = [
+    { value: 'ACTIVE', label: 'ACTIVE' },
+    { value: 'IN_ACTIVE', label: 'INACTIVE' }
+];
 
 export const CAROUSEL_DATA = [
     {
