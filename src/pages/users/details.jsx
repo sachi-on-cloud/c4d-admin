@@ -28,7 +28,8 @@ const UserDetails = () => {
         email: userVal?.email || "",
         password: "",
         permission: userVal?.permission || "",
-        role: USER_ROLE.find(item => item.id === userVal?.role)?.role || ''
+        role: USER_ROLE.find(item => item.id === userVal?.role)?.role || '',
+        status: userVal?.status == "ACTIVE" ? "ACTIVE" : "INACTIVE" || "",
     };
     return (
         <>
@@ -54,17 +55,16 @@ const UserDetails = () => {
                                     <Field type="tel" disabled name="phoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" maxLength={10} />
                                     <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
-
                                 <div>
                                     <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
                                     <Field type="text" disabled name="email" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
-                                <label htmlFor="role" className="text-sm font-medium text-gray-700">Role</label>
-                                <Field type="text" name="role" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" disabled />
-                                <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
-                            </div>
+                                    <label htmlFor="role" className="text-sm font-medium text-gray-700">Role</label>
+                                    <Field type="text" name="role" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" disabled />
+                                    <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
+                                </div>
                                 <div>
                                     <label htmlFor="permission" className="text-sm font-medium text-gray-700">Permission</label>
                                     <Multiselect
@@ -75,6 +75,11 @@ const UserDetails = () => {
                                         className="w-full rounded-md border-gray-300 border bg-gray-200"
                                         disable={true}
                                     />
+                                </div>
+                                <div>
+                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
+                                    <Field type="text" name="status" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" disabled />
+                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
 

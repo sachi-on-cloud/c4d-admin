@@ -40,7 +40,8 @@ export const ADD_USER_SCHEMA = Yup.object({
     permission: Yup.array()
         .of(Yup.string().required('Each permission must be selected'))
         .required('At least one permission must be selected')
-        .min(1, 'At least one permission must be selected')
+        .min(1, 'At least one permission must be selected'),
+    status: Yup.string().required("Status is required"),
 });
 
 export const EDIT_USER_SCHEMA = Yup.object({
@@ -56,6 +57,7 @@ export const EDIT_USER_SCHEMA = Yup.object({
             !value
                 ? Yup.string().notRequired()
                 : Yup.string().min(3, 'Password must be at least 3 characters')),
+    status: Yup.string().required('Status is required')
 });
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
