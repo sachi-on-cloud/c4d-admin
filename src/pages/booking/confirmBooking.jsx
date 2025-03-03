@@ -6,7 +6,8 @@ import {
     Button,
     Spinner,
     Select,
-    Option
+    Option,
+    Input,
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
@@ -93,7 +94,6 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            console.log("DAATA:", data?.data);
             setBookingDetails(data?.data);
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({ 
@@ -158,19 +158,19 @@ const ConfirmBooking = (props) => {
         props.onConfirm()
     };
 
+    const [showCancelReason, setShowCancelReason] = useState(false);
+    const [cancelReason, setCancelReason] = useState("");
+
     const onCancelPressHandler = async () => {
-        const userResponse = confirm(`Are you sure you want to cancel the booking ${bookingDetails?.bookingNumber}`);
-        
-        if (userResponse) {
-            const reqBody = {
-                status: BOOKING_STATUS.CANCELLED,
-                bookingId: bookingDetails?.id,
-            };
-            const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_BOOKING, reqBody);
-            if (data?.success) {
-                //navigate("/dashboard/booking");
-                props.onConfirm();
-            }
+        if (!cancelReason.trim()) return;
+        const reqBody = {
+            status: BOOKING_STATUS.CANCELLED,
+            bookingId: bookingDetails?.id,
+            cancelReason: cancelReason,
+        };
+        const data = await ApiRequestUtils.update(API_ROUTES.CANCEL_ADMIN_BOOKING, reqBody);
+        if (data?.success) {
+            props.onConfirm();
         }
     };
 
@@ -493,32 +493,49 @@ const ConfirmBooking = (props) => {
                     >
                         Back
                     </Button>
-
-                    {bookingDetails.status === 'INITIATED' && !bookingDetails?.Driver?.id && (
+                    
+                    {bookingDetails.status === "QUOTED" &&(
                         <Button
                             color="gray"
                             variant="outlined"
                             ripple="dark"
                             fullWidth
-                            onClick={() => { props.onEdit(bookingDetails); }}
+                            onClick={()=>{console.log("Confirm Booking")}}
                         >
-                            Edit
+                            Confirm Booking
                         </Button>
                     )}
 
                     {bookingDetails.status !== "ENDED" &&
                         bookingDetails.status !== "STARTED" &&
                         bookingDetails.status !== "CANCELLED" && (
-                            <Button
-                                color="gray"
-                                variant="outlined"
-                                ripple="dark"
-                                fullWidth
-                                onClick={onCancelPressHandler}
-                            >
-                                Cancel Booking
-                            </Button>
-                        )}
+                            <>
+                                {!showCancelReason && (
+                                    <Button
+                                        color="gray"
+                                        variant="outlined"
+                                        ripple="dark"
+                                        fullWidth
+                                        onClick={() => setShowCancelReason(true)}
+                                    >
+                                        Cancel Booking
+                                    </Button>
+                                )}
+                            </>
+                        )
+                    }
+
+                    {bookingDetails?.status === 'QUOTED' && (
+                        <Button
+                            color="gray"
+                            variant="outlined"
+                            ripple="dark"
+                            fullWidth
+                            onClick={() => { props.onEdit(bookingDetails)}}
+                        >
+                            Edit Booking
+                        </Button>
+                    )}
 
                     {bookingDetails.status === 'INITIATED' &&
                         bookingDetails?.pickupAddress &&
@@ -626,6 +643,34 @@ const ConfirmBooking = (props) => {
                     } */}
                 </div>
 
+                {showCancelReason && <div className="mt-4 space-y-2">
+                    <Input
+                        type="text"
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        placeholder="Enter cancellation reason..."
+                        className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                    />
+                    <div className="flex space-x-2">
+                        <Button
+                            color="red"
+                            onClick={onCancelPressHandler}
+                            disabled={!cancelReason.trim()}
+                        >
+                            Confirm Cancel
+                        </Button>
+                        <Button
+                            color="gray"
+                            variant="outlined"
+                            onClick={() => {
+                                setShowCancelReason(false);
+                                setCancelReason("");
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>}
             </>
         </div>
     );

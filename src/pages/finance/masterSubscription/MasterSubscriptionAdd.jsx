@@ -28,14 +28,17 @@ const MasterSubscriptionAdd = () => {
 
   const onSubmit = async (values) => {
     let subscriptionDetails = {
-      price: values.price,
-      packagePrice: values.packagePrice,
+      price: Number(values.price),
+      packagePrice: Number(values.packagePrice),
       serviceType: values.serviceType,
       discount: values.discount,
       discountPrice: values.discountPrice,
-      discountStartDate: values.discountStartDate,
-      discountEndDate: values.discountEndDate,
+
     };
+    if(values.discountStartDate && values.discountEndDate){
+      subscriptionDetails.discountStartDate = values.discountStartDate;
+      subscriptionDetails.discountEndDate = values.discountEndDate;
+    }
     try {
       const data = await ApiRequestUtils.post(API_ROUTES.ADD_MASTER_SUBSCRIPTION_ADD, subscriptionDetails);
       if (data?.success) {

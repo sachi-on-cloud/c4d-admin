@@ -1,8 +1,9 @@
 export const constants = {
     andriodUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
-    // url_dev: 'https://special-kiwi-apparent.ngrok-free.app',
-    url_dev: 'https://becoming-careful-fish.ngrok-free.app',
+    url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
+    // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
+    // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url: 'https://api.c4d.smartapis.cyou'
 };
 
@@ -796,6 +797,7 @@ export const API_ROUTES = {
     'ADD_NEW_BOOKING': '/add-booking',
     'CONFIRM_BOOKING': '/confirm-booking',
     'UPDATE_BOOKING': '/update-booking',
+    'CANCEL_ADMIN_BOOKING':"/admin/booking-cancel",
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',

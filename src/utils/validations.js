@@ -37,6 +37,7 @@ export const ADD_USER_SCHEMA = Yup.object({
     phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),
     email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
     role: Yup.string().required('Role is required'),
+    password : Yup.string().required('Password is required'),
     permission: Yup.array()
         .of(Yup.string().required('Each permission must be selected'))
         .required('At least one permission must be selected')
