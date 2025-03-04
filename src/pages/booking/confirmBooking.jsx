@@ -518,17 +518,19 @@ const ConfirmBooking = (props) => {
                         bookingDetails.status !== "STARTED" &&
                         bookingDetails.status !== "CANCELLED" && (
                             <>
-                                {!showCancelReason && (
-                                    <Button
-                                        color="gray"
-                                        variant="outlined"
-                                        ripple="dark"
-                                        fullWidth
-                                        onClick={() => setShowCancelReason(true)}
-                                    >
-                                        Cancel Booking
-                                    </Button>
-                                )}
+                                {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') && 
+                                    (
+                                        <Button
+                                            color="gray"
+                                            variant="outlined"
+                                            ripple="dark"
+                                            fullWidth
+                                            onClick={() => setShowCancelReason(true)}
+                                        >
+                                            Cancel Booking
+                                        </Button>
+                                    )
+                                }
                             </>
                         )
                     }
