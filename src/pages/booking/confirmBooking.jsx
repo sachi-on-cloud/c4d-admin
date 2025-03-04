@@ -161,14 +161,22 @@ const ConfirmBooking = (props) => {
     const [showCancelReason, setShowCancelReason] = useState(false);
     const [cancelReason, setCancelReason] = useState("");
 
-    const onCancelPressHandler = async () => {
-        if (!cancelReason.trim()) return;
+    const handleBookingAction = async (actionType) => {
+        if (actionType === BOOKING_STATUS.CANCELLED && !cancelReason.trim()) return;
+    
         const reqBody = {
-            status: BOOKING_STATUS.CANCELLED,
+            status: actionType,
             bookingId: bookingDetails?.id,
-            cancelReason: cancelReason,
+            ...(actionType === BOOKING_STATUS.CANCELLED && { cancelReason: cancelReason }),
         };
-        const data = await ApiRequestUtils.update(API_ROUTES.CANCEL_ADMIN_BOOKING, reqBody);
+    
+        const data = await ApiRequestUtils.update(
+            actionType === BOOKING_STATUS.CANCELLED 
+                ? API_ROUTES.CANCEL_ADMIN_BOOKING 
+                : API_ROUTES.CONFIRM_ADMIN_BOOKING, 
+            reqBody
+        );
+    
         if (data?.success) {
             props.onConfirm();
         }
@@ -500,7 +508,7 @@ const ConfirmBooking = (props) => {
                             variant="outlined"
                             ripple="dark"
                             fullWidth
-                            onClick={()=>{console.log("Confirm Booking")}}
+                            onClick={() => handleBookingAction(BOOKING_STATUS.CONFIRMED)}
                         >
                             Confirm Booking
                         </Button>
@@ -654,7 +662,7 @@ const ConfirmBooking = (props) => {
                     <div className="flex space-x-2">
                         <Button
                             color="red"
-                            onClick={onCancelPressHandler}
+                            onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED)}
                             disabled={!cancelReason.trim()}
                         >
                             Confirm Cancel
