@@ -134,7 +134,7 @@ const UserEdit = () => {
                             </div>
                             <div>
                                 <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
-                                <Field type="text" name="password" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="text" name="password" placeholder="******" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>

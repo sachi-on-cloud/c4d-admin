@@ -1,0 +1,511 @@
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { Button,Card,Typography} from "@material-tailwind/react";
+import { Formik, Field, ErrorMessage } from 'formik';
+import { Utils } from '../../utils/utils';
+import moment from 'moment';
+import { GoogleMap, Marker} from '@react-google-maps/api';
+import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import { API_ROUTES } from '@/utils/constants';
+
+const EditBooking = (props) => {
+    const [bookingData, setBookingData] = useState(null);
+    const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
+    const [pickupSuggestions, setPickupSuggestions] = useState([]);
+    const [dropSuggestions, setDropSuggestions] = useState([]);
+    const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
+    const [mapZoom, setMapZoom] = useState(10);
+    const [pickupLocation, setPickupLocation] = useState(null);
+    const [dropLocation, setDropLocation] = useState(null);
+    const mapRef = useRef(null);
+
+    useEffect(() => {
+        if (props.bookingData) {
+            getBookingDetailsById(props.bookingData.id, props.bookingData.customerId);
+        }
+    }, [props.bookingData]);
+
+    const getBookingDetailsById = async(bookingId, customerId) =>{
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
+        if(data.success){
+            setBookingData(data?.data);
+            console.log("dtaaa",data?.data)
+        };
+    };
+
+    const getPackageListDetails = useCallback(async () => {
+        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
+        if (data?.success) {
+            setPackageTypeSelectedData(data?.data);
+        }
+    }, []);
+
+    const initialValues = {
+        serviceType: bookingData?.serviceType || '',
+        packageTypeSelected: bookingData?.packageType || '',
+        tripType: bookingData?.bookingType == "DROP ONLY" ? "Drop Only" : "Round Trip" || '',
+        transmissionType : bookingData?.transmissionType || '',
+        packageSelected: bookingData?.packageId ? bookingData?.packageId : '',
+        customerId: bookingData?.customerId ? bookingData?.customerId : '',
+        carType: bookingData?.carType ? bookingData?.carType : '',
+        pickupAddress: bookingData?.pickupAddress?.name || '',
+        dropAddress: bookingData?.dropAddress?.name || '',
+        rideDate: bookingData?.fromDate ? moment(bookingData.fromDate).format('YYYY-MM-DD') : '',
+        rideTime: bookingData?.fromDate ? moment(bookingData.fromDate).format('HH:mm') : '',
+        toDate: bookingData?.toDate ? moment(bookingData.toDate).format('YYYY-MM-DD') : '',
+        toTime: bookingData?.toDate ? moment(bookingData.toDate).format('HH:mm') : '',
+    };
+    
+    const searchLocations = async (query, isPickup) => {
+        if (query.length > 2) {
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, { address: query });
+            if (data?.success && data?.data) {
+                if (isPickup) {
+                    setPickupSuggestions(data?.data);
+                } else {
+                    setDropSuggestions(data?.data);
+                }
+            }
+        } else {
+            setPickupSuggestions([]);
+            setDropSuggestions([]);
+        }
+    };
+    
+    const handleSelectLocation = async (address, isPickup, setFieldValue) => {
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
+        if (data?.success) {
+            const location = { lat: data.data.lat, lng: data.data.lng };
+            if (isPickup) {
+                setFieldValue("pickupAddress", address);
+                setFieldValue("pickupLocation", location);
+                setPickupLocation(location);
+                setPickupSuggestions([]);
+            } else {
+                setFieldValue("dropAddress", address);
+                setFieldValue("dropLocation", location);
+                setDropLocation(location);
+                setDropSuggestions([]);
+            }
+        }
+    };
+
+    const handlePickupMarkerDragEnd = useCallback((event) => {
+        const newLat = event.latLng.lat();
+        const newLng = event.latLng.lng();
+        setPickupLocation({ lat: newLat, lng: newLng });
+
+        // Fetch the address using Geocoding API
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                setPickupAddress(results[0].formatted_address);
+                setFieldValue("pickupAddress", results[0].formatted_address);
+            } else {
+                setPickupAddress('Address not found');
+            }
+        });
+    }, []);
+
+    const handleDropMarkerDragEnd = useCallback((event) => {
+        const newLat = event.latLng.lat();
+        const newLng = event.latLng.lng();
+        setDropLocation({ lat: newLat, lng: newLng });
+
+        // Fetch the address using Geocoding API
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                setFieldValue("dropAddress", results[0].formatted_address);
+                setDropAddress(results[0].formatted_address);
+            } else {
+                setDropAddress('Address not found');
+            }
+        });
+    }, []);
+
+    const onBackPressHandler = async () => {
+        props.editCancel()
+    };
+
+    function convertTimeFormat(time) {
+        let [hours, minutes, seconds] = time.split(':');
+        hours = parseInt(hours);
+
+        const period = hours >= 12 ? 'p.m.' : 'a.m.';
+        hours = hours % 12 || 12;
+
+        return `${hours}:${minutes} ${period}`;
+    }
+
+    useEffect(()=>{
+        getPackageListDetails();
+    },[]);
+
+    const editSubmit = async(values) =>{
+        const data = {
+            packageId: values?.packageSelected === "0" ? 0 : Number(values?.packageSelected),
+            packageType: values?.packageTypeSelected,
+            date: values?.rideDate,
+            customerId: bookingData?.Customer?.id,
+            bookingId: bookingData?.id ,
+            adminBooking: true,
+            serviceType: values?.serviceType,
+            bookingType:values?.tripType.toUpperCase(),
+            transmissionType : values?.transmissionType ? values?.transmissionType : bookingData?.transmissionType,
+            carType: values?.carType ? values?.carType : bookingData?.carType,
+            fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),   
+            pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
+            pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
+            pickupAddress: {
+                name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
+            },
+            dropLat: values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat,
+            dropLong: values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong,
+            dropAddress: values?.dropLocation ? values?.dropLocation : bookingData?.dropAddress ? {
+                name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
+            } : null,
+        };
+        if(values.toDate && values.toTime){
+            data.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()           
+        };
+        const editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_BOOKING, data);
+        if(editBookingData.success){
+            props.editCancel();
+        }
+    }
+
+    return (
+        <div className="p-4 mx-auto">
+            <div className='pb-4'>
+                <Typography variant="h5" color='#000000'>
+                    Edit Booking - {bookingData?.bookingNumber}
+                </Typography>
+            </div>
+            <Formik
+                initialValues={initialValues}
+                onSubmit={editSubmit}
+                enableReinitialize
+            >
+                {({ handleSubmit, setFieldValue, values, dirty, isValid }) => {
+                    return(
+                    <>
+                        <div className="flex-1 mb-4">
+                            <div>
+                                <Typography variant="h6" className="mb-2">
+                                    Service Type
+                                </Typography>
+                                <Field as="select" name="serviceType" disabled className="p-2 w-full rounded-xl border-2 border-gray-300">
+                                    <option value="">Service Type</option>
+                                    <option value="DRIVER">Driver</option>
+                                    <option value="RENTALS">Rentals</option>
+                                    <option value="RIDES">Rides</option>
+                                </Field>
+                                <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
+                            </div>
+                        </div>
+                        <div className="space-y-3 my-3">
+                            <div className="grid grid-cols-2 gap-4">
+                                <Button
+                                    color={values.packageTypeSelected === 'Local' ? 'black' : 'gray'}
+                                    onClick={() => {
+                                        if (values.packageTypeSelected !== 'Local') {
+                                            setFieldValue('packageTypeSelected', 'Local');
+                                            setFieldValue('packageSelected', '');
+                                            setFieldValue('fromDate', '');
+                                            setFieldValue('toDate', '');
+                                        }
+                                    }}
+                                    variant={values?.packageTypeSelected === 'Local' ? 'filled' : 'outlined'}
+                                >
+                                    Local
+                                </Button>
+                                <Button
+                                    color={values.packageTypeSelected === 'Outstation' ? 'black' : 'gray'}
+                                    onClick={() => {
+                                        if (values.packageTypeSelected !== 'Outstation') {
+                                            setFieldValue('packageTypeSelected', 'Outstation');
+                                            setFieldValue('packageSelected', '');
+                                            setFieldValue('fromDate', '');
+                                            setFieldValue('toDate', '');
+                                        }
+                                    }}
+                                    variant={values?.packageTypeSelected === 'Outstation' ? 'filled' : 'outlined'}
+                                >
+                                    Outstation
+                                </Button>
+                            </div>
+                            <div>
+                                <Typography className="text-sm font-medium text-gray-700">Trip Type</Typography>
+                                <div className="grid grid-cols-2 gap-4 mt-2">
+                                    <Button
+                                        color={values.tripType === 'Drop Only' ? 'black' : 'gray'}
+                                        onClick={() => setFieldValue('tripType', 'Drop Only')}
+                                        variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
+                                    >
+                                        Drop Only
+                                    </Button>
+                                    <Button
+                                        color={values.tripType === 'Round Trip' ? 'black' : 'gray'}
+                                        onClick={() => setFieldValue('tripType', 'Round Trip')}
+                                        variant={values?.tripType === 'Round Trip' ? 'filled' : 'outlined'}
+                                    >
+                                        Round Trip
+                                    </Button>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Car Type</label>
+                                <div className="grid grid-cols-4 mt-2">
+                                    {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
+                                        <label key={carType} className="flex items-center space-x-2">
+                                            <Field
+                                                type="radio"
+                                                name="carType"
+                                                value={carType}
+                                                className="h-4 w-4 text-blue-600"
+                                            />
+                                            <span className="text-gray-700">{carType}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Transmission Type</label>
+                                <div className="grid grid-cols-2 mt-2">
+                                    {['Manual', 'Automatic'].map((transType) => (
+                                        <label key={transType} className="flex items-center space-x-2">
+                                            <Field
+                                                type="radio"
+                                                name="transmissionType"
+                                                value={transType}
+                                                className="h-4 w-4 text-blue-600"
+                                            />
+                                            <span className="text-gray-700">{transType}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
+                            </div>
+                        </div>
+                        <div className="flex-1 mb-2">
+                            <Typography variant="h6" className="mb-2">
+                                Pickup Date & Time
+                            </Typography>
+                            <Field
+                                type="datetime-local"
+                                name="rideDateTime"
+                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                value={values.rideDate ? `${values.rideDate}T${values.rideTime}` : ''}
+                                min={`${moment().format('YYYY-MM-DD')}T00:00`}
+                                onChange={(e) => {
+                                    const selectedDateTime = e.target.value;
+                                    const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
+                                    const formattedTime = moment(selectedDateTime).format('HH:mm');
+
+                                    setFieldValue('rideDate', formattedDate);
+                                    setFieldValue('rideTime', formattedTime);
+                                    
+                                    if (formattedDate !== values.fromDate) {
+                                        setFieldValue('fromDate', '');
+                                        setFieldValue('toDate', '');
+                                    }
+                                }}
+                            />
+                        </div>
+                        {(values.tripType =='Round Trip' && values.packageTypeSelected == 'Outstation') && <div className="flex-1 mb-2">
+                            <Typography variant="h6" className="mb-2">Return Date & Time</Typography>
+                            <Field
+                                type="datetime-local"
+                                name="toDateTime"
+                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
+                                min={`${values.rideDate || moment().format('YYYY-MM-DD')}T00:00`}
+                                onChange={(e) => {
+                                    const selectedDateTime = e.target.value;
+                                    const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
+                                    const formattedTime = moment(selectedDateTime).format('HH:mm');
+
+                                    setFieldValue('toDate', formattedDate);
+                                    setFieldValue('toTime', formattedTime);
+                                }}
+                            />
+                        </div>}
+                        {values.packageTypeSelected =='Local' && <div className="flex-1 mb-4">
+                            <div>
+                                <Typography variant="h6" className="mb-2">
+                                    Choose a package
+                                </Typography>
+                                <Field as="select" name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
+                                    onChange={(e) => {
+                                        setFieldValue('packageSelected', e.target.value);
+                                        if (values.packageTypeSelected === 'Outstation' && values.fromDate && values.toDate) {
+                                            setDatePickerVisible(false);
+                                            handleChange('fromDate')("");
+                                            handleChange('toDate')("")
+                                        }
+                                    }}
+                                >
+                                    <option value="">Select Package</option>
+                                    {packageTypeSelectedData
+                                        .filter((item) => {
+                                            if (values.serviceType === 'CAR_WASH') {
+                                                return item.type === 'CarWash';
+                                            }
+                                            return values.packageTypeSelected === item.type;
+                                        })
+                                        .map((item) => (
+                                            <option key={item.id} value={item.id}>
+                                                {values.serviceType === 'CAR_WASH'
+                                                    ? (
+                                                        <span>
+                                                            <span className="text-base">{item.period}</span>
+                                                            <span className="text-sm"> - {item.description}</span>
+                                                        </span>
+                                                    )
+                                                    : (`${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`)                                                     
+                                                }
+                                            </option>
+                                        ))}
+                                </Field>
+                                <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
+                            </div>
+                        </div>}
+                        {values.packageSelected && values.packageTypeSelected =='Local' && <Card className="my-6">
+                            <div className="border rounded-xl bg-gray-200 p-4">
+                                <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                <hr className="my-2 border border-black" />
+                                <div className="mt-4">
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Package:</Typography>
+                                        <Typography>
+                                            {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
+                                        </Typography>
+                                    </div>
+                                    <>
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                            <Typography>
+                                                ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
+                                            </Typography>
+                                        </div>
+                                    </>
+                                </div>
+                            </div>
+                        </Card>}
+                        <div className="p-2 space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Pickup Location <span className="text-red-500">*</span>
+                            </label>
+                            <Field
+                                type="text"
+                                name="pickupAddress"
+                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                placeholder="Enter pickup location"
+                                onChange={(e) => {
+                                    setFieldValue("pickupAddress", e.target.value);
+                                    setFieldValue("pickupLocation", null);
+                                    searchLocations(e.target.value, true);
+                                }}
+                            />
+                            {pickupSuggestions.length > 0 && (
+                                <ul className="border rounded-lg bg-white mt-2">
+                                    {pickupSuggestions.map((suggestion, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                            onClick={() => {
+                                                handleSelectLocation(suggestion, true, setFieldValue);
+                                            }}
+                                        >
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                        {(values.tripType !=='Drop Only' || values.packageTypeSelected == 'Outstation' ) && <div className="p-2 space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Drop Location<span className="text-red-500">*</span></label>
+                            <Field
+                                type="text"
+                                name="dropAddress"
+                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                placeholder="Enter drop location (Optional)"
+                                onChange={(e) => {
+                                    setFieldValue("dropAddress", e.target.value);
+                                    setFieldValue("dropLocation", null);
+                                    searchLocations(e.target.value, false);
+                                }}
+                            />
+                            {dropSuggestions.length > 0 && (
+                                <ul className="border rounded-lg bg-white mt-2">
+                                    {dropSuggestions.map((suggestion, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                            onClick={() => {
+                                                handleSelectLocation(suggestion, false, setFieldValue);
+                                            }}
+                                        >
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>}
+                        {window.google && values.pickupAddress && <GoogleMap
+                            mapContainerStyle={{ width: '100%', height: '50%' }}
+                            center={mapCenter}
+                            zoom={mapZoom}
+                            onLoad={(map) => {
+                                mapRef.current = map;
+                            }}
+                        >
+                            {pickupLocation && (
+                                <Marker
+                                    position={pickupLocation}
+                                    draggable={true}
+                                    icon={{
+                                        url: '/img/Pickup-Location.png',
+                                        scaledSize: new window.google.maps.Size(40, 40),
+                                    }}
+                                    onDragEnd={handlePickupMarkerDragEnd}
+                                />
+                            )}
+                            {dropLocation && (
+                                <Marker
+                                    position={dropLocation}
+                                    draggable={true}
+                                    icon={{
+                                        url: '/img/Drop-Location.png',
+                                        scaledSize: new window.google.maps.Size(40, 40)
+                                    }}
+                                    onDragEnd={handleDropMarkerDragEnd}
+                                />
+                            )}
+                        </GoogleMap>}
+                        <>
+                            <Button
+                                color="black"
+                                onClick={onBackPressHandler}
+                                className='my-6 mx-2'
+                            >
+                                Back
+                            </Button>
+                            <Button
+                                color="black"
+                                onClick={handleSubmit}
+                                // disabled={!dirty || !isValid}
+                                className='my-6 mx-2'
+                            >
+                                Confrim Booking
+                            </Button>
+                        </>
+                    </>
+                )}}
+            </Formik>
+        </div>
+    );
+};
+
+export default EditBooking;

@@ -47,9 +47,14 @@ const UserAdd = () => {
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_USER, userData);
             
             if (!data?.success && data?.code === 203) {
-                setAlert({ message: 'User already exists!', color: 'red' });
-                setTimeout(() => setAlert(null), 5000);
-                resetForm();
+                // setAlert({ message: 'User already exists!', color: 'red' });
+                // setTimeout(() => setAlert(null), 5000);
+                // resetForm();
+                navigate('/dashboard/users',{
+                    state:{
+                        userExist: true,
+                    }
+                })
             } else {
                 // setAlert({ show: true, message: isEditMode ? 'User updated successfully!' : 'User added successfully!', color: 'green' });
                 // setTimeout(() => {
