@@ -96,19 +96,22 @@ export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
         .required('Email address is required')
 });
 
-export const ACCOUNT_ADD_SCHEMA = Yup.object({
-    name: Yup.string().required('Name is required'),
-    phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),      
-    type: Yup.string().required('Type is required'),   
-    email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
-    street: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
-    thaluk : Yup.string().required('Thaluk is required'),
+export const ACCOUNT_ADD_SCHEMA = Yup.object().shape({
+    type: Yup.string().required('Service Type is required'),
+    name: Yup.string().required('Full Name/Company Name is required'),
+    phoneNumber: Yup.string()
+        .matches(/^\d{10}$/, 'Phone Number must be exactly 10 digits')
+        .required('Phone Number is required'),
+    source: Yup.string().required('Source is required'),
+    email: Yup.string().email('Invalid email format').required('Email is required'),
+    address: Yup.string().required('Current Address is required'),
+    street: Yup.string().required('Street Name is required'),
+    thaluk: Yup.string().required('Thaluk is required'),
     district: Yup.string().required('District is required'),
     state: Yup.string().required('State is required'),
     pincode: Yup.string()
-        .required('Pincode is required')
-        .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
-    image1: Yup.string().required('Aadhaar Image is required'),
+        .matches(/^\d{6}$/, 'Pincode must be exactly 6 digits')
+        .required('Pincode is required'),
 });
 export const ACCOUNT_EDIT_SCHEMA = Yup.object({
     name: Yup.string().required('Name is required'),

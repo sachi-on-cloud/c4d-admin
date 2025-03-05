@@ -213,6 +213,24 @@ const ConfirmBooking = (props) => {
                     </div>
                 </CardBody>
             </Card>
+
+            {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED") && 
+                <Card className="mb-4">
+                    <CardBody>
+                        <div className="flex justify-between mb-2">
+                            <Typography variant="h5">Cancellation Reason</Typography>
+                        </div>
+                        <hr className="my-2" />
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Reason:</Typography>
+                                <Typography>{bookingDetails?.cancelReason}</Typography>
+                            </div>
+                        </div>
+                    </CardBody>
+                </Card>
+            }
+
             {bookingDetails?.Driver?.id &&
             <Card className="mb-4">
                 <CardBody>

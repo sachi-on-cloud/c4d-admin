@@ -1,9 +1,9 @@
 export const constants = {
     andriodUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
-    url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
+    // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
-    // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
+    url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url: 'https://api.c4d.smartapis.cyou'
 };
 
@@ -878,7 +878,8 @@ export const KYC_PROCESS = {
     LIVE_PHOTO: 'PHOTO',
     DRIVING_LICENSE: 'LICENSE',
     POLICE_CLEARANCE: 'POLICE_CLEARANCE', 
-    CONSENT_FORM: 'CONSENT_FORM'
+    CONSENT_FORM: 'CONSENT_FORM',
+    BANK_STATEMENT:'PASSBOOK',
 };
 
 export const ASYNC_STORAGE_KEYS = {
