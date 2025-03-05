@@ -4,10 +4,6 @@ import {
     Button,
     Card,
     Typography,
-    Select,
-    Option,
-    Input,
-    Spinner,
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
@@ -23,6 +19,7 @@ import CustomerAdd from '../customer/add';
 import SelectLocation from './selectLocation';
 import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import EditBooking from './editBooking';
 
 
 // Format date to YYYY-MM-DD for input's min attribute
@@ -56,6 +53,8 @@ const Booking = (props) => {
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
 
+    const [editBookingView, setEditBookingView] = useState(false);
+
     const fetchData = async () => {
         try {
             const response = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS);
@@ -78,14 +77,14 @@ const Booking = (props) => {
 
     const getQuoteOutstationDetails = async (values) =>{
         const quoteData = {
-            bookingType: values.tripType.toUpperCase(),
-            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            toDate: moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values.carType,
-            pickupLat: values.pickupLocation.lat,
-            pickupLong: values.pickupLocation.lng,
-            dropLat: values.dropLocation.lat,
-            dropLong: values.dropLocation.lng,
+            bookingType: values?.tripType?.toUpperCase(),
+            fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            carType: values?.carType,
+            pickupLat: values?.pickupLocation?.lat,
+            pickupLong: values?.pickupLocation?.lng,
+            dropLat: values?.dropLocation?.lat,
+            dropLong: values?.dropLocation?.lng,
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
         console.log("QOYTEE DATA",data);
@@ -112,23 +111,17 @@ const Booking = (props) => {
             setRange({ startDate: params?.bookingDetails?.fromDate, endDate: params?.bookingDetails?.toDate })
         }
     }, []);
-    useEffect(() => {
-        if (editBooking?.packageType === "Outstation" && editBooking?.fromDate && editBooking?.toDate) {
-            setRange({ startDate: new Date(editBooking?.fromDate), endDate: new Date(editBooking?.toDate) })
-        }
-    }, [editBooking]);
-    //console.log(editBooking, "editBooking");
     const initialValues = {
-        packageTypeSelected: editBooking?.packageType ? editBooking?.packageType : 'Local',
-        rideTime: editBooking?.time ? editBooking?.time : '',
-        rideDate: editBooking?.date ? editBooking?.date : moment().format('YYYY-MM-DD'),
+        packageTypeSelected:'Local',
+        rideTime: '',
+        rideDate: moment().format('YYYY-MM-DD'),
         carSelected: {},
-        packageSelected: editBooking?.packageId ? editBooking?.packageId : "",
-        fromDate: editBooking?.fromDate ? editBooking?.fromDate : "",
-        toDate: editBooking?.toDate ? editBooking?.toDate : "",
-        customerId: editBooking?.customerId ? editBooking?.customerId : '',
-        serviceType: editBooking?.serviceType ? editBooking?.serviceType : '',
-        cabType: editBooking?.cabType ? editBooking?.cabType : ''
+        packageSelected:"",
+        fromDate:"",
+        toDate: "",
+        customerId: '',
+        serviceType: '',
+        cabType: ''
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -167,7 +160,6 @@ const Booking = (props) => {
             date: values?.rideDate,
             time: values?.rideTime,
             fromDate: values.fromDate,
-            toDate: values.toDate, // outstation
             customerId: values.customerId?.id,
             adminBooking: true,
             serviceType: values.serviceType,
@@ -175,8 +167,7 @@ const Booking = (props) => {
             bookingType:values.tripType.toUpperCase(),
             transmissionType : values.transmissionType,
             carType: values.carType,
-            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss"),   
-            toDate: moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss"),
+            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),   
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
             pickupAddress: {
@@ -188,15 +179,14 @@ const Booking = (props) => {
                 name: values.dropAddress
             } : null,
             source: 'Call',
-        }
-        console.log("VALYESS",values);
+        };
+
+        if(values.toDate && values.toTime){
+            bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()           
+        };
+
         let data;
-        if (editBooking?.id) {
-            bookingData['bookingId'] = editBooking?.id;
-            data = await ApiRequestUtils.update(API_ROUTES.UPDATE_BOOKING, bookingData);
-        } else {
-            data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_BOOKING, bookingData, values?.customerId?.id);
-        }
+        data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_BOOKING, bookingData, values?.customerId?.id);
         if (data?.success) {
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
@@ -224,10 +214,16 @@ const Booking = (props) => {
         setSelectedCustomer(0);
     }
     const onEditBooking = async (data) => {
-        console.log('ON EDIT BOOKING :', data);
+        // console.log('ON EDIT BOOKING :', data);
         setEditBooking(data);
         setBookingStage(0);
+        setEditBookingView(true);
         setBookingView(false);
+    }
+
+    const onEditBackPress = () =>{
+        setEditBookingView(false);
+        
     }
 
     const onSelectBooking = (data) => {
@@ -236,6 +232,7 @@ const Booking = (props) => {
         setBookingData(data);
         setBookingView(true);
         setEditBooking();
+        setEditBookingView(false);
     }
     const onConfirmBooking = () => {
         setBookingStage(0);
@@ -309,39 +306,39 @@ const Booking = (props) => {
     });
 
     
-    const handlePickupMarkerDragEnd = useCallback((event) => {
-        const newLat = event.latLng.lat();
-        const newLng = event.latLng.lng();
-        setPickupLocation({ lat: newLat, lng: newLng });
+    // const handlePickupMarkerDragEnd = useCallback((event) => {
+    //     const newLat = event.latLng.lat();
+    //     const newLng = event.latLng.lng();
+    //     setPickupLocation({ lat: newLat, lng: newLng });
 
-        // Fetch the address using Geocoding API
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                setPickupAddress(results[0].formatted_address);
-                setFieldValue("pickupAddress", results[0].formatted_address);
-            } else {
-                setPickupAddress('Address not found');
-            }
-        });
-    }, []);
+    //     // Fetch the address using Geocoding API
+    //     const geocoder = new window.google.maps.Geocoder();
+    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+    //         if (status === 'OK' && results[0]) {
+    //             setPickupAddress(results[0].formatted_address);
+    //             setFieldValue("pickupAddress", results[0].formatted_address);
+    //         } else {
+    //             setPickupAddress('Address not found');
+    //         }
+    //     });
+    // }, []);
 
-    const handleDropMarkerDragEnd = useCallback((event) => {
-        const newLat = event.latLng.lat();
-        const newLng = event.latLng.lng();
-        setDropLocation({ lat: newLat, lng: newLng });
+    // const handleDropMarkerDragEnd = useCallback((event) => {
+    //     const newLat = event.latLng.lat();
+    //     const newLng = event.latLng.lng();
+    //     setDropLocation({ lat: newLat, lng: newLng });
 
-        // Fetch the address using Geocoding API
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                setFieldValue("dropAddress", results[0].formatted_address);
-                setDropAddress(results[0].formatted_address);
-            } else {
-                setDropAddress('Address not found');
-            }
-        });
-    }, []);
+    //     // Fetch the address using Geocoding API
+    //     const geocoder = new window.google.maps.Geocoder();
+    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+    //         if (status === 'OK' && results[0]) {
+    //             setFieldValue("dropAddress", results[0].formatted_address);
+    //             setDropAddress(results[0].formatted_address);
+    //         } else {
+    //             setDropAddress('Address not found');
+    //         }
+    //     });
+    // }, []);
 
     const getStatusDisplay = (status) => {
         const statusLower = status?.toLowerCase();
@@ -388,7 +385,7 @@ const Booking = (props) => {
                 <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />
             </div>
             <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
-                {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-8'>
+                {!showQuickCreateCustomer && !editBookingView && <div className='text-2xl font-bold mb-8'>
                     <Typography variant="h5" color='#000000'>
                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
                         <div className= "flex items-center">
@@ -408,7 +405,7 @@ const Booking = (props) => {
                         onSubmit={async (values, { resetForm }) => {
                             setLoading(true);
                             await onSubmitHandler(values);
-                            // resetForm();
+                            resetForm();
                             setRange({});
                             setLoading(false);
                         }}
@@ -422,20 +419,21 @@ const Booking = (props) => {
                                         setFieldValue('customerId', val);
                                         setSelectedCustomer(val.id)
                                     }} />
-                                    <Button
+
+                                    {!editBookingView && <Button
                                         className="ml-3 w-1/2"
                                         fullWidth
                                         color="black"
                                         onClick={() => { setShowQuickCreateCustomer(true) }}>
                                         Add New
-                                    </Button>
+                                    </Button>}
                                 </div>}
-                                <div className="flex-1 mb-4">
+                                {!editBookingView && <div className="flex-1 mb-4">
                                     <div>
                                         <Typography variant="h6" className="mb-2">
                                             Service Type
                                         </Typography>
-                                        <Field as="select" name="serviceType" disabled={editBooking || bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
+                                        <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
                                             //console.log('e.target.value', e.target.value);
                                             setFieldValue("serviceType", e.target.value, false);
                                             resetPackageValues(setFieldValue, e.target.value);
@@ -451,7 +449,7 @@ const Booking = (props) => {
                                         </Field>
                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                </div>
+                                </div>}
                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && (
                                     <div className="space-y-3 my-3">
                                         <div className="grid grid-cols-2 gap-4">
@@ -545,87 +543,66 @@ const Booking = (props) => {
                                 )}
 
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && 
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && (
                                     <div className="flex-1 mb-2">
                                         <Typography variant="h6" className="mb-2">
                                             Pickup Date & Time
                                         </Typography>
-                                        <div className='flex gap-x-2'>
-                                            <Field type="date" name="rideDate" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} onChange={(e) => {
-                                                const newDate = e.target.value ? moment(e.target.value).format('YYYY-MM-DD') : '';
-                                                setFieldValue('rideDate', newDate);
-                                                if (newDate) {
-                                                    setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(newDate)));
-                                                } else {
-                                                    setBookingTimesForDay([]);
-                                                }
-                                                if (moment(e.target.value).format('YYYY-MM-DD') != values.fromDate) {
+                                        <Field
+                                            type="datetime-local"
+                                            name="rideDateTime"
+                                            disabled={bookingStage === 1}
+                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                            value={values.rideDate ? `${values.rideDate}T${values.rideTime}` : ''}
+                                            min={`${moment().format('YYYY-MM-DD')}T00:00`}
+                                            onChange={(e) => {
+                                                const selectedDateTime = e.target.value;
+                                                const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
+                                                const formattedTime = moment(selectedDateTime).format('HH:mm');
+
+                                                setFieldValue('rideDate', formattedDate);
+                                                setFieldValue('rideTime', formattedTime);
+                                                
+                                                setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(formattedDate)));
+
+                                                if (formattedDate !== values.fromDate) {
                                                     setRange({});
                                                     setFieldValue('fromDate', '');
                                                     setFieldValue('toDate', '');
                                                 }
                                             }}
-                                            >
-                                            </Field>
-                                            <Field as="select" name="rideTime" disabled={bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideTime}>
-                                                <option value="">Select time</option>
-                                                {(values.rideDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
-                                                    <option key={item.id} value={item.id}>
-                                                        {convertTimeFormat(item.id)}
-                                                    </option>
-                                                ))}
-                                            </Field>
-                                        </div>
+                                        />
                                     </div>
-                                }
+                                )}
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && (values.packageTypeSelected == "Outstation" && values.tripType == 'Round Trip') &&
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && values.tripType === 'Round Trip' && (
                                     <div className="flex-1 mb-2">
-                                        <Typography variant="h6" className="mb-2">Return Date & Time</Typography>
-                                        <div className='flex gap-x-2'>
-                                            <Field
-                                                type="date"
-                                                name="toDate"
-                                                disabled={bookingStage === 1}
-                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                value={values.toDate}
-                                                min={values.rideDate || currentDate()}
-                                                onChange={(e) => {
-                                                    const newToDate = e.target.value ? moment(e.target.value).format('YYYY-MM-DD') : '';
-                                                    setFieldValue('toDate', newToDate);
-                                                    if (moment(newToDate).isBefore(values.rideDate)) {
-                                                        setFieldValue('toTime', '');
-                                                    }
-                                                }}
-                                            />
-                                            <Field as="select" name="toTime" disabled={!values.toDate || bookingStage === 1} className="p-2 w-full rounded-xl border-2 border-gray-300">
-                                                <option value="">Select time</option>
-                                                {(values.toDate !== moment().format('YYYY-MM-DD') ? bookingTimesForDay : bookingTimes).map((item) => (
-                                                    <option key={item.id} value={item.id}>
-                                                        {convertTimeFormat(item.id)}
-                                                    </option>
-                                                ))}
-                                            </Field>
-                                        </div>
-                                    </div>
-                                }
+                                        <Typography variant="h6" className="mb-2">
+                                            Return Date & Time
+                                        </Typography>
+                                        <Field
+                                            type="datetime-local"
+                                            name="returnDateTime"
+                                            disabled={bookingStage === 1}
+                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                            value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
+                                            min={values.rideDate ? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
+                                            onChange={(e) => {
+                                                const selectedDateTime = e.target.value;
+                                                const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
+                                                const formattedTime = moment(selectedDateTime).format('HH:mm');
 
-                                {/* {(values.serviceType === 'CAB' || editBooking?.serviceType === 'CAB') &&
-                                    <div className="flex-1 mb-4">
-                                        <div>
-                                            <Typography variant="h6" className="mb-2">
-                                                Cab Type
-                                            </Typography>
-                                            <Field as="select" disabled={bookingStage === 1} name="cabType" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.cabType}>
-                                                <option value="">Cab Type</option>
-                                                <option value="Sedan">Sedan (5 Seater)</option>
-                                                <option value="Hatchback">Hatchback (5 Seater)</option>
-                                                <option value="SUV">SUV (7 Seater)</option>
-                                            </Field>
-                                            <ErrorMessage name="cabType" component="div" className="text-red-500 text-sm" />
-                                        </div>
+                                                setFieldValue('toDate', formattedDate);
+                                                setFieldValue('toTime', formattedTime);
+
+                                                if (moment(formattedDate).isBefore(values.rideDate)) {
+                                                    setFieldValue('toTime', '');
+                                                }
+                                            }}
+                                        />
                                     </div>
-                                } */}
+                                )}
+
 
                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && values.packageTypeSelected == 'Local' &&
                                     <div className="flex-1 mb-4">
@@ -670,31 +647,6 @@ const Booking = (props) => {
                                             <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                         </div>
                                     </div>
-                                }
-                                
-                                {values.packageSelected && 
-                                    <Card className="my-6">
-                                        <div className="border rounded-xl bg-gray-200 p-4">
-                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
-                                            <hr className="my-2 border border-black" />
-                                            <div className="mt-4">
-                                                <div className="flex justify-between">
-                                                    <Typography color="gray" variant="h6">Package:</Typography>
-                                                    <Typography>
-                                                        {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
-                                                    </Typography>
-                                                </div>
-                                                <>
-                                                    <div className="flex justify-between">
-                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                        <Typography>
-                                                            ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
-                                                        </Typography>
-                                                    </div>
-                                                </>
-                                            </div>
-                                        </div>
-                                    </Card>
                                 }
 
                                 {/* {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && (
@@ -750,39 +702,37 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
 
-                                {(values.packageSelected || values.packageTypeSelected == "Outstation") && 
-                                    <div className="p-2 space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Pickup Location <span className="text-red-500">*</span>
-                                        </label>
-                                        <Field
-                                            type="text"
-                                            name="pickupAddress"
-                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                            placeholder="Enter pickup location"
-                                            onChange={(e) => {
-                                                setFieldValue("pickupAddress", e.target.value);
-                                                setFieldValue("pickupLocation", null);
-                                                searchLocations(e.target.value, true);
-                                            }}
-                                        />
-                                        {pickupSuggestions.length > 0 && (
-                                            <ul className="border rounded-lg bg-white mt-2">
-                                                {pickupSuggestions.map((suggestion, index) => (
-                                                    <li
-                                                        key={index}
-                                                        className="p-2 cursor-pointer hover:bg-gray-100"
-                                                        onClick={() => {
-                                                            handleSelectLocation(suggestion, true, setFieldValue);
-                                                        }}
-                                                    >
-                                                        {suggestion}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                }
+                                {values.tripType && <div className="p-2 space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Pickup Location <span className="text-red-500">*</span>
+                                    </label>
+                                    <Field
+                                        type="text"
+                                        name="pickupAddress"
+                                        className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                        placeholder="Enter pickup location"
+                                        onChange={(e) => {
+                                            setFieldValue("pickupAddress", e.target.value);
+                                            setFieldValue("pickupLocation", null);
+                                            searchLocations(e.target.value, true);
+                                        }}
+                                    />
+                                    {pickupSuggestions.length > 0 && (
+                                        <ul className="border rounded-lg bg-white mt-2">
+                                            {pickupSuggestions.map((suggestion, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="p-2 cursor-pointer hover:bg-gray-100"
+                                                    onClick={() => {
+                                                        handleSelectLocation(suggestion, true, setFieldValue);
+                                                    }}
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>}
 
                                 {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH')||(values.packageTypeSelected == 'Outstation')) &&  (
                                     <div className="p-2 space-y-2">
@@ -816,7 +766,7 @@ const Booking = (props) => {
                                     </div>
                                 )}
 
-                                {/* {quoteDetails && 
+                                {values.packageSelected && 
                                     <Card className="my-6">
                                         <div className="border rounded-xl bg-gray-200 p-4">
                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -839,9 +789,28 @@ const Booking = (props) => {
                                             </div>
                                         </div>
                                     </Card>
-                                } */}
+                                }
 
-                                {values.pickupAddress && isLoaded && (
+                                {quoteDetails && 
+                                    <Card className="my-6">
+                                        <div className="border rounded-xl bg-gray-200 p-4">
+                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                            <hr className="my-2 border border-black" />
+                                            <div className="mt-4">
+                                                <>
+                                                    <div className="flex justify-between">
+                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                        <Typography>
+                                                            ₹ {quoteDetails.amount}
+                                                        </Typography>
+                                                    </div>
+                                                </>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                }
+
+                                {/* {values.pickupAddress && isLoaded && (
                                     <GoogleMap
                                         mapContainerStyle={{ width: '100%', height: '50%' }}
                                         center={mapCenter}
@@ -873,9 +842,15 @@ const Booking = (props) => {
                                             />
                                         )}
                                     </GoogleMap>
-                                )}
+                                )} */}
 
                                 {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
+
+                                {values.packageTypeSelected == 'Outstation' && 
+                                <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                    Check Esimated Price
+                                </Button>
+                                }
 
                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <Button
                                     fullWidth
@@ -889,29 +864,6 @@ const Booking = (props) => {
                             </>
                         )}
                     </Formik>}
-                    {/* {bookingStage === 0 && values.serviceType !== '' && <SelectLocation
-                        serviceType={bookingData?.serviceType}
-                        bookingId={bookingData?.id}
-                        customerId={bookingData?.customerId}
-                        editBooking={editBooking}
-                        onNext={() => {
-                            //setBookingStage(2);
-                            onSelectBooking(bookingData)
-                        }}
-                        onPrev={() => setBookingStage(0)} />
-                    } */}
-
-                    {/* {bookingStage === 1  && <SelectLocation
-                        serviceType={bookingData?.serviceType}
-                        bookingId={bookingData?.id}
-                        customerId={bookingData?.customerId}
-                        editBooking={editBooking}
-                        onNext={() => {
-                            setBookingStage(2);
-                            onSelectBooking(bookingData)
-                        }}
-                        onPrev={() => setBookingStage(0)} />
-                    } */}
                     {
                         bookingStage === 2 && bookingData && (
                             <SearchDrivers bookingData={bookingData} onNext={() => {
@@ -923,7 +875,9 @@ const Booking = (props) => {
                 {bookingView && <>
                     <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                 </>}
-
+                {editBookingView && 
+                    <EditBooking bookingData={bookingData} editCancel={onEditBackPress}/>
+                }
             </div>
         </div>
     );

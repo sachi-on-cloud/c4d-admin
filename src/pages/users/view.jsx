@@ -47,6 +47,15 @@ export function UserView() {
       // Clear the state to prevent showing the alert on page refresh
       navigate(location.pathname, { replace: true, state: {} });
     }
+    if(location.state?.userExist){
+      setAlert({
+        message: `user already exist!!`
+      });
+      setTimeout(() => {
+        setAlert(null);
+      }, 3000);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
   }, [location]);
 
   const getUsers = async (searchQuery) => {

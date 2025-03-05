@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, USER_ROLE, ROLE_PERMISSIONS, PERMISSION_OPTIONS } from '@/utils/constants';
+import { API_ROUTES, USER_ROLE, ROLE_PERMISSIONS, PERMISSION_OPTIONS,STATUS_OPTIONS } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -47,6 +47,7 @@ const UserEdit = () => {
         password: "",
         permission: userVal?.permission || "",
         role: userVal?.role || "",
+        status: userVal?.status || "",
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -57,6 +58,7 @@ const UserEdit = () => {
                 email: values.email,
                 permission: values.permission, // permisions need to be updated 
                 role: role,
+                status: values.status,
                 userId: id
             };
 
@@ -132,7 +134,7 @@ const UserEdit = () => {
                             </div>
                             <div>
                                 <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
-                                <Field type="text" name="password" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="text" name="password" placeholder="******" className="p-2 w-full rounded-md border-gray-300" />
                                 <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
@@ -153,7 +155,7 @@ const UserEdit = () => {
                                 />
                             </div>
                             <div>
-                            <label htmlFor="permission" className="text-sm font-medium text-gray-700 mt-4">Permission</label>
+                                <label htmlFor="permission" className="text-sm font-medium text-gray-700 mt-4">Permission</label>
                                 <Multiselect
                                     options={PERMISSION_OPTIONS}
                                     displayValue="name"
@@ -168,6 +170,19 @@ const UserEdit = () => {
                                         setFieldValue('permission', selectedList.map(item => item.id));
                                     }}
                                 />
+                            </div>
+                            <div>
+                                <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
+                                <Select
+                                    id="status"
+                                    options={STATUS_OPTIONS}
+                                    value={STATUS_OPTIONS.find(option => option.value === values.status) || null}
+                                    onChange={(selectedOption) => setFieldValue('status', selectedOption.value)}
+                                    placeholder="Select Status"
+                                    className="w-full"
+                                    classNamePrefix="react-select"
+                                />
+                                <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
                         <div className='flex flex-row'>
