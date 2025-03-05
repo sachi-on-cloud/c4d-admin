@@ -183,41 +183,41 @@ export const DRIVER_ADD_SCHEMA = Yup.object({
         .required('Phone number 2 is required')
         .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
     transmissionType: Yup.string().required('Transmission Type is required'),
-    packages: Yup.array().when(['jobType'], {
-        is: (jobType) => jobType === 'CAB',
-        then: () =>
-            Yup.array()
-                .of(Yup.string().required('Each package must be selected'))
-                .required('At least one package must be selected'),
-        otherwise: () => Yup.array().nullable(),
-    }),
-    prices: Yup.array().when(['jobType'], {
-        is: (jobType) => jobType !== 'CAB',
-        then: () =>
-            Yup.array()
-                .of(
-                    Yup.object().shape({
-                        price: Yup.number().required('Price is required'),
-                        extraPrice: Yup.number().required('Extra price is required'),
-                        extraKmPrice: Yup.number().required('Extra KM price is required'),
-                        nightCharge: Yup.number().required('Night charge is required'),
-                        cancelCharge: Yup.number().required('Cancel charge is required'),
-                        extraCabType: Yup.string().required('Cab type is required'),
-                    })
-                )
-                .test(
-                    'at-least-one-price',
-                    'At least one price must be added',
-                    function (prices) {
-                        return prices && prices.some(price =>
-                            price.price || price.extraPrice || price.extraKmPrice ||
-                            price.nightCharge || price.cancelCharge || price.extraCabType
-                        );
-                    }
-                )
-                .required('At least one price must be added'),
-        otherwise: () => Yup.array().nullable(),
-    })
+    // packages: Yup.array().when(['jobType'], {
+    //     is: (jobType) => jobType === 'CAB',
+    //     then: () =>
+    //         Yup.array()
+    //             .of(Yup.string().required('Each package must be selected'))
+    //             .required('At least one package must be selected'),
+    //     otherwise: () => Yup.array().nullable(),
+    // }),
+    // prices: Yup.array().when(['jobType'], {
+    //     is: (jobType) => jobType !== 'CAB',
+    //     then: () =>
+    //         Yup.array()
+    //             .of(
+    //                 Yup.object().shape({
+    //                     price: Yup.number().required('Price is required'),
+    //                     extraPrice: Yup.number().required('Extra price is required'),
+    //                     extraKmPrice: Yup.number().required('Extra KM price is required'),
+    //                     nightCharge: Yup.number().required('Night charge is required'),
+    //                     cancelCharge: Yup.number().required('Cancel charge is required'),
+    //                     extraCabType: Yup.string().required('Cab type is required'),
+    //                 })
+    //             )
+    //             .test(
+    //                 'at-least-one-price',
+    //                 'At least one price must be added',
+    //                 function (prices) {
+    //                     return prices && prices.some(price =>
+    //                         price.price || price.extraPrice || price.extraKmPrice ||
+    //                         price.nightCharge || price.cancelCharge || price.extraCabType
+    //                     );
+    //                 }
+    //             )
+    //             .required('At least one price must be added'),
+    //     otherwise: () => Yup.array().nullable(),
+    // })
 });
 
 export const DRIVER_SCHEMA = Yup.object({
@@ -278,26 +278,26 @@ export const DRIVER_SCHEMA = Yup.object({
     phoneNumber2: Yup.string()
         .matches(/^[6-9]{1}[0-9]{9}$/, 'Must be a valid mobile number'),
     transmissionType: Yup.string().required('Transmission Type is required'),
-    packages: Yup.array()
-        .of(Yup.string().required('Each package must be selected'))
-        .required('At least one package must be selected')
-        .min(1, 'At least one package must be selected'),
+    // packages: Yup.array()
+    //     .of(Yup.string().required('Each package must be selected'))
+    //     .required('At least one package must be selected')
+    //     .min(1, 'At least one package must be selected'),
     //wallet: Yup.string().required('Wallet is required'),
-    prices: Yup.array().of(
-        Yup.object().shape({
-            price: Yup.number().required('Price is required'),
-            extraPrice: Yup.number().required('Extra price is required'),
-            extraKmPrice: Yup.number().required('Extra KM price is required'),
-            nightCharge: Yup.number().required('Night charge is required'),
-            cancelCharge: Yup.number().required('Cancel charge is required'),
-            extraCabType: Yup.string().required('Cab type is required'),
-        })
-    ).test('at-least-one-price', 'At least one price must be added', function (prices) {
-        return prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
-        );
-    })
+    // prices: Yup.array().of(
+    //     Yup.object().shape({
+    //         price: Yup.number().required('Price is required'),
+    //         extraPrice: Yup.number().required('Extra price is required'),
+    //         extraKmPrice: Yup.number().required('Extra KM price is required'),
+    //         nightCharge: Yup.number().required('Night charge is required'),
+    //         cancelCharge: Yup.number().required('Cancel charge is required'),
+    //         extraCabType: Yup.string().required('Cab type is required'),
+    //     })
+    // ).test('at-least-one-price', 'At least one price must be added', function (prices) {
+    //     return prices.some(price =>
+    //         price.price || price.extraPrice || price.extraKmPrice ||
+    //         price.nightCharge || price.cancelCharge || price.extraCabType
+    //     );
+    // })
 });
 
 export const CAB_SCHEMA = Yup.object({
