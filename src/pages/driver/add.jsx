@@ -105,22 +105,22 @@ const DriverAdd = () => {
         });
     };
 
-    const getPackageListDetails = async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
-        if (data?.success) {
-            const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
-                return {
-                    ...option,
-                    period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
-                };
-            });
-            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
-            const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
-            setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
-        }
-    };
+    // const getPackageListDetails = async () => {
+    //     const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
+    //     if (data?.success) {
+    //         const packageData = data?.data.map(option => {
+    //             const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
+    //             return {
+    //                 ...option,
+    //                 period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
+    //             };
+    //         });
+    //         const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
+    //         const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
+    //         const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
+    //         setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
+    //     }
+    // };
 
     const getOwnersList = async () => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_ACCOUNTS);
@@ -128,7 +128,7 @@ const DriverAdd = () => {
     }
 
     useEffect(() => {
-        getPackageListDetails();
+        // getPackageListDetails();
         getOwnersList();
     }, []);
 
@@ -182,74 +182,74 @@ const DriverAdd = () => {
         }
     };
 
-    const renderPriceTable = (title, prices, values) => {
-        if (prices.length === 0) return null;
+    // const renderPriceTable = (title, prices, values) => {
+    //     if (prices.length === 0) return null;
         
-        const sortedPrices = [...prices].sort((a, b) => {
-            const packageA = packageDetails.find(p => p.id === a.packageId);
-            const packageB = packageDetails.find(p => p.id === b.packageId);
+    //     const sortedPrices = [...prices].sort((a, b) => {
+    //         const packageA = packageDetails.find(p => p.id === a.packageId);
+    //         const packageB = packageDetails.find(p => p.id === b.packageId);
             
-            if (title === "LOCAL") {
-                const hoursA = parseInt(packageA.period);
-                const hoursB = parseInt(packageB.period);
-                return hoursA - hoursB;
-            } else if (title === "CAR WASH") {
-                const numberA = parseInt(packageA.period.match(/\d+/)[0]);
-                const numberB = parseInt(packageB.period.match(/\d+/)[0]);
-                return numberA - numberB;
-            }
-            return 0;
-        });
+    //         if (title === "LOCAL") {
+    //             const hoursA = parseInt(packageA.period);
+    //             const hoursB = parseInt(packageB.period);
+    //             return hoursA - hoursB;
+    //         } else if (title === "CAR WASH") {
+    //             const numberA = parseInt(packageA.period.match(/\d+/)[0]);
+    //             const numberB = parseInt(packageB.period.match(/\d+/)[0]);
+    //             return numberA - numberB;
+    //         }
+    //         return 0;
+    //     });
 
-        return (
-            <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4">{title}</h3>
-                <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                        <table className="w-full min-w-[640px] table-auto">
-                            <thead>
-                                <tr>
-                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
-                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
-                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
-                                                {el}
-                                            </Typography>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sortedPrices.map((priceItem) => (
-                                    <tr key={priceItem.packageId}>
-                                        <td className="py-3 px-5 border-b border-blue-gray-50">
-                                            <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                {priceItem.period}
-                                            </Typography>
-                                        </td>
-                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
-                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                <Field
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
-                                                    type="number"
-                                                    className="w-full p-1 text-xs border rounded"
-                                                    disabled={!isEditable} 
-                                                />
-                                                <ErrorMessage 
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
-                                                    component="div" 
-                                                    className="text-red-500 text-xs" 
-                                                />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </CardBody>
-                </Card>
-            </div>
-        );
-    }; 
+    //     return (
+    //         <div className="mb-8">
+    //             <h3 className="text-xl font-bold mb-4">{title}</h3>
+    //             <Card>
+    //                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+    //                     <table className="w-full min-w-[640px] table-auto">
+    //                         <thead>
+    //                             <tr>
+    //                                 {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
+    //                                     <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+    //                                         <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
+    //                                             {el}
+    //                                         </Typography>
+    //                                     </th>
+    //                                 ))}
+    //                             </tr>
+    //                         </thead>
+    //                         <tbody>
+    //                             {sortedPrices.map((priceItem) => (
+    //                                 <tr key={priceItem.packageId}>
+    //                                     <td className="py-3 px-5 border-b border-blue-gray-50">
+    //                                         <Typography variant="small" color="blue-gray" className="font-semibold">
+    //                                             {priceItem.period}
+    //                                         </Typography>
+    //                                     </td>
+    //                                     {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+    //                                         <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
+    //                                             <Field
+    //                                                 name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+    //                                                 type="number"
+    //                                                 className="w-full p-1 text-xs border rounded"
+    //                                                 disabled={!isEditable} 
+    //                                             />
+    //                                             <ErrorMessage 
+    //                                                 name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
+    //                                                 component="div" 
+    //                                                 className="text-red-500 text-xs" 
+    //                                             />
+    //                                         </td>
+    //                                     ))}
+    //                                 </tr>
+    //                             ))}
+    //                         </tbody>
+    //                     </table>
+    //                 </CardBody>
+    //             </Card>
+    //         </div>
+    //     );
+    // }; 
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -817,7 +817,7 @@ const DriverAdd = () => {
                                             <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                                         </div> */}
                                         {/* {values.jobType !== "CAB" &&  */}
-                                        <div>
+                                        {/* <div>
                                             <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                             <Multiselect
                                                 options={packageDetails}
@@ -846,13 +846,13 @@ const DriverAdd = () => {
                                                 showCheckbox={true}
                                                 disable={!isEditable}
                                             />
-                                        </div>
+                                        </div> */}
                                         {/* } */}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {values.packages.length > 0 && values.jobType !== "CAB" && (
+                        {/* {values.packages.length > 0 && values.jobType !== "CAB" && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
                                 {renderPriceTable(
@@ -882,7 +882,7 @@ const DriverAdd = () => {
                                     values
                                 )}
                             </div>
-                        )}
+                        )} */}
                         {!driverAdded.value &&
                             <div className='flex flex-row'>
                                 <Button

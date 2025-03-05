@@ -809,7 +809,7 @@ const DriverEdit = () => {
                                     <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
                                 </div>
 
-                                <div>
+                                {/* <div>
                                     <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                     <Multiselect
                                         options={packageDetails}
@@ -839,7 +839,7 @@ const DriverEdit = () => {
                                         className="w-full rounded-md border-gray-300"
                                         showCheckbox={true}
                                     />
-                                </div>
+                                </div> */}
                             </div>    
                             <div className="mt-6">
                             <div className="flex flex-row justify-between px-2 mb-2">
@@ -914,7 +914,7 @@ const DriverEdit = () => {
                             </Card>
                         </div>
                         </div>
-                        {values.packages.length > 0 && (
+                        {/* {values.packages.length > 0 && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
                                 {renderPriceTable(
@@ -947,7 +947,7 @@ const DriverEdit = () => {
                                     packageDetails
                                 )}
                             </div>
-                        )}
+                        )} */}
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
