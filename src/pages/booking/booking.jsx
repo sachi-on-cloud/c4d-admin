@@ -77,14 +77,14 @@ const Booking = (props) => {
 
     const getQuoteOutstationDetails = async (values) =>{
         const quoteData = {
-            bookingType: values.tripType.toUpperCase(),
-            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            toDate: moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values.carType,
-            pickupLat: values.pickupLocation.lat,
-            pickupLong: values.pickupLocation.lng,
-            dropLat: values.dropLocation.lat,
-            dropLong: values.dropLocation.lng,
+            bookingType: values?.tripType?.toUpperCase(),
+            fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            carType: values?.carType,
+            pickupLat: values?.pickupLocation?.lat,
+            pickupLong: values?.pickupLocation?.lng,
+            dropLat: values?.dropLocation?.lat,
+            dropLong: values?.dropLocation?.lng,
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
         console.log("QOYTEE DATA",data);
@@ -306,39 +306,39 @@ const Booking = (props) => {
     });
 
     
-    const handlePickupMarkerDragEnd = useCallback((event) => {
-        const newLat = event.latLng.lat();
-        const newLng = event.latLng.lng();
-        setPickupLocation({ lat: newLat, lng: newLng });
+    // const handlePickupMarkerDragEnd = useCallback((event) => {
+    //     const newLat = event.latLng.lat();
+    //     const newLng = event.latLng.lng();
+    //     setPickupLocation({ lat: newLat, lng: newLng });
 
-        // Fetch the address using Geocoding API
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                setPickupAddress(results[0].formatted_address);
-                setFieldValue("pickupAddress", results[0].formatted_address);
-            } else {
-                setPickupAddress('Address not found');
-            }
-        });
-    }, []);
+    //     // Fetch the address using Geocoding API
+    //     const geocoder = new window.google.maps.Geocoder();
+    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+    //         if (status === 'OK' && results[0]) {
+    //             setPickupAddress(results[0].formatted_address);
+    //             setFieldValue("pickupAddress", results[0].formatted_address);
+    //         } else {
+    //             setPickupAddress('Address not found');
+    //         }
+    //     });
+    // }, []);
 
-    const handleDropMarkerDragEnd = useCallback((event) => {
-        const newLat = event.latLng.lat();
-        const newLng = event.latLng.lng();
-        setDropLocation({ lat: newLat, lng: newLng });
+    // const handleDropMarkerDragEnd = useCallback((event) => {
+    //     const newLat = event.latLng.lat();
+    //     const newLng = event.latLng.lng();
+    //     setDropLocation({ lat: newLat, lng: newLng });
 
-        // Fetch the address using Geocoding API
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                setFieldValue("dropAddress", results[0].formatted_address);
-                setDropAddress(results[0].formatted_address);
-            } else {
-                setDropAddress('Address not found');
-            }
-        });
-    }, []);
+    //     // Fetch the address using Geocoding API
+    //     const geocoder = new window.google.maps.Geocoder();
+    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+    //         if (status === 'OK' && results[0]) {
+    //             setFieldValue("dropAddress", results[0].formatted_address);
+    //             setDropAddress(results[0].formatted_address);
+    //         } else {
+    //             setDropAddress('Address not found');
+    //         }
+    //     });
+    // }, []);
 
     const getStatusDisplay = (status) => {
         const statusLower = status?.toLowerCase();
@@ -648,31 +648,6 @@ const Booking = (props) => {
                                         </div>
                                     </div>
                                 }
-                                
-                                {values.packageSelected && 
-                                    <Card className="my-6">
-                                        <div className="border rounded-xl bg-gray-200 p-4">
-                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
-                                            <hr className="my-2 border border-black" />
-                                            <div className="mt-4">
-                                                <div className="flex justify-between">
-                                                    <Typography color="gray" variant="h6">Package:</Typography>
-                                                    <Typography>
-                                                        {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
-                                                    </Typography>
-                                                </div>
-                                                <>
-                                                    <div className="flex justify-between">
-                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                        <Typography>
-                                                            ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
-                                                        </Typography>
-                                                    </div>
-                                                </>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                }
 
                                 {/* {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && (
                                     <div className="space-y-4 mb-4">
@@ -727,39 +702,37 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
 
-                                {(values.packageSelected || values.packageTypeSelected == "Outstation") && 
-                                    <div className="p-2 space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Pickup Location <span className="text-red-500">*</span>
-                                        </label>
-                                        <Field
-                                            type="text"
-                                            name="pickupAddress"
-                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                            placeholder="Enter pickup location"
-                                            onChange={(e) => {
-                                                setFieldValue("pickupAddress", e.target.value);
-                                                setFieldValue("pickupLocation", null);
-                                                searchLocations(e.target.value, true);
-                                            }}
-                                        />
-                                        {pickupSuggestions.length > 0 && (
-                                            <ul className="border rounded-lg bg-white mt-2">
-                                                {pickupSuggestions.map((suggestion, index) => (
-                                                    <li
-                                                        key={index}
-                                                        className="p-2 cursor-pointer hover:bg-gray-100"
-                                                        onClick={() => {
-                                                            handleSelectLocation(suggestion, true, setFieldValue);
-                                                        }}
-                                                    >
-                                                        {suggestion}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                }
+                                {values.tripType && <div className="p-2 space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Pickup Location <span className="text-red-500">*</span>
+                                    </label>
+                                    <Field
+                                        type="text"
+                                        name="pickupAddress"
+                                        className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                        placeholder="Enter pickup location"
+                                        onChange={(e) => {
+                                            setFieldValue("pickupAddress", e.target.value);
+                                            setFieldValue("pickupLocation", null);
+                                            searchLocations(e.target.value, true);
+                                        }}
+                                    />
+                                    {pickupSuggestions.length > 0 && (
+                                        <ul className="border rounded-lg bg-white mt-2">
+                                            {pickupSuggestions.map((suggestion, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="p-2 cursor-pointer hover:bg-gray-100"
+                                                    onClick={() => {
+                                                        handleSelectLocation(suggestion, true, setFieldValue);
+                                                    }}
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>}
 
                                 {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH')||(values.packageTypeSelected == 'Outstation')) &&  (
                                     <div className="p-2 space-y-2">
@@ -793,7 +766,7 @@ const Booking = (props) => {
                                     </div>
                                 )}
 
-                                {/* {quoteDetails && 
+                                {values.packageSelected && 
                                     <Card className="my-6">
                                         <div className="border rounded-xl bg-gray-200 p-4">
                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -816,9 +789,28 @@ const Booking = (props) => {
                                             </div>
                                         </div>
                                     </Card>
-                                } */}
+                                }
 
-                                {values.pickupAddress && isLoaded && (
+                                {quoteDetails && 
+                                    <Card className="my-6">
+                                        <div className="border rounded-xl bg-gray-200 p-4">
+                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                            <hr className="my-2 border border-black" />
+                                            <div className="mt-4">
+                                                <>
+                                                    <div className="flex justify-between">
+                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                        <Typography>
+                                                            ₹ {quoteDetails.amount}
+                                                        </Typography>
+                                                    </div>
+                                                </>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                }
+
+                                {/* {values.pickupAddress && isLoaded && (
                                     <GoogleMap
                                         mapContainerStyle={{ width: '100%', height: '50%' }}
                                         center={mapCenter}
@@ -850,9 +842,15 @@ const Booking = (props) => {
                                             />
                                         )}
                                     </GoogleMap>
-                                )}
+                                )} */}
 
                                 {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
+
+                                {values.packageTypeSelected == 'Outstation' && 
+                                <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                    Check Esimated Price
+                                </Button>
+                                }
 
                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <Button
                                     fullWidth

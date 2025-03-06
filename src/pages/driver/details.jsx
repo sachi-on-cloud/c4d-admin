@@ -9,6 +9,8 @@ import { Button } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 import DocumentsList from '@/components/DocumentsList';
+import DocumentLogs from '@/components/DocumentLogs';
+import SubscriptionLog from '@/components/SubscriptionLog';
 
 const DriverDetails = ({ btnShow = false, noApprove = false }) => {
     // const [enablePrint, setEnablePrint] = useState(false);
@@ -304,7 +306,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                             <Field type="number" name="wallet" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                             <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
                                         </div> */}
-                                        <div>
+                                        {/* <div>
                                             <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                             <Multiselect
                                                 options={packageDetails}
@@ -314,7 +316,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                                 className="w-full rounded-xl border-gray-300 bg-gray-200 border"
                                                 disable={true}
                                             />
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>
@@ -322,10 +324,12 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
-            {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />}
+            {/* {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />} */}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
-            <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} />
+            {/* <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} /> */}
             {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} noApprove ={noApprove}/>}
+            {driver && driver?.subscriptionLog && <SubscriptionLog subscriptionlog={driver?.subscriptionLog} />}
+            {driver && driver?.documentLog && <DocumentLogs documentlogs={driver?.documentLog} />}
             {!btnShow && <div className='flex w-full'>
                 <Button
                     fullWidth

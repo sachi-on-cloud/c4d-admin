@@ -11,6 +11,7 @@ import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
+import moment from "moment";
 
 
 export function AccountView() {
@@ -95,7 +96,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", "Email", "Type", ""].map((el) => (
+                    {["Created Date","Account Name","Phone Number","Service Type","Source","Available Status","Owner Status","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -112,7 +113,7 @@ export function AccountView() {
                 </thead>
                 <tbody>
                   {accounts.map(
-                    ({ id, name, phoneNumber, email, type }, key) => {
+                    ({id, created_at, name, phoneNumber, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
                       const className = `py-3 px-5 ${key === accounts.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -120,6 +121,11 @@ export function AccountView() {
 
                       return (
                         <tr key={id}>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {moment(created_at).format("DD-MM-YYYY")}
+                            </Typography>
+                          </td>
                           <td className={className}>
                             <div className="flex items-center gap-4">
                               <div onClick={() => navigate(`/dashboard/vendors/account/details/${id}`)}>
@@ -135,12 +141,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {formatPhoneNumber(phoneNumber)}
-                            </Typography>
-                          </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {email}
+                              {phoneNumber}
                             </Typography>
                           </td>
                           <td className={className}>
@@ -149,6 +150,26 @@ export function AccountView() {
                             </Typography>
                           </td>
                           <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {source}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {availableStatus}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {ownerStatus}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {documentStatus?.status}
+                            </Typography>
+                          </td>
+                          {/* <td className={className}>
                             <Button
                               as='a'
                               onClick={() => navigate(`/dashboard/vendors/account/edit/${id}`)}
@@ -156,7 +177,7 @@ export function AccountView() {
                             >
                               Edit
                             </Button>
-                          </td>
+                          </td> */}
                         </tr>
                       );
                     }

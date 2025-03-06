@@ -17,6 +17,7 @@ const EditBooking = (props) => {
     const [pickupLocation, setPickupLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
     const mapRef = useRef(null);
+    const [quoteDetails, setQuoteDetails] = useState(null);
 
     useEffect(() => {
         if (props.bookingData) {
@@ -38,6 +39,24 @@ const EditBooking = (props) => {
             setPackageTypeSelectedData(data?.data);
         }
     }, []);
+
+    const getQuoteOutstationDetails = async (values) =>{
+        const quoteData = {
+            bookingType: values?.tripType?.toUpperCase(),
+            fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            carType: values?.carType,
+            pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
+            pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
+            dropLat: values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat,
+            dropLong: values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong,
+        };
+        const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
+        console.log("QOYTEE DATA",data);
+        if (data.success) {
+            setQuoteDetails(data.data);
+        }
+    };
 
     const initialValues = {
         serviceType: bookingData?.serviceType || '',
@@ -89,39 +108,39 @@ const EditBooking = (props) => {
         }
     };
 
-    const handlePickupMarkerDragEnd = useCallback((event) => {
-        const newLat = event.latLng.lat();
-        const newLng = event.latLng.lng();
-        setPickupLocation({ lat: newLat, lng: newLng });
+    // const handlePickupMarkerDragEnd = useCallback((event) => {
+    //     const newLat = event.latLng.lat();
+    //     const newLng = event.latLng.lng();
+    //     setPickupLocation({ lat: newLat, lng: newLng });
 
-        // Fetch the address using Geocoding API
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                setPickupAddress(results[0].formatted_address);
-                setFieldValue("pickupAddress", results[0].formatted_address);
-            } else {
-                setPickupAddress('Address not found');
-            }
-        });
-    }, []);
+    //     // Fetch the address using Geocoding API
+    //     const geocoder = new window.google.maps.Geocoder();
+    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+    //         if (status === 'OK' && results[0]) {
+    //             setPickupAddress(results[0].formatted_address);
+    //             setFieldValue("pickupAddress", results[0].formatted_address);
+    //         } else {
+    //             setPickupAddress('Address not found');
+    //         }
+    //     });
+    // }, []);
 
-    const handleDropMarkerDragEnd = useCallback((event) => {
-        const newLat = event.latLng.lat();
-        const newLng = event.latLng.lng();
-        setDropLocation({ lat: newLat, lng: newLng });
+    // const handleDropMarkerDragEnd = useCallback((event) => {
+    //     const newLat = event.latLng.lat();
+    //     const newLng = event.latLng.lng();
+    //     setDropLocation({ lat: newLat, lng: newLng });
 
-        // Fetch the address using Geocoding API
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                setFieldValue("dropAddress", results[0].formatted_address);
-                setDropAddress(results[0].formatted_address);
-            } else {
-                setDropAddress('Address not found');
-            }
-        });
-    }, []);
+    //     // Fetch the address using Geocoding API
+    //     const geocoder = new window.google.maps.Geocoder();
+    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
+    //         if (status === 'OK' && results[0]) {
+    //             setFieldValue("dropAddress", results[0].formatted_address);
+    //             setDropAddress(results[0].formatted_address);
+    //         } else {
+    //             setDropAddress('Address not found');
+    //         }
+    //     });
+    // }, []);
 
     const onBackPressHandler = async () => {
         props.editCancel()
@@ -145,12 +164,11 @@ const EditBooking = (props) => {
         const data = {
             packageId: values?.packageSelected === "0" ? 0 : Number(values?.packageSelected),
             packageType: values?.packageTypeSelected,
-            date: values?.rideDate,
             customerId: bookingData?.Customer?.id,
             bookingId: bookingData?.id ,
             adminBooking: true,
             serviceType: values?.serviceType,
-            bookingType:values?.tripType.toUpperCase(),
+            bookingType: values?.tripType.toUpperCase(),
             transmissionType : values?.transmissionType ? values?.transmissionType : bookingData?.transmissionType,
             carType: values?.carType ? values?.carType : bookingData?.carType,
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),   
@@ -159,15 +177,21 @@ const EditBooking = (props) => {
             pickupAddress: {
                 name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
             },
-            dropLat: values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat,
-            dropLong: values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong,
-            dropAddress: values?.dropLocation ? values?.dropLocation : bookingData?.dropAddress ? {
+            dropLat: null,
+            dropLong: null,
+            dropAddress: null,
+            toDate: null,
+        };
+        if(values.packageTypeSelected == 'Outstation' && values?.tripType?.toUpperCase() == 'ROUND TRIP'){
+            data.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();       
+        }
+        if(!(values.packageTypeSelected == 'Local' && values?.tripType?.toUpperCase() == 'DROP ONLY')){
+            data.dropLat = values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat
+            data.dropLong = values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong
+            data.dropAddress = values?.dropLocation ? {name: values?.dropAddress} : bookingData?.dropAddress ? {
                 name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
-            } : null,
-        };
-        if(values.toDate && values.toTime){
-            data.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()           
-        };
+            } : null
+        }
         const editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_BOOKING, data);
         if(editBookingData.success){
             props.editCancel();
@@ -216,6 +240,7 @@ const EditBooking = (props) => {
                                         }
                                     }}
                                     variant={values?.packageTypeSelected === 'Local' ? 'filled' : 'outlined'}
+                                    disabled
                                 >
                                     Local
                                 </Button>
@@ -229,6 +254,7 @@ const EditBooking = (props) => {
                                             setFieldValue('toDate', '');
                                         }
                                     }}
+                                    disabled
                                     variant={values?.packageTypeSelected === 'Outstation' ? 'filled' : 'outlined'}
                                 >
                                     Outstation
@@ -371,28 +397,7 @@ const EditBooking = (props) => {
                                 <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>}
-                        {values.packageSelected && values.packageTypeSelected =='Local' && <Card className="my-6">
-                            <div className="border rounded-xl bg-gray-200 p-4">
-                                <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
-                                <hr className="my-2 border border-black" />
-                                <div className="mt-4">
-                                    <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Package:</Typography>
-                                        <Typography>
-                                            {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
-                                        </Typography>
-                                    </div>
-                                    <>
-                                        <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                            <Typography>
-                                                ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
-                                            </Typography>
-                                        </div>
-                                    </>
-                                </div>
-                            </div>
-                        </Card>}
+
                         <div className="p-2 space-y-2">
                             <label className="block text-sm font-medium text-gray-700">
                                 Pickup Location <span className="text-red-500">*</span>
@@ -453,7 +458,56 @@ const EditBooking = (props) => {
                                 </ul>
                             )}
                         </div>}
-                        {window.google && values.pickupAddress && <GoogleMap
+
+                        {values.packageSelected && values.packageTypeSelected =='Local' && <Card className="my-6">
+                            <div className="border rounded-xl bg-gray-200 p-4">
+                                <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                <hr className="my-2 border border-black" />
+                                <div className="mt-4">
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Package:</Typography>
+                                        <Typography>
+                                            {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
+                                        </Typography>
+                                    </div>
+                                    <>
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                            <Typography>
+                                                ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
+                                            </Typography>
+                                        </div>
+                                    </>
+                                </div>
+                            </div>
+                        </Card>}
+
+                        {quoteDetails && 
+                            <Card className="my-6">
+                                <div className="border rounded-xl bg-gray-200 p-4">
+                                    <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                    <hr className="my-2 border border-black" />
+                                    <div className="mt-4">
+                                        <>
+                                            <div className="flex justify-between">
+                                                <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                <Typography>
+                                                    ₹ {quoteDetails.amount}
+                                                </Typography>
+                                            </div>
+                                        </>
+                                    </div>
+                                </div>
+                            </Card>
+                        }
+
+                        {values.packageTypeSelected == 'Outstation' && 
+                        <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                            Check Esimated Price
+                        </Button>
+                        }
+
+                        {/* {window.google && values.pickupAddress && <GoogleMap
                             mapContainerStyle={{ width: '100%', height: '50%' }}
                             center={mapCenter}
                             zoom={mapZoom}
@@ -483,7 +537,7 @@ const EditBooking = (props) => {
                                     onDragEnd={handleDropMarkerDragEnd}
                                 />
                             )}
-                        </GoogleMap>}
+                        </GoogleMap>} */}
                         <>
                             <Button
                                 color="black"
