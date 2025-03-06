@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem,Dialog, DialogHeader, DialogBody,} from '@material-tailwind/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { CAB_ADD_SCHEMA } from '@/utils/validations';
 
@@ -68,7 +68,8 @@ const CabAdd = () => {
     const [insuranceImagePreview , setInsuranceImagePreview] = useState(null);
     const navigate = useNavigate();
     const [modalData,setModalData] = useState(null);
-
+    const location = useLocation();
+    const {ownerName , type, accountId} = location.state;
 
     const getAccountNames = async () => {
         try {
@@ -87,7 +88,7 @@ const CabAdd = () => {
 
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
-            if (type === 'Intercity') {
+            if (type === 'Local') {
                 const hoursA = parseInt(a.period);
                 const hoursB = parseInt(b.period);
                 return hoursA - hoursB;
@@ -113,13 +114,13 @@ const CabAdd = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Intercity' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
+                const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
                 return {
                     ...option,
                     period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
-            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Intercity'), 'Intercity');
+            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
             const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'),'CarWash');
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
@@ -147,26 +148,22 @@ const CabAdd = () => {
 
     const initialValues = {
         name: cabVal?.name || "",
-        accountId: "",
-        ownerPhoneNumber: cabVal?.ownerPhoneNumber ? cabVal?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
+        ownerName: ownerName? ownerName : '',
+        assignedTo : type == 'Individual' ? 'Owner' : '' ,
         carNumber: cabVal?.carNumber || "",
         address: cabVal?.address || "",
-        company: cabVal?.company || "",
         insurance: cabVal?.insurance || "",
         withDriver: cabVal?.withDriver || "",
         assignOrAddDriver: cabVal?.assignOrAddDriver || "",
         driverId: cabVal?.driverId || "",
+        accountId: accountId,
         driverName: cabVal?.driverName || "",
         phoneNumber: cabVal?.phoneNumber || "",
         driverAddress: cabVal?.driverAddress || "",
         licenseNumber: cabVal?.driverLicense || "",
-        notify: cabVal?.notify || "",
         carType: cabVal?.carType || "",
         packages: cabVal?.packages || [],
-        //wallet: cabVal?.wallet || "",
         prices: [],
-        image1: "",
-        insuranceImg:""
     };
 
     const searchLocations = async (query, type) => {
@@ -199,7 +196,7 @@ const CabAdd = () => {
             const packageA = packageDetails.find(p => p.id === a.packageId);
             const packageB = packageDetails.find(p => p.id === b.packageId);
             
-            if (title === "INTERCITY") {
+            if (title === "LOCAL") {
                 const hoursA = parseInt(packageA.period);
                 const hoursB = parseInt(packageB.period);
                 return hoursA - hoursB;
@@ -264,47 +261,36 @@ const CabAdd = () => {
         try {
             const cabDetails = {
                 name: values.name,
-                ownerPhoneNumber: "+91" + values.ownerPhoneNumber,
                 carNumber: values.carNumber,
-                curAddress: values.address,
+                address : values.address,
+                insurance: values.insurance,
+                carType: values.carType,
+                assigned : values.assignedTo,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
                 phoneNumber: values.phoneNumber,
                 driverAddress: values.driverAddress,
                 driverLicense: values.licenseNumber,
-                notify: values.notify,
-                insurance: values.insurance,
                 packages: values.packages,
-                carType: values.carType,
-                //wallet: values.wallet,
                 accountId: values.accountId,
                 driverId: values.driverId
-            };
-            // let cabData = { cabDetails, prices: values.prices };
-            const formData = new FormData();
-        
-            formData.append('cabDetails', JSON.stringify(cabDetails));
-            formData.append('prices', JSON.stringify(values.prices));
-            formData.append('insuranceImg',values.insuranceImg);
-            formData.append('extInsurance',values.insuranceImg.name.split('.')[1]);
-            formData.append('fileTypeInsurance',values.insuranceImg.type);
-            formData.append('image1', values.image1);
-            formData.append('extImage1', values.image1.name.split('.')[1]);
-            formData.append('fileTypeImage1', values.image1.type);
-
-            const data = await ApiRequestUtils.postDocs(API_ROUTES.REGISTER_CAB, formData);
-            console.log('CAB DATA :', data);
-            if (!data?.success && data?.code === 203) {
+            }
+            const prices = values.prices
+            let res = {cabDetails: JSON.stringify(cabDetails),prices: JSON.stringify(prices)}
+            const resp = await ApiRequestUtils.post(API_ROUTES.REGISTER_CAB, res);
+            console.log('CAB DATA :', resp);
+            if (!resp?.success && resp?.code === 203) {
                 setAlert({ message: 'Cab already exists', color: 'red' });
                 setTimeout(() => setAlert(null), 2000);
                 resetForm();
             } else {
-                navigate('/dashboard/vendors/account/allVehicles', {
-                    state: {
-                        cabAdded: true,
-                        cabName: data?.data?.name
-                    }
-                });
+                // navigate('/dashboard/vendors/account/', {
+                //     state: {
+                //         cabAdded: true,
+                //         cabName: data?.data?.name
+                //     }
+                // });
+                navigate(`/dashboard/vendors/account/details/${accountId}`)
             }
         } catch (error) {
             console.error('Error creating driver and car:', error);
@@ -327,56 +313,27 @@ const CabAdd = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
             <Formik
                 initialValues={initialValues}
-                validationSchema={CAB_ADD_SCHEMA}
+                // validationSchema={CAB_ADD_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue, touched }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-
                             <div>
-                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Cab Name</label>
+                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Vehicle Name</label>
                                 <Field type="text" name="name" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                             </div>
                             <div>
-                                <label htmlFor="accountId" className="text-sm font-medium text-gray-700">Owner Name</label>
-                                <Field
-                                    as="select"
-                                    name="accountId"
-                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                                    onChange={(e) => {
-                                        const selectedAccountId = e.target.value;
-                            
-                                        // Set the value in Formik state
-                                        setFieldValue('accountId', selectedAccountId);
-                            
-                                        // Call your method to fetch data
-                                        if (selectedAccountId) {
-                                            getAccountRelatedDrivers(selectedAccountId);
-                                        }
-                                    }}
-                                >
-                                    <option value="">Select Owner</option>
-                                    {accountOptions.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </Field>
-                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                <label htmlFor="ownerName" className="text-sm font-medium text-gray-700">Owner Name</label>
+                                <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
-
-                            {/* <div>
-                                <label htmlFor="ownerPhoneNumber" className="text-sm font-medium text-gray-700">Owner Phone Number</label>
-                                <Field type="tel" name="ownerPhoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="ownerPhoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div> */}
 
                             <div>
                                 <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
-                                <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                <Field type="text" name="carNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
                             </div>
 
@@ -405,21 +362,34 @@ const CabAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
-                                        <span className="ml-2">Sedan</span>
+                                        <Field type="radio" name="carType" value="MINI" className="form-radio" />
+                                        <span className="ml-2">Mini</span>
                                     </label>
                                     <label className="inline-flex items-center">
                                         <Field type="radio" name="carType" value="SUV" className="form-radio" />
                                         <span className="ml-2">SUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Hatchback" className="form-radio" />
-                                        <span className="ml-2">Hatchback</span>
+                                        <Field type="radio" name="carType" value="MUV" className="form-radio" />
+                                        <span className="ml-2">MUV</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
+                                        <span className="ml-2">Sedan</span>
                                     </label>
                                 </div>
                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
+                                <label htmlFor="assignedTo" className="text-sm font-medium text-gray-700">Assigned To</label>
+                                <Field as="select" disabled={type == 'Individual'} name="assignedTo" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="">Select Type</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Owner">Owner</option>
+                                </Field>
+                                <ErrorMessage name="assignedTo" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            {type != 'Individual' &&<div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
@@ -438,7 +408,7 @@ const CabAdd = () => {
                                     </label>
                                 </div>
                                 <ErrorMessage name="withDriver" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div>}
                             {values.withDriver === 'Yes' && (
                             <>
                             <div>
@@ -449,9 +419,6 @@ const CabAdd = () => {
                                             onChange={e => {
                                                 handleChange(e);
                                                 setFieldValue('driverId', values.driverId, true);
-                                                // setFieldValue('phoneNumber', values.phoneNumber, true);
-                                                // setFieldValue('driverAddress', values.driverAddress, true);
-                                                // setFieldValue('licenseNumber', values.licenseNumber, true);
                                             }} />
                                         <span className="ml-2">Assign</span>
                                     </label>
@@ -459,10 +426,6 @@ const CabAdd = () => {
                                         <Field type="radio" name="assignOrAddDriver" value="Add" className="form-radio"
                                             onChange={e => {
                                                 handleChange(e);
-                                                // setFieldValue('driverName', '', true);
-                                                // setFieldValue('phoneNumber', '', true);
-                                                // setFieldValue('driverAddress','', true);
-                                                // setFieldValue('licenseNumber','' , true);
                                             }} />
                                         <span className="ml-2">Add</span>
                                     </label>
@@ -527,29 +490,6 @@ const CabAdd = () => {
                             </>
                             )}
                             <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Notify</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="OWNER" className="form-radio" />
-                                        <span className="ml-2">Owner</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="DRIVER" className="form-radio" />
-                                        <span className="ml-2">Driver</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="notify" value="BOTH" className="form-radio" />
-                                        <span className="ml-2">Both</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="notify" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {/* <div>
-                                <label htmlFor="wallet" className="text-sm font-medium text-gray-700">Wallet</label>
-                                <Field type="text" name="wallet" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="wallet" component="div" className="text-red-500 text-sm" />
-                            </div> */}
-                            <div>
                                 <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                 <Multiselect
                                     options={packageDetails}
@@ -582,163 +522,14 @@ const CabAdd = () => {
                                 />
                             </div>
                         </div>
-                        <div className="mt-6">
-                        <div className="flex flex-row justify-between px-2 mb-2">
-                            <h3 className="text-2xl font-bold">Document Upload</h3>
-                        </div>
-                        <Card>
-                            <>
-                            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                                <table className="w-full min-w-[640px] table-auto">
-                                <thead>
-                                    <tr>
-                                    {["Type", "Status", "Action", ""].map((el, index) => (
-                                        <th
-                                        key={index}
-                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                        >
-                                        <Typography
-                                            variant="small"
-                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
-                                        >
-                                            {el}
-                                        </Typography>
-                                        </th>
-                                    ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        Insurance
-                                        </Typography>
-                                    </td>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        <Typography
-                                        className={`text-xs font-semibold ${values.insuranceImg ? 'text-green-500' : 'text-blue-500'}`}
-                                        >
-                                        {values.insuranceImg ? "UPLOADED" : "NO DOCUMENTS"}
-                                        </Typography>
-                                    </td>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        <div className="flex items-center gap-2">
-                                        <label
-                                            htmlFor="insuranceImg"
-                                            className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-                                        >
-                                            Upload
-                                        </label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            id="insuranceImg"
-                                            name="insuranceImg"
-                                            onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                setFieldValue("insuranceImg", file);
-
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                setInsuranceImagePreview(reader.result);
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-                                            }}
-                                            className="hidden"
-                                        />
-                                        </div>
-                                    </td>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        {values.insuranceImg && (
-                                        <Typography
-                                            variant="small"
-                                            className="font-semibold underline cursor-pointer text-blue-900"
-                                            onClick={() =>
-                                            setModalData({
-                                                image: insuranceImagePreview,
-                                            })
-                                            }
-                                        >
-                                            View Details
-                                        </Typography>
-                                        )}
-                                    </td>
-                                    </tr>
-                                    <tr>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        RC Book
-                                        </Typography>
-                                    </td>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        <Typography
-                                        className={`text-xs font-semibold ${values.image1 ? 'text-green-500' : 'text-blue-500'}`}
-                                        >
-                                        {values.image1 ? "UPLOADED" : "NO DOCUMENTS"}
-                                        </Typography>
-                                    </td>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        <div className="flex items-center gap-2">
-                                        <label
-                                            htmlFor="image1"
-                                            className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-                                        >
-                                            Upload
-                                        </label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            id="image1"
-                                            name="image1"
-                                            onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                setFieldValue("image1", file);
-
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                setImagePreview(reader.result);
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-                                            }}
-                                            className="hidden"
-                                        />
-                                        </div>
-                                    </td>
-                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                        {values.image1 && (
-                                        <Typography
-                                            variant="small"
-                                            className="font-semibold underline cursor-pointer text-blue-900"
-                                            onClick={() =>
-                                            setModalData({
-                                                image: imagePreview,
-                                            })
-                                            }
-                                        >
-                                            View Details
-                                        </Typography>
-                                        )}
-                                    </td>
-                                    </tr>
-                                </tbody>
-                                </table>
-                            </CardBody>
-                            </>
-                        </Card>
-                        </div>
-
                         {values.packages.length > 0 && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Price Details</h2>
                                 {renderPriceTable(
-                                    "INTERCITY",
+                                    "LOCAL",
                                     values.prices.filter(price => {
                                         const package_ = packageDetails.find(p => p.id === price.packageId);
-                                        return package_?.type === 'Intercity';
+                                        return package_?.type === 'Local';
                                     }),
                                     values
                                 )}
@@ -765,7 +556,7 @@ const CabAdd = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/vendors/account/allVehicles'); }}
+                                onClick={() => { navigate('/dashboard/vendors/account'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

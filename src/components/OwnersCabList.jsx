@@ -7,28 +7,40 @@ import {
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
-const OwnersCabList = ({ cabsList}) => {
-    console.log("CAB",cabsList);
+const OwnersCabList = ({cabsList, ownerName, type, id}) => {
     const navigate = useNavigate();
 
     return (
         <>
             <div className='flex flex-row justify-between px-2 mb-2 mt-4'>
                 <h2 className="text-2xl font-bold mb-4">Cabs List</h2>
+                {( !(type == 'Individual' && cabsList?.length >= 1) || (type == 'Company') )&& <div>
+                    <Button 
+                        onClick={() => navigate('/dashboard/vendors/account/allVehicles/add',{
+                            state:{
+                                ownerName: ownerName,
+                                type: type,
+                                accountId : id,
+                            }
+                        })
+                    }>
+                            Add new Cab
+                    </Button>
+                </div>}
             </div>
             <Card>
-                {cabsList && cabsList.length > 0 ? (
+                {cabsList && cabsList?.length > 0 ? (
                     <>
                         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
                                         {[
-                                            "Name",
-                                            "Cab Type",
+                                            "Cab Name",
                                             "Cab Number",
-                                            "Driver",
                                             "Created At",
+                                            "Driver Name",
+                                            "Insurance Expiry Date",
                                             "Assign/Reassign"
                                         ].map((el, index) => (
                                             <th
@@ -47,7 +59,7 @@ const OwnersCabList = ({ cabsList}) => {
                                 </thead>
                                 <tbody>
                                     {cabsList.map(
-                                        ({ id, name, carType, car_number, Drivers, created_at }, key) => {
+                                        ({ id, name, carType, car_number, insurance, Drivers, created_at }, key) => {
                                             const className = `py-3 px-5 ${key === cabsList.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -65,30 +77,22 @@ const OwnersCabList = ({ cabsList}) => {
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {carType}
-                                                            </Typography>
-                                                        </td>
-                                                        <td className={className}>
-                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {car_number}
-                                                            </Typography>
-                                                        </td>
-                                                        <td className={className}>
-                                                            <Typography 
-                                                                className="font-semibold underline cursor-pointer text-blue-900"
-                                                                onClick={() =>{
-                                                                        if (Drivers.length > 0) {
-                                                                            navigate(`/dashboard/vendors/account/drivers/details/${Drivers[0]?.id}`)
-                                                                        }
-                                                                    }
-                                                                }
-                                                            >
-                                                                {Drivers.length > 0 ? Drivers[0]?.firstName : ''}
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {moment(created_at).format("DD-MM-YYYY")}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {Drivers[0]?.firstName}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {moment(insurance).format("DD-MM-YYYY")}
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>
