@@ -657,11 +657,11 @@ const DriverAdd = () => {
                                         type="checkbox"
                                         id="sameAddress"
                                         checked={isSameAddress}
+                                        disabled={!isEditable} 
                                         onChange={(e) => {
                                             setIsSameAddress(e.target.checked);
                                             if (e.target.checked) {
-                                                const currentAddress = parseAddress(values.address); // Parse the current address again
-                                        
+                                                const currentAddress = parseAddress(values.address);
                                                 setFieldValue("streetName", currentAddress.street);
                                                 setFieldValue("thaluk", currentAddress.taluk);
                                                 setFieldValue("district", currentAddress.district);

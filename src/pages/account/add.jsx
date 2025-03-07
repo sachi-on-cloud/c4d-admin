@@ -78,7 +78,8 @@ const AccountAdd = (props) => {
         livePhoto: null,
         drivingLicenseImage: null,
         consentForm: null,
-        panImage:null
+        panImage:null,
+        bankStatementImage:null,
     }); 
 
    
@@ -244,7 +245,7 @@ const AccountAdd = (props) => {
             };
             reader.readAsDataURL(file);
 
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'policeClearance' ? KYC_PROCESS.POLICE_CLEARANCE : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : label === 'panImage' ? KYC_PROCESS.PAN : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : KYC_PROCESS.LIVE_PHOTO;
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rc' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'insurance' ? KYC_PROCESS.INSURANCE : label === 'panImage' ? KYC_PROCESS.PAN : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : KYC_PROCESS.LIVE_PHOTO;
             const formData = new FormData();
 
             formData.append('image1', file);
@@ -345,35 +346,6 @@ const AccountAdd = (props) => {
                                     <Field type="text" name="phoneNumber" disabled={!isEditable} className="p-2 w-full rounded-md border-2 border-gray-300" maxLength={10} />
                                     <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                {/* <div>
-                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
-                                    <Field as="select" name="status" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="">Select Type</option>
-                                        <option value="Online">Online</option>
-                                        <option value="Offline">Offline</option>
-                                    </Field>
-                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700">Owner Status</label>
-                                    <Field as="select" name="ownerStatus" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="">Select Type</option>
-                                        <option value="Active">Active</option>
-                                        <option value="InActive">InActive</option>
-                                        <option value="Blocked">Blocked</option>
-                                    </Field>
-                                    <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label htmlFor="kycStatus" className="text-sm font-medium text-gray-700">KYC Type</label>
-                                    <Field as="select" name="kycStatus" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="">Select Type</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="verified">Verified</option>
-                                        <option value="declined">Declined</option>
-                                    </Field>
-                                    <ErrorMessage name="kycStatus" component="div" className="text-red-500 text-sm" />
-                                </div> */}
                                 <div>
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
                                     <Field as="select" disabled={!isEditable} name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
@@ -529,90 +501,6 @@ const AccountAdd = (props) => {
                                 </div>
                             </div>
                         </div>
-                        {/* <div className="mt-6">
-                            <div className="flex flex-row justify-between px-2 mb-2">
-                                <h3 className="text-2xl font-bold">Document Upload</h3>
-                            </div>
-                            <Card>
-                                <>
-                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                                    <table className="w-full min-w-[640px] table-auto">
-                                        <thead>
-                                        <tr>
-                                            {["Type", "Status", "Action",""].map((el, index) => (
-                                            <th
-                                                key={index}
-                                                className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                            >
-                                                <Typography
-                                                variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
-                                                >
-                                                {el}
-                                                </Typography>
-                                            </th>
-                                            ))}
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td className="py-3 px-5 border-b border-blue-gray-50">
-                                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                Aadhaar
-                                            </Typography>
-                                            </td>
-                                            <td className="py-3 px-5 border-b border-blue-gray-50">
-                                            <Typography
-                                                className={`text-xs font-semibold ${values.image1 ? 'text-green-500' : 'text-blue-500'}`}
-                                            >
-                                                {values.image1 ? "UPLOADED" : "NO DOCUMENTS"}
-                                            </Typography>
-                                            </td>
-                                            <td className="py-3 px-5 border-b border-blue-gray-50">
-                                            <div className="flex items-center gap-2">
-                                                <label
-                                                htmlFor="image1"
-                                                className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-                                                >
-                                                Upload
-                                                </label>
-                                                <input
-                                                type="file"
-                                                accept="image/*"
-                                                id="image1"
-                                                name="image1"
-                                                onChange={(e) => {
-                                                    const file = e.target.files[0];
-                                                    if (file) {
-                                                    setFieldValue("image1", file);
-                                                    }
-                                                }}
-                                                className="hidden"
-                                                />
-                                            </div>
-                                            </td>
-                                            <td className="py-3 px-5 border-b border-blue-gray-50">
-                                            {values.image1 && (
-                                                <Typography
-                                                variant="small"
-                                                className="font-semibold underline cursor-pointer text-blue-900"
-                                                onClick={() =>
-                                                    setModalData({
-                                                    image: URL.createObjectURL(values.image1),
-                                                    })
-                                                }
-                                                >
-                                                View Details
-                                                </Typography>
-                                            )}
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                    </CardBody>
-                                </>
-                            </Card>
-                        </div> */}
                         {!ownerAdded.value && <div className='flex flex-row'>
                             <Button
                                 fullWidth
