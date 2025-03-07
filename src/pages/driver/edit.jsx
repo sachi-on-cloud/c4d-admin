@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS } from '@/utils/constants';
-import { Button, Card, CardBody, Typography, Input, List, ListItem ,Dialog, DialogHeader, DialogBody} from '@material-tailwind/react';
+import { Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_SCHEMA } from '@/utils/validations';
@@ -59,12 +59,13 @@ const DriverEdit = () => {
         policeClearance: null,
         livePhoto: null,
         drivingLicenseImage: null,
-        consentForm: null
-    }); 
+        consentForm: null,
+        pan: null
+    });
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
-    const [modalData,setModalData] = useState(null);
+    const [modalData, setModalData] = useState(null);
     const [isSameAddress, setIsSameAddress] = useState(false);
 
 
@@ -108,7 +109,7 @@ const DriverEdit = () => {
             });
             const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'),'CarWash');
+            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
         }
     };
@@ -119,25 +120,26 @@ const DriverEdit = () => {
     }, [id]);
 
     const fetchItem = async (itemId) => {
-        try{
+        try {
             const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVERS_ADMIN + `${itemId}`);
-            if(data?.data) {
+            if (data?.data) {
                 setDriverVal(data.data);
                 setImagePreviews({
                     aadhaarImage: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.AADHAAR),
-                    drivingLicenseImage: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.DRIVING_LICENSE),
-                    policeClearance: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.POLICE_CLEARANCE),
-                    consentForm: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.CONSENT_FORM),
-                    livePhoto: getDocumentByType(data?.data?.result?.Proofs,KYC_PROCESS.LIVE_PHOTO)
+                    drivingLicenseImage: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.DRIVING_LICENSE),
+                    policeClearance: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.POLICE_CLEARANCE),
+                    consentForm: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.CONSENT_FORM),
+                    livePhoto: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.LIVE_PHOTO),
+                    pan: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.PAN)
                 });
             } else {
                 console.error('No driver data received');
                 navigate('/dashboard/vendors/account/drivers');
-         }
+            }
         } catch (error) {
             console.error('Error fetching driver:', error);
             navigate('/dashboard/vendors/account/drivers');
-        }    
+        }
     };
 
     const initialValues = {
@@ -168,10 +170,10 @@ const DriverEdit = () => {
         packages: driverVal?.result?.packages || "",
         //wallet: driverVal?.result?.wallet || "",
         prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages?.includes(el.packageId)) : [],
-        withOwner: driverVal?.result?.Account? "Yes":"No",
-        ownerName:driverVal?.result?.Account?.name || "",
+        withOwner: driverVal?.result?.Account ? "Yes" : "No",
+        ownerName: driverVal?.result?.Account?.name || "",
         jobType: driverVal?.result?.jobType || "",
-        source : driverVal?.result?.source || "",
+        source: driverVal?.result?.source || "",
         serviceType: driverVal?.result?.serviceType || "",
     };
 
@@ -190,11 +192,11 @@ const DriverEdit = () => {
 
     const renderPriceTable = (title, prices, values) => {
         if (prices.length === 0) return null;
-        
+
         const sortedPrices = [...prices].sort((a, b) => {
             const packageA = packageDetails.find(p => p.id === a.packageId);
             const packageB = packageDetails.find(p => p.id === b.packageId);
-            
+
             if (title === "LOCAL") {
                 const hoursA = parseInt(packageA.period);
                 const hoursB = parseInt(packageB.period);
@@ -238,10 +240,10 @@ const DriverEdit = () => {
                                                     type="number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
-                                                <ErrorMessage 
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
-                                                    component="div" 
-                                                    className="text-red-500 text-xs" 
+                                                <ErrorMessage
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    component="div"
+                                                    className="text-red-500 text-xs"
                                                 />
                                             </td>
                                         ))}
@@ -256,7 +258,7 @@ const DriverEdit = () => {
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
-        if (isSubmitting) return; 
+        if (isSubmitting) return;
         console.log('onSubmit :', values)
         setIsSubmitting(true);
         try {
@@ -278,7 +280,7 @@ const DriverEdit = () => {
                 thaluk: values.thaluk,
                 district: values.district,
                 state: values.state,
-                country: "India", 
+                country: "India",
                 pincode: values.pinCode || "",
                 reference1: values.reference1 || "",
                 reference1_phone: values.phoneNumber1 || "",
@@ -334,18 +336,18 @@ const DriverEdit = () => {
         return value.find(proof => proof.type === type) || "";
     };
 
-    
+
     const handleOpenDocument = (documentUrl) => {
         window.open(documentUrl, "_blank", "noopener,noreferrer");
     };
 
-    const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal}) => {
+    const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal, image2 }) => {
         return (
             <tr>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
                 </td>
-                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography
                         className={`text-xs font-semibold ${value ? "text-green-500" : "text-blue-500"}`}
                     >
@@ -362,7 +364,7 @@ const DriverEdit = () => {
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                        {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY"):""}
+                        {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY") : ""}
                     </Typography>
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -375,7 +377,7 @@ const DriverEdit = () => {
                         </label>
                         <input
                             type="file"
-                            accept="image/*, application/pdf" 
+                            accept="image/*, application/pdf"
                             id={name}
                             name={name}
                             onChange={onChange}
@@ -388,11 +390,18 @@ const DriverEdit = () => {
                         <Typography
                             variant="small"
                             className="font-semibold underline cursor-pointer text-blue-900"
-                            onClick={() =>{
-                                console.log("MODAL URL",value);
-                                setModalData({
-                                    image: typeof value === "string" ? value : URL.createObjectURL(value)
-                                })}
+                            onClick={() => {
+                                console.log("MODAL URL", value);
+                                image2 ?
+                                    setModalData({
+                                        image: typeof value === "string" ? value : URL.createObjectURL(value),
+                                        image2: typeof image2 === "string" ? image2 : URL.createObjectURL(image2),
+                                    })
+                                    :
+                                    setModalData({
+                                        image: typeof value === "string" ? value : URL.createObjectURL(value),
+                                    })
+                            }
                             }
                         >
                             View/Download
@@ -402,7 +411,7 @@ const DriverEdit = () => {
             </tr>
         );
     };
-    
+
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
         const file = e.target.files[0];
@@ -437,7 +446,7 @@ const DriverEdit = () => {
                 formData.append('documentId', docId);
                 data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
             }
-            if(data?.success){
+            if (data?.success) {
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -463,7 +472,7 @@ const DriverEdit = () => {
                 pincode: "",
             };
         }
-    
+
         const parts = address.split(", ").reverse();
         return {
             street: parts[4] || "",
@@ -487,12 +496,12 @@ const DriverEdit = () => {
             console.error("Google Address selection is invalid", place);
             return;
         }
-    
+
         const parsedAddress = parseAddress(place.formatted_address);
         parsedAddress.pincode = extractPincode(place.address_components);
-    
+
         setFieldValue("address", place.formatted_address);
-    
+
         if (isSameAddress) {
             setFieldValue("streetName", parsedAddress.street);
             setFieldValue("thaluk", parsedAddress.taluk);
@@ -514,209 +523,209 @@ const DriverEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className='grid grid-cols-2 gap-7'>
-                                    <div>
-                                        <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                        <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                            <option value="">Select salutation</option>
-                                            <option value="Mr">Mr</option>
-                                            <option value="Mrs">Mrs</option>
-                                            <option value="Others">Others</option>
-                                        </Field>
-                                        <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
-                                    </div>
+                            <div>
+                                <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
+                                <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="">Select salutation</option>
+                                    <option value="Mr">Mr</option>
+                                    <option value="Mrs">Mrs</option>
+                                    <option value="Others">Others</option>
+                                </Field>
+                                <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
+                            </div>
 
-                                    <div>
-                                        <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Full Name</label>
-                                        <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
-                                    </div>
+                            <div>
+                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">Full Name</label>
+                                <Field type="text" name="firstName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
 
-                                    <div>
-                                        <label htmlFor="fatherName" className="text-sm font-medium text-gray-700">Father / Guardian Name</label>
-                                        <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
-                                    </div>
+                            <div>
+                                <label htmlFor="fatherName" className="text-sm font-medium text-gray-700">Father / Guardian Name</label>
+                                <Field type="text" name="fatherName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="fatherName" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
 
-                                    <div>
-                                        <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
-                                        <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
-                                            onChange={(e) => {
-                                                setFieldValue('dateOfBirth', e.target.value);
+                            <div>
+                                <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
+                                <Field type="date" name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
+                                    onChange={(e) => {
+                                        setFieldValue('dateOfBirth', e.target.value);
 
-                                                if(e.target.value) {
-                                                    const today = new Date();
-                                                    const birthDate = new Date(e.target.value);
-                                                    let age = today.getFullYear() - birthDate.getFullYear();
-                                                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                                        if (e.target.value) {
+                                            const today = new Date();
+                                            const birthDate = new Date(e.target.value);
+                                            let age = today.getFullYear() - birthDate.getFullYear();
+                                            const monthDiff = today.getMonth() - birthDate.getMonth();
 
-                                                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                                                        age--;
-                                                    }
-                                                    setFieldValue('age',age);
-                                                }else {
-                                                    setFieldValue('age','');
-                                                }
-                                            }}
-                                        />
-                                        <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
-                                        <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
-                                        <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                        <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                        <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                        <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
-                                        <div className="space-x-4">
-                                            <label className="inline-flex items-center">
-                                                <Field type="radio" name="licenseType" value="type1" className="form-radio" />
-                                                <span className="ml-2">White Board</span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <Field type="radio" name="licenseType" value="type2" className="form-radio" />
-                                                <span className="ml-2">Yellow Board</span>
-                                            </label>
-                                        </div>
-                                        <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
-                                        <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
-                                        <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
-                                        <div className="space-x-4">
-                                            <label className="inline-flex items-center">
-                                                <Field type="radio" name="transmissionType" value="Automatic" className="form-radio" />
-                                                <span className="ml-2">Automatic</span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <Field type="radio" name="transmissionType" value="Manual" className="form-radio" />
-                                                <span className="ml-2">Manual</span>
-                                            </label>
-                                        </div>
-                                        <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
-                                    </div>
-                                    
-                                    <div>
-                                        <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
-                                        <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                            <option value="">Select Source</option>
-                                            <option value="Walk In">Walk In</option>
-                                            <option value="Mobile App">Mobile App</option>
-                                            <option value="Website">Website</option>
-                                            <option value="Call">Call</option>
-                                        </Field>
-                                        <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
-                                    </div>
-
-                                     <div>
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Service Type</p>
-                                        <div className="space-x-4">
-                                            <label className="inline-flex items-center">
-                                                <Field
-                                                    type="radio"
-                                                    name="serviceType"
-                                                    value="DRIVER"
-                                                    className="form-radio"
-                                                />
-                                                <span className="ml-2">Driver Only</span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <Field
-                                                    type="radio"
-                                                    name="serviceType"
-                                                    value="DRIVER_WITH_CAB"
-                                                    className="form-radio"
-                                                />
-                                                <span className="ml-2">Driver With Vehicle</span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <Field
-                                                    type="radio"
-                                                    name="serviceType"
-                                                    value="OWNER"
-                                                    className="form-radio"
-                                                />
-                                                <span className="ml-2">OWNER</span>
-                                            </label>
-                                        </div>
-                                        <ErrorMessage
-                                            name="serviceType"
-                                            component="div"
-                                            className="text-red-500 text-sm"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="address" className="text-sm font-medium text-gray-700">Current address</label>
-                                        <Field name="address">
-                                            {({ field, form }) => (
-                                                <LocationInput
-                                                    field={field}
-                                                    form={form}
-                                                    suggestions={addressSuggestions}
-                                                    onSearch={searchLocations}
-                                                    onSelect={handleGoogleAddressSelect}
-                                                />
-                                            )}
-                                        </Field>
-                                        <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center mt-2">
-                                    <input
-                                        type="checkbox"
-                                        id="sameAddress"
-                                        checked={isSameAddress}
-                                        onChange={(e) => {
-                                            setIsSameAddress(e.target.checked);
-                                            if (e.target.checked) {
-                                                const currentAddress = parseAddress(values.address);
-                                        
-                                                setFieldValue("streetName", currentAddress.street);
-                                                setFieldValue("thaluk", currentAddress.taluk);
-                                                setFieldValue("district", currentAddress.district);
-                                                setFieldValue("state", currentAddress.state);
-                                                setFieldValue("pinCode", currentAddress.pincode);
-                                            } else {
-                                                setFieldValue("streetName", "");
-                                                setFieldValue("thaluk", "");
-                                                setFieldValue("district", "");
-                                                setFieldValue("state", "");
-                                                setFieldValue("pinCode", "");
+                                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                                age--;
                                             }
-                                        }}                                        
-                                        className="mr-2"
-                                    />
-                                    <label htmlFor="sameAddress" className="text-sm text-gray-700">
-                                        Same as Current Address
+                                            setFieldValue('age', age);
+                                        } else {
+                                            setFieldValue('age', '');
+                                        }
+                                    }}
+                                />
+                                <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
+                                <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
+                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="licenseType" value="type1" className="form-radio" />
+                                        <span className="ml-2">White Board</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="licenseType" value="type2" className="form-radio" />
+                                        <span className="ml-2">Yellow Board</span>
                                     </label>
                                 </div>
+                                <ErrorMessage name="mode" component="div" className="text-red-500 text-sm" />
+                            </div>
 
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
+                                <Field type="date" name="licenseExpiryDate" className="p-2 w-full rounded-xl border-2 border-gray-300"  ></Field>
+                                <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="transmissionType" value="Automatic" className="form-radio" />
+                                        <span className="ml-2">Automatic</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="transmissionType" value="Manual" className="form-radio" />
+                                        <span className="ml-2">Manual</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
+                                <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="">Select Source</option>
+                                    <option value="Walk In">Walk In</option>
+                                    <option value="Mobile App">Mobile App</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Call">Call</option>
+                                </Field>
+                                <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-2">Service Type</p>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <Field
+                                            type="radio"
+                                            name="serviceType"
+                                            value="DRIVER"
+                                            className="form-radio"
+                                        />
+                                        <span className="ml-2">Driver Only</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field
+                                            type="radio"
+                                            name="serviceType"
+                                            value="DRIVER_WITH_CAB"
+                                            className="form-radio"
+                                        />
+                                        <span className="ml-2">Driver With Vehicle</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field
+                                            type="radio"
+                                            name="serviceType"
+                                            value="OWNER"
+                                            className="form-radio"
+                                        />
+                                        <span className="ml-2">OWNER</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage
+                                    name="serviceType"
+                                    component="div"
+                                    className="text-red-500 text-sm"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="address" className="text-sm font-medium text-gray-700">Current address</label>
+                                <Field name="address">
+                                    {({ field, form }) => (
+                                        <LocationInput
+                                            field={field}
+                                            form={form}
+                                            suggestions={addressSuggestions}
+                                            onSearch={searchLocations}
+                                            onSelect={handleGoogleAddressSelect}
+                                        />
+                                    )}
+                                </Field>
+                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center mt-2">
+                            <input
+                                type="checkbox"
+                                id="sameAddress"
+                                checked={isSameAddress}
+                                onChange={(e) => {
+                                    setIsSameAddress(e.target.checked);
+                                    if (e.target.checked) {
+                                        const currentAddress = parseAddress(values.address);
+
+                                        setFieldValue("streetName", currentAddress.street);
+                                        setFieldValue("thaluk", currentAddress.taluk);
+                                        setFieldValue("district", currentAddress.district);
+                                        setFieldValue("state", currentAddress.state);
+                                        setFieldValue("pinCode", currentAddress.pincode);
+                                    } else {
+                                        setFieldValue("streetName", "");
+                                        setFieldValue("thaluk", "");
+                                        setFieldValue("district", "");
+                                        setFieldValue("state", "");
+                                        setFieldValue("pinCode", "");
+                                    }
+                                }}
+                                className="mr-2"
+                            />
+                            <label htmlFor="sameAddress" className="text-sm text-gray-700">
+                                Same as Current Address
+                            </label>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
                                     <Field type="text" name="streetName" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -840,79 +849,90 @@ const DriverEdit = () => {
                                         showCheckbox={true}
                                     />
                                 </div> */}
-                            </div>    
-                            <div className="mt-6">
-                            <div className="flex flex-row justify-between px-2 mb-2">
-                                <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
-                                    Documents
-                                </Typography>
                             </div>
-                            <Card>
-                                <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
-                                    <table className="w-full min-w-[640px] table-auto">
-                                        <thead>
-                                            <tr>
-                                                {["Type", "KYC Status", "Created At", "Verfied By", "Verified At", "Action", "View Details"].map((el, index) => (
-                                                    <th
-                                                        key={index}
-                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                                    >
-                                                        <Typography
-                                                            variant="small"
-                                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                            <div className="mt-6">
+                                <div className="flex flex-row justify-between px-2 mb-2">
+                                    <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
+                                        Documents
+                                    </Typography>
+                                </div>
+                                <Card>
+                                    <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+                                        <table className="w-full min-w-[640px] table-auto">
+                                            <thead>
+                                                <tr>
+                                                    {["Type", "KYC Status", "Created At", "Verfied By", "Verified At", "Action", "View Details"].map((el, index) => (
+                                                        <th
+                                                            key={index}
+                                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                                         >
-                                                            {el}
-                                                        </Typography>
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <DocumentUpload
-                                                label="Aadhaar Image"
-                                                value={imagePreviews.aadhaarImage?.image1}
-                                                name="aadhaarImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage",imagePreviews?.aadhaarImage?.id)}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.aadhaarImage}
-                                            />
-                                            <DocumentUpload
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                            >
+                                                                {el}
+                                                            </Typography>
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <DocumentUpload
+                                                    label="Aadhaar Image"
+                                                    value={imagePreviews.aadhaarImage?.image1}
+                                                    name="aadhaarImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage", imagePreviews?.aadhaarImage?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.aadhaarImage}
+                                                    image2={imagePreviews.aadhaarImage?.image2}
+                                                />
+                                                {/* <DocumentUpload
                                                 label="Police Clearance Certificate"
                                                 value={imagePreviews.policeClearance?.image1}
                                                 name="policeClearance"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "policeClearance",imagePreviews?.policeClearance?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.policeClearance}
-                                            />
-                                            <DocumentUpload
-                                                label="Driving License Image"
-                                                value={imagePreviews.drivingLicenseImage?.image1}
-                                                name="drivingLicenseImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage",imagePreviews?.drivingLicenseImage?.id)}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.drivingLicenseImage}
-                                            />
-                                            <DocumentUpload
-                                                label="Consent Form Image"
-                                                value={imagePreviews.consentForm?.image1}
-                                                name="consentForm"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "consentForm",imagePreviews?.consentForm?.id)}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.consentForm}
-                                            />
-                                            <DocumentUpload
-                                                label="Live Photo"
-                                                value={imagePreviews.livePhoto?.image1}
-                                                name="livePhoto"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto",imagePreviews?.livePhoto?.id)}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.livePhoto}
-                                            />
-                                        </tbody>
-                                    </table>
-                                </CardBody>
-                            </Card>
-                        </div>
+                                            /> */}
+                                                <DocumentUpload
+                                                    label="Driving License Image"
+                                                    value={imagePreviews.drivingLicenseImage?.image1}
+                                                    name="drivingLicenseImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage", imagePreviews?.drivingLicenseImage?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.drivingLicenseImage}
+                                                    image2={imagePreviews.drivingLicenseImage?.image2}
+                                                />
+                                                <DocumentUpload
+                                                    label="Pan Image"
+                                                    value={imagePreviews.pan?.image1}
+                                                    name="pan"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "pan", imagePreviews?.pan?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.pan}
+                                                    image2={imagePreviews.pan?.image2}
+                                                />
+                                                {/* <DocumentUpload
+                                                    label="Consent Form Image"
+                                                    value={imagePreviews.consentForm?.image1}
+                                                    name="consentForm"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "consentForm", imagePreviews?.consentForm?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.consentForm}
+                                                /> */}
+                                                <DocumentUpload
+                                                    label="Live Photo"
+                                                    value={imagePreviews.livePhoto?.image1}
+                                                    name="livePhoto"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto", imagePreviews?.livePhoto?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.livePhoto}
+                                                />
+                                            </tbody>
+                                        </table>
+                                    </CardBody>
+                                </Card>
+                            </div>
                         </div>
                         {/* {values.packages.length > 0 && (
                             <div>
@@ -972,43 +992,71 @@ const DriverEdit = () => {
             {modalData && (
                 <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
                     <DialogHeader>
-                    <div className="flex justify-between items-center w-full">
-                        <Typography variant="h6">Document Details</Typography>
-                        <button
-                        className="text-gray-600 hover:text-gray-900"
-                        onClick={() => setModalData(null)}
-                        >
-                        X
-                        </button>
-                    </div>
+                        <div className="flex justify-between items-center w-full">
+                            <Typography variant="h6">Document Details</Typography>
+                            <button
+                                className="text-gray-600 hover:text-gray-900"
+                                onClick={() => setModalData(null)}
+                            >
+                                X
+                            </button>
+                        </div>
                     </DialogHeader>
                     <DialogBody divider>
-                    <div className="flex flex-col items-center">
-                        {modalData.image.endsWith(".pdf") ? (
-                            <iframe
-                                src={modalData.image}
-                                className="w-full rounded-lg shadow-md"
-                                style={{ height: "45vh" }}
-                            />
-                        ) : (
-                            <img
-                                src={modalData.image}
-                                alt="Document"
-                                className="max-w-full rounded-lg shadow-md"
-                                style={{ height: "45vh", objectFit: "contain" }}
-                            />
-                        )}
-                    </div>
-                    <div className="flex justify-center mt-4">
-                        <a
-                            href={modalData.image}
-                            download = "doucument.pdf"
-                            target='_blank'
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                            Download
-                        </a>
-                    </div>
+                        <div className="flex flex-col items-center space-y-3">
+                            <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
+                                {modalData.image.endsWith(".pdf") ? (
+                                    <iframe
+                                        src={modalData.image}
+                                        className="w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh" }}
+                                    />
+                                ) : (
+                                    <img
+                                        src={modalData.image}
+                                        alt="Document"
+                                        className="max-w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh", objectFit: "contain" }}
+                                    />
+                                )}
+                                {modalData.image2 && (
+                                    modalData.image2.toLowerCase().endsWith(".pdf") ? (
+                                        <iframe
+                                            src={modalData.image2}
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%" }}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={modalData.image2}
+                                            alt="Document"
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%", objectFit: "contain" }}
+                                        />
+                                    )
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex justify-center mt-4">
+                            <a
+                                href={modalData.image}
+                                download="doucument.pdf"
+                                target='_blank'
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Download Image 1
+                            </a>
+                            {modalData.image2 && (
+                                <a
+                                    href={modalData.image2}
+                                    download
+                                    target="_blank"
+                                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    Download Image 2
+                                </a>
+                            )}
+                        </div>
                     </DialogBody>
                 </Dialog>
             )}

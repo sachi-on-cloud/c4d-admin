@@ -16,7 +16,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type}) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -87,7 +87,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const location = useLocation();
     const paramsPassed = location.state;
 
-    const getBookingsList = async ( page = 1 ) => {
+    const getBookingsList = async (page = 1) => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
             "customerId": customerId,
             'type': type ? type : '',
@@ -112,7 +112,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
-          setPagination((prev) => ({ ...prev, currentPage: page }));
+            setPagination((prev) => ({ ...prev, currentPage: page }));
         }
     };
 
@@ -121,23 +121,23 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         const maxVisible = 5;
         let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
         let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
-    
+
         if (endPage - startPage < maxVisible - 1) {
-          startPage = Math.max(1, endPage - maxVisible + 1);
+            startPage = Math.max(1, endPage - maxVisible + 1);
         }
-    
+
         for (let i = startPage; i <= endPage; i++) {
-          buttons.push(
-            <Button
-              key={i}
-              size="sm"
-              variant={i === pagination.currentPage ? "filled" : "outlined"}
-              className="mx-1"
-              onClick={() => handlePageChange(i)}
-            >
-              {i}
-            </Button>
-          );
+            buttons.push(
+                <Button
+                    key={i}
+                    size="sm"
+                    variant={i === pagination.currentPage ? "filled" : "outlined"}
+                    className="mx-1"
+                    onClick={() => handlePageChange(i)}
+                >
+                    {i}
+                </Button>
+            );
         }
         return buttons;
     };
@@ -208,39 +208,39 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         selectedFilters={serviceTypeFilter}
                                                         onFilterChange={(value) => handleFilterChange('serviceType', value)}
                                                     />
-                                                ) 
-                                                : el === "Status" ? (
-                                                    <FilterPopover
-                                                        title={el}
-                                                        options={[
-                                                            { value: 'All', label: 'All' },
-                                                            { value: 'INITIATED', label: 'Initiated' },
-                                                            { value: 'STARTED', label: 'Started' },
-                                                            { value: 'ENDED', label: 'Ended' },
-                                                            { value: 'CANCELLED', label: 'Cancelled' },
-                                                        ]}
-                                                        selectedFilters={statusFilter}
-                                                        onFilterChange={(value) => handleFilterChange('status', value)}
-                                                    />
-                                                ) : el === "Source" ? (
-                                                    <FilterPopover
-                                                        title={el}
-                                                        options={[
-                                                            { value: 'All', label: 'All' },
-                                                            { value: 'Walk In', label: 'Walk In' },
-                                                            { value: 'Mobile App', label: 'Mobile App' },
-                                                            { value: 'Website', label: 'Website' },
-                                                            { value: 'Call', label: 'Call' },
-                                                        ]}
-                                                        selectedFilters={statusFilter}
-                                                        onFilterChange={(value) => handleFilterChange('status', value)}
-                                                    />
-                                                ) 
-                                                : (
-                                                    <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
-                                                        {el}
-                                                    </Typography>
-                                                )}
+                                                )
+                                                    : el === "Status" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'INITIATED', label: 'Initiated' },
+                                                                { value: 'STARTED', label: 'Started' },
+                                                                { value: 'ENDED', label: 'Ended' },
+                                                                { value: 'CANCELLED', label: 'Cancelled' },
+                                                            ]}
+                                                            selectedFilters={statusFilter}
+                                                            onFilterChange={(value) => handleFilterChange('status', value)}
+                                                        />
+                                                    ) : el === "Source" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'Walk In', label: 'Walk In' },
+                                                                { value: 'Mobile App', label: 'Mobile App' },
+                                                                { value: 'Website', label: 'Website' },
+                                                                { value: 'Call', label: 'Call' },
+                                                            ]}
+                                                            selectedFilters={statusFilter}
+                                                            onFilterChange={(value) => handleFilterChange('status', value)}
+                                                        />
+                                                    )
+                                                        : (
+                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
+                                                                {el}
+                                                            </Typography>
+                                                        )}
                                             </th>
                                         ))}
                                     </tr>
@@ -256,7 +256,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                             const className = `p-3 ${key === bookingsList.length - 1
                                                 ? "mb-4"
                                                 : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors duration-200`;
-                                                
+
                                             return (
                                                 <tr key={data?.id} className={className}>
                                                     <td className={className}>
@@ -358,7 +358,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 End Trip
                                                             </Button>
                                                         } */}
-                                                        {data?.status === 'INITIATED' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                        {['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
@@ -385,27 +385,27 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                             </table>
                             <div className="flex items-center justify-center mt-4">
                                 <Button
-                                size="sm"
-                                variant="text"
-                                disabled={pagination.currentPage === 1}
-                                onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                className="mx-1"
+                                    size="sm"
+                                    variant="text"
+                                    disabled={pagination.currentPage === 1}
+                                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                    className="mx-1"
                                 >
-                                {"<"}
+                                    {"<"}
                                 </Button>
                                 {generatePageButtons()}
                                 <Button
-                                size="sm"
-                                variant="text"
-                                disabled={pagination.currentPage === pagination.totalPages}
-                                onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                className="mx-1"
+                                    size="sm"
+                                    variant="text"
+                                    disabled={pagination.currentPage === pagination.totalPages}
+                                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                    className="mx-1"
                                 >
-                                {">"}
+                                    {">"}
                                 </Button>
                             </div>
                         </>
-                        )}
+                    )}
                 </CardBody>
             </Card>
         </div>
