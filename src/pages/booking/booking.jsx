@@ -152,6 +152,26 @@ const Booking = (props) => {
         daysText = days == 1 ? '1 Day' : days == 1 ? '2 Days and 1 Night' : `${days} Days and ${days - 1} Nights`;
     }
 
+    const onRideSubmitHandler = async (values)=>{
+        const bookingData = {
+            customerId: values.customerId?.id,
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            pickupAddress: {
+                name: values.pickupAddress,
+            },
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+            dropAddress: {
+                name: values.dropAddress
+            },
+        }
+        let data = ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING,bookingData);
+        if (data?.success){
+            setBookingData(data?.data);
+        }
+    }
+
     const onSubmitHandler = async (values) => {
         const bookingData = {
             carId: values?.carSelected?.id,
@@ -184,7 +204,6 @@ const Booking = (props) => {
         if(values.toDate && values.toTime){
             bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()           
         };
-
         let data;
         data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_BOOKING, bookingData, values?.customerId?.id);
         if (data?.success) {
@@ -196,35 +215,36 @@ const Booking = (props) => {
                 setBookingData(data?.data);
             }
         }
-    }
+    };
+
     function convertTimeFormat(time) {
         let [hours, minutes, seconds] = time.split(':');
         hours = parseInt(hours);
-
         const period = hours >= 12 ? 'p.m.' : 'a.m.';
         hours = hours % 12 || 12;
-
         return `${hours}:${minutes} ${period}`;
-    }
+    };
+
     const onAssignDriver = (data) => {
         setBookingData(data);
         setBookingStage(2);
         setBookingView(false);
         setEditBooking();
         setSelectedCustomer(0);
-    }
+    };
+
     const onEditBooking = async (data) => {
         // console.log('ON EDIT BOOKING :', data);
         setEditBooking(data);
         setBookingStage(0);
         setEditBookingView(true);
         setBookingView(false);
-    }
+    };
 
     const onEditBackPress = () =>{
         setEditBookingView(false);
         
-    }
+    };
 
     const onSelectBooking = (data) => {
         //console.log('selecting booking', data);
@@ -233,12 +253,13 @@ const Booking = (props) => {
         setBookingView(true);
         setEditBooking();
         setEditBookingView(false);
-    }
+    };
+
     const onConfirmBooking = () => {
         setBookingStage(0);
         setBookingView(false);
         //console.log("LIST", bookingStage);
-    }
+    };
 
     // if (loading) {
     //     return (
@@ -403,8 +424,13 @@ const Booking = (props) => {
                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                         initialValues={initialValues}
                         onSubmit={async (values, { resetForm }) => {
+                            if(values.submitType == "rides"){
+                                console.log("RIDESBUTTIn",values);
+                                await onRideSubmitHandler(values);
+                            }else{
+                                await onSubmitHandler(values);
+                            }
                             setLoading(true);
-                            await onSubmitHandler(values);
                             resetForm();
                             setRange({});
                             setLoading(false);
@@ -702,7 +728,7 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
 
-                                {values.tripType && <div className="p-2 space-y-2">
+                                {((values.tripType) || (values.serviceType == 'RIDES')) && <div className="p-2 space-y-2">
                                     <label className="block text-sm font-medium text-gray-700">
                                         Pickup Location <span className="text-red-500">*</span>
                                     </label>
@@ -734,7 +760,7 @@ const Booking = (props) => {
                                     )}
                                 </div>}
 
-                                {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH')||(values.packageTypeSelected == 'Outstation')) &&  (
+                                {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH')||(values.packageTypeSelected == 'Outstation') || (values.serviceType =='RIDES')) &&  (
                                     <div className="p-2 space-y-2">
                                         <label className="block text-sm font-medium text-gray-700">Drop Location<span className="text-red-500">*</span></label>
                                         <Field
@@ -855,22 +881,38 @@ const Booking = (props) => {
                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <Button
                                     fullWidth
                                     color="black"
-                                    onClick={handleSubmit}
+                                    onClick={()=>{
+                                        setFieldValue("submitType", "default"); 
+                                        handleSubmit();
+                                    }}
                                     disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'CAB' && !values.cabType)}
                                     className='my-6 mx-2'
                                 >
                                     Continue
                                 </Button>}
+                                {(values.serviceType == 'RIDES') && 
+                                    <Button
+                                        fullWidth
+                                        color="black"
+                                        onClick={()=>{
+                                            setFieldValue("submitType", "rides"); 
+                                            handleSubmit();
+                                        }}
+                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
+                                        className='my-6 mx-2'
+                                    >
+                                        Continue
+                                    </Button>
+                                }
                             </>
                         )}
                     </Formik>}
-                    {
-                        bookingStage === 2 && bookingData && (
-                            <SearchDrivers bookingData={bookingData} onNext={() => {
-                                setBookingStage(0);
-                                setBookingData(null);
-                            }} />
-                        )}
+                    {bookingStage === 2 && bookingData && (
+                        <SearchDrivers bookingData={bookingData} onNext={() => {
+                            setBookingStage(0);
+                            setBookingData(null);
+                        }}/>
+                    )}
                 </>}
                 {bookingView && <>
                     <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />

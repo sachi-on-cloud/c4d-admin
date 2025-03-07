@@ -70,7 +70,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                         <td className={className}>
                                                             <Typography 
                                                                 className="font-semibold underline cursor-pointer text-blue-900"
-                                                                onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
+                                                                // onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
                                                             >
                                                                 {name}
                                                             </Typography>
