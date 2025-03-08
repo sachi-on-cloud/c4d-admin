@@ -1,11 +1,124 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Button, Input, List, ListItem,Dialog, DialogHeader, DialogBody,Typography,Card,CardBody} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
 import moment from 'moment';
+
+const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect}) => {
+    const [isFocused, setIsFocused] = useState(false);
+
+    useEffect(() => {
+        form.validateField(field.name);
+    }, []);
+
+    return (
+        <div className="relative">
+            <Input
+                type="text"
+                placeholder="Enter address"
+                {...field}
+                onChange={(e) => {
+                    form.setFieldValue(field.name, e.target.value);
+                    onSearch(e.target.value);
+                    form.setFieldTouched(field.name, true, false);
+                }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={(e) => {
+                    field.onBlur(e);
+                    setTimeout(() => setIsFocused(false), 200);
+                    form.validateField(field.name);
+                }}
+                className="pr-10"
+                disabled={disabled}
+            />
+            {suggestions.length > 0 && isFocused && (
+                <List className="w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                    {suggestions.map((suggestion, index) => (
+                        <ListItem
+                            key={index}
+                            onClick={() => {
+                                form.setFieldValue(field.name, suggestion);
+                                onSelect(suggestion);
+                                setIsFocused(false);
+                                form.validateField(field.name);
+                            }}
+                            className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <Typography variant="small">{suggestion}</Typography>
+                        </ListItem>
+                    ))}
+                </List>
+            )}
+        </div>
+    );
+};
+
+const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal}) => {
+    return (
+        <tr>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
+            </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography
+                    className={`text-xs font-semibold ${value ? "text-green-500" : "text-blue-500"}`}
+                >
+                    {value ? "UPLOADED" : "NO DOCUMENTS"}
+                </Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">
+                    {moment(fullDocVal?.created_at).format("DD-MM-YYYY")}
+                </Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">{fullDocVal?.User?.name}</Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">
+                    {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY"):""}
+                </Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <div className="flex items-center gap-2">
+                    <label
+                        htmlFor={name}
+                        className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                    >
+                        Update
+                    </label>
+                    <input
+                        type="file"
+                        accept="image/*, application/pdf" 
+                        id={name}
+                        name={name}
+                        onChange={onChange}
+                        className="hidden"
+                    />
+                </div>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                {value && (
+                    <Typography
+                        variant="small"
+                        className="font-semibold underline cursor-pointer text-blue-900"
+                        onClick={() =>{
+                            console.log("MODAL URL",value);
+                            setModalData({
+                                image: typeof value === "string" ? value : URL.createObjectURL(value)
+                            })}
+                        }
+                    >
+                        View/Download
+                    </Typography>
+                )}
+            </td>
+        </tr>
+    );
+};
 
 const AccountEdit = () => {
     const [accountVal, setAccountVal] = useState({});
@@ -13,15 +126,45 @@ const AccountEdit = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [modalData,setModalData] = useState(null);
+    const [isSameAddress, setIsSameAddress] = useState(false);
+    const [thalukSearchText, setThalukSearchText] = useState("");
+    const [districtSearchText, setDistrictSearchText] = useState("");
+    const [stateSearchText, setStateSearchText] = useState("");
+    const [addressSuggestions, setAddressSuggestions] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState({
+        aadhaarImage: null,
+        policeClearance: null,
+        livePhoto: null,
+        drivingLicenseImage: null,
+        consentForm: null,
+        panImage:null,
+        rcImage:null,
+        bankStatementImage:null,
+        insurranceImage:null,
+    }); 
 
     useEffect(() => {
         fetchItem(id);
     }, [id]);
 
+    
+    const getDocumentByType = (value, type) => {
+        return value.find(proof => proof.type === type) || "";
+    };
+
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
         console.log(' data - Fetch Item :', data?.data);
-        setAccountVal(data.data);
+        setAccountVal(data?.data?.data);
+        setImagePreviews({
+            aadhaarImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.AADHAAR),
+            drivingLicenseImage: getDocumentByType(data?.data?.data?.Proofs,KYC_PROCESS.DRIVING_LICENSE),
+            livePhoto: getDocumentByType(data?.data?.data?.Proofs,KYC_PROCESS.LIVE_PHOTO),
+            bankStatementImage : getDocumentByType(data?.data?.data?.Proofs,KYC_PROCESS.BANK_STATEMENT),
+            panImage : getDocumentByType(data?.data?.data?.Proofs,KYC_PROCESS.BANK_STATEMENT),
+            rcImage: getDocumentByType(data?.data?.data?.Proofs,KYC_PROCESS.RC_COPY),
+            insurranceImage : getDocumentByType(data?.data?.data?.Proofs,KYC_PROCESS.INSURANCE),
+        });
     };
 
     const initialValues = {
@@ -30,6 +173,8 @@ const AccountEdit = () => {
         type: accountVal?.type || "",
         email: accountVal?.email || "",
         street: accountVal?.street || "",
+        address: accountVal?.address || "",
+        source: accountVal?.source || "",
         thaluk: accountVal?.thaluk || "",
         district: accountVal?.district || "",
         state: accountVal?.state || "",
@@ -38,29 +183,92 @@ const AccountEdit = () => {
         docDates:accountVal?.Proofs,
     };
 
+    const handleImageUpload = async (e, setFieldValue, label, docId) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFieldValue(label, file);
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rcImage' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'insurranceImage' ? KYC_PROCESS.INSURANCE : label=== 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : KYC_PROCESS.LIVE_PHOTO;
+            const formData = new FormData();
+
+            formData.append('image1', file);
+            formData.append('extImage1', file.name.split('.')[1]);
+            formData.append('fileTypeImage1', file.type);
+            formData.append('type', type);
+            formData.append('accountId', accountVal?.id);
+
+            let data;
+            if (!docId) {
+                data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+            } else {
+                formData.append('documentId', docId);
+                data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+            }
+            if(data?.success){
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1: data?.data?.image1,
+                        id: data?.data?.id,
+                    },
+                }));
+            }
+
+            console.log('DATA IN DOC UPDATE :', data);
+        }
+    }
+
+    const handleGoogleAddressSelect = (place) => {
+        if (!place || !place.formatted_address) {
+            console.error("Google Address selection is invalid", place);
+            return;
+        }
+    
+        const parsedAddress = parseAddress(place.formatted_address);
+        parsedAddress.pincode = extractPincode(place.address_components);
+    
+        setFieldValue("address", place.formatted_address);
+    
+        if (isSameAddress) {
+            setFieldValue("street", parsedAddress.street);
+            setFieldValue("thaluk", parsedAddress.taluk);
+            setFieldValue("district", parsedAddress.district);
+            setFieldValue("state", parsedAddress.state);
+            setFieldValue("pincode", parsedAddress.pincode);
+        }
+    };
+
+    const searchLocations = async (query) => {
+        if (query.length > 2) {
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
+                address: query
+            });
+            console.log("data",data)
+            if (data?.success && data?.data) {
+                setAddressSuggestions(data?.data)
+            }
+        } else {
+            setAddressSuggestions([]);
+        }
+    };
+
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         console.log('onSubmit :', values)
         try {
-            const formData = new FormData();
-
-            formData.append('accountId', accountVal.id);
-            formData.append('name', values.name);
-            formData.append('phoneNumber', values.phoneNumber);
-            formData.append('email', values.email);
-            formData.append('street', values.street);
-            formData.append('thaluk',values.thaluk);
-            formData.append('district', values.district);
-            formData.append('state', values.state);
-            formData.append('pincode', values.pincode);
-            formData.append('documentId', accountVal?.Proofs[0]?.id );
-            if (imagePreview) {
-                formData.append('image1', values.image1);
-                formData.append('extImage1', values.image1.name.split('.')[1]);
-                formData.append('fileTypeImage1', values.image1.type);
+            const formData = {
+                type: values?.type ? values?.type : accountVal.type,
+                name: values?.name ? values?.name : accountVal.name,
+                phoneNumber: values?.phoneNumber ? values?.phoneNumber : accountVal.phoneNumber,
+                email: values?.email ? values?.email : accountVal.email,
+                address: values?.address ? values?.address : accountVal.address,
+                street: values?.street ? values?.street : accountVal.street,
+                thaluk: values?.thaluk ? values?.thaluk : accountVal.thaluk,
+                district: values?.district ? values?.district : accountVal.district,
+                state: values?.state ? values?.state : accountVal.state,
+                pincode: values?.pincode ? values?.pincode : accountVal.pincode,
+                source: values?.source ? values?.source : accountVal.source,
+                accountId : accountVal?.id,
             }
-            formData.append('type', values.type);
-            
-            const data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_ACCOUNT, formData);
+            const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, formData);
             console.log('data in driver UPDATE :', data);
             navigate('/dashboard/vendors/account', {
                 state: {
@@ -80,15 +288,51 @@ const AccountEdit = () => {
         name: district.label
     }));
 
-    const thalukOptions = THALUK_LIST.map(thaluk => ({
-        id: thaluk.value,
-        name: thaluk.label
+    const filteredDistricts = districtOptions.filter(district =>
+        district.name.toLowerCase().includes(districtSearchText.toLowerCase())
+    );
+
+    const parseAddress = (address) => {
+        if (!address || typeof address !== "string") {
+            console.error("parseAddress received an undefined or invalid address");
+            return {
+                street: "",
+                taluk: "",
+                district: "",
+                state: "",
+                country: "",
+                pincode: "",
+            };
+        }
+    
+        const parts = address.split(", ").reverse();
+        return {
+            street: parts[4] || "",
+            taluk: parts[3] || "",
+            district: parts[2] || "",
+            state: parts[1] || "",
+            country: parts[0] || "",
+            pincode: "",
+        };
+    };
+    
+    const thalukOptions = THALUK_LIST.map(thaluk=>({
+        id:thaluk.value,
+        name:thaluk.label
     }));
+
+    const filteredThaluk = thalukOptions.filter(thaluk =>
+        thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase())
+    );
 
     const stateOptions = STATE_LIST.map(state => ({
         id: state.value,
         name: state.label
     }));
+
+    const filteredState = stateOptions.filter(state => 
+        state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
+    );
 
     return (
         <div className="p-4 mx-auto">
@@ -101,215 +345,265 @@ const AccountEdit = () => {
             >
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (                    
                     <Form className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-
-                            <div>
-                                <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
-                                <Field type="text" name="name" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className='grid grid-cols-2 gap-4'>
+                                <div>
+                                    <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
+                                    <Field as="select" name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Type</option>
+                                        <option value="Individual">Driver With Vehicle</option>
+                                        <option value="Company">Travels</option>
+                                    </Field>
+                                    <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'driverWithVehicles' ? "Full Name" : 'Company Name' }</label>
+                                    <Field type="text" name="name" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="text" name="phoneNumber" className="p-2 w-full rounded-md border-2 border-gray-300" maxLength={10} />
+                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
+                                    <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Type</option>
+                                        <option value="Mobile App">Mobile App</option>
+                                        <option value="Walk In">Walk In</option>
+                                        <option value="Call">Call</option>
+                                        <option value="Website">Website</option>
+                                    </Field>
+                                    <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+                                    <Field type="email" name="email" className="p-2 w-full rounded-md border-2  shadow-sm border-gray-300" />
+                                    <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="address" className="text-sm font-medium text-gray-700">Current Address</label>
+                                    <Field name="address">
+                                        {({ field, form }) => (
+                                            <LocationInput
+                                                field={field}
+                                                form={form}
+                                                suggestions={addressSuggestions}
+                                                onSearch={searchLocations}
+                                                onSelect={handleGoogleAddressSelect}
+                                            />
+                                        )}
+                                    </Field>
+                                    <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                                </div>
                             </div>
-
-                            <div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                            <div className='space-y-2'>
+                                <div className="flex items-center mt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="sameAddress"
+                                        checked={isSameAddress}
+                                        onChange={(e) => {
+                                            setIsSameAddress(e.target.checked);
+                                            if (e.target.checked) {
+                                                const currentAddress = parseAddress(values.address);
+                                                setFieldValue("street", currentAddress.street);
+                                                setFieldValue("thaluk", currentAddress.taluk);
+                                                setFieldValue("district", currentAddress.district);
+                                                setFieldValue("state", currentAddress.state);
+                                                setFieldValue("pincode", currentAddress.pincode);
+                                            } else {
+                                                setFieldValue("street", "");
+                                                setFieldValue("thaluk", "");
+                                                setFieldValue("district", "");
+                                                setFieldValue("state", "");
+                                                setFieldValue("pincode", "");
+                                            }
+                                        }}                                        
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="sameAddress" className="text-sm text-gray-700">
+                                        Same as Current Address
+                                    </label>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                                </div>
                             </div>
-
-                            <div>
-                                <label htmlFor="type" className="text-sm font-medium text-gray-700">Type</label>
-                                <Field as="select" name="type" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                    <option value="">Select Type</option>
-                                    <option value="Individual">Individual</option>
-                                    <option value="Company">Company</option>
-                                </Field>
-                                <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-                                <Field type="text" name="email" className="p-2 w-full rounded-md shadow-sm border-gray-300" />
-                                <ErrorMessage name="email" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="street" className="text-sm font-medium text-gray-700">Street Name</label>
-                                <Field type="text" name="street" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="street" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-
-                            
-                            <div>
-                                <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
-                                    Thaluk
-                                </label>
-                                <select
-                                    id="thaluk"
-                                    name="thaluk"
-                                    value={values.thaluk}
-                                    onChange={(e) => setFieldValue('thaluk', e.target.value)}
-                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                                >
-                                    <option value="" disabled>Select Thaluk</option>
-                                    {thalukOptions.map((thaluk) => (
-                                        <option key={thaluk.id} value={thaluk.id}>
-                                            {thaluk.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ErrorMessage name="thaluk" component="div" className="text-red-500 text-sm mt-1" />
-                            </div>
-                            <div>
-                                <label htmlFor="district" className="text-sm font-medium text-gray-700">
-                                    District
-                                </label>
-                                <select
-                                    id="district"
-                                    name="district"
-                                    value={values.district}
-                                    onChange={(e) => setFieldValue('district', e.target.value)}
-                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                                >
-                                    <option value="" disabled>Select District</option>
-                                    {districtOptions.map((district) => (
-                                        <option key={district.id} value={district.id}>
-                                            {district.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ErrorMessage name="district" component="div" className="text-red-500 text-sm mt-1" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="state" className="text-sm font-medium text-gray-700">
-                                    State
-                                </label>
-                                <select
-                                    id="state"
-                                    name="state"
-                                    value={values.state}
-                                    onChange={(e) => setFieldValue('state', e.target.value)}
-                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                                >
-                                    <option value="" disabled>Select State</option>
-                                    {stateOptions.map((state) => (
-                                        <option key={state.id} value={state.id}>
-                                            {state.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ErrorMessage name="state" component="div" className="text-red-500 text-sm mt-1" />
-                            </div>
-
-
-                            <div>
-                                <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
-                                <Field type="text" name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="street" className="text-sm font-medium text-gray-700">Street Name</label>
+                                    <Field type="text" name="street" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="street" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
+                                        Thaluk
+                                    </label>
+                                    <select
+                                        id="thaluk"
+                                        name="thaluk"
+                                        value={values.thaluk}
+                                        onChange={(e) => setFieldValue("thaluk", e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="" disabled>Select Thaluk</option>
+                                        {filteredThaluk.map((thaluk) => (
+                                            <option key={thaluk.id} value={thaluk.id}>
+                                                {thaluk.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage
+                                        name="thaluk"
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                    />
+                                </div>     
+                                <div>
+                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">
+                                        District
+                                    </label>
+                                    <select
+                                        id="district"
+                                        name="district"
+                                        value={values.district}
+                                        onChange={(e) => setFieldValue("district", e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select District</option>
+                                        {filteredDistricts.map((district) => (
+                                            <option key={district.id} value={district.id}>
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage
+                                        name="district"
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                                        State
+                                    </label>
+                                    <select
+                                        id="state"
+                                        name="state"
+                                        value={values.state}
+                                        onChange={(e) => setFieldValue("state", e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select State</option>
+                                        {filteredState.map((state) => (
+                                            <option key={state.id} value={state.id}>
+                                                {state.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage
+                                        name="state"
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
+                                    <Field type="text" name="pincode"  className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
                             </div>
                         </div>
                         <div className="mt-6">
                             <div className="flex flex-row justify-between px-2 mb-2">
-                                <h3 className="text-2xl font-bold">Document Upload</h3>
+                                <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
+                                    Documents
+                                </Typography>
                             </div>
                             <Card>
-                                <>
-                                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                                        <table className="w-full min-w-[640px] table-auto">
-                                            <thead>
-                                                <tr>
-                                                    {["Type", "Status", "Action","View Details","Created At","Verified At"].map((el, index) => (
-                                                        <th
-                                                            key={index}
-                                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                                        >
-                                                            <Typography
-                                                                variant="small"
-                                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
-                                                            >
-                                                                {el}
-                                                            </Typography>
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            Aadhaar
-                                                        </Typography>
-                                                    </td>
-                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
+                                <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+                                    <table className="w-full min-w-[640px] table-auto">
+                                        <thead>
+                                            <tr>
+                                                {["Type", "KYC Status", "Created At", "Verfied By", "Verified At", "Action", "View Details"].map((el, index) => (
+                                                    <th
+                                                        key={index}
+                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                    >
                                                         <Typography
-                                                            className={`text-xs font-semibold ${
-                                                                values.image1 ? "text-green-500" : "text-blue-500"
-                                                            }`}
+                                                            variant="small"
+                                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
                                                         >
-                                                            {values.image1 ? "UPLOADED" : "NO DOCUMENTS"}
+                                                            {el}
                                                         </Typography>
-                                                    </td>
-                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                        <div className="flex items-center gap-2">
-                                                            <label
-                                                                htmlFor="image1"
-                                                                className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-                                                            >
-                                                                {values.image1 ? "Update" : "Upload"}
-                                                            </label>
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                id="image1"
-                                                                name="image1"
-                                                                onChange={(e) => {
-                                                                    const file = e.target.files[0];
-                                                                    if (file) {
-                                                                        setFieldValue("image1", file);
-                                                                        const reader = new FileReader();
-                                                                        reader.onloadend = () => {
-                                                                            setImagePreview(reader.result);
-                                                                        };
-                                                                        reader.readAsDataURL(file);
-                                                                    }
-                                                                }}
-                                                                className="hidden"
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                        {values.image1 && (
-                                                            <Typography
-                                                                variant="small"
-                                                                className="font-semibold underline cursor-pointer text-blue-900"
-                                                                onClick={() =>
-                                                                    setModalData({
-                                                                        image: imagePreview || values.image1,
-                                                                    })
-                                                                }
-                                                            >
-                                                                View Details
-                                                            </Typography>
-                                                        )}
-                                                    </td>
-                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {moment(values?.docDates?.created_at).format("DD-MM-YYYY")}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className="py-3 px-5 border-b border-blue-gray-50">
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {values.image1 && moment(values?.docDates?.updated_at).format("DD-MM-YYYY")}
-                                                        </Typography>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </CardBody>
-                                </>
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <DocumentUpload
+                                                label="Driving License Image"
+                                                value={imagePreviews.drivingLicenseImage?.image1}
+                                                name="drivingLicenseImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage",imagePreviews?.drivingLicenseImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.drivingLicenseImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Aadhaar Image"
+                                                value={imagePreviews.aadhaarImage?.image1}
+                                                name="aadhaarImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage",imagePreviews?.aadhaarImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.aadhaarImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Pan Card"
+                                                value={imagePreviews.panImage?.image1}
+                                                name="panImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "panImage",imagePreviews?.panImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.panImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Live Photo"
+                                                value={imagePreviews.livePhoto?.image1}
+                                                name="livePhoto"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto",imagePreviews?.livePhoto?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.livePhoto}
+                                            />
+                                            <DocumentUpload
+                                                label="RC Copy"
+                                                value={imagePreviews?.rcImage?.image1}
+                                                name="rcImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "rcImage",imagePreviews?.rcImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.rcImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Insurance Image"
+                                                value={imagePreviews?.insurranceImage?.image1}
+                                                name="insurranceImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage",imagePreviews?.insurranceImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.insurranceImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Bank Statement"
+                                                value={imagePreviews.bankStatementImage?.image1}
+                                                name="bankStatement"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement",imagePreviews?.bankStatementImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.bankStatementImage}
+                                            />
+                                        </tbody>
+                                    </table>
+                                </CardBody>
                             </Card>
                         </div>
-
-
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
@@ -346,12 +640,30 @@ const AccountEdit = () => {
                     </DialogHeader>
                     <DialogBody divider>
                     <div className="flex flex-col items-center">
-                        <img
-                        src={modalData.image}
-                        alt="Document"
-                        className="max-w-full rounded-lg shadow-md"
-                        style={{ height: "45vh", objectFit: "contain" }}
-                        />
+                        {modalData.image.endsWith(".pdf") ? (
+                            <iframe
+                                src={modalData.image}
+                                className="w-full rounded-lg shadow-md"
+                                style={{ height: "45vh" }}
+                            />
+                        ) : (
+                            <img
+                                src={modalData.image}
+                                alt="Document"
+                                className="max-w-full rounded-lg shadow-md"
+                                style={{ height: "45vh", objectFit: "contain" }}
+                            />
+                        )}
+                    </div>
+                    <div className="flex justify-center mt-4">
+                        <a
+                            href={modalData.image}
+                            download = "doucument.pdf"
+                            target='_blank'
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                            Download
+                        </a>
                     </div>
                     </DialogBody>
                 </Dialog>

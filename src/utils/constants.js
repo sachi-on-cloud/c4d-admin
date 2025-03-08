@@ -795,8 +795,10 @@ export const API_ROUTES = {
     'GET_SPECIFIC_CAR': '/car',
     'PACKAGES_LIST': '/package-list',
     'ADD_NEW_BOOKING': '/add-booking',
+    'ADD_NEW_RIDES_BOOKING': '/add-rides-booking',
     'CONFIRM_ADMIN_BOOKING': '/confirm-booking',
     'UPDATE_BOOKING': '/update-booking',
+    'UPDATE_RIDES_BOOKING':'/edit-rides-booking',
     'CANCEL_ADMIN_BOOKING':"/admin/booking-cancel",
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
@@ -845,7 +847,7 @@ export const API_ROUTES = {
     'REGISTER_CAB': '/register/admin/cab',
     'UPDATE_CAB': '/update/admin/cab',
     'GET_CAB_BY_ID': '/cab/',
-    'GET_CABS_PACKAGE': '/get-cabs/',
+    'GET_CABS_PACKAGE': '/get-cabs',
     'UPDATE_CAB_STATUS': '/admin-cab/update',
     'UPLOAD_PHOTO': '/photo/add',
     'UPDATE_PHOTO': '/photo/update',
@@ -880,6 +882,8 @@ export const KYC_PROCESS = {
     POLICE_CLEARANCE: 'POLICE_CLEARANCE', 
     CONSENT_FORM: 'CONSENT_FORM',
     BANK_STATEMENT:'PASSBOOK',
+    RC_COPY:'RC_COPY',
+    INSURANCE:'INSURANCE',
 };
 
 export const ASYNC_STORAGE_KEYS = {

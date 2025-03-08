@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import Swal from "sweetalert2";
 
-const DocumentsList = ({ id, type, noApprove = true}) => {
+const DocumentsList = ({ id, type, noApprove = true }) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
@@ -38,26 +38,28 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
 
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
-          case "pending":
-            return "text-blue-500";
-          case "approved":
-            return "text-green-500";
-          case "declined":
-            return "text-red-500";
-          default:
-            return "text-gray-500";
+            case "pending":
+                return "text-blue-500";
+            case "approved":
+                return "text-green-500";
+            case "declined":
+                return "text-red-500";
+            default:
+                return "text-gray-500";
         }
     };
 
-    const handleStatusChange = async (docId,status,reason) => {
+    const handleStatusChange = async (docId, status, reason) => {
         const docData = {
-          documentId: docId,
-          status : status,
-          comments: reason,
+            documentId: docId,
+            status: status,
+            comments: reason,
         };
         const data = await ApiRequestUtils.update(API_ROUTES.GET_DOCUMENT_DETAILS_LIST, docData);
         // console.log("DATAAA",data)
         if (data?.success) {
+            setDeclineReason("");
+            setIsDeclining("");
             setModalData(null)
             Swal.fire({
                 position: "top-end",
@@ -66,11 +68,13 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                 showConfirmButton: false,
                 timer: 1500
             });
-          const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
-            "id": id,
-            "user":type
-          })
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
+                "id": id,
+                "user": type
+            })
         } else {
+            setDeclineReason("");
+            setIsDeclining("");
             setModalData(null)
             Swal.fire({
                 position: "top-end",
@@ -120,8 +124,8 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                     {documentData.map(
                                         ({ id, type, image1, status, User, created_at, updated_at, image2 }, key) => {
                                             const className = `py-3 px-5 ${key === documentData.length - 1
-                                                    ? ""
-                                                    : "border-b border-blue-gray-50"
+                                                ? ""
+                                                : "border-b border-blue-gray-50"
                                                 }`;
                                             return (
                                                 <>
@@ -134,8 +138,8 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                                         <td className={className}>
                                                             <Typography
                                                                 className={`text-xs font-semibold ${status === 'PENDING' ? 'text-blue-500' :
-                                                                        status === 'APPROVED' ? 'text-green-500' :
-                                                                            status === 'DECLINED' ? 'text-red-500' : ''
+                                                                    status === 'APPROVED' ? 'text-green-500' :
+                                                                        status === 'DECLINED' ? 'text-red-500' : ''
                                                                     }`}
 
                                                             >
@@ -149,6 +153,8 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                                                         variant="small"
                                                                         className="font-semibold underline cursor-pointer text-blue-900"
                                                                         onClick={() => {
+                                                                            setDeclineReason("");
+                                                                            setIsDeclining("");
                                                                             setModalData({
                                                                                 id,
                                                                                 image: image1,
@@ -198,7 +204,11 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                             <Typography variant="h6">Document Details</Typography>
                             <button
                                 className="text-gray-600 hover:text-gray-900"
-                                onClick={() => setModalData(null)}
+                                onClick={() => {
+                                    setModalData(null);
+                                    setDeclineReason("");
+                                    setIsDeclining("");
+                                }}
                             >
                                 X
                             </button>
@@ -213,14 +223,14 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                         className="w-full rounded-lg shadow-md"
                                         style={{ height: "45vh" }}
                                     />
-                                    ) : (
-                                        <img
-                                            src={modalData.image}
-                                            alt="Document"
-                                            className="rounded-lg shadow-md"
-                                            style={{width :"45%" , height: "45vh", objectFit: "contain" }}
-                                        />
-                                    )
+                                ) : (
+                                    <img
+                                        src={modalData.image}
+                                        alt="Document"
+                                        className="rounded-lg shadow-md"
+                                        style={{ width: "45%", height: "45vh", objectFit: "contain" }}
+                                    />
+                                )
                                 }
                                 {modalData.image2 && (
                                     modalData.image2.toLowerCase().endsWith(".pdf") ? (
@@ -239,7 +249,7 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                                     )
                                 )}
                             </div>
-                            
+
                             <div className="flex justify-center mt-4">
                                 <a
                                     href={modalData.image}
@@ -283,41 +293,41 @@ const DocumentsList = ({ id, type, noApprove = true}) => {
                     </DialogBody>
                     {modalData.status === "PENDING" && noApprove && (
                         <DialogFooter className="flex flex-col items-center">
-                        {!isDeclining ? (
-                            <div className="flex space-x-5">
-                                <Button
-                                    onClick={() => handleStatusChange(modalData.id, "APPROVED", "")}
-                                    className="text-xs font-semibold text-black bg-white border border-black px-4 py-2"
-                                >
-                                    Approve
-                                </Button>
-                                <Button
-                                    onClick={() => setIsDeclining(true)}
-                                    className="text-xs font-semibold text-white bg-black px-4 py-2"
-                                >
-                                    Decline
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="flex space-x-4">
-                                <Button
-                                    onClick={() => setIsDeclining(false)}
-                                    className="text-xs font-semibold text-black bg-gray-300 px-4 py-2"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    onClick={() => {
-                                        handleStatusChange(modalData.id, "DECLINED", declineReason);
-                                        setIsDeclining(false);
-                                    }}
-                                    className="bg-blue-400 text-white px-4 py-2"
-                                    disabled={!declineReason.trim()}
-                                >
-                                    Send
-                                </Button>
-                            </div>
-                        )}
+                            {!isDeclining ? (
+                                <div className="flex space-x-5">
+                                    <Button
+                                        onClick={() => handleStatusChange(modalData.id, "APPROVED", "")}
+                                        className="text-xs font-semibold text-black bg-white border border-black px-4 py-2"
+                                    >
+                                        Approve
+                                    </Button>
+                                    <Button
+                                        onClick={() => setIsDeclining(true)}
+                                        className="text-xs font-semibold text-white bg-black px-4 py-2"
+                                    >
+                                        Decline
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="flex space-x-4">
+                                    <Button
+                                        onClick={() => setIsDeclining(false)}
+                                        className="text-xs font-semibold text-black bg-gray-300 px-4 py-2"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            handleStatusChange(modalData.id, "DECLINED", declineReason);
+                                            setIsDeclining(false);
+                                        }}
+                                        className="bg-blue-400 text-white px-4 py-2"
+                                        disabled={!declineReason.trim()}
+                                    >
+                                        Send
+                                    </Button>
+                                </div>
+                            )}
                         </DialogFooter>
                     )}
                 </Dialog>

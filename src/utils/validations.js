@@ -63,16 +63,20 @@ export const EDIT_USER_SCHEMA = Yup.object({
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     packageTypeSelected: Yup.string().when('serviceType', {
-        is: (val) => val !== 'Outstation',
+        is: (val) => val !== 'Outstation' && val !== 'RIDES',
         then: (schema) => schema.required('Package Type is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
-    rideTime: Yup.string().required('RideTime is required'),
-    rideDate: Yup.string().required('RideDate is required'),
-    // carSelected: Yup.object().test('carSelected', 'Car details are required', (value) => {
-    //     return value && Object.values(value).some(field => field !== '');
-    // }).optional(),
-    // packageSelected: Yup.number().required('Ride Package is required'),
+    rideTime: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: (schema) => schema.required('Ride Time is required'),
+        otherwise: (schema) => schema.notRequired(),
+    }),
+    rideDate: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: (schema) => schema.required('Ride Date is required'),
+        otherwise: (schema) => schema.notRequired(),
+    }),
     customerId: Yup.object().shape({
         id: Yup.string().required('Customer ID is required'),
     }).required('Customer information is required'),
@@ -81,10 +85,33 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
         then: () => Yup.string().required('Cab type is required'),
         otherwise: () => Yup.string(),
     }),
-    carType: Yup.string().required('Car Type is required'),
-    transmissionType: Yup.string().required('Transmission Type is required'),
-    tripType: Yup.string().required('Trip Type is required'),
+    carType: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: () => Yup.string().required('Car Type is required'),
+        otherwise: () => Yup.string(),
+    }),
+    transmissionType: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: () => Yup.string().required('Transmission Type is required'),
+        otherwise: () => Yup.string(),
+    }),
+    tripType: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: () => Yup.string().required('Trip Type is required'),
+        otherwise: () => Yup.string(),
+    }),
+    pickupAddress: Yup.string().when('serviceType', {
+        is: 'RIDES',
+        then: () => Yup.string().required('Pickup Address is required'),
+        otherwise: () => Yup.string(),
+    }),
+    dropAddress: Yup.string().when('serviceType', {
+        is: 'RIDES',
+        then: () => Yup.string().required('Drop Address is required'),
+        otherwise: () => Yup.string(),
+    }),
 });
+
 
 export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
     salutation: Yup.string().required('Salutation is required'),
@@ -113,20 +140,25 @@ export const ACCOUNT_ADD_SCHEMA = Yup.object().shape({
         .matches(/^\d{6}$/, 'Pincode must be exactly 6 digits')
         .required('Pincode is required'),
 });
-export const ACCOUNT_EDIT_SCHEMA = Yup.object({
-    name: Yup.string().required('Name is required'),
-    phoneNumber: Yup.string().matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit number').required('Phone number is required'),      
-    type: Yup.string().required('Type is required'),   
-    email: Yup.string().email('Invalid email address').matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,4}$/, 'Invalid email address').required('Email address is required'),
-    street: Yup.string().required('Street is required').min(3,'Street name must be atleast 3 characters'),
-    thaluk : Yup.string().required('Thaluk is required'),
+
+export const ACCOUNT_EDIT_SCHEMA = Yup.object().shape({
+    type: Yup.string().required('Service Type is required'),
+    name: Yup.string().required('Full Name/Company Name is required'),
+    phoneNumber: Yup.string()
+        .matches(/^\d{10}$/, 'Phone Number must be exactly 10 digits')
+        .required('Phone Number is required'),
+    source: Yup.string().required('Source is required'),
+    email: Yup.string().email('Invalid email format').required('Email is required'),
+    address: Yup.string().required('Current Address is required'),
+    street: Yup.string().required('Street Name is required'),
+    thaluk: Yup.string().required('Thaluk is required'),
     district: Yup.string().required('District is required'),
     state: Yup.string().required('State is required'),
     pincode: Yup.string()
-        .required('Pincode is required')
-        .matches(/^[1-9][0-9]{5}$/, 'Must be a valid 6-digit pincode'),
-    image1: Yup.string().optional(),
+        .matches(/^\d{6}$/, 'Pincode must be exactly 6 digits')
+        .required('Pincode is required'),
 });
+
 export const DRIVER_ADD_SCHEMA = Yup.object({
     salutation: Yup.string().required('Salutation is required'),
     firstName: Yup.string().required('Name is required'),
@@ -570,3 +602,67 @@ export const SUBSCRIPTION_ADD_SCHEME = Yup.object().shape({
       return !discountStartDate || !value || new Date(value) > new Date(discountStartDate);
     }),
 });
+export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
+    serviceType: Yup.string().required("Service Type is required"),
+    tripType: Yup.string().required("Service Type is required"),
+    package: Yup.array()
+    .of(Yup.string().required('Each package must be selected'))
+    .required('At least one package must be selected')
+    .min(1, 'At least one package must be selected'),
+    freeWaitingTime: Yup.number()
+        .required('Free waiting time is required')
+        .min(0, 'Free waiting time must be at least 0 minutes'),
+    waitingCharges: Yup.number()
+        .required('Waiting charges are required')
+        .min(0, 'Waiting charges must be at least 0'),
+    dropOnly: Yup.boolean().required('Drop only selection is required'),
+    additionalMins: Yup.number()
+        .required('Additional minutes are required')
+        .min(0, 'Additional minutes must be at least 0'),
+    extraHours: Yup.number()
+        .required('Extra hours are required')
+        .min(0, 'Extra hours must be at least 0'),
+        nightHoursFrom: Yup.string()
+        .matches(/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/, "Enter a valid time (hh:mm AM/PM)")
+        .required("Night Hours From is required"),
+    nightHoursTo: Yup.string()
+        .matches(/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/, "Enter a valid time (hh:mm AM/PM)")
+        .required("Night Hours To is required")
+        .test("valid-range", "Night Hours To must be after Night Hours From", function (value) {
+            const { nightHoursFrom } = this.parent;
+            if (!nightHoursFrom || !value) return true; 
+            const convertTo24Hour = (time) => {
+                let [hours, minutes] = time.split(/[: ]/);
+                const period = time.split(" ")[1];
+
+                if (period === "PM" && hours !== "12") hours = String(Number(hours) + 12);
+                if (period === "AM" && hours === "12") hours = "00";
+
+                return parseInt(hours + minutes, 10); 
+            };
+
+            const fromTime = convertTo24Hour(nightHoursFrom);
+            const toTime = convertTo24Hour(value);
+
+            
+            return fromTime > toTime || fromTime < toTime;
+        }),
+    nightCharges: Yup.number()
+        .min(0, "Night charges must be at least 0")
+        .when(["nightHoursFrom", "nightHoursTo"], {
+            is: (from, to) => from && to, 
+            then: (schema) => schema.required("Night charges are required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+    cancellationTime: Yup.number()
+        .required('Cancellation time is required')
+        .min(0, 'Cancellation time must be at least 0 minutes'),
+    cancellationCharges: Yup.number()
+        .required('Cancellation charges are required')
+        .min(0, 'Cancellation charges must be at least 0'),
+        active: Yup.boolean()
+    .oneOf([true], "You must check the Active box to proceed"),
+
+    
+});
+

@@ -18,7 +18,7 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
     }, [id]); 
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
-        setAccountVal(data.data);
+        setAccountVal(data?.data?.data);
     };
     const initialValues = {
         name: accountVal?.name || '',
@@ -227,16 +227,21 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
-            {accountVal && accountVal?.Cabs && <OwnersCabList cabsList={accountVal?.Cabs} />}
+            {accountVal && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type}/>}
             {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} />}
-            <div className='flex justify-center w-full'>
-                {!btnShow && <Button
-                    onClick={() => { navigate('/dashboard/vendors/account'); }}
-                    className='my-6 px-8 text-white border-2 rounded-xl'
-                >
-                    Back
-                </Button>}
-            </div>
+            {!btnShow && 
+                <div className='flex justify-center w-full'>
+                    <Button
+                        onClick={() => { navigate('/dashboard/vendors/account'); }}
+                        className='my-6 px-8 text-white border-2 rounded-xl'
+                    >
+                        Back
+                    </Button>
+                    <Button onClick={()=>{navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`)}} className='my-6 px-8 text-white border-2 rounded-xl'>
+                        Edit
+                    </Button>
+                </div>
+            }
         </>
     );
 };

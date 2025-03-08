@@ -30,6 +30,7 @@ export function Topnav({ sidenavColor, sidenavType = "dark" }) {
       { path: "/dashboard/finance/invoice", label: "Invoice" },
       { path: "/dashboard/finance/receipt", label: "Receipt" },
       { path: "/dashboard/finance/master-subscription", label: "Master Subscription" },
+      { path: "/dashboard/finance/master-price", label: "Master Price Table" },
     ],
     "/dashboard/doc-verification": [
       { path: "/dashboard/doc-verification", label: "All" ,end:true},
