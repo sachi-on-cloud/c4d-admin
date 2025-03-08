@@ -50,6 +50,8 @@ import PayableDetails from "./pages/finance/payable/details";
 import UserEdit from "./pages/users/edit";
 import { MasterSubscriptionView } from "./pages/finance/masterSubscription/MasterSubscriptionView";
 import MasterSubscriptionAdd from "./pages/finance/masterSubscription/MasterSubscriptionAdd";
+import { MasterPriceView } from "./pages/finance/masterPrice/MasterPriceView";
+import { MasterPriceAdd } from "./pages/finance/masterPrice/MasterPriceAdd";
 import { ReceiptList } from "./pages/finance/receipt/ReceiptList";
 import ReceiptDetails from "./pages/finance/receipt/ReceiptDetails";
 import { InvoiceList } from "./pages/finance/invoice/InvoiceList";
@@ -367,6 +369,20 @@ export const routes = [
         name: "Master Subscription Add",
         path: "/finance/master-subscription/add",
         element: <MasterSubscriptionAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Price View",
+        path: "/finance/master-price",
+        element: <MasterPriceView />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Price Add",
+        path: "/finance/master-price/add",
+        element: <MasterPriceAdd />,
         display: false
       },
       {

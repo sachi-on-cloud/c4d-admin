@@ -575,3 +575,67 @@ export const SUBSCRIPTION_ADD_SCHEME = Yup.object().shape({
       return !discountStartDate || !value || new Date(value) > new Date(discountStartDate);
     }),
 });
+export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
+    serviceType: Yup.string().required("Service Type is required"),
+    tripType: Yup.string().required("Service Type is required"),
+    package: Yup.array()
+    .of(Yup.string().required('Each package must be selected'))
+    .required('At least one package must be selected')
+    .min(1, 'At least one package must be selected'),
+    freeWaitingTime: Yup.number()
+        .required('Free waiting time is required')
+        .min(0, 'Free waiting time must be at least 0 minutes'),
+    waitingCharges: Yup.number()
+        .required('Waiting charges are required')
+        .min(0, 'Waiting charges must be at least 0'),
+    dropOnly: Yup.boolean().required('Drop only selection is required'),
+    additionalMins: Yup.number()
+        .required('Additional minutes are required')
+        .min(0, 'Additional minutes must be at least 0'),
+    extraHours: Yup.number()
+        .required('Extra hours are required')
+        .min(0, 'Extra hours must be at least 0'),
+        nightHoursFrom: Yup.string()
+        .matches(/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/, "Enter a valid time (hh:mm AM/PM)")
+        .required("Night Hours From is required"),
+    nightHoursTo: Yup.string()
+        .matches(/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/, "Enter a valid time (hh:mm AM/PM)")
+        .required("Night Hours To is required")
+        .test("valid-range", "Night Hours To must be after Night Hours From", function (value) {
+            const { nightHoursFrom } = this.parent;
+            if (!nightHoursFrom || !value) return true; 
+            const convertTo24Hour = (time) => {
+                let [hours, minutes] = time.split(/[: ]/);
+                const period = time.split(" ")[1];
+
+                if (period === "PM" && hours !== "12") hours = String(Number(hours) + 12);
+                if (period === "AM" && hours === "12") hours = "00";
+
+                return parseInt(hours + minutes, 10); 
+            };
+
+            const fromTime = convertTo24Hour(nightHoursFrom);
+            const toTime = convertTo24Hour(value);
+
+            
+            return fromTime > toTime || fromTime < toTime;
+        }),
+    nightCharges: Yup.number()
+        .min(0, "Night charges must be at least 0")
+        .when(["nightHoursFrom", "nightHoursTo"], {
+            is: (from, to) => from && to, 
+            then: (schema) => schema.required("Night charges are required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+    cancellationTime: Yup.number()
+        .required('Cancellation time is required')
+        .min(0, 'Cancellation time must be at least 0 minutes'),
+    cancellationCharges: Yup.number()
+        .required('Cancellation charges are required')
+        .min(0, 'Cancellation charges must be at least 0'),
+        active: Yup.boolean()
+    .oneOf([true], "You must check the Active box to proceed"),
+
+    
+});
+
