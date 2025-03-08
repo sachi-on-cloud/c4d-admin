@@ -48,14 +48,23 @@ export function SearchDrivers(props) {
                 setDrivers(filtredOptions);
             } else {
                 //console.log('PACKAGE ID :', props?.bookingData)
-                let api = props.bookingData.serviceType == "CAB" ? API_ROUTES.GET_CABS_PACKAGE : API_ROUTES.GET_DRIVERS_PACKAGE;
-                let queryObj = {
-                    latitude: props?.bookingData?.pickupLat,
-                    longitude: props?.bookingData?.pickupLong,
-                    type: props?.bookingData?.packageType,
+                let data;
+                if(props.bookingData.serviceType !== 'RIDES'){
+                    let api = props.bookingData.serviceType == "CAB" ? API_ROUTES.GET_CABS_PACKAGE : API_ROUTES.GET_DRIVERS_PACKAGE;
+                    let queryObj = {
+                        latitude: props?.bookingData?.pickupLat,
+                        longitude: props?.bookingData?.pickupLong,
+                        type: props?.bookingData?.packageType,
+                    }
+                    props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
+                    data = await ApiRequestUtils.getWithQueryParam(api + props?.bookingData?.packageId, queryObj);
+                }else{
+                    data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE ,{
+                        latitude: props?.bookingData?.pickupLat,
+                        longitude: props?.bookingData?.pickupLong,
+                    });
                 }
-                props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
-                let data = await ApiRequestUtils.getWithQueryParam(api + props?.bookingData?.packageId, queryObj);
+
                 // let data;
                 // if (props.bookingData.serviceType == "CAB") {
                 //     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE + props?.bookingData?.packageId, {
@@ -147,123 +156,241 @@ export function SearchDrivers(props) {
         }
     }
     return (
-        <div className="flex flex-col w-full gap-y-4">
-            {/* <DriverSearch onSearch={getDriversList} /> */}
-            <Card>
-                {loading ? (
-                    <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-                        <Typography variant="h6" color="white">
-                        {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
-                        </Typography>
-                    </CardHeader>
-                ) : drivers.length > 0 ? (
-                    <CardBody className="overflow-x-auto overflow-y-auto max-w-[500px] px-0 pt-0 pb-2">
-                        <table className="w-full table-auto">
-                            <thead>
-                                <tr>
-                                    {["Name", "Phone Number", "Distance", "Intercity Count", "Outstation Count", "Status"].map((el) => (
-                                        <th
-                                            key={el}
-                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                        >
-                                            <Typography
-                                                variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
-                                                onClick={() => {
-                                                    ['Intercity Count', 'Outstation Count', 'Distance'].includes(el) && handleSort(el === 'Intercity Count' ? 'intercityCount' : el === 'Distance' ? 'distance' : 'outstationCount')
-                                                }}
-                                            >
-                                                {el}
-                                                {['Intercity Count', 'Outstation Count', 'Distance'].includes(el) && <SortIcon field={el === 'Intercity Count' ? 'intercityCount' : el === 'Distance' ? 'distance' : 'outstationCount'} />}
-                                            </Typography>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {drivers.map(
-                                    ({ id, firstName, name, status, phoneNumber, distance, intercityCount, outstationCount, Drivers }, key) => {
-                                        const className = `py-3 px-5 ${key === drivers.length - 1
-                                            ? ""
-                                            : "border-b border-blue-gray-50"
-                                            }`;
-
-                                        return (
-                                            <tr key={id}>
-                                                <td className={className}>
-                                                    <div className="flex items-center gap-4">
-                                                        <div>
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-semibold"
-                                                            >
-                                                                {props?.bookingData?.serviceType == "CAB" ? name : firstName}
-                                                            </Typography>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className={className}>
-                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {(props?.bookingData?.serviceType === "CAB" && Drivers?.[0]?.phoneNumber) ? Drivers?.[0]?.phoneNumber : phoneNumber}
-                                                    </Typography>
-                                                </td>
-                                                <td className={className}>
-                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {(props?.bookingData?.serviceType == "CAB" && Drivers?.[0]?.distance) ? `${Math.round(Drivers?.[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
-                                                    </Typography>
-                                                </td>
-                                                <td className={className}>
-                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {intercityCount}
-                                                    </Typography>
-                                                </td>
-                                                <td className={className}>
-                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {outstationCount}
-                                                    </Typography>
-                                                </td>
-                                                <td className={className}>
-                                                    <Chip
-                                                        variant="gradient"
-                                                        color={status === "ACTIVE" ? "green" : "blue-gray"}
-                                                        value={status === "ACTIVE" ? "Available" : "Not Available"}
-                                                        className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                                                    />
-                                                </td>
-                                                <td className={className}>
-                                                    {status === "ACTIVE" && <Button
-                                                        as="a"
-                                                        onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER'? 0 : Drivers[0]?.id) }}
-                                                        className="text-xs font-semibold text-white"
+        <>
+            {props?.bookingData?.serviceType !== 'RIDES' &&
+                <div className="flex flex-col w-full gap-y-4">
+                    {/* <DriverSearch onSearch={getDriversList} /> */}
+                    <Card>
+                        {loading ? (
+                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
+                                </Typography>
+                            </CardHeader>
+                        ) : drivers.length > 0 ? (
+                            <CardBody className="overflow-x-auto overflow-y-auto max-w-[500px] px-0 pt-0 pb-2">
+                                <table className="w-full table-auto">
+                                    <thead>
+                                        <tr>
+                                            {["Name", "Phone Number", "Distance", "Intercity Count", "Outstation Count", "Status"].map((el) => (
+                                                <th
+                                                    key={el}
+                                                    className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                >
+                                                    <Typography
+                                                        variant="small"
+                                                        className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                        onClick={() => {
+                                                            ['Intercity Count', 'Outstation Count', 'Distance'].includes(el) && handleSort(el === 'Intercity Count' ? 'intercityCount' : el === 'Distance' ? 'distance' : 'outstationCount')
+                                                        }}
                                                     >
-                                                        {props?.bookingData?.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
-                                                    </Button>}
-                                                </td>
-                                            </tr>
-                                        );
-                                    }
-                                )}
-                            </tbody>
-                        </table>
-                    </CardBody>) : (
-                    <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-                        <Typography variant="h6" color="white">
-                            {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
-                        </Typography>
-                    </CardHeader>
-                )}
-            </Card>
-            <div className=''>
-                <Button
-                    fullWidth
-                    onClick={() => { props?.onNext() }}
-                    className='text-white border-2 bg-black rounded-xl'
-                >
-                    {props?.bookingData?.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
-                </Button>
-            </div>
-        </div >
+                                                        {el}
+                                                        {['Intercity Count', 'Outstation Count', 'Distance'].includes(el) && <SortIcon field={el === 'Intercity Count' ? 'intercityCount' : el === 'Distance' ? 'distance' : 'outstationCount'} />}
+                                                    </Typography>
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {drivers.map(
+                                            ({ id, firstName, name, status, phoneNumber, distance, intercityCount, outstationCount, Drivers }, key) => {
+                                                const className = `py-3 px-5 ${key === drivers.length - 1
+                                                    ? ""
+                                                    : "border-b border-blue-gray-50"
+                                                    }`;
+
+                                                return (
+                                                    <tr key={id}>
+                                                        <td className={className}>
+                                                            <div className="flex items-center gap-4">
+                                                                <div>
+                                                                    <Typography
+                                                                        variant="small"
+                                                                        color="blue-gray"
+                                                                        className="font-semibold"
+                                                                    >
+                                                                        {props?.bookingData?.serviceType == "CAB" ? name : firstName}
+                                                                    </Typography>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {(props?.bookingData?.serviceType === "CAB" && Drivers?.[0]?.phoneNumber) ? Drivers?.[0]?.phoneNumber : phoneNumber}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {(props?.bookingData?.serviceType == "CAB" && Drivers?.[0]?.distance) ? `${Math.round(Drivers?.[0]?.distance)} km` : distance ? `${Math.round(distance)} km` : 'Unknown'}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {intercityCount}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {outstationCount}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Chip
+                                                                variant="gradient"
+                                                                color={status === "ACTIVE" ? "green" : "blue-gray"}
+                                                                value={status === "ACTIVE" ? "Available" : "Not Available"}
+                                                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                            />
+                                                        </td>
+                                                        <td className={className}>
+                                                            {status === "ACTIVE" && <Button
+                                                                as="a"
+                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER'? 0 : Drivers[0]?.id) }}
+                                                                className="text-xs font-semibold text-white"
+                                                            >
+                                                                {props?.bookingData?.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
+                                                            </Button>}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            }
+                                        )}
+                                    </tbody>
+                                </table>
+                            </CardBody>) : (
+                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                    {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
+                                </Typography>
+                            </CardHeader>
+                        )}
+                    </Card>
+                    <div className=''>
+                        <Button
+                            fullWidth
+                            onClick={() => { props?.onNext() }}
+                            className='text-white border-2 bg-black rounded-xl'
+                        >
+                            {props?.bookingData?.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
+                        </Button>
+                    </div>
+                </div >
+            }
+            {props?.bookingData?.serviceType == 'RIDES' &&
+                <div className="flex flex-col w-full gap-y-4">
+                    <Card>
+                        {loading ? (
+                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
+                                </Typography>
+                            </CardHeader>
+                        ) : drivers.length > 0 ? (
+                            <CardBody className="overflow-x-auto overflow-y-auto max-w-[390px] px-0 pt-0 pb-2">
+                                <table className="w-full table-auto">
+                                    <thead>
+                                        <tr>
+                                            {["Name", "Phone Number", "Cab Type", "Price Offered", "Trip Count", "Status","Assign/Reassign"].map((el) => (
+                                                <th
+                                                    key={el}
+                                                    className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                >
+                                                    <Typography
+                                                        variant="small"
+                                                        className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                    >
+                                                        {el}
+                                                    </Typography>
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {drivers.map(
+                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber}, key) => {
+                                                const className = `py-3 px-5 ${key === drivers.length - 1
+                                                    ? ""
+                                                    : "border-b border-blue-gray-50"
+                                                    }`;
+
+                                                return (
+                                                    <tr key={id}>
+                                                        <td className={className}>
+                                                            <div className="flex items-center gap-4">
+                                                                <div>
+                                                                    <Typography
+                                                                        variant="small"
+                                                                        color="blue-gray"
+                                                                        className="font-semibold"
+                                                                    >
+                                                                        {name}
+                                                                    </Typography>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {phoneNumber}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {carType}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {priceOffered}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {tripCount}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Chip
+                                                                variant="gradient"
+                                                                color={status === "ACTIVE" ? "green" : "blue-gray"}
+                                                                value={status === "ACTIVE" ? "Available" : "Not Available"}
+                                                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                            />
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Button
+                                                                as="a"
+                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER'? 0 : Drivers[0]?.id) }}
+                                                                className="text-xs font-semibold text-white"
+                                                            >
+                                                                Assign Cab
+                                                            </Button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            }
+                                        )}
+                                    </tbody>
+                                </table>
+                            </CardBody>) : (
+                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                    {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
+                                </Typography>
+                            </CardHeader>
+                        )}
+                    </Card>
+                    <div className=''>
+                        <Button
+                            fullWidth
+                            onClick={() => { props?.onNext() }}
+                            className='text-white border-2 bg-black rounded-xl'
+                        >
+                            {props?.bookingData?.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
+                        </Button>
+                    </div>
+                </div >
+            }
+        </>
     );
 }
 

@@ -63,16 +63,20 @@ export const EDIT_USER_SCHEMA = Yup.object({
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     packageTypeSelected: Yup.string().when('serviceType', {
-        is: (val) => val !== 'Outstation',
+        is: (val) => val !== 'Outstation' && val !== 'RIDES',
         then: (schema) => schema.required('Package Type is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
-    rideTime: Yup.string().required('RideTime is required'),
-    rideDate: Yup.string().required('RideDate is required'),
-    // carSelected: Yup.object().test('carSelected', 'Car details are required', (value) => {
-    //     return value && Object.values(value).some(field => field !== '');
-    // }).optional(),
-    // packageSelected: Yup.number().required('Ride Package is required'),
+    rideTime: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: (schema) => schema.required('Ride Time is required'),
+        otherwise: (schema) => schema.notRequired(),
+    }),
+    rideDate: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: (schema) => schema.required('Ride Date is required'),
+        otherwise: (schema) => schema.notRequired(),
+    }),
     customerId: Yup.object().shape({
         id: Yup.string().required('Customer ID is required'),
     }).required('Customer information is required'),
@@ -81,10 +85,33 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
         then: () => Yup.string().required('Cab type is required'),
         otherwise: () => Yup.string(),
     }),
-    carType: Yup.string().required('Car Type is required'),
-    transmissionType: Yup.string().required('Transmission Type is required'),
-    tripType: Yup.string().required('Trip Type is required'),
+    carType: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: () => Yup.string().required('Car Type is required'),
+        otherwise: () => Yup.string(),
+    }),
+    transmissionType: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: () => Yup.string().required('Transmission Type is required'),
+        otherwise: () => Yup.string(),
+    }),
+    tripType: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RIDES',
+        then: () => Yup.string().required('Trip Type is required'),
+        otherwise: () => Yup.string(),
+    }),
+    pickupAddress: Yup.string().when('serviceType', {
+        is: 'RIDES',
+        then: () => Yup.string().required('Pickup Address is required'),
+        otherwise: () => Yup.string(),
+    }),
+    dropAddress: Yup.string().when('serviceType', {
+        is: 'RIDES',
+        then: () => Yup.string().required('Drop Address is required'),
+        otherwise: () => Yup.string(),
+    }),
 });
+
 
 export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
     salutation: Yup.string().required('Salutation is required'),
