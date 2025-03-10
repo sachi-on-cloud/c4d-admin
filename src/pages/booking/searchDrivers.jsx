@@ -49,7 +49,7 @@ export function SearchDrivers(props) {
             } else {
                 //console.log('PACKAGE ID :', props?.bookingData)
                 let data;
-                if(props.bookingData.serviceType !== 'RIDES'){
+                if (props.bookingData.serviceType !== 'RIDES') {
                     let api = props.bookingData.serviceType == "CAB" ? API_ROUTES.GET_CABS_PACKAGE : API_ROUTES.GET_DRIVERS_PACKAGE;
                     let queryObj = {
                         latitude: props?.bookingData?.pickupLat,
@@ -57,9 +57,9 @@ export function SearchDrivers(props) {
                         type: props?.bookingData?.packageType,
                     }
                     props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
-                    data = await ApiRequestUtils.getWithQueryParam(api + props?.bookingData?.packageId, queryObj);
-                }else{
-                    data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE ,{
+                    data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
+                } else {
+                    data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
                     });
@@ -144,10 +144,10 @@ export function SearchDrivers(props) {
             bookingId: props?.bookingData?.id,
         };
         //service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
-        if(service == "CAB"){
+        if (service == "CAB") {
             reqBody.cabId = driverId;
             reqBody.driverId = cabDriverId;
-        }else{
+        } else {
             reqBody.driverId = driverId;
         }
         const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
@@ -164,7 +164,7 @@ export function SearchDrivers(props) {
                         {loading ? (
                             <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
+                                    {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....'}`}
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
@@ -172,7 +172,7 @@ export function SearchDrivers(props) {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Name", "Phone Number", "Distance", "Intercity Count", "Outstation Count", "Status"].map((el) => (
+                                            {["Name", "Phone Number", "Distance", "Local Count", "Outstation Count", "Status"].map((el) => (
                                                 <th
                                                     key={el}
                                                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -181,11 +181,11 @@ export function SearchDrivers(props) {
                                                         variant="small"
                                                         className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
                                                         onClick={() => {
-                                                            ['Intercity Count', 'Outstation Count', 'Distance'].includes(el) && handleSort(el === 'Intercity Count' ? 'intercityCount' : el === 'Distance' ? 'distance' : 'outstationCount')
+                                                            ['Local Count', 'Outstation Count', 'Distance'].includes(el) && handleSort(el === 'Local Count' ? 'localCount' : el === 'Distance' ? 'distance' : 'outstationCount')
                                                         }}
                                                     >
                                                         {el}
-                                                        {['Intercity Count', 'Outstation Count', 'Distance'].includes(el) && <SortIcon field={el === 'Intercity Count' ? 'intercityCount' : el === 'Distance' ? 'distance' : 'outstationCount'} />}
+                                                        {['Local Count', 'Outstation Count', 'Distance'].includes(el) && <SortIcon field={el === 'Local Count' ? 'localCount' : el === 'Distance' ? 'distance' : 'outstationCount'} />}
                                                     </Typography>
                                                 </th>
                                             ))}
@@ -193,7 +193,7 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.map(
-                                            ({ id, firstName, name, status, phoneNumber, distance, intercityCount, outstationCount, Drivers }, key) => {
+                                            ({ id, firstName, name, status, phoneNumber, distance, localCount, outstationCount, Drivers }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -226,7 +226,7 @@ export function SearchDrivers(props) {
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {intercityCount}
+                                                                {localCount}
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>
@@ -245,7 +245,7 @@ export function SearchDrivers(props) {
                                                         <td className={className}>
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
-                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER'? 0 : Drivers[0]?.id) }}
+                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
                                                                 className="text-xs font-semibold text-white"
                                                             >
                                                                 {props?.bookingData?.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
@@ -260,7 +260,7 @@ export function SearchDrivers(props) {
                             </CardBody>) : (
                             <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
+                                    {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers'} Near By`}
                                 </Typography>
                             </CardHeader>
                         )}
@@ -282,7 +282,7 @@ export function SearchDrivers(props) {
                         {loading ? (
                             <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....' }`}
+                                    {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....'}`}
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
@@ -290,7 +290,7 @@ export function SearchDrivers(props) {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Name", "Phone Number", "Cab Type", "Price Offered", "Trip Count", "Status","Assign/Reassign"].map((el) => (
+                                            {["Name", "Phone Number", "Cab Type", "Price Offered", "Trip Count", "Status", "Assign/Reassign"].map((el) => (
                                                 <th
                                                     key={el}
                                                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -307,7 +307,7 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.map(
-                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber}, key) => {
+                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -359,7 +359,7 @@ export function SearchDrivers(props) {
                                                         <td className={className}>
                                                             <Button
                                                                 as="a"
-                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER'? 0 : Drivers[0]?.id) }}
+                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
                                                                 className="text-xs font-semibold text-white"
                                                             >
                                                                 Assign Cab
@@ -374,7 +374,7 @@ export function SearchDrivers(props) {
                             </CardBody>) : (
                             <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers' } Near By`}
+                                    {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers'} Near By`}
                                 </Typography>
                             </CardHeader>
                         )}

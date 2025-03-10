@@ -36,7 +36,7 @@ import AccountEdit from "./pages/account/edit";
 import { DocumentVerificationView } from "./pages/docVerification/view";
 import DocumentsDetails from './pages/docVerification/details'
 import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
-import {SubscriptionView} from './pages/subscription/view';
+import { SubscriptionView } from './pages/subscription/view';
 import SubscriptionAdd from "./pages/subscription/add";
 import AllBookingsLists from "./pages/booking/allBookingLists";
 import { PendingDocList } from "./pages/docVerification/pendingDocList";
@@ -305,29 +305,43 @@ export const routes = [
         icon: <UserIcon {...icon} />,
         name: "All bookings List",
         path: "/booking/list",
-        element: <AllBookingsLists type={''}/>,
+        element: <AllBookingsLists type={''} />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Rides bookings",
+        path: "/booking/list/rides",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RIDES} />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Rentals bookings",
+        path: "/booking/list/rentals",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RENTAL} />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Cab bookings",
         path: "/booking/list/cabBooking",
-        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAB_BOOKING}/>,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAB_BOOKING} />,
         display: false
       },
-      
+
       {
         icon: <UserIcon {...icon} />,
         name: "Car Wash Bookings",
         path: "/booking/list/carWash",
-        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAR_WASH}/>,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAR_WASH} />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Acting Driver Bookings",
         path: "/booking/list/actingDriver",
-        element: <AllBookingsLists  type={BOOKING_SERVICE_TYPE.DRIVER}/>,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.DRIVER} />,
         display: false
       },
       {

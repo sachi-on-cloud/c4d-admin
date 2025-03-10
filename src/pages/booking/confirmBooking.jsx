@@ -271,20 +271,20 @@ const ConfirmBooking = (props) => {
                         </div>
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Trip Date:</Typography>
-                            <Typography>{`${bookingDetails.date}, ${bookingDetails.time}`}</Typography>
+                            <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY HH:mm ")}</Typography>
                         </div>
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package:</Typography>
-                            <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Intercity" ? "hours" : ""}`}</Typography>
+                            <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
                         </div>
                         {/* need to add logic for price */}
                         {bookingDetails?.status === BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
-                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
+                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
                         </div>}
                         {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
-                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
+                            <Typography>₹ {bookingDetails.serviceType === 'DRIVER' ? bookingDetails?.Package.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
                         </div>}
                         {/* <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Car:</Typography>
@@ -302,11 +302,11 @@ const ConfirmBooking = (props) => {
                     <hr className="my-2" />
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Pickup:</Typography>
+                            <Typography color="gray" variant="h6">Pickup: </Typography>
                             <Typography>{bookingDetails?.pickupAddress?.name}</Typography>
                         </div>
                         <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Drop-off:</Typography>
+                            <Typography color="gray" variant="h6">Drop-off: </Typography>
                             <Typography>
                                 {bookingDetails?.dropAddress?.name || "Not Added"}
                             </Typography>
