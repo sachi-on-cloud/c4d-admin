@@ -331,5 +331,38 @@ export const Utils = {
             total: `${Math.floor(totalHours)} hours`,
             extra: `${Math.floor(extraHours)} hours`
         };
+    },
+
+    convertTimeFormatToMinutes: (time) => {
+        if (!time) return null;
+
+        // Split time into hours, minutes, and seconds
+        const [hours, minutes, seconds] = time.split(':').map(Number);
+
+        // Convert to total minutes (ignoring seconds)
+        return hours * 60 + minutes;
+    },
+
+    formatTimeWithSeconds: (timeValue) => {
+        if (!timeValue) return null;
+        return `${timeValue}:00`;  // Add ":00" for seconds
+    },
+
+    convertMinutesToTimeFormat: (minutes) => {
+        if (minutes === null || minutes === undefined) return null;
+
+        // Convert to number in case it's a string
+        const mins = parseInt(minutes, 10);
+
+        // Calculate hours and remaining minutes
+        const hours = Math.floor(mins / 60);
+        const remainingMins = mins % 60;
+
+        // Format with leading zeros
+        const formattedHours = hours.toString().padStart(2, '0');
+        const formattedMins = remainingMins.toString().padStart(2, '0');
+
+        // Return in hh:mm:ss format
+        return `${formattedHours}:${formattedMins}:00`;
     }
 };

@@ -9,6 +9,7 @@ import {
     Typography,
 } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment';
 
 export function ReceiptList() {
     const navigate = useNavigate();
@@ -19,49 +20,11 @@ export function ReceiptList() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // const data = await ApiRequestUtils.get(API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST);
-                // Sorting needs to be done after api implementation
-                // const data = [
-                //     {
-                //       "receiptNumber": "REC-20240201-001",
-                //       "receiptType": "Subscription",
-                //       "contractNumber": {
-                //         "value": "CN-20240201-DR001",
-                //         "link": "/contracts/CN-20240201-DR001"
-                //       },
-                //       "createdDate": "2024-02-01",
-                //       "packageType": "Premium Driver Package",
-                //       "driverName": {
-                //         "value": "John Doe",
-                //         "link": "/drivers/DR001"
-                //       },
-                //       "driverPhoneNumber": "+91 9876543210",
-                //       "paymentMethod": "Online",
-                //       "totalAmount": "₹2500"
-                //     },
-                //     {
-                //       "receiptNumber": "REC-20240201-002",
-                //       "receiptType": "Subscription",
-                //       "contractNumber": {
-                //         "value": "CN-20240201-DR002",
-                //         "link": "/contracts/CN-20240201-DR002"
-                //       },
-                //       "createdDate": "2024-02-01",
-                //       "packageType": "Basic Driver Package",
-                //       "driverName": {
-                //         "value": "Jane Smith",
-                //         "link": "/drivers/DR002"
-                //       },
-                //       "driverPhoneNumber": "+91 9876543211",
-                //       "paymentMethod": "Online",
-                //       "totalAmount": "₹1500"
-                //     }
-                // ];
-                const data = [];
-
-                if (data) {
-                    setReceiptsList(data);
-                    setAllAccounts(data);
+                const data = await ApiRequestUtils.get(API_ROUTES.GET_RECEIPT_LIST);
+            
+                if (data?.success) {
+                    setReceiptsList(data?.result);
+                    // setAllAccounts(data);
                 }
             } catch (error) {
                 console.error("Error fetching subscription data:", error);
@@ -131,7 +94,7 @@ export function ReceiptList() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Receipt Number","Type","Created Date","Driver Name"].map((el) => (
+                                        {["Receipt Number","Created Date","Type","Booking Number","Driver Name","Driver Number", "Payment Method", "Amount"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -149,22 +112,39 @@ export function ReceiptList() {
                                 <tbody>
                                     {receiptsList.map((receipt,index) => (
                                         <tr key={index} className="text-sm">
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.receiptNumber}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{moment(receipt?.created_at).format("DD-MM-YYYY")}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.receiptType}</td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                             <div className="flex items-center gap-4">
-                                                <div onClick={() => navigate(`/dashboard/finance/receipt/details/${1}`)}>
+                                                <div onClick={() => {}}>
                                                 <Typography
                                                     variant="small"
                                                     color="blue"
                                                     className="font-semibold underline"
                                                 >
-                                                    {receipt.receiptNumber}
+                                                    {receipt.Booking.bookingNumber}
                                                 </Typography>
                                                 </div>
                                             </div>
                                             </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.receiptType}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.createdDate}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.driverName.value}</td>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                            <div className="flex items-center gap-4">
+                                                <div onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${receipt?.Driver?.id}`)}>
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue"
+                                                    className="font-semibold underline"
+                                                >
+                                                    {receipt.Driver.firstName}
+                                                </Typography>
+                                                </div>
+                                            </div>
+                                            </td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.Driver.phoneNumber}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.paymentType}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.amount}</td>
+                                            {/* <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.status}</td> */}
                                         </tr>
                                     ))}
                                 </tbody>

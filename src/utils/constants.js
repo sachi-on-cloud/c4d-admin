@@ -1,9 +1,9 @@
 export const constants = {
     andriodUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
-    // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
+    url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
-    url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
+    // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url: 'https://api.c4d.smartapis.cyou'
 };
 
@@ -872,6 +872,10 @@ export const API_ROUTES = {
     'ADD_MASTER_SUBSCRIPTION_ADD': '/admin/plan/create',
     'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan',
     'GET_QUOTE_OUTSTATION' : '/get-quote',
+    'ACTING_DRIVER_ADD_LOCAL_PACKAGE': '/add-package',
+    'ACTING_DRIVER_ADD_OUTSTAION_PACKAGE': '/add-outstation-package',
+    'GET_PACKAGE_DETAIL': '/package-list/',
+    'GET_RECEIPT_LIST': '/admin/receipt'
 };
 
 export const KYC_PROCESS = {

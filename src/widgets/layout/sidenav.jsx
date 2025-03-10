@@ -18,7 +18,7 @@ const menuItems = [
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { name: "Finance", path: "/dashboard/finance", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
-  { name: "Admin Users", path: "/dashboard/users", permission: "Users" },
+  { name: "Admin", path: "/dashboard/users", permission: "Users" },
 ];
 
 export function Sidenav({ brandImg, brandName, routes }) {

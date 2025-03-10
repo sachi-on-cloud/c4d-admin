@@ -56,6 +56,7 @@ import { ReceiptList } from "./pages/finance/receipt/ReceiptList";
 import ReceiptDetails from "./pages/finance/receipt/ReceiptDetails";
 import { InvoiceList } from "./pages/finance/invoice/InvoiceList";
 import InvoiceDetails from "./pages/finance/invoice/InvoiceDetails";
+import { MasterPriceDetailsAndEdit } from "./pages/finance/masterPrice/MasterPriceDetailsAndEdit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -374,15 +375,22 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price View",
-        path: "/finance/master-price",
+        path: "/users/master-price",
         element: <MasterPriceView />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Add",
-        path: "/finance/master-price/add",
+        path: "/users/master-price/add",
         element: <MasterPriceAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Price Details & Edit",
+        path: "/users/master-price/details",
+        element: <MasterPriceDetailsAndEdit />,
         display: false
       },
       {
