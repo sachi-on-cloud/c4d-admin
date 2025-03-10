@@ -72,7 +72,8 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     // carSelected: Yup.object().test('carSelected', 'Car details are required', (value) => {
     //     return value && Object.values(value).some(field => field !== '');
     // }).optional(),
-    // packageSelected: Yup.number().required('Ride Package is required'),
+    //  packageSelected: Yup.number().when('servicType')
+
     customerId: Yup.object().shape({
         id: Yup.string().required('Customer ID is required'),
     }).required('Customer information is required'),
@@ -84,6 +85,30 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     carType: Yup.string().required('Car Type is required'),
     transmissionType: Yup.string().required('Transmission Type is required'),
     tripType: Yup.string().required('Trip Type is required'),
+    pickupLocation: Yup.object().shape({
+        lat: Yup.number().required('Pickup latitude is required'),
+        lng: Yup.number().required('Pickup longitude is required'),
+    }).required('Pickup location is required'),
+
+    pickupAddress: Yup.string().required('Pickup address is required'),
+    // dropLocation: Yup.object()
+    //     .shape({
+    //         lat: Yup.number().required('Drop latitude is required'),
+    //         lng: Yup.number().required('Drop longitude is required'),
+    //     })
+    //     .nullable()
+    //     .when('tripType', {
+    //         is: (val) => val === 'Outstation', // Required for outstation trips
+    //         then: (schema) => schema.required('Drop location is required'),
+    //         otherwise: (schema) => schema.notRequired(),
+    //     }),
+    //     dropAddress: Yup.string()
+    //     .nullable()
+    //     .when('dropLocation', {
+    //         is: (dropLocation) => dropLocation !== null,
+    //         then: (schema) => schema.required('Drop address is required'),
+    //         otherwise: (schema) => schema.notRequired(),
+    //     }),
 });
 
 export const PERSONAL_INFO_DETAILS_EDIT_SCHEMA = Yup.object().shape({
