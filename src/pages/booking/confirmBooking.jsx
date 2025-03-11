@@ -103,17 +103,9 @@ const ConfirmBooking = (props) => {
                     extraHours: data?.data.extraHours,
                     extraHourPrice: data?.data.extraHourPrice,
                     extraKMs: data?.data.extraKMs,
-                setAmount({
-                    price: data?.data?.price,
-                    extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0,
-                    total: data?.data.endPayment,
-                    extraHours: data?.data.extraHours,
-                    extraHourPrice: data?.data.extraHourPrice,
-                    extraKMs: data?.data.extraKMs,
                     extraKMPrice: data?.data.extraKMPrice,
                     extraNightCharge: data?.data?.extraNightCharge,
-                    extraNightChargePrice: data?.data?.extraNightChargePrice
-                    extraNightChargePrice: data?.data?.extraNightChargePrice
+                    extraNightChargePrice: data?.data?.extraNightChargePrice,
                 });
                 setPaymentDetails({
                     paymentCollected: data?.data?.paymentCollected,
@@ -139,7 +131,6 @@ const ConfirmBooking = (props) => {
                 id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
                 date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
                 bookingType: bookingDetails?.serviceType,
-                kilometer: kms ? kms : 0
                 kilometer: kms ? kms : 0
             });
             if (data?.success) {
@@ -208,7 +199,6 @@ const ConfirmBooking = (props) => {
     return (
         <div className="container mx-auto p-4">
             <Card className="mb-4">
-            <Card className="mb-4">
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Customer Details </Typography>
@@ -267,26 +257,6 @@ const ConfirmBooking = (props) => {
                         </div>
                     </CardBody>
                 </Card>
-                <Card className="mb-4">
-                    <CardBody>
-                        <div className="flex justify-between mb-2">
-                            <Typography variant="h5">Driver Details </Typography>
-                        </div>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Name:</Typography>
-                                <Typography>{bookingDetails?.Driver?.firstName}</Typography>
-                            </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Phone Number:</Typography>
-                                <Typography>
-                                    {bookingDetails?.Driver?.phoneNumber}
-                                </Typography>
-                            </div>
-                        </div>
-                    </CardBody>
-                </Card>
             }
             <Card className="mb-4">
                 <CardBody>
@@ -319,7 +289,7 @@ const ConfirmBooking = (props) => {
                         </div>}
                         {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
-                            <Typography>₹ {bookingDetails.serviceType === 'DRIVER' ? bookingDetails?.Package.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
+                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
                         </div>}
                         {/* <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Car:</Typography>
@@ -556,8 +526,6 @@ const ConfirmBooking = (props) => {
                     </Button>
 
                     {bookingDetails.status === "QUOTED" && (
-
-                    {bookingDetails.status === "QUOTED" && (
                         <Button
                             color="gray"
                             variant="outlined"
@@ -573,7 +541,6 @@ const ConfirmBooking = (props) => {
                         bookingDetails.status !== "STARTED" &&
                         bookingDetails.status !== "CANCELLED" && (
                             <>
-                                {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
                                 {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
                                     (
                                         <Button
@@ -597,7 +564,6 @@ const ConfirmBooking = (props) => {
                             variant="outlined"
                             ripple="dark"
                             fullWidth
-                            onClick={() => { props.onEdit(bookingDetails) }}
                             onClick={() => { props.onEdit(bookingDetails) }}
                         >
                             Edit Booking

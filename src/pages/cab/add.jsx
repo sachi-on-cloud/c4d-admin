@@ -115,16 +115,18 @@ const CabAdd = () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : '';
+                const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
                 return {
                     ...option,
                     period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
+            console.log("PACKAGE",packageData);
             const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
             const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'),'CarWash');
-            setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage]);
+            const ridesPackagePrices = packageData.filter(val => { return val.type == 'Rides'})
+            setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage, ...ridesPackagePrices]);
         }
     };
 
@@ -258,7 +260,7 @@ const CabAdd = () => {
         );
     }; 
 
-    const renderRidesPriceTable = (title, prices, values) => {
+    const renderRidesPriceTable = (title, prices, values, setFieldValue) => {
         if (prices.length === 0) return null;
     
         return (
@@ -269,10 +271,16 @@ const CabAdd = () => {
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
-                                    {["Base Fare", "Per KM Rate", "Per Min Rate"].map((col) => (
-                                        <th key={col} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                    {[
+                                        "Base Fare",
+                                        "Base Fare MVP",
+                                        "Per Kilometer Rate",
+                                        "Per Kilometer Rate MVP",
+                                        "Per Minute Rate"
+                                    ].map((el) => (
+                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
-                                                {col}
+                                                {el}
                                             </Typography>
                                         </th>
                                     ))}
@@ -280,16 +288,22 @@ const CabAdd = () => {
                             </thead>
                             <tbody>
                                 {prices.map((priceItem, index) => (
-                                    <tr key={index}>
-                                        {['baseFare', 'perKmRate', 'perMinRate'].map((field) => (
+                                    <tr key={priceItem.packageId}>
+                                        {[
+                                            "baseFare",
+                                            "priceMVP",
+                                            "kilometer",
+                                            "minKilometer",
+                                            "kilometerPrice"
+                                        ].map((field) => (
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
-                                                    name={`prices[${index}].${field}`}
-                                                    type="number"
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    type= "number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
                                                 <ErrorMessage 
-                                                    name={`prices[${index}].${field}`} 
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
                                                     component="div" 
                                                     className="text-red-500 text-xs" 
                                                 />
@@ -305,8 +319,7 @@ const CabAdd = () => {
         );
     };
     
-
-
+    
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
             const cabDetails = {
@@ -325,8 +338,8 @@ const CabAdd = () => {
                 accountId: values.accountId,
                 driverId: values.driverId
             }
-            const prices = values.prices
-            let res = {cabDetails: JSON.stringify(cabDetails),prices: JSON.stringify(prices)}
+            const prices = values.prices;
+            let res = {cabDetails: JSON.stringify(cabDetails),prices: JSON.stringify(prices)};
             const resp = await ApiRequestUtils.post(API_ROUTES.REGISTER_CAB, res);
             console.log('CAB DATA :', resp);
             if (!resp?.success && resp?.code === 203) {
@@ -405,7 +418,7 @@ const CabAdd = () => {
 
                             <div>
                                 <label htmlFor="insurance" className="text-sm font-medium text-gray-700">Insurance Expiry Date</label>
-                                <Field type="date" name="insurance" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.rideDate} min={currentDate()} ></Field>
+                                <Field type="date" name="insurance" className="p-2 w-full rounded-xl border-2 border-gray-300" min={currentDate()} ></Field>
                                 <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
@@ -549,22 +562,30 @@ const CabAdd = () => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
                                         const newPrices = selectedList.map(item => ({
                                             packageId: item.id,
-                                            period: item.period,
-                                            price: item.price,
-                                            extraPrice: item.extra_price,
-                                            extraKmPrice: item.extraKmPrice,
-                                            nightCharge: item.nightCharge,
-                                            cancelCharge: item.cancelCharge,
-                                            extraCabType: item.extraCabType
-                                        }));
+                                            ...(item.type === 'Rides'
+                                                ? {
+                                                    baseFare: item.baseFare,
+                                                    priceMVP: item.priceMVP,
+                                                    kilometer: item.kilometer,
+                                                    minKilometer: item.minKilometer,
+                                                    kilometerPrice: item.kilometerPrice
+                                                }
+                                                : {
+                                                    period: item.period,
+                                                    price: item.price,
+                                                    extraPrice: item.extra_price,
+                                                    extraKmPrice: item.extraKmPrice,
+                                                    nightCharge: item.nightCharge,
+                                                    cancelCharge: item.cancelCharge,
+                                                    extraCabType: item.extraCabType
+                                                }
+                                            )
+                                        }));                                        
                                         setFieldValue("prices", newPrices);
                                     }}
                                     onRemove={(selectedList, removedItem) => {
-                                        //console.log("selectedList", removedItem.id);
                                         setFieldValue("packages", selectedList.map(item => item.id));
-
                                         setFieldValue("prices", values.prices.filter(price => price.packageId !== removedItem.id));
-
                                     }}
                                     placeholder="Select options"
                                     className="w-full rounded-md border-gray-300"
@@ -600,6 +621,16 @@ const CabAdd = () => {
                                         return package_?.type === 'CarWash';
                                     }),
                                     values
+                                )}
+
+                                {renderRidesPriceTable(
+                                    "RIDES",
+                                    values.prices.filter(price =>{
+                                        const package_ = packageDetails.find(p=> p.id === price.packageId);
+                                        return package_?.type === 'Rides';
+                                    }),
+                                    values,
+                                    setFieldValue
                                 )}
                             </div>
                         )}
