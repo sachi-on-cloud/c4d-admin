@@ -8,24 +8,37 @@ import { Button } from '@material-tailwind/react';
 import { MASTERPRICE_ADD_SCHEME } from "@/utils/validations";
 import { Utils } from "@/utils/utils";
 
-export function MasterPriceAdd() {
+export function MasterPriceDetailsAndEdit() {
     const navigate = useNavigate();
+    const [masterPriceDetails, setMasterPriceDetails] = useState();
+     const [isEditable, setIsEditable] = useState(false);
+    const { id } = useParams();
     
+    useEffect(() => {
+        if (id) {
+            fetchItem(id);
+        }
+    }, [id]);
+    const fetchItem = async (itemId) => {
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_PACKAGE_DETAIL + `${itemId}`);
+        setMasterPriceDetails(data?.data);
+    };
+
     const initialValues = {
-        serviceType: '',
-        type: '',
-        period: '',
-        waitingMins: '',
-        waitingCharge: '',
-        dropOnly: '',
-        additionalMins: '',
-        extraHours: '',
-        nightHoursFrom: '',
-        nightHoursTo: '',
-        nightCharge: '',
-        cancelMins: '',
-        cancelCharge: '',
-        active: "",
+        serviceType: masterPriceDetails?.serviceType || '',
+        type: masterPriceDetails?.type || '',
+        period: masterPriceDetails?.period || '',
+        waitingMins: masterPriceDetails?.waitingMins || '',
+        waitingCharge: masterPriceDetails?.waitingCharge || '',
+        dropPrice: masterPriceDetails?.dropPrice || '',
+        additionalMins: masterPriceDetails?.additionalMins || '',
+        extraHours: masterPriceDetails?.extraPrice || '',
+        nightHoursFrom: masterPriceDetails?.nightHoursFrom || '',
+        nightHoursTo: masterPriceDetails?.nightHoursTo || '',
+        nightCharge: masterPriceDetails?.nightCharge || '',
+        cancelMins: masterPriceDetails?.cancelMins || '',
+        cancelCharge: masterPriceDetails?.cancelCharge || '',
+        active: masterPriceDetails?.active === 1 ? 'Active' : 'In Active',
     };
 
     const handleSubmit = async (values) => {
@@ -45,7 +58,7 @@ export function MasterPriceAdd() {
                 nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo),
                 extraPrice: values.extraHours,
-                status: 1,
+                status: values.status === 'Active' ? 1 : 0,
             };
             if (values.type === 'Outstation') {
                 masterpriceList['baseFare'] = values.baseFare;
@@ -130,14 +143,14 @@ export function MasterPriceAdd() {
                                     <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                                 </div>
                             }
-                            {values?.type === 'Outstation' && 
+                            {values?.type === 'Outstation' &&
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Kilometer</label>
                                     <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                     <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
                                 </div>
                             }
-                            {values?.type === 'Oustation' && 
+                            {values?.type === 'Oustation' &&
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
                                     <Field type="number" name="extraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
@@ -215,19 +228,25 @@ export function MasterPriceAdd() {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => navigate('/dashboard/users/master-price')}
+                                onClick={() => navigate('/dashboard/finance/master-price')}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
-                                Cancel
+                                Back
                             </Button>
                             <Button
                                 fullWidth
                                 color="black"
-                                onClick={handleSubmit}
+                                onClick={() => {
+                                    if (!isEditable) {
+                                        setIsEditable(true);
+                                    } else {
+                                        handleSubmit();
+                                    }
+                                }}
                                 disabled={!dirty || !isValid}
                                 className='my-6 mx-2'
                             >
-                                Submit
+                                {`${isEditable ? 'Save' : 'Edit'}`}
                             </Button>
                         </div>
                     </Form>

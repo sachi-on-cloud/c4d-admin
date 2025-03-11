@@ -19,42 +19,11 @@ export function InvoiceList() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // const data = await ApiRequestUtils.get(API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST);
-                // Sorting needs to be done after api implementation
-                // const data = [
-                //     {
-                //       "invoiceNumber": "INV-20240201-001",
-                //       "invoiceType": "Subscription",
-                //       "invoiceCreatedDate": "2024-02-01",
-                //       "package": "Premium Driver Package",
-                //       "driverName": {
-                //         "value": "John Doe",
-                //         "link": "/drivers/DR001"
-                //       },
-                //       "driverPhoneNumber": "+91 9876543210",
-                //       "status": "Pending Payment",
-                //       "paymentMethod": "Online",
-                //       "amount": "₹2500"
-                //     },
-                //     {
-                //       "invoiceNumber": "INV-20240201-002",
-                //       "invoiceType": "Subscription",
-                //       "invoiceCreatedDate": "2024-02-02",
-                //       "package": "Basic Driver Package",
-                //       "driverName": {
-                //         "value": "Jane Smith",
-                //         "link": "/drivers/DR002"
-                //       },
-                //       "driverPhoneNumber": "+91 9876543211",
-                //       "status": "Pending Payment",
-                //       "paymentMethod": "Online",
-                //       "amount": "₹1500"
-                //     }
-                // ];                  
-                const data = [];
+                const data = await ApiRequestUtils.get(API_ROUTES.GET_INVOICE_LIST);
+                // Sorting needs to be done after api implementation             
                 if (data) {
-                    setInvoiceList(data);
-                    setAllAccounts(data);
+                    setInvoiceList(data?.data);
+                    setAllAccounts(data?.data);
                 }
             } catch (error) {
                 console.error("Error fetching subscription data:", error);
@@ -124,7 +93,7 @@ export function InvoiceList() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Invoice Number","Created Date","Invoice Type F","Amount","Status F"].map((el) => (
+                                        {["Invoice Number","Created Date","Invoice Type","Amount","Status"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -143,22 +112,22 @@ export function InvoiceList() {
                                     {invoiceList.map((invoice,index) => (
                                         <tr key={index} className="text-sm">
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
-                                            <div className="flex items-center gap-4">
-                                                <div onClick={() => navigate(`/dashboard/finance/invoice/details/${1}`)}>
-                                                <Typography
-                                                    variant="small"
-                                                    color="blue"
-                                                    className="font-semibold underline"
-                                                >
-                                                    {invoice.invoiceNumber}
-                                                </Typography>
+                                                <div className="flex items-center gap-4">
+                                                    <div onClick={() => navigate(`/dashboard/finance/invoice/details/${invoice?.invoiceNumber}`)}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue"
+                                                            className="font-semibold underline"
+                                                        >
+                                                            {invoice?.invoiceNumber}
+                                                        </Typography>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice.invoiceCreatedDate}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice.invoiceType}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice.driverName.value}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice.status}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(invoice?.created_at)}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.Subscription?.Plan?.name}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.amount}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.status}</td>
                                         </tr>
                                     ))}
                                 </tbody>

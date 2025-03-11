@@ -105,7 +105,7 @@ const ConfirmBooking = (props) => {
                     extraKMs: data?.data.extraKMs,
                     extraKMPrice: data?.data.extraKMPrice,
                     extraNightCharge: data?.data?.extraNightCharge,
-                    extraNightChargePrice: data?.data?.extraNightChargePrice
+                    extraNightChargePrice: data?.data?.extraNightChargePrice,
                 });
                 setPaymentDetails({
                     paymentCollected: data?.data?.paymentCollected,
@@ -170,12 +170,17 @@ const ConfirmBooking = (props) => {
             ...(actionType === BOOKING_STATUS.CANCELLED && { cancelReason: cancelReason }),
         };
 
+
         const data = await ApiRequestUtils.update(
+            actionType === BOOKING_STATUS.CANCELLED
+                ? API_ROUTES.CANCEL_ADMIN_BOOKING
+                : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             actionType === BOOKING_STATUS.CANCELLED
                 ? API_ROUTES.CANCEL_ADMIN_BOOKING
                 : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             reqBody
         );
+
 
         if (data?.success) {
             props.onConfirm();
@@ -271,16 +276,16 @@ const ConfirmBooking = (props) => {
                         </div>
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Trip Date:</Typography>
-                            <Typography>{`${bookingDetails.date}, ${bookingDetails.time}`}</Typography>
+                            <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY HH:mm ")}</Typography>
                         </div>
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package:</Typography>
-                            <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Intercity" ? "hours" : ""}`}</Typography>
+                            <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
                         </div>
                         {/* need to add logic for price */}
                         {bookingDetails?.status === BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
-                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
+                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
                         </div>}
                         {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
@@ -302,11 +307,11 @@ const ConfirmBooking = (props) => {
                     <hr className="my-2" />
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Pickup:</Typography>
+                            <Typography color="gray" variant="h6">Pickup: </Typography>
                             <Typography>{bookingDetails?.pickupAddress?.name}</Typography>
                         </div>
                         <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Drop-off:</Typography>
+                            <Typography color="gray" variant="h6">Drop-off: </Typography>
                             <Typography>
                                 {bookingDetails?.dropAddress?.name || "Not Added"}
                             </Typography>

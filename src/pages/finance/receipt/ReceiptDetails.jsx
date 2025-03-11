@@ -9,73 +9,48 @@ import html2canvas from 'html2canvas';
 
 const ReceiptDetails = () => {
     const [receipt, setReceipt] = useState({});
-    const { id } = useParams();
+    const { receiptNumber } = useParams();
     const navigate = useNavigate();
     const pdfRef = useRef();
 
     useEffect(() => {
-        if (id) {
-            fetchReceipt(id);
+        if (receiptNumber) {
+            fetchReceipt(receiptNumber);
         }
-    }, [id]);
+    }, [receiptNumber]);
 
     const fetchReceipt = async (receiptId) => {
         try {
-            // const data = await ApiRequestUtils.get(`${API_ROUTES.GET_RECEIPT_DETAILS}/${receiptId}`);
-            // const data = [
-            //     {
-            //       "receiptNumber": "REC-20240201-001",
-            //       "receiptType": "Subscription",
-            //       "contractNumber": {
-            //         "value": "CN-20240201-DR001",
-            //         "link": "/contracts/CN-20240201-DR001"
-            //       },
-            //       "createdDate": "2024-02-01",
-            //       "packageType": "Premium Driver Package",
-            //       "driverName": {
-            //         "value": "John Doe",
-            //         "link": "/drivers/DR001"
-            //       },
-            //       "driverPhoneNumber": "+91 9876543210",
-            //       "paymentMethod": "Online",
-            //       "totalAmount": "₹2500"
-            //     },
-            //     {
-            //       "receiptNumber": "REC-20240201-002",
-            //       "receiptType": "Subscription",
-            //       "contractNumber": {
-            //         "value": "CN-20240201-DR002",
-            //         "link": "/contracts/CN-20240201-DR002"
-            //       },
-            //       "createdDate": "2024-02-01",
-            //       "packageType": "Basic Driver Package",
-            //       "driverName": {
-            //         "value": "Jane Smith",
-            //         "link": "/drivers/DR002"
-            //       },
-            //       "driverPhoneNumber": "+91 9876543211",
-            //       "paymentMethod": "Online",
-            //       "totalAmount": "₹1500"
-            //     }
-            // ];
-            const data = [];
-            setReceipt(data);
+            const data = await ApiRequestUtils.get(`${API_ROUTES.GET_RECEIPT_DETAILS}/${receiptId}`);
+            setReceipt(data?.data);
         } catch (error) {
             console.error("Error fetching receipt details:", error);
         }
     };
 
     const initialValues = {
-        receiptNumber: receipt[1]?.receiptNumber || "",
-        receiptType: receipt[1]?.receiptType || "",
-        contractNumber: receipt[1]?.contractNumber?.value || "",
-        createdDate: receipt[1]?.createdDate || "",
-        packageType: receipt[1]?.packageType || "",
-        driverName: receipt[1]?.driverName?.value || "",
-        driverPhoneNumber: receipt[1]?.driverPhoneNumber || "",
-        paymentMethod: receipt[1]?.paymentMethod || "",
-        totalAmount: receipt[1]?.totalAmount || ""
+        receiptNumber: receipt?.receiptNumber || "",
+        receiptType: receipt?.receiptType || "",
+        // contractNumber: receipt?.contractNumber?.value || "",
+        createdDate: formatDate(receipt?.created_at) || "",
+        packageType: receipt?.Subscription?.Plan?.name || "",
+        driverName: receipt?.driverName?.value || "",
+        driverPhoneNumber: receipt?.driverPhoneNumber || "",
+        paymentMethod: receipt?.paymentType || "",
+        totalAmount: receipt?.amount || "",
+        driverName: receipt?.Subscription?.Cab?.driver_name || '',
+        driverPhoneNumber : receipt?.Subscription?.Cab?.phone_number || '',
+        ownerName: receipt?.Subscription?.Cab?.Account?.name || '',
+        ownerPhoneNumber : receipt?.Subscription?.Cab?.Account?.phone_number || ''
     };
+
+    function formatDate(isoDateString) {
+        const date = new Date(isoDateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
 
     const handleDownloadPDF = () => {
         const input = pdfRef.current;
@@ -107,10 +82,10 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Receipt Type</label>
                                         <Field type="text" disabled name="receiptType" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <label className="text-sm font-medium text-gray-700">Contract Number</label>
                                         <Field type="text" disabled name="contractNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Created Date</label>
                                         <Field type="text" disabled name="createdDate" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
@@ -119,14 +94,22 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Package Type</label>
                                         <Field type="text" disabled name="packageType" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div>
+                                    {<><div>
                                         <label className="text-sm font-medium text-gray-700">Driver Name</label>
                                         <Field type="text" disabled name="driverName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
                                         <Field type="text" disabled name="driverPhoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                    </div></>}
+                                    {<><div>
+                                        <label className="text-sm font-medium text-gray-700">Owner Name</label>
+                                        <Field type="text" disabled name="ownerName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">Owner Phone Number</label>
+                                        <Field type="text" disabled name="ownerPhoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                    </div></>}
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Payment Method</label>
                                         <Field type="text" disabled name="paymentMethod" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />

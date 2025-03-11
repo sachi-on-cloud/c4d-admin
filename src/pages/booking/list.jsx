@@ -177,7 +177,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3 mb-2'>
                 <Typography variant="h5" color='#000000'>
-                    {type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Acting Driver' : ''} Bookings List
+                    {type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Acting Driver' : ''} Bookings List
                 </Typography>
             </div>
             <Card>
@@ -214,7 +214,9 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             title={el}
                                                             options={[
                                                                 { value: 'All', label: 'All' },
-                                                                { value: 'INITIATED', label: 'Initiated' },
+                                                                { value: 'QUOTED', label: 'Quoted' },
+                                                                { value: 'CONFIRMED', label: 'Booking Confirmed' },
+                                                                { value: 'REQUEST_DRIVER', label: 'Request Driver' },
                                                                 { value: 'STARTED', label: 'Started' },
                                                                 { value: 'ENDED', label: 'Ended' },
                                                                 { value: 'CANCELLED', label: 'Cancelled' },
@@ -344,7 +346,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         <Chip
                                                             variant="gradient"
                                                             // color={"blue"}
-                                                            value={data?.status}
+                                                            value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
                                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                         />
                                                     </td>

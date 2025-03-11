@@ -872,6 +872,18 @@ export const API_ROUTES = {
     'ADD_MASTER_SUBSCRIPTION_ADD': '/admin/plan/create',
     'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan',
     'GET_QUOTE_OUTSTATION' : '/get-quote',
+    'ACTING_DRIVER_ADD_LOCAL_PACKAGE': '/add-package',
+    'ACTING_DRIVER_ADD_OUTSTAION_PACKAGE': '/add-outstation-package',
+    'GET_PACKAGE_DETAIL': '/package-list/',
+    'GET_RECEIPT_LIST': '/admin/receipt',
+    'GET_INVOICE_LIST':'/admin/list-invoices',
+    'GET_INVOICE_DETAILS':'/admin/invoices',
+    'UPDATE_INVOICE_STATUS_DETAILS':'/admin/invoice',
+    'GET_RECEIPT_DETAILS':'/admin/receipts',
+    'ADD_RIDES_PRICE_TABLE':'/add-rides-package',
+    'RIDES_PRICE_TABLE_LIST':'/rides-package-list',
+    'RIDES_PRICE_DETAILS':'/package-list',
+    'RIDES_PRICE_EDIT':'/update-rides-package',
 };
 
 export const KYC_PROCESS = {

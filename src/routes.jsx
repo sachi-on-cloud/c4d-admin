@@ -36,7 +36,7 @@ import AccountEdit from "./pages/account/edit";
 import { DocumentVerificationView } from "./pages/docVerification/view";
 import DocumentsDetails from './pages/docVerification/details'
 import { OnlineRegistrationView } from "./pages/onlineRegistration/view";
-import {SubscriptionView} from './pages/subscription/view';
+import { SubscriptionView } from './pages/subscription/view';
 import SubscriptionAdd from "./pages/subscription/add";
 import AllBookingsLists from "./pages/booking/allBookingLists";
 import { PendingDocList } from "./pages/docVerification/pendingDocList";
@@ -56,6 +56,10 @@ import { ReceiptList } from "./pages/finance/receipt/ReceiptList";
 import ReceiptDetails from "./pages/finance/receipt/ReceiptDetails";
 import { InvoiceList } from "./pages/finance/invoice/InvoiceList";
 import InvoiceDetails from "./pages/finance/invoice/InvoiceDetails";
+import { MasterPriceDetailsAndEdit } from "./pages/finance/masterPrice/MasterPriceDetailsAndEdit";
+import MasterPriceTableAdd from "./pages/finance/masterPriceTable/MasterPriceTableAdd";
+import MasterPriceTableDetails from "./pages/finance/masterPriceTable/MasterPriceTableDetails";
+import MasterPriceTableEdit from "./pages/finance/masterPriceTable/MasterPriceTableEdit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -304,29 +308,43 @@ export const routes = [
         icon: <UserIcon {...icon} />,
         name: "All bookings List",
         path: "/booking/list",
-        element: <AllBookingsLists type={''}/>,
+        element: <AllBookingsLists type={''} />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Rides bookings",
+        path: "/booking/list/rides",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RIDES} />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Rentals bookings",
+        path: "/booking/list/rentals",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RENTAL} />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Cab bookings",
         path: "/booking/list/cabBooking",
-        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAB_BOOKING}/>,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAB_BOOKING} />,
         display: false
       },
-      
+
       {
         icon: <UserIcon {...icon} />,
         name: "Car Wash Bookings",
         path: "/booking/list/carWash",
-        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAR_WASH}/>,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAR_WASH} />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Acting Driver Bookings",
         path: "/booking/list/actingDriver",
-        element: <AllBookingsLists  type={BOOKING_SERVICE_TYPE.DRIVER}/>,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.DRIVER} />,
         display: false
       },
       {
@@ -373,16 +391,30 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Master Rides Price Table Add",
+        path: "/users/master-price/rides-add",
+        element: <MasterPriceTableAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Master Price View",
-        path: "/finance/master-price",
+        path: "/users/master-price",
         element: <MasterPriceView />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Add",
-        path: "/finance/master-price/add",
+        path: "/users/master-price/driver-add",
         element: <MasterPriceAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Price Details & Edit",
+        path: "/users/master-price/details",
+        element: <MasterPriceDetailsAndEdit />,
         display: false
       },
       {
@@ -416,7 +448,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt Details",
-        path: "/finance/receipt/details/:id",
+        path: "/finance/receipt/details/:receiptNumber",
         element: <ReceiptDetails />,
         display: false
       },
@@ -430,8 +462,22 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt Details",
-        path: "/finance/invoice/details/:id",
+        path: "/finance/invoice/details/:invoiceNumber",
         element: <InvoiceDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Table Rides Details",
+        path: "/users/master-price/rides-details/:id",
+        element: <MasterPriceTableDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Table Rides Edit",
+        path: "/users/master-price/rides-edit/:id",
+        element: <MasterPriceTableEdit />,
         display: false
       },
     ],
