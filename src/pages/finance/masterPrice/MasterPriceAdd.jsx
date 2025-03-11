@@ -215,7 +215,7 @@ export function MasterPriceAdd() {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => navigate('/dashboard/finance/master-price')}
+                                onClick={() => navigate('/dashboard/users/master-price')}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

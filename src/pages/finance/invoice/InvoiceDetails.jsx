@@ -4,52 +4,31 @@ import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import { API_ROUTES } from '@/utils/constants';
 
 const InvoiceDetails = () => {
     const [invoice, setInvoice] = useState({});
-    const { id } = useParams();
+    const { invoiceNumber } = useParams();
     const navigate = useNavigate();
     const pdfRef = useRef();
-    const [edit, setEdit] = useState(false);
+    const [edit, setEdit] = useState(true);
     const [status,setStatus] = useState("");
+    const [id, setId] = useState("");
 
     useEffect(() => {
-        if (id) {
-            fetchInvoice(id);
+        if (invoiceNumber) {
+            fetchInvoice(invoiceNumber);
         }
-    }, [id]);
+    }, [invoiceNumber]);
 
-    const fetchInvoice = async (invoiceId) => {
+    const fetchInvoice = async (invoiceNumber) => {
         try {
-            // const data = await ApiRequestUtils.get(`${API_ROUTES.GET_RECEIPT_DETAILS}/${receiptId}`);
-            // const data = [
-            //     {
-            //         "invoiceNumber": "INV-20240201-001",
-            //         "invoiceType": "Subscription",
-            //         "invoiceCreatedDate": "2024-02-01",
-            //         "package": "Premium Driver Package",
-            //         "driverName": { "value": "John Doe", "link": "/drivers/DR001" },
-            //         "driverPhoneNumber": "+91 9876543210",
-            //         "status": "Pending Payment",
-            //         "paymentMethod": "Online",
-            //         "amount": "₹2500"
-            //     },
-            //     {
-            //         "invoiceNumber": "INV-20240201-002",
-            //         "invoiceType": "Subscription",
-            //         "invoiceCreatedDate": "2024-02-02",
-            //         "package": "Basic Driver Package",
-            //         "driverName": { "value": "Jane Smith", "link": "/drivers/DR002" },
-            //         "driverPhoneNumber": "+91 9876543211",
-            //         "status": "Pending Payment",
-            //         "paymentMethod": "Online",
-            //         "amount": "₹1500"
-            //     }
-            // ];
-            const data =[];
-            
-            setInvoice(data[0]);
-            if(data[0].status == "Pending Payment"){
+            const data = await ApiRequestUtils.get(`${API_ROUTES.GET_INVOICE_DETAILS}/${invoiceNumber}`);
+            setStatus(data?.data?.status);
+            setInvoice(data?.data);
+            setId(data?.data.id);
+            if(data?.data?.status == "PAYMENT_PENDING"){
                 setEdit(true);
             }
         } catch (error) {
@@ -74,17 +53,55 @@ const InvoiceDetails = () => {
         setEdit(false);
     };
 
-    const handleSave = () => {
-        console.log("Selected Status:", status);
-        setEdit(true); // Lock the dropdown again after saving
+    
+    function formatDate(isoDateString) {
+        const date = new Date(isoDateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    const handleSave = async () => {    
+        try {
+            const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_INVOICE_STATUS_DETAILS, {
+                invoiceNumber: invoiceNumber.toString(),
+                status: status,
+                id: id,
+            });
+            if (response?.success) {
+                setEdit(true);
+                fetchInvoice(invoiceNumber);
+            } else {
+                console.error("Failed to update invoice status:", response?.message);
+            }
+        } catch (error) {
+            console.error("Error updating invoice status:", error);
+        }
     };
+    
 
     return (
         <>
             <div className="p-4 mx-auto">
                 <h2 className="text-2xl font-bold mb-4">Invoice Details</h2>
                 <div ref={pdfRef}>
-                    <Formik initialValues={invoice} enableReinitialize>
+                    <Formik 
+                        initialValues={{     
+                            invoiceNumber: invoice?.invoiceNumber || '',
+                            invoiceType: 'Subscription',
+                            invoiceCreatedDate: formatDate(invoice?.created_at) || '',
+                            package: invoice?.Subscription?.Plan?.name || '',
+                            status: invoice?.status || '',
+                            paymentMethod: invoice?.paymentMethod || '',
+                            amount: invoice?.amount || '',
+                            driverName: invoice?.Subscription?.Cab?.driver_name || '',
+                            driverPhoneNumber : invoice?.Subscription?.Cab?.phone_number || '',
+                            ownerName: invoice?.Subscription?.Cab?.Account?.name || '',
+                            ownerPhoneNumber : invoice?.Subscription?.Cab?.Account?.phone_number || ''
+                        }} 
+                        enableReinitialize
+                    >
                         {(values) => (
                             <Form className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
@@ -104,23 +121,35 @@ const InvoiceDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Package</label>
                                         <Field type="text" disabled name="package" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Driver Name</label>
-                                        <Field type="text" disabled name="driverName.value" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
-                                        <Field type="text" disabled name="driverPhoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div>
+                                    {true && <>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Driver Name</label>
+                                            <Field type="text" disabled name="driverName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
+                                            <Field type="text" disabled name="driverPhoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div>
+                                    </>}
+                                    {true && <>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Owner Name</label>
+                                            <Field type="text" disabled name="ownerName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Owner Phone Number</label>
+                                            <Field type="text" disabled name="ownerPhoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div>
+                                    </>}
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Status</label>
                                         <Field as="select" name="status" disabled={edit} className="p-2 w-full rounded-md border border-gray-300 bg-white"
                                             onChange={(e) => setStatus(e.target.value)}
                                         >
                                             <option value="">Select Status</option>
-                                            <option value="Pending Payment">Pending Payment</option>
-                                            <option value="Payment Completed">Payment Completed</option>
-                                            <option value="Payment Cancelled">Payment Cancelled</option>
+                                            <option value="PAYMENT_PENDING">Pending Payment</option>
+                                            <option value="PAYMENT_COMPLETED">Payment Completed</option>
+                                            <option value="PAYMENT_CANCELLED">Payment Cancelled</option>
                                         </Field>                                    
                                     </div>
                                     <div>
@@ -138,7 +167,7 @@ const InvoiceDetails = () => {
                 </div>
             </div>
             <div className='flex justify-center space-x-4 my-6'>
-                {edit && <Button className="my-6 px-8 bg-white text-black border-2 border-black rounded-xl" onClick={onEditPress}>
+                {(edit && status === 'PAYMENT_PENDING' )&& <Button className="my-6 px-8 bg-white text-black border-2 border-black rounded-xl" onClick={onEditPress}>
                     Edit
                 </Button>}
                 {!edit && status && (

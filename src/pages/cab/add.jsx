@@ -109,7 +109,8 @@ const CabAdd = () => {
         if (data?.success && data?.data.length > 0) {
             setAccountRelatedDrivers(data?.data);
         }
-    }
+    };
+
     const getPackageListDetails = async () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
         if (data?.success) {
@@ -256,6 +257,55 @@ const CabAdd = () => {
             </div>
         );
     }; 
+
+    const renderRidesPriceTable = (title, prices, values) => {
+        if (prices.length === 0) return null;
+    
+        return (
+            <div className="mb-8">
+                <h3 className="text-xl font-bold mb-4">{title}</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {["Base Fare", "Per KM Rate", "Per Min Rate"].map((col) => (
+                                        <th key={col} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
+                                                {col}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {prices.map((priceItem, index) => (
+                                    <tr key={index}>
+                                        {['baseFare', 'perKmRate', 'perMinRate'].map((field) => (
+                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Field
+                                                    name={`prices[${index}].${field}`}
+                                                    type="number"
+                                                    className="w-full p-1 text-xs border rounded"
+                                                />
+                                                <ErrorMessage 
+                                                    name={`prices[${index}].${field}`} 
+                                                    component="div" 
+                                                    className="text-red-500 text-xs" 
+                                                />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
+    
+
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {

@@ -1,9 +1,9 @@
 export const constants = {
     andriodUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
-    url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
+    // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
-    // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
+    url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url: 'https://api.c4d.smartapis.cyou'
 };
 
@@ -875,7 +875,15 @@ export const API_ROUTES = {
     'ACTING_DRIVER_ADD_LOCAL_PACKAGE': '/add-package',
     'ACTING_DRIVER_ADD_OUTSTAION_PACKAGE': '/add-outstation-package',
     'GET_PACKAGE_DETAIL': '/package-list/',
-    'GET_RECEIPT_LIST': '/admin/receipt'
+    'GET_RECEIPT_LIST': '/admin/receipt',
+    'GET_INVOICE_LIST':'/admin/list-invoices',
+    'GET_INVOICE_DETAILS':'/admin/invoices',
+    'UPDATE_INVOICE_STATUS_DETAILS':'/admin/invoice',
+    'GET_RECEIPT_DETAILS':'/admin/receipts',
+    'ADD_RIDES_PRICE_TABLE':'/add-rides-package',
+    'RIDES_PRICE_TABLE_LIST':'/rides-package-list',
+    'RIDES_PRICE_DETAILS':'/package-list',
+    'RIDES_PRICE_EDIT':'/update-rides-package',
 };
 
 export const KYC_PROCESS = {

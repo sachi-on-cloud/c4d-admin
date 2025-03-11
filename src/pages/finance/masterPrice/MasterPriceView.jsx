@@ -11,6 +11,7 @@ export function MasterPriceView() {
     const [outstationPackageList, setOutstationPackageList] = useState([]);
     const navigate = useNavigate();
     const [serviceType, setServiceType] = useState("");
+    const [ridesData, setRidesData]= useState([]);
 
     const handleChange = async (event) => {
         const selectedServiceType = event.target.value;
@@ -18,12 +19,15 @@ export function MasterPriceView() {
         try {
             if (selectedServiceType === 'DRIVER') {
                 const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
-                // console.log("API Raw Response:", data);
-
                 if (data?.success) {
                     setLocalPackageList(data?.data.filter(item => item.type === "Local"));
                     setOutstationPackageList(data?.data.filter(item => item.type === "Outstation"));
                 }
+            }else if(selectedServiceType === 'RIDES'){
+                const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
+                setRidesData(data?.data);
+            }else if(selectedServiceType === 'RENTAL'){
+                
             }
         } catch (err) {
             console.error("Error fetching subscription data:", err);
@@ -32,9 +36,14 @@ export function MasterPriceView() {
 
     const onHandleAddNew = async () => {
         if (serviceType === 'DRIVER') {
-            navigate('/dashboard/users/master-price/add');
+            navigate('/dashboard/users/master-price/driver-add');
+        }else if(serviceType === 'RIDES'){
+            navigate('/dashboard/users/master-price/rides-add');
+        }else if(serviceType === 'RENTAL'){
+
         }
-    }
+    };
+
     const renderLocalPriceTable = () => {
         return (
             <div className='my-2'>
@@ -253,20 +262,132 @@ export function MasterPriceView() {
                 </Card>
             </div>
         )
-    }
+    };
+
+    const renderRidesTable = () => {
+        return (
+            <div className='my-2'>
+                <h3 className="text-3xl font-bold mb-4 ml-2">Rides</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {[
+                                        "Rate Parameter",
+                                        "Base Fare (Mini,SUV,Sedan)",
+                                        "Base Fare (MVP)",
+                                        "Rate Per KM (Mini,SUV,Sedan)",
+                                        "Rate Per KM (MVP)",
+                                        "Rate Per Min",
+                                        "Surcharge Percentage",
+                                        "Status"
+                                    ].map((el, index) => (
+                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {ridesData.map(({ 
+                                    id, 
+                                    baseFare, 
+                                    priceMVP,
+                                    minKilometer,
+                                    kilometer,
+                                    kilometerPrice,
+                                    rateParameter,
+                                    surChargePercentage,
+                                    status
+                                }, key) => {
+                                    const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+                                    
+                                    return (
+                                        <tr key={id}>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                                <div className="flex items-center gap-4">
+                                                    <div onClick={() => navigate(`/dashboard/users/master-price/rides-details/${id}`)}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue"
+                                                            className="font-semibold underline"
+                                                        >
+                                                            {rateParameter}
+                                                        </Typography>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFare}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {priceMVP}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometer}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {minKilometer}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {surChargePercentage}%
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {status == 1 ? 'Active':'InActive'}
+                                                </Typography>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
+
     return (
         <>
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                     <div className="relative flex-grow max-w-[500px]">
-                        {/* <input
-                            type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Search Master Price Table"
-                        />
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
-                        </div> */}
+                        <div className="p-4 flex-row space-x-5">
+                            <label className="text-base font-medium text-gray-700">Select Service Type:</label>
+                            <select
+                                value={serviceType}
+                                onChange={handleChange}
+                                className="p-2 w-[40%] rounded-lg border-2 border-gray-300"
+                            >
+                                <option value="">Select Service Type</option>
+                                <option value="DRIVER">Acting Driver</option>
+                                <option value="RIDES">Rides</option>
+                                <option value="RENTAL">Rental</option>
+                            </select>
+                            {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
+                        </div>
                     </div>
                     <button
                         onClick={onHandleAddNew}
@@ -275,21 +396,6 @@ export function MasterPriceView() {
                         Add new
                     </button>
                 </div>
-            </div>
-
-            <div className="p-4 flex-row space-x-5">
-                <label className="text-base font-medium text-gray-700">Select Service Type:</label>
-                <select
-                    value={serviceType}
-                    onChange={handleChange}
-                    className="p-2 w-[40%] rounded-lg border-2 border-gray-300"
-                >
-                    <option value="">Select Service Type</option>
-                    <option value="DRIVER">Acting Driver</option>
-                    <option value="RIDES">Rides</option>
-                    <option value="RENTAL">Rental</option>
-                </select>
-                {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
             </div>
 
             {serviceType === 'DRIVER' && localPackageList && localPackageList.length > 0 ? (
@@ -306,6 +412,11 @@ export function MasterPriceView() {
             ) : (<>
             </>)}
 
+            {serviceType === 'RIDES' && ridesData && ridesData.length > 0 ? (
+                <div>
+                    {renderRidesTable()}
+                </div>
+            ):<></>}
         </>
 
     );

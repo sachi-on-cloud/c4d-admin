@@ -21,10 +21,8 @@ export function ReceiptList() {
         const fetchData = async () => {
             try {
                 const data = await ApiRequestUtils.get(API_ROUTES.GET_RECEIPT_LIST);
-            
                 if (data?.success) {
                     setReceiptsList(data?.result);
-                    // setAllAccounts(data);
                 }
             } catch (error) {
                 console.error("Error fetching subscription data:", error);
@@ -32,10 +30,6 @@ export function ReceiptList() {
         };
         fetchData();
     }, []);
-
-    // useEffect(() => {
-    //     getDetails(searchQuery.trim());
-    // }, [searchQuery]);
 
     const getDetails = (searchQuery) => {
         if (searchQuery && searchQuery.trim() !== "") {
@@ -94,7 +88,7 @@ export function ReceiptList() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Receipt Number","Created Date","Type","Booking Number","Driver Name","Driver Number", "Payment Method", "Amount"].map((el) => (
+                                        {["Receipt Number","Created Date","Type", "Payment Method", "Amount"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -112,39 +106,23 @@ export function ReceiptList() {
                                 <tbody>
                                     {receiptsList.map((receipt,index) => (
                                         <tr key={index} className="text-sm">
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.receiptNumber}</td>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                                <div className="flex items-center gap-4">
+                                                    <div onClick={() => navigate(`/dashboard/finance/receipt/details/${receipt?.receiptNumber}`)}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue"
+                                                            className="font-semibold underline"
+                                                        >
+                                                            {receipt?.receiptNumber}
+                                                        </Typography>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{moment(receipt?.created_at).format("DD-MM-YYYY")}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.receiptType}</td>
-                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
-                                            <div className="flex items-center gap-4">
-                                                <div onClick={() => {}}>
-                                                <Typography
-                                                    variant="small"
-                                                    color="blue"
-                                                    className="font-semibold underline"
-                                                >
-                                                    {receipt.Booking.bookingNumber}
-                                                </Typography>
-                                                </div>
-                                            </div>
-                                            </td>
-                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
-                                            <div className="flex items-center gap-4">
-                                                <div onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${receipt?.Driver?.id}`)}>
-                                                <Typography
-                                                    variant="small"
-                                                    color="blue"
-                                                    className="font-semibold underline"
-                                                >
-                                                    {receipt.Driver.firstName}
-                                                </Typography>
-                                                </div>
-                                            </div>
-                                            </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.Driver.phoneNumber}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.paymentType}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.amount}</td>
-                                            {/* <td className="border-b border-blue-gray-50 py-3 px-5">{receipt.status}</td> */}
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt?.receiptType}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt?.paymentType}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt?.amount}</td>
                                         </tr>
                                     ))}
                                 </tbody>

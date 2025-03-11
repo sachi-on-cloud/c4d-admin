@@ -57,6 +57,9 @@ import ReceiptDetails from "./pages/finance/receipt/ReceiptDetails";
 import { InvoiceList } from "./pages/finance/invoice/InvoiceList";
 import InvoiceDetails from "./pages/finance/invoice/InvoiceDetails";
 import { MasterPriceDetailsAndEdit } from "./pages/finance/masterPrice/MasterPriceDetailsAndEdit";
+import MasterPriceTableAdd from "./pages/finance/masterPriceTable/MasterPriceTableAdd";
+import MasterPriceTableDetails from "./pages/finance/masterPriceTable/MasterPriceTableDetails";
+import MasterPriceTableEdit from "./pages/finance/masterPriceTable/MasterPriceTableEdit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -388,6 +391,13 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Master Rides Price Table Add",
+        path: "/users/master-price/rides-add",
+        element: <MasterPriceTableAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Master Price View",
         path: "/users/master-price",
         element: <MasterPriceView />,
@@ -396,7 +406,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Add",
-        path: "/users/master-price/add",
+        path: "/users/master-price/driver-add",
         element: <MasterPriceAdd />,
         display: false
       },
@@ -438,7 +448,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt Details",
-        path: "/finance/receipt/details/:id",
+        path: "/finance/receipt/details/:receiptNumber",
         element: <ReceiptDetails />,
         display: false
       },
@@ -452,8 +462,22 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt Details",
-        path: "/finance/invoice/details/:id",
+        path: "/finance/invoice/details/:invoiceNumber",
         element: <InvoiceDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Table Rides Details",
+        path: "/users/master-price/rides-details/:id",
+        element: <MasterPriceTableDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Master Table Rides Edit",
+        path: "/users/master-price/rides-edit/:id",
+        element: <MasterPriceTableEdit />,
         display: false
       },
     ],
