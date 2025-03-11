@@ -103,8 +103,16 @@ const ConfirmBooking = (props) => {
                     extraHours: data?.data.extraHours,
                     extraHourPrice: data?.data.extraHourPrice,
                     extraKMs: data?.data.extraKMs,
+                setAmount({
+                    price: data?.data?.price,
+                    extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0,
+                    total: data?.data.endPayment,
+                    extraHours: data?.data.extraHours,
+                    extraHourPrice: data?.data.extraHourPrice,
+                    extraKMs: data?.data.extraKMs,
                     extraKMPrice: data?.data.extraKMPrice,
                     extraNightCharge: data?.data?.extraNightCharge,
+                    extraNightChargePrice: data?.data?.extraNightChargePrice
                     extraNightChargePrice: data?.data?.extraNightChargePrice
                 });
                 setPaymentDetails({
@@ -131,6 +139,7 @@ const ConfirmBooking = (props) => {
                 id: bookingDetails?.serviceType == "CAB" ? bookingDetails?.Cab?.id : bookingDetails?.Driver?.id,
                 date: moment(dateTime).format("YYYY-MM-DD HH:mm:ss.SSSZ"),
                 bookingType: bookingDetails?.serviceType,
+                kilometer: kms ? kms : 0
                 kilometer: kms ? kms : 0
             });
             if (data?.success) {
@@ -170,12 +179,17 @@ const ConfirmBooking = (props) => {
             ...(actionType === BOOKING_STATUS.CANCELLED && { cancelReason: cancelReason }),
         };
 
+
         const data = await ApiRequestUtils.update(
+            actionType === BOOKING_STATUS.CANCELLED
+                ? API_ROUTES.CANCEL_ADMIN_BOOKING
+                : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             actionType === BOOKING_STATUS.CANCELLED
                 ? API_ROUTES.CANCEL_ADMIN_BOOKING
                 : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             reqBody
         );
+
 
         if (data?.success) {
             props.onConfirm();
@@ -193,6 +207,7 @@ const ConfirmBooking = (props) => {
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto p-4">
+            <Card className="mb-4">
             <Card className="mb-4">
                 <CardBody>
                     <div className="flex justify-between mb-2">
@@ -232,6 +247,26 @@ const ConfirmBooking = (props) => {
             }
 
             {bookingDetails?.Driver?.id &&
+                <Card className="mb-4">
+                    <CardBody>
+                        <div className="flex justify-between mb-2">
+                            <Typography variant="h5">Driver Details </Typography>
+                        </div>
+                        <hr className="my-2" />
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Name:</Typography>
+                                <Typography>{bookingDetails?.Driver?.firstName}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Phone Number:</Typography>
+                                <Typography>
+                                    {bookingDetails?.Driver?.phoneNumber}
+                                </Typography>
+                            </div>
+                        </div>
+                    </CardBody>
+                </Card>
                 <Card className="mb-4">
                     <CardBody>
                         <div className="flex justify-between mb-2">
@@ -521,6 +556,8 @@ const ConfirmBooking = (props) => {
                     </Button>
 
                     {bookingDetails.status === "QUOTED" && (
+
+                    {bookingDetails.status === "QUOTED" && (
                         <Button
                             color="gray"
                             variant="outlined"
@@ -536,6 +573,7 @@ const ConfirmBooking = (props) => {
                         bookingDetails.status !== "STARTED" &&
                         bookingDetails.status !== "CANCELLED" && (
                             <>
+                                {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
                                 {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
                                     (
                                         <Button
@@ -559,6 +597,7 @@ const ConfirmBooking = (props) => {
                             variant="outlined"
                             ripple="dark"
                             fullWidth
+                            onClick={() => { props.onEdit(bookingDetails) }}
                             onClick={() => { props.onEdit(bookingDetails) }}
                         >
                             Edit Booking
