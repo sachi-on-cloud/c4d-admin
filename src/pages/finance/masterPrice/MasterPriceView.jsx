@@ -298,13 +298,13 @@ export function MasterPriceView() {
                                 {ridesData.map(({ 
                                     id, 
                                     baseFare, 
-                                    priceMVP,
-                                    minKilometer,
-                                    kilometer,
+                                    baseFareMVP,
                                     kilometerPrice,
+                                    kilometerPriceMVP,
                                     rateParameter,
+                                    minCharge,
                                     surChargePercentage,
-                                    status
+                                    status,
                                 }, key) => {
                                     const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     
@@ -330,22 +330,22 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {priceMVP}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {kilometer}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {minKilometer}
+                                                    {baseFareMVP}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPriceMVP}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {minCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>

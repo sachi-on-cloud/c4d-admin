@@ -29,7 +29,6 @@ const PRICE_SCHEMA = Yup.object().shape({
     additionalMin: Yup.number().required('Additional Min is required'),
     rateParameter: Yup.string().required('Rate Parameter is required'),
     surchargePercentage: Yup.number().required('Surcharge Percentage is required'),
-    nightHours: Yup.number().required('Night Hours is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
     cancellationMins: Yup.number().required('Cancellation Mins is required'),
     cancellationCharge: Yup.number().required('Cancellation Charge is required'),
@@ -49,7 +48,8 @@ const PriceAdd = () => {
         additionalMin: '',
         rateParameter: '',
         surchargePercentage: '',
-        nightHours: '',
+        nightHoursFrom: '',
+        nightHoursTo: '',
         nightCharge: '',
         cancellationMins: '',
         cancellationCharge: '',
@@ -61,18 +61,18 @@ const PriceAdd = () => {
             console.log('Submitted Price Data:', values);
             const reqBody = {
                 'baseFare':values.baseFare,
-                'priceMVP':values.baseFareMVP,
-                'kilometer':values.ratePerKm,
-                'minKilometer':values.ratePerKmMVP,
-                'kilometerPrice':values.ratePerMin,
+                'baseFareMVP':values.baseFareMVP,
+                'kilometerPrice':values.ratePerKm,
+                'kilometerPriceMVP':values.ratePerKmMVP,
+                'minCharge':values.ratePerMin,
                 'rateParameter':values.rateParameter,
-                'additionalMin':values.additionalMin,
+                'additionalMinCharge':values.additionalMin,
                 'surChargePercentage':values.surchargePercentage,
-                'nightHours':values.nightHours,
+                'nightHoursFrom': Utils.formatTimeWithSeconds(values.nightHoursFrom),
+                'nightHoursTo': Utils.formatTimeWithSeconds(values.nightHoursTo),
                 'nightCharge':values.nightCharge,
                 'cancelMins':Utils.convertMinutesToTimeFormat(values.cancellationMins),
                 'cancelCharge':values.cancellationCharge,
-                'serviceType':'RIDES',
                 'status': values.status == "ACTIVE" ? 1 : 0, 
             }
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_RIDES_PRICE_TABLE,reqBody);
@@ -157,9 +157,26 @@ const PriceAdd = () => {
                                 <ErrorMessage name="surchargePercentage" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Night Hours</label>
-                                <Field type="number" name="nightHours" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="nightHours" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
+                                <div className="flex items-center">
+                                    <Field
+                                        type="time"
+                                        name="nightHoursFrom"
+                                        min="22:00"
+                                        max="23:59"
+                                        className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
+                                    />
+                                    <span className="px-3 py-2 bg-gray-100 border-t border-b border-gray-300">to</span>
+                                    <Field
+                                        type="time"
+                                        name="nightHoursTo"
+                                        min="05:00"
+                                        max="08:00"
+                                        className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
+                                    />
+                                </div>
+                                <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
+                                <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>
