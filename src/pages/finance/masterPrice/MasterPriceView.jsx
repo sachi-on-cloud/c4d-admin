@@ -12,6 +12,7 @@ export function MasterPriceView() {
     const navigate = useNavigate();
     const [serviceType, setServiceType] = useState("");
     const [ridesData, setRidesData]= useState([]);
+    const [rentalsData, setRentalsData] = useState([]);
 
     const handleChange = async (event) => {
         const selectedServiceType = event.target.value;
@@ -27,7 +28,8 @@ export function MasterPriceView() {
                 const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
                 setRidesData(data?.data);
             }else if(selectedServiceType === 'RENTAL'){
-                
+                const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
+                setRentalsData(data?.data);
             }
         } catch (err) {
             console.error("Error fetching subscription data:", err);
@@ -40,7 +42,7 @@ export function MasterPriceView() {
         }else if(serviceType === 'RIDES'){
             navigate('/dashboard/users/master-price/rides-add');
         }else if(serviceType === 'RENTAL'){
-
+            navigate('/dashboard/users/master-price/rentals-add');
         }
     };
 
@@ -94,10 +96,18 @@ export function MasterPriceView() {
                                                     {type}
                                                 </Typography>
                                             </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {period}
-                                                </Typography>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                                <div className="flex items-center gap-4">
+                                                    <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue"
+                                                            className="font-semibold underline"
+                                                        >
+                                                            {period}
+                                                        </Typography>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -298,13 +308,13 @@ export function MasterPriceView() {
                                 {ridesData.map(({ 
                                     id, 
                                     baseFare, 
-                                    priceMVP,
-                                    minKilometer,
-                                    kilometer,
+                                    baseFareMVP,
                                     kilometerPrice,
+                                    kilometerPriceMVP,
                                     rateParameter,
+                                    minCharge,
                                     surChargePercentage,
-                                    status
+                                    status,
                                 }, key) => {
                                     const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     
@@ -330,17 +340,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {priceMVP}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {kilometer}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {minKilometer}
+                                                    {baseFareMVP}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -350,7 +350,150 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPriceMVP}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {minCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {surChargePercentage}%
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {status == 1 ? 'Active':'InActive'}
+                                                </Typography>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
+
+    const renderRentalsTable = () => {
+        return (
+            <div className='my-2'>
+                <h3 className="text-3xl font-bold mb-4 ml-2">Rentals</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {[
+                                        "Type",
+                                        "Package",
+                                        "Variant",
+                                        "Base Fare",
+                                        "Kilometer",
+                                        "Kilometer Rate",
+                                        "Additional Mins",
+                                        "Additional KM Rate",
+                                        "Night Charge",
+                                        "Toll Charge",
+                                        "Driver Charge",
+                                        "Status"
+                                    ].map((el, index) => (
+                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rentalsData.map(({ 
+                                    id,
+                                    type,
+                                    carType, 
+                                    baseFare,
+                                    kilometerPrice,
+                                    kilometer,
+                                    additionalMinCharge,
+                                    nightCharge,
+                                    driverCharge,
+                                    tollCharge,
+                                    period,
+                                    status,
+                                    extraKmPrice
+                                }, key) => {
+                                    const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+                                    
+                                    return (
+                                        <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {type.toUpperCase()}
+                                                </Typography>
+                                            </td>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                                <div className="flex items-center gap-4">
+                                                    <div onClick={() => navigate(`/dashboard/users/master-price/rentals-details/${id}`)}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue"
+                                                            className="font-semibold underline"
+                                                        >
+                                                            {period}
+                                                        </Typography>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {carType}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFare}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometer}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {additionalMinCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {extraKmPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {nightCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {driverCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {tollCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -415,6 +558,12 @@ export function MasterPriceView() {
             {serviceType === 'RIDES' && ridesData && ridesData.length > 0 ? (
                 <div>
                     {renderRidesTable()}
+                </div>
+            ):<></>}
+
+            {serviceType === 'RENTAL' && rentalsData && rentalsData.length > 0 ? (
+                <div>
+                    {renderRentalsTable()}
                 </div>
             ):<></>}
         </>

@@ -21,14 +21,15 @@ const PriceDetails = () => {
             if (data?.success) {
                 setInitialValues({
                     baseFare: data?.data?.baseFare,
-                    baseFareMVP: data?.data?.priceMVP,
-                    ratePerKm: data?.data?.kilometer,
-                    ratePerKmMVP: data?.data?.minKilometer,
-                    ratePerMin: data?.data?.kilometerPrice,
-                    additionalMin: data?.data?.additionalMin,
+                    baseFareMVP: data?.data?.baseFareMVP,
+                    ratePerKm: data?.data?.kilometerPrice,
+                    ratePerKmMVP: data?.data?.kilometerPriceMVP,
+                    ratePerMin: data?.data?.minCharge,
+                    additionalMin: data?.data?.additionalMinCharge,
                     rateParameter: data?.data?.rateParameter,
                     surchargePercentage: data?.data?.surChargePercentage,
-                    nightHours: data?.data?.nightHours,
+                    nightHoursFrom: convertToTimeFormat(data?.data?.nightHoursFrom),
+                    nightHoursTo: convertToTimeFormat(data?.data?.nightHoursTo),
                     nightCharge: data?.data?.nightCharge,
                     cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
                     cancellationCharge: data?.data?.cancelCharge,
@@ -37,6 +38,10 @@ const PriceDetails = () => {
         } catch (error) {
             console.error("Error fetching price details:", error);
         }
+    };
+
+    const convertToTimeFormat = (timeString) => {
+        return timeString ? timeString.slice(0, 5) : "";
     };
 
     return (
@@ -79,8 +84,26 @@ const PriceDetails = () => {
                                 <Field type="number" name="surchargePercentage" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Night Hours</label>
-                                <Field type="number" name="nightHours" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
+                                <div className="flex items-center">
+                                    <Field
+                                        type="time"
+                                        name="nightHoursFrom"
+                                        min="22:00"
+                                        max="23:59"
+                                        className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
+                                        disabled
+                                    />
+                                    <span className="px-3 py-2 bg-gray-100 border-t border-b border-gray-300">to</span>
+                                    <Field
+                                        type="time"
+                                        name="nightHoursTo"
+                                        min="05:00"
+                                        max="08:00"
+                                        className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
+                                        disabled
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>

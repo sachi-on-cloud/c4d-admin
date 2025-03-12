@@ -31,7 +31,7 @@ const PRICE_SCHEMA = Yup.object().shape({
     additionalMin: Yup.number().required('Additional Min is required'),
     rateParameter: Yup.string().required('Rate Parameter is required'),
     surchargePercentage: Yup.number().required('Surcharge Percentage is required'),
-    nightHours: Yup.number().required('Night Hours is required'),
+    // nightHours: Yup.number().required('Night Hours is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
     cancellationMins: Yup.number().required('Cancellation Mins is required'),
     cancellationCharge: Yup.number().required('Cancellation Charge is required'),
@@ -53,14 +53,15 @@ const PriceEdit = () => {
             if (data?.success) {
                 setInitialValues({
                     baseFare: data.data.baseFare,
-                    baseFareMVP: data.data.priceMVP,
-                    ratePerKm: data.data.kilometer,
-                    ratePerKmMVP: data.data.minKilometer,
-                    ratePerMin: data.data.kilometerPrice,
-                    additionalMin: data.data.additionalMin,
+                    baseFareMVP: data.data.baseFareMVP,
+                    ratePerKm: data.data.kilometerPrice,
+                    ratePerKmMVP: data.data.kilometerPriceMVP,
+                    ratePerMin: data.data.minCharge,
+                    additionalMin: data.data.additionalMinCharge,
                     rateParameter: data.data.rateParameter,
                     surchargePercentage: data.data.surChargePercentage,
-                    nightHours: data.data.nightHours,
+                    nightHoursFrom: convertToTimeFormat(data?.data?.nightHoursFrom),
+                    nightHoursTo: convertToTimeFormat(data?.data?.nightHoursTo),
                     nightCharge: data.data.nightCharge,
                     cancellationMins: Utils.convertTimeFormatToMinutes(data.data.cancelMins),
                     cancellationCharge: data.data.cancelCharge,
@@ -72,23 +73,27 @@ const PriceEdit = () => {
         }
     };
 
+    const convertToTimeFormat = (timeString) => {
+        return timeString ? timeString.slice(0, 5) : "";
+    };
+
     const onSubmit = async (values) => {
         try {
             const reqBody = {
                 packageId:Number(id),
                 baseFare: Number(values.baseFare),
-                priceMVP: Number(values.baseFareMVP),
-                kilometer: Number(values.ratePerKm),
-                minKilometer: Number(values.ratePerKmMVP),
-                kilometerPrice: Number(values.ratePerMin),
-                additionalMin: Number(values.additionalMin),
+                baseFareMVP: Number(values.baseFareMVP),
+                kilometerPrice: Number(values.ratePerKm),
+                kilometerPriceMVP: Number(values.ratePerKmMVP),
+                minCharge: Number(values.ratePerMin),
+                additionalMinCharge: Number(values.additionalMin),
                 rateParameter: values.rateParameter,
                 surChargePercentage: Number(values.surchargePercentage),
-                nightHours: Number(values.nightHours),
+                nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
+                nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo),
                 nightCharge: Number(values.nightCharge),
                 cancelMins: Utils.convertMinutesToTimeFormat(values.cancellationMins),
                 cancelCharge: Number(values.cancellationCharge),
-                serviceType: 'RIDES',
                 status: values.status == 'ACTIVE' ? 1 : 0,
             };
             const response = await ApiRequestUtils.update(API_ROUTES.RIDES_PRICE_EDIT, reqBody);
@@ -152,8 +157,26 @@ const PriceEdit = () => {
                                 <Field type="number" name="surchargePercentage" className="p-2 w-full rounded-md border-gray-300" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Night Hours</label>
-                                <Field type="number" name="nightHours" className="p-2 w-full rounded-md border-gray-300" />
+                                <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
+                                <div className="flex items-center">
+                                    <Field
+                                        type="time"
+                                        name="nightHoursFrom"
+                                        min="22:00"
+                                        max="23:59"
+                                        className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
+                                    />
+                                    <span className="px-3 py-2 bg-gray-100 border-t border-b border-gray-300">to</span>
+                                    <Field
+                                        type="time"
+                                        name="nightHoursTo"
+                                        min="05:00"
+                                        max="08:00"
+                                        className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
+                                    />
+                                </div>
+                                <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
+                                <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>

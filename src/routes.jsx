@@ -60,6 +60,9 @@ import { MasterPriceDetailsAndEdit } from "./pages/finance/masterPrice/MasterPri
 import MasterPriceTableAdd from "./pages/finance/masterPriceTable/MasterPriceTableAdd";
 import MasterPriceTableDetails from "./pages/finance/masterPriceTable/MasterPriceTableDetails";
 import MasterPriceTableEdit from "./pages/finance/masterPriceTable/MasterPriceTableEdit";
+import RentalsPriceMasterAdd from "./pages/finance/masterPriceTable/RentalsMasterPriceAdd";
+import RentalsPriceMasterDetails from "./pages/finance/masterPriceTable/RentalsMasterPriceDetails";
+import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMasterPriceEdit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -413,8 +416,29 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Details & Edit",
-        path: "/users/master-price/details",
+        path: "/users/master-price/details/:id",
         element: <MasterPriceDetailsAndEdit />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Rentals Master Price Add",
+        path: "/users/master-price/rentals-add",
+        element: <RentalsPriceMasterAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Rentals Master Price Details",
+        path: "/users/master-price/rentals-details/:id",
+        element: <RentalsPriceMasterDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Rentals Master Price Edit",
+        path: "/users/master-price/rentals-edit/:id",
+        element: <RentalsMasterPriceEdit />,
         display: false
       },
       {
