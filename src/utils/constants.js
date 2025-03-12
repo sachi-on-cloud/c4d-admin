@@ -882,6 +882,8 @@ export const API_ROUTES = {
     'UPDATE_INVOICE_STATUS_DETAILS':'/admin/invoice',
     'GET_RECEIPT_DETAILS':'/admin/receipts',
     'ADD_RIDES_PRICE_TABLE':'/add-rides-package',
+    'ADD_RENTALS_PRICE_TABLE': '/add-rental-package',
+    'RENTALS_PRICE_DETAILS': '/rentals-package-list',
     'RIDES_PRICE_TABLE_LIST':'/rides-package-list',
     'RIDES_PRICE_DETAILS':'/package-list',
     'RIDES_PRICE_EDIT':'/update-rides-package',
