@@ -368,6 +368,7 @@ const DriverAdd = () => {
                         name={name}
                         onChange={onChange}
                         className="hidden"
+                        multiple
                     />
                 </div>
             </td>
@@ -376,11 +377,18 @@ const DriverAdd = () => {
                     <Typography
                         variant="small"
                         className="font-semibold underline cursor-pointer text-blue-900"
-                        onClick={() =>
-                            setModalData({
-                                image: typeof value === "string" ? value : URL.createObjectURL(value)
-                            })
-                        }
+                        onClick={() => {
+                            if (label === 'Live Photo') {
+                                setModalData({
+                                    image: typeof value === "string" ? value : URL.createObjectURL(value)
+                                })
+                            } else {
+                                setModalData({
+                                    image: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
+                                    image2: typeof value[1] === "string" ? value[1] : URL.createObjectURL(value[1])
+                                })
+                            }
+                        }}
                     >
                         View/Download
                     </Typography>
@@ -391,6 +399,53 @@ const DriverAdd = () => {
     };
 
     const handleImageUpload = async (e, setFieldValue, label) => {
+        try {
+        const files = e.target.files;
+        if (files.length > 2) {
+            alert("You can upload a maximum of two documents.");
+            return;
+        }
+    
+        const uploadedFiles = [];
+        const previews = {};
+    
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            uploadedFiles.push(file);
+            
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                previews[label] = reader.result;
+                setImagePreviews((prev) => ({ ...prev, ...previews }));
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        setFieldValue(label, uploadedFiles);
+    
+        const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
+    
+        const formData = new FormData();
+        formData.append('type', type);
+        formData.append('driverId', driverAdded?.driverId);
+        formData.append('idNumber', '326363636363');
+        formData.append('name', 'name');
+        
+        formData.append('image1', files[0]);
+        formData.append('extImage1', files[0].name.split('.')[1]);
+        formData.append('fileTypeImage1', files[0].type);
+        formData.append('image2', files[1]);
+        formData.append('extImage2', files[1].name.split('.')[1]);
+        formData.append('fileTypeImage2', files[1].type);
+        console.log('formData ->', formData);
+        const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
+        console.log('DATA IN DOC INSERT :', data);
+    } catch (err) {
+        console.log("ERR - >", err)
+    }
+    };
+
+    const handlePhotoUpload = async (e, setFieldValue, label) => {
         const file = e.target.files[0];
         if (file) {
             setFieldValue(label, file);
@@ -956,7 +1011,7 @@ const DriverAdd = () => {
                                                 label="Live Photo"
                                                 value={values.livePhoto}
                                                 name="livePhoto"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto")}
+                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
                                                 setModalData={setModalData}
                                             />
                                             {values.serviceType !== 'DRIVER' && <DocumentUpload
@@ -1035,32 +1090,62 @@ const DriverAdd = () => {
                     </div>
                     </DialogHeader>
                     <DialogBody divider>
-                    <div className="flex flex-col items-center">
-                        {modalData.image.endsWith(".pdf") ? (
-                            <iframe
-                                src={modalData.image}
-                                className="w-full rounded-lg shadow-md"
-                                style={{ height: "45vh" }}
-                            />
-                        ) : (
-                            <img
-                                src={modalData.image}
-                                alt="Document"
-                                className="max-w-full rounded-lg shadow-md"
-                                style={{ height: "45vh", objectFit: "contain" }}
-                            />
-                        )}
-                    </div>
-                    <div className="flex justify-center mt-4">
-                        <a
-                            href={modalData.image}
-                            download = "doucument.pdf"
-                            target='_blank'
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                            Download
-                        </a>
-                    </div>
+                        <div className="flex flex-col items-center space-y-3">
+                            <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
+                                {modalData.image.toLowerCase().endsWith(".pdf") ? (
+                                    <iframe
+                                        src={modalData.image}
+                                        className="w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh" }}
+                                    />
+                                ) : (
+                                    <img
+                                        src={modalData.image}
+                                        alt="Document"
+                                        className="rounded-lg shadow-md"
+                                        style={{ width: "45%", height: "45vh", objectFit: "contain" }}
+                                    />
+                                )
+                                }
+                                {modalData.image2 && (
+                                    modalData.image2.toLowerCase().endsWith(".pdf") ? (
+                                        <iframe
+                                            src={modalData.image2}
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%" }}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={modalData.image2}
+                                            alt="Document"
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%", objectFit: "contain" }}
+                                        />
+                                    )
+                                )}
+                            </div>
+
+                            <div className="flex justify-center mt-4">
+                                <a
+                                    href={modalData.image}
+                                    download
+                                    target="_blank"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    Download Image 1
+                                </a>
+                                {modalData.image2 && (
+                                    <a
+                                        href={modalData.image2}
+                                        download
+                                        target="_blank"
+                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    >
+                                        Download Image 2
+                                    </a>
+                                )}
+                            </div>
+                        </div>
                     </DialogBody>
                 </Dialog>
             )}
