@@ -368,7 +368,7 @@ const DriverAdd = () => {
                         name={name}
                         onChange={onChange}
                         className="hidden"
-                        multiple
+                        multiple={name !== "livePhoto"}
                     />
                 </div>
             </td>
