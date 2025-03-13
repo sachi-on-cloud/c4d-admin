@@ -175,9 +175,6 @@ const ConfirmBooking = (props) => {
             actionType === BOOKING_STATUS.CANCELLED
                 ? API_ROUTES.CANCEL_ADMIN_BOOKING
                 : API_ROUTES.CONFIRM_ADMIN_BOOKING,
-            actionType === BOOKING_STATUS.CANCELLED
-                ? API_ROUTES.CANCEL_ADMIN_BOOKING
-                : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             reqBody
         );
 
