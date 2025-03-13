@@ -177,7 +177,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3 mb-2'>
                 <Typography variant="h5" color='#000000'>
-                    {type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Acting Driver' : ''} Bookings List
+                    {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : ''}
                 </Typography>
             </div>
             <Card>
@@ -301,9 +301,12 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {data?.owner ? data?.owner : '-'} {/* owner should be verified */}
+                                                        {data?.ownership === "ASSIGNED_TO_SUPPORT" ? (
+                                                        <div>Assigned To Support</div>
+                                                        ) : data?.ownership}
+
                                                         </Typography>
-                                                    </td>
+                                                        </td>
                                                     {/* <td className={className}>
                                                         {data?.status == "STARTED" ?
                                                             <Chip

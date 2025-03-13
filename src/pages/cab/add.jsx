@@ -118,7 +118,7 @@ const CabAdd = () => {
                 const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
                 return {
                     ...option,
-                    period: `${option.period} ${suffix}`, // Append 'hr' or 'd'
+                    period: `${option.period ? option.period :""} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
             console.log("PACKAGE",packageData);
@@ -138,6 +138,7 @@ const CabAdd = () => {
     useEffect(() => {
         getPackageListDetails();
         getAccountNames();
+        getAccountRelatedDrivers(accountId);
         // checkDriver();
         // if (isEditMode) {
         //     fetchItem(id);

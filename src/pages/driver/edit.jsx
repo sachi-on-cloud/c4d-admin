@@ -364,7 +364,7 @@ const DriverEdit = () => {
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                        {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY") : ""}
+                        {value === "UPLOADED"  ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY") : ""}
                     </Typography>
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -382,6 +382,7 @@ const DriverEdit = () => {
                             name={name}
                             onChange={onChange}
                             className="hidden"
+                            multiple={name !== "livePhoto"}
                         />
                     </div>
                 </td>
@@ -391,75 +392,158 @@ const DriverEdit = () => {
                             variant="small"
                             className="font-semibold underline cursor-pointer text-blue-900"
                             onClick={() => {
-                                console.log("MODAL URL", value);
-                                image2 ?
+                                if (label === 'Live Photo') {
                                     setModalData({
-                                        image: typeof value === "string" ? value : URL.createObjectURL(value),
-                                        image2: typeof image2 === "string" ? image2 : URL.createObjectURL(image2),
+                                        image: fullDocVal?.image1
                                     })
-                                    :
+                                }
+                                else {
                                     setModalData({
-                                        image: typeof value === "string" ? value : URL.createObjectURL(value),
-                                    })
-                            }
-                            }
+                                        image: fullDocVal?.image1,
+
+                                        image2: fullDocVal?.image2
+                                    });
+                                }
+
+                                // console.log(image2)
+                            }}
+
                         >
                             View/Download
                         </Typography>
                     )}
-                </td>
+</td>
             </tr>
         );
     };
 
-
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFieldValue(label, file);
-
-            // const reader = new FileReader();
-            // reader.onloadend = () => {
-            //     // setImagePreviews((prev) => ({
-            //     //     ...prev,
-            //     //     [label]: {
-            //     //         image1: reader.result,
-            //     //         id: docId
-            //     //     },
-            //     // }));
-            // };
-            // reader.readAsDataURL(file);
-
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'policeClearance' ? KYC_PROCESS.POLICE_CLEARANCE : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : KYC_PROCESS.LIVE_PHOTO;
-            const formData = new FormData();
-
-            formData.append('image1', file);
-            formData.append('extImage1', file.name.split('.')[1]);
-            formData.append('fileTypeImage1', file.type);
-            formData.append('type', type);
-            formData.append('driverId', driverVal?.result?.id);
-
-            let data;
-            if (!docId) {
-                data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
-            } else {
-                formData.append('documentId', docId);
-                data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+        try {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+    
+            if (files.length > 2) {
+                alert("You can upload a maximum of two documents.");
+                return;
             }
+    
+            const uploadedFiles = [];
+            const previews = {};
+    
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                uploadedFiles.push(file);
+    
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    previews[`image${i + 1}`] = reader.result;
+                    setImagePreviews((prev) => ({
+                        ...prev,
+                        [label]: {
+                            ...prev[label],
+                            ...previews,
+                        },
+                    }));
+                };
+                reader.readAsDataURL(file);
+            }
+    
+            setFieldValue(label, uploadedFiles);
+    
+             const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : 
+             label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : 
+             label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : 
+             label === 'panImage' ? KYC_PROCESS.PAN : '';
+             
+    
+            // Create FormData
+            const formData = new FormData();
+            formData.append("type", type);
+            formData.append("driverId", driverVal?.result?.id);
+    
+            if (files[0]) {
+                formData.append("image1", files[0]);
+                formData.append("extImage1", files[0].name.split(".").pop());
+                formData.append("fileTypeImage1", files[0].type);
+            }
+            if (files[1]) {
+                formData.append("image2", files[1]);
+                formData.append("extImage2", files[1].name.split(".").pop());
+                formData.append("fileTypeImage2", files[1].type);
+            }
+    
+            let data;
+            if (docId) {
+                formData.append("documentId", docId);
+                data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+                 console.log("Document Updated:", data);
+            } else {
+                data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+                console.log("New Document Uploaded:", data);
+            }
+    
             if (data?.success) {
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
-                        image1: data?.data?.image1,
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        image2: data?.data?.image2 || prev[label]?.image2,
                         id: data?.data?.id,
                     },
                 }));
             }
-
-            console.log('DATA IN DOC UPDATE :', data);
+        } catch (err) {
+            console.error("Error during image upload:", err);
         }
-    }
+    };
+    const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
+            const file = e.target.files[0];
+            if (file) {
+                setFieldValue(label, file);
+    
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImagePreviews((prev) => ({
+                        ...prev,
+                        [label]: reader.result, // Update the specific preview
+                    }));
+                };
+                reader.readAsDataURL(file);
+    
+                const type = label === 'livePhoto' ? KYC_PROCESS.LIVE_PHOTO:'';
+                const formData = new FormData();
+    
+                formData.append('image1', file);
+                formData.append('extImage1', file.name.split('.')[1]);
+                formData.append('fileTypeImage1', file.type);
+                formData.append('type', type);
+                formData.append("documentId", docId);
+                let data;
+                if(docId)
+                {
+                    data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+                    // console.log("Document Updated:", data);
+                }
+                else {
+                    data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+                    // console.log("New Document Uploaded:", data);
+                }
 
+                if (data?.success) {
+                    setImagePreviews((prev) => ({
+                        ...prev,
+                        [label]: {
+                            image1: data?.data?.image1 || prev[label]?.image1,
+                            id: data?.data?.id,
+                        },
+                    }));
+                }
+                
+    
+                // console.log('DATA IN DOC UPDATE :', data);
+            }
+        }
+    
     const parseAddress = (address) => {
         if (!address || typeof address !== "string") {
             console.error("parseAddress received an undefined or invalid address");
@@ -877,15 +961,15 @@ const DriverEdit = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <DocumentUpload
-                                                    label="Aadhaar Image"
-                                                    value={imagePreviews.aadhaarImage?.image1}
-                                                    name="aadhaarImage"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage", imagePreviews?.aadhaarImage?.id)}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.aadhaarImage}
-                                                    image2={imagePreviews.aadhaarImage?.image2}
-                                                />
+                                            <DocumentUpload
+                                            label="Aadhaar Image"
+                                            value={imagePreviews.aadhaarImage?.image1}
+                                            name="aadhaarImage"
+                                            onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage", imagePreviews?.aadhaarImage?.id)}
+                                            setModalData={setModalData}
+                                            fullDocVal={imagePreviews.aadhaarImage} 
+                                            image2={imagePreviews.aadhaarImage?.image2}
+                                            />
                                                 {/* <DocumentUpload
                                                 label="Police Clearance Certificate"
                                                 value={imagePreviews.policeClearance?.image1}
@@ -924,7 +1008,7 @@ const DriverEdit = () => {
                                                     label="Live Photo"
                                                     value={imagePreviews.livePhoto?.image1}
                                                     name="livePhoto"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto", imagePreviews?.livePhoto?.id)}
+                                                    onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto", imagePreviews?.livePhoto?.id)}
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.livePhoto}
                                                 />
@@ -1015,8 +1099,8 @@ const DriverEdit = () => {
                                     <img
                                         src={modalData.image}
                                         alt="Document"
-                                        className="max-w-full rounded-lg shadow-md"
-                                        style={{ height: "45vh", objectFit: "contain" }}
+                                        className="rounded-lg shadow-md"
+                                        style={{ width: "45%", height: "45vh", objectFit: "contain" }}
                                     />
                                 )}
                                 {modalData.image2 && (
@@ -1059,7 +1143,7 @@ const DriverEdit = () => {
                         </div>
                     </DialogBody>
                 </Dialog>
-            )}
+            )}            
         </div>
     );
 };

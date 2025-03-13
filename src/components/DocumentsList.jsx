@@ -22,17 +22,18 @@ const DocumentsList = ({ id, type, noApprove = true }) => {
     const [isDeclining, setIsDeclining] = useState(false);
     const [declineReason, setDeclineReason] = useState("");
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
-                "id": id,
-                "user": type.toLowerCase()
-            })
-            console.log("DATA IN DETAILS DOC", data);
-            if (data.success) {
-                setdocumentData(data?.data?.Proofs);
-            }
+    const fetchData = async () => {
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
+            "id": id,
+            "user": type.toLowerCase()
+        })
+        console.log("DATA IN DETAILS DOC", data);
+        if (data.success) {
+            setdocumentData(data?.data?.Proofs);
         }
+    }
+
+    useEffect(() => {
         fetchData();
     }, [modalData, id, type]);
 
@@ -68,10 +69,11 @@ const DocumentsList = ({ id, type, noApprove = true }) => {
                 showConfirmButton: false,
                 timer: 1500
             });
-            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
-                "id": id,
-                "user": type
-            })
+            fetchData();
+            // const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
+            //     "id": id,
+            //     "user": type
+            // })
         } else {
             setDeclineReason("");
             setIsDeclining("");

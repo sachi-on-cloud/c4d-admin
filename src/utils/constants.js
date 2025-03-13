@@ -921,8 +921,10 @@ export const BOOKING_STATUS = {
 
 export const BOOKING_SERVICE_TYPE = {
     DRIVER: 'DRIVER',
+    RIDES: 'RIDES',
     CAB_BOOKING: 'CAB',
     CAR_WASH: 'CAR_WASH',
+    RENTAL:'RENTAL',
 };
 
 export const PUSH_NOTIFICATION_TYPE = {
