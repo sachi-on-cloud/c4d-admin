@@ -423,10 +423,10 @@ const ConfirmBooking = (props) => {
                         <div className="mt-4">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Package:</Typography>
-                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""
+                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Local" ? "hr" : ""
                                     }`}</Typography>
                             </div>
-                            {bookingDetails?.packageType === "Intercity" || bookingDetails?.packageType === "Outstation" ?
+                            {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
                                 <>
                                     <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
