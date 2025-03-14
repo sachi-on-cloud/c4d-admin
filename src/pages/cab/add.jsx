@@ -112,7 +112,7 @@ const CabAdd = () => {
     };
 
     const getPackageListDetails = async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
+        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGE_CABS_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
                 const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
@@ -569,7 +569,8 @@ const CabAdd = () => {
                                                     priceMVP: item.priceMVP,
                                                     kilometer: item.kilometer,
                                                     minKilometer: item.minKilometer,
-                                                    kilometerPrice: item.kilometerPrice
+                                                    kilometerPrice: item.kilometerPrice,
+                                                    type:'RIDES',
                                                 }
                                                 : {
                                                     period: item.period,
@@ -578,7 +579,8 @@ const CabAdd = () => {
                                                     extraKmPrice: item.extraKmPrice,
                                                     nightCharge: item.nightCharge,
                                                     cancelCharge: item.cancelCharge,
-                                                    extraCabType: item.extraCabType
+                                                    extraCabType: item.extraCabType,
+                                                    type:'RENTAL',
                                                 }
                                             )
                                         }));                                        

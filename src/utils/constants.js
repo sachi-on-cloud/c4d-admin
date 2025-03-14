@@ -3,7 +3,8 @@ export const constants = {
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
-    url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
+    // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
+    url_dev :'https://seal-well-mite.ngrok-free.app',
     url: 'https://api.c4d.smartapis.cyou'
 };
 
@@ -794,6 +795,7 @@ export const API_ROUTES = {
     'GET_ALL_CARS': '/cars',
     'GET_SPECIFIC_CAR': '/car',
     'PACKAGES_LIST': '/package-list',
+    'PACKAGE_CABS_LIST':'/package-list/cabs',
     'ADD_NEW_BOOKING': '/add-booking',
     'ADD_NEW_RIDES_BOOKING': '/add-rides-booking',
     'CONFIRM_ADMIN_BOOKING': '/confirm-booking',
