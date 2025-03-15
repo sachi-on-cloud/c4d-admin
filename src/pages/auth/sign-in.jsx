@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '@/context/auth';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from "@/utils/constants";
+import { FirebaseMessaging, requestToken } from "@/configs/firebaseConfig";
 // import { setUser } from '../redux/store';
 // import { useDispatch} from 'react-redux';
 
@@ -17,11 +18,11 @@ import { API_ROUTES } from "@/utils/constants";
 export function SignIn() {
   const [newUser, setNewUser] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [errors, setErrors] = useState({
-    email:'',
-    password:''
+    email: '',
+    password: ''
   });
 
   const { login } = useAuth();
@@ -35,55 +36,57 @@ export function SignIn() {
       ...prevUser,
       [name]: value
     }));
-  
-  setErrors(prevErrors => ({
-    ...prevErrors,
-    [name]: ''
-  }));
-};
+
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: ''
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({email:'', password:''});
-    try{
-    const response = await ApiRequestUtils.post(API_ROUTES.USER_LOGIN, newUser);
-    if(response.success == false) {
-      if(response.error === "User not found") {
-        setErrors(prev => ({...prev, email: "User not found"}));
-      } else if (response.error === "Invalid credentials") {
-        setErrors(prev => ({...prev, password: "Invalid credentials"}));
+    setErrors({ email: '', password: '' });
+    try {
+      let deviceToken = await requestToken();
+      let obj = { ...newUser, deviceToken };
+      const response = await ApiRequestUtils.post(API_ROUTES.USER_LOGIN, obj);
+      if (response.success == false) {
+        if (response.error === "User not found") {
+          setErrors(prev => ({ ...prev, email: "User not found" }));
+        } else if (response.error === "Invalid credentials") {
+          setErrors(prev => ({ ...prev, password: "Invalid credentials" }));
+        }
+        return;
       }
-      return;
-    }
 
-    if (response.code) {
-      login(response.code, response.user);
+      if (response.code) {
+        login(response.code, response.user);
 
-      setNewUser({
-        email: '',
-        password: ''
+        setNewUser({
+          email: '',
+          password: ''
+        });
+
+        // const responseData1 = {
+        //   user: {
+        //     name: 'John Doe',
+        //     role: 'sales', // Role is not important here
+        //   },
+        //   permissions: ['Home','Customers','Users'], // Example permissions array
+        // };
+        // dispatch(setUser({ user: responseData1.user, permissions: responseData1.permissions }));
+
+        navigate('/dashboard/booking');
+      }
+    } catch (error) {
+      setErrors({
+        email: "An error occured. Please try again.",
+        password: ""
       });
-
-      // const responseData1 = {
-      //   user: {
-      //     name: 'John Doe',
-      //     role: 'sales', // Role is not important here
-      //   },
-      //   permissions: ['Home','Customers','Users'], // Example permissions array
-      // };
-      // dispatch(setUser({ user: responseData1.user, permissions: responseData1.permissions }));
-      
-      navigate('/dashboard/booking');
     }
-  } catch (error) {
-    setErrors({
-      email: "An error occured. Please try again.",
-      password: ""
-    });
-  }
-};
+  };
 
-const inputErrorClasses = (fieldName) => `
+  const inputErrorClasses = (fieldName) => `
     !border-t-blue-gray-200 
     focus:!border-t-gray-900
     ${errors[fieldName] ? '!border-red-500 !border-2 focus:!border-red-500' : ''}
@@ -94,12 +97,12 @@ const inputErrorClasses = (fieldName) => `
       className: "min-w-[100px]",
     },
     input: {
-      className: errors[fieldName] 
-        ? "!border-red-500 focus:!border-red-500 ring-1 ring-red-500/20" 
+      className: errors[fieldName]
+        ? "!border-red-500 focus:!border-red-500 ring-1 ring-red-500/20"
         : "!border-blue-gray-200 focus:!border-gray-900",
       labelProps: {
-        className: errors[fieldName] 
-          ? "!text-red-500 peer-focus:!text-red-500" 
+        className: errors[fieldName]
+          ? "!text-red-500 peer-focus:!text-red-500"
           : "text-blue-gray-400 peer-focus:text-gray-900",
       }
     }

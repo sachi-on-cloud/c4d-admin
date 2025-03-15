@@ -11,7 +11,7 @@ export function MasterPriceView() {
     const [outstationPackageList, setOutstationPackageList] = useState([]);
     const navigate = useNavigate();
     const [serviceType, setServiceType] = useState("");
-    const [ridesData, setRidesData]= useState([]);
+    const [ridesData, setRidesData] = useState([]);
     const [rentalsData, setRentalsData] = useState([]);
 
     const handleChange = async (event) => {
@@ -24,10 +24,10 @@ export function MasterPriceView() {
                     setLocalPackageList(data?.data.filter(item => item.type === "Local"));
                     setOutstationPackageList(data?.data.filter(item => item.type === "Outstation"));
                 }
-            }else if(selectedServiceType === 'RIDES'){
+            } else if (selectedServiceType === 'RIDES') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
                 setRidesData(data?.data);
-            }else if(selectedServiceType === 'RENTAL'){
+            } else if (selectedServiceType === 'RENTAL') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
                 setRentalsData(data?.data);
             }
@@ -39,9 +39,9 @@ export function MasterPriceView() {
     const onHandleAddNew = async () => {
         if (serviceType === 'DRIVER') {
             navigate('/dashboard/users/master-price/driver-add');
-        }else if(serviceType === 'RIDES'){
+        } else if (serviceType === 'RIDES') {
             navigate('/dashboard/users/master-price/rides-add');
-        }else if(serviceType === 'RENTAL'){
+        } else if (serviceType === 'RENTAL') {
             navigate('/dashboard/users/master-price/rentals-add');
         }
     };
@@ -305,9 +305,9 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {ridesData.map(({ 
-                                    id, 
-                                    baseFare, 
+                                {ridesData.map(({
+                                    id,
+                                    baseFare,
                                     baseFareMVP,
                                     kilometerPrice,
                                     kilometerPriceMVP,
@@ -317,7 +317,7 @@ export function MasterPriceView() {
                                     status,
                                 }, key) => {
                                     const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
-                                    
+
                                     return (
                                         <tr key={id}>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
@@ -365,7 +365,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {status == 1 ? 'Active':'InActive'}
+                                                    {status == 1 ? 'Active' : 'InActive'}
                                                 </Typography>
                                             </td>
                                         </tr>
@@ -414,10 +414,10 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {rentalsData.map(({ 
+                                {rentalsData.map(({
                                     id,
                                     type,
-                                    carType, 
+                                    carType,
                                     baseFare,
                                     kilometerPrice,
                                     kilometer,
@@ -430,7 +430,7 @@ export function MasterPriceView() {
                                     extraKmPrice
                                 }, key) => {
                                     const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
-                                    
+
                                     return (
                                         <tr key={id}>
                                             <td className={className}>
@@ -488,17 +488,17 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {driverCharge}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {tollCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {status == 1 ? 'Active':'InActive'}
+                                                    {driverCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {status == 1 ? 'Active' : 'InActive'}
                                                 </Typography>
                                             </td>
                                         </tr>
@@ -559,13 +559,13 @@ export function MasterPriceView() {
                 <div>
                     {renderRidesTable()}
                 </div>
-            ):<></>}
+            ) : <></>}
 
             {serviceType === 'RENTAL' && rentalsData && rentalsData.length > 0 ? (
                 <div>
                     {renderRentalsTable()}
                 </div>
-            ):<></>}
+            ) : <></>}
         </>
 
     );
