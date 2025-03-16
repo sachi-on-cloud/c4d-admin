@@ -205,7 +205,7 @@ const Booking = (props) => {
             bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()
         };
         let data;
-        data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_BOOKING, bookingData, values?.customerId?.id);
+        data = await ApiRequestUtils.post(values.serviceType == "DRIVER" ? API_ROUTES.ADD_NEW_BOOKING : API_ROUTES.ADD_NEW_RENTAL_BOOKING, bookingData, values?.customerId?.id);
         if (data?.success) {
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });

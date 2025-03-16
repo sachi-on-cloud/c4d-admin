@@ -4,7 +4,7 @@ export const constants = {
     // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
-    url_dev :'https://seal-well-mite.ngrok-free.app',
+    url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: 'https://api.c4d.smartapis.cyou'
 };
 
@@ -795,13 +795,15 @@ export const API_ROUTES = {
     'GET_ALL_CARS': '/cars',
     'GET_SPECIFIC_CAR': '/car',
     'PACKAGES_LIST': '/package-list',
-    'PACKAGE_CABS_LIST':'/package-list/cabs',
+    'GET_PACKAGES_LIST': '/get-package-list/',
+    'PACKAGE_CABS_LIST': '/package-list/cabs',
     'ADD_NEW_BOOKING': '/add-booking',
     'ADD_NEW_RIDES_BOOKING': '/add-rides-booking',
+    'ADD_NEW_RENTAL_BOOKING': '/add-rental-booking',
     'CONFIRM_ADMIN_BOOKING': '/confirm-booking',
     'UPDATE_BOOKING': '/update-booking',
-    'UPDATE_RIDES_BOOKING':'/edit-rides-booking',
-    'CANCEL_ADMIN_BOOKING':"/admin/booking-cancel",
+    'UPDATE_RIDES_BOOKING': '/edit-rides-booking',
+    'CANCEL_ADMIN_BOOKING': "/admin/booking-cancel",
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',
@@ -828,7 +830,7 @@ export const API_ROUTES = {
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
     'GET_ALL_ACCOUNTS': '/register/admin/account',
-    'GET_DRIVERS_PACKAGE': '/get-drivers/',
+    'GET_DRIVERS_PACKAGE': '/get-drivers',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',
@@ -855,40 +857,40 @@ export const API_ROUTES = {
     'UPLOAD_PHOTO': '/photo/add',
     'UPDATE_PHOTO': '/photo/update',
     'GET_DRIVERS_ADMIN': '/admin/driver/',
-    'GET_DOCUMENT_DETAILS_LIST' : '/admin/documents',
-    'GET_DOCUMENT_DETAILS':'/admin/user/documents',
-    'GET_ONLINE_REGISTER_DETAILS':'/online-register',
-    'GET_CREATE_DRIVER':'/register/driver/',
-    'GET_CREATE_OWNER':'/register/account',
-    'GET_SUBCRIPTION_PLAN':'/admin/plan', 
-    'GET_SUBSCRIPTION_LIST':'/admin/subscription', 
-    'CREATE_SUBSCRIPTION':'/admin/subscription/create',
-    'GET_ACCOUNTS':'/admin/accounts',
-    'GET_DRIVERS_FOR_SUBSCRIPTION':'/admin/subscription/drivers',
-    'GET_ACCOUNT_CABS':'/account/cabs/',
+    'GET_DOCUMENT_DETAILS_LIST': '/admin/documents',
+    'GET_DOCUMENT_DETAILS': '/admin/user/documents',
+    'GET_ONLINE_REGISTER_DETAILS': '/online-register',
+    'GET_CREATE_DRIVER': '/register/driver/',
+    'GET_CREATE_OWNER': '/register/account',
+    'GET_SUBCRIPTION_PLAN': '/admin/plan',
+    'GET_SUBSCRIPTION_LIST': '/admin/subscription',
+    'CREATE_SUBSCRIPTION': '/admin/subscription/create',
+    'GET_ACCOUNTS': '/admin/accounts',
+    'GET_DRIVERS_FOR_SUBSCRIPTION': '/admin/subscription/drivers',
+    'GET_ACCOUNT_CABS': '/account/cabs/',
     'GET_ACCOUNT_RELATED_DRIVERS': '/account/drivers',
     'CHECK_DRIVER': '/check-driver/',
-    'GET_PAYABLE':'/payment-request',
-    'GET_PAYABLE_DETAILS':'/invoice-trip-details',
-    'REVIEW_PAYMENT_REQUEST':'/update-payment-request',
-    'APPROVE_PAYMENT_REQUEST':'/approve-payment-request',
+    'GET_PAYABLE': '/payment-request',
+    'GET_PAYABLE_DETAILS': '/invoice-trip-details',
+    'REVIEW_PAYMENT_REQUEST': '/update-payment-request',
+    'APPROVE_PAYMENT_REQUEST': '/approve-payment-request',
     'ADD_MASTER_SUBSCRIPTION_ADD': '/admin/plan/create',
     'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan',
-    'GET_QUOTE_OUTSTATION' : '/get-quote',
+    'GET_QUOTE_OUTSTATION': '/get-quote',
     'ACTING_DRIVER_ADD_LOCAL_PACKAGE': '/add-package',
     'ACTING_DRIVER_ADD_OUTSTAION_PACKAGE': '/add-outstation-package',
     'GET_PACKAGE_DETAIL': '/package-list/',
     'GET_RECEIPT_LIST': '/admin/receipt',
-    'GET_INVOICE_LIST':'/admin/list-invoices',
-    'GET_INVOICE_DETAILS':'/admin/invoices',
-    'UPDATE_INVOICE_STATUS_DETAILS':'/admin/invoice',
-    'GET_RECEIPT_DETAILS':'/admin/receipts',
-    'ADD_RIDES_PRICE_TABLE':'/add-rides-package',
+    'GET_INVOICE_LIST': '/admin/list-invoices',
+    'GET_INVOICE_DETAILS': '/admin/invoices',
+    'UPDATE_INVOICE_STATUS_DETAILS': '/admin/invoice',
+    'GET_RECEIPT_DETAILS': '/admin/receipts',
+    'ADD_RIDES_PRICE_TABLE': '/add-rides-package',
     'ADD_RENTALS_PRICE_TABLE': '/add-rental-package',
     'RENTALS_PRICE_DETAILS': '/rentals-package-list',
-    'RIDES_PRICE_TABLE_LIST':'/rides-package-list',
-    'RIDES_PRICE_DETAILS':'/package-list',
-    'RIDES_PRICE_EDIT':'/update-rides-package',
+    'RIDES_PRICE_TABLE_LIST': '/rides-package-list',
+    'RIDES_PRICE_DETAILS': '/package-list',
+    'RIDES_PRICE_EDIT': '/update-rides-package',
 };
 
 export const KYC_PROCESS = {
@@ -896,11 +898,11 @@ export const KYC_PROCESS = {
     PAN: 'PAN',
     LIVE_PHOTO: 'PHOTO',
     DRIVING_LICENSE: 'LICENSE',
-    POLICE_CLEARANCE: 'POLICE_CLEARANCE', 
+    POLICE_CLEARANCE: 'POLICE_CLEARANCE',
     CONSENT_FORM: 'CONSENT_FORM',
-    BANK_STATEMENT:'PASSBOOK',
-    RC_COPY:'RC_COPY',
-    INSURANCE:'INSURANCE',
+    BANK_STATEMENT: 'PASSBOOK',
+    RC_COPY: 'RC_COPY',
+    INSURANCE: 'INSURANCE',
 };
 
 export const ASYNC_STORAGE_KEYS = {
@@ -928,7 +930,7 @@ export const BOOKING_SERVICE_TYPE = {
     RIDES: 'RIDES',
     CAB_BOOKING: 'CAB',
     CAR_WASH: 'CAR_WASH',
-    RENTAL:'RENTAL',
+    RENTAL: 'RENTAL',
 };
 
 export const PUSH_NOTIFICATION_TYPE = {
@@ -981,13 +983,13 @@ export const ROLE_PERMISSIONS = {
 };
 
 export const PERMISSION_OPTIONS = [
-        { name: 'Home', id: 'Home' },
-        { name: 'All bookings', id: 'All bookings' },
-        { name: 'Customers', id: 'Customers' },
-        { name: 'Vendors', id: 'Vendors' },
-        { name: 'Finance', id: 'Finance' },
-        { name: 'Document verification', id: 'Document verification' },
-        { name: 'Users', id: 'Users' },
+    { name: 'Home', id: 'Home' },
+    { name: 'All bookings', id: 'All bookings' },
+    { name: 'Customers', id: 'Customers' },
+    { name: 'Vendors', id: 'Vendors' },
+    { name: 'Finance', id: 'Finance' },
+    { name: 'Document verification', id: 'Document verification' },
+    { name: 'Users', id: 'Users' },
 ];
 
 export const STATUS_OPTIONS = [
@@ -1013,7 +1015,7 @@ export const CAROUSEL_DATA = [
     },
 ];
 
-export const WHATSAPP_DRIVER_ASSIGNED_TEMPLATE = 
+export const WHATSAPP_DRIVER_ASSIGNED_TEMPLATE =
     `${COMPANY_NAME} Booking Confirmation
     Booking ID: \${bookingNumber}
 
@@ -1037,7 +1039,7 @@ export const WHATSAPP_DRIVER_ASSIGNED_TEMPLATE =
     Thank you,
     ${COMPANY_NAME} Team`;
 
-export const WHATSAPP_TRIP_START_TEMPLATE = 
+export const WHATSAPP_TRIP_START_TEMPLATE =
     `${COMPANY_NAME} Trip Update
     Booking ID: \${bookingNumber}
 
@@ -1054,7 +1056,7 @@ export const WHATSAPP_TRIP_START_TEMPLATE =
     ${COMPANY_NAME} Team`;
 
 
-export const WHATSAPP_PAYMENT_REQUEST_TEMPLATE = 
+export const WHATSAPP_PAYMENT_REQUEST_TEMPLATE =
     `${COMPANY_NAME} Payment Details
     Booking ID: \${bookingNumber}
 
@@ -1080,7 +1082,7 @@ export const WHATSAPP_PAYMENT_REQUEST_TEMPLATE =
     ${COMPANY_NAME} Team`;
 
 
-export const WHATSAPP_TRIP_COMPLETION_TEMPLATE = 
+export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     `${COMPANY_NAME} Trip Completed
     Booking ID: \${bookingNumber}
 
