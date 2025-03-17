@@ -41,7 +41,7 @@ const PriceAdd = () => {
 
     const initialValues = {
         baseFare: '',
-        baseFareMVP:'',
+        baseFareMVP: '',
         ratePerKm: '',
         ratePerKmMVP: '',
         ratePerMin: '',
@@ -60,23 +60,26 @@ const PriceAdd = () => {
         try {
             console.log('Submitted Price Data:', values);
             const reqBody = {
-                'baseFare':values.baseFare,
-                'baseFareMVP':values.baseFareMVP,
-                'kilometerPrice':values.ratePerKm,
-                'kilometerPriceMVP':values.ratePerKmMVP,
-                'minCharge':values.ratePerMin,
-                'rateParameter':values.rateParameter,
-                'additionalMinCharge':values.additionalMin,
-                'surChargePercentage':values.surchargePercentage,
+                'baseFare': values.baseFare,
+                'baseFareMVP': values.baseFareMVP,
+                'kilometerPrice': values.ratePerKm,
+                'kilometerPriceMVP': values.ratePerKmMVP,
+                'minCharge': values.ratePerMin,
+                'rateParameter': values.rateParameter,
+                'additionalMinCharge': values.additionalMin,
+                'surChargePercentage': values.surchargePercentage,
                 'nightHoursFrom': Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 'nightHoursTo': Utils.formatTimeWithSeconds(values.nightHoursTo),
-                'nightCharge':values.nightCharge,
-                'cancelMins':Utils.convertMinutesToTimeFormat(values.cancellationMins),
-                'cancelCharge':values.cancellationCharge,
-                'status': values.status == "ACTIVE" ? 1 : 0, 
+                'nightCharge': values.nightCharge,
+                'cancelMins': Utils.convertMinutesToTimeFormat(values.cancellationMins),
+                'cancelCharge': values.cancellationCharge,
+                'type': 'RIDES',
+                'serviceType': 'RIDES',
+                'period': 'Rides',
+                'status': values.status == "ACTIVE" ? 1 : 0,
             }
-            const data = await ApiRequestUtils.post(API_ROUTES.ADD_RIDES_PRICE_TABLE,reqBody);
-            if(data?.success){
+            const data = await ApiRequestUtils.post(API_ROUTES.ADD_RIDES_PRICE_TABLE, reqBody);
+            if (data?.success) {
                 navigate('/dashboard/users/master-price')
             }
         } catch (error) {

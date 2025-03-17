@@ -75,7 +75,7 @@ const Booking = (props) => {
         }
     }, []);
 
-    const getQuoteOutstationDetails = async (values) =>{
+    const getQuoteOutstationDetails = async (values) => {
         const quoteData = {
             bookingType: values?.tripType?.toUpperCase(),
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -87,7 +87,7 @@ const Booking = (props) => {
             dropLong: values?.dropLocation?.lng,
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
-        console.log("QOYTEE DATA",data);
+        //console.log("QOYTEE DATA", data);
         if (data.success) {
             setQuoteDetails(data.data);
         }
@@ -112,12 +112,12 @@ const Booking = (props) => {
         }
     }, []);
     const initialValues = {
-        packageTypeSelected:'Local',
+        packageTypeSelected: 'Local',
         rideTime: '',
         rideDate: moment().format('YYYY-MM-DD'),
         carSelected: {},
-        packageSelected:"",
-        fromDate:"",
+        packageSelected: "",
+        fromDate: "",
         toDate: "",
         customerId: '',
         serviceType: '',
@@ -152,7 +152,7 @@ const Booking = (props) => {
         daysText = days == 1 ? '1 Day' : days == 1 ? '2 Days and 1 Night' : `${days} Days and ${days - 1} Nights`;
     }
 
-    const onRideSubmitHandler = async (values)=>{
+    const onRideSubmitHandler = async (values) => {
         const bookingData = {
             customerId: values.customerId?.id,
             pickupLat: values.pickupLocation.lat,
@@ -166,8 +166,8 @@ const Booking = (props) => {
                 name: values.dropAddress
             },
         }
-        let data = ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING,bookingData);
-        if (data?.success){
+        let data = ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData);
+        if (data?.success) {
             setBookingData(data?.data);
         }
     }
@@ -184,10 +184,10 @@ const Booking = (props) => {
             adminBooking: true,
             serviceType: values.serviceType,
             cabType: values.cabType,
-            bookingType:values.tripType.toUpperCase(),
-            transmissionType : values.transmissionType,
+            bookingType: values.tripType.toUpperCase(),
+            transmissionType: values.transmissionType,
             carType: values.carType,
-            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),   
+            //fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
             pickupAddress: {
@@ -201,11 +201,11 @@ const Booking = (props) => {
             source: 'Call',
         };
 
-        if(values.toDate && values.toTime){
-            bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()           
+        if (values.toDate && values.toTime) {
+            bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()
         };
         let data;
-        data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_BOOKING, bookingData, values?.customerId?.id);
+        data = await ApiRequestUtils.post(values.serviceType == "DRIVER" ? API_ROUTES.ADD_NEW_BOOKING : API_ROUTES.ADD_NEW_RENTAL_BOOKING, bookingData, values?.customerId?.id);
         if (data?.success) {
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
@@ -241,9 +241,9 @@ const Booking = (props) => {
         setBookingView(false);
     };
 
-    const onEditBackPress = () =>{
+    const onEditBackPress = () => {
         setEditBookingView(false);
-        
+
     };
 
     const onSelectBooking = (data) => {
@@ -275,7 +275,7 @@ const Booking = (props) => {
 
         if (newServiceType === 'CAR_WASH') {
             setFieldValue("packageTypeSelected", "CarWash");
-        } else if (newServiceType === 'DRIVER' || newServiceType === 'CAB') {
+        } else if (newServiceType === 'DRIVER' || newServiceType === 'RENTAL') {
             setFieldValue("packageTypeSelected", "Local");
         } else {
             setFieldValue("packageTypeSelected", "");
@@ -326,7 +326,7 @@ const Booking = (props) => {
         googleMapsApiKey: "AIzaSyBophy4_QEc4vRjYu222kNHtuNiDga29Uo"
     });
 
-    
+
     // const handlePickupMarkerDragEnd = useCallback((event) => {
     //     const newLat = event.latLng.lat();
     //     const newLng = event.latLng.lng();
@@ -363,43 +363,43 @@ const Booking = (props) => {
 
     const getStatusDisplay = (status) => {
         const statusLower = status?.toLowerCase();
-        
+
         switch (statusLower) {
-          case 'started':
-            return (
-              <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
-                On Trip
-              </span>
-            );
-          case 'ended':
-            return (
-              <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
-                Completed
-              </span>
-            );
-          case 'cancelled':
-            return (
-              <span className="mx-3 px-2 py-1 text-white bg-red-600 rounded-md text-sm font-medium">
-                Cancelled
-              </span>
-            );
-          case 'initiated':
-            if (bookingData?.Driver?.id || bookingData?.Cab?.id) {
-              return (
-                <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
-                  Booked
-                </span>
-              );
-            }
-            return (
-              <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
-                Initiated
-              </span>
-            );
-          default:
-            return null;
+            case 'started':
+                return (
+                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        On Trip
+                    </span>
+                );
+            case 'ended':
+                return (
+                    <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+                        Completed
+                    </span>
+                );
+            case 'cancelled':
+                return (
+                    <span className="mx-3 px-2 py-1 text-white bg-red-600 rounded-md text-sm font-medium">
+                        Cancelled
+                    </span>
+                );
+            case 'initiated':
+                if (bookingData?.Driver?.id || bookingData?.Cab?.id) {
+                    return (
+                        <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                            Booked
+                        </span>
+                    );
+                }
+                return (
+                    <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                        Initiated
+                    </span>
+                );
+            default:
+                return null;
         }
-      };
+    };
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-4/6'>
@@ -409,13 +409,13 @@ const Booking = (props) => {
                 {!showQuickCreateCustomer && !editBookingView && <div className='text-2xl font-bold mb-8'>
                     <Typography variant="h5" color='#000000'>
                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
-                        <div className= "flex items-center">
-                        {bookingView ? (
-                            <>
-                                {`Booking Details - ${bookingData?.bookingNumber}`} 
-                                {bookingData?.status && getStatusDisplay(bookingData.status)}
-                            </>
-                        ) : ( bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : bookingData?.serviceType == "CAB" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
+                        <div className="flex items-center">
+                            {bookingView ? (
+                                <>
+                                    {`Booking Details - ${bookingData?.bookingNumber}`}
+                                    {bookingData?.status && getStatusDisplay(bookingData.status)}
+                                </>
+                            ) : (bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : bookingData?.serviceType == "RENTAL" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
                         </div>
                     </Typography>
                 </div>}
@@ -424,10 +424,10 @@ const Booking = (props) => {
                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                         initialValues={initialValues}
                         onSubmit={async (values, { resetForm }) => {
-                            if(values.submitType == "rides"){
-                                console.log("RIDESBUTTIn",values);
+                            if (values.submitType == "rides") {
+                                console.log("RIDESBUTTIn", values);
                                 await onRideSubmitHandler(values);
-                            }else{
+                            } else {
                                 await onSubmitHandler(values);
                             }
                             setLoading(true);
@@ -470,13 +470,13 @@ const Booking = (props) => {
                                         }}>
                                             <option value="">Service Type</option>
                                             <option value="DRIVER">Driver</option>
-                                            <option value="RENTALS">Rentals</option>
+                                            <option value="RENTAL">Rentals</option>
                                             <option value="RIDES">Rides</option>
                                         </Field>
                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 </div>}
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && (
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL') && (
                                     <div className="space-y-3 my-3">
                                         <div className="grid grid-cols-2 gap-4">
                                             <Button
@@ -548,28 +548,30 @@ const Booking = (props) => {
                                             </div>
                                             <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
                                         </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Transmission Type</label>
-                                            <div className="grid grid-cols-2 mt-2">
-                                                {['Manual', 'Automatic'].map((transType) => (
-                                                    <label key={transType} className="flex items-center space-x-2">
-                                                        <Field
-                                                            type="radio"
-                                                            name="transmissionType"
-                                                            value={transType}
-                                                            className="h-4 w-4 text-blue-600"
-                                                        />
-                                                        <span className="text-gray-700">{transType}</span>
-                                                    </label>
-                                                ))}
+                                        {(values.serviceType === 'DRIVER') && (
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">Transmission Type</label>
+                                                <div className="grid grid-cols-2 mt-2">
+                                                    {['Manual', 'Automatic'].map((transType) => (
+                                                        <label key={transType} className="flex items-center space-x-2">
+                                                            <Field
+                                                                type="radio"
+                                                                name="transmissionType"
+                                                                value={transType}
+                                                                className="h-4 w-4 text-blue-600"
+                                                            />
+                                                            <span className="text-gray-700">{transType}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                                <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
                                             </div>
-                                            <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
-                                        </div>
+                                        )}
                                     </div>
                                 )}
 
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && (
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && (
                                     <div className="flex-1 mb-2">
                                         <Typography variant="h6" className="mb-2">
                                             Pickup Date & Time
@@ -588,7 +590,7 @@ const Booking = (props) => {
 
                                                 setFieldValue('rideDate', formattedDate);
                                                 setFieldValue('rideTime', formattedTime);
-                                                
+
                                                 setBookingTimesForDay(Utils.generateBookingTimesForDay(new Date(formattedDate)));
 
                                                 if (formattedDate !== values.fromDate) {
@@ -601,7 +603,7 @@ const Booking = (props) => {
                                     </div>
                                 )}
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && values.tripType === 'Round Trip' && (
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL') && values.packageTypeSelected === "Outstation" && values.tripType === 'Round Trip' && (
                                     <div className="flex-1 mb-2">
                                         <Typography variant="h6" className="mb-2">
                                             Return Date & Time
@@ -630,7 +632,7 @@ const Booking = (props) => {
                                 )}
 
 
-                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && values.packageTypeSelected == 'Local' &&
+                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && values.packageTypeSelected == 'Local' &&
                                     <div className="flex-1 mb-4">
                                         <div>
                                             <Typography variant="h6" className="mb-2">
@@ -653,6 +655,12 @@ const Booking = (props) => {
                                                         if (values.serviceType === 'CAR_WASH') {
                                                             return item.type === 'CarWash';
                                                         }
+                                                        else if (values.serviceType === 'DRIVER') {
+                                                            return item.serviceType === 'DRIVER' && item.type === 'Local';
+                                                        }
+                                                        else if (values.serviceType === 'RENTAL') {
+                                                            return item.serviceType === 'RENTAL' && item.type === 'Local';
+                                                        }
                                                         return values.packageTypeSelected === item.type;
                                                     })
                                                     .map((item) => (
@@ -665,7 +673,7 @@ const Booking = (props) => {
                                                                         <span className="text-sm"> - {item.description}</span>
                                                                     </span>
                                                                 )
-                                                                : (`${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`)                                                     
+                                                                : (`${item.period} ${values.packageTypeSelected === 'Outstation' ? 'd' : 'hr'}`)
                                                             }
                                                         </option>
                                                     ))}
@@ -760,7 +768,7 @@ const Booking = (props) => {
                                     )}
                                 </div>}
 
-                                {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH')||(values.packageTypeSelected == 'Outstation') || (values.serviceType =='RIDES')) &&  (
+                                {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                     <div className="p-2 space-y-2">
                                         <label className="block text-sm font-medium text-gray-700">Drop Location<span className="text-red-500">*</span></label>
                                         <Field
@@ -792,7 +800,7 @@ const Booking = (props) => {
                                     </div>
                                 )}
 
-                                {values.packageSelected && 
+                                {values.packageSelected &&
                                     <Card className="my-6">
                                         <div className="border rounded-xl bg-gray-200 p-4">
                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -808,7 +816,8 @@ const Booking = (props) => {
                                                     <div className="flex justify-between">
                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                         <Typography>
-                                                            ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
+                                                            {values.serviceType === 'DRIVER' ? ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || "") : ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.baseFare || "")}
+
                                                         </Typography>
                                                     </div>
                                                 </>
@@ -817,7 +826,7 @@ const Booking = (props) => {
                                     </Card>
                                 }
 
-                                {quoteDetails && 
+                                {quoteDetails &&
                                     <Card className="my-6">
                                         <div className="border rounded-xl bg-gray-200 p-4">
                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -872,30 +881,30 @@ const Booking = (props) => {
 
                                 {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
 
-                                {values.packageTypeSelected == 'Outstation' && 
-                                <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
-                                    Check Esimated Price
-                                </Button>
+                                {values.packageTypeSelected == 'Outstation' &&
+                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                        Check Esimated Price
+                                    </Button>
                                 }
 
-                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'CAB') && <Button
+                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && <Button
                                     fullWidth
                                     color="black"
-                                    onClick={()=>{
-                                        setFieldValue("submitType", "default"); 
+                                    onClick={() => {
+                                        setFieldValue("submitType", "default");
                                         handleSubmit();
                                     }}
-                                    disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'CAB' && !values.cabType)}
+                                    disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'RENTAL' && !values.cabType)}
                                     className='my-6 mx-2'
                                 >
                                     Continue
                                 </Button>}
-                                {(values.serviceType == 'RIDES') && 
+                                {(values.serviceType == 'RIDES') &&
                                     <Button
                                         fullWidth
                                         color="black"
-                                        onClick={()=>{
-                                            setFieldValue("submitType", "rides"); 
+                                        onClick={() => {
+                                            setFieldValue("submitType", "rides");
                                             handleSubmit();
                                         }}
                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
@@ -911,14 +920,14 @@ const Booking = (props) => {
                         <SearchDrivers bookingData={bookingData} onNext={() => {
                             setBookingStage(0);
                             setBookingData(null);
-                        }}/>
+                        }} />
                     )}
                 </>}
                 {bookingView && <>
                     <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                 </>}
-                {editBookingView && 
-                    <EditBooking bookingData={bookingData} editCancel={onEditBackPress}/>
+                {editBookingView &&
+                    <EditBooking bookingData={bookingData} editCancel={onEditBackPress} />
                 }
             </div>
         </div>

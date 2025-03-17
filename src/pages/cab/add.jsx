@@ -3,12 +3,12 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem,Dialog, DialogHeader, DialogBody,} from '@material-tailwind/react';
+import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody, } from '@material-tailwind/react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { CAB_ADD_SCHEMA } from '@/utils/validations';
 
-const LocationInput = ({ field, form, suggestions, onSearch, type}) => {
+const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
@@ -65,11 +65,11 @@ const CabAdd = () => {
     const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
-    const [insuranceImagePreview , setInsuranceImagePreview] = useState(null);
+    const [insuranceImagePreview, setInsuranceImagePreview] = useState(null);
     const navigate = useNavigate();
-    const [modalData,setModalData] = useState(null);
+    const [modalData, setModalData] = useState(null);
     const location = useLocation();
-    const {ownerName , type, accountId} = location.state;
+    const { ownerName, type, accountId } = location.state;
 
     const getAccountNames = async () => {
         try {
@@ -112,20 +112,20 @@ const CabAdd = () => {
     };
 
     const getPackageListDetails = async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
+        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGE_CABS_LIST);
         if (data?.success) {
             const packageData = data?.data.map(option => {
                 const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
                 return {
                     ...option,
-                    period: `${option.period ? option.period :""} ${suffix}`, // Append 'hr' or 'd'
+                    period: `${option.period ? option.period : ""} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
-            console.log("PACKAGE",packageData);
+            //console.log("PACKAGE", packageData);
             const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'),'CarWash');
-            const ridesPackagePrices = packageData.filter(val => { return val.type == 'Rides'})
+            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
+            const ridesPackagePrices = packageData.filter(val => { return val.type == 'RIDES' });
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage, ...ridesPackagePrices]);
         }
     };
@@ -152,8 +152,8 @@ const CabAdd = () => {
 
     const initialValues = {
         name: cabVal?.name || "",
-        ownerName: ownerName? ownerName : '',
-        assignedTo : type == 'Individual' ? 'Owner' : '' ,
+        ownerName: ownerName ? ownerName : '',
+        assignedTo: type == 'Individual' ? 'Owner' : '',
         carNumber: cabVal?.carNumber || "",
         address: cabVal?.address || "",
         insurance: cabVal?.insurance || "",
@@ -178,7 +178,7 @@ const CabAdd = () => {
             if (data?.success && data?.data) {
                 if (type === 'owner') {
                     setOwnerAddressSuggestions(data?.data);
-                    setDriverAddressSuggestions([]); 
+                    setDriverAddressSuggestions([]);
                 } else {
                     setDriverAddressSuggestions(data?.data);
                     setOwnerAddressSuggestions([]);
@@ -195,11 +195,11 @@ const CabAdd = () => {
 
     const renderPriceTable = (title, prices, values) => {
         if (prices.length === 0) return null;
-        
+
         const sortedPrices = [...prices].sort((a, b) => {
             const packageA = packageDetails.find(p => p.id === a.packageId);
             const packageB = packageDetails.find(p => p.id === b.packageId);
-            
+
             if (title === "LOCAL") {
                 const hoursA = parseInt(packageA.period);
                 const hoursB = parseInt(packageB.period);
@@ -220,7 +220,7 @@ const CabAdd = () => {
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
-                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type"].map((el) => (
+                                    {["Package", "Package KM", "Base Fare", "Rate Per KM", "Extra Mins Rate"].map((el) => (
                                         <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
                                                 {el}
@@ -237,17 +237,17 @@ const CabAdd = () => {
                                                 {priceItem.period}
                                             </Typography>
                                         </td>
-                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+                                        {['kilometer', 'baseFare', 'kilometerPrice', 'additionalMinCharge'].map((field) => (
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
-                                                    type= "number"
+                                                    type="number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
-                                                <ErrorMessage 
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
-                                                    component="div" 
-                                                    className="text-red-500 text-xs" 
+                                                <ErrorMessage
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    component="div"
+                                                    className="text-red-500 text-xs"
                                                 />
                                             </td>
                                         ))}
@@ -259,11 +259,11 @@ const CabAdd = () => {
                 </Card>
             </div>
         );
-    }; 
+    };
 
     const renderRidesPriceTable = (title, prices, values, setFieldValue) => {
         if (prices.length === 0) return null;
-    
+
         return (
             <div className="mb-8">
                 <h3 className="text-xl font-bold mb-4">{title}</h3>
@@ -274,9 +274,7 @@ const CabAdd = () => {
                                 <tr>
                                     {[
                                         "Base Fare",
-                                        "Base Fare MVP",
                                         "Per Kilometer Rate",
-                                        "Per Kilometer Rate MVP",
                                         "Per Minute Rate"
                                     ].map((el) => (
                                         <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
@@ -292,21 +290,19 @@ const CabAdd = () => {
                                     <tr key={priceItem.packageId}>
                                         {[
                                             "baseFare",
-                                            "priceMVP",
-                                            "kilometer",
-                                            "minKilometer",
-                                            "kilometerPrice"
+                                            "kilometerPrice",
+                                            "minCharge"
                                         ].map((field) => (
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
-                                                    type= "number"
+                                                    type="number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
-                                                <ErrorMessage 
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
-                                                    component="div" 
-                                                    className="text-red-500 text-xs" 
+                                                <ErrorMessage
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    component="div"
+                                                    className="text-red-500 text-xs"
                                                 />
                                             </td>
                                         ))}
@@ -319,17 +315,17 @@ const CabAdd = () => {
             </div>
         );
     };
-    
-    
+
+
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
             const cabDetails = {
                 name: values.name,
                 carNumber: values.carNumber,
-                address : values.address,
+                address: values.address,
                 insurance: values.insurance,
                 carType: values.carType,
-                assigned : values.assignedTo,
+                assigned: values.assignedTo,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
                 phoneNumber: values.phoneNumber,
@@ -340,7 +336,7 @@ const CabAdd = () => {
                 driverId: values.driverId
             }
             const prices = values.prices;
-            let res = {cabDetails: JSON.stringify(cabDetails),prices: JSON.stringify(prices)};
+            let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices) };
             const resp = await ApiRequestUtils.post(API_ROUTES.REGISTER_CAB, res);
             console.log('CAB DATA :', resp);
             if (!resp?.success && resp?.code === 203) {
@@ -453,7 +449,7 @@ const CabAdd = () => {
                                 </Field>
                                 <ErrorMessage name="assignedTo" component="div" className="text-red-500 text-sm" />
                             </div>
-                            {type != 'Individual' &&<div>
+                            {type != 'Individual' && <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
@@ -474,84 +470,84 @@ const CabAdd = () => {
                                 <ErrorMessage name="withDriver" component="div" className="text-red-500 text-sm" />
                             </div>}
                             {values.withDriver === 'Yes' && (
-                            <>
-                            <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Assign or Add Driver</p>
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="assignOrAddDriver" value="Assign" className="form-radio"
-                                            onChange={e => {
-                                                handleChange(e);
-                                                setFieldValue('driverId', values.driverId, true);
-                                            }} />
-                                        <span className="ml-2">Assign</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="assignOrAddDriver" value="Add" className="form-radio"
-                                            onChange={e => {
-                                                handleChange(e);
-                                            }} />
-                                        <span className="ml-2">Add</span>
-                                    </label>
-                                </div>
-                                <ErrorMessage name="assignOrAddDriver" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {values?.assignOrAddDriver === 'Assign' && accountRelatedDrivers.length > 0 && 
-                            <div>
-                                <label htmlFor="driverId" className="text-sm font-medium text-gray-700">Driver</label>
-                                <Field
-                                    as="select"
-                                    name="driverId"
-                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                                    // onChange={(e) => {
-                                    //     const selectedAccountId = e.target.value;
-                                    //     console.log('selectedAccountId :', selectedAccountId)
-                                    //     if (selectedAccountId) {
-                                    //         getAccountRelatedDrivers(selectedAccountId);
-                                    //     }
-                                    // }}
-                                >
-                                    <option value="">Select Driver</option>
-                                    {accountRelatedDrivers.map((option) => (
-                                        <option key={option.id} value={option.id}>
-                                            {option.firstName}
-                                        </option>
-                                    ))}
-                                </Field>
-                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
-                            }
-                            {values?.assignOrAddDriver === 'Add' && <div>
-                                <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
-                                <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300" />
-                                <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />   
-                            </div>}
-                            {values?.assignOrAddDriver === 'Add' &&<div>
-                                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                            </div>}
-                            {values?.assignOrAddDriver === 'Add' && <div>
-                                <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
-                                <Field name="driverAddress">
-                                    {({ field, form }) => (
-                                        <LocationInput
-                                            field={field}
-                                            form={form}
-                                            suggestions={driverAddressSuggestions}
-                                            onSearch={searchLocations}
-                                            type="driver"
-                                        />
-                                    )}
-                                </Field>
-                                <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
-                            </div>}
-                            {values?.assignOrAddDriver === 'Add' &&<div>
-                                <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
-                                <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
-                            </div>}
-                            </>
+                                <>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Assign or Add Driver</p>
+                                        <div className="space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="assignOrAddDriver" value="Assign" className="form-radio"
+                                                    onChange={e => {
+                                                        handleChange(e);
+                                                        setFieldValue('driverId', values.driverId, true);
+                                                    }} />
+                                                <span className="ml-2">Assign</span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <Field type="radio" name="assignOrAddDriver" value="Add" className="form-radio"
+                                                    onChange={e => {
+                                                        handleChange(e);
+                                                    }} />
+                                                <span className="ml-2">Add</span>
+                                            </label>
+                                        </div>
+                                        <ErrorMessage name="assignOrAddDriver" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    {values?.assignOrAddDriver === 'Assign' && accountRelatedDrivers.length > 0 &&
+                                        <div>
+                                            <label htmlFor="driverId" className="text-sm font-medium text-gray-700">Driver</label>
+                                            <Field
+                                                as="select"
+                                                name="driverId"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                            // onChange={(e) => {
+                                            //     const selectedAccountId = e.target.value;
+                                            //     console.log('selectedAccountId :', selectedAccountId)
+                                            //     if (selectedAccountId) {
+                                            //         getAccountRelatedDrivers(selectedAccountId);
+                                            //     }
+                                            // }}
+                                            >
+                                                <option value="">Select Driver</option>
+                                                {accountRelatedDrivers.map((option) => (
+                                                    <option key={option.id} value={option.id}>
+                                                        {option.firstName}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                            <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                        </div>
+                                    }
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
+                                        <Field type="text" name="driverName" className="p-2 w-full rounded-md border-gray-300" />
+                                        <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                        <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
+                                        <Field name="driverAddress">
+                                            {({ field, form }) => (
+                                                <LocationInput
+                                                    field={field}
+                                                    form={form}
+                                                    suggestions={driverAddressSuggestions}
+                                                    onSearch={searchLocations}
+                                                    type="driver"
+                                                />
+                                            )}
+                                        </Field>
+                                        <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                    {values?.assignOrAddDriver === 'Add' && <div>
+                                        <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
+                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
+                                    </div>}
+                                </>
                             )}
                             <div>
                                 <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
@@ -563,25 +559,23 @@ const CabAdd = () => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
                                         const newPrices = selectedList.map(item => ({
                                             packageId: item.id,
-                                            ...(item.type === 'Rides'
+                                            ...(item.type === 'RIDES'
                                                 ? {
                                                     baseFare: item.baseFare,
-                                                    priceMVP: item.priceMVP,
-                                                    kilometer: item.kilometer,
-                                                    minKilometer: item.minKilometer,
-                                                    kilometerPrice: item.kilometerPrice
+                                                    kilometerPrice: item.kilometerPrice,
+                                                    minCharge: item.minCharge,
+                                                    type: 'RIDES',
                                                 }
                                                 : {
                                                     period: item.period,
-                                                    price: item.price,
-                                                    extraPrice: item.extra_price,
-                                                    extraKmPrice: item.extraKmPrice,
-                                                    nightCharge: item.nightCharge,
-                                                    cancelCharge: item.cancelCharge,
-                                                    extraCabType: item.extraCabType
+                                                    kilometer: item.kilometer,
+                                                    baseFare: item.baseFare,
+                                                    kilometerPrice: item.kilometerPrice,
+                                                    additionalMinCharge: item.additionalMinCharge,
+                                                    type: 'RENTAL',
                                                 }
                                             )
-                                        }));                                        
+                                        }));
                                         setFieldValue("prices", newPrices);
                                     }}
                                     onRemove={(selectedList, removedItem) => {
@@ -626,9 +620,9 @@ const CabAdd = () => {
 
                                 {renderRidesPriceTable(
                                     "RIDES",
-                                    values.prices.filter(price =>{
-                                        const package_ = packageDetails.find(p=> p.id === price.packageId);
-                                        return package_?.type === 'Rides';
+                                    values.prices.filter(price => {
+                                        const package_ = packageDetails.find(p => p.id === price.packageId);
+                                        return package_?.type === 'RIDES';
                                     }),
                                     values,
                                     setFieldValue
@@ -647,7 +641,7 @@ const CabAdd = () => {
                                 fullWidth
                                 color="black"
                                 onClick={handleSubmit}
-                                 disabled={!dirty || !isValid}
+                                disabled={!dirty || !isValid}
                                 className='my-6 mx-2'
                             >
                                 Continue
@@ -659,25 +653,25 @@ const CabAdd = () => {
             {modalData && (
                 <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
                     <DialogHeader>
-                    <div className="flex justify-between items-center w-full">
-                        <Typography variant="h6">Document Details</Typography>
-                        <button
-                        className="text-gray-600 hover:text-gray-900"
-                        onClick={() => setModalData(null)}
-                        >
-                        X
-                        </button>
-                    </div>
+                        <div className="flex justify-between items-center w-full">
+                            <Typography variant="h6">Document Details</Typography>
+                            <button
+                                className="text-gray-600 hover:text-gray-900"
+                                onClick={() => setModalData(null)}
+                            >
+                                X
+                            </button>
+                        </div>
                     </DialogHeader>
                     <DialogBody divider>
-                    <div className="flex flex-col items-center">
-                        <img
-                        src={modalData.image}
-                        alt="Document"
-                        className="max-w-full rounded-lg shadow-md"
-                        style={{ height: "45vh", objectFit: "contain" }}
-                        />
-                    </div>
+                        <div className="flex flex-col items-center">
+                            <img
+                                src={modalData.image}
+                                alt="Document"
+                                className="max-w-full rounded-lg shadow-md"
+                                style={{ height: "45vh", objectFit: "contain" }}
+                            />
+                        </div>
                     </DialogBody>
                 </Dialog>
             )}

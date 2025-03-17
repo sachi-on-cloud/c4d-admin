@@ -34,12 +34,10 @@ const ReceiptDetails = () => {
         // contractNumber: receipt?.contractNumber?.value || "",
         createdDate: formatDate(receipt?.created_at) || "",
         packageType: receipt?.Subscription?.Plan?.name || "",
-        driverName: receipt?.driverName?.value || "",
-        driverPhoneNumber: receipt?.driverPhoneNumber || "",
+        driverName: receipt?.Driver?.firstName || "",
+        driverPhoneNumber: receipt?.Driver?.phoneNumber || "",
         paymentMethod: receipt?.paymentType || "",
         totalAmount: receipt?.amount || "",
-        driverName: receipt?.Subscription?.Cab?.driver_name || '',
-        driverPhoneNumber : receipt?.Subscription?.Cab?.phone_number || '',
         ownerName: receipt?.Subscription?.Cab?.Account?.name || '',
         ownerPhoneNumber : receipt?.Subscription?.Cab?.Account?.phone_number || ''
     };
@@ -90,10 +88,10 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Created Date</label>
                                         <Field type="text" disabled name="createdDate" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div>
+                                   {initialValues?.receiptType !== 'BOOKING' && <div>
                                         <label className="text-sm font-medium text-gray-700">Package Type</label>
                                         <Field type="text" disabled name="packageType" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div>
+                                    </div>}
                                     {<><div>
                                         <label className="text-sm font-medium text-gray-700">Driver Name</label>
                                         <Field type="text" disabled name="driverName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />

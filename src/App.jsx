@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Dashboard, Auth } from "@/layouts";
 import { AuthProvider } from "./context/auth";
 import ProtectedRoute from '@/components/ProtectedComponent';
+import FcmToast from "./components/FcmToast";
 // import { useSelector } from "react-redux";
 // import { CustomerView } from "./pages/customer";
 // import Booking from "./pages/booking/allBookingLists";
@@ -48,16 +49,17 @@ function App() {
 
   return (
     <AuthProvider>
+      <FcmToast />
       <Routes>
-          <Route path="/dashboard/*" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
+        <Route path="/dashboard/*" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
         <Route path="/auth/*" element={<Auth />} />
         <Route path="*" element={<Navigate to="/dashboard/booking" replace />} />
         {/* <Route path="*" element={<Dashboard />} /> */}
-            {/* <Route path="/dashboard/booking" element={<Dashboard />} />
+        {/* <Route path="/dashboard/booking" element={<Dashboard />} />
             <Route path="/booking" element={<ProtectedComponent page="booking"><Booking /></ProtectedComponent>} />
             <Route path="/customers" element={<ProtectedComponent page="customers"><CustomerView /></ProtectedComponent>} />
             <Route path="/customers/add" element={<ProtectedComponent page="customers"><CustomerAdd /></ProtectedComponent>} />
