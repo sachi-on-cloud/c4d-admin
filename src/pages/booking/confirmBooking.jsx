@@ -280,13 +280,13 @@ const ConfirmBooking = (props) => {
                             <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
                         </div>
                         {/* need to add logic for price */}
-                        {bookingDetails?.status !== BOOKING_STATUS.ENDED && 
+                        {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Price:</Typography>
-                                <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
+                                <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Package.baseFare ? bookingDetails?.Package.baseFare : bookingDetails?.Package.price}</Typography>
                             </div>
                         }
-                        {bookingDetails?.status === BOOKING_STATUS.ENDED && 
+                        {bookingDetails?.status === BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Price:</Typography>
                                 <Typography>₹ {amount?.total}</Typography>
