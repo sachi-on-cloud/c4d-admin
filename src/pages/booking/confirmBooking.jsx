@@ -280,14 +280,22 @@ const ConfirmBooking = (props) => {
                             <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
                         </div>
                         {/* need to add logic for price */}
-                        {bookingDetails?.status === BOOKING_STATUS.INITIATED && <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Price:</Typography>
-                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
-                        </div>}
-                        {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
+                        {bookingDetails?.status !== BOOKING_STATUS.ENDED && 
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Price:</Typography>
+                                <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : bookingDetails?.Package.price}</Typography>
+                            </div>
+                        }
+                        {bookingDetails?.status === BOOKING_STATUS.ENDED && 
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Price:</Typography>
+                                <Typography>₹ {amount?.total}</Typography>
+                            </div>
+                        }
+                        {/* {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
                             <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
-                        </div>}
+                        </div>} */}
                         {/* <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Car:</Typography>
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
@@ -409,7 +417,7 @@ const ConfirmBooking = (props) => {
                 <Card className="my-6">
                     <div className="border rounded-xl bg-gray-200 p-4">
                         <h2 className="text-2xl font-bold text-center">Invoice</h2>
-                        <div className="mt-3">
+                        {/* <div className="mt-3">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Company Name: </Typography>
                                 <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
@@ -418,7 +426,7 @@ const ConfirmBooking = (props) => {
                                 <Typography color="gray" variant="h6">GST Number: </Typography>
                                 <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
                             </div>
-                        </div>
+                        </div> */}
                         <hr className="my-2 border border-black" />
                         <div className="mt-4">
                             <div className="flex justify-between">
@@ -492,7 +500,7 @@ const ConfirmBooking = (props) => {
                                             disabled={bookingDetails?.status === 'ENDED'}
                                         >
                                             <Option value="CASH">CASH</Option>
-                                            <Option value="GPAY">GPAY</Option>
+                                            <Option value="ONLINE">ONLINE</Option>
                                         </Select>
                                     </div>
                                     {/* Payment Status */}
