@@ -283,7 +283,7 @@ const ConfirmBooking = (props) => {
                         {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Price:</Typography>
-                                <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Package.baseFare ? bookingDetails?.Package.baseFare : bookingDetails?.Package.price}</Typography>
+                                <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography>
                             </div>
                         }
                         {bookingDetails?.status === BOOKING_STATUS.ENDED &&
