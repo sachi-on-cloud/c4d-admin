@@ -520,7 +520,7 @@ const EditBooking = (props) => {
                             }
                             {values.packageTypeSelected == 'Outstation' && 
                             <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
-                                Check Esimated Price
+                                Check Estimated Price
                             </Button>
                             }
                             <>

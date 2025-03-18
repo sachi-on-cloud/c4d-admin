@@ -166,10 +166,10 @@ const DriverEdit = () => {
         reference2: driverVal?.result?.reference2 || "",
         phoneNumber2: driverVal?.result?.reference2_phone ? driverVal?.result?.reference2_phone.replace(/^(\+91)/, '') : "",
         transmissionType: driverVal?.result?.transmissionType || "",
-        carType: driverVal?.result?.carType || "",
-        packages: driverVal?.result?.packages || "",
+        // carType: driverVal?.result?.carType || "",
+        // packages: driverVal?.result?.packages || "",
         //wallet: driverVal?.result?.wallet || "",
-        prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages?.includes(el.packageId)) : [],
+        // prices: driverVal?.price ? driverVal?.price.filter((el) => driverVal?.result?.packages?.includes(el.packageId)) : [],
         withOwner: driverVal?.result?.Account ? "Yes" : "No",
         ownerName: driverVal?.result?.Account?.name || "",
         jobType: driverVal?.result?.jobType || "",
@@ -288,13 +288,13 @@ const DriverEdit = () => {
                 reference2_phone: values.phoneNumber2 || "",
                 transmissionType: values.transmissionType,
                 packages: values.packages,
-                carType: values.carType,
+                // carType: values.carType,
                 //wallet: values.wallet,
                 driverId: id,
                 source: values.source,
                 serviceType: values.serviceType,
             };
-            let driverData = { driverDetails, prices: values.prices }
+            let driverData = { driverDetails }
             //return;
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER, driverData);
             console.log('data in driver add :', data);
