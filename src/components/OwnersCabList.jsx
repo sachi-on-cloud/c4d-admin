@@ -41,7 +41,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                             "Created At",
                                             "Driver Name",
                                             "Insurance Expiry Date",
-                                            "Assign/Reassign"
+                                            // "Assign/Reassign"
                                         ].map((el, index) => (
                                             <th
                                                 key={index}
@@ -95,7 +95,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                                 {moment(insurance).format("DD-MM-YYYY")}
                                                             </Typography>
                                                         </td>
-                                                        <td className={className}>
+                                                        {/* <td className={className}>
                                                         {Drivers?.length>0 && <Button
                                                             as="a"
                                                             onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
@@ -103,7 +103,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                             >
                                                             RE ASSIGN
                                                             </Button>}
-                                                        </td>
+                                                        </td> */}
                                                     </tr>
                                                 </>
                                             );

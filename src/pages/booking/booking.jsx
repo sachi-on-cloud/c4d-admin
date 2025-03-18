@@ -154,7 +154,6 @@ const Booking = (props) => {
 
     const onRideSubmitHandler = async (values) => {
         const bookingData = {
-            customerId: values.customerId?.id,
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
             pickupAddress: {
@@ -166,7 +165,7 @@ const Booking = (props) => {
                 name: values.dropAddress
             },
         }
-        let data = ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData);
+        let data = ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
             setBookingData(data?.data);
         }
@@ -179,7 +178,7 @@ const Booking = (props) => {
             packageType: values?.packageTypeSelected,
             date: values?.rideDate,
             time: values?.rideTime,
-            fromDate: values.fromDate,
+            // fromDate: values.fromDate,
             customerId: values.customerId?.id,
             adminBooking: true,
             serviceType: values.serviceType,
@@ -187,7 +186,7 @@ const Booking = (props) => {
             bookingType: values.tripType.toUpperCase(),
             transmissionType: values.transmissionType,
             carType: values.carType,
-            //fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
             pickupAddress: {
@@ -425,7 +424,6 @@ const Booking = (props) => {
                         initialValues={initialValues}
                         onSubmit={async (values, { resetForm }) => {
                             if (values.submitType == "rides") {
-                                console.log("RIDESBUTTIn", values);
                                 await onRideSubmitHandler(values);
                             } else {
                                 await onSubmitHandler(values);
@@ -816,8 +814,7 @@ const Booking = (props) => {
                                                     <div className="flex justify-between">
                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                         <Typography>
-                                                            {values.serviceType === 'DRIVER' ? ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || "") : ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.baseFare || "")}
-
+                                                            {values.serviceType === 'DRIVER' ? ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || "") : ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.baseFare || "")}
                                                         </Typography>
                                                     </div>
                                                 </>
@@ -881,20 +878,20 @@ const Booking = (props) => {
 
                                 {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
 
-                                {values.packageTypeSelected == 'Outstation' &&
+                                {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
-                                        Check Esimated Price
+                                        Check Estimated Price
                                     </Button>
                                 }
 
-                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && <Button
+                                {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                     fullWidth
                                     color="black"
                                     onClick={() => {
                                         setFieldValue("submitType", "default");
                                         handleSubmit();
                                     }}
-                                    disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'RENTAL' && !values.cabType)}
+                                    disabled={!dirty || !isValid || !values.rideDate}
                                     className='my-6 mx-2'
                                 >
                                     Continue
@@ -912,6 +909,20 @@ const Booking = (props) => {
                                     >
                                         Continue
                                     </Button>
+                                }
+                                {values.serviceType == 'RENTAL' && 
+                                    <Button
+                                        fullWidth
+                                        color="black"
+                                        onClick={() => {
+                                            setFieldValue("submitType", "rental");
+                                            handleSubmit();
+                                        }}
+                                        // disabled={values.serviceType == 'RENTAL'}
+                                        className='my-6 mx-2'
+                                    >
+                                        Continue
+                                    </Button> 
                                 }
                             </>
                         )}

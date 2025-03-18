@@ -7,7 +7,7 @@ export const ApiRequestUtils = {
         const headers = {
             'Content-Type': 'application/json',
             'token': token,
-            //'ngrok-skip-browser-warning' : true,
+            // 'ngrok-skip-browser-warning' : true,
             // 'ngrok-skip-browser-warning': '69420',
         }
         if (custID != 0) {

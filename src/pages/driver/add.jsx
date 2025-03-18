@@ -157,7 +157,7 @@ const DriverAdd = () => {
         carType: driverVal?.carType || "",
         packages: driverVal?.packages || [],
         //wallet: driverVal?.wallet || "",
-        prices: [],
+        // prices: [],
         aadhaarImage: '',
         panImage: '',
         policeClearance: '',
@@ -281,7 +281,7 @@ const DriverAdd = () => {
                 serviceType: values.serviceType,
                 source: values.source,
             };
-            let driverData = { driverDetails, prices: values.prices };
+            let driverData = { driverDetails };
             //return;
             const data = await ApiRequestUtils.post(API_ROUTES.REGISTER_DRIVER, driverData);
             //console.log('Driver operation:', data.data);

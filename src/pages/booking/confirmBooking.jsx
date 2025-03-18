@@ -267,23 +267,23 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Service Type:</Typography>
                             <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType}</Typography>
                         </div>
-                        <div className="flex justify-between">
+                        {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
-                        </div>
+                        </div>}
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Trip Date:</Typography>
                             <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY HH:mm ")}</Typography>
                         </div>
-                        <div className="flex justify-between">
+                        {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package:</Typography>
                             <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
-                        </div>
+                        </div>}
                         {/* need to add logic for price */}
                         {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Price:</Typography>
-                                <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package.price : bookingDetails?.Package.baseFare ? bookingDetails?.Package.baseFare : bookingDetails?.Package.price}</Typography>
+                                <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography>
                             </div>
                         }
                         {bookingDetails?.status === BOOKING_STATUS.ENDED &&
