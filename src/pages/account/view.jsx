@@ -5,7 +5,8 @@ import {
   CardBody,
   Typography,
   Button,
-  Alert
+  Alert,
+  Chip
 } from "@material-tailwind/react";
 import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -155,19 +156,28 @@ export function AccountView() {
                             </Typography>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {availableStatus}
-                            </Typography>
+                            <Chip
+                              variant="gradient"
+                              color={availableStatus == "ACTIVE" ? "green" : "blue-gray"}
+                              value={availableStatus == "ACTIVE" ? "online" : "offline"}
+                              className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                            />
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {ownerStatus}
-                            </Typography>
+                            <Chip
+                              variant="gradient"
+                              color={ownerStatus == "ACTIVE" ? "green" : "blue-gray"}
+                              value={ownerStatus == "ACTIVE" ? "online" : "offline"}
+                              className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                            />
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {documentStatus?.status}
-                            </Typography>
+                            <Chip
+                              variant="gradient"
+                              color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "blue-gray"}
+                              value={documentStatus?.status}
+                              className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                            />
                           </td>
                           {/* <td className={className}>
                             <Button
