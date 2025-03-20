@@ -177,25 +177,40 @@ const AccountAdd = (props) => {
                         name={name}
                         onChange={onChange}
                         className="hidden"
+                        multiple={name !== "livePhoto" && name !== "bankStatement"}
                     />
                 </div>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                {value && (
-                    <Typography
-                        variant="small"
-                        className="font-semibold underline cursor-pointer text-blue-900"
-                        onClick={() =>{
-                            console.log("DATAA",URL.createObjectURL(value))
-                            setModalData({
-                                image: typeof value === "string" ? value : URL.createObjectURL(value)
-                            })
-                        }}
-                    >
-                        View/Download
-                    </Typography>
-                )}
-            </td>
+                    {value && (
+                        <Typography
+                            variant="small"
+                            className="font-semibold underline cursor-pointer text-blue-900"
+                            onClick={() => {
+                                if (label === 'Live Photo' || label === 'Bank Statement') {
+                                    setModalData({
+                                        image1: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
+                                    });
+                                } 
+                                // else if (label === 'Bank Statement') {
+                                //     setModalData({
+                                //         image1: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
+                                //     });
+                                // } 
+                                else {
+                                    setModalData({
+                                        image1: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
+                                        image2: typeof value[1] === "string" ? value[1] : URL.createObjectURL(value[1]),
+                                    });
+                                }
+                            }}
+                        >
+                            View/Download
+                        </Typography>
+                    )}
+                </td>
+
+
         </tr>
         );
     };
@@ -232,25 +247,43 @@ const AccountAdd = (props) => {
     };
 
     const handleImageUpload = async (e, setFieldValue, label) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFieldValue(label, file);
+        try 
+        {
+            const files = e.target.files;
+            if(files.length > 2)
+            {
+                alert("You can upload a maximum of two documents.");
+                return;
+            }
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviews((prev) => ({
-                    ...prev,
-                    [label]: reader.result,
-                }));
-            };
-            reader.readAsDataURL(file);
+            const uploadedFiles = [];
+            const previews = {};
 
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rc' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'insurance' ? KYC_PROCESS.INSURANCE : label === 'panImage' ? KYC_PROCESS.PAN : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : KYC_PROCESS.LIVE_PHOTO;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                uploadedFiles.push(file);
+                
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    previews[label] = reader.result;
+                    setImagePreviews((prev) => ({ ...prev, ...previews }));
+                };
+                reader.readAsDataURL(file);
+
+                setFieldValue(label, uploadedFiles);
+            }
+        
+        
+
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rc' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'panImage' ? KYC_PROCESS.PAN  : KYC_PROCESS.LIVE_PHOTO;
             const formData = new FormData();
 
-            formData.append('image1', file);
-            formData.append('extImage1', file.name.split('.')[1]);
-            formData.append('fileTypeImage1', file.type);
+            formData.append('image1', files[0]);
+            formData.append('extImage1', files[0].name.split('.')[1]);
+            formData.append('fileTypeImage1', files[0].type);
+            formData.append('image2', files[1]);
+            formData.append('extImage2', files[1].name.split('.')[1]);
+            formData.append('fileTypeImage2', files[1].type);
             formData.append('type', type);
             formData.append('accountId', ownerAdded?.ownerId);
 
@@ -258,8 +291,42 @@ const AccountAdd = (props) => {
 
             console.log('DATA IN DOC INSERT :', data);
         }
-    }
+        catch (err)
+        {
+            console.log("ERR - >", err);
+        }
+    };
+    const handlePhotoUpload = async (e, setFieldValue, label) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFieldValue(label, file);
+    
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: reader.result, // Update the specific preview
+                }));
+            };
+            reader.readAsDataURL(file);
+    
+          const type = label === 'livePhoto' ? KYC_PROCESS.LIVE_PHOTO : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT:'';
+    
+            const formData = new FormData();
+    
+            formData.append('image1', file); 
+            formData.append('extImage1', file.name.split('.').pop()); 
+            formData.append('fileTypeImage1', file.type); 
+            formData.append('type', type);
+            formData.append('accountId', ownerAdded?.ownerId);
+    
+            const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+    
+            console.log('DATA IN DOC INSERT :', data);
+        }
+    };
 
+    
     const handleGoogleAddressSelect = (place) => {
         if (!place || !place.formatted_address) {
             console.error("Google Address selection is invalid", place);
@@ -572,7 +639,7 @@ const AccountAdd = (props) => {
                                                 label="Live Photo"
                                                 value={values.livePhoto}
                                                 name="livePhoto"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto")}
+                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
                                                 setModalData={setModalData}
                                             />
                                             <DocumentUpload
@@ -582,18 +649,18 @@ const AccountAdd = (props) => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
                                                 setModalData={setModalData}
                                             />
-                                            <DocumentUpload
+                                            {/* <DocumentUpload
                                                 label="Insurance"
                                                 value={values.insurance}
                                                 name="insurance"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
+                                                onChange={(e) => handleUpload(e, setFieldValue, "insurance")}
                                                 setModalData={setModalData}
-                                            />
+                                            /> */}
                                             <DocumentUpload
                                                 label="Bank Statement"
                                                 value={values.bankStatement}
                                                 name="bankStatement"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement")}
+                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement")}
                                                 setModalData={setModalData}
                                             />
                                         </tbody>
@@ -625,48 +692,62 @@ const AccountAdd = (props) => {
                 )}
             </Formik>
             {modalData && (
-                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
-                    <DialogHeader>
-                    <div className="flex justify-between items-center w-full">
-                        <Typography variant="h6">Document Details</Typography>
-                        <button
-                        className="text-gray-600 hover:text-gray-900"
-                        onClick={() => setModalData(null)}
-                        >
-                        X
-                        </button>
-                    </div>
-                    </DialogHeader>
-                    <DialogBody divider>
-                    <div className="flex flex-col items-center">
-                        {modalData.image.endsWith(".pdf") ? (
-                            <iframe
-                                src={modalData.image}
-                                className="w-full rounded-lg shadow-md"
-                                style={{ height: "45vh" }}
-                            />
-                        ) : (
-                            <img
-                                src={modalData.image}
-                                alt="Document"
-                                className="max-w-full rounded-lg shadow-md"
-                                style={{ height: "45vh", objectFit: "contain" }}
-                            />
+                            <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                                <DialogHeader>
+                                <div className="flex justify-between items-center w-full">
+                                    <Typography variant="h6">Document Details</Typography>
+                                    <button
+                                    className="text-gray-600 hover:text-gray-900"
+                                    onClick={() => setModalData(null)}
+                                    >
+                                    X
+                                    </button>
+                                </div>
+                                </DialogHeader>
+                                <DialogBody divider>
+                                <div className="flex flex-col items-center space-y-3">
+                                <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
+                                {modalData.image1 && (
+                                    <iframe
+                                        src={modalData.image1}
+                                        className="w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
+                                )}
+                                {modalData.image2 && (
+                                    <iframe
+                                        src={modalData.image2}
+                                        className="rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
+                                )}
+                            </div>
+
+            
+                                        <div className="flex justify-center mt-4">
+                                            <a
+                                                href={modalData.image1}
+                                                download
+                                                target="_blank"
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                            >
+                                                Download Image 1
+                                            </a>
+                                            {modalData.image2 && (
+                                                <a
+                                                    href={modalData.image2}
+                                                    download
+                                                    target="_blank"
+                                                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                                >
+                                                    Download Image 2
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                </DialogBody>
+                            </Dialog>
                         )}
-                    </div>
-                    <div className="flex justify-center mt-4">
-                        <a
-                            href={modalData.image}
-                            download = "doucument.pdf"
-                            target='_blank'
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                            Download
-                        </a>
-                    </div>
-                    </DialogBody>
-                </Dialog>
-            )}
         </div>
     );
 };

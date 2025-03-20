@@ -79,7 +79,8 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                    {value ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY"):""}
+                   {/* {value === "UPLOADED"  ?  moment(fullDocVal?.updated_at).format("DD-MM-YYYY") : ""} */}
+                   {value === "UPLOADED" || fullDocVal?.User?.name ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY") : ""}
                 </Typography>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -97,6 +98,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                         name={name}
                         onChange={onChange}
                         className="hidden"
+                        multiple={name !== "livePhoto" && name !== "bankStatement"}
                     />
                 </div>
             </td>
@@ -105,12 +107,23 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                     <Typography
                         variant="small"
                         className="font-semibold underline cursor-pointer text-blue-900"
-                        onClick={() =>{
-                            console.log("MODAL URL",value);
-                            setModalData({
-                                image: typeof value === "string" ? value : URL.createObjectURL(value)
-                            })}
-                        }
+                        onClick={() => {
+                            if (label === 'Live Photo' || label === 'Bank Statement') {
+                                setModalData({
+                                    image: fullDocVal?.image1
+                                })
+                            }
+                            else {
+                                setModalData({
+                                    image: fullDocVal?.image1,
+
+                                    image2: fullDocVal?.image2
+                                });
+                            }
+
+                            // console.log(image2)
+                        }}
+
                     >
                         View/Download
                     </Typography>
@@ -184,17 +197,62 @@ const AccountEdit = () => {
     };
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFieldValue(label, file);
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rcImage' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'insurranceImage' ? KYC_PROCESS.INSURANCE : label=== 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : KYC_PROCESS.LIVE_PHOTO;
-            const formData = new FormData();
+        try
+        {
+            const files = e.target.files;
+        if (!files || files.length === 0) return;
 
-            formData.append('image1', file);
-            formData.append('extImage1', file.name.split('.')[1]);
-            formData.append('fileTypeImage1', file.type);
+        if(files.length > 2) {
+            alert("You can upload a maximum of two documents.");
+            return;            
+        }
+
+            const uploadedFiles = [];
+            const previews = {};
+
+            for(let i = 0; i < files.length; i++)
+            {
+                const file = files[i];
+                uploadedFiles.push(file);
+
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    previews[`image${i + 1}`] = reader.result;
+                    setImagePreviews((prev) => ({
+                        ...prev,
+                        [label]: {
+                            ...prev[label],
+                            ...previews,
+                        },
+                    }));
+                };
+                reader.readAsDataURL(file);
+            }
+
+            setFieldValue(label, uploadedFiles);
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : 
+            label === 'rcImage' ? KYC_PROCESS.RC_COPY : 
+            label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : 
+            label === 'panImage' ? KYC_PROCESS.PAN  : '';
+            
+            const formData = new FormData();
             formData.append('type', type);
             formData.append('accountId', accountVal?.id);
+            
+            if(files[0])
+            {
+                formData.append('image1', files[0]);
+                formData.append('extImage1', files[0].name.split('.').pop());
+                formData.append('fileTypeImage1', files[0].type);
+            }
+
+            if(files[1])
+                {
+                    formData.append('image2', files[1]);
+                    formData.append('extImage2', files[1].name.split('.').pop());
+                    formData.append('fileTypeImage2', files[1].type);
+                }
+            
 
             let data;
             if (!docId) {
@@ -202,21 +260,72 @@ const AccountEdit = () => {
             } else {
                 formData.append('documentId', docId);
                 data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+                console.log("Data Updated => ",data)
             }
             if(data?.success){
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
-                        image1: data?.data?.image1,
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        image2: data?.data?.image2 || prev[label]?.image2,
+                        id: data?.data?.id,
+                    },
+                }));
+            }
+        }
+        catch(err){
+            console.error("Error during image upload:", err);
+        }
+            
+        
+    };
+    const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
+        const file = e.target.files[0];
+        if(file)
+        {
+            setFieldValue(label,file);
+            const reader = new FileReader();
+            reader.onloadend = () =>
+            {
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: reader.result, // Update the specific preview
+                }));    
+            };
+            reader.readAsDataURL(file);
+
+            const type = label === 'livePhoto' ? KYC_PROCESS.LIVE_PHOTO : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT:'';
+            const formData = new FormData();
+
+            formData.append('image1', file);
+            formData.append('extImage1', file.name.split('.')[1]);
+            formData.append('fileTypeImage1', file.type);
+            formData.append('type', type);
+            formData.append('accountId', accountVal?.id);
+            
+
+            let data;
+            if (!docId) {
+                data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+                // console.log("updated data => ",data)
+            } else {
+               
+                formData.append('documentId', docId);
+                data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+                console.log("updated data => ",data)
+            }
+            if(data?.success){
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1: data?.data?.image1 || prev[label]?.image1,
                         id: data?.data?.id,
                     },
                 }));
             }
 
-            console.log('DATA IN DOC UPDATE :', data);
-        }
+        };
     }
-
     const handleGoogleAddressSelect = (place) => {
         if (!place || !place.formatted_address) {
             console.error("Google Address selection is invalid", place);
@@ -571,7 +680,7 @@ const AccountEdit = () => {
                                                 label="Live Photo"
                                                 value={imagePreviews.livePhoto?.image1}
                                                 name="livePhoto"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "livePhoto",imagePreviews?.livePhoto?.id)}
+                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto",imagePreviews?.livePhoto?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.livePhoto}
                                             />
@@ -583,19 +692,19 @@ const AccountEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.rcImage}
                                             />
-                                            <DocumentUpload
+                                            {/* <DocumentUpload
                                                 label="Insurance Image"
                                                 value={imagePreviews?.insurranceImage?.image1}
                                                 name="insurranceImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage",imagePreviews?.insurranceImage?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.insurranceImage}
-                                            />
+                                            /> */}
                                             <DocumentUpload
                                                 label="Bank Statement"
                                                 value={imagePreviews.bankStatementImage?.image1}
                                                 name="bankStatement"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement",imagePreviews?.bankStatementImage?.id)}
+                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement",imagePreviews?.bankStatementImage?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.bankStatementImage}
                                             />
@@ -639,32 +748,44 @@ const AccountEdit = () => {
                     </div>
                     </DialogHeader>
                     <DialogBody divider>
-                    <div className="flex flex-col items-center">
-                        {modalData.image.endsWith(".pdf") ? (
-                            <iframe
-                                src={modalData.image}
-                                className="w-full rounded-lg shadow-md"
-                                style={{ height: "45vh" }}
-                            />
-                        ) : (
-                            <img
-                                src={modalData.image}
-                                alt="Document"
-                                className="max-w-full rounded-lg shadow-md"
-                                style={{ height: "45vh", objectFit: "contain" }}
-                            />
-                        )}
-                    </div>
-                    <div className="flex justify-center mt-4">
-                        <a
-                            href={modalData.image}
-                            download = "doucument.pdf"
-                            target='_blank'
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                            Download
-                        </a>
-                    </div>
+                        <div className="flex flex-col items-center space-y-3">
+                            <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
+                            {modalData.image && (
+                                    <iframe
+                                        src={modalData.image}
+                                        className="w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
+                                )}
+                                {modalData.image2 && (
+                                    <iframe
+                                        src={modalData.image2}
+                                        className="rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex justify-center mt-4">
+                            <a
+                                href={modalData.image}
+                                download
+                                target='_blank'
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Download Image 1
+                            </a>
+                            {modalData.image2 && (
+                                <a
+                                    href={modalData.image2}
+                                    download
+                                    target="_blank"
+                                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    Download Image 2
+                                </a>
+                            )}
+                        </div>
                     </DialogBody>
                 </Dialog>
             )}
