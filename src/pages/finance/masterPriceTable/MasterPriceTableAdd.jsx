@@ -73,7 +73,7 @@ const PriceAdd = () => {
                 'nightCharge': values.nightCharge,
                 'cancelMins': Utils.convertMinutesToTimeFormat(values.cancellationMins),
                 'cancelCharge': values.cancellationCharge,
-                'type': 'RIDES',
+                'type': 'Rides',
                 'serviceType': 'RIDES',
                 'period': 'Rides',
                 'status': values.status == "ACTIVE" ? 1 : 0,

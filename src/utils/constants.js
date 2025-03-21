@@ -803,7 +803,7 @@ export const API_ROUTES = {
     'CONFIRM_ADMIN_BOOKING': '/confirm-booking',
     'UPDATE_BOOKING': '/update-booking',
     'UPDATE_RIDES_BOOKING': '/edit-rides-booking',
-    'CANCEL_ADMIN_BOOKING': "/admin/booking-cancel",
+    'CANCEL_ADMIN_BOOKING': "/booking-cancel",
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',
