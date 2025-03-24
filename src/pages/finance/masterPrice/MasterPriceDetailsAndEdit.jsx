@@ -11,7 +11,6 @@ export function MasterPriceDetailsAndEdit() {
     const navigate = useNavigate();
     const [masterPriceDetails, setMasterPriceDetails] = useState();
     const [initialValues, setInitialValues] = useState({});
-    const [isEditable, setIsEditable] = useState(false);
     const { id } = useParams();
     
     useEffect(() => {
@@ -32,15 +31,15 @@ export function MasterPriceDetailsAndEdit() {
                 period: data?.data?.period || '',
                 priceMVP: data.data.priceMVP || '',
                 price: data.data.price,
-                waitingMins: data?.data?.waitingMins || '',
+                waitingMins: Utils.convertTimeFormatToMinutes(data?.data?.waitingMins) || '',
                 waitingCharge: data?.data?.waitingCharge || '',
                 dropPrice: data?.data?.dropPrice || '',
                 additionalMinCharge: data?.data?.additionalMinCharge || '',
                 extraHours: data?.data?.extraPrice || '',
-                nightHoursFrom: data?.data?.nightHoursFrom || '',
-                nightHoursTo: data?.data?.nightHoursTo || '',
+                nightHoursFrom: data?.data?.nightHoursFrom || '00:00',
+                nightHoursTo: data?.data?.nightHoursTo || '00:00',
                 nightCharge: data?.data?.nightCharge || '',
-                cancelMins: data?.data?.cancelMins || '',
+                cancelMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins) || '',
                 cancelCharge: data?.data?.cancelCharge || '',
 
                 baseFare:data?.data?.baseFare || '',
@@ -129,7 +128,7 @@ export function MasterPriceDetailsAndEdit() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Free Waiting Time</label>
-                                <Field type="time" name="waitingMins" value="00:00" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200"/>
+                                <Field type="number" name="waitingMins" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200"/>
                             </div>
                             {values?.type === 'Outstation' &&
                                 <div>
@@ -174,7 +173,6 @@ export function MasterPriceDetailsAndEdit() {
                                     <Field
                                         type="time"
                                         name="nightHoursFrom"
-                                        value="00:00"
                                         min="22:00"
                                         max="23:59"
                                         className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
@@ -185,7 +183,6 @@ export function MasterPriceDetailsAndEdit() {
                                     <Field
                                         type="time"
                                         name="nightHoursTo"
-                                        value="00:00"
                                         min="05:00"
                                         max="08:00"
                                         className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
@@ -200,7 +197,7 @@ export function MasterPriceDetailsAndEdit() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
-                                <Field type="time" name="cancelMins" value="00:00" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <Field type="number" name="cancelMins" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
