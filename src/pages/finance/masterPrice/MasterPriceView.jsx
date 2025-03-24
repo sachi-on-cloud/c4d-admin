@@ -21,8 +21,8 @@ export function MasterPriceView() {
             if (selectedServiceType === 'DRIVER') {
                 const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
                 if (data?.success) {
-                    setLocalPackageList(data?.data.filter(item => item.type === "Local"));
-                    setOutstationPackageList(data?.data.filter(item => item.type === "Outstation"));
+                    setLocalPackageList(data?.data.filter(item => item.type === "Local" && item.serviceType === "DRIVER"));
+                    setOutstationPackageList(data?.data.filter(item => item.type === "Outstation" && item.serviceType === "DRIVER"));
                 }
             } else if (selectedServiceType === 'RIDES') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
@@ -62,7 +62,7 @@ export function MasterPriceView() {
                                         "Round Trip Rate",
                                         "Drop Only",
                                         "Round Trip Rate - MVP",
-                                        "Night Hours",
+                                        "Night Hours (10PM TO 6AM)",
                                         "Night Charges (10PM TO 6AM)",
                                         "Cancel Charge",
                                         "Extra Hours",
@@ -82,7 +82,7 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {localPackageList.map(({ id, serviceType, type, period, dropPrice, priceSUV, addtionalmins, priceMVP, nighthours, nightCharge, cancelCharge, extraPrice, cancelMins, surCharge, price }, key) => {
+                                {localPackageList.map(({ id, serviceType, type, period, dropPrice, priceSUV, addtionalmins, priceMVP, nighthours,nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extraPrice, cancelMins, surCharge, price }, key) => {
                                     const className = `py-3 px-5 ${key === localPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
                                         <tr key={id}>
@@ -126,7 +126,8 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {nighthours}
+                                                {/* {`${nightHoursFrom} - ${nightHoursTo}` ? null : ""} */}
+                                                {nightHoursFrom && nightHoursTo ? `${nightHoursFrom} - ${nightHoursTo}` : ""}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -197,7 +198,7 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {outstationPackageList.map(({ id, serviceType, type, price, dropPrice, extraPrice, extraKmPrice, nighthours, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
+                                {outstationPackageList.map(({ id, serviceType, type, price, dropPrice, extraPrice, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
                                     const className = `py-3 px-5 ${key === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
                                         <tr key={id}>
@@ -207,9 +208,14 @@ export function MasterPriceView() {
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
+                                                <Typography variant="small"
+                                                            color="blue"
+                                                            className="font-semibold underline">
                                                     {type}
                                                 </Typography>
+                                                </div>
+                                                
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -226,14 +232,15 @@ export function MasterPriceView() {
                                                     {price}
                                                 </Typography>
                                             </td>
-                                            <td className={className}>
+                                            {/* <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {extraPrice}
                                                 </Typography>
-                                            </td>
+                                            </td> */}
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {nighthours}
+                                                {/* {nighthours} */}
+                                                {nightHoursFrom && nightHoursTo ? `${nightHoursFrom} - ${nightHoursTo}` : ""}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -253,7 +260,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {cancellationMins}
+                                                    {cancelMins}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
