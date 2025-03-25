@@ -893,6 +893,7 @@ export const API_ROUTES = {
     'RIDES_PRICE_TABLE_LIST': '/rides-package-list',
     'RIDES_PRICE_DETAILS': '/package-list',
     'RIDES_PRICE_EDIT': '/update-rides-package',
+    'MASTERPRICETABLE_LOG':'/package-list/log/',
 };
 
 export const KYC_PROCESS = {

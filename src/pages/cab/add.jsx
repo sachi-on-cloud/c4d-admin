@@ -470,7 +470,7 @@ const CabAdd = () => {
                                 </div>
                                 <ErrorMessage name="withDriver" component="div" className="text-red-500 text-sm" />
                             </div>}
-                            {values.withDriver === 'Yes' && (
+                            {(values.withDriver === 'Yes' && values.assignedTo == 'Driver') && (
                                 <>
                                     <div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">Assign or Add Driver</p>

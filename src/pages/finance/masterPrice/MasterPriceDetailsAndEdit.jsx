@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@material-tailwind/react';
 import Select from 'react-select';
 import { Utils } from "@/utils/utils";
+import MasterPriceLog from "../masterPriceTable/MasterPriceLog";
 
 export function MasterPriceDetailsAndEdit() {
     const navigate = useNavigate();
@@ -227,6 +228,7 @@ export function MasterPriceDetailsAndEdit() {
                     </Form>
                 )}
             </Formik>
+            <MasterPriceLog id={id}/>
         </div>
     );
 }

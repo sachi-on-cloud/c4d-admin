@@ -95,9 +95,9 @@ const PriceEdit = () => {
                 cancelMins: Utils.convertMinutesToTimeFormat(values.cancellationMins),
                 cancelCharge: Number(values.cancellationCharge),
                 status: values.status == 'ACTIVE' ? 1 : 0,
+                serviceType:'RIDES',
             };
             const response = await ApiRequestUtils.update(API_ROUTES.RIDES_PRICE_EDIT, reqBody);
-            console.log("RESPOSNSE",response);
             if (response?.success) {
                 navigate('/dashboard/users/master-price', { state: { priceUpdated: true } });
             }
