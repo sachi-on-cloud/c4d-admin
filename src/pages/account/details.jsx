@@ -6,8 +6,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
 import OwnersCabList from '@/components/OwnersCabList';
-import SubscriptionLog from '@/components/SubscriptionLog';
 import DocumentLogs from '@/components/DocumentLogs';
+import SubscriptionLog from '@/components/SubscriptionLog';
 
 const AccountDetails = ({btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
@@ -231,7 +231,7 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
             </div>
             {accountVal && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type}/>}
             {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} />}
-            {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />}
+            {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow && 
                 <div className='flex justify-center w-full'>
