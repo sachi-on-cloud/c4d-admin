@@ -118,14 +118,14 @@ const CabAdd = () => {
                 const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
                 return {
                     ...option,
-                    period: `${option.period ? option.period : ""} ${suffix}`, // Append 'hr' or 'd'
+                    period: `${option.period =='Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
             //console.log("PACKAGE", packageData);
             const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
             const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
-            const ridesPackagePrices = packageData.filter(val => { return val.type == 'RIDES' });
+            const ridesPackagePrices = packageData.filter(val => { return val.type == 'Rides' });
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage, ...ridesPackagePrices]);
         }
     };
@@ -153,9 +153,9 @@ const CabAdd = () => {
     const initialValues = {
         name: cabVal?.name || "",
         ownerName: ownerName ? ownerName : '',
-        assignedTo: type == 'Individual' ? 'Owner' : '',
+        assignedTo: type == 'Individual' ? 'Owner' : 'Driver',
         carNumber: cabVal?.carNumber || "",
-        address: cabVal?.address || "",
+        address: cabVal?.curAddress || "",
         insurance: cabVal?.insurance || "",
         withDriver: cabVal?.withDriver || "",
         assignOrAddDriver: cabVal?.assignOrAddDriver || "",
@@ -316,13 +316,12 @@ const CabAdd = () => {
         );
     };
 
-
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
             const cabDetails = {
                 name: values.name,
                 carNumber: values.carNumber,
-                address: values.address,
+                curAddress: values.address,
                 insurance: values.insurance,
                 carType: values.carType,
                 assigned: values.assignedTo,
@@ -333,7 +332,7 @@ const CabAdd = () => {
                 driverLicense: values.licenseNumber,
                 packages: values.packages,
                 accountId: values.accountId,
-                driverId: values.driverId
+                driverId: values.driverId,
             }
             const prices = values.prices;
             let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices) };
@@ -357,9 +356,11 @@ const CabAdd = () => {
         }
         setSubmitting(false);
     };
+
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };
+
     return (
         <div className="p-4 mx-auto">
             {alert && <div className='mb-2'>
@@ -449,7 +450,7 @@ const CabAdd = () => {
                                 </Field>
                                 <ErrorMessage name="assignedTo" component="div" className="text-red-500 text-sm" />
                             </div>
-                            {type != 'Individual' && <div>
+                            {type != 'Individual' && values.assignedTo == 'Driver' && <div>
                                 <p className="text-sm font-medium text-gray-700 mb-2">With Driver</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
@@ -559,15 +560,14 @@ const CabAdd = () => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
                                         const newPrices = selectedList.map(item => ({
                                             packageId: item.id,
-                                            ...(item.type === 'RIDES'
+                                            ...(item.type === 'Rides'
                                                 ? {
                                                     baseFare: item.baseFare,
                                                     kilometerPrice: item.kilometerPrice,
                                                     minCharge: item.minCharge,
-                                                    type: 'RIDES',
+                                                    type: 'Rides',
                                                 }
                                                 : {
-                                                    period: item.period,
                                                     kilometer: item.kilometer,
                                                     baseFare: item.baseFare,
                                                     kilometerPrice: item.kilometerPrice,
@@ -619,10 +619,10 @@ const CabAdd = () => {
                                 )}
 
                                 {renderRidesPriceTable(
-                                    "RIDES",
+                                    "Rides",
                                     values.prices.filter(price => {
                                         const package_ = packageDetails.find(p => p.id === price.packageId);
-                                        return package_?.type === 'RIDES';
+                                        return package_?.type === 'Rides';
                                     }),
                                     values,
                                     setFieldValue
@@ -650,7 +650,7 @@ const CabAdd = () => {
                     </Form>
                 )}
             </Formik>
-            {modalData && (
+            {/* {modalData && (
                 <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
                     <DialogHeader>
                         <div className="flex justify-between items-center w-full">
@@ -674,7 +674,7 @@ const CabAdd = () => {
                         </div>
                     </DialogBody>
                 </Dialog>
-            )}
+            )} */}
         </div>
     );
 };

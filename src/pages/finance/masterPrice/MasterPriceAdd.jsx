@@ -20,8 +20,8 @@ export function MasterPriceAdd() {
         dropOnly: '',
         additionalMins: '',
         extraHours: '',
-        nightHoursFrom: '',
-        nightHoursTo: '',
+        nightHoursFrom: '00:00',
+        nightHoursTo: '00:00',
         nightCharge: '',
         cancelMins: '',
         cancelCharge: '',
@@ -137,11 +137,10 @@ export function MasterPriceAdd() {
                                     <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
                                 </div>
                             }
-                            {values?.type === 'Oustation' && 
-                                <div>
+                            {values?.type === 'Outstation' &&<div>
                                     <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
-                                    <Field type="number" name="extraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                    <ErrorMessage name="extraKilometerPrice" component="div" className="text-red-500 text-sm" />
+                                    <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
+                                    <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
                                 </div>
                             }
                             <div>

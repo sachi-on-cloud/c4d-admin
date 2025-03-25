@@ -159,25 +159,39 @@ const ConfirmBooking = (props) => {
     };
 
     const [showCancelReason, setShowCancelReason] = useState(false);
-    const [cancelReason, setCancelReason] = useState("");
+    const [cancelData, setCancelData] = useState({
+        cancelReason: "",
+        cancelBy: "",
+        cancelCharge: "",
+    });
+
+    const handleCancelChange = (e) => {
+        const { name, value } = e.target;
+        setCancelData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
 
     const handleBookingAction = async (actionType) => {
-        if (actionType === BOOKING_STATUS.CANCELLED && !cancelReason.trim()) return;
+        if (actionType === BOOKING_STATUS.CANCELLED && !cancelData.cancelReason.trim()) return;
 
         const reqBody = {
             status: actionType,
             bookingId: bookingDetails?.id,
-            ...(actionType === BOOKING_STATUS.CANCELLED && { cancelReason: cancelReason }),
+            ...(actionType === BOOKING_STATUS.CANCELLED && {
+                cancelReason: cancelData.cancelReason,
+                cancelRequestedBy: cancelData.cancelBy,
+                isCancelChargeApplicable: cancelData.cancelCharge,
+            }),
         };
-
-
         const data = await ApiRequestUtils.update(
             actionType === BOOKING_STATUS.CANCELLED
                 ? API_ROUTES.CANCEL_ADMIN_BOOKING
                 : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             reqBody
         );
-
+        console.log("CANCELBOKING",data);
 
         if (data?.success) {
             props.onConfirm();
@@ -227,6 +241,10 @@ const ConfirmBooking = (props) => {
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Reason:</Typography>
                                 <Typography>{bookingDetails?.cancelReason}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
+                                <Typography>{bookingDetails?.cancelRequestedBy}</Typography>
                             </div>
                         </div>
                     </CardBody>
@@ -681,34 +699,67 @@ const ConfirmBooking = (props) => {
                     } */}
                 </div>
 
-                {showCancelReason && <div className="mt-4 space-y-2">
-                    <Input
-                        type="text"
-                        value={cancelReason}
-                        onChange={(e) => setCancelReason(e.target.value)}
-                        placeholder="Enter cancellation reason..."
-                        className="border border-gray-300 px-2 py-1 rounded-md w-full"
-                    />
-                    <div className="flex space-x-2">
-                        <Button
-                            color="red"
-                            onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED)}
-                            disabled={!cancelReason.trim()}
+                {showCancelReason && (
+                    <div className="mt-4 space-y-2">
+                        <select
+                            name="cancelBy"
+                            value={cancelData.cancelBy}
+                            onChange={handleCancelChange}
+                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
                         >
-                            Confirm Cancel
-                        </Button>
-                        <Button
-                            color="gray"
-                            variant="outlined"
-                            onClick={() => {
-                                setShowCancelReason(false);
-                                setCancelReason("");
-                            }}
-                        >
-                            Cancel
-                        </Button>
+                            <option value="">Select who cancelled</option>
+                            <option value="Customer">Cancelled by Customer</option>
+                            <option value="Driver">Cancelled by Driver</option>
+                        </select>
+                        <Input
+                            type="text"
+                            name="cancelReason"
+                            value={cancelData.cancelReason}
+                            onChange={handleCancelChange}
+                            placeholder="Enter cancellation reason..."
+                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                        />
+                        <div className="flex items-center space-x-4">
+                            <label className="font-medium">Cancellation Charge Applicable:</label>
+                            <label className="inline-flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    name="cancelCharge"
+                                    value="Yes"
+                                    checked={cancelData.cancelCharge === "Yes"}
+                                    onChange={handleCancelChange}
+                                />
+                                <span>Yes</span>
+                            </label>
+                            <label className="inline-flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    name="cancelCharge"
+                                    value="No"
+                                    checked={cancelData.cancelCharge === "No"}
+                                    onChange={handleCancelChange}
+                                />
+                                <span>No</span>
+                            </label>
+                        </div>
+                        <div className="flex space-x-2">
+                            <Button
+                                color="red"
+                                onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED, cancelData)}
+                                disabled={!cancelData.cancelReason.trim() || !cancelData.cancelBy || !cancelData.cancelCharge}
+                            >
+                                Confirm Cancel
+                            </Button>
+                            <Button
+                                color="gray"
+                                variant="outlined"
+                                onClick={() => setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "" })}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
                     </div>
-                </div>}
+                )}
             </>
         </div>
     );

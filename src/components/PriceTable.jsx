@@ -66,10 +66,11 @@ const sortPrices = (prices, category) => {
             if (category === 'Local') {
                 return packageDetails.type === 'Local';
             } else if (category === 'Outstation') {
-                
-                return packageDetails.type === 'Local' && packageDetails.period === '1 d';
+                return packageDetails.type === 'Outstation' && packageDetails.period === '1 d';
             } else if (category === 'CarWash') {
                 return packageDetails.type === 'CarWash';
+            } else if( category === 'Rides' ){
+                return packageDetails.type === 'Rides';
             }
             return false;
         });
@@ -102,7 +103,82 @@ const sortPrices = (prices, category) => {
         setEditingId(null);
         setSubmitting(false);
     };
-    const PriceTableContent = ({ prices }) => (
+    
+    const PriceTableContent = ({ prices }) => {
+        return (
+            <Formik
+                initialValues={prices}
+                onSubmit={(values) => values}
+                enableReinitialize
+            >
+                {({ values, isSubmitting, setSubmitting, resetForm }) => (
+                    <Form>
+                        <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                            <table className="w-full min-w-[640px] table-auto">
+                                <thead>
+                                    <tr>
+                                        {["Package", "Package KM", "Base Fare", "Rate Per KM", "Extra Mins Rate"].map((el) => ( // , ...(type == 'cabId' ? ['Actions']: [])
+                                            <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                                <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
+                                                    {el}
+                                                </Typography>
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {values.map((priceItem, index) => {
+                                        const packageDetails = getPackageDetails(priceItem.packageId);
+                                        return(
+                                        <tr key={priceItem.id}>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography variant="small" color="blue-gray" className="font-semibold">
+                                                    {packageDetails?.period || 'Unknown Package'}
+                                                </Typography>
+                                            </td>
+                                            {['kilometer','baseFare','kilometerPrice','additionalMinCharge'].map((field) => (
+                                                <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
+                                                    {editingId === priceItem.id ? (
+                                                        <Field
+                                                            name={`[${index}].${field}`}
+                                                            className="w-full p-1 text-xs border rounded"
+                                                            type="number"
+                                                        />
+                                                    ) : (
+                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                            {priceItem[field]}
+                                                        </Typography>
+                                                    )}
+                                                </td>
+                                            ))}
+                                            {/* {type =='cabId' && <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                {editingId === priceItem.id ? (
+                                                    <>
+                                                        <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
+                                                            Save
+                                                        </Button>
+                                                        <Button type="button" onClick={() => handleCancel(resetForm)}>
+                                                            Cancel
+                                                        </Button>
+                                                    </>
+                                                ) : (
+                                                    <Button type="button" onClick={() => handleEdit(priceItem.id)}>
+                                                        Edit
+                                                    </Button>
+                                                )}
+                                            </td>} */}
+                                        </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </CardBody>
+                    </Form>
+                )}
+            </Formik>
+    )};
+
+    const RidesPriceTableContent = ({ prices }) => (
         <Formik
             initialValues={prices}
             onSubmit={(values) => values}
@@ -114,7 +190,7 @@ const sortPrices = (prices, category) => {
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
-                                    {["Package", "Price", "Extra Price", "Extra KM Price", "Night Charge", "Cancel Charge", "Cab Type", ...(type == 'cabId' ? ['Actions']: [])].map((el) => (
+                                    {["Package","Base Fare", "Per Kilometer Rate", "Per Minute Rate"].map((el) => (
                                         <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
                                                 {el}
@@ -124,49 +200,22 @@ const sortPrices = (prices, category) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {values.map((priceItem, index) => {
-                                    const packageDetails = getPackageDetails(priceItem.packageId);
-                                    return(
+                                {values.map((priceItem, index) => (
                                     <tr key={priceItem.id}>
                                         <td className="py-3 px-5 border-b border-blue-gray-50">
                                             <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                {packageDetails?.period || 'Unknown Package'}
+                                                Rides
                                             </Typography>
                                         </td>
-                                        {['price', 'extraPrice', 'extraKmPrice', 'nightCharge', 'cancelCharge', 'extraCabType'].map((field) => (
+                                        {['baseFare','kilometerPrice','minCharge'].map((field) => (
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                {editingId === priceItem.id ? (
-                                                    <Field
-                                                        name={`[${index}].${field}`}
-                                                        className="w-full p-1 text-xs border rounded"
-                                                        type="number"
-                                                    />
-                                                ) : (
-                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {priceItem[field]}
-                                                    </Typography>
-                                                )}
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {priceItem[field]}
+                                                </Typography>
                                             </td>
                                         ))}
-                                        {type =='cabId' && <td className="py-3 px-5 border-b border-blue-gray-50">
-                                            {editingId === priceItem.id ? (
-                                                <>
-                                                    <Button type="button" onClick={() => handleSave(priceItem, { setSubmitting })} disabled={isSubmitting} className="mr-2">
-                                                        Save
-                                                    </Button>
-                                                    <Button type="button" onClick={() => handleCancel(resetForm)}>
-                                                        Cancel
-                                                    </Button>
-                                                </>
-                                            ) : (
-                                                <Button type="button" onClick={() => handleEdit(priceItem.id)}>
-                                                    Edit
-                                                </Button>
-                                            )}
-                                        </td>}
                                     </tr>
-                                    );
-})}
+                                ))}
                             </tbody>
                         </table>
                     </CardBody>
@@ -174,19 +223,25 @@ const sortPrices = (prices, category) => {
             )}
         </Formik>
     );
+    
 
-    const CategorySection = ({ title, category }) => (
-        <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 bg-gray-100 p-4 rounded">{title}</h2>
-            <Card>
-                {filterPricesByCategory(price, category).length > 0 ? (
-                    <PriceTableContent prices={filterPricesByCategory(price, category)} />
-                ) : (
-                    <h2 className="text-lg font-medium p-4">No {category} Prices Available</h2>
-                )}
-            </Card>
-        </div>
-    );
+    const CategorySection = ({ title, category }) => {
+        return(
+            <div className="mb-8">
+                <h2 className="text-xl font-bold mb-4 bg-gray-100 p-4 rounded">{title}</h2>
+                <Card>
+                    {filterPricesByCategory(price, category).length > 0 ? (
+                        category !== 'Rides' ? 
+                        <PriceTableContent prices={filterPricesByCategory(price, category)} />
+                        :
+                        <RidesPriceTableContent prices={filterPricesByCategory(price, category)} />
+                    ) : (
+                        <h2 className="text-lg font-medium p-4">No {category} Prices Available</h2>
+                    )}
+                </Card>
+            </div>
+        )
+    };
 
     return (
         <div>
@@ -202,6 +257,11 @@ const sortPrices = (prices, category) => {
             <CategorySection 
                 title="OUTSTATION" 
                 category="Outstation" 
+            />
+
+            <CategorySection
+                title='RIDES'
+                category='Rides'
             />
             
             {/* <CategorySection 

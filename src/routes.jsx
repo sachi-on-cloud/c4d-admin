@@ -59,6 +59,7 @@ import InvoiceDetails from "./pages/finance/invoice/InvoiceDetails";
 import { MasterPriceDetailsAndEdit } from "./pages/finance/masterPrice/MasterPriceDetailsAndEdit";
 import MasterPriceTableAdd from "./pages/finance/masterPriceTable/MasterPriceTableAdd";
 import MasterPriceTableDetails from "./pages/finance/masterPriceTable/MasterPriceTableDetails";
+import DriverMasterPriceTableEdit from "./pages/finance/masterPriceTable/DriverMasterPriceTableEdit";
 import MasterPriceTableEdit from "./pages/finance/masterPriceTable/MasterPriceTableEdit";
 import RentalsPriceMasterAdd from "./pages/finance/masterPriceTable/RentalsMasterPriceAdd";
 import RentalsPriceMasterDetails from "./pages/finance/masterPriceTable/RentalsMasterPriceDetails";
@@ -419,6 +420,13 @@ export const routes = [
         path: "/users/master-price/details/:id",
         element: <MasterPriceDetailsAndEdit />,
         display: false
+      },
+      {
+        icon:<UserIcon {...icon} />,
+        name: "Driver Price Table Edit",
+        path: "/users/master-price/driver-edit/:id",
+        element:<DriverMasterPriceTableEdit />,
+        display:false
       },
       {
         icon: <UserIcon {...icon} />,
