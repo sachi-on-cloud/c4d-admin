@@ -42,7 +42,6 @@ export function SearchDrivers(props) {
                 setDrivers(filtredOptions);
             } else {
                 let data;
-                console.log('props.bookingData.serviceType ->', props.bookingData.serviceType);
                 if (props.bookingData.serviceType === 'DRIVER') {
                     let api = API_ROUTES.GET_DRIVERS_PACKAGE;
                     let queryObj = {
