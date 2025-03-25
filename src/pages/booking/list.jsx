@@ -369,7 +369,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 onClick={() => onAssignDriverHandler(data)}
                                                                 className="text-xs font-semibold text-white flex-wrap"
                                                             >
-                                                                Assign {data?.serviceType == "CAB" ? "Cab" : "Captain"}
+                                                                Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                             </Button>
                                                         }
                                                         {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
@@ -378,7 +378,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 onClick={() => onAssignDriverHandler(data)}
                                                                 className="text-xs font-semibold text-white flex-wrap"
                                                             >
-                                                                Assign {data?.serviceType == "CAB" ? "Cab" : "Captain"}
+                                                                Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                             </Button>
                                                         }
                                                     </td>
