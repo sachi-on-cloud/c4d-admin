@@ -263,7 +263,7 @@ const Booking = (props) => {
                                 {`Booking Details - ${bookingData?.bookingNumber}`} 
                                 {bookingData?.status && getStatusDisplay(bookingData.status)}
                             </>
-                        ) : ( bookingStage === 0 ? `Edit Booking- ${bookingData?.bookingNumber}` : bookingStage === 1 ? `Edit Booking- ${bookingData?.bookingNumber}` : bookingData?.serviceType == "CAB" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
+                        ) : ( bookingStage === 0 ? `Edit Booking- ${bookingData?.bookingNumber}` : bookingStage === 1 ? `Edit Booking- ${bookingData?.bookingNumber}` : bookingData?.serviceType != "DRIVER" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
                         </div>
                     </Typography>
                 </div>}

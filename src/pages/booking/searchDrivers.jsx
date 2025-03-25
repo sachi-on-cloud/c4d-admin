@@ -9,21 +9,15 @@ import {
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 
 export function SearchDrivers(props) {
-    //console.log("val", props?.bookingData);
     const [drivers, setDrivers] = useState([]);
     const [sortField, setSortField] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
-    const navigate = useNavigate();
-    const location = useLocation();
-    const paramsPassed = location.state;
     const [loading, setLoading] = useState(false);
-    // const [bookingData, setBookingData] = useState(props?.bookingData);
 
     const getDriversList = async (searchQuery = '') => {
         setLoading(true);
@@ -47,16 +41,15 @@ export function SearchDrivers(props) {
                 });
                 setDrivers(filtredOptions);
             } else {
-                //console.log('PACKAGE ID :', props?.bookingData)
                 let data;
-                if (props.bookingData.serviceType !== 'RIDES') {
-                    let api = props.bookingData.serviceType == "CAB" ? API_ROUTES.GET_CABS_PACKAGE : API_ROUTES.GET_DRIVERS_PACKAGE;
+                if (props.bookingData.serviceType === 'DRIVER') {
+                    let api = API_ROUTES.GET_DRIVERS_PACKAGE;
                     let queryObj = {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
                         type: props?.bookingData?.packageType,
                     }
-                    props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
+                    // props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
                     data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
                 } else {
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
@@ -133,7 +126,6 @@ export function SearchDrivers(props) {
     };
 
     useEffect(() => {
-        // console.log("BOOKINGDATA",props?.bookingData)
         if (props?.bookingData) {
             getDriversList();
         }
@@ -157,14 +149,14 @@ export function SearchDrivers(props) {
     }
     return (
         <>
-            {props?.bookingData?.serviceType !== 'RIDES' &&
+            {props?.bookingData?.serviceType === 'DRIVER' &&
                 <div className="flex flex-col w-full gap-y-4">
                     {/* <DriverSearch onSearch={getDriversList} /> */}
                     <Card>
                         {loading ? (
                             <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....'}`}
+                                    {`Loading drivers....`}
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
@@ -248,7 +240,7 @@ export function SearchDrivers(props) {
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
                                                                 className="text-xs font-semibold text-white"
                                                             >
-                                                                {props?.bookingData?.serviceType === "CAB" ? "Assign Cab" : "Assign Captain"}
+                                                                {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
                                                             </Button>}
                                                         </td>
                                                     </tr>
@@ -271,18 +263,18 @@ export function SearchDrivers(props) {
                             onClick={() => { props?.onNext() }}
                             className='text-white border-2 bg-black rounded-xl'
                         >
-                            {props?.bookingData?.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
+                            {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
                         </Button>
                     </div>
                 </div >
             }
-            {props?.bookingData?.serviceType == 'RIDES' &&
+            {props?.bookingData?.serviceType != 'DRIVER' &&
                 <div className="flex flex-col w-full gap-y-4">
                     <Card>
                         {loading ? (
                             <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    {`Loading ${props?.bookingData?.serviceType == "CAB" ? 'cabs....' : 'drivers....'}`}
+                                    {`Loading cabs....`}
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
@@ -385,7 +377,7 @@ export function SearchDrivers(props) {
                             onClick={() => { props?.onNext() }}
                             className='text-white border-2 bg-black rounded-xl'
                         >
-                            {props?.bookingData?.serviceType === "CAB" ? "Assign Cab Later" : "Assign Captain Later"}
+                            {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
                         </Button>
                     </div>
                 </div >

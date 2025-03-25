@@ -57,12 +57,12 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {moment(startDate).format("DD-MM-YYYY")}
+                                                    {status === 'DRAFT' ? '-' : moment(startDate).format("DD-MM-YYYY")}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {moment(endDate).format("DD-MM-YYYY")}
+                                                    {status === 'DRAFT' ? '-' : moment(endDate).format("DD-MM-YYYY")}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
