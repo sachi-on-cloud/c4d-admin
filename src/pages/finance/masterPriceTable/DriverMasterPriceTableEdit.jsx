@@ -125,7 +125,7 @@ const DriverMasterPriceTableEdit = () => {
             }
 
             if (response?.success) {
-                navigate(`/dashboard/users/master-price/details/${id}`);
+                navigate(`/dashboard/users/master-price/`);
             }
         } catch (error) {
             console.error("Error updating price details:", error);

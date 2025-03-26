@@ -162,7 +162,7 @@ const RentalsMasterPriceEdit = () => {
                                 <Select
                                     options={STATUS_OPTIONS}
                                     onChange={(selectedOption) => setFieldValue('status', selectedOption.value)}
-                                    value={STATUS_OPTIONS.find(option => option.value === values.status)}
+                                    value={STATUS_OPTIONS.find(option => option.value === values?.status)}
                                     placeholder="Select Status"
                                     className="w-full"
                                 />
