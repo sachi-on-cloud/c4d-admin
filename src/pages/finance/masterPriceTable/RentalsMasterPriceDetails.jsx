@@ -36,7 +36,7 @@ const RentalsPriceMasterDetails = () => {
                     nightCharge: data?.data?.nightCharge,
                     cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
                     cancellationCharge: data?.data?.cancelCharge,
-                    status: data?.data?.status === 1 ? "ACTIVE" : "INACTIVE"
+                    status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE"
                 });
             }
         } catch (error) {

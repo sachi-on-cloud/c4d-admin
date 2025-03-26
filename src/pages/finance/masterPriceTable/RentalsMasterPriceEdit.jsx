@@ -8,14 +8,7 @@ import { API_ROUTES } from '@/utils/constants';
 import Select from 'react-select';
 import { Utils } from '@/utils/utils';
 
-const RATE_PARAMETER_OPTIONS = [
-    { value: 'RAINY_DAY', label: 'Rainy Day' },
-    { value: 'PREMIUM_RIDE', label: 'Premium Ride' },
-    { value: 'MID_TRIP_CANCELLATION', label: 'Mid Trip Cancellation' },
-    { value: 'OFF_PEAK', label: 'Off Peak' },
-    { value: 'DURING_PEAK', label: 'During Peak' },
-    { value: 'NORMAL_RIDE', label: 'Normal Ride' },
-];
+
 
 const STATUS_OPTIONS = [
     { value: 'ACTIVE', label: 'Active' },
@@ -23,18 +16,15 @@ const STATUS_OPTIONS = [
 ];
 
 const PRICE_SCHEMA = Yup.object().shape({
+    carType: Yup.string().required('Cab Type is required'),
+    type: Yup.string().required('Trip Type is required'),
+    period: Yup.string().required('Package Type is required'),
     baseFare: Yup.number().required('Base Fare is required'),
-    baseFareMVP: Yup.number().required('Base Fare (MVP) is required'),
-    ratePerKm: Yup.number().required('Rate Per Km is required'),
-    ratePerKmMVP: Yup.number().required('Rate Per Km (MVP) is required'),
-    ratePerMin: Yup.number().required('Rate Per Min is required'),
-    additionalMin: Yup.number().required('Additional Min is required'),
-    rateParameter: Yup.string().required('Rate Parameter is required'),
-    surchargePercentage: Yup.number().required('Surcharge Percentage is required'),
-    // nightHours: Yup.number().required('Night Hours is required'),
+    kilometer: Yup.number().required('Kilometer is required'),
+    kilometerPrice: Yup.number().required('Kilometer Rate is required'),
+    extraKmPrice: Yup.number().required('Additional Kilometer Price is required'),
+    additionalMinCharge: Yup.number().required('Additional Min is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
-    cancellationMins: Yup.number().required('Cancellation Mins is required'),
-    cancellationCharge: Yup.number().required('Cancellation Charge is required'),
     status: Yup.string().required('Status is required'),
 });
 
@@ -44,28 +34,30 @@ const RentalsMasterPriceEdit = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchPriceDetails();
-    }, []);
+        if (id) fetchPriceDetails(id);
+    }, [id]);
 
-    const fetchPriceDetails = async () => {
+    const fetchPriceDetails = async (packageId) => {
         try {
-            const data = await ApiRequestUtils.get(`${API_ROUTES.RIDES_PRICE_DETAILS}/${id}`);
+            const data = await ApiRequestUtils.get(`${API_ROUTES.RIDES_PRICE_DETAILS}/${packageId}`);
             if (data?.success) {
                 setInitialValues({
-                    baseFare: data.data.baseFare,
-                    baseFareMVP: data.data.baseFareMVP,
-                    ratePerKm: data.data.kilometerPrice,
-                    ratePerKmMVP: data.data.kilometerPriceMVP,
-                    ratePerMin: data.data.minCharge,
-                    additionalMin: data.data.additionalMinCharge,
-                    rateParameter: data.data.rateParameter,
-                    surchargePercentage: data.data.surChargePercentage,
+                    carType: data?.data?.carType || '',
+                    type: data?.data?.type || '',
+                    period: data?.data?.period || '',
+                    baseFare: data?.data?.baseFare || 0,
+                    kilometer: data?.data?.kilometer || 0,
+                    kilometerPrice: data?.data?.kilometerPrice || 0,
+                    additionalMinCharge: data?.data?.additionalMinCharge || 0,
+                    tollCharge: data?.data?.tollCharge || 0,
+                    driverCharge: data?.data?.driverCharge || 0,
+                    extraKmPrice: data?.data?.extraKmPrice || 0,
                     nightHoursFrom: convertToTimeFormat(data?.data?.nightHoursFrom),
                     nightHoursTo: convertToTimeFormat(data?.data?.nightHoursTo),
-                    nightCharge: data.data.nightCharge,
-                    cancellationMins: Utils.convertTimeFormatToMinutes(data.data.cancelMins),
-                    cancellationCharge: data.data.cancelCharge,
-                    status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
+                    nightCharge: data?.data?.nightCharge || 0,
+                    cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
+                    cancellationCharge: data?.data?.cancelCharge || 0,
+                    status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE",
                 });
             }
         } catch (error) {
@@ -80,26 +72,32 @@ const RentalsMasterPriceEdit = () => {
     const onSubmit = async (values) => {
         try {
             const reqBody = {
-                packageId:Number(id),
+                packageId: Number(id),
+                carType: String(values.carType),
+                type: String(values.type),
+                period: Number(values.period),
+                kilometer: Number(values.kilometer),
+                serviceType: 'RENTAL',
                 baseFare: Number(values.baseFare),
-                baseFareMVP: Number(values.baseFareMVP),
-                kilometerPrice: Number(values.ratePerKm),
-                kilometerPriceMVP: Number(values.ratePerKmMVP),
-                minCharge: Number(values.ratePerMin),
-                additionalMinCharge: Number(values.additionalMin),
-                rateParameter: values.rateParameter,
-                surChargePercentage: Number(values.surchargePercentage),
+                kilometerPrice: Number(values.kilometerPrice),
+                additionalMinCharge: Number(values.additionalMinCharge),
                 nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo),
                 nightCharge: Number(values.nightCharge),
+                tollCharge: Number(values.tollCharge),
+                driverCharge: Number(values.driverCharge),
+                extraKmPrice: Number(values.extraKmPrice),
                 cancelMins: Utils.convertMinutesToTimeFormat(values.cancellationMins),
                 cancelCharge: Number(values.cancellationCharge),
                 status: values.status == 'ACTIVE' ? 1 : 0,
             };
-            const response = await ApiRequestUtils.update(API_ROUTES.RIDES_PRICE_EDIT, reqBody);
-            console.log("RESPOSNSE",response);
+
+            const response = await ApiRequestUtils.post(API_ROUTES.RENDAL_PRICE_EDIT, reqBody);
+
             if (response?.success) {
-                navigate('/dashboard/users/master-price', { state: { priceUpdated: true } });
+                navigate('/dashboard/users/master-price');
+            } else {
+                console.error('Error updating data');
             }
         } catch (error) {
             console.error("Error updating price details:", error);
@@ -113,49 +111,73 @@ const RentalsMasterPriceEdit = () => {
                 {({ handleSubmit, setFieldValue, isValid, dirty, values }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
+                        <div>
+                                <label className="text-sm font-medium text-gray-700">Trip Type</label>
+                                <Field type="string" name="type" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (Mini, SUV, Sedan)</label>
-                                <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <label className="text-sm font-medium text-gray-700">Package Type</label>
+                                <Field type="string" name="period" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                <ErrorMessage name="period" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare</label>
+                                <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
                                 <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (MVP)</label>
-                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Kilometer</label>
+                                <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (Mini, SUV, Sedan)</label>
-                                <Field type="number" name="ratePerKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="ratePerKm" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
+                                <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MVP)</label>
-                                <Field type="number" name="ratePerKmMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="ratePerKmMVP" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Additional Min</label>
+                                <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="additionalMinCharge" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Variant</label>
+                                <Field as="select" name="carType" className="p-2 w-full rounded-md border-2 border-gray-300" disabled >
+                                    <option value="">Select Variant</option>
+                                    <option value="Mini">Mini</option>
+                                    <option value="Sedan">Sedan</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="MUV">MUV</option>
+                                </Field>
+                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
+                                <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
                                 <Select
                                     options={STATUS_OPTIONS}
                                     onChange={(selectedOption) => setFieldValue('status', selectedOption.value)}
-                                    value={STATUS_OPTIONS.find(option => option.value === values?.status)}
+                                    value={STATUS_OPTIONS.find(option => option.value === values.status)}
                                     placeholder="Select Status"
                                     className="w-full"
                                 />
                                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
-                                <Field type="number" name="ratePerMin" className="p-2 w-full rounded-md border-gray-300" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min</label>
-                                <Field type="number" name="additionalMin" className="p-2 w-full rounded-md border-gray-300" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
-                                <Field type="number" name="surchargePercentage" className="p-2 w-full rounded-md border-gray-300" />
-                            </div>
+                            {initialValues?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">Toll Charge</label>
+                                <Field type="number" name="tollCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="tollCharge" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {initialValues?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">Driver Charge</label>
+                                <Field type="number" name="driverCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="driverCharge" component="div" className="text-red-500 text-sm" />
+                            </div>}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
                                 <div className="flex items-center">
@@ -165,6 +187,7 @@ const RentalsMasterPriceEdit = () => {
                                         min="22:00"
                                         max="23:59"
                                         className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
+                                        
                                     />
                                     <span className="px-3 py-2 bg-gray-100 border-t border-b border-gray-300">to</span>
                                     <Field
@@ -173,29 +196,33 @@ const RentalsMasterPriceEdit = () => {
                                         min="05:00"
                                         max="08:00"
                                         className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
+                                        
                                     />
+                                    <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
+                                    <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
-                                <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>
-                                <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300" />
+                                <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="nightCharge" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
-                                <Field type="number" name="cancellationMins" className="p-2 w-full rounded-md border-gray-300" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
-                                <Field type="number" name="cancellationCharge" className="p-2 w-full rounded-md border-gray-300" />
-                            </div>
+                              {/* <div>
+                            <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
+                            <Field type="number" name="cancellationMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            <ErrorMessage name="cancellationMins" component="div" className="text-red-500 text-sm" />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
+                            <Field type="number" name="cancellationCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            <ErrorMessage name="cancellationCharge" component="div" className="text-red-500 text-sm" />
+                        </div> */}
                         </div>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="black" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="black" type="submit" disabled={!dirty || !isValid} className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>
