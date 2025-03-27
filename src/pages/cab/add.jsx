@@ -118,7 +118,7 @@ const CabAdd = () => {
                 const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
                 return {
                     ...option,
-                    period: `${option.period =='Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
+                    period: `${option.type =='Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
             //console.log("PACKAGE", packageData);
