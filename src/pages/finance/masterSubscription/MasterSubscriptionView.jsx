@@ -117,13 +117,30 @@ export function MasterSubscriptionView() {
                                 <tbody>
                                     {masterSubscriptionList.map((masterSubscription, index) => (
                                         <tr key={index} className="text-sm">
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.serviceType}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.packagePrice == 0 ? 'Free' : masterSubscription.packagePrice}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.serviceType === "ACTING_DRIVER" ? (<div>Acting Driver</div>): masterSubscription.serviceType || 
+                                            masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : masterSubscription.serviceType}</td>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                                <div onClick={() => navigate(`/dashboard/finance/master-subscription/details/${masterSubscription.id}`)}>
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue"
+                                                        className="font-semibold underline"
+                                                    >
+                                                        {masterSubscription.packagePrice == 0 ? 'Free' : masterSubscription.packagePrice}
+                                                    </Typography>
+
+                                                </div>
+                                            </td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.price == 0 ? 'Free' : masterSubscription.price}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.discount ? masterSubscription.discount : '-'}</td>
                                             <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.discountPrice ? masterSubscription.discountPrice : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(masterSubscription.discountStartDate)}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(masterSubscription.discountEndDate)}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">
+                                              {masterSubscription.discountStartDate ? formatDate(masterSubscription.discountStartDate) : '-'}
+                                            </td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5">
+                                              {masterSubscription.discountEndDate ? formatDate(masterSubscription.discountEndDate) : '-'}
+                                            </td>
+                                            {/* <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(masterSubscription.discountEndDate)}</td> */}
                                         </tr>
                                     ))}
                                 </tbody>

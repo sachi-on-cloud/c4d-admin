@@ -118,7 +118,7 @@ const CabAdd = () => {
                 const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
                 return {
                     ...option,
-                    period: `${option.period =='Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
+                    period: `${option.type =='Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
             //console.log("PACKAGE", packageData);
@@ -470,7 +470,7 @@ const CabAdd = () => {
                                 </div>
                                 <ErrorMessage name="withDriver" component="div" className="text-red-500 text-sm" />
                             </div>}
-                            {values.withDriver === 'Yes' && (
+                            {(values.withDriver === 'Yes' && values.assignedTo == 'Driver') && (
                                 <>
                                     <div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">Assign or Add Driver</p>

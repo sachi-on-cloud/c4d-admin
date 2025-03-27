@@ -39,7 +39,8 @@ export function UserView() {
     if (location.state?.userAdded || location.state?.userUpdated) {
       const action = location.state.userAdded ? 'added' : 'updated';
       setAlert({
-        message: `${location.state.userName} ${action} successfully!`
+        message: `${location.state.userName} ${action} successfully!`,
+        color : 'blue',
       });
       setTimeout(() => {
         setAlert(null);
@@ -49,7 +50,8 @@ export function UserView() {
     }
     if(location.state?.userExist){
       setAlert({
-        message: `user already exist!!`
+        message: `user already exist!!`,
+        color : 'red',
       });
       setTimeout(() => {
         setAlert(null);
@@ -105,7 +107,7 @@ export function UserView() {
       {alert && (
         <div className='mb-2'>
         <Alert
-          color='blue'
+          color={alert.color}
           className='py-3 px-6 rounded-xl'
         >
           {alert.message}

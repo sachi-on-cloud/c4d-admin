@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
+import MasterPriceLog from './MasterPriceLog';
 
 const PriceDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
@@ -129,6 +130,7 @@ const PriceDetails = () => {
                     </Form>
                 )}
             </Formik>
+            <MasterPriceLog id={id}/>
         </div>
     );
 };

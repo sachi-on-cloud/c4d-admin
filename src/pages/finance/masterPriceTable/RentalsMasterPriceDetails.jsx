@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
+import MasterPriceLog from './MasterPriceLog';
 
 const RentalsPriceMasterDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
@@ -35,7 +36,7 @@ const RentalsPriceMasterDetails = () => {
                     nightCharge: data?.data?.nightCharge,
                     cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
                     cancellationCharge: data?.data?.cancelCharge,
-                    status: data?.data?.status === 1 ? "ACTIVE" : "INACTIVE"
+                    status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE"
                 });
             }
         } catch (error) {
@@ -140,13 +141,14 @@ const RentalsPriceMasterDetails = () => {
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Back
                             </Button>
-                            <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-black rounded-xl" onClick={() => navigate(`/dashboard/users/master-price/rides-edit/${id}`)}>
+                            <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-black rounded-xl" onClick={() => navigate(`/dashboard/users/master-price/rentals-edit/${id}`)}>
                                 Edit
                             </Button>
                         </div>
                     </Form>
                 )}
             </Formik>
+            <MasterPriceLog id={id}/>
         </div>
     );
 };
