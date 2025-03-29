@@ -21,7 +21,7 @@ const RentalsPriceMasterDetails = () => {
             const data = await ApiRequestUtils.get(`${API_ROUTES.RIDES_PRICE_DETAILS}/${id}`);
             if (data?.success) {
                 setInitialValues({
-                    carType: data?.data?.carType,
+                    // carType: data?.data?.carType,
                     type: data?.data?.type,
                     period: data?.data?.period,
                     baseFare: data?.data?.baseFare,
@@ -36,7 +36,21 @@ const RentalsPriceMasterDetails = () => {
                     nightCharge: data?.data?.nightCharge,
                     cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
                     cancellationCharge: data?.data?.cancelCharge,
-                    status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE"
+                    status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE",
+                    price:data?.data?.price,
+                    priceMVP:data?.data?.priceMVP,
+                    priceSuv:data?.data?.priceSuv,
+                    priceSedan:data?.data?.priceSedan,
+                    baseFareMVP:data?.data?.baseFareMVP,
+                    baseFareSuv:data?.data?.baseFareSuv,
+                    baseFareSedan:data?.data?.baseFareSedan,
+                    kilometerPriceMVP:data?.data?.kilometerPriceMVP,
+                    kilometerPriceSuv:data?.data?.kilometerPriceSuv,
+                    kilometerPriceSedan:data?.data?.kilometerPriceSedan,
+                    additionalMinChargeMVP:data?.data?.additionalMinChargeMVP,
+                    additionalMinChargeSuv:data?.data?.additionalMinChargeSuv,
+                    additionalMinChargeSedan:data?.data?.additionalMinChargeSedan,
+
                 });
             }
         } catch (error) {
@@ -64,33 +78,16 @@ const RentalsPriceMasterDetails = () => {
                                 <Field type="string" name="period" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare</label>
-                                <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                            </div>
-                            <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer</label>
                                 <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
-                                <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min</label>
-                                <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Variant</label>
-                                <Field type="string" name="carType" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                <label className="text-sm font-medium text-gray-700">Status</label>
+                                <Field type="string" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Status</label>
-                                <Field type="string" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             {initialValues?.type === 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Toll Charge</label>
@@ -126,17 +123,106 @@ const RentalsPriceMasterDetails = () => {
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>
                                 <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
-                            {/* <div>
-                            <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
-                            <Field type="number" name="cancellationMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            <ErrorMessage name="cancellationMins" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                            {/* new entry Mini */}
+                            <div>
+                            <h2 className="text-2xl font-bold mb-4">Mini</h2>
+                            <div className="grid grid-cols-4 gap-5">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare</label>
+                                <Field type="number" name="baseFare" className="p-2  w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                            
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price</label>
+                                <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                            </div>
+                            
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
+                                <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min</label>
+                                <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                            </div>
+                            </div>
+                            {/* new entry Sedan */}
+                            <br/>
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">Sedan</h2>
+                            <div className="grid grid-cols-4 gap-5">
+                           
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">BaseFare (Sedan)</label>
+                                    <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
+                                    <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Kilometer Price (Sedan)</label>
+                                    <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Additional Min Charge (Sedan)</label>
+                                    <Field type="number" name="additionalMinChargeSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                </div>
+                            </div>
+                            </div>
+                            <br/>
+                            {/* new entry SUV */}
+                            <div>
+                            <h2 className="text-2xl font-bold mb-4">SUV</h2>     
+                             <div className="grid grid-cols-4 gap-5">
+                              <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (Suv)</label>
+                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
+                                <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                            </div>                            
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (Suv)</label>
+                                <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>                            
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (Suv)</label>
+                                <Field type="number" name="additionalMinChargeSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                            </div>
+                            </div>
+                            </div>
+                            <br/>
+                            {/* new entry MUV */}
+                            <div>
+                            <h2 className="text-2xl font-bold mb-4">MUV</h2>
+                            <div className="grid grid-cols-4 gap-5">
+                              <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
+                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                            </div>  
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
+                                <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                            </div>                            
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
+                                <Field type="number" name="kilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (MUV)</label>
+                                <Field type="number" name="additionalMinChargeMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                            </div>
+                            </div>
+                            <br/>
+                            </div>
                         </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
-                            <Field type="number" name="cancellationCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            <ErrorMessage name="cancellationCharge" component="div" className="text-red-500 text-sm" />
-                        </div> */}
-                        </div>
+                            
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Back

@@ -14,7 +14,7 @@ const STATUS_OPTIONS = [
 ];
 
 const PRICE_SCHEMA = Yup.object().shape({
-    carType: Yup.string().required('Cab Type is required'),
+    // carType: Yup.string().required('Cab Type is required'),
     // serviceType: Yup.string().required('Service Type is required'),
     type: Yup.string().required('Trip Type is required'),
     period: Yup.string().required('Package Type is required'),
@@ -36,7 +36,7 @@ const RentalsPriceMasterAdd = () => {
     const navigate = useNavigate();
 
     const initialValues = {
-        carType: '',
+        // carType: '',
         serviceType: '',
         type: '',
         period: '',
@@ -48,29 +48,54 @@ const RentalsPriceMasterAdd = () => {
         driverCharge: '',
         nightCharge: '',
         status: 'ACTIVE',
+        price:'',
+        priceMVP:'',
+        priceSuv:'',
+        priceSedan:'',
+        baseFareMVP:'',
+        baseFareSuv:'',
+        baseFareSedan:'',
+        kilometerPriceMVP:'',
+        kilometerPriceSuv:'',
+        kilometerPriceSedan:'',
+        additionalMinChargeMVP:'',
+        additionalMinChargeSuv:'',
+        additionalMinChargeSedan:'',
     };
-    
+
     const onSubmit = async (values, { setSubmitting }) => {
         try {
-            console.log('Submitted Price Data:', values);
             const reqBody = {
-                'carType': values.carType,
+                // 'carType': values.carType,
                 'serviceType': 'RENTAL',
-                'type': values.type,
-                'period': values.period,
-                'baseFare': values.baseFare,
-                'kilometer': values.kilometer,
-                'kilometerPrice': values.kilometerPrice,
-                'additionalMinCharge': values.additionalMinCharge,
+                'type': String(values.type),
+                'period': String(values.period),
+                'baseFare': Number(values.baseFare),
+                'kilometer': Number(values.kilometer),
+                'kilometerPrice': Number(values.kilometerPrice),
+                'additionalMinCharge': Number(values.additionalMinCharge),
                 'tollCharge': values?.type === 'Outstation' ? values.tollCharge : 0,
                 'driverCharge': values?.type === 'Outstation' ? values.driverCharge : 0,
-                'nightCharge': values.nightCharge,
+                'nightCharge': Number(values.nightCharge),
                 'nightHoursFrom': Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 'nightHoursTo': Utils.formatTimeWithSeconds(values.nightHoursTo),
                 'status': values.status === "ACTIVE" ? 1 : 0,
                 "cancelMins": "00:00:00",
                 "cancelCharge": 0,
-                'extraKmPrice': values.extraKmPrice
+                'extraKmPrice': Number(values.extraKmPrice),
+                "price":Number(values.price),
+                "priceMVP":Number(values.priceMVP),
+                "priceSuv":Number(values.priceSuv),
+                "priceSedan":Number(values.priceSedan),
+                "baseFareMVP":Number(values.baseFareMVP),
+                "baseFareSuv":Number(values.baseFareSuv),
+                "baseFareSedan":Number(values.baseFareSedan),
+                "kilometerPriceMVP":Number(values.kilometerPriceMVP),
+                "kilometerPriceSuv":Number(values.kilometerPriceSuv),
+                "kilometerPriceSedan":Number(values.kilometerPriceSedan),
+                "additionalMinChargeMVP":Number(values.additionalMinChargeMVP),
+                "additionalMinChargeSuv":Number(values.additionalMinChargeSuv),
+                "additionalMinChargeSedan":Number(values.additionalMinChargeSedan),
             };
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_RENTALS_PRICE_TABLE, reqBody);
             if (data?.success) {
@@ -112,7 +137,7 @@ const RentalsPriceMasterAdd = () => {
                                     <option value="">Select Package Type</option>
                                     {values.type === 'Outstation' && <option value="1">1</option>}
                                     {values.type !== 'Outstation' && <option value="2">2</option>}
-                                    {values.type !== 'Outstation' &&<option value="4">4</option>}
+                                    {values.type !== 'Outstation' && <option value="4">4</option>}
                                     {values.type !== 'Outstation' && <option value="6">6</option>}
                                     {values.type !== 'Outstation' && <option value="8">8</option>}
                                     {values.type !== 'Outstation' && <option value="10">10</option>}
@@ -125,6 +150,23 @@ const RentalsPriceMasterAdd = () => {
                                 <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                             </div>
+                            {/* new entry baseFare*/}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
+                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare(Suv)</label>
+                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (Sedan)</label>
+                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer</label>
                                 <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -135,22 +177,75 @@ const RentalsPriceMasterAdd = () => {
                                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
                             </div>
+                            {/* new entry price*/}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price</label>
+                                <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
+                                <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
+                                <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="priceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
+                                <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="priceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            {/* new entry kilometerPrice*/}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
+                                <Field type="number" name="kilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerPriceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (Suv)</label>
+                                <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerPriceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (Sedan)</label>
+                                <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerPriceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                 <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="additionalMinCharge" component="div" className="text-red-500 text-sm" />
                             </div>
+                            {/* new entry additionalMinCharge*/}
                             <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (MUV)</label>
+                                <Field type="number" name="additionalMinChargeMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="additionalMinChargeMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (Suv)</label>
+                                <Field type="number" name="additionalMinChargeSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="additionalMinChargeSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (Sedan)</label>
+                                <Field type="number" name="additionalMinChargeSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="additionalMinChargeSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            {/* <div>
                                 <label className="text-sm font-medium text-gray-700">Variant</label>
                                 <Field as="select" name="carType" className="p-2 w-full rounded-md border-2 border-gray-300">
                                     <option value="">Select Variant</option>
                                     <option value="Mini">Mini</option>
                                     <option value="Sedan">Sedan</option>
                                     <option value="SUV">SUV</option>
-                                    <option value="MUV">MUV</option>
+                                    <option value="MVP">MVP</option>
                                 </Field>
                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

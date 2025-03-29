@@ -167,7 +167,7 @@ export function AccountView() {
                             <Chip
                               variant="gradient"
                               color={ownerStatus == "ACTIVE" ? "green" : "blue-gray"}
-                              value={ownerStatus == "ACTIVE" ? "online" : "offline"}
+                              value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>

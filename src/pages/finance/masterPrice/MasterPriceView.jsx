@@ -398,7 +398,6 @@ export function MasterPriceView() {
                                     {[
                                         "Type",
                                         "Package",
-                                        "Variant",
                                         "Base Fare",
                                         "Kilometer",
                                         "Kilometer Rate",
@@ -457,11 +456,6 @@ export function MasterPriceView() {
                                                         </Typography>
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {carType}
-                                                </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">

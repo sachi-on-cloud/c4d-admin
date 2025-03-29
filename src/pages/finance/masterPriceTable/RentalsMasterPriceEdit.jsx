@@ -16,7 +16,7 @@ const STATUS_OPTIONS = [
 ];
 
 const PRICE_SCHEMA = Yup.object().shape({
-    carType: Yup.string().required('Cab Type is required'),
+    // carType: Yup.string().required('Cab Type is required'),
     type: Yup.string().required('Trip Type is required'),
     period: Yup.string().required('Package Type is required'),
     baseFare: Yup.number().required('Base Fare is required'),
@@ -42,7 +42,7 @@ const RentalsMasterPriceEdit = () => {
             const data = await ApiRequestUtils.get(`${API_ROUTES.RIDES_PRICE_DETAILS}/${packageId}`);
             if (data?.success) {
                 setInitialValues({
-                    carType: data?.data?.carType || '',
+                    // carType: data?.data?.carType || '',
                     type: data?.data?.type || '',
                     period: data?.data?.period || '',
                     baseFare: data?.data?.baseFare || 0,
@@ -58,6 +58,19 @@ const RentalsMasterPriceEdit = () => {
                     cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
                     cancellationCharge: data?.data?.cancelCharge || 0,
                     status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE",
+                    price:data?.data?.price || 0,
+                    priceMVP:data?.data?.priceMVP || 0,
+                    priceSuv:data?.data?.priceSuv || 0,
+                    priceSedan:data?.data?.priceSedan || 0,
+                    baseFareMVP:data?.data?.baseFareMVP || 0,
+                    baseFareSuv:data?.data?.baseFareSuv || 0,
+                    baseFareSedan:data?.data?.baseFareSedan || 0,
+                    kilometerPriceMVP:data?.data?.kilometerPriceMVP || 0,
+                    kilometerPriceSuv:data?.data?.kilometerPriceSuv || 0,
+                    kilometerPriceSedan:data?.data?.kilometerPriceSedan || 0,
+                    additionalMinChargeMVP:data?.data?.additionalMinChargeMVP || 0,
+                    additionalMinChargeSuv:data?.data?.additionalMinChargeSuv || 0,
+                    additionalMinChargeSedan:data?.data?.additionalMinChargeSedan || 0,
                 });
             }
         } catch (error) {
@@ -73,7 +86,7 @@ const RentalsMasterPriceEdit = () => {
         try {
             const reqBody = {
                 packageId: Number(id),
-                carType: String(values.carType),
+                // carType: String(values.carType),
                 type: String(values.type),
                 period: Number(values.period),
                 kilometer: Number(values.kilometer),
@@ -90,6 +103,19 @@ const RentalsMasterPriceEdit = () => {
                 cancelMins: Utils.convertMinutesToTimeFormat(values.cancellationMins),
                 cancelCharge: Number(values.cancellationCharge),
                 status: values.status == 'ACTIVE' ? 1 : 0,
+                price:Number(values.price),
+                priceMVP:Number(values.priceMVP),
+                priceSuv:Number(values.priceSuv),
+                priceSedan:Number(values.priceSedan),
+                baseFareMVP:Number(values.baseFareMVP),
+                baseFareSuv:Number(values.baseFareSuv),
+                baseFareSedan:Number(values.baseFareSedan),
+                kilometerPriceMVP:Number(values.kilometerPriceMVP),
+                kilometerPriceSuv:Number(values.kilometerPriceSuv),
+                kilometerPriceSedan:Number(values.kilometerPriceSedan),
+                additionalMinChargeMVP:Number(values.additionalMinChargeMVP),
+                additionalMinChargeSuv:Number(values.additionalMinChargeSuv),
+                additionalMinChargeSedan:Number(values.additionalMinChargeSedan),
             };
 
             const response = await ApiRequestUtils.post(API_ROUTES.RENDAL_PRICE_EDIT, reqBody);
@@ -126,6 +152,23 @@ const RentalsMasterPriceEdit = () => {
                                 <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
                                 <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                             </div>
+                             {/* new entry baseFare*/}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
+                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare(Suv)</label>
+                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (Sedan)</label>
+                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer</label>
                                 <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
@@ -136,12 +179,65 @@ const RentalsMasterPriceEdit = () => {
                                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
                                 <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
                             </div>
+                             {/* new entry price*/}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price</label>
+                                <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
+                                <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
+                                <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="priceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
+                                <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="priceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            {/* new entry kilometerPrice*/}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
+                                <Field type="number" name="kilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerPriceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (Suv)</label>
+                                <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerPriceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Kilometer Price (Sedan)</label>
+                                <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerPriceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                 <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
                                 <ErrorMessage name="additionalMinCharge" component="div" className="text-red-500 text-sm" />
                             </div>
+                             {/* new entry additionalMinCharge*/}
                             <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (MUV)</label>
+                                <Field type="number" name="additionalMinChargeMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="additionalMinChargeMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (Suv)</label>
+                                <Field type="number" name="additionalMinChargeSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="additionalMinChargeSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (Sedan)</label>
+                                <Field type="number" name="additionalMinChargeSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="additionalMinChargeSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            {/* <div>
                                 <label className="text-sm font-medium text-gray-700">Variant</label>
                                 <Field as="select" name="carType" className="p-2 w-full rounded-md border-2 border-gray-300" disabled >
                                     <option value="">Select Variant</option>
@@ -151,7 +247,7 @@ const RentalsMasterPriceEdit = () => {
                                     <option value="MUV">MUV</option>
                                 </Field>
                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
