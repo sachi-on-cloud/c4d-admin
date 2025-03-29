@@ -32,22 +32,17 @@ export function InvoiceList() {
         fetchData();
     }, []);
 
-    // useEffect(() => {
-    //     getDetails(searchQuery.trim());
-    // }, [searchQuery]);
+    useEffect(() => {
+        getDetails(searchQuery.trim());
+    }, [searchQuery]);
 
     const getDetails = (searchQuery) => {
         if (searchQuery && searchQuery.trim() !== "") {
             const query = searchQuery.toLowerCase();
             const filteredAccounts = allAccounts.filter((acc) => {
-                const name = (acc?.Cab?.Account?.name || "").toLowerCase();
-                const phone = (acc?.Cab?.Account?.phoneNumber || "").toLowerCase();
-                const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-
+                const number = acc.invoiceNumber.toLowerCase();
                 return (
-                    name.startsWith(query) ||
-                    phone.startsWith(query) ||
-                    phoneNumberWithoutCountryCode.startsWith(query)
+                    number.includes(query)
                 );
             });
             setInvoiceList(filteredAccounts);
