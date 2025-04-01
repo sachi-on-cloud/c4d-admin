@@ -136,7 +136,7 @@ export function SearchDrivers(props) {
             bookingId: props?.bookingData?.id,
         };
         //service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
-        if (service == "CAB") {
+        if (service == "RIDES" || service == "RENTAL") {
             reqBody.cabId = driverId;
             reqBody.driverId = cabDriverId;
         } else {
@@ -299,7 +299,7 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.map(
-                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber }, key) => {
+                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber, Drivers }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"

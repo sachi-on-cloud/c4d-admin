@@ -625,7 +625,7 @@ const ConfirmBooking = (props) => {
                             </Button>
                         )}
 
-                    {bookingDetails.status === 'INITIATED' &&
+                    {['QUOTED','CONFIRMED', 'BOOKING_ACCEPTED'].includes(bookingDetails.status) &&
                         (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
                             <Button
                                 color="black"
@@ -633,7 +633,7 @@ const ConfirmBooking = (props) => {
                                 fullWidth
                                 onClick={() => { props.onAssignDriver(bookingDetails); }}
                             >
-                                {props.bookingData.serviceType === "CAB"
+                                {props.bookingData.serviceType !== "DRIVER"
                                     ? "Choose Another Cab"
                                     : "Choose Another Captain"}
                             </Button>
