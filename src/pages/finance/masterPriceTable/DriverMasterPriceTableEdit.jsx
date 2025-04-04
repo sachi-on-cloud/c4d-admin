@@ -14,15 +14,15 @@ const STATUS_OPTIONS = [
 ];
 
 const DRIVER_SCHEMA = Yup.object().shape({
-    serviceType: Yup.string().required('service Type is required'),
+    serviceType: Yup.string().required('Service Type is required'),
     type: Yup.string().required('Type is required'),
-    period: Yup.number().required('period is required'),
-    price: Yup.number().required('price is required'),
-    priceMVP: Yup.number().required('priceMVP is required'),
-    dropPrice: Yup.number().required('dropPrice is required'),
-    nightCharge: Yup.number().required('nightCharge is required'),
-    cancelCharge: Yup.number().required('cancelCharge is required'),
-    extraPrice: Yup.number().required('extraPrice is required'),
+    period: Yup.number().required('Period is required'),
+    price: Yup.number().required('Price is required'),
+    priceMVP: Yup.number().required('Price MVP is required'),
+    dropPrice: Yup.number().required('Drop Price is required'),
+    nightCharge: Yup.number().required('Night Charge is required'),
+    cancelCharge: Yup.number().required('Cancel Charge is required'),
+    extraPrice: Yup.number().required('Extra Price is required'),
     status: Yup.string().required('Status is required'),
 
 });

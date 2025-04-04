@@ -26,6 +26,7 @@ export function MasterPriceAdd() {
         cancelMins: '',
         cancelCharge: '',
         active: "",
+        extraPrice:'',
     };
 
     const handleSubmit = async (values) => {
@@ -73,7 +74,7 @@ export function MasterPriceAdd() {
             <h2 className="text-2xl font-bold mb-4">Add Master Price List</h2>
             <Formik
                 initialValues={initialValues}
-                // validationSchema={MASTERPRICE_ADD_SCHEME}
+                validationSchema={MASTERPRICE_ADD_SCHEME}
                 onSubmit={handleSubmit}
 
             >

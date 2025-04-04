@@ -572,128 +572,81 @@ export const CAB_ADD_SCHEMA = Yup.object({
 });
 
 export const SUBSCRIPTION_ADD_SCHEME = Yup.object().shape({
-    serviceType: Yup.string().required("Service Type is required"),
+    serviceType: Yup.string()
+        .typeError("Service Type must be a String")
+        .required("Service Type is required"),
     packagePrice: Yup.number()
-      .typeError("Subscription Amount must be a number")
-      .positive("Subscription Amount must be greater than zero")
-      .required("Subscription Amount is required"),
+        .typeError("Package Price Amount must be a number")
+
+        .required("Package Price Amount is required"),
     price: Yup.number()
-      .typeError("Earnings Threshold must be a number")
-      .positive("Earnings Threshold must be greater than zero")
-      .required("Earnings Threshold is required"),
-    discount: Yup.number()
-      .typeError("Discount must be a number")
-      .min(0, "Discount cannot be negative")
-      .max(100, "Discount cannot exceed 100%")
-      .notRequired(),
-    discountPrice: Yup.number()
-      .typeError("Discount Price must be a number")
-      .min(0, "Discount Price cannot be negative")
-      .notRequired(),
-    discountStartDate: Yup.date().nullable().notRequired(),
-    discountEndDate: Yup.date()
-    .nullable()
-    .notRequired()
-    .test("required-if-start-exists", "Discount End Date is required if Start Date is entered", function (value) {
-      return !this.parent.discountStartDate || value;
-    })
-    .test("valid-end-date", "Discount End Date must be after Start Date", function (value) {
-      const { discountStartDate } = this.parent;
-      return !discountStartDate || !value || new Date(value) > new Date(discountStartDate);
-    }),
+        .typeError("Price must be a number")
+
+        .required("Price is required"),
+    name: Yup.string()
+        .typeError("Name must be a String")
+        .required("Name is required"),
+    type: Yup.string()
+        .typeError("Type must be a String")
+        .required("Type is required"),
+    bonusPrice: Yup.number()
+        .typeError("Bonus Price must be a number")
+        .required("Bonus Price is required"),
+
+    totalPrice: Yup.number()
+        .typeError("Total Price must be a number")
+        .positive("Total Price must be greater than zero")
+        .required("Total Price is required"),
+
+    validityDays: Yup.number()
+        .typeError("validityDays  must be a number")
+        .required("validityDays  is required"),
+
 });
 export const SUBSCRIPTION_EDIT_SCHEME = Yup.object().shape({
-    serviceType: Yup.string().required("Service Type is required"),
+    serviceType: Yup.string()
+        .typeError("Service Type must be a String")
+        .required("Service Type is required"),
     packagePrice: Yup.number()
-        .typeError("Subscription Amount must be a number")
-        .positive("Subscription Amount must be greater than zero")
-        .required("Subscription Amount is required"),
+        .typeError("Package Price Amount must be a number")
+
+        .required("Package Price Amount is required"),
     price: Yup.number()
-        .typeError("Earnings Threshold must be a number")
-        .positive("Earnings Threshold must be greater than zero")
-        .required("Earnings Threshold is required"),
-    discount: Yup.number()
-        .typeError("Discount must be a number")
-        .min(0, "Discount cannot be negative")
-        .max(100, "Discount cannot exceed 100%")
-        .notRequired(),
-    discountPrice: Yup.number()
-        .typeError("Discount Price must be a number")
-        .min(0, "Discount Price cannot be negative")
-        .notRequired(),
-    discountStartDate: Yup.date().nullable().notRequired(),
-    discountEndDate: Yup.date()
-        .nullable()
-        .notRequired()
-        .test("required-if-start-exists", "Discount End Date is required if Start Date is entered", function (value) {
-            return !this.parent.discountStartDate || value;
-        })
-        .test("valid-end-date", "Discount End Date must be after Start Date", function (value) {
-            const { discountStartDate } = this.parent;
-            return !discountStartDate || !value || new Date(value) > new Date(discountStartDate);
-        }),
+        .typeError("Price must be a number")
+
+        .required("Price is required"),
+    name: Yup.string()
+        .typeError("Name must be a String")
+        .required("Name is required"),
+    type: Yup.string()
+        .typeError("Type must be a String")
+        .required("Type is required"),
+    bonusPrice: Yup.number()
+        .typeError("Bonus Price must be a number")
+
+        .required("Bonus Price is required"),
+
+    totalPrice: Yup.number()
+        .typeError("Total Price must be a number")
+
+        .required("Total Price is required"),
+
+    validityDays: Yup.number()
+        .typeError("validityDays  must be a number")
+        .required("validityDays  is required"),
 });
 export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
-    serviceType: Yup.string().required("Service Type is required"),
-    tripType: Yup.string().required("Service Type is required"),
-    package: Yup.array()
-    .of(Yup.string().required('Each package must be selected'))
-    .required('At least one package must be selected')
-    .min(1, 'At least one package must be selected'),
-    freeWaitingTime: Yup.number()
-        .required('Free waiting time is required')
-        .min(0, 'Free waiting time must be at least 0 minutes'),
-    waitingCharges: Yup.number()
-        .required('Waiting charges are required')
-        .min(0, 'Waiting charges must be at least 0'),
-    dropOnly: Yup.boolean().required('Drop only selection is required'),
-    additionalMins: Yup.number()
-        .required('Additional minutes are required')
-        .min(0, 'Additional minutes must be at least 0'),
-    extraHours: Yup.number()
-        .required('Extra hours are required')
-        .min(0, 'Extra hours must be at least 0'),
-        nightHoursFrom: Yup.string()
-        .matches(/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/, "Enter a valid time (hh:mm AM/PM)")
-        .required("Night Hours From is required"),
-    nightHoursTo: Yup.string()
-        .matches(/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/, "Enter a valid time (hh:mm AM/PM)")
-        .required("Night Hours To is required")
-        .test("valid-range", "Night Hours To must be after Night Hours From", function (value) {
-            const { nightHoursFrom } = this.parent;
-            if (!nightHoursFrom || !value) return true; 
-            const convertTo24Hour = (time) => {
-                let [hours, minutes] = time.split(/[: ]/);
-                const period = time.split(" ")[1];
-
-                if (period === "PM" && hours !== "12") hours = String(Number(hours) + 12);
-                if (period === "AM" && hours === "12") hours = "00";
-
-                return parseInt(hours + minutes, 10); 
-            };
-
-            const fromTime = convertTo24Hour(nightHoursFrom);
-            const toTime = convertTo24Hour(value);
-
-            
-            return fromTime > toTime || fromTime < toTime;
-        }),
-    nightCharges: Yup.number()
-        .min(0, "Night charges must be at least 0")
-        .when(["nightHoursFrom", "nightHoursTo"], {
-            is: (from, to) => from && to, 
-            then: (schema) => schema.required("Night charges are required"),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-    cancellationTime: Yup.number()
-        .required('Cancellation time is required')
-        .min(0, 'Cancellation time must be at least 0 minutes'),
-    cancellationCharges: Yup.number()
-        .required('Cancellation charges are required')
-        .min(0, 'Cancellation charges must be at least 0'),
-        active: Yup.boolean()
-    .oneOf([true], "You must check the Active box to proceed"),
-
-    
+    serviceType: Yup.string().required('Service Type is required'),
+    type: Yup.string().required('Type is required'),
+    period: Yup.number().required('Period is required'),
+    price: Yup.number().required('Price is required'),
+    priceMVP: Yup.number().required('Price MVP is required'),
+    dropPrice: Yup.number().required('Drop Price is required'),
+    nightCharge: Yup.number().required('Night Charge is required'),
+    cancelCharge: Yup.number().required('Cancel Charge is required'),
+    status: Yup.string().required('Status is required'),
+    // extraPrice: Yup.number().required('Extra Price is required'),
+    // nightHoursFrom:Yup.time().required('Night Hours From Start 22:00 PM.'),
+    // nightHoursFrom:Yup.time().required('Night Hours To End 06:00 AM.')
 });
 

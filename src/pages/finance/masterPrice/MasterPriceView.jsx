@@ -198,7 +198,7 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {outstationPackageList.map(({ id, serviceType, type, price, dropPrice, extraPrice, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
+                                {outstationPackageList.map(({ id, serviceType, type, price, dropPrice, extraPrice,additionalMinCharge, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
                                     const className = `py-3 px-5 ${key === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
                                         <tr key={id}>
@@ -239,6 +239,11 @@ export function MasterPriceView() {
                                             </td> */}
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {additionalMinCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
                                                 {/* {nighthours} */}
                                                 {nightHoursFrom && nightHoursTo ? `${nightHoursFrom} - ${nightHoursTo}` : ""}
                                                 </Typography>
@@ -253,11 +258,11 @@ export function MasterPriceView() {
                                                     {cancelCharge}
                                                 </Typography>
                                             </td>
-                                            <td className={className}>
+                                            {/* <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {extrahours}
                                                 </Typography>
-                                            </td>
+                                            </td> */}
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {cancelMins}

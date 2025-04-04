@@ -19,10 +19,10 @@ export function MasterPriceDetailsAndEdit() {
             fetchItem(id);
         }
     }, [id]);
-    const STATUS_OPTIONS = [
-        { value: 'ACTIVE', label: 'Active' },
-        { value: 'INACTIVE', label: 'Inactive' },
-    ];
+    // const STATUS_OPTIONS = [
+    //     { value: 'ACTIVE', label: 'Active' },
+    //     { value: 'INACTIVE', label: 'Inactive' },
+    // ];
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_PACKAGE_DETAIL + `${itemId}`);
         if (data?.success) {
@@ -206,14 +206,15 @@ export function MasterPriceDetailsAndEdit() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
-                                <Select
+                                {/* <Select
                                     options={STATUS_OPTIONS}
                                     onChange={(selectedOption) => setFieldValue('status', selectedOption.value)}
                                     value={STATUS_OPTIONS.find(option => option.value === values?.status)}
                                     placeholder="Select Status"
                                     className="w-full"
                                     
-                                />
+                                /> */}
+                                <Field type="string" name="status" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>

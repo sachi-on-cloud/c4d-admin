@@ -87,7 +87,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {Drivers[0]?.firstName}
+                                                                {Drivers[0]?.firstName ? Drivers[0]?.firstName : ownerName}
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>
