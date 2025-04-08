@@ -593,7 +593,7 @@ const ConfirmBooking = (props) => {
                         </Button>
                     )}
 
-                    {['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) &&
+                    {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES")) &&
                         bookingDetails?.pickupAddress &&
                         !bookingDetails?.Driver?.id &&
                         !bookingDetails?.Cab?.id && (

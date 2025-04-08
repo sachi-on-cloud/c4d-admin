@@ -363,7 +363,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 End Trip
                                                             </Button>
                                                         } */}
-                                                        {['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                        {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && data?.serviceType == "RIDES")) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}

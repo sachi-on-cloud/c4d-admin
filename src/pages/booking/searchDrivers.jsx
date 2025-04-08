@@ -18,20 +18,15 @@ export function SearchDrivers(props) {
     const [sortField, setSortField] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
     const [loading, setLoading] = useState(false);
+    const [loadingRides, setLoadingRides] = useState(false);
 
     const getDriversList = async (searchQuery = '') => {
         setLoading(true);
         try {
             if (searchQuery !== '') {
                 const isNumeric = /^\d+$/.test(searchQuery);
-
-                // Form a regex pattern based on the input
                 const pattern = isNumeric ? `^\\+91${searchQuery}` : searchQuery;
-
-                // Create a regex for filtering
-                const regex = new RegExp(pattern, 'i'); // 'i' for case-insensitive
-
-                // Filter options based on input type
+                const regex = new RegExp(pattern, 'i');
                 const filtredOptions = drivers.filter((option) => {
                     if (isNumeric) {
                         return regex.test(option.phoneNumber);
@@ -40,6 +35,45 @@ export function SearchDrivers(props) {
                     }
                 });
                 setDrivers(filtredOptions);
+            }else if(props.bookingData.serviceType === 'RIDES'){
+                setLoadingRides(true);
+                try{
+                    let data = { 
+                        'bookingId': props.bookingData.id,
+                        'customerId': props.bookingData.CustomerId 
+                    }
+                    let requestDriver = await ApiRequestUtils.post(API_ROUTES.GET_RIDES_CAB_DRIVERS,data);
+                    if(requestDriver?.success){
+                        setDrivers([]);
+                        setTimeout(async () => {
+                            console.log("30 seconds passed. Checking driver availability...");
+                            let checkDriverStatus = await ApiRequestUtils.get(API_ROUTES.RIDES_DRIVER_LIST+'/'+props.bookingData.id);
+                            if (checkDriverStatus?.data?.length > 0) {
+                                const formattedDrivers = checkDriverStatus.data.map((item) => ({
+                                    id: item.cabId,
+                                    name: item.Driver?.firstName || 'N/A',
+                                    status: item.Shift?.availability === "AVAILABLE" ? "ACTIVE" : "INACTIVE",
+                                    carType: item.Driver?.Cab?.carType || '',
+                                    phoneNumber: item.Driver?.phoneNumber || '',
+                                    priceOffered: item.offerPrice || item.driverPrice || 0,
+                                    tripCount: item.Driver?.totalRides || 0,
+                                    Drivers: [{ id: item.DriverId }],
+                                    fullData: item,
+                                }));
+                                setDrivers(formattedDrivers);
+                            } else {
+                                console.log("No driver found.");
+                                setDrivers([]);
+                            }
+                            setLoadingRides(false);
+                        }, 30000);
+                    }else{
+                        setLoadingRides(false);
+                        setLoading(false);
+                    }
+                } catch(error){
+                    console.error("Error in sendDriverRequest:", error);
+                }
             } else {
                 let data;
                 if (props.bookingData.serviceType === 'DRIVER') {
@@ -49,7 +83,6 @@ export function SearchDrivers(props) {
                         longitude: props?.bookingData?.pickupLong,
                         type: props?.bookingData?.packageType,
                     }
-                    // props.bookingData.serviceType == "CAB" ? queryObj.cabType = props.bookingData.cabType : "";
                     data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
                 } else {
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
@@ -57,25 +90,9 @@ export function SearchDrivers(props) {
                         longitude: props?.bookingData?.pickupLong,
                     });
                 }
-
-                // let data;
-                // if (props.bookingData.serviceType == "CAB") {
-                //     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE + props?.bookingData?.packageId, {
-                //         latitude: props?.bookingData?.pickupLat,
-                //         longitude: props?.bookingData?.pickupLong,
-                //         type: props.bookingData.packageType
-                //     });
-                // } else {
-                //     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVERS_PACKAGE + props?.bookingData?.packageId, {
-                //         latitude: props?.bookingData?.pickupLat,
-                //         longitude: props?.bookingData?.pickupLong,
-                //         type: props.bookingData.packageType
-                //     });
-                // }
                 if (data?.success) {
                     setDrivers(data?.data);
                 }
-                // console.log("driverdata", data);
                 if (data?.success) {
                     setDrivers(data?.data);
                 } else {
@@ -96,12 +113,10 @@ export function SearchDrivers(props) {
         setSortDirection(newDirection);
 
         const sortedDrivers = [...drivers].sort((a, b) => {
-            // Handle null or undefined values
             if (!a[field] && !b[field]) return 0;
             if (!a[field]) return 1;
             if (!b[field]) return -1;
 
-            // Convert to numbers for numeric fields
             const aValue = ['intercityCount', 'outstationCount', 'distance'].includes(field)
                 ? Number(a[field])
                 : a[field];
@@ -109,7 +124,6 @@ export function SearchDrivers(props) {
                 ? Number(b[field])
                 : b[field];
 
-            // Sort based on direction
             if (newDirection === 'asc') {
                 return aValue - bValue;
             } else {
@@ -131,22 +145,60 @@ export function SearchDrivers(props) {
         }
     }, [props.bookingData]);
 
-    const onAssignDriver = async (service, driverId, cabDriverId) => {
-        const reqBody = {
+    const onAssignDriver = async (service, driverId, cabDriverId, fullData) => {
+        if(service != "RIDES"){
+            const reqBody = {
             bookingId: props?.bookingData?.id,
-        };
-        //service == "CAB" ? reqBody.cabId = driverId : reqBody.driverId = driverId;
-        if (service == "RIDES" || service == "RENTAL") {
-            reqBody.cabId = driverId;
-            reqBody.driverId = cabDriverId;
-        } else {
-            reqBody.driverId = driverId;
+            };
+            if (service == "RIDES" || service == "RENTAL") {
+                reqBody.cabId = driverId;
+                reqBody.driverId = cabDriverId;
+            } else {
+                reqBody.driverId = driverId;
+            }
+            const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
+            if (data?.success) {
+                props?.onNext();
+            }
+        }else if(service == "RIDES"){
+            const reqBody = {
+                bookingId:fullData.BookingId,
+                status: 'BOOKING_ACCEPTED',
+                driverId: cabDriverId,
+                shiftId: fullData.ShiftId,
+                cabId: driverId,
+                offerPrice: fullData.offerPrice,
+                estimatedDistance: fullData.estimatedDistance,
+                estimatedMin: fullData.estimatedMin,
+            };
+            const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RIDES_BOOKING, reqBody);
+            if (data?.success) {
+                props?.onNext();
+            } else if (
+                data?.code === 403 &&
+                data?.error === "Selected Cab is not available. Please choose another Cab."
+            ) {
+                const updatedDriverList = await ApiRequestUtils.get(`${API_ROUTES.RIDES_DRIVER_LIST}/${bookingId}`);
+                if (updatedDriverList?.data?.length > 0) {
+                    const formattedDrivers = checkDriverStatus.data.map((item) => ({
+                        id: item.cabId,
+                        name: item.Driver?.firstName || 'N/A',
+                        status: item.Shift?.availability === "AVAILABLE" ? "ACTIVE" : "INACTIVE",
+                        carType: item.Driver?.Cab?.carType || '',
+                        phoneNumber: item.Driver?.phoneNumber || '',
+                        priceOffered: item.offerPrice || item.driverPrice || 0,
+                        tripCount: item.Driver?.totalRides || 0,
+                        Drivers: [{ id: item.DriverId }],
+                    }));
+                    setDrivers(formattedDrivers);
+                } else {
+                    setDrivers([]);
+                    console.log("No drivers found.");
+                }
+            }
         }
-        const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
-        if (data?.success) {
-            props?.onNext();
-        }
-    }
+    };
+
     return (
         <>
             {props?.bookingData?.serviceType === 'DRIVER' &&
@@ -271,13 +323,19 @@ export function SearchDrivers(props) {
             {props?.bookingData?.serviceType != 'DRIVER' &&
                 <div className="flex flex-col w-full gap-y-4">
                     <Card>
-                        {loading ? (
-                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-                                <Typography variant="h6" color="white">
-                                    {`Loading cabs....`}
-                                </Typography>
-                            </CardHeader>
-                        ) : drivers.length > 0 ? (
+                    {loadingRides ? (
+                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                            <Typography variant="h6" color="white">
+                                Requesting nearby drivers. Please wait 30 seconds...
+                            </Typography>
+                        </CardHeader>
+                    ) : loading ? (
+                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                            <Typography variant="h6" color="white">
+                                Loading cabs...
+                            </Typography>
+                        </CardHeader>
+                    ) : drivers.length > 0 ? (
                             <CardBody className="overflow-x-auto overflow-y-auto max-w-[390px] px-0 pt-0 pb-2">
                                 <table className="w-full table-auto">
                                     <thead>
@@ -299,7 +357,7 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.map(
-                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber, Drivers }, key) => {
+                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber, Drivers, fullData }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -351,7 +409,7 @@ export function SearchDrivers(props) {
                                                         <td className={className}>
                                                             <Button
                                                                 as="a"
-                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
+                                                                onClick={() => {onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id, fullData) }}
                                                                 className="text-xs font-semibold text-white"
                                                             >
                                                                 Assign Cab
@@ -366,7 +424,7 @@ export function SearchDrivers(props) {
                             </CardBody>) : (
                             <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers'} Near By`}
+                                    {`No ${props?.bookingData?.serviceType == "DRIVER" ? 'drivers' : 'cabs'} Near By`}
                                 </Typography>
                             </CardHeader>
                         )}
