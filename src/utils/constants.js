@@ -897,6 +897,9 @@ export const API_ROUTES = {
     'RENDAL_PRICE_EDIT':'/update-rental-package',
     'MASTER_SUBSCRIPTION_EDIT': '/admin/plan/update',
     'CAB_PRICE_TABLE_LOG':'/price-list/log/',
+    'GET_RIDES_CAB_DRIVERS': '/assign/driver',
+    'RIDES_DRIVER_LIST':'/driver-request-list',
+    'CONFIRM_RIDES_BOOKING':'/confirm-rides-booking',
 };
 
 export const KYC_PROCESS = {

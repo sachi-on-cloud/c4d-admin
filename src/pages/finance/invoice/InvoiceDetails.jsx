@@ -38,16 +38,22 @@ const InvoiceDetails = () => {
 
     const handleDownloadPDF = () => {
         const input = pdfRef.current;
-        html2canvas(input).then((canvas) => {
+    
+        html2canvas(input, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+        }).then((canvas) => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgWidth = 190;
+            const imgWidth = 190; 
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
+    
             pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
             pdf.save(`Invoice_${invoice.invoiceNumber}.pdf`);
         });
     };
+    
 
     const onEditPress = () =>{
         setEdit(false);
@@ -105,45 +111,45 @@ const InvoiceDetails = () => {
                         {(values) => (
                             <Form className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Invoice Number</label>
-                                        <Field type="text" disabled name="invoiceNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
+                                        <Field type="text" disabled name="invoiceNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
                                     </div>
-                                    <div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Invoice Type</label>
-                                        <Field type="text" disabled name="invoiceType" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        <Field type="text" disabled name="invoiceType" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Created Date</label>
-                                        <Field type="text" disabled name="invoiceCreatedDate" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        <Field type="text" disabled name="invoiceCreatedDate" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Package</label>
-                                        <Field type="text" disabled name="package" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        <Field type="text" disabled name="package" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
                                     {true && <>
-                                        <div>
+                                        <div className='space-y-1'>
                                             <label className="text-sm font-medium text-gray-700">Driver Name</label>
-                                            <Field type="text" disabled name="driverName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                            <Field type="text" disabled name="driverName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
-                                        <div>
+                                        <div className='space-y-1'>
                                             <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
-                                            <Field type="text" disabled name="driverPhoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                            <Field type="text" disabled name="driverPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
                                     </>}
                                     {true && <>
-                                        <div>
+                                        <div className='space-y-1'>
                                             <label className="text-sm font-medium text-gray-700">Owner Name</label>
-                                            <Field type="text" disabled name="ownerName" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                            <Field type="text" disabled name="ownerName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
-                                        <div>
+                                        <div className='space-y-1'>
                                             <label className="text-sm font-medium text-gray-700">Owner Phone Number</label>
-                                            <Field type="text" disabled name="ownerPhoneNumber" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                            <Field type="text" disabled name="ownerPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
                                     </>}
-                                    <div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Status</label>
-                                        <Field as="select" name="status" disabled={edit} className="p-2 w-full rounded-md border border-gray-300 bg-white"
+                                        <Field as="select" name="status" disabled={edit} className="p-2 h-[50px] w-full rounded-md border border-gray-300 bg-white"
                                             onChange={(e) => setStatus(e.target.value)}
                                         >
                                             <option value="">Select Status</option>
@@ -152,13 +158,13 @@ const InvoiceDetails = () => {
                                             <option value="PAYMENT_CANCELLED">Payment Cancelled</option>
                                         </Field>                                    
                                     </div>
-                                    <div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Payment Method</label>
-                                        <Field type="text" disabled name="paymentMethod" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        <Field type="text" disabled name="paymentMethod" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Amount</label>
-                                        <Field type="text" disabled name="amount" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        <Field type="text" disabled name="amount" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
                                 </div>
                             </Form>

@@ -35,14 +35,9 @@ export function ReceiptList() {
         if (searchQuery && searchQuery.trim() !== "") {
             const query = searchQuery.toLowerCase();
             const filteredAccounts = allAccounts.filter((acc) => {
-                const name = (acc?.Cab?.Account?.name || "").toLowerCase();
-                const phone = (acc?.Cab?.Account?.phoneNumber || "").toLowerCase();
-                const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-
+                const number = acc.receiptNumber.toLowerCase();
                 return (
-                    name.startsWith(query) ||
-                    phone.startsWith(query) ||
-                    phoneNumberWithoutCountryCode.startsWith(query)
+                    number.includes(query)
                 );
             });
             setReceiptsList(filteredAccounts);
@@ -50,6 +45,10 @@ export function ReceiptList() {
             setReceiptsList(allAccounts);
         }
     };
+
+    useEffect(() => {
+        getDetails(searchQuery.trim());
+    }, [searchQuery]);
 
     function formatDate(isoDateString) {
         const date = new Date(isoDateString);

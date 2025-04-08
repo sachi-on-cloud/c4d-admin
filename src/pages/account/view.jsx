@@ -5,14 +5,20 @@ import {
   CardBody,
   Typography,
   Button,
+  Checkbox,
   Alert,
-  Chip
+  Chip,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
 } from "@material-tailwind/react";
 import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from "moment";
+import { FaFilter } from 'react-icons/fa';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 
 export function AccountView() {
@@ -22,6 +28,13 @@ export function AccountView() {
   const [alert, setAlert] = useState(false);
 
   const location = useLocation();
+
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });  
+  const [statusFilter, setStatusFilter] = useState(['All']); 
+  const [serviceTypeFilter,setServiceTypeFilter] = useState(['All']) 
+  const [documentTypeFilter, setDocumentTypeFilter] = useState(['All']) 
+  const [availableStatusFilter,setavailableStatusFilter] = useState(['All']) 
+  const [sourceFilter,setSourceFilter] = useState(['All']) 
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -73,6 +86,125 @@ export function AccountView() {
     return `+91${phoneNumber}`;}
   }
 
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+
+    const sortedAccounts = [...accounts].sort((a, b) => {
+      if (key === 'created_at') {
+        return direction === 'ascending'
+          ? new Date(a[key]) - new Date(b[key])
+          : new Date(b[key]) - new Date(a[key]);
+      } else {
+        const aValue = a[key]?.toLowerCase() || '';
+        const bValue = b[key]?.toLowerCase() || '';
+        if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
+        if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
+        return 0;
+      }
+    });
+    setAccounts(sortedAccounts);
+  };
+  
+  const handleFilterChange = (filterType, value) => {
+    // console.log('filterType, value :', filterType, value)
+    if (filterType === 'ownerStatus')
+      setStatusFilter(prev => {
+        if (value === 'All') {
+          return ['All'];
+        }
+        else {
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      })
+
+    else if (filterType === 'documentStatus') {
+      setDocumentTypeFilter(prev => {
+        if (value === 'All') {
+          return ['All'];
+        } else {
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      });
+    }
+
+    else if (filterType === 'availableStatus') {
+      setavailableStatusFilter(prev => {
+        if (value === 'All') {
+          return ['All'];
+        }
+        else {
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      })
+    }
+
+    else if (filterType === 'type') {
+      setServiceTypeFilter(prev => {
+        if (value === 'All') {
+          return ['All'];
+        } else {
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      });
+    }
+    else if(filterType === "source")
+    {
+      setSourceFilter(prev => {
+        if( value === 'All')
+        {
+          return ['All']
+        }
+        else{
+          const newFilter = prev.includes(value)
+          ? prev.filter(item => item !== value)
+          : [...prev.filter(item => item !== 'All'), value];
+        return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      })
+    }
+  };
+    const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+      <Popover placement="bottom-start">
+        <PopoverHandler>
+          <div className="flex items-center cursor-pointer">
+            <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+              {title}
+            </Typography>
+            <FaFilter className="text-blue-gray-400 text-xs" />
+          </div>
+        </PopoverHandler>
+        <PopoverContent className="p-2">
+          {options.map((option) => (
+            <div key={option.value} className="flex items-center mb-2">
+              <Checkbox
+                color="blue"
+                checked={selectedFilters.includes(option.value)}
+                onChange={() => onFilterChange(option.value)}
+              />
+              <Typography color="blue-gray" className="font-medium ml-2">
+                {option.label}
+              </Typography>
+            </div>
+          ))}
+        </PopoverContent>
+      </Popover>
+    );
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && (
@@ -102,18 +234,107 @@ export function AccountView() {
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
-                        <Typography
+                        {el === "KYC Status" ? (
+                          <FilterPopover
+                            title={el}
+                            options={[
+                              { value: "All", label: "All" },
+                              { value: "PENDING UPLOAD", label: "Pending Upload" },
+                              { value: "VERIFIED", label: "Verified" },
+                              { value: "PENDING VERIFICATION", label: "Pending Verified" },
+                              { value: "DECLINED", label: "Declined" },
+
+                            ]}
+                            selectedFilters={documentTypeFilter}
+                            onFilterChange={(value) => handleFilterChange("documentStatus", value)}
+                          />
+                        ) : el === "Source" ? (
+                          <FilterPopover 
+                          title = {el}
+                          options={[
+                            {value:"All" ,label:"All"},
+                            {value: "Mobile App" , label:"mobile app"},
+                            {value: "Walk In", label:"walk in"},
+                            {value: "Call", label:"call"},
+                            {value: "Website", label:"web site"},
+                          ]}
+                          selectedFilters={sourceFilter}
+                          onFilterChange={(value) => handleFilterChange("source", value)}
+                          />
+                      ): el === "Owner Status" ? (
+                          <FilterPopover
+                            title={el}
+                            options={[
+                              { value: "All", label: "All" },
+                              { value: "InActive", label: "Offline" },
+                              { value: "Active", label: "Online" }
+                            ]}
+                            selectedFilters={statusFilter}
+                            onFilterChange={(value) => handleFilterChange("ownerStatus", value)}
+                          />
+                        ) : el === "Available Status" ? (
+                          <FilterPopover title={el}
+                            options={[
+                              { value: "All", label: "All" },
+                              { value: "InActive", label: "Offline" },
+                              { value: "Active", label: "Online" }
+                            ]}
+                            selectedFilters={availableStatusFilter}
+                            onFilterChange={(value) => handleFilterChange("availableStatus", value)}
+                          />
+                        ) : el === "Service Type" ? (
+                          <FilterPopover
+                            title={el}
+                            options={[
+                              { value: "All", label: "All" },
+                              { value: "Company", label: "Company" },
+                              { value: "Individual", label: "Individual" },
+                            ]}
+                            selectedFilters={serviceTypeFilter}
+                            onFilterChange={(value) => handleFilterChange("type", value)}
+                          />
+                        ) :  el === "Created Date" ? (
+                          <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">    <Typography
                           variant="small"
                           className="text-[11px] font-bold uppercase text-blue-gray-400"
                         >
                           {el}
                         </Typography>
+                        {sortConfig.key === "created_at" && (
+                          sortConfig.direction === "ascending" ? (
+                            <ChevronUpIcon className="w-4 h-4 ml-1 text-black" />
+                          ) : (
+                            <ChevronDownIcon className="w-4 h-4 ml-1 text-black" />
+                          )
+                        )}
+                        {/* {sortConfig.key === "name" && (
+                          sortConfig.direction === "ascending" ? (
+                            <ChevronUpIcon className="w-4 h-4 ml-1 text-black" />
+                          ) : (
+                            <ChevronDownIcon className="w-4 h-4 ml-1 text-black" />
+                          )
+                        )} */}
+                      </div>
+                      ):(
+                          <Typography
+                            variant="small"
+                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          >
+                            {el}
+                          </Typography>
+                        )}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {accounts.map(
+                {accounts.filter(account =>
+                    (statusFilter.includes('All') || statusFilter.includes(account.ownerStatus)) && 
+                    (sourceFilter.includes('All') || sourceFilter.includes(account.source)) &&
+                    (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(account.type)) &&
+                    (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
+                    (documentTypeFilter.includes('All') || documentTypeFilter.includes(account.documentStatus?.status))
+                  ).map(
                     ({id, created_at, name, phoneNumber, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
                       const className = `py-3 px-5 ${key === accounts.length - 1
                         ? ""
@@ -167,7 +388,7 @@ export function AccountView() {
                             <Chip
                               variant="gradient"
                               color={ownerStatus == "ACTIVE" ? "green" : "blue-gray"}
-                              value={ownerStatus == "ACTIVE" ? "online" : "offline"}
+                              value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>

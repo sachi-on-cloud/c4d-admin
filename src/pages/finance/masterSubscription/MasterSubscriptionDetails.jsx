@@ -7,42 +7,43 @@ import { API_ROUTES } from "@/utils/constants";
 
 const MasterSubscriptionDetails = () => {
     const navigate = useNavigate();
-    const { id } = useParams();  
+    const { id } = useParams();
     const [initialValues, setInitialValues] = useState({
-        serviceType: "",
-        packagePrice: "",
-        price: "",
-        discount: "",
-        discountPrice: "",
-        discountStartDate: "",
-        discountEndDate: "",
+        price: 0,
+        packagePrice: '',
+        serviceType: '',
+        name: '',
+        bonusPrice: 0,
+        totalPrice: 0,
+        type: '',
+        validityDays: ''|| 0,
     });
 
     useEffect(() => {
         const fetchData = async (id) => {
             try {
                 const response = await ApiRequestUtils.get(`${API_ROUTES.GET_MASTER_SUBSCRIPTION_LIST}/${id}`);
-                if (response?.result) {    
+                if (response?.result) {
                     setInitialValues({
                         serviceType: response.result.serviceType || "",
                         packagePrice: response.result.packagePrice || "",
                         price: response.result.price || "",
-                        discount: response.result.discount || "",
-                        discountPrice: response.result.discountPrice || "",
-                        discountStartDate: response.result.discountStartDate || "",
-                        discountEndDate: response.result.discountEndDate || "",
+                        name: response.result.name || "",
+                        bonusPrice: response.result.bonusPrice || "",
+                        totalPrice: response.result.totalPrice || "",
+                        type: response.result.type || "",
+                        validityDays: response.result.validityDays || 0,
                     });
                 }
             } catch (error) {
                 console.error("Error fetching subscription data:", error);
             }
         };
-    
+
         if (id) {
             fetchData(id);
         }
     }, [id]);
-    
 
     return (
         <div className="p-4">
@@ -52,73 +53,80 @@ const MasterSubscriptionDetails = () => {
                 initialValues={initialValues}
                 onSubmit={(values) => console.log("Form Submitted:", values)}
             >
-              {({ handleSubmit, values, setFieldValue, errors, isValid, dirty }) => {
-                        const calculateDiscountPrice = () => {
-                            if (values.discount) {
-                                const amount = parseFloat(values.packagePrice) || 0;
-                                const discount = parseFloat(values.discount) || 0;
-                                return amount - amount * (discount / 100);
-                            }
-                            return 0;
-                        };
-                
+                {({ handleSubmit, values, setFieldValue, errors, isValid, dirty }) => {
+                     
                     return (
-                    <Form>
-                        <div className="p-4 bg-gray-50 grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Service Type</label>
-                                <Field as="select" name="serviceType" className="p-2 w-full rounded-md border-2 border-gray-300" disabled>
-                                    <option value="">Select Service Type</option>
-                                    <option value="ACTING_DRIVER">Acting Driver</option>
-                                    <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
-                                </Field>
-                                
+                        <Form>
+                            <div className="p-4 bg-gray-50 grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="source" className="text-sm font-medium text-gray-700">Service Type</label>
+                                    <Field as="select" name="serviceType" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Service Type</option>
+                                        <option value="DRIVER">Driver</option>
+                                        <option value="RENTAL">Rental</option>
+                                        <option value="RIDES">Rides</option>
+                                    </Field>
+                                   
+                                </div>
+                                <div>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                                    <Field type="string" name="name" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="type" className="text-sm font-medium text-gray-700">Type</label>
+                                    <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Type</option>
+                                        <option value="FREE">Free</option>
+                                        <option value="PAID">Paid</option>
+                                    </Field>
+                                   
+                                </div>
+                                <div>
+                                    <label htmlFor="packagePrice" disabled className="text-sm font-medium text-gray-700">Price</label>
+                                    <Field type="number" name="packagePrice" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                   
+                                </div>
+                                <div>
+                                    <label htmlFor="price" className="text-sm font-medium text-gray-700">Base Credits</label>
+                                    <Field type="number" name="price" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                   
+                                </div>
+                                <div>
+                                    <label htmlFor="bonusPrice" className="text-sm font-medium text-gray-700">Bonus Credits</label>
+                                    <Field type="number" name="bonusPrice" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                   
+                                </div>
+                                <div>
+                                    <label htmlFor="totalPrice" className="text-sm font-medium text-gray-700">Total Credits</label>
+                                    <Field
+                                        type="number"
+                                        name="totalPrice"
+                                        readOnly
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                                        />
+                                   
+                                </div>
+                                <div>
+                                    <label htmlFor="validityDays" className="text-sm font-medium text-gray-700">Validity (Months)</label>
+                                    <Field type="number" name="validityDays" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                   
+                                </div>
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Subscription Amount (INR)</label>
-                                <Field type="number" name="packagePrice" className="p-2 w-full rounded-md border-gray-300" disabled />
-                                
+                            <div className="flex flex-row">
+                                <Button
+                                    fullWidth
+                                    onClick={() => navigate('/dashboard/finance/master-subscription')}
+                                    className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-black rounded-xl" onClick={() => navigate(`/dashboard/finance/master-subscription/edit/${id}`)}>
+                                    Edit
+                                </Button>
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Earnings Threshold (INR)</label>
-                                <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300" disabled />
-                                
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Discount</label>
-                                <Field type="number" name="discount" className="p-2 w-full rounded-md border-gray-300" disabled />
-                                
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Discount Price</label>
-                                <Field type="number" name="discountPrice" value={calculateDiscountPrice()} className="p-2 w-full rounded-md border-gray-300" disabled />
-                                
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Discount Start Date</label>
-                                <Field type="date" name="discountStartDate" className="p-2 w-full rounded-xl border-2 border-gray-300" disabled />
-                                
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Discount End Date</label>
-                                <Field type="date" name="discountEndDate" className="p-2 w-full rounded-xl border-2 border-gray-300" disabled />
-                                
-                            </div>
-                        </div>
-                        <div className="flex flex-row">
-                            <Button
-                                fullWidth
-                                onClick={() => navigate('/dashboard/finance/master-subscription')}
-                                className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl"
-                            >
-                                Cancel
-                            </Button>
-                            <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-black rounded-xl" onClick={() => navigate(`/dashboard/finance/master-subscription/edit/${id}`)}>
-                                Edit
-                            </Button>
-                        </div>
-                        
-                    </Form>
+
+                        </Form>
                     );
                 }}
             </Formik>

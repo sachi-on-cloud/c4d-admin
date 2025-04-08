@@ -34,6 +34,7 @@ const PriceDetails = () => {
                     nightCharge: data?.data?.nightCharge,
                     cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
                     cancellationCharge: data?.data?.cancelCharge,
+                    status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
                 });
             }
         } catch (error) {
@@ -75,6 +76,10 @@ const PriceDetails = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                 <Field type="number" name="additionalMin" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Status</label>
+                                <Field type="string" name="status" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Rate Parameter</label>
