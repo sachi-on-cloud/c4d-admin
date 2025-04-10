@@ -168,7 +168,7 @@ const CabEdit = () => {
         insurance: cabVal?.result?.insurance || "",
         withDriver: cabVal?.result?.withDriver || "",
         assignOrAddDriver: "Assign",
-        driverId: "",
+        driverId: cabVal?.result?.Drivers[0] ? cabVal?.result?.Drivers[0].id : "",
         accountId: cabVal?.result?.Account?.id || "",
         driverName: "",
         phoneNumber: "",

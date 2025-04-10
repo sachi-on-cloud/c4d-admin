@@ -374,7 +374,7 @@ const CabAdd = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
             <Formik
                 initialValues={initialValues}
-                // validationSchema={CAB_ADD_SCHEMA}
+                validationSchema={CAB_ADD_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
@@ -570,6 +570,7 @@ const CabAdd = () => {
                                                 : {
                                                     kilometer: item.kilometer,
                                                     baseFare: item.baseFare,
+                                                    period: item.period,
                                                     kilometerPrice: item.kilometerPrice,
                                                     additionalMinCharge: item.additionalMinCharge,
                                                     type: 'RENTAL',
