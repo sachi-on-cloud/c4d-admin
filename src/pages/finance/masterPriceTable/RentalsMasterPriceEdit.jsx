@@ -25,6 +25,8 @@ const PRICE_SCHEMA = Yup.object().shape({
     extraKmPrice: Yup.number().required('Additional Kilometer Price is required'),
     additionalMinCharge: Yup.number().required('Additional Min is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
+    cancelMins: Yup.number().required('Cancellation Mins is required'),
+    cancelCharge: Yup.number().required('Cancellation Charge is require'),
     status: Yup.string().required('Status is required'),
 });
 
@@ -55,8 +57,8 @@ const RentalsMasterPriceEdit = () => {
                     nightHoursFrom: convertToTimeFormat(data?.data?.nightHoursFrom),
                     nightHoursTo: convertToTimeFormat(data?.data?.nightHoursTo),
                     nightCharge: data?.data?.nightCharge || 0,
-                    cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
-                    cancellationCharge: data?.data?.cancelCharge || 0,
+                    cancelMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
+                    cancelCharge: data?.data?.cancelCharge || 0,
                     status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE",
                     price:data?.data?.price || 0,
                     priceMVP:data?.data?.priceMVP || 0,
@@ -100,8 +102,8 @@ const RentalsMasterPriceEdit = () => {
                 tollCharge: Number(values.tollCharge),
                 driverCharge: Number(values.driverCharge),
                 extraKmPrice: Number(values.extraKmPrice),
-                cancelMins: Utils.convertMinutesToTimeFormat(values.cancellationMins),
-                cancelCharge: Number(values.cancellationCharge),
+                cancelMins: Utils.convertMinutesToTimeFormat(values.cancelMins),
+                cancelCharge: Number(values.cancelCharge),
                 status: values.status == 'ACTIVE' ? 1 : 0,
                 price:Number(values.price),
                 priceMVP:Number(values.priceMVP),
@@ -303,16 +305,16 @@ const RentalsMasterPriceEdit = () => {
                                 <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
                                 <ErrorMessage name="nightCharge" component="div" className="text-red-500 text-sm" />
                             </div>
-                              {/* <div>
+                              <div>
                             <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
-                            <Field type="number" name="cancellationMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            <ErrorMessage name="cancellationMins" component="div" className="text-red-500 text-sm" />
+                            <Field type="number" name="cancelMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            <ErrorMessage name="cancelMins" component="div" className="text-red-500 text-sm" />
                         </div>
                         <div>
                             <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
-                            <Field type="number" name="cancellationCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            <ErrorMessage name="cancellationCharge" component="div" className="text-red-500 text-sm" />
-                        </div> */}
+                            <Field type="number" name="cancelCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            <ErrorMessage name="cancelCharge" component="div" className="text-red-500 text-sm" />
+                        </div>
                         </div>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">

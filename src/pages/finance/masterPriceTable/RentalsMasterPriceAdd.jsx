@@ -26,8 +26,8 @@ const PRICE_SCHEMA = Yup.object().shape({
     // tollCharge: Yup.number().required('Toll Charge is required'),
     // driverCharge: Yup.number().required('Driver Charge is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
-    // cancellationMins: Yup.number().required('Cancellation Mins is required'),
-    // cancellationCharge: Yup.number().required('Cancellation Charge is required'),
+    cancelMins: Yup.number().required('Cancellation Mins is required'),
+    cancelCharge: Yup.number().required('Cancellation Charge is required'),
     status: Yup.string().required('Status is required'),
 });
 
@@ -61,6 +61,8 @@ const RentalsPriceMasterAdd = () => {
         additionalMinChargeMVP:'',
         additionalMinChargeSuv:'',
         additionalMinChargeSedan:'',
+        cancelMins: '',
+        cancelCharge: '',
     };
 
     const onSubmit = async (values, { setSubmitting }) => {
@@ -80,8 +82,8 @@ const RentalsPriceMasterAdd = () => {
                 'nightHoursFrom': Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 'nightHoursTo': Utils.formatTimeWithSeconds(values.nightHoursTo),
                 'status': values.status === "ACTIVE" ? 1 : 0,
-                "cancelMins": "00:00:00",
-                "cancelCharge": 0,
+                "cancelMins": Number(values.cancelMins),
+                "cancelCharge": Number(values.cancelCharge),
                 'extraKmPrice': Number(values.extraKmPrice),
                 "price":Number(values.price),
                 "priceMVP":Number(values.priceMVP),
@@ -300,16 +302,16 @@ const RentalsPriceMasterAdd = () => {
                                 <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="nightCharge" component="div" className="text-red-500 text-sm" />
                             </div>
-                            {/* <div>
+                            <div>
                                 <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
-                                <Field type="number" name="cancellationMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="cancellationMins" component="div" className="text-red-500 text-sm" />
+                                <Field type="number" name="cancelMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="cancelMins" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
-                                <Field type="number" name="cancellationCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="cancellationCharge" component="div" className="text-red-500 text-sm" />
-                            </div> */}
+                                <Field type="number" name="cancelCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="cancelCharge" component="div" className="text-red-500 text-sm" />
+                            </div>
                         </div>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">

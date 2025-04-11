@@ -34,8 +34,8 @@ const RentalsPriceMasterDetails = () => {
                     nightHoursFrom: convertToTimeFormat(data?.data?.nightHoursFrom),
                     nightHoursTo: convertToTimeFormat(data?.data?.nightHoursTo),
                     nightCharge: data?.data?.nightCharge,
-                    cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
-                    cancellationCharge: data?.data?.cancelCharge,
+                    // cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
+                    // cancellationCharge: data?.data?.cancelCharge,
                     status: data?.data?.status == 1 ? "ACTIVE" : "INACTIVE",
                     price:data?.data?.price,
                     priceMVP:data?.data?.priceMVP,
@@ -50,6 +50,8 @@ const RentalsPriceMasterDetails = () => {
                     additionalMinChargeMVP:data?.data?.additionalMinChargeMVP,
                     additionalMinChargeSuv:data?.data?.additionalMinChargeSuv,
                     additionalMinChargeSedan:data?.data?.additionalMinChargeSedan,
+                    cancelMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
+                    cancelCharge: data?.data?.cancelCharge,
 
                 });
             }
@@ -118,6 +120,14 @@ const RentalsPriceMasterDetails = () => {
                                         disabled
                                     />
                                 </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
+                                <Field type="number" name="cancelMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
+                                <Field type="number" name="cancelCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>
