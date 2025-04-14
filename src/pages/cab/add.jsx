@@ -273,6 +273,7 @@ const CabAdd = () => {
                             <thead>
                                 <tr>
                                     {[
+                                        "Package",
                                         "Base Fare",
                                         "Per Kilometer Rate",
                                         "Per Minute Rate"
@@ -288,6 +289,11 @@ const CabAdd = () => {
                             <tbody>
                                 {prices.map((priceItem, index) => (
                                     <tr key={priceItem.packageId}>
+                                        <td className="py-3 px-5 border-b border-blue-gray-50">
+                                            <Typography variant="small" color="blue-gray" className="font-semibold">
+                                                Rides
+                                            </Typography>
+                                        </td>
                                         {[
                                             "baseFare",
                                             "kilometerPrice",
@@ -374,7 +380,7 @@ const CabAdd = () => {
             <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
             <Formik
                 initialValues={initialValues}
-                // validationSchema={CAB_ADD_SCHEMA}
+                validationSchema={CAB_ADD_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
@@ -570,6 +576,7 @@ const CabAdd = () => {
                                                 : {
                                                     kilometer: item.kilometer,
                                                     baseFare: item.baseFare,
+                                                    period: item.period,
                                                     kilometerPrice: item.kilometerPrice,
                                                     additionalMinCharge: item.additionalMinCharge,
                                                     type: 'RENTAL',

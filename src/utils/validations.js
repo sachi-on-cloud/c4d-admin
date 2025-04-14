@@ -339,7 +339,7 @@ export const DRIVER_SCHEMA = Yup.object({
 });
 
 export const CAB_SCHEMA = Yup.object({
-    name: Yup.string().required('Owner Name is required'),
+    name: Yup.string().required('Vehicle Name is required'),
     // ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
     carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
     address: Yup.string()
@@ -405,30 +405,64 @@ export const CAB_SCHEMA = Yup.object({
         then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
-    notify: Yup.string().required('Notification Recipients is required'),
-    carType: Yup.string().required('Car Type is required'),
+    // notify: Yup.string().required('Notification Recipients is required'),
+    // carType: Yup.string().required('Car Type is required'),
     packages: Yup.array()
         .of(Yup.string().required('Each package must be selected'))
-        .required('At least one package must be selected')
-        .min(1, 'At least one package must be selected'),
+        .required('At least one package must be selected'),
+
     //wallet: Yup.string().required('Wallet is required'),
+    type: Yup.string()
+    .oneOf(["RENTAL"],"Rides"),
+    
     prices: Yup.array().of(
-        Yup.object().shape({
-            price: Yup.number().required('Price is required'),
-            extraPrice: Yup.number().required('Extra price is required'),
-            extraKmPrice: Yup.number().required('Extra KM price is required'),
-            nightCharge: Yup.number().required('Night charge is required'),
-            cancelCharge: Yup.number().required('Cancel charge is required'),
-            extraCabType: Yup.string().required('Cab type is required'),
+        Yup.object().shape({        
+          kilometer: Yup.number()
+            .typeError("Kilometer must be a number")
+            .positive("Kilometer must be greater than zero")
+            .when("type", {
+              is: (type) => type === "RENTAL",
+              then: (schema) => schema.required("Kilometer is required."),
+              otherwise: (schema) => schema.notRequired(),
+            }),
+    
+          baseFare: Yup.number()
+            .typeError("Base Fare must be a number")
+            .positive("Base Fare must be greater than zero")
+            .required("Base Fare is required"),
+    
+          kilometerPrice: Yup.number()
+            .typeError("Kilometer Price must be a number")
+            .positive("Kilometer Price must be greater than zero")
+            .required("Kilometer Price is required"),
+    
+          additionalMinCharge: Yup.number()
+            .typeError("Additional Mins Charge must be a number")
+            .positive("Additional Mins Charge must be greater than zero")
+            .when("type", {
+              is: (type) => type === "RENTAL",
+              then: (schema) => schema.required("Additional Mins Charge is required"),
+              otherwise: (schema) => schema.notRequired(),
+            }),
+    
+          minCharge: Yup.number()
+            .typeError("Mins Charge must be a number")
+            .positive("Mins Charge must be greater than zero")
+            .when("type", {
+              is: (type) => type === "Rides",
+              then: (schema) => schema.required("Mins Charge is required for Rides"),
+              otherwise: (schema) => schema.notRequired(),
+            }),
         })
-    ).test('at-least-one-price', 'At least one price must be added', function (prices) {
+    )
+.test('at-least-one-price', 'At least one price must be added', function (prices) {
         return prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
+            price.price || price.kilometer || price.baseFare ||
+            price.kilometerPrice || price.additionalMinCharge || price.minCharge
         );
     }),
-    insuranceImg: Yup.string().optional(),
-    image1: Yup.string().optional(),
+    // insuranceImg: Yup.string().optional(),
+    // image1: Yup.string().optional(),
 });
 
 export const REASSIGN_DRIVER = Yup.object({
@@ -545,30 +579,68 @@ export const CAB_ADD_SCHEMA = Yup.object({
         then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
-    notify: Yup.string().required('Notification Recipients is required'),
+
     carType: Yup.string().required('Car Type is required'),
     packages: Yup.array()
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected'),
-    //.min(1, 'At least one package must be selected'),
-    //wallet: Yup.string().required('Wallet is required'),
+
+    type: Yup.string()
+      .oneOf(["RENTAL"],"Rides"),
+
     prices: Yup.array().of(
         Yup.object().shape({
-            price: Yup.number().required('Price is required'),
-            extraPrice: Yup.number().required('Extra price is required'),
-            extraKmPrice: Yup.number().required('Extra KM price is required'),
-            nightCharge: Yup.number().required('Night charge is required'),
-            cancelCharge: Yup.number().required('Cancel charge is required'),
-            extraCabType: Yup.string().required('Cab type is required'),
-        })
+            
+            kilometer: Yup.number()
+            .typeError("Kilometer must be a number")
+            .positive("Kilometer must be greater than zero")
+            .required("Kilometer is required")
+            .when("type", {
+                    is: (type) =>  type === "RENTAL" ,
+                    then: (schema) => schema.required("Kilometer is required."),
+                    otherwise: (schema) => schema.notRequired(),
+
+            }),
+            
+            baseFare: Yup.number()
+                .typeError("Base Fare must be a number")
+                .positive("Base Fare must be greater than zero")
+                .required("Base Fare is required"),
+
+            kilometerPrice: Yup.number()
+                .typeError("Kilometer Price must be a number")
+                .positive("Kilometer Price must be greater than zero")
+                .required("Kilometer Price is required"),
+
+            additionalMinCharge: Yup.number()
+                .typeError("Additional Mins Charge must be a number")
+                .positive("Additional Mins Charge  must be greater than zero")
+                .required("Additional Mins Charge  is required")
+                .when("type", {
+                    is: (type) =>  type === "RENTAL" ,
+                    then: (schema) => schema.required("Additional Mins Charge  is required"),
+                    otherwise: (schema) => schema.notRequired(),
+
+            }),
+
+            minCharge: Yup.number()
+            .typeError("Mins Charge must be a number")
+            .positive("Mins Charge  must be greater than zero")
+            .required("Mins Charge  is required")
+            .when("type", {
+                is: "Rides",
+                then: (schema) => schema.required("Kilometer is required for Local trips"),
+                otherwise: (schema) => schema.notRequired(),
+            }),
+            
+            })
+            
     ).test('at-least-one-price', 'At least one price must be added', function (prices) {
         return prices.some(price =>
-            price.price || price.extraPrice || price.extraKmPrice ||
-            price.nightCharge || price.cancelCharge || price.extraCabType
+            price.price || price.kilometer || price.baseFare ||
+            price.kilometerPrice || price.additionalMinCharge || price.minCharge
         );
-    }),
-    insuranceImg: Yup.string().required('Insurance Image is required'),
-    image1: Yup.string().required('RC Book Image is required'),
+    })
 });
 
 export const SUBSCRIPTION_ADD_SCHEME = Yup.object().shape({

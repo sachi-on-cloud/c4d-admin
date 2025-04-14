@@ -411,6 +411,8 @@ export function MasterPriceView() {
                                         "Night Charge",
                                         "Toll Charge",
                                         "Driver Charge",
+                                        "Cancellation Mins",
+                                        "Cancel Charge",
                                         "Status"
                                     ].map((el, index) => (
                                         <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
@@ -437,8 +439,10 @@ export function MasterPriceView() {
                                     driverCharge,
                                     tollCharge,
                                     period,
-                                    status,
-                                    extraKmPrice
+                                    extraKmPrice,
+                                    cancelMins,
+                                    cancelCharge,
+                                    status
                                 }, key) => {
                                     const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
 
@@ -500,6 +504,16 @@ export function MasterPriceView() {
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {driverCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {cancelMins}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {cancelCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>

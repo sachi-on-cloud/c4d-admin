@@ -168,7 +168,7 @@ const CabEdit = () => {
         insurance: cabVal?.result?.insurance || "",
         withDriver: cabVal?.result?.withDriver || "",
         assignOrAddDriver: "Assign",
-        driverId: "",
+        driverId: cabVal?.result?.Drivers[0] ? cabVal?.result?.Drivers[0].id : "",
         accountId: cabVal?.result?.Account?.id || "",
         driverName: "",
         phoneNumber: "",
@@ -370,7 +370,7 @@ const CabEdit = () => {
             <h2 className="text-2xl font-bold mb-4">Update Cab</h2>
             <Formik
                 initialValues={initialValues}
-                // validationSchema={CAB_SCHEMA}
+                validationSchema={CAB_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
