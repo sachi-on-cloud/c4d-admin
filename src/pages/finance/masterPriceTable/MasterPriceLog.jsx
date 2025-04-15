@@ -24,7 +24,7 @@ const MasterPriceLog = ({ id }) => {
 
     const fieldMappings = {
         "price": "Price",
-        "price_m_v_p": "Price MVP",
+        "price_m_v_p": "Price MUV",
         "waiting_mins": "Free Waiting Time",
         "base_fare": "Base Fare",
         "kilometer": "Kilometer",
@@ -38,9 +38,9 @@ const MasterPriceLog = ({ id }) => {
         "night_charge": "Night Charges",
         "cancel_mins": "Cancellation Time",
         "cancel_charge": "Cancellation Charges",
-        "base_fare_m_v_p": "Base Fare(MVP)",
+        "base_fare_m_v_p": "Base Fare(MUV)",
         "kilometer_price": "Rate Per Km(Mini, SUV, Sedan)",
-        "kilometer_price_m_v_p": "Rate Per Km(MVP)",
+        "kilometer_price_m_v_p": "Rate Per Km (MUV)",
         "min_charge": "Rate Per Min",
         "additional_min_charge": "Additional Min",
         "sur_charge_percentage": "Surcharge Percentage",

@@ -18,7 +18,7 @@ const DRIVER_SCHEMA = Yup.object().shape({
     type: Yup.string().required('Type is required'),
     period: Yup.number().required('Period is required'),
     price: Yup.number().required('Price is required'),
-    priceMVP: Yup.number().required('Price MVP is required'),
+    priceMVP: Yup.number().required('Price MUV is required'),
     dropPrice: Yup.number().required('Drop Price is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
     cancelCharge: Yup.number().required('Cancel Charge is required'),
@@ -168,7 +168,7 @@ const DriverMasterPriceTableEdit = () => {
                                     <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700">Price (MVP)</label>
+                                    <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
                                     <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
                                 </div>

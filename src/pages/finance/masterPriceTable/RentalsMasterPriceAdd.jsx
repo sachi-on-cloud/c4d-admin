@@ -61,7 +61,7 @@ const RentalsPriceMasterAdd = () => {
         additionalMinChargeMVP:'',
         additionalMinChargeSuv:'',
         additionalMinChargeSedan:'',
-        cancelMins: '',
+        cancelMins: Utils.convertMinutesToTimeFormat || 0,
         cancelCharge: '',
     };
 
@@ -82,7 +82,7 @@ const RentalsPriceMasterAdd = () => {
                 'nightHoursFrom': Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 'nightHoursTo': Utils.formatTimeWithSeconds(values.nightHoursTo),
                 'status': values.status === "ACTIVE" ? 1 : 0,
-                "cancelMins": Number(values.cancelMins),
+                "cancelMins": Utils.convertMinutesToTimeFormat(values.cancelMins),
                 "cancelCharge": Number(values.cancelCharge),
                 'extraKmPrice': Number(values.extraKmPrice),
                 "price":Number(values.price),
