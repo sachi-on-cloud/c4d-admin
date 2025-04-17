@@ -229,7 +229,7 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
-            {accountVal && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
+            {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
             {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} />}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}

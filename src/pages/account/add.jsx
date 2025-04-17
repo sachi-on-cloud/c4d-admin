@@ -189,7 +189,7 @@ const AccountAdd = (props) => {
                             onClick={() => {
                                 if (label === 'Live Photo' || label === 'Bank Statement') {
                                     setModalData({
-                                        image1: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
+                                        image1: typeof value === "string" ? value : URL.createObjectURL(value),
                                     });
                                 } 
                                 // else if (label === 'Bank Statement') {

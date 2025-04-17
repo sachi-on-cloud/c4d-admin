@@ -15,6 +15,7 @@ import { FaArrowRight, FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
 export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type }) {
     const navigate = useNavigate();
@@ -24,7 +25,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [showPickedBooking, setShowPickedBooking] = useState(0);
-
+    const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -173,6 +174,29 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
 
         return `${day}-${month}-${year}`;
     }
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+          direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    
+        const sortedDrivers = [...bookingsList].sort((a, b) => {
+          if (key === 'created_at') {
+            return direction === 'ascending'
+              ? new Date(a[key]) - new Date(b[key])
+              : new Date(b[key]) - new Date(a[key]);
+          } else {
+            const aValue = a[key]?.toLowerCase() || '';
+            const bValue = b[key]?.toLowerCase() || '';
+            if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
+            if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
+            return 0;
+          }
+        });
+    
+        setBookingsList(sortedDrivers);
+      };
     return (
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3 mb-2'>
@@ -191,7 +215,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                             <table className="w-full table-auto">
                                 <thead>
                                     <tr>
-                                        {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Owner", "Status", "Assign Captain"].map((el) => (
+                                        {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+                                            
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -208,8 +233,23 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         selectedFilters={serviceTypeFilter}
                                                         onFilterChange={(value) => handleFilterChange('serviceType', value)}
                                                     />
-                                                )
-                                                    : el === "Status" ? (
+                                                ) : el === "Created Date" ? (
+                                                    <th
+                                                      onClick={() => handleSort('created_at')}
+                                                      className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
+                                                    >
+                                                      <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
+                                                        Created Date
+                                                      </Typography>
+                                                      {sortConfig.key === 'created_at' && (
+                                                        sortConfig.direction === 'ascending' ? (
+                                                          <ChevronUpIcon className="w-5 h-5 mx-1 text-black" />
+                                                        ) : (
+                                                          <ChevronDownIcon className="w-5 h-5 ml-1 text-black" />
+                                                        )
+                                                      )}
+                                                    </th>
+                                                  ) : el === "Status" ? (
                                                         <FilterPopover
                                                             title={el}
                                                             options={[
@@ -299,14 +339,14 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             {formatDate(data?.created_at)}
                                                         </Typography>
                                                     </td>
-                                                    <td className={className}>
+                                                    {/* <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-600">
                                                         {data?.ownership === "ASSIGNED_TO_SUPPORT" ? (
                                                         <div>Assigned To Support</div>
                                                         ) : data?.ownership}
 
                                                         </Typography>
-                                                        </td>
+                                                        </td> */}
                                                     {/* <td className={className}>
                                                         {data?.status == "STARTED" ?
                                                             <Chip
