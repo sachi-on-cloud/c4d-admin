@@ -5,7 +5,8 @@ export const constants = {
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url_dev: 'https://seal-well-mite.ngrok-free.app',
-    url: 'https://api.c4d.smartapis.cyou'
+    //url: 'https://api.c4d.smartapis.cyou'
+    url: 'https://sit.api.c4d.smartapis.cyou/'
 };
 
 export const getBaseUrl = () => {
@@ -878,9 +879,9 @@ export const API_ROUTES = {
     'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan',
     'GET_QUOTE_OUTSTATION': '/get-quote',
     'ACTING_DRIVER_ADD_LOCAL_PACKAGE': '/add-package',
-    'ACTING_DRIVER_EDIT_LOCAL_PACKAGE':'/update-package',
+    'ACTING_DRIVER_EDIT_LOCAL_PACKAGE': '/update-package',
     'ACTING_DRIVER_ADD_OUTSTAION_PACKAGE': '/add-outstation-package',
-    'ACTING_DRIVER_EDIT_OUTSTATION_PACKAGE':'/update-outstation-package',
+    'ACTING_DRIVER_EDIT_OUTSTATION_PACKAGE': '/update-outstation-package',
     'GET_PACKAGE_DETAIL': '/package-list/',
     'GET_RECEIPT_LIST': '/admin/receipt',
     'GET_INVOICE_LIST': '/admin/list-invoices',
@@ -893,13 +894,13 @@ export const API_ROUTES = {
     'RIDES_PRICE_TABLE_LIST': '/rides-package-list',
     'RIDES_PRICE_DETAILS': '/package-list',
     'RIDES_PRICE_EDIT': '/update-rides-package',
-    'MASTERPRICETABLE_LOG':'/package-list/log/',
-    'RENDAL_PRICE_EDIT':'/update-rental-package',
+    'MASTERPRICETABLE_LOG': '/package-list/log/',
+    'RENDAL_PRICE_EDIT': '/update-rental-package',
     'MASTER_SUBSCRIPTION_EDIT': '/admin/plan/update',
-    'CAB_PRICE_TABLE_LOG':'/price-list/log/',
+    'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
-    'RIDES_DRIVER_LIST':'/driver-request-list',
-    'CONFIRM_RIDES_BOOKING':'/confirm-rides-booking',
+    'RIDES_DRIVER_LIST': '/driver-request-list',
+    'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
 };
 
 export const KYC_PROCESS = {
