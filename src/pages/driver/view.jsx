@@ -26,6 +26,8 @@ export function DriverView() {
   const [statusFilter, setStatusFilter] = useState(['All']);
   const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
   const [documentTypeFilter, setDocumentTypeFilter] = useState(['All'])
+  const [sourceFilter,setSourceFilter] = useState(['All'])
+  const [subscriptionStatusFilter,setsubscriptionStatusFilter] = useState(['All'])
 
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   // const [searchQuery, setSearchQuery] = useState('');
@@ -103,7 +105,37 @@ export function DriverView() {
           return newFilter.length === 0 ? ['All'] : newFilter;
         }
       });
-    } else if (filterType === 'documentStatus') {
+    }
+    else if (filterType === 'subscriptionStatus') {
+      setsubscriptionStatusFilter(prev => {
+        if (value === 'All') {
+          return ['All'];
+        }
+        else {
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+        }
+      })
+    } 
+    else if(filterType === "source")
+      {
+        setSourceFilter(prev => {
+          if( value === 'All')
+          {
+            return ['All']
+          }
+          else{
+            const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
+          }
+        })
+      }
+    
+    else if (filterType === 'documentStatus') {
       setDocumentTypeFilter(prev => {
           if (value === 'All') {
               return ['All'];
@@ -193,11 +225,11 @@ export function DriverView() {
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Created Date</Typography>
                       {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 mx-1 justify-center items-center text-black" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th>
-                    <th onClick={() => handleSort('firstName')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
+                    {/* <th onClick={() => handleSort('firstName')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
                       {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
-                    </th>
-                    {["Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "Driver Status", "KYC Status"].map((el) => (
+                    </th> */}
+                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "Driver Status", "KYC Status"].map((el) => (
                       <th
                       key={el}
                       className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -213,12 +245,37 @@ export function DriverView() {
                           selectedFilters={statusFilter}
                           onFilterChange={(value) => handleFilterChange("availableStatus", value)}
                         />
-                      ) : el === "KYC Status" ? (
+                      ) : el === "Source" ? (
+                        <FilterPopover 
+                        title = {el}
+                        options={[
+                          {value:"All" ,label:"All"},
+                          {value: "Mobile App" , label:"mobile app"},
+                          {value: "Walk In", label:"walk in"},
+                          {value: "Call", label:"call"},
+                          {value: "Website", label:"web site"},
+                        ]}
+                        selectedFilters={sourceFilter}
+                        onFilterChange={(value) => handleFilterChange("source", value)}
+                        />
+                    ) : el === "Driver Status" ? (
+                      <FilterPopover title={el}
+                        options={[
+                          { value: "All", label: "All" },
+                          { value: "IN_ACTIVE", label: "Offline" },
+                          { value: "ACTIVE", label: "Online" }
+                        ]}
+                        selectedFilters={subscriptionStatusFilter}
+                        onFilterChange={(value) => handleFilterChange("subscriptionStatus", value)}
+                      />
+                    ): el === "KYC Status" ? (
                         <FilterPopover
                           title={el}
                           options={[
                             { value: "All", label: "All" },
                             { value: "PENDING", label: "Pending" },
+                            { value: "PENDING UPLOAD", label: "Pending Upload" },
+                            { value: "PENDING VERIFICATION", label: "Pending Verified" },
                             { value: "VERIFIED", label: "Verified" },
                             { value: "DECLINED", label: "Declined" }
                           ]}
@@ -242,6 +299,8 @@ export function DriverView() {
                   {drivers.
                     filter(driver =>
                       (statusFilter.includes('All') || statusFilter.includes(driver?.status)) && 
+                      (sourceFilter.includes('All') || sourceFilter.includes(driver.source)) &&
+                      (subscriptionStatusFilter.includes('All') || subscriptionStatusFilter.includes(driver?.subscriptionStatus)) && 
                       (documentTypeFilter.includes('All') || documentTypeFilter.includes(driver?.documentStatus?.status) )
                     ).map(
                       ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus}, key) => {
@@ -249,6 +308,7 @@ export function DriverView() {
                           ? ""
                           : "border-b border-blue-gray-50"
                           }`;
+                          
 
                         return (
                           <tr key={id}>

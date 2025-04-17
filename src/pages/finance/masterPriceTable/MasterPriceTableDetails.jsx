@@ -58,7 +58,7 @@ const PriceDetails = () => {
                                 <Field type="number" name="baseFare" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (MVP)</label>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
                                 <Field type="number" name="baseFareMVP" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>
@@ -66,7 +66,7 @@ const PriceDetails = () => {
                                 <Field type="number" name="ratePerKm" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MVP)</label>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MUV)</label>
                                 <Field type="number" name="ratePerKmMVP" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>

@@ -12,7 +12,7 @@ export function MasterPriceView() {
     const navigate = useNavigate();
     const [serviceType, setServiceType] = useState("");
     const [ridesData, setRidesData] = useState([]);
-    const [rentalsData, setRentalsData] = useState([]);
+    // const [rentalsData, setRentalsData] = useState([]);
 
     const handleChange = async (event) => {
         const selectedServiceType = event.target.value;
@@ -29,7 +29,11 @@ export function MasterPriceView() {
                 setRidesData(data?.data);
             } else if (selectedServiceType === 'RENTAL') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
-                setRentalsData(data?.data);
+                if(data?.success) {
+                    setLocalPackageList(data?.data.filter(item => item.type === "Local" && item.serviceType === "RENTAL"));
+                    setOutstationPackageList(data?.data.filter(item => item.type === "Outstation" && item.serviceType === "RENTAL"));
+                }
+                // setRentalsData(data?.data);
             }
         } catch (err) {
             console.error("Error fetching subscription data:", err);
@@ -61,7 +65,7 @@ export function MasterPriceView() {
                                         "Hours",
                                         "Round Trip Rate",
                                         "Drop Only",
-                                        "Round Trip Rate - MVP",
+                                        "Round Trip Rate - MUV",
                                         "Night Hours (10PM TO 6AM)",
                                         "Night Charges (10PM TO 6AM)",
                                         "Cancel Charge",
@@ -182,7 +186,7 @@ export function MasterPriceView() {
                                         "Night Charges (10PM TO 6AM)",
                                         "Cancellation Charge",
                                         "Cancellation Time (In Mins)",
-                                        "Additional Km/s"
+                                        "Additional Kms"
                                     ]
                                         .map((el, index) => (
                                             <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
@@ -298,9 +302,9 @@ export function MasterPriceView() {
                                     {[
                                         "Rate Parameter",
                                         "Base Fare (Mini,SUV,Sedan)",
-                                        "Base Fare (MVP)",
+                                        "Base Fare (MUV)",
                                         "Rate Per KM (Mini,SUV,Sedan)",
-                                        "Rate Per KM (MVP)",
+                                        "Rate Per KM (MUV)",
                                         "Rate Per Min",
                                         "Surcharge Percentage",
                                         "Status"
@@ -391,10 +395,150 @@ export function MasterPriceView() {
         );
     };
 
-    const renderRentalsTable = () => {
+    const renderLocalRentalsTable = () => {
         return (
             <div className='my-2'>
-                <h3 className="text-3xl font-bold mb-4 ml-2">Rentals</h3>
+                <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {[
+                                        "Type",
+                                        "Package",
+                                        "Base Fare",
+                                        "Kilometer",
+                                        "Kilometer Rate",
+                                        "Additional Mins",
+                                        "Additional KM Rate",
+                                        "Night Charge",
+                                        // "Toll Charge",
+                                        // "Driver Charge",
+                                        "Cancellation Mins",
+                                        "Cancel Charge",
+                                        "Status"
+                                    ].map((el, index) => (
+                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {localPackageList.map(({
+                                    id,
+                                    type,
+                                    carType,
+                                    baseFare,
+                                    kilometerPrice,
+                                    kilometer,
+                                    additionalMinCharge,
+                                    nightCharge,
+                                    // driverCharge,
+                                    // tollCharge,
+                                    period,
+                                    extraKmPrice,
+                                    cancelMins,
+                                    cancelCharge,
+                                    status
+                                }, key) => {
+                                    const className = `py-3 px-5 ${key === localPackageList?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+
+                                    return (
+                                        <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {type.toUpperCase()}
+                                                </Typography>
+                                            </td>
+                                            <td className='border-b border-blue-gray-50 py-3 px-5'>
+                                                <div className="flex items-center gap-4">
+                                                    <div onClick={() => navigate(`/dashboard/users/master-price/rentals-details/${id}`)}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue"
+                                                            className="font-semibold underline"
+                                                        >
+                                                            {period}
+                                                        </Typography>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFare}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometer}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {additionalMinCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {extraKmPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {nightCharge}
+                                                </Typography>
+                                            </td>
+                                            {/* <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {tollCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {driverCharge}
+                                                </Typography>
+                                            </td> */}
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {cancelMins}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {cancelCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {status == 1 ? 'Active' : 'InActive'}
+                                                </Typography>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
+    const renderOutstationRentalsTable = () => {
+        return (
+            <div className='my-2'>
+                <h3 className="text-3xl font-bold mb-4 ml-2">OutStation</h3>
                 <Card>
                     <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                         <table className="w-full min-w-[640px] table-auto">
@@ -427,7 +571,7 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {rentalsData.map(({
+                                {outstationPackageList.map(({
                                     id,
                                     type,
                                     carType,
@@ -444,7 +588,7 @@ export function MasterPriceView() {
                                     cancelCharge,
                                     status
                                 }, key) => {
-                                    const className = `py-3 px-5 ${key === ridesData?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+                                    const className = `py-3 px-5 ${key === outstationPackageList?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
 
                                     return (
                                         <tr key={id}>
@@ -531,7 +675,6 @@ export function MasterPriceView() {
             </div>
         );
     };
-
     return (
         <>
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
@@ -581,11 +724,16 @@ export function MasterPriceView() {
                 </div>
             ) : <></>}
 
-            {serviceType === 'RENTAL' && rentalsData && rentalsData.length > 0 ? (
+            {serviceType === 'RENTAL' && localPackageList && localPackageList.length > 0 ? (
                 <div>
-                    {renderRentalsTable()}
+                    {renderLocalRentalsTable()}
                 </div>
-            ) : <></>}
+            ) : (<>
+            </>)}
+            {serviceType === "RENTAL" && outstationPackageList && outstationPackageList.length > 0 ? (
+                <div>{renderOutstationRentalsTable()}</div>
+            ) : (<>
+            </>)}
         </>
 
     );

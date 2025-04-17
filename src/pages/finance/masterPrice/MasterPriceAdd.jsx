@@ -115,7 +115,7 @@ export function MasterPriceAdd() {
                                 <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Price (MVP)</label>
+                                <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
                                 <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                 <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
                             </div>

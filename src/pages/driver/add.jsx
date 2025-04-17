@@ -1092,7 +1092,7 @@ const DriverAdd = () => {
                     <DialogBody divider>
                         <div className="flex flex-col items-center space-y-3">
                             <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
-                                {modalData.image.toLowerCase().endsWith(".pdf") ? (
+                                {/* {modalData.image.toLowerCase().endsWith(".pdf") ? (
                                     <iframe
                                         src={modalData.image}
                                         className="w-full rounded-lg shadow-md"
@@ -1122,6 +1122,20 @@ const DriverAdd = () => {
                                             style={{ height: "45vh", width: "45%", objectFit: "contain" }}
                                         />
                                     )
+                                )} */}
+                                {modalData.image && (
+                                    <iframe
+                                        src={modalData.image}
+                                        className="w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
+                                )}
+                                {modalData.image2 && (
+                                    <iframe
+                                        src={modalData.image2}
+                                        className="rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
                                 )}
                             </div>
 

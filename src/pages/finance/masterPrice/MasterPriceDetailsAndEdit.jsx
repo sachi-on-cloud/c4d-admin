@@ -124,7 +124,7 @@ export function MasterPriceDetailsAndEdit() {
                             </div>
                             
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Price (MVP)</label>
+                                <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
                                 <Field type="number" name="priceMVP" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             <div>

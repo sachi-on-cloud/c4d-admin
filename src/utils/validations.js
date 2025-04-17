@@ -712,7 +712,7 @@ export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
     type: Yup.string().required('Type is required'),
     period: Yup.number().required('Period is required'),
     price: Yup.number().required('Price is required'),
-    priceMVP: Yup.number().required('Price MVP is required'),
+    priceMVP: Yup.number().required('Price MUV is required'),
     dropPrice: Yup.number().required('Drop Price is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
     cancelCharge: Yup.number().required('Cancel Charge is required'),

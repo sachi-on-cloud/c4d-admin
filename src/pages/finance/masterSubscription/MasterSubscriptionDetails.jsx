@@ -63,8 +63,7 @@ const MasterSubscriptionDetails = () => {
                                     <Field as="select" name="serviceType" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select Service Type</option>
                                         <option value="DRIVER">Driver</option>
-                                        <option value="RENTAL">Rental</option>
-                                        <option value="RIDES">Rides</option>
+                                        <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
                                     </Field>
                                    
                                 </div>

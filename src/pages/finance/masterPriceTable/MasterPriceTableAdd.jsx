@@ -109,7 +109,7 @@ const PriceAdd = () => {
                                 <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare(MVP)</label>
+                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
                                 <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
                             </div>
@@ -119,7 +119,7 @@ const PriceAdd = () => {
                                 <ErrorMessage name="ratePerKm" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km(MVP)</label>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MUV)</label>
                                 <Field type="number" name="ratePerKmMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="ratePerKmMVP" component="div" className="text-red-500 text-sm" />
                             </div>
