@@ -212,8 +212,8 @@ export function SearchDrivers(props) {
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
-                            <CardBody className="overflow-x-auto overflow-y-auto max-w-[500px] px-0 pt-0 pb-2">
-                                <table className="w-full table-auto">
+                            <CardBody className="overflow-x-auto overflow-y-auto px-0 pt-0 pb-2">
+                                <table className="w-full">
                                     <thead>
                                         <tr>
                                             {["Name", "Phone Number", "Distance", "Local Count", "Outstation Count", "Status"].map((el) => (
@@ -336,7 +336,7 @@ export function SearchDrivers(props) {
                             </Typography>
                         </CardHeader>
                     ) : drivers.length > 0 ? (
-                            <CardBody className="overflow-x-auto overflow-y-auto max-w-[390px] px-0 pt-0 pb-2">
+                            <CardBody className="overflow-x-auto overflow-y-auto max-w-[890px] px-0 pt-0 pb-2">
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>

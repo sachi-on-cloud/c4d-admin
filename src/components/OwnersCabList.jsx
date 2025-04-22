@@ -16,6 +16,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                 <h2 className="text-2xl font-bold mb-4">Cabs List</h2>
                 {( !(type == 'Individual' && cabsList?.length >= 1) || (type == 'Company') )&& <div>
                     <Button 
+                        className="text-black bg-blue-gray-50"
                         onClick={() => navigate('/dashboard/vendors/account/allVehicles/add',{
                             state:{
                                 ownerName: ownerName,

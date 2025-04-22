@@ -117,8 +117,8 @@ export function UserView() {
       <Card>
         {users.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-              <Typography variant="h6" color="white">
+            <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50" >
+              <Typography variant="h6" color="black">
                 Users List
               </Typography>
             </CardHeader>
@@ -196,7 +196,7 @@ export function UserView() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/users/edit/${id}`)}
-                                className="text-xs font-semibold text-white"
+                                className="text-xs font-semibold text-black bg-blue-gray-50"
                               >
                                 Edit
                               </Button>
@@ -211,8 +211,8 @@ export function UserView() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-            <Typography variant="h6" color="white">
+          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+            <Typography variant="h6" color="black">
               No Users
             </Typography>
           </CardHeader>

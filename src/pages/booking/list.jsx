@@ -17,7 +17,7 @@ import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type }) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen=false}) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -62,10 +62,10 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         <Popover placement="bottom-start">
             <PopoverHandler>
                 <div className="flex items-center cursor-pointer">
-                    <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+                    <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-900 mr-1">
                         {title}
                     </Typography>
-                    <FaFilter className="text-blue-gray-400 text-xs" />
+                    <FaFilter className="text-blue-gray-900 text-xs" />
                 </div>
             </PopoverHandler>
             <PopoverContent className="p-2">
@@ -133,7 +133,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                     key={i}
                     size="sm"
                     variant={i === pagination.currentPage ? "filled" : "outlined"}
-                    className="mx-1"
+                    className="mx-1  bg-blue-gray-200 text-blue-gray-900"
                     onClick={() => handlePageChange(i)}
                 >
                     {i}
@@ -159,11 +159,13 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         setShowPickedBooking(data?.id);
         onAssignDriver(data);
         setSelectedBookingId(data.id);
+        setIsOpen(true)
     };
 
     const handleBookingSelect = (data) => {
         setSelectedBookingId(data.id);
         onSelectBooking(data);
+        setIsOpen(true)
     }
 
     function formatDate(dateString) {
@@ -197,6 +199,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     
         setBookingsList(sortedDrivers);
       };
+      
     return (
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3 mb-2'>
@@ -205,7 +208,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                 </Typography>
             </div>
             <Card>
-                <CardBody className="overflow-x-scroll overflow-y-auto max-h-screen">
+                <CardBody> 
+                    {/* className="overflow-y-scroll overflow-x-auto max-h-screen" */}
                     {bookingsList.length === 0 ? (
                         <Typography variant="h5" color='#000000'>
                             No Bookings
@@ -219,7 +223,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                             
                                             <th
                                                 key={el}
-                                                className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                className="border-b border-blue-gray-50 bg-gray-200 py-3 px-5 text-left"
                                             >
                                                 {el === "Service Type" && type === "" ? (
                                                     <FilterPopover
@@ -238,14 +242,14 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                       onClick={() => handleSort('created_at')}
                                                       className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
                                                     >
-                                                      <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
+                                                      <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
                                                         Created Date
                                                       </Typography>
                                                       {sortConfig.key === 'created_at' && (
                                                         sortConfig.direction === 'ascending' ? (
-                                                          <ChevronUpIcon className="w-5 h-5 mx-1 text-black" />
+                                                          <ChevronUpIcon className="w-5 h-5 mx-1 text-blue-gray-900" />
                                                         ) : (
-                                                          <ChevronDownIcon className="w-5 h-5 ml-1 text-black" />
+                                                          <ChevronDownIcon className="w-5 h-5 ml-1 text-blue-gray-900" />
                                                         )
                                                       )}
                                                     </th>
@@ -279,7 +283,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         />
                                                     )
                                                         : (
-                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
+                                                            <Typography variant="medium" className="text-[11px] font-bold uppercase text-black">
                                                                 {el}
                                                             </Typography>
                                                         )}
@@ -303,7 +307,9 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 <tr key={data?.id} className={className}>
                                                     <td className={className}>
                                                         <div className="flex items-center">
-                                                            <div onClick={() => handleBookingSelect(data)}>
+                                                            <div onClick={() => {handleBookingSelect(data);
+                                                                isOpen(true)
+                                                            }}>
                                                                 <Typography
                                                                     variant="small"
                                                                     color="blue"
@@ -387,10 +393,10 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     </td> */}
                                                     <td>
                                                         <Chip
-                                                            variant="gradient"
+                                                            variant="text"
                                                             // color={"blue"}
                                                             value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
-                                                            className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                            className="py-0.5 px-2 text-[11px] bg-blue-gray-200 text-blue-gray-900 font-medium w-fit"
                                                         />
                                                     </td>
                                                     <td className={className}>
@@ -407,7 +413,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
-                                                                className="text-xs font-semibold text-white flex-wrap"
+                                                                className="text-xs font-semibold bg-blue-gray-200 text-blue-gray-900 flex-wrap"
                                                             >
                                                                 Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                             </Button>
@@ -416,7 +422,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
-                                                                className="text-xs font-semibold text-white flex-wrap"
+                                                                className="text-xs font-semibold  bg-blue-gray-200 text-blue-gray-900 flex-wrap"
                                                             >
                                                                 Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                             </Button>

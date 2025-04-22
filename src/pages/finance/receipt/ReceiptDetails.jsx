@@ -130,13 +130,13 @@ const ReceiptDetails = () => {
             <div className='flex justify-center space-x-4 my-6'>
                 <Button
                     onClick={() => { navigate('/dashboard/finance/receipt'); }}
-                    className='my-6 px-8 text-white border-2 bg-black rounded-xl'
+                    className='my-6 px-8 text-black border-2 bg-white rounded-xl'
                 >
                     Back
                 </Button>
                 <Button
                     onClick={handleDownloadPDF}
-                    className="my-6 px-8 text-white border-2 bg-blue-600 rounded-xl"
+                    className="my-6 px-8 text-white border-2 bg-green-500 rounded-xl"
                 >
                     Download PDF
                 </Button>

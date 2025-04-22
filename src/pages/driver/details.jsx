@@ -341,7 +341,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                 <Button
                     fullWidth
                     onClick={() => navigate(`/dashboard/vendors/account/drivers/edit/${id}`)}
-                    className='my-6 mx-2'>
+                    className='my-6 mx-2 bg-green-500'>
                     Edit
                 </Button>
             </div>}

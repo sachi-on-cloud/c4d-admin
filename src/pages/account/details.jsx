@@ -237,11 +237,11 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
                 <div className='flex justify-center w-full'>
                     <Button
                         onClick={() => { navigate('/dashboard/vendors/account'); }}
-                        className='my-6 px-8 text-white border-2 rounded-xl'
+                        className='my-6 px-8 text-black border-2 rounded-xl bg-white'
                     >
                         Back
                     </Button>
-                    <Button onClick={()=>{navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`)}} className='my-6 px-8 text-white border-2 rounded-xl'>
+                    <Button onClick={()=>{navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`)}} className='my-6 px-8 bg-green-500 text-white border-2 rounded-xl'>
                         Edit
                     </Button>
                 </div>

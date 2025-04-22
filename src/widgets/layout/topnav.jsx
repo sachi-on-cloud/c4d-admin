@@ -8,39 +8,39 @@ export function Topnav({ sidenavColor, sidenavType = "dark" }) {
 
   // Define submenu structure matching sidenav
   const submenus = {
-    "/dashboard/booking/list": [
-      { path: "/dashboard/booking/list", label: "All", end: true },
-      { path: "/dashboard/booking/list/actingDriver", label: "Drivers" },
-      { path: "/dashboard/booking/list/rides", label: "Rides" },
-      { path: "/dashboard/booking/list/rentals", label: "Rentals" },
-      // { path: "/dashboard/booking/list/cabBooking", label: "Cab Booking" },
-      // { path: "/dashboard/booking/list/carWash", label: "Car Wash" }
-    ],
-    "/dashboard/customers": [
-      { path: "/dashboard/customers", label: "All", end: true }
-    ],
-    "/dashboard/vendors/account": [
-      { path: "/dashboard/vendors/account", label: "Owners", end: true },
-      { path: "/dashboard/vendors/account/drivers", label: "Drivers Only" },
-      // { path: "/dashboard/vendors/account/allVehicles", label: "All Vehicles" }
-    ],
-    "/dashboard/finance": [
-      { path: "/dashboard/finance", label: "All Payments", end: true },
+  //   "/dashboard/booking/list": [
+  //     { path: "/dashboard/booking/list", label: "All", end: true },
+  //     { path: "/dashboard/booking/list/actingDriver", label: "Drivers" },
+  //     { path: "/dashboard/booking/list/rides", label: "Rides" },
+  //     { path: "/dashboard/booking/list/rentals", label: "Rentals" },
+  //     // { path: "/dashboard/booking/list/cabBooking", label: "Cab Booking" },
+  //     // { path: "/dashboard/booking/list/carWash", label: "Car Wash" }
+  //   ],
+    // "/dashboard/customers": [
+    //   { path: "/dashboard/customers", label: "All", end: true }
+    // ],
+    // "/dashboard/vendors/account": [
+    //   // { path: "/dashboard/vendors/account", label: "Owners", end: true },
+    //   // { path: "/dashboard/vendors/account/drivers", label: "Drivers Only" },
+    //   // { path: "/dashboard/vendors/account/allVehicles", label: "All Vehicles" }
+    // ],
+    // "/dashboard/finance": [
+      // { path: "/dashboard/finance", label: "All Payments", end: true },
       // { path: "/dashboard/finance/cab-subscription", label: "Cab Subscription" },
       // { path: "/dashboard/finance/payable", label: "Payable" },
       // { path: "/dashboard/finance/receivables", label: "Receivables" },
-      { path: "/dashboard/finance/invoice", label: "Invoice" },
-      { path: "/dashboard/finance/receipt", label: "Receipt" },
-      { path: "/dashboard/finance/master-subscription", label: "Master Subscription" },
-    ],
-    "/dashboard/doc-verification": [
-      { path: "/dashboard/doc-verification", label: "All", end: true },
-      { path: "/dashboard/doc-verification/pending", label: "Pending Documents" }
-    ],
-    "/dashboard/users": [
-      { path: "/dashboard/users", label: "Users", end: true },
-      { path: "/dashboard/users/master-price", label: "Master Price Table" },
-    ],
+    //   { path: "/dashboard/finance/invoice", label: "Invoice" },
+    //   { path: "/dashboard/finance/receipt", label: "Receipt" },
+    //   { path: "/dashboard/finance/master-subscription", label: "Master Subscription" },
+    // ],
+    // "/dashboard/doc-verification": [
+    //   { path: "/dashboard/doc-verification", label: "All", end: true },
+    //   { path: "/dashboard/doc-verification/pending", label: "Pending Documents" }
+    // ],
+    // "/dashboard/users": [
+    //   { path: "/dashboard/users", label: "Users", end: true },
+    //   { path: "/dashboard/users/master-price", label: "Master Price Table" },
+    // ],
   };
 
   // Function to determine which submenu to show based on current path

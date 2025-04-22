@@ -94,8 +94,8 @@ export function CustomerView() {
       <Card>
         {customers.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-              <Typography variant="h6" color="white">
+            <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50 rounded-xl">
+              <Typography variant="h6" color="black">
                 Customers List
               </Typography>
             </CardHeader>
@@ -110,7 +110,7 @@ export function CustomerView() {
                       >
                         <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
@@ -173,7 +173,7 @@ export function CustomerView() {
                             <Button
                               as='a'
                               onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
-                              className="text-xs font-semibold text-white"
+                              className="text-xs font-semibold text-black bg-blue-gray-50"
                             >
                               Edit
                             </Button>
@@ -186,8 +186,8 @@ export function CustomerView() {
               </table>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-            <Typography variant="h6" color="white">
+          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+            <Typography variant="h6" color="black">
               No Customers
             </Typography>
           </CardHeader>

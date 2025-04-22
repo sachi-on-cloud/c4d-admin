@@ -66,7 +66,7 @@ export function InvoiceList() {
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Search Subscription"
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -79,8 +79,8 @@ export function InvoiceList() {
             <Card>
                 {invoiceList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
-                            <Typography variant="h6" color="white">
+                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-50">
+                            <Typography variant="h6" color="black">
                                Invoice List
                             </Typography>
                         </CardHeader>
@@ -95,7 +95,7 @@ export function InvoiceList() {
                                             >
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                    className="text-[11px] font-bold uppercase text-black"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -130,8 +130,8 @@ export function InvoiceList() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-                        <Typography variant="h6" color="white">
+                    <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50">
+                        <Typography variant="h6" color="black">
                             No Invoices
                         </Typography>
                     </CardHeader>

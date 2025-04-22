@@ -52,10 +52,10 @@ export function MasterPriceView() {
 
     const renderLocalPriceTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -73,10 +73,10 @@ export function MasterPriceView() {
                                         "Cancellation Mins"
                                     ]
                                         .map((el, index) => (
-                                            <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left bg-blue-gray-50 pb-4">
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                    className="text-[11px] font-bold uppercase text-black"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -168,10 +168,10 @@ export function MasterPriceView() {
 
     const renderOutstationPriceTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Outstation</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -189,10 +189,10 @@ export function MasterPriceView() {
                                         "Additional Kms"
                                     ]
                                         .map((el, index) => (
-                                            <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left pb-4 bg-blue-gray-50">
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                    className="text-[11px] font-bold uppercase text-black"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -292,10 +292,10 @@ export function MasterPriceView() {
 
     const renderRidesTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Rides</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -309,10 +309,10 @@ export function MasterPriceView() {
                                         "Surcharge Percentage",
                                         "Status"
                                     ].map((el, index) => (
-                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left bg-blue-gray-50">
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                className="text-[11px] font-bold uppercase text-black"
                                             >
                                                 {el}
                                             </Typography>
@@ -397,10 +397,10 @@ export function MasterPriceView() {
 
     const renderLocalRentalsTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -419,10 +419,10 @@ export function MasterPriceView() {
                                         "Cancel Charge",
                                         "Status"
                                     ].map((el, index) => (
-                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left bg-blue-gray-50">
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                className="text-[11px] font-bold uppercase text-black"
                                             >
                                                 {el}
                                             </Typography>
@@ -540,7 +540,7 @@ export function MasterPriceView() {
             <div className='my-2'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">OutStation</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -559,10 +559,10 @@ export function MasterPriceView() {
                                         "Cancel Charge",
                                         "Status"
                                     ].map((el, index) => (
-                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left bg-blue-gray-50">
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                className="text-[11px] font-bold uppercase text-black"
                                             >
                                                 {el}
                                             </Typography>
@@ -697,7 +697,7 @@ export function MasterPriceView() {
                     </div>
                     <button
                         onClick={onHandleAddNew}
-                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className="ml-4 px-4 py-2 bg-green-500 text-white rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                         Add new
                     </button>

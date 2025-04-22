@@ -152,10 +152,10 @@ export function DriverView() {
     <Popover placement="bottom-start">
       <PopoverHandler>
         <div className="flex items-center cursor-pointer">
-          <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+          <Typography variant="small" className="text-[11px] font-bold uppercase text-black mr-1">
             {title}
           </Typography>
-          <FaFilter className="text-blue-gray-400 text-xs" />
+          <FaFilter className="text-black text-xs" />
         </div>
       </PopoverHandler>
       <PopoverContent className="p-2">
@@ -212,8 +212,8 @@ export function DriverView() {
       <Card>
         {drivers.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
-              <Typography variant="h6" color="white">
+            <CardHeader variant="gradient" className="mb-8 p-6 flex-1 bg-blue-gray-50 justify-between items-center">
+              <Typography variant="h6" color="black">
                 Drivers List
               </Typography>
             </CardHeader>
@@ -222,7 +222,7 @@ export function DriverView() {
                 <thead>
                   <tr>
                     <th onClick={() => handleSort('created_at')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer flex items-center">
-                      <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Created Date</Typography>
+                      <Typography variant="small" className="text-[11px] font-bold uppercase text-black">Created Date</Typography>
                       {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 mx-1 justify-center items-center text-black" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th>
                     {/* <th onClick={() => handleSort('firstName')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
@@ -285,7 +285,7 @@ export function DriverView() {
                       ) : (
                         <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
@@ -361,7 +361,7 @@ export function DriverView() {
                             <td className={className}>
                               <Chip
                                 variant="gradient"
-                                color={status == "ACTIVE" ? "green" : "blue-gray"}
+                                color={status == "ACTIVE" ? "green" : "black"}
                                 value={status == "ACTIVE" ? "online" : "offline"}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
@@ -369,7 +369,7 @@ export function DriverView() {
                             <td className={className}>
                               <Chip
                                 variant="gradient"
-                                color={subscriptionStatus == "ACTIVE" ? "green" : subscriptionStatus == "BLOCKED" ? "red" : "blue-gray"}
+                                color={subscriptionStatus == "ACTIVE" ? "green" : subscriptionStatus == "BLOCKED" ? "red" : "black"}
                                 value={subscriptionStatus}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
@@ -377,7 +377,7 @@ export function DriverView() {
                             <td className={className}>
                               <Chip
                                 variant="gradient"
-                                color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "blue-gray"}
+                                color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "black"}
                                 value={documentStatus?.status}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
@@ -393,8 +393,9 @@ export function DriverView() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-            <Typography variant="h6" color="white">
+          <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50">
+             {/* color="gray" */}
+            <Typography variant="h6" color="black">
               No Drivers
             </Typography>
           </CardHeader>

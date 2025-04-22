@@ -83,7 +83,7 @@ const CustomerDetails = () => {
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/customers'); }}
-                    className='my-6 px-8 text-white border-2 rounded-xl'
+                    className='my-6 px-8 bg-blue-gray-50 text-black border-2 rounded-xl'
                 >
                     Back
                 </Button>

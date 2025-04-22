@@ -197,10 +197,10 @@ const CustomerAdd = (props) => {
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                // color="text-black"
                                 onClick={handleSubmit}
                                 disabled={isEditMode ? false : !dirty || !isValid}
-                                className='my-6 mx-2'
+                                className='my-6 mx-2 bg-blue-gray-400 text-black'
                             >
                                 {isEditMode ? 'Update' : 'Continue'}
                             </Button>

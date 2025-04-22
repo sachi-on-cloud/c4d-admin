@@ -578,10 +578,10 @@ const AccountAdd = (props) => {
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                // color="blue-gray-50"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
-                                className='my-6 mx-2'
+                                className='my-6 mx-2 bg-blue-gray-50 text-black'
                             >
                                 Continue
                             </Button>

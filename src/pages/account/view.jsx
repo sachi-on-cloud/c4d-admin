@@ -183,10 +183,10 @@ export function AccountView() {
       <Popover placement="bottom-start">
         <PopoverHandler>
           <div className="flex items-center cursor-pointer">
-            <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+            <Typography variant="small" className="text-[11px] font-bold uppercase text-black mr-1">
               {title}
             </Typography>
-            <FaFilter className="text-blue-gray-400 text-xs" />
+            <FaFilter className="text-black text-xs" />
           </div>
         </PopoverHandler>
         <PopoverContent className="p-2">
@@ -220,8 +220,8 @@ export function AccountView() {
       <Card>
         {accounts.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
-              <Typography variant="h6" color="white">
+            <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-50 rounded-xl">
+              <Typography variant="h6" color="black">
                 Accounts List
               </Typography>
             </CardHeader>
@@ -296,7 +296,7 @@ export function AccountView() {
                         ) :  el === "Created Date" ? (
                           <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">    <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
@@ -318,7 +318,7 @@ export function AccountView() {
                       ):(
                           <Typography
                             variant="small"
-                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                            className="text-[11px] font-bold uppercase text-black"
                           >
                             {el}
                           </Typography>
@@ -379,7 +379,7 @@ export function AccountView() {
                           <td className={className}>
                             <Chip
                               variant="gradient"
-                              color={availableStatus == "ACTIVE" ? "green" : "blue-gray"}
+                              color={availableStatus == "ACTIVE" ? "green" : "black"}
                               value={availableStatus == "ACTIVE" ? "online" : "offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
@@ -387,7 +387,7 @@ export function AccountView() {
                           <td className={className}>
                             <Chip
                               variant="gradient"
-                              color={ownerStatus == "ACTIVE" ? "green" : "blue-gray"}
+                              color={ownerStatus == "ACTIVE" ? "green" : "black"}
                               value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
@@ -395,7 +395,7 @@ export function AccountView() {
                           <td className={className}>
                             <Chip
                               variant="gradient"
-                              color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "blue-gray"}
+                              color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "black"}
                               value={documentStatus?.status}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
@@ -417,8 +417,8 @@ export function AccountView() {
               </table>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-            <Typography variant="h6" color="white">
+          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+            <Typography variant="h6" color="black">
               No Accounts
             </Typography>
           </CardHeader>

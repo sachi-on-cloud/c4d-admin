@@ -139,7 +139,7 @@ const DocumentsDetails = () => {
                     </>
                     }
                     <div className="flex justify-center mt-5">
-                      <Button className="" onClick={() => navigate(`/dashboard/doc-verification`)} >Back</Button>
+                      <Button className="bg-white text-black" onClick={() => navigate(`/dashboard/doc-verification`)} >Back</Button>
                     </div>
         </div>
     </>)

@@ -156,6 +156,7 @@ const ConfirmBooking = (props) => {
 
     const onBackPressHandler = async () => {
         props.onConfirm()
+        props.setIsOpen(false)
     };
 
     const [showCancelReason, setShowCancelReason] = useState(false);
@@ -208,8 +209,9 @@ const ConfirmBooking = (props) => {
 
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
-        <div className="container mx-auto p-4">
-            <Card className="mb-4">
+        <div className="container mx-auto">
+            <div className="grid grid-cols-2 gap-4">
+            <Card className="mb-2">
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Customer Details </Typography>
@@ -231,7 +233,7 @@ const ConfirmBooking = (props) => {
             </Card>
 
             {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED") &&
-                <Card className="mb-4">
+                <Card className="mb-2">
                     <CardBody>
                         <div className="flex justify-between mb-2">
                             <Typography variant="h5">Cancellation Reason</Typography>
@@ -250,9 +252,8 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
             }
-
             {bookingDetails?.Driver?.id &&
-                <Card className="mb-4">
+                <Card className="mb-2">
                     <CardBody>
                         <div className="flex justify-between mb-2">
                             <Typography variant="h5">Driver Details </Typography>
@@ -273,7 +274,9 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
             }
-            <Card className="mb-4">
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+            <Card className="mb-2">
                 <CardBody>
                     <div className="flex justify-between mb-2">
                         <Typography variant="h5">Ride Details</Typography>
@@ -342,7 +345,7 @@ const ConfirmBooking = (props) => {
                     </div>
                 </CardBody>
             </Card>
-
+            </div>  
             {/*{(bookingDetails?.status === 'STARTED') ||
                 ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) &&
                 <Card className="my-4 gap-4">
@@ -488,18 +491,18 @@ const ConfirmBooking = (props) => {
                 </Card>
             )}
             <>
+            <div className="">
                 {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
                     <Card>
                         <CardBody>
                             <div className="flex justify-between mb-2">
                                 <Typography variant="h5">Payment Details</Typography>
                             </div>
-                            <hr className="my-2" />
-                            <div className="space-y-4">
+                            <hr className="my-2"/>
                                 <div className="space-y-2">
                                     {/* Payment Collected */}
-                                    <div className="flex justify-between items-center gap-x-4">
-                                        <Typography color="gray" variant="h6">Collected By:</Typography>
+                                    <div className="grid grid-cols-6 gap-x-4">
+                                        <Typography color="gray" variant="h6" className="">Collected By:</Typography>
                                         <Select
                                             value={paymentDetails.paymentCollected}
                                             onChange={(value) => handleChange("paymentCollected", value)}
@@ -510,7 +513,7 @@ const ConfirmBooking = (props) => {
                                         </Select>
                                     </div>
                                     {/* Payment Method */}
-                                    <div className="flex justify-between items-center gap-x-4">
+                                    <div className="grid grid-cols-6 gap-x-4">
                                         <Typography color="gray" variant="h6">Method:</Typography>
                                         <Select
                                             value={paymentDetails.paymentMethod}
@@ -522,7 +525,7 @@ const ConfirmBooking = (props) => {
                                         </Select>
                                     </div>
                                     {/* Payment Status */}
-                                    <div className="flex justify-between items-center gap-x-4">
+                                    <div className="grid grid-cols-6 gap-x-4">
                                         <Typography color="gray" variant="h6">Status:</Typography>
                                         <Select
                                             value={paymentDetails.paymentStatus}
@@ -533,12 +536,13 @@ const ConfirmBooking = (props) => {
                                             <Option value="NOT PAID">NOT PAID</Option>
                                         </Select>
                                     </div>
-                                </div>
                             </div>
+                            
                         </CardBody>
                     </Card>
                 }
-                <div className="grid grid-cols-3 gap-4 my-4">
+                </div>
+                <div className="grid grid-cols-3 gap-4 my-2">
                     <Button
                         color="black"
                         ripple="light"
@@ -554,7 +558,9 @@ const ConfirmBooking = (props) => {
                             variant="outlined"
                             ripple="dark"
                             fullWidth
-                            onClick={() => handleBookingAction(BOOKING_STATUS.CONFIRMED)}
+                            onClick={() => {handleBookingAction(BOOKING_STATUS.CONFIRMED);
+                                setIsOpen(false);
+                            }}
                         >
                             Confirm Booking
                         </Button>

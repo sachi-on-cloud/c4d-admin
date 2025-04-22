@@ -71,7 +71,7 @@ export function MasterSubscriptionView() {
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Search Subscription"
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -81,7 +81,7 @@ export function MasterSubscriptionView() {
                     </div>
                     <button
                         onClick={() => navigate('/dashboard/finance/master-subscription/add')}
-                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className="ml-4 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                         Add new
                     </button>
@@ -90,8 +90,8 @@ export function MasterSubscriptionView() {
             <Card>
                 {masterSubscriptionList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
-                            <Typography variant="h6" color="white">
+                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-50">
+                            <Typography variant="h6" color="black">
                                Master Subscription List
                             </Typography>
                         </CardHeader>
@@ -106,7 +106,7 @@ export function MasterSubscriptionView() {
                                             >
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                    className="text-[11px] font-bold uppercase text-black"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -146,8 +146,8 @@ export function MasterSubscriptionView() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
-                        <Typography variant="h6" color="white">
+                    <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+                        <Typography variant="h6" color="black">
                             No Master Subscriptions
                         </Typography>
                     </CardHeader>
