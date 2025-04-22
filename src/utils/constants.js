@@ -5,8 +5,8 @@ export const constants = {
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url_dev: 'https://seal-well-mite.ngrok-free.app',
-    url: 'https://api.c4d.smartapis.cyou'
-    //url: 'https://sit.api.c4d.smartapis.cyou/'
+    url: 'https://api.c4d.smartapis.cyou',
+    url_sit: 'https://sit.api.c4d.smartapis.cyou/'
 };
 
 export const getBaseUrl = () => {
