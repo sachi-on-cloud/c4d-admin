@@ -212,7 +212,7 @@ export function DriverView() {
       <Card>
         {drivers.length > 0 ? (
           <>
-            <CardHeader variant="gradient" className="mb-8 p-6 flex-1 bg-blue-gray-50 justify-between items-center">
+            <CardHeader variant="gradient" className="mb-8 p-6 flex-1 bg-blue-gray-100 justify-between items-center">
               <Typography variant="h6" color="black">
                 Drivers List
               </Typography>
@@ -323,7 +323,7 @@ export function DriverView() {
                                   <Typography
                                     variant="small"
                                     color="blue"
-                                    className="font-semibold underline"
+                                    className="font-semibold underline cursor-pointer"
                                   >
                                     {firstName}
                                   </Typography>
@@ -393,7 +393,7 @@ export function DriverView() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50">
+          <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-100">
              {/* color="gray" */}
             <Typography variant="h6" color="black">
               No Drivers

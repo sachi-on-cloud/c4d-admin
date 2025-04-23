@@ -106,7 +106,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {period}
                                                         </Typography>
@@ -215,7 +215,7 @@ export function MasterPriceView() {
                                                 <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
                                                 <Typography variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline">
+                                                            className="font-semibold underline cursor-pointer">
                                                     {type}
                                                 </Typography>
                                                 </div>
@@ -342,7 +342,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {rateParameter}
                                                         </Typography>
@@ -463,7 +463,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {period}
                                                         </Typography>
@@ -549,6 +549,10 @@ export function MasterPriceView() {
                                         "Package",
                                         "Base Fare",
                                         "Kilometer",
+                                        "kilometer Round Price",
+                                        "kilometer Round Price MVP",
+                                        "kilometer Round Price Suv",
+                                        "kilometer Round Price Sedan",
                                         "Kilometer Rate",
                                         "Additional Mins",
                                         "Additional KM Rate",
@@ -578,6 +582,10 @@ export function MasterPriceView() {
                                     baseFare,
                                     kilometerPrice,
                                     kilometer,
+                                    kilometerRoundPrice,
+                                    kilometerRoundPriceMVP,
+                                    kilometerRoundPriceSuv,
+                                    kilometerRoundPriceSedan,
                                     additionalMinCharge,
                                     nightCharge,
                                     driverCharge,
@@ -603,7 +611,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {period}
                                                         </Typography>
@@ -623,6 +631,26 @@ export function MasterPriceView() {
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPriceMVP}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPriceSuv}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPriceSedan}
                                                 </Typography>
                                             </td>
                                             <td className={className}>

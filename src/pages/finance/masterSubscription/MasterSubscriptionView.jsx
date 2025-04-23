@@ -90,7 +90,7 @@ export function MasterSubscriptionView() {
             <Card>
                 {masterSubscriptionList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-50">
+                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-100">
                             <Typography variant="h6" color="black">
                                Master Subscription List
                             </Typography>
@@ -124,7 +124,7 @@ export function MasterSubscriptionView() {
                                                     <Typography
                                                         variant="small"
                                                         color="blue"
-                                                        className="font-semibold underline"
+                                                        className="font-semibold underline cursor-pointer"
                                                     >
                                                         {masterSubscription.packagePrice == 0 ? 'Free' : masterSubscription.packagePrice}
                                                     </Typography>
@@ -146,7 +146,7 @@ export function MasterSubscriptionView() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+                    <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
                         <Typography variant="h6" color="black">
                             No Master Subscriptions
                         </Typography>

@@ -132,7 +132,7 @@ export function PendingDocList() {
             <CardHeader
               variant="gradient"
               // color="gray"
-              className="mb-8 p-6 bg-blue-gray-50 flex-1 justify-between items-center"
+              className="mb-8 p-6 bg-blue-gray-100 flex-1 justify-between items-center"
             >
               <Typography variant="h6" color="black">
                 Documents List
@@ -206,7 +206,7 @@ export function PendingDocList() {
                                     <Typography 
                                       variant="small"
                                       color="blue"
-                                      className="font-semibold underline">
+                                      className="font-semibold underline cursor-pointer">
                                       {name}
                                     </Typography>
                                   </div>
@@ -248,7 +248,7 @@ export function PendingDocList() {
               </table>
             </CardBody>
           </>):(
-          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
             <Typography variant="h6" color="black">
               No Documents
             </Typography>

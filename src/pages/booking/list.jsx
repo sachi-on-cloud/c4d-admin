@@ -223,7 +223,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                             
                                             <th
                                                 key={el}
-                                                className="border-b border-blue-gray-50 bg-gray-200 py-3 px-5 text-left"
+                                                className="border-b border-blue-gray-50 bg-blue-gray-100 py-3 px-5 text-left"
                                             >
                                                 {el === "Service Type" && type === "" ? (
                                                     <FilterPopover

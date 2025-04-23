@@ -117,7 +117,7 @@ export function UserView() {
       <Card>
         {users.length > 0 ? (
           <>
-            <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50" >
+            <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-100" >
               <Typography variant="h6" color="black">
                 Users List
               </Typography>
@@ -157,7 +157,7 @@ export function UserView() {
                                 <Typography
                                   variant="small"
                                   color="blue"
-                                  className="font-semibold underline"
+                                  className="font-semibold underline cursor-pointer"
                                 >
                                   {name}
                                 </Typography>
@@ -211,7 +211,7 @@ export function UserView() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
             <Typography variant="h6" color="black">
               No Users
             </Typography>

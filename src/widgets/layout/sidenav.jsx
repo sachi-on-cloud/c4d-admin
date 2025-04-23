@@ -129,7 +129,7 @@ const toggleSubMenu = (subMenu) =>
                 <Button
                   variant="text"
                   className={`flex items-center gap-4 px-4 capitalize bg-blue-gray  ${
-                    isActive ? "bg-blue-gray-50" : "bg-transparent"
+                    isActive ? "bg-blue-gray-100" : "bg-transparent"
                   }`}
                   fullWidth
                   onClick={() => toggleSubMenu("Home")}
@@ -145,11 +145,13 @@ const toggleSubMenu = (subMenu) =>
           </li>
 
           <li>
-            <NavLink to={`/dashboard/booking/list`} end>
+            <NavLink to={`/dashboard/booking/list`}>
               {({ isActive }) => (
                 <Button
                   variant="text"
-                  className="flex items-center gap-4 px-4 capitaliz bg-white justify-between w-full"
+                  className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
+                    isActive ? "bg-blue-gray-100" : "bg-transparent"
+                  }`}
                   fullWidth
                   onClick={() => toggleSubMenu("All Bookings")}
                 >                  
@@ -180,7 +182,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                     fullWidth
                     >
@@ -199,7 +201,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                     fullWidth
                     >
@@ -216,7 +218,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -233,7 +235,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -254,7 +256,9 @@ const toggleSubMenu = (subMenu) =>
                 <Button
                   variant="text"
                  
-                 className="flex items-center gap-4 px-4 capitaliz bg-white justify-between w-full"
+                 className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
+                  isActive ? "bg-blue-gray-100" : "bg-transparent"
+                 }`}
                   fullWidth
                   onClick={() => toggleSubMenu("customers")}
                 >
@@ -286,7 +290,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                       variant="text"
                       className={`flex items-center gap-4 px-6 capitalize bg-blue-gray ${
-                        isActive ? "bg-blue-gray-50" : "bg-transparent"
+                        isActive ? "bg-blue-gray-100" : "bg-transparent"
                       }`}
                       fullWidth
                     >
@@ -306,7 +310,9 @@ const toggleSubMenu = (subMenu) =>
               {({ isActive }) => (
                 <Button
                   variant="text"
-                className="flex items-center gap-4 px-4 capitaliz bg-white justify-between w-full"
+                className=  {`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
+                  isActive ? "bg-blue-gray-100" : "bg-transparent"
+                }`}
                   fullWidth
                   onClick={() => toggleSubMenu("vendors")}
                 >
@@ -338,7 +344,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -357,7 +363,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -376,7 +382,9 @@ const toggleSubMenu = (subMenu) =>
               {({ isActive }) => (
                 <Button
                   variant="text"
-                  className="flex items-center gap-4 px-4 capitaliz bg-white justify-between w-full"
+                  className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
+                    isActive ? "bg-blue-gray-100" : "bg-transparent"
+                  }`}
                   fullWidth
                   onClick={() => toggleSubMenu("finance")}
                 >
@@ -410,7 +418,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -429,7 +437,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -448,7 +456,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -467,7 +475,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -487,7 +495,9 @@ const toggleSubMenu = (subMenu) =>
                 <Button
                   variant="text"
                   
-                  className="flex items-center gap-4 px-4 capitaliz bg-white justify-between w-full"
+                  className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
+                    isActive ? "bg-blue-gray-100": "bg-transparent"
+                  }`}
                   fullWidth
                   onClick={() => toggleSubMenu("document verification")}
                 >
@@ -519,7 +529,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -538,7 +548,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -557,7 +567,9 @@ const toggleSubMenu = (subMenu) =>
               {({ isActive }) => (
                 <Button
                   variant="text"
-                  className="flex items-center gap-4 px-4 capitaliz bg-white justify-between w-full"
+                  className={`flex items-center gap-4 px-4 capitaliz justify-between w-full  ${
+                    isActive ? "bg-blue-gray-100" : "bg-transparent"
+                  }`}
                   fullWidth
                   onClick={() => toggleSubMenu("admin")}
                 >
@@ -590,7 +602,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -609,7 +621,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-50" : "bg-transparent"
+                      isActive ? "bg-blue-gray-100" : "bg-transparent"
                     }`}
                       fullWidth
                     >

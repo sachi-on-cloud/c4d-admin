@@ -79,7 +79,7 @@ export function InvoiceList() {
             <Card>
                 {invoiceList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-50">
+                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-100">
                             <Typography variant="h6" color="black">
                                Invoice List
                             </Typography>
@@ -112,7 +112,7 @@ export function InvoiceList() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {invoice?.invoiceNumber}
                                                         </Typography>
@@ -130,7 +130,7 @@ export function InvoiceList() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50">
+                    <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-100">
                         <Typography variant="h6" color="black">
                             No Invoices
                         </Typography>

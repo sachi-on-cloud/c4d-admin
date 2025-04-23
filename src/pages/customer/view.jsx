@@ -94,7 +94,7 @@ export function CustomerView() {
       <Card>
         {customers.length > 0 ? (
           <>
-            <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-50 rounded-xl">
+            <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-100 rounded-xl">
               <Typography variant="h6" color="black">
                 Customers List
               </Typography>
@@ -134,7 +134,7 @@ export function CustomerView() {
                                 <Typography
                                   variant="small"
                                   color="blue"
-                                  className="font-semibold underline"
+                                  className="font-semibold underline cursor-pointer"
                                 >
                                   {firstName}
                                 </Typography>
@@ -186,7 +186,7 @@ export function CustomerView() {
               </table>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
             <Typography variant="h6" color="black">
               No Customers
             </Typography>

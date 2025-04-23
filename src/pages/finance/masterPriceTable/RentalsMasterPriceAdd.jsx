@@ -21,6 +21,12 @@ const PRICE_SCHEMA = Yup.object().shape({
     baseFare: Yup.number().required('Base Fare is required'),
     kilometer: Yup.number().required('Kilometer is required'),
     kilometerPrice: Yup.number().required('Kilometer Rate is required'),
+
+    // kilometerRoundPrice: Yup.number().required('kilometer Round Price  is required'),
+    // kilometerRoundPriceMVP: Yup.number().required('kilometer Round Price MVP  is required'),
+    // kilometerRoundPriceSuv: Yup.number().required('kilometer Round Price Suv  is required'),
+    // kilometerRoundPriceSedan: Yup.number().required('kilometer Round Price Sedan is required'),
+    
     extraKmPrice: Yup.number().required('Additional Kilometer Price is required'),
     additionalMinCharge: Yup.number().required('Additional Min is required'),
     // tollCharge: Yup.number().required('Toll Charge is required'),
@@ -43,6 +49,10 @@ const RentalsPriceMasterAdd = () => {
         baseFare: '',
         kilometer: '',
         kilometerPrice: '',
+        kilometerRoundPrice:'',
+        kilometerRoundPriceMVP:'',
+        kilometerRoundPriceSuv:'',
+        kilometerRoundPriceSedan:'',
         additionalMinCharge: '',
         tollCharge: '',
         driverCharge: '',
@@ -75,6 +85,17 @@ const RentalsPriceMasterAdd = () => {
                 'baseFare': Number(values.baseFare),
                 'kilometer': Number(values.kilometer),
                 'kilometerPrice': Number(values.kilometerPrice),
+
+                'kilometerRoundPrice': values?. type === 'Outstation' ? values.kilometerRoundPrice : 0,
+                'kilometerRoundPriceMVP': values?. type === 'Outstation' ? values.kilometerRoundPriceMVP : 0,
+                'kilometerRoundPriceSuv': values?. type === 'Outstation' ? values.kilometerRoundPriceSuv : 0,
+                'kilometerRoundPriceSedan': values?. type === 'Outstation' ? values.kilometerRoundPriceSedan : 0,
+
+                'price': values?.type !== 'Outstation' ? values.price : '',
+                'priceMVP':values?.type !== 'Outstation' ? values.priceMVP : '',
+                'priceSuv':values?.type !== 'Outstation' ? values.priceSuv : '',
+                'priceSedan':values?.type !== 'Outstation' ? values.priceSedan : '',
+
                 'additionalMinCharge': Number(values.additionalMinCharge),
                 'tollCharge': values?.type === 'Outstation' ? values.tollCharge : 0,
                 'driverCharge': values?.type === 'Outstation' ? values.driverCharge : 0,
@@ -180,6 +201,30 @@ const RentalsPriceMasterAdd = () => {
                                 <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
                             </div>
                             {/* new entry price*/}
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price</label>
+                                <Field type="number" name="kilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPrice" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            }
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price MVP</label>
+                                <Field type="number" name="kilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPriceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            }
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price Suv</label>
+                                <Field type="number" name="kilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            }
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price Sedan</label>
+                                <Field type="number" name="kilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            }
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Price</label>
                                 <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

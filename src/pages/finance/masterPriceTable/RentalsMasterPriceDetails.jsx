@@ -30,6 +30,10 @@ const RentalsPriceMasterDetails = () => {
                     additionalMinCharge: data?.data?.additionalMinCharge,
                     tollCharge: data?.data?.tollCharge,
                     driverCharge: data?.data?.driverCharge,
+                    kilometerRoundPrice: data?.data?.kilometerRoundPrice,
+                    kilometerRoundPriceMVP: data?.data?.kilometerRoundPriceMVP,
+                    kilometerRoundPriceSuv: data?.data?.kilometerRoundPriceSuv,
+                    kilometerRoundPriceSedan: data?.data?.kilometerRoundPriceSedan,
                     extraKmPrice: data?.data?.extraKmPrice,
                     nightHoursFrom: convertToTimeFormat(data?.data?.nightHoursFrom),
                     nightHoursTo: convertToTimeFormat(data?.data?.nightHoursTo),
@@ -144,12 +148,16 @@ const RentalsPriceMasterDetails = () => {
                                 <label className="text-sm font-medium text-gray-700">Base Fare</label>
                                 <Field type="number" name="baseFare" className="p-2  w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
-                            
+                            {initialValues?.type !== 'Outstation' &&
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Price</label>
                                 <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                             </div>
-                            
+                            }
+                            {initialValues?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price</label>
+                                <Field type="number" name="kilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
                                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -170,10 +178,15 @@ const RentalsPriceMasterDetails = () => {
                                     <label className="text-sm font-medium text-gray-700">BaseFare (Sedan)</label>
                                     <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                 </div>
+                                {initialValues?.type !== 'Outstation' &&
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
                                     <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                                </div>
+                                </div>}
+                                {initialValues?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price (Sedan)</label>
+                                <Field type="number" name="kilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>}
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Kilometer Price (Sedan)</label>
                                     <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -193,10 +206,15 @@ const RentalsPriceMasterDetails = () => {
                                 <label className="text-sm font-medium text-gray-700">Base Fare (Suv)</label>
                                 <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                             </div>
+                            {initialValues?.type !== 'Outstation' &&
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
                                 <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
-                            </div>                            
+                            </div> }
+                            {initialValues?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price Suv</label>
+                                <Field type="number" name="kilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>}                           
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer Price (Suv)</label>
                                 <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -216,10 +234,14 @@ const RentalsPriceMasterDetails = () => {
                                 <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
                                 <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
                             </div>  
-                            <div>
+                            {initialValues?.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
                                 <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
-                            </div>                            
+                            </div> } 
+                            {initialValues?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price (MUV)</label>
+                                <Field type="number" name="kilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>}                    
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
                                 <Field type="number" name="kilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />

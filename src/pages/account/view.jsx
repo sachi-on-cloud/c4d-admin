@@ -220,7 +220,7 @@ export function AccountView() {
       <Card>
         {accounts.length > 0 ? (
           <>
-            <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-50 rounded-xl">
+            <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-100 rounded-xl">
               <Typography variant="h6" color="black">
                 Accounts List
               </Typography>
@@ -354,7 +354,7 @@ export function AccountView() {
                                 <Typography
                                   variant="small"
                                   color="blue"
-                                  className="font-semibold underline"
+                                  className="font-semibold underline cursor-pointer"
                                 >
                                   {name}
                                 </Typography>
@@ -417,7 +417,7 @@ export function AccountView() {
               </table>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-50">
+          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
             <Typography variant="h6" color="black">
               No Accounts
             </Typography>
