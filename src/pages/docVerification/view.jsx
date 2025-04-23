@@ -164,7 +164,7 @@ export function DocumentVerificationView() {
                       "Phone Number",
                       "Type",
                       "Source",
-                      "Created Date",
+                      // "Created Date",
                       "KYC Status",
                     ].map((el, index) => (
                       <th
@@ -259,11 +259,11 @@ export function DocumentVerificationView() {
                                   {source}
                                 </Typography>
                               </td>
-                              <td className={className}>
+                              {/* <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                   
                                 </Typography>
-                              </td>
+                              </td> */}
                               <td className={className}>
                                 <Typography
                                   className={`text-xs font-semibold ${data.isComplete ? "text-green-500" : "text-blue-500"}`}
