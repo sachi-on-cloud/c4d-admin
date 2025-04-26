@@ -5,7 +5,7 @@ import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 
 const STATUS_OPTIONS = [
@@ -48,6 +48,15 @@ const RentalsPriceMasterAdd = () => {
         period: '',
         baseFare: '',
         kilometer: '',
+        hourPrice: '',
+        hourPriceMVP: '',
+        hourPriceSuv: '',
+        hourPriceSedan: '',
+        extraHourPrice: '',
+        extraHourPriceMVP: '',
+        extraHourPriceSuv: '',
+        extraHourPriceSedan: '',
+        hourLimit: '',
         kilometerPrice: '',
         kilometerRoundPrice:'',
         kilometerRoundPriceMVP:'',
@@ -84,12 +93,23 @@ const RentalsPriceMasterAdd = () => {
                 'period': String(values.period),
                 'baseFare': Number(values.baseFare),
                 'kilometer': Number(values.kilometer),
+                'hourLimit': values?. type === 'Outstation' ? values.hourLimit : 0,
                 'kilometerPrice': Number(values.kilometerPrice),
 
                 'kilometerRoundPrice': values?. type === 'Outstation' ? values.kilometerRoundPrice : 0,
                 'kilometerRoundPriceMVP': values?. type === 'Outstation' ? values.kilometerRoundPriceMVP : 0,
                 'kilometerRoundPriceSuv': values?. type === 'Outstation' ? values.kilometerRoundPriceSuv : 0,
                 'kilometerRoundPriceSedan': values?. type === 'Outstation' ? values.kilometerRoundPriceSedan : 0,
+
+                'hourPrice': values?. type === 'Outstation' ? values.hourPrice : 0,
+                'hourPriceMVP': values?. type === 'Outstation' ? values.hourPriceMVP : 0,
+                'hourPriceSuv': values?. type === 'Outstation' ? values.hourPriceSuv: 0,
+                'hourPriceSedan': values?. type === 'Outstation' ? values.hourPriceSedan: 0,
+                
+                'extraHourPrice': values?. type === 'Outstation' ? values. extraHourPrice : 0,
+                'extraHourPriceMVP': values?. type === 'Outstation' ? values.extraHourPriceMVP : 0,
+                'extraHourPriceSuv': values?. type === 'Outstation' ? values.extraHourPriceSuv : 0,
+                'extraHourPriceSedan': values?. type === 'Outstation' ? values.extraHourPriceSedan : 0,
 
                 'price': values?.type !== 'Outstation' ? values.price : '',
                 'priceMVP':values?.type !== 'Outstation' ? values.priceMVP : '',
@@ -190,11 +210,17 @@ const RentalsPriceMasterAdd = () => {
                                 <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+
+                            {values.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer</label>
                                 <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div>}
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Limit</label>
+                                <Field type="number" name="hourLimit" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourLimit" component="div" className="text-red-500 text-sm" />
+                            </div>}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
                                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -225,26 +251,27 @@ const RentalsPriceMasterAdd = () => {
                                 <ErrorMessage name="kilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
                             </div>
                             }
-                            <div>
+                            
+                            {values.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Price</label>
                                 <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
+                            </div>}
+                            {values.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
                                 <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
+                            </div>}
+                            {values.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
                                 <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="priceSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
+                            </div>}
+                            {values.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
                                 <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="priceSedan" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div>}
                             {/* new entry kilometerPrice*/}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
@@ -261,6 +288,55 @@ const RentalsPriceMasterAdd = () => {
                                 <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="kilometerPriceSedan" component="div" className="text-red-500 text-sm" />
                             </div>
+                            {/* hours and extra hours */}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price</label>
+                                <Field type="number" name="hourPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPrice" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price (MUV)</label>
+                                <Field type="number" name="hourPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPriceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price Suv</label>
+                                <Field type="number" name="hourPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPriceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price Sedan</label>
+                                <Field type="number" name="hourPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPriceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Extra Hour Price</label>
+                                <Field type="number" name="extraHourPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPrice" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Extra Hour Price (MUV)</label>
+                                <Field type="number" name="extraHourPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPriceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Extra Hour Price Suv</label>
+                                <Field type="number" name="extraHourPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPriceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            { values?.type === "Outstation" && 
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Extra Hour Price Sedan</label>
+                                <Field type="number" name="extraHourPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPriceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                 <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -362,7 +438,8 @@ const RentalsPriceMasterAdd = () => {
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="black" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth  onClick={handleSubmit} disabled={!dirty || !isValid} 
+                            className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}>
                                 Continue
                             </Button>
                         </div>

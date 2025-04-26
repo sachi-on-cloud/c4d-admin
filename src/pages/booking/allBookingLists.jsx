@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES } from '../../utils/constants';
+import { API_ROUTES, ColorStyles } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -531,7 +531,7 @@ const Booking = (props) => {
                                     color="black"
                                     onClick={handleSubmit}
                                     disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'CAB' && !values.cabType)}
-                                    className='my-2 mx-2'
+                                    className={`my-2 mx-2 ${ColorStyles.continueButtonColor}`}
                                 >
                                     Continue
                                 </Button>

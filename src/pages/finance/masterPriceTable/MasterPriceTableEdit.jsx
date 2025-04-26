@@ -195,7 +195,7 @@ const PriceEdit = () => {
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="black" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="blue" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>

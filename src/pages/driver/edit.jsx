@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS } from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
 import { Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -1056,13 +1056,13 @@ const DriverEdit = () => {
                             <Button
                                 fullWidth
                                 onClick={() => navigate(`/dashboard/vendors/account/drivers`)}
-                                className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                                className={`my-6 mx-2 ${ColorStyles.backButton}`}
                             >
                                 Back
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                color="blue"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
                                 className='my-6 mx-2'

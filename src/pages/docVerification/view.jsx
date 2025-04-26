@@ -1,5 +1,5 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import {
@@ -149,9 +149,9 @@ export function DocumentVerificationView() {
             <CardHeader
               variant="gradient"
               // color="gray"
-              className="mb-8 p-6 bg-blue-gray-100 flex-1 justify-between items-center"
+              className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
             >
-              <Typography variant="h6" color="black">
+              <Typography variant="h6" color="white">
                 Documents List
               </Typography>
             </CardHeader>
@@ -245,17 +245,17 @@ export function DocumentVerificationView() {
                                 </div>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {number}
                                 </Typography>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {nameType}
                                 </Typography>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {source}
                                 </Typography>
                               </td>
@@ -280,8 +280,8 @@ export function DocumentVerificationView() {
               </table>
             </CardBody>
           </>):(
-          <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-100">
-            <Typography variant="h6" color="black">
+          <CardHeader variant="gradient" className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
+            <Typography variant="h6" color="white">
               No Documents
             </Typography>
           </CardHeader>

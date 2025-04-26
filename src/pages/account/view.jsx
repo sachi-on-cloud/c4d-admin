@@ -14,7 +14,7 @@ import {
 } from "@material-tailwind/react";
 import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
@@ -183,7 +183,7 @@ export function AccountView() {
       <Popover placement="bottom-start">
         <PopoverHandler>
           <div className="flex items-center cursor-pointer">
-            <Typography variant="small" className="text-[11px] font-bold uppercase text-black mr-1">
+            <Typography variant="small" className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}>
               {title}
             </Typography>
             <FaFilter className="text-black text-xs" />
@@ -220,8 +220,9 @@ export function AccountView() {
       <Card>
         {accounts.length > 0 ? (
           <>
-            <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-100 rounded-xl">
-              <Typography variant="h6" color="black">
+            <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center rounded-xl 
+              ${ColorStyles.bgColor}`}>
+              <Typography variant="h6" color="white">
                 Accounts List
               </Typography>
             </CardHeader>
@@ -344,7 +345,7 @@ export function AccountView() {
                       return (
                         <tr key={id}>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {moment(created_at).format("DD-MM-YYYY")}
                             </Typography>
                           </td>
@@ -362,17 +363,17 @@ export function AccountView() {
                             </div>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {phoneNumber}
                             </Typography>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {type}
                             </Typography>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {source}
                             </Typography>
                           </td>
@@ -417,8 +418,8 @@ export function AccountView() {
               </table>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
-            <Typography variant="h6" color="black">
+          <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
+            <Typography variant="h6" color="white">
               No Accounts
             </Typography>
           </CardHeader>

@@ -1125,3 +1125,14 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
 
     Warm regards,
     ${COMPANY_NAME} Team`;
+
+    export const ColorStyles = {
+        sidenavColors:"bg-[#1b318d] text-white",
+        bgColor: "bg-[#1b318d]",
+        PopoverHandlerText: "text-white",
+        bgStatusColor:" bg-[#1b318d] text-white",
+        addButtonColor:"bg-[#1b318d] text-white",
+        continueButtonColor:" bg-[#1b318d] text-white",
+        backButton:" text-black border-gray-400 border-2 rounded-xl bg-white",
+        editButton:"bg-[#1b318d] text-white",
+      }; 

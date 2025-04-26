@@ -13,7 +13,7 @@ import {
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS } from "@/utils/constants";
+import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
@@ -62,10 +62,10 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         <Popover placement="bottom-start">
             <PopoverHandler>
                 <div className="flex items-center cursor-pointer">
-                    <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-900 mr-1">
+                    <Typography variant="small"  className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}>
                         {title}
                     </Typography>
-                    <FaFilter className="text-blue-gray-900 text-xs" />
+                    <FaFilter className="text-white text-xs" />
                 </div>
             </PopoverHandler>
             <PopoverContent className="p-2">
@@ -133,7 +133,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                     key={i}
                     size="sm"
                     variant={i === pagination.currentPage ? "filled" : "outlined"}
-                    className="mx-1  bg-blue-gray-200 text-blue-gray-900"
+                    className={`mx-1 ${ColorStyles.bgColor} text-white`}
                     onClick={() => handlePageChange(i)}
                 >
                     {i}
@@ -223,7 +223,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                             
                                             <th
                                                 key={el}
-                                                className="border-b border-blue-gray-50 bg-blue-gray-100 py-3 px-5 text-left"
+                                                className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}
                                             >
                                                 {el === "Service Type" && type === "" ? (
                                                     <FilterPopover
@@ -242,14 +242,14 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                       onClick={() => handleSort('created_at')}
                                                       className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
                                                     >
-                                                      <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
+                                                      <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
                                                         Created Date
                                                       </Typography>
                                                       {sortConfig.key === 'created_at' && (
                                                         sortConfig.direction === 'ascending' ? (
-                                                          <ChevronUpIcon className="w-5 h-5 mx-1 text-blue-gray-900" />
+                                                          <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
                                                         ) : (
-                                                          <ChevronDownIcon className="w-5 h-5 ml-1 text-blue-gray-900" />
+                                                          <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
                                                         )
                                                       )}
                                                     </th>
@@ -283,7 +283,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         />
                                                     )
                                                         : (
-                                                            <Typography variant="medium" className="text-[11px] font-bold uppercase text-black">
+                                                            <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
                                                                 {el}
                                                             </Typography>
                                                         )}
@@ -308,7 +308,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     <td className={className}>
                                                         <div className="flex items-center">
                                                             <div onClick={() => {handleBookingSelect(data);
-                                                                isOpen(true)
+                                                                setIsOpen(true)
                                                             }}>
                                                                 <Typography
                                                                     variant="small"
@@ -321,27 +321,27 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                         </div>
                                                     </td>
                                                     <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
                                                             {data?.Customer?.firstName ? data?.Customer?.firstName : '-'}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
                                                             {data?.Driver?.firstName ? data?.Driver?.firstName : '-'}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
                                                             {data?.source ? data?.source : '-'}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
                                                             {formatDate(data?.fromDate)}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
                                                             {formatDate(data?.created_at)}
                                                         </Typography>
                                                     </td>
@@ -396,7 +396,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             variant="text"
                                                             // color={"blue"}
                                                             value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
-                                                            className="py-0.5 px-2 text-[11px] bg-blue-gray-200 text-blue-gray-900 font-medium w-fit"
+                                                            className={`py-0.5 px-2 text-[11px] font-medium w-fit ${ColorStyles.bgStatusColor}`}
                                                         />
                                                     </td>
                                                     <td className={className}>
@@ -413,7 +413,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
-                                                                className="text-xs font-semibold bg-blue-gray-200 text-blue-gray-900 flex-wrap"
+                                                                className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                             >
                                                                 Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                             </Button>
@@ -422,7 +422,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
-                                                                className="text-xs font-semibold  bg-blue-gray-200 text-blue-gray-900 flex-wrap"
+                                                                className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                             >
                                                                 Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                             </Button>

@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import {
     Card,
     CardBody,
@@ -78,8 +78,8 @@ export function ReceiptList() {
             <Card>
                 {receiptsList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-100">
-                            <Typography variant="h6" color="black">
+                        <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}>
+                            <Typography variant="h6" color="white">
                                Receipts List
                             </Typography>
                         </CardHeader>
@@ -118,10 +118,10 @@ export function ReceiptList() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{moment(receipt?.created_at).format("DD-MM-YYYY")}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt?.receiptType}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt?.paymentType}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{receipt?.amount}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{moment(receipt?.created_at).format("DD-MM-YYYY")}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{receipt?.receiptType}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{receipt?.paymentType}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{receipt?.amount}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -129,8 +129,8 @@ export function ReceiptList() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
-                        <Typography variant="h6" color="black">
+                    <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
+                        <Typography variant="h6" color="white">
                             No Receipts
                         </Typography>
                     </CardHeader>

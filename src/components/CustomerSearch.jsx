@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 
 const CustomerSearch = ({ onSearch }) => {
@@ -90,7 +90,7 @@ const CustomerSearch = ({ onSearch }) => {
         </div>
         <button
           onClick={() => navigate(`/dashboard/customers/add`)}
-          className="ml-4 px-4 py-2 font-normal bg-green-400 text-white rounded-3xl"
+          className={`ml-4 px-4 py-2 font-normal rounded-3xl ${ColorStyles.addButtonColor}`}
         >
           Add new
         </button>

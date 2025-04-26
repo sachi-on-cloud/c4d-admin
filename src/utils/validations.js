@@ -535,8 +535,8 @@ export const CAB_ADD_SCHEMA = Yup.object({
         )
         .trim(),
     insurance: Yup.string().required('Insurance Expiry Date is required'),
-    withDriver: Yup.string().required('Driver is required'),
     assignOrAddDriver: Yup.string().when(['withDriver'], {
+        withDriver: Yup.string().required('Driver is required'),
         is: (withDriver) => withDriver === 'Yes',
         then: () => Yup.string().required('Assign Or Add Driver is required'),
         otherwise: () => Yup.string()

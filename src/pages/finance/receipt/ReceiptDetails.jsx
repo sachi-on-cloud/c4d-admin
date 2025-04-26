@@ -3,7 +3,7 @@ import { Formik, Form, Field } from 'formik';
 import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -130,7 +130,7 @@ const ReceiptDetails = () => {
             <div className='flex justify-center space-x-4 my-6'>
                 <Button
                     onClick={() => { navigate('/dashboard/finance/receipt'); }}
-                    className='my-6 px-8 text-black border-2 bg-white rounded-xl'
+                    className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>

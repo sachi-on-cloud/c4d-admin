@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import {
     Card,
     CardBody,
@@ -81,7 +81,9 @@ export function MasterSubscriptionView() {
                     </div>
                     <button
                         onClick={() => navigate('/dashboard/finance/master-subscription/add')}
-                        className="ml-4 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className={`ml-4 px-4 py-2 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            ColorStyles.addButtonColor
+                        }`}
                     >
                         Add new
                     </button>
@@ -90,8 +92,8 @@ export function MasterSubscriptionView() {
             <Card>
                 {masterSubscriptionList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-100">
-                            <Typography variant="h6" color="black">
+                        <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}>
+                            <Typography variant="h6" color="white">
                                Master Subscription List
                             </Typography>
                         </CardHeader>
@@ -117,7 +119,7 @@ export function MasterSubscriptionView() {
                                 <tbody>
                                     {masterSubscriptionList.map((masterSubscription, index) => (
                                         <tr key={index} className="text-sm">
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.serviceType === "DRIVER" ? (<div>Acting Driver</div>): masterSubscription.serviceType || 
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.serviceType === "ACTING_DRIVER" ? (<div>Acting Driver</div>): masterSubscription.serviceType || 
                                             masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : masterSubscription.serviceType}</td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div onClick={() => navigate(`/dashboard/finance/master-subscription/details/${masterSubscription.id}`)}>
@@ -131,12 +133,12 @@ export function MasterSubscriptionView() {
 
                                                 </div>
                                             </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.name ? masterSubscription.name : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.price == 0 ? 'Free' : masterSubscription.price}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.bonusPrice ? masterSubscription.bonusPrice : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.totalPrice ? masterSubscription.totalPrice : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.type ? masterSubscription.type : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.validityDays ? masterSubscription.validityDays : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.name ? masterSubscription.name : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.price == 0 ? 'Free' : masterSubscription.price}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.bonusPrice ? masterSubscription.bonusPrice : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.totalPrice ? masterSubscription.totalPrice : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.type ? masterSubscription.type : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.validityDays ? masterSubscription.validityDays : '-'}</td>
 
                                             {/* <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(masterSubscription.discountEndDate)}</td> */}
                                         </tr>
@@ -146,8 +148,8 @@ export function MasterSubscriptionView() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient"  className="mb-8 p-6 bg-blue-gray-100">
-                        <Typography variant="h6" color="black">
+                    <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
+                        <Typography variant="h6" color="white">
                             No Master Subscriptions
                         </Typography>
                     </CardHeader>

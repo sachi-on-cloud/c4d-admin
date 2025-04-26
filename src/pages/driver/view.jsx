@@ -14,7 +14,7 @@ import {
 import { FaFilter } from 'react-icons/fa';
 import moment from "moment";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
@@ -152,7 +152,7 @@ export function DriverView() {
     <Popover placement="bottom-start">
       <PopoverHandler>
         <div className="flex items-center cursor-pointer">
-          <Typography variant="small" className="text-[11px] font-bold uppercase text-black mr-1">
+          <Typography variant="small" className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}>
             {title}
           </Typography>
           <FaFilter className="text-black text-xs" />
@@ -212,8 +212,10 @@ export function DriverView() {
       <Card>
         {drivers.length > 0 ? (
           <>
-            <CardHeader variant="gradient" className="mb-8 p-6 flex-1 bg-blue-gray-100 justify-between items-center">
-              <Typography variant="h6" color="black">
+            <CardHeader variant="gradient" className={`mb-8 p-6 flex-1 justify-between items-center ${
+              ColorStyles.bgColor
+            }`}>
+              <Typography variant="h6" color="white">
                 Drivers List
               </Typography>
             </CardHeader>
@@ -313,7 +315,7 @@ export function DriverView() {
                         return (
                           <tr key={id}>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {moment(created_at).format("DD-MM-YYYY")}
                               </Typography>
                             </td>
@@ -334,27 +336,27 @@ export function DriverView() {
                               </div>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {phoneNumber}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600 ">
+                              <Typography className="text-xs font-semibold text-blue-gray-900 ">
                                 {localCount}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {outstationCount}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {source}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {driverType}
                               </Typography>
                             </td>
@@ -393,9 +395,9 @@ export function DriverView() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-100">
+          <CardHeader variant="gradient" className={`mb-8 p-6  ${ColorStyles.bgColor}`}>
              {/* color="gray" */}
-            <Typography variant="h6" color="black">
+            <Typography variant="h6" color="white">
               No Drivers
             </Typography>
           </CardHeader>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
+import { ColorStyles } from '@/utils/constants';
 
 const AccountSearch = ({ onSearch}) => {
   const navigate = useNavigate();
@@ -26,7 +27,9 @@ const AccountSearch = ({ onSearch}) => {
         </div>
         <button 
           onClick={() => navigate(`/dashboard/vendors/account/add`)}
-          className="ml-4 px-4 py-2 bg-green-500 text-white rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className={`ml-4 px-4 py-2  rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+            ColorStyles.addButtonColor
+          }`}
         >
           Add new
         </button>

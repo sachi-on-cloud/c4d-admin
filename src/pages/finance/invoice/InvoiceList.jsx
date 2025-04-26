@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import {
     Card,
     CardBody,
@@ -79,8 +79,10 @@ export function InvoiceList() {
             <Card>
                 {invoiceList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient"  className="mb-8 p-6 flex-1 justify-between items-center bg-blue-gray-100">
-                            <Typography variant="h6" color="black">
+                        <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center ${
+                            ColorStyles.bgColor
+                        }`}>
+                            <Typography variant="h6" color="white">
                                Invoice List
                             </Typography>
                         </CardHeader>
@@ -119,10 +121,10 @@ export function InvoiceList() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(invoice?.created_at)}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.Subscription?.Plan?.name}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.amount}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.status}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{formatDate(invoice?.created_at)}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.Subscription?.Plan?.name}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.amount}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.status}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -130,8 +132,8 @@ export function InvoiceList() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient" className="mb-8 p-6 bg-blue-gray-100">
-                        <Typography variant="h6" color="black">
+                    <CardHeader variant="gradient" className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
+                        <Typography variant="h6" color="white">
                             No Invoices
                         </Typography>
                     </CardHeader>

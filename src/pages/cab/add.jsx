@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody, } from '@material-tailwind/react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -649,7 +649,7 @@ const CabAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
-                                className='my-6 mx-2'
+                                className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                             >
                                 Continue
                             </Button>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, PERMISSION_OPTIONS, USER_ROLE } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, PERMISSION_OPTIONS, USER_ROLE } from '@/utils/constants';
 import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -90,7 +90,7 @@ const UserDetails = () => {
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/users'); }}
-                    className='my-6 px-8 text-white border-2 bg-black rounded-xl'
+                    className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>

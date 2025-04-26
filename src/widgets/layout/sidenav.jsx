@@ -21,6 +21,7 @@ import { ChevronDownIcon,
   ChartBarIcon,
   DocumentCheckIcon,
   UserGroupIcon } from '@heroicons/react/24/solid';
+import { ColorStyles } from "@/utils/constants";
 
 // const menuItems = [
 //   { name: "Home", path: "/dashboard/booking", permission: "Home" ,end : true },
@@ -128,13 +129,15 @@ const toggleSubMenu = (subMenu) =>
               {({ isActive }) => (
                 <Button
                   variant="text"
-                  className={`flex items-center gap-4 px-4 capitalize bg-blue-gray  ${
-                    isActive ? "bg-blue-gray-100" : "bg-transparent"
+                  className={`flex items-center gap-4 px-4 capitalize  ${
+                    isActive ? ColorStyles.sidenavColors : "bg-transparent"
                   }`}
                   fullWidth
                   onClick={() => toggleSubMenu("Home")}
                 >
-                    <HomeIcon className="h-6 w-6 rounded-sm text-black" />
+                    <HomeIcon className={`h-6 w-6 rounded-sm text-black ${
+    isActive ? ColorStyles.sidenavColors : "bg-transparent"
+  }`} />
                   <Typography color="inherit" className="font-medium capitalize">
 
                     home
@@ -150,13 +153,15 @@ const toggleSubMenu = (subMenu) =>
                 <Button
                   variant="text"
                   className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
-                    isActive ? "bg-blue-gray-100" : "bg-transparent"
+                    isActive ? ColorStyles.sidenavColors : "bg-transparent"
                   }`}
                   fullWidth
                   onClick={() => toggleSubMenu("All Bookings")}
                 >                  
                   <Typography color="inherit" className="font-medium capitalize flex items-center" >
-                  <DocumentTextIcon className="h-6 w-6 rounded-sm text-black" />
+                  <DocumentTextIcon className={`h-6 w-6 rounded-sm text-black ${
+    isActive ? ColorStyles.sidenavColors : "bg-transparent"
+  }`} />
                     <div className="px-4">All Bookings</div>
                   </Typography>
                   {openSubMenu === "All Bookings" ? (
@@ -182,7 +187,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                     fullWidth
                     >
@@ -201,7 +206,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                     fullWidth
                     >
@@ -218,7 +223,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -235,7 +240,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -257,13 +262,15 @@ const toggleSubMenu = (subMenu) =>
                   variant="text"
                  
                  className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
-                  isActive ? "bg-blue-gray-100" : "bg-transparent"
+                  isActive ? ColorStyles.sidenavColors : "bg-transparent"
                  }`}
                   fullWidth
                   onClick={() => toggleSubMenu("customers")}
                 >
                   <Typography color="inherit" className="font-medium capitalize flex items-center">
-                    <UserGroupIcon className="h-6 w-6 rounded-sm text-black"/>
+                    <UserGroupIcon className={`h-6 w-6 rounded-sm text-black ${
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                    }`} />
                     <div className="px-4">
                     Customers
                     </div>
@@ -290,7 +297,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                       variant="text"
                       className={`flex items-center gap-4 px-6 capitalize bg-blue-gray ${
-                        isActive ? "bg-blue-gray-100" : "bg-transparent"
+                        isActive ? ColorStyles.sidenavColors : "bg-transparent"
                       }`}
                       fullWidth
                     >
@@ -311,13 +318,15 @@ const toggleSubMenu = (subMenu) =>
                 <Button
                   variant="text"
                 className=  {`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
-                  isActive ? "bg-blue-gray-100" : "bg-transparent"
+                  isActive ? ColorStyles.sidenavColors : "bg-transparent"
                 }`}
                   fullWidth
                   onClick={() => toggleSubMenu("vendors")}
                 >
                   <Typography color="inherit" className="font-medium capitalize flex items-center">
-                  <BuildingStorefrontIcon className="h-6 w-6 rounded-sm text-black"   />
+                  <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                    }`}   />
                     <div className="px-4">
                     vendors
                       </div>
@@ -344,7 +353,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -363,7 +372,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -383,14 +392,16 @@ const toggleSubMenu = (subMenu) =>
                 <Button
                   variant="text"
                   className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
-                    isActive ? "bg-blue-gray-100" : "bg-transparent"
+                    isActive ? ColorStyles.sidenavColors : "bg-transparent"
                   }`}
                   fullWidth
                   onClick={() => toggleSubMenu("finance")}
                 >
                   <Typography color="inherit" className="font-medium capitalize flex items-center">
                   
-                  <ChartBarIcon className="h-6 w-6 rounded-sm text-black" />
+                  <ChartBarIcon className={`h-6 w-6 rounded-sm text-black ${
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                    }`} />
                     <div className="px-4">
                     finance
                     </div>
@@ -418,7 +429,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -437,7 +448,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -456,7 +467,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -475,7 +486,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -496,13 +507,15 @@ const toggleSubMenu = (subMenu) =>
                   variant="text"
                   
                   className={`flex items-center gap-4 px-4 capitaliz justify-between w-full ${
-                    isActive ? "bg-blue-gray-100": "bg-transparent"
+                    isActive ? ColorStyles.sidenavColors : "bg-transparent"
                   }`}
                   fullWidth
                   onClick={() => toggleSubMenu("document verification")}
                 >
                   <Typography color="inherit" className="flex space-x-4 items-center">
-                  <DocumentCheckIcon className="h-6 w-6 rounded-sm text-black" />
+                  <DocumentCheckIcon className={`h-6 w-6 rounded-sm text-black ${
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                    }`} />
                     <div className="font-medium capitalize">
                     document verification
                     </div>
@@ -529,7 +542,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -548,7 +561,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -568,14 +581,16 @@ const toggleSubMenu = (subMenu) =>
                 <Button
                   variant="text"
                   className={`flex items-center gap-4 px-4 capitaliz justify-between w-full  ${
-                    isActive ? "bg-blue-gray-100" : "bg-transparent"
+                    isActive ? ColorStyles.sidenavColors : "bg-transparent"
                   }`}
                   fullWidth
                   onClick={() => toggleSubMenu("admin")}
                 >
                   <Typography color="inherit" className="flex items-center">
                   
-                  <UserCircleIcon className="h-6 w-6 rounded-sm text-black" />
+                  <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                    }`} />
                     <div className="font-medium capitalize px-4"> 
                       admin
                     </div>
@@ -602,7 +617,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize mb-1 bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >
@@ -621,7 +636,7 @@ const toggleSubMenu = (subMenu) =>
                     <Button
                     variant="text"
                     className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
-                      isActive ? "bg-blue-gray-100" : "bg-transparent"
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
                     }`}
                       fullWidth
                     >

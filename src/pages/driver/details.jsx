@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, KYC_PROCESS } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, KYC_PROCESS } from '@/utils/constants';
 import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
@@ -334,14 +334,14 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                 <Button
                     fullWidth
                     onClick={() => navigate('/dashboard/vendors/account/drivers')}
-                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                    className={`my-6 mx-2  ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>
                 <Button
                     fullWidth
                     onClick={() => navigate(`/dashboard/vendors/account/drivers/edit/${id}`)}
-                    className='my-6 mx-2 bg-green-500'>
+                    className={`my-6 mx-2 ${ColorStyles.editButton}`}>
                     Edit
                 </Button>
             </div>}

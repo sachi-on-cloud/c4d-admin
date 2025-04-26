@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 
 const InvoiceDetails = () => {
     const [invoice, setInvoice] = useState({});
@@ -181,7 +181,7 @@ const InvoiceDetails = () => {
                         Save
                     </Button>
                 )}
-                <Button onClick={() => navigate('/dashboard/finance/invoice')} className='my-6 px-8 text-black border-2 bg-white rounded-xl'>
+                <Button onClick={() => navigate('/dashboard/finance/invoice')} className={`my-6 px-8 ${ColorStyles.backButton}`}>
                     Back
                 </Button>
                 <Button onClick={handleDownloadPDF} className="my-6 px-8 text-white border-2 bg-green-500 rounded-xl">

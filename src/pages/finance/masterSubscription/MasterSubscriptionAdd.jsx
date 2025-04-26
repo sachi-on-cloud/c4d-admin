@@ -85,7 +85,7 @@ const MasterSubscriptionAdd = () => {
                   <label htmlFor="source" className="text-sm font-medium text-gray-700">Service Type</label>
                   <Field as="select" name="serviceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <option value="">Select Service Type</option>
-                    <option value="DRIVER">Driver</option>
+                    <option value="ACTING_DRIVER">Driver</option>
                     <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
                   </Field>
                   <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
@@ -145,7 +145,7 @@ const MasterSubscriptionAdd = () => {
                 </Button>
                 <Button
                   fullWidth
-                  color="black"
+                  color="blue"
                   onClick={handleSubmit}
                   disabled={!dirty || !isValid}
                   className='my-6 mx-2'

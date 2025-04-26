@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Button, Input, List, ListItem,Dialog, DialogHeader, DialogBody,Typography,Card,CardBody} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
@@ -717,13 +717,13 @@ const AccountEdit = () => {
                             <Button
                                 fullWidth
                                 onClick={() => { navigate('/dashboard/vendors/account'); }}
-                                className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                                className={`my-6 mx-2 ${ColorStyles.backButton}`}
                             >
                                 Back
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                color="blue"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
                                 className='my-6 mx-2'

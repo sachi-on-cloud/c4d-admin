@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES } from '../../utils/constants';
+import { API_ROUTES, ColorStyles } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -408,9 +408,9 @@ const Booking = (props) => {
                 <div className='py-6 rounded-3xl flex justify-end'>
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="px-4 py-2 bg-green-400 text-white rounded-3xl"
+                    className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
                 >
-                    Add Customers
+                    Add New Booking
                 </button>
                 
                 </div>            
@@ -421,15 +421,25 @@ const Booking = (props) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
         setIsOpen(false)
         onConfirmBooking()
+        setSelectedCustomer();
+        setEditBookingView();
+        setEditBooking();
+        setQuoteDetails();
         }}>
-        <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/4 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
-        <div className="flex-1 bg-white rounded-xl px-5 max-h-screen overflow-y-auto shadow p-4">
+        <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/5 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
+        <div className="flex-1 bg-blue-gray-100 rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4"> 
+            {/* max-h-screen overflow-y-auto shadow p-4 */}
+            
                                 <div className='rounded-2xl justify-end items-end space-x-12 flex'>
                                     <button
                                         onClick={
                                             () => {
-                                                setIsOpen(false)
+                                                setIsOpen(false);
                                                 onConfirmBooking();
+                                                setSelectedCustomer();
+                                                setEditBookingView();
+                                                setEditBooking();
+                                                setQuoteDetails();
                                             }
                                         }
                                         className="px-0 py-0 bg-black-500"
@@ -929,7 +939,7 @@ const Booking = (props) => {
                                         handleSubmit();
                                     }}
                                     disabled={!dirty || !isValid || !values.rideDate}
-                                    className='my-6 mx-2'
+                                    className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                 >
                                     Continue
                                 </Button>}
@@ -942,7 +952,7 @@ const Booking = (props) => {
                                             handleSubmit();
                                         }}
                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
-                                        className='my-6 mx-2'
+                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                     >
                                         Continue
                                     </Button>
@@ -957,7 +967,7 @@ const Booking = (props) => {
                                             handleSubmit();
                                         }}
                                         // disabled={values.serviceType == 'RENTAL'}
-                                        className='my-6 mx-2'
+                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                     >
                                         Continue
                                     </Button> 

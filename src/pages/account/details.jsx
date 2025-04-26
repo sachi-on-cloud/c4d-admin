@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES} from '@/utils/constants';
+import { API_ROUTES, ColorStyles} from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
@@ -237,11 +237,13 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
                 <div className='flex justify-center w-full'>
                     <Button
                         onClick={() => { navigate('/dashboard/vendors/account'); }}
-                        className='my-6 px-8 text-black border-2 rounded-xl bg-white'
+                        className={`my-6 px-8 ${ColorStyles.backButton}`}
                     >
                         Back
                     </Button>
-                    <Button onClick={()=>{navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`)}} className='my-6 px-8 bg-green-500 text-white border-2 rounded-xl'>
+                    <Button onClick={()=>{navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`)}} className={`my-6 px-8 border-2 rounded-xl ${
+                        ColorStyles.editButton
+                    }`}>
                         Edit
                     </Button>
                 </div>
