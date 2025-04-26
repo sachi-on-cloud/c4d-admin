@@ -379,7 +379,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
+                              variant="ghost"
                               color={availableStatus == "ACTIVE" ? "green" : "black"}
                               value={availableStatus == "ACTIVE" ? "online" : "offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -387,7 +387,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
+                              variant="ghost"
                               color={ownerStatus == "ACTIVE" ? "green" : "black"}
                               value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -395,7 +395,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
+                              variant="ghost"
                               color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "black"}
                               value={documentStatus?.status}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"

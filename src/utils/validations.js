@@ -90,6 +90,11 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
         then: () => Yup.string().required('Car Type is required'),
         otherwise: () => Yup.string(),
     }),
+    carType: Yup.string().when('serviceType', {
+        is: (val) => val !== 'RENTAL',
+        then: () => Yup.string().required('Car Type is required'),
+        otherwise: () => Yup.string(),
+    }),
     transmissionType: Yup.string().when('serviceType', {
         is: (val) => val === 'DRIVER',
         then: () => Yup.string().required('Transmission Type is required'),

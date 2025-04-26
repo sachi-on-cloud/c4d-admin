@@ -234,7 +234,8 @@ export function PendingDocList() {
                               </td> */}
                               <td className={className}>
                                 <Typography
-                                  className={`text-xs font-semibold ${data.isComplete ? "text-green-500" : "text-blue-500"}`}
+                                variant="ghost"
+                                  className={`px-2 w-fit rounded-xl text-xs font-semibold ${data.isComplete ? "bg-green-100 text-green-500" : "bg-blue-gray-100 text-blue-500"}`}
                                 >
                                   {status}
                                 </Typography>

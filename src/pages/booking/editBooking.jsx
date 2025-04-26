@@ -284,13 +284,13 @@ const EditBooking = (props) => {
                                 <div>
                                     <Typography className="text-sm font-medium text-gray-700">Trip Type</Typography>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
-                                        <Button
+                                    {(values?.serviceType !== 'RENTAL') && (<Button
                                             color={values.tripType === 'Drop Only' ? 'black' : 'gray'}
                                             onClick={() => setFieldValue('tripType', 'Drop Only')}
                                             variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
                                         >
                                             Drop Only
-                                        </Button>
+                                        </Button>)}
                                         <Button
                                             color={values.tripType === 'Round Trip' ? 'black' : 'gray'}
                                             onClick={() => setFieldValue('tripType', 'Round Trip')}
@@ -300,6 +300,7 @@ const EditBooking = (props) => {
                                         </Button>
                                     </div>
                                 </div>
+                                {(values.serviceType !== 'RENTAL') && (
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Car Type</label>
                                     <div className="grid grid-cols-4 mt-2">
@@ -317,7 +318,9 @@ const EditBooking = (props) => {
                                     </div>
                                     <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
                                 </div>
-                                <div>
+                                )}
+                                
+                                {(values?.serviceType !== 'RENTAL') && (<div>
                                     <label className="text-sm font-medium text-gray-700">Transmission Type</label>
                                     <div className="grid grid-cols-2 mt-2">
                                         {['Manual', 'Automatic'].map((transType) => (
@@ -334,6 +337,7 @@ const EditBooking = (props) => {
                                     </div>
                                     <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
                                 </div>
+                                 )}
                             </div>
                             <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">

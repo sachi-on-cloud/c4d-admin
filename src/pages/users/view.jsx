@@ -176,7 +176,7 @@ export function UserView() {
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
+                              variant="ghost"
                               color={status == "ACTIVE" ? "green" : "blue-gray"}
                               value={status == "ACTIVE" ? "Active" : "In-Active"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -196,7 +196,7 @@ export function UserView() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/users/edit/${id}`)}
-                                className="text-xs font-semibold text-white bg-[#1b318d]"
+                                className="text-xs font-semibold text-white bg-[#1A73E8]"
                               >
                                 Edit
                               </Button>

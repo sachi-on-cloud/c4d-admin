@@ -87,7 +87,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                 <div className="flex items-center gap-2">
                     <label
                         htmlFor={name}
-                        className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                        className="inline-block text-center text-white border border-gray-400 bg-[#1A73E8] rounded-lg px-4 py-1 cursor-pointer"
                     >
                         Update
                     </label>

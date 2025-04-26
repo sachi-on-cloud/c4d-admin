@@ -362,7 +362,7 @@ export function DriverView() {
                             </td>
                             <td className={className}>
                               <Chip
-                                variant="gradient"
+                                variant="ghost"
                                 color={status == "ACTIVE" ? "green" : "black"}
                                 value={status == "ACTIVE" ? "online" : "offline"}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -370,7 +370,7 @@ export function DriverView() {
                             </td>
                             <td className={className}>
                               <Chip
-                                variant="gradient"
+                                variant="ghost"
                                 color={subscriptionStatus == "ACTIVE" ? "green" : subscriptionStatus == "BLOCKED" ? "red" : "black"}
                                 value={subscriptionStatus}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -378,7 +378,7 @@ export function DriverView() {
                             </td>
                             <td className={className}>
                               <Chip
-                                variant="gradient"
+                                variant="ghost"
                                 color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "black"}
                                 value={documentStatus?.status}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"

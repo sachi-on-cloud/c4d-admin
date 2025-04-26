@@ -174,7 +174,7 @@ export function CustomerView() {
                             <Button
                               as='a'
                               onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
-                              className="text-xs font-semibold bg-[#1b318d] text-white"
+                              className="text-xs font-semibold bg-[#1A73E8] text-white"
                             >
                               Edit
                             </Button>

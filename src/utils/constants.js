@@ -1127,12 +1127,12 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     ${COMPANY_NAME} Team`;
 
     export const ColorStyles = {
-        sidenavColors:"bg-[#1b318d] text-white",
-        bgColor: "bg-[#1b318d]",
-        PopoverHandlerText: "text-white",
-        bgStatusColor:" bg-[#1b318d] text-white",
-        addButtonColor:"bg-[#1b318d] text-white",
-        continueButtonColor:" bg-[#1b318d] text-white",
+        sidenavColors:"bg-[#1A73E8] text-white",
+        bgColor: "bg-[#1A73E8]",
+        PopoverHandlerText: "text-black",
+        bgStatusColor:" bg-[#1A73E8] text-white",
+        addButtonColor:"bg-[#1A73E8] text-white",
+        continueButtonColor:" bg-[#1A73E8] text-white",
         backButton:" text-black border-gray-400 border-2 rounded-xl bg-white",
-        editButton:"bg-[#1b318d] text-white",
+        editButton:"bg-[#1A73E8] text-white",
       }; 

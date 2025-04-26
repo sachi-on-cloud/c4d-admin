@@ -427,7 +427,7 @@ const Booking = (props) => {
         setQuoteDetails();
         }}>
         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/5 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
-        <div className="flex-1 bg-blue-gray-100 rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4"> 
+        <div className="flex-1 bg-[#f5f5f5] rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4"> 
             {/* max-h-screen overflow-y-auto shadow p-4 */}
             
                                 <div className='rounded-2xl justify-end items-end space-x-12 flex'>
@@ -555,13 +555,15 @@ const Booking = (props) => {
                                         <div>
                                             <Typography className="text-sm font-medium text-gray-700">Trip Type</Typography>
                                             <div className="grid grid-cols-2 gap-4 mt-2">
-                                                <Button
+                                            {values.serviceType !== 'RENTAL' && (<Button
                                                     color={values.tripType === 'Drop Only' ? 'black' : 'gray'}
                                                     onClick={() => setFieldValue('tripType', 'Drop Only')}
                                                     variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
                                                 >
                                                     Drop Only
                                                 </Button>
+                                                 )}
+
                                                 <Button
                                                     color={values.tripType === 'Round Trip' ? 'black' : 'gray'}
                                                     onClick={() => setFieldValue('tripType', 'Round Trip')}
@@ -572,7 +574,7 @@ const Booking = (props) => {
                                             </div>
                                         </div>
                                         <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                        <div>
+                                        {(values.serviceType !== 'RENTAL') && (<div>
                                             <label className="text-sm font-medium text-gray-700">Car Type</label>
                                             <div className="flex gap-4">
                                                 {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
@@ -589,6 +591,7 @@ const Booking = (props) => {
                                             </div>
                                             <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
                                         </div>
+                                    )}
                                         {(values.serviceType === 'DRIVER') && (
                                             <div>
                                                 <label className="text-sm font-medium text-gray-700">Transmission Type</label>
@@ -966,7 +969,7 @@ const Booking = (props) => {
                                             setFieldValue("submitType", "rental");
                                             handleSubmit();
                                         }}
-                                        // disabled={values.serviceType == 'RENTAL'}
+                                        disabled={!((values.pickupAddress || values.dropAddress) && (values.rideDate || values.toDate))}
                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                     >
                                         Continue

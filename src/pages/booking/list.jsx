@@ -62,7 +62,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         <Popover placement="bottom-start">
             <PopoverHandler>
                 <div className="flex items-center cursor-pointer">
-                    <Typography variant="small"  className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}>
+                    <Typography variant="small"  className="text-[11px] font-bold uppercase mr-1 text-white">
                         {title}
                     </Typography>
                     <FaFilter className="text-white text-xs" />
@@ -393,7 +393,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     </td> */}
                                                     <td>
                                                         <Chip
-                                                            variant="text"
+                                                            variant="ghost"
                                                             // color={"blue"}
                                                             value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
                                                             className={`py-0.5 px-2 text-[11px] font-medium w-fit ${ColorStyles.bgStatusColor}`}

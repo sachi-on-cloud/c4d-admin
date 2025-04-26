@@ -266,7 +266,8 @@ export function DocumentVerificationView() {
                               </td> */}
                               <td className={className}>
                                 <Typography
-                                  className={`text-xs font-semibold ${data.isComplete ? "text-green-500" : "text-blue-500"}`}
+                                  variant="ghost"
+                                  className={`px-2 rounded-xl text-xs font-semibold w-fit ${data.isComplete ? "bg-green-100 text-green-500" : " bg-blue-100 text-blue-500"}`}
                                 >
                                   {status}
                                 </Typography>
