@@ -544,7 +544,7 @@ const ConfirmBooking = (props) => {
                 </div>
                 <div className="grid grid-cols-3 gap-4 my-2">
                     <Button
-                        color="black"
+                        color="blue"
                         ripple="light"
                         fullWidth
                         onClick={onBackPressHandler}
@@ -554,7 +554,7 @@ const ConfirmBooking = (props) => {
 
                     {bookingDetails.status === "QUOTED" && (
                         <Button
-                            color="gray"
+                            color="blue"
                             variant="outlined"
                             ripple="dark"
                             fullWidth
@@ -573,7 +573,7 @@ const ConfirmBooking = (props) => {
                                 {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
                                     (
                                         <Button
-                                            color="gray"
+                                            color="blue"
                                             variant="outlined"
                                             ripple="dark"
                                             fullWidth
@@ -589,7 +589,7 @@ const ConfirmBooking = (props) => {
 
                     {bookingDetails?.status === 'QUOTED' && (
                         <Button
-                            color="gray"
+                            color="blue"
                             variant="outlined"
                             ripple="dark"
                             fullWidth
@@ -604,7 +604,7 @@ const ConfirmBooking = (props) => {
                         !bookingDetails?.Driver?.id &&
                         !bookingDetails?.Cab?.id && (
                             <Button
-                                color="black"
+                                color="blue"
                                 ripple="light"
                                 fullWidth
                                 onClick={() => { props.onAssignDriver(bookingDetails); }}

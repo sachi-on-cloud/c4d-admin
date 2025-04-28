@@ -528,7 +528,7 @@ const Booking = (props) => {
                                 <>
                                 <Button
                                     fullWidth
-                                    color="black"
+                                    color="blue"
                                     onClick={handleSubmit}
                                     disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'CAB' && !values.cabType)}
                                     className={`my-2 mx-2 ${ColorStyles.continueButtonColor}`}
@@ -537,7 +537,7 @@ const Booking = (props) => {
                                 </Button>
                                 <Button
                                     fullWidth
-                                    color="black"
+                                    color="blue"
                                     className='mx-2'
                                     onClick={()=>{setRightBookingView(false);
                                         editBooking(false);
@@ -561,6 +561,7 @@ const Booking = (props) => {
                         onNext={() => {
                             setBookingStage(2);
                             onSelectBooking(bookingData)
+                            setIsOpen(false)
                         }}
                         onPrev={() => setBookingStage(0)} />
                     }
@@ -570,6 +571,7 @@ const Booking = (props) => {
                                 setBookingStage(0);
                                 setBookingData(null);
                                 setRightBookingView(false);
+                                setIsOpen(false)
                             }} />
                         )}
                 </>}

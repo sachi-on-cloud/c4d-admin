@@ -489,7 +489,7 @@ const Booking = (props) => {
                                     {!editBookingView && <Button
                                         className="ml-3 w-1/2"
                                         fullWidth
-                                        color="black"
+                                        color="blue"
                                         onClick={() => { setShowQuickCreateCustomer(true) }}>
                                         Add New
                                     </Button>}
@@ -520,7 +520,7 @@ const Booking = (props) => {
                                     <div className="space-y-3 my-3">
                                         <div className="grid grid-cols-2 gap-4">
                                             <Button
-                                                color={values.packageTypeSelected === 'Local' ? 'black' : 'gray'}
+                                                color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
                                                 onClick={() => {
                                                     if (values.packageTypeSelected !== 'Local') {
                                                         setFieldValue('packageTypeSelected', 'Local');
@@ -536,7 +536,7 @@ const Booking = (props) => {
                                                 Local
                                             </Button>
                                             <Button
-                                                color={values.packageTypeSelected === 'Outstation' ? 'black' : 'gray'}
+                                                color={values.packageTypeSelected === 'Outstation' ? 'blue' : 'gray'}
                                                 onClick={() => {
                                                     if (values.packageTypeSelected !== 'Outstation') {
                                                         setFieldValue('packageTypeSelected', 'Outstation');
@@ -553,10 +553,10 @@ const Booking = (props) => {
                                             </Button>
                                         </div>
                                         <div>
-                                            <Typography className="text-sm font-medium text-gray-700">Trip Type</Typography>
+                                            <Typography className="text-sm font-medium text-black-700">Trip Type</Typography>
                                             <div className="grid grid-cols-2 gap-4 mt-2">
                                             {values.serviceType !== 'RENTAL' && (<Button
-                                                    color={values.tripType === 'Drop Only' ? 'black' : 'gray'}
+                                                    color={values.tripType === 'Drop Only' ? 'blue' : 'gray'}
                                                     onClick={() => setFieldValue('tripType', 'Drop Only')}
                                                     variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
                                                 >
@@ -565,7 +565,7 @@ const Booking = (props) => {
                                                  )}
 
                                                 <Button
-                                                    color={values.tripType === 'Round Trip' ? 'black' : 'gray'}
+                                                    color={values.tripType === 'Round Trip' ? 'blue' : 'gray'}
                                                     onClick={() => setFieldValue('tripType', 'Round Trip')}
                                                     variant={values?.tripType === 'Round Trip' ? 'filled' : 'outlined'}
                                                 >
@@ -575,7 +575,7 @@ const Booking = (props) => {
                                         </div>
                                         <div className='grid grid-cols-2 mt-2 space-x-3'>
                                         {(values.serviceType !== 'RENTAL') && (<div>
-                                            <label className="text-sm font-medium text-gray-700">Car Type</label>
+                                            <label className="text-sm font-medium text-black-700">Car Type</label>
                                             <div className="flex gap-4">
                                                 {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
                                                     <label key={carType} className="flex items-center space-x-2">
@@ -585,7 +585,7 @@ const Booking = (props) => {
                                                             value={carType}
                                                             className="h-4 w-4 text-blue-600"
                                                         />
-                                                        <span className="text-gray-700">{carType}</span>
+                                                        <span className="text-black-700">{carType}</span>
                                                     </label>
                                                 ))}
                                             </div>
@@ -594,7 +594,7 @@ const Booking = (props) => {
                                     )}
                                         {(values.serviceType === 'DRIVER') && (
                                             <div>
-                                                <label className="text-sm font-medium text-gray-700">Transmission Type</label>
+                                                <label className="text-sm font-medium text-black-700">Transmission Type</label>
                                                 <div className="flex gap-2">
                                                     {['Manual', 'Automatic'].map((transType) => (
                                                         <label key={transType} className="flex items-center space-x-2">
@@ -604,7 +604,7 @@ const Booking = (props) => {
                                                                 value={transType}
                                                                 className="h-4 w-4 text-blue-600"
                                                             />
-                                                            <span className="text-gray-700">{transType}</span>
+                                                            <span className="text-black-700">{transType}</span>
                                                         </label>
                                                     ))}
                                                 </div>
@@ -783,7 +783,7 @@ const Booking = (props) => {
                                 )} */}
                                 <div className='grid grid-cols-2'>
                                 {((values.tripType) || (values.serviceType == 'RIDES')) && <div className="p-2 space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className="block text-sm font-medium text-black-700">
                                         Pickup Location <span className="text-red-500">*</span>
                                     </label>
                                     <Field
@@ -816,7 +816,7 @@ const Booking = (props) => {
                                     <div  className="p-2 space-y-2 space-x-3">
                                 {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Drop Location<span className="text-red-500">*</span></label>
+                                        <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                         <Field
                                             type="text"
                                             name="dropAddress"
@@ -936,7 +936,7 @@ const Booking = (props) => {
 
                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                     fullWidth
-                                    color="black"
+                                    color="blue"
                                     onClick={() => {
                                         setFieldValue("submitType", "default");
                                         handleSubmit();
@@ -949,7 +949,7 @@ const Booking = (props) => {
                                 {(values.serviceType == 'RIDES') &&
                                     <Button
                                         fullWidth
-                                        color="black"
+                                        color="blue"
                                         onClick={() => {
                                             setFieldValue("submitType", "rides");
                                             handleSubmit();
@@ -964,7 +964,7 @@ const Booking = (props) => {
                                 {values.serviceType == 'RENTAL' && 
                                     <Button
                                         fullWidth
-                                        color="black"
+                                        color="blue"
                                         onClick={() => {
                                             setFieldValue("submitType", "rental");
                                             handleSubmit();
