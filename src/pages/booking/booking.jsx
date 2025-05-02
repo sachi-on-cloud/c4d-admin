@@ -183,7 +183,7 @@ const Booking = (props) => {
             adminBooking: true,
             serviceType: values.serviceType,
             cabType: values.cabType,
-            bookingType: values.tripType.toUpperCase(),
+            bookingType: values?.tripType?.toUpperCase(),
             transmissionType: values.transmissionType,
             carType: values.carType,
             fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -552,17 +552,17 @@ const Booking = (props) => {
                                                 Outstation
                                             </Button>
                                         </div>
-                                        <div>
+                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected ==='Outstation') || (values.serviceType === 'DRIVER'))  && (
+                                            <div>
                                             <Typography className="text-sm font-medium text-black-700">Trip Type</Typography>
                                             <div className="grid grid-cols-2 gap-4 mt-2">
-                                            {values.serviceType !== 'RENTAL' && (<Button
+                                            <Button
                                                     color={values.tripType === 'Drop Only' ? 'blue' : 'gray'}
                                                     onClick={() => setFieldValue('tripType', 'Drop Only')}
                                                     variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
                                                 >
                                                     Drop Only
                                                 </Button>
-                                                 )}
 
                                                 <Button
                                                     color={values.tripType === 'Round Trip' ? 'blue' : 'gray'}
@@ -572,7 +572,8 @@ const Booking = (props) => {
                                                     Round Trip
                                                 </Button>
                                             </div>
-                                        </div>
+                                    </div>
+                                        )}    
                                         <div className='grid grid-cols-2 mt-2 space-x-3'>
                                         {(values.serviceType !== 'RENTAL') && (<div>
                                             <label className="text-sm font-medium text-black-700">Car Type</label>
@@ -782,7 +783,7 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
                                 <div className='grid grid-cols-2'>
-                                {((values.tripType) || (values.serviceType == 'RIDES')) && <div className="p-2 space-y-2">
+                                {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL')) && <div className="p-2 space-y-2">
                                     <label className="block text-sm font-medium text-black-700">
                                         Pickup Location <span className="text-red-500">*</span>
                                     </label>
@@ -941,7 +942,7 @@ const Booking = (props) => {
                                         setFieldValue("submitType", "default");
                                         handleSubmit();
                                     }}
-                                    disabled={!dirty || !isValid || !values.rideDate}
+                                    disabled={!dirty || !isValid || (!values.rideDate && !values.toDate) || (!values.pickupAddress && !values.dropAddress)}
                                     className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                 >
                                     Continue

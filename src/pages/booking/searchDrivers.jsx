@@ -91,10 +91,9 @@ export function SearchDrivers(props) {
                     });
                 }
                 if (data?.success) {
-                    setDrivers(data?.data);
-                }
-                if (data?.success) {
-                    setDrivers(data?.data);
+                    let driverData = data?.data
+                    let filteredDrivers = driverData.map((val)=>({...val,fullData: val}))
+                    setDrivers(filteredDrivers);
                 } else {
                     setDrivers([]);
                 }
@@ -146,7 +145,20 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId, fullData) => {
-        if(service != "RIDES"){
+        if(service === "RENTAL")
+            {
+            const reqBody = {
+                bookingId: props?.bookingData?.id,
+                driverId: cabDriverId,
+                type: 'REQUEST_DRIVER',
+                package: props?.bookingData?.packageId,
+            }
+            let data = await ApiRequestUtils.post(API_ROUTES.RENTAL_REQUEST, reqBody);
+            console.log("DATADINREQUET",data);
+            if (data?.success) {
+                props?.onNext();
+            }
+        } else if(service != "RIDES"){
             const reqBody = {
             bookingId: props?.bookingData?.id,
             };

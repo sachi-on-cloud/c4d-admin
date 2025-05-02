@@ -91,7 +91,7 @@ const MasterSubscriptionAdd = () => {
                   <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                 </div>
                 <div>
-                  <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                  <label htmlFor="name" className="text-sm font-medium text-gray-700">Plan Name</label>
                   <Field type="string" name="name" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                   <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                 </div>

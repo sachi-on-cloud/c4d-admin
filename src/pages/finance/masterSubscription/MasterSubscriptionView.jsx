@@ -101,7 +101,7 @@ export function MasterSubscriptionView() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Service Type", "Price","Name","Base Credits","Bonus Credits","Total Credits","Type","Validity (Months)"].map((el) => (
+                                        {["Service Type", "Price","Plan Name","Base Credits","Bonus Credits","Total Credits","Type","Validity (Months)"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -119,8 +119,9 @@ export function MasterSubscriptionView() {
                                 <tbody>
                                     {masterSubscriptionList.map((masterSubscription, index) => (
                                         <tr key={index} className="text-sm">
-                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.serviceType === "ACTING_DRIVER" ? (<div>Acting Driver</div>): masterSubscription.serviceType || 
-                                            masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : masterSubscription.serviceType}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">
+                                            {masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : "Acting_Driver"}
+                                            </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div onClick={() => navigate(`/dashboard/finance/master-subscription/details/${masterSubscription.id}`)}>
                                                     <Typography

@@ -900,6 +900,7 @@ export const API_ROUTES = {
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
     'RIDES_DRIVER_LIST': '/driver-request-list',
+    'RENTAL_REQUEST':'/request-rental',
     'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
 };
 

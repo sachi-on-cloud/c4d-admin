@@ -259,6 +259,8 @@ const Booking = (props) => {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
                 setIsOpen(false)
                 onConfirmBooking()
+                setSelectedCustomer();
+                setEditBooking();
                 }}>
                 <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/4 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
                 <div className="flex-1 bg-white rounded-xl px-5 max-h-screen overflow-y-auto shadow p-4">
@@ -268,6 +270,8 @@ const Booking = (props) => {
                                                     () => {
                                                         setIsOpen(false)
                                                         onConfirmBooking();
+                                                        setSelectedCustomer();
+                                                        setEditBooking();
                                                     }
                                                 }
                                                 className="px-0 py-0 bg-black-500"
