@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 import { Utils } from '@/utils/utils';
@@ -52,10 +52,10 @@ export function MasterPriceView() {
 
     const renderLocalPriceTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -73,10 +73,10 @@ export function MasterPriceView() {
                                         "Cancellation Mins"
                                     ]
                                         .map((el, index) => (
-                                            <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left pb-4 ${ColorStyles.bgColor}`}>
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                    className="text-[11px] font-bold uppercase text-white"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -91,12 +91,12 @@ export function MasterPriceView() {
                                     return (
                                         <tr key={id}>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {serviceType}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {type}
                                                 </Typography>
                                             </td>
@@ -106,7 +106,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {period}
                                                         </Typography>
@@ -114,43 +114,43 @@ export function MasterPriceView() {
                                                 </div>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {price}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {dropPrice} Extra
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {priceMVP}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                 {/* {`${nightHoursFrom} - ${nightHoursTo}` ? null : ""} */}
                                                 {nightHoursFrom && nightHoursTo ? `${nightHoursFrom} - ${nightHoursTo}` : ""}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {nightCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {cancelCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {extraPrice}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {Utils.convertTimeFormatToMinutes(cancelMins)}
                                                 </Typography>
                                             </td>
@@ -168,10 +168,10 @@ export function MasterPriceView() {
 
     const renderOutstationPriceTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Outstation</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -189,10 +189,10 @@ export function MasterPriceView() {
                                         "Additional Kms"
                                     ]
                                         .map((el, index) => (
-                                            <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left pb-4 ${ColorStyles.bgColor}`}>
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                    className="text-[11px] font-bold uppercase text-white"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -207,7 +207,7 @@ export function MasterPriceView() {
                                     return (
                                         <tr key={id}>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {serviceType}
                                                 </Typography>
                                             </td>
@@ -215,24 +215,24 @@ export function MasterPriceView() {
                                                 <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
                                                 <Typography variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline">
+                                                            className="font-semibold underline cursor-pointer">
                                                     {type}
                                                 </Typography>
                                                 </div>
                                                 
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {baseFare}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {dropPrice} extra
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {price}
                                                 </Typography>
                                             </td>
@@ -242,23 +242,23 @@ export function MasterPriceView() {
                                                 </Typography>
                                             </td> */}
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {additionalMinCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                 {/* {nighthours} */}
                                                 {nightHoursFrom && nightHoursTo ? `${nightHoursFrom} - ${nightHoursTo}` : ""}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {nightCharge}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {cancelCharge}
                                                 </Typography>
                                             </td>
@@ -268,12 +268,12 @@ export function MasterPriceView() {
                                                 </Typography>
                                             </td> */}
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {cancelMins}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {extraKmPrice}
                                                 </Typography>
                                             </td>
@@ -292,10 +292,10 @@ export function MasterPriceView() {
 
     const renderRidesTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Rides</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -309,10 +309,10 @@ export function MasterPriceView() {
                                         "Surcharge Percentage",
                                         "Status"
                                     ].map((el, index) => (
-                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                className="text-[11px] font-bold uppercase text-white"
                                             >
                                                 {el}
                                             </Typography>
@@ -342,7 +342,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {rateParameter}
                                                         </Typography>
@@ -397,10 +397,10 @@ export function MasterPriceView() {
 
     const renderLocalRentalsTable = () => {
         return (
-            <div className='my-2'>
+            <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -419,10 +419,10 @@ export function MasterPriceView() {
                                         "Cancel Charge",
                                         "Status"
                                     ].map((el, index) => (
-                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                className="text-[11px] font-bold uppercase text-white"
                                             >
                                                 {el}
                                             </Typography>
@@ -463,7 +463,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {period}
                                                         </Typography>
@@ -540,7 +540,7 @@ export function MasterPriceView() {
             <div className='my-2'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">OutStation</h3>
                 <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
@@ -548,7 +548,12 @@ export function MasterPriceView() {
                                         "Type",
                                         "Package",
                                         "Base Fare",
-                                        "Kilometer",
+                                        // "Kilometer",
+                                        "Hours Limit",
+                                        "kilometer Round Price",
+                                        "kilometer Round Price MVP",
+                                        "kilometer Round Price Suv",
+                                        "kilometer Round Price Sedan",
                                         "Kilometer Rate",
                                         "Additional Mins",
                                         "Additional KM Rate",
@@ -559,10 +564,10 @@ export function MasterPriceView() {
                                         "Cancel Charge",
                                         "Status"
                                     ].map((el, index) => (
-                                        <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-700"
+                                                className="text-[11px] font-bold uppercase text-white"
                                             >
                                                 {el}
                                             </Typography>
@@ -577,7 +582,12 @@ export function MasterPriceView() {
                                     carType,
                                     baseFare,
                                     kilometerPrice,
-                                    kilometer,
+                                    // kilometer,
+                                    hourLimit,
+                                    kilometerRoundPrice,
+                                    kilometerRoundPriceMVP,
+                                    kilometerRoundPriceSuv,
+                                    kilometerRoundPriceSedan,
                                     additionalMinCharge,
                                     nightCharge,
                                     driverCharge,
@@ -603,7 +613,7 @@ export function MasterPriceView() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {period}
                                                         </Typography>
@@ -615,14 +625,39 @@ export function MasterPriceView() {
                                                     {baseFare}
                                                 </Typography>
                                             </td>
-                                            <td className={className}>
+                                            {/* <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {kilometer}
+                                                </Typography>
+                                            </td> */}
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {hourLimit}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPriceMVP}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPriceSuv}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerRoundPriceSedan}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -697,7 +732,9 @@ export function MasterPriceView() {
                     </div>
                     <button
                         onClick={onHandleAddNew}
-                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className={`ml-4 px-4 py-2 rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            ColorStyles.addButtonColor
+                        }`}
                     >
                         Add new
                     </button>

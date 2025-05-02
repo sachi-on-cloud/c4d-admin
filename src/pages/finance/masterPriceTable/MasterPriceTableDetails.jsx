@@ -3,7 +3,7 @@ import { Formik, Form, Field } from 'formik';
 import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import MasterPriceLog from './MasterPriceLog';
 
@@ -125,10 +125,12 @@ const PriceDetails = () => {
                             </div>
                         </div>
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
+                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back
                             </Button>
-                            <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-black rounded-xl" onClick={()=>navigate(`/dashboard/users/master-price/rides-edit/${id}`)}>
+                            <Button fullWidth className={`my-6 mx-2  border-2 border-gray-400 rounded-xl ${
+                                ColorStyles.editButton
+                            }`} onClick={()=>navigate(`/dashboard/users/master-price/rides-edit/${id}`)}>
                                 Edit
                             </Button>
                         </div>

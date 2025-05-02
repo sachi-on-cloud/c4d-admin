@@ -1,5 +1,5 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import {
@@ -85,11 +85,11 @@ export function PendingDocList() {
         <div className="flex items-center cursor-pointer">
           <Typography
             variant="small"
-            className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1"
+            className="text-[11px] font-bold uppercase text-black mr-1"
           >
             {title}
           </Typography>
-          <FaFilter className="text-blue-gray-400 text-xs" />
+          <FaFilter className="text-black text-xs" />
         </div>
       </PopoverHandler>
       <PopoverContent className="p-2">
@@ -116,7 +116,7 @@ export function PendingDocList() {
           <div className="relative flex-grow max-w-[500px]">
             <input
               type="text"
-              className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search Document"
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -131,8 +131,8 @@ export function PendingDocList() {
           <>
             <CardHeader
               variant="gradient"
-              color="gray"
-              className="mb-8 p-6 flex-1 justify-between items-center"
+              // color="gray"
+              className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
             >
               <Typography variant="h6" color="white">
                 Documents List
@@ -147,7 +147,7 @@ export function PendingDocList() {
                       "Phone Number",
                       "Type",
                       "Source",
-                      "Created Date",
+                      // "Created Date",
                       "KYC Status",
                     ].map((el, index) => (
                       <th
@@ -167,7 +167,7 @@ export function PendingDocList() {
                         ) : (
                           <Typography
                             variant="small"
-                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                            className="text-[11px] font-bold uppercase text-black"
                           >
                             {el}
                           </Typography>
@@ -191,7 +191,7 @@ export function PendingDocList() {
                         const status = data.isComplete ? "APPROVED" : "PENDING";
                         const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
                         const nameType = data['Register.id'] ? "Register" : data['Driver.id'] ? "Driver" : data['Account.id'] ? "Account" : data['Cab.id'] ? "Cab" : "";
-                        const source = data["Driver.source"];
+                        const source = data["Driver.source"] || data["Account.source"];
                         const number = (() => {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
@@ -206,35 +206,36 @@ export function PendingDocList() {
                                     <Typography 
                                       variant="small"
                                       color="blue"
-                                      className="font-semibold underline">
+                                      className="font-semibold underline cursor-pointer">
                                       {name}
                                     </Typography>
                                   </div>
                                 </div>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {number}
                                 </Typography>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {nameType}
                                 </Typography>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {source}
                                 </Typography>
                               </td>
-                              <td className={className}>
+                              {/* <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                   
                                 </Typography>
-                              </td>
+                              </td> */}
                               <td className={className}>
                                 <Typography
-                                  className={`text-xs font-semibold ${data.isComplete ? "text-green-500" : "text-blue-500"}`}
+                                variant="ghost"
+                                  className={`px-2 w-fit rounded-xl text-xs font-semibold ${data.isComplete ? "bg-green-100 text-green-500" : "bg-blue-gray-100 text-blue-500"}`}
                                 >
                                   {status}
                                 </Typography>
@@ -248,7 +249,7 @@ export function PendingDocList() {
               </table>
             </CardBody>
           </>):(
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+          <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
             <Typography variant="h6" color="white">
               No Documents
             </Typography>

@@ -14,7 +14,7 @@ import {
 } from "@material-tailwind/react";
 import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
@@ -183,10 +183,10 @@ export function AccountView() {
       <Popover placement="bottom-start">
         <PopoverHandler>
           <div className="flex items-center cursor-pointer">
-            <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+            <Typography variant="small" className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}>
               {title}
             </Typography>
-            <FaFilter className="text-blue-gray-400 text-xs" />
+            <FaFilter className="text-black text-xs" />
           </div>
         </PopoverHandler>
         <PopoverContent className="p-2">
@@ -220,7 +220,8 @@ export function AccountView() {
       <Card>
         {accounts.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
+            <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center rounded-xl 
+              ${ColorStyles.bgColor}`}>
               <Typography variant="h6" color="white">
                 Accounts List
               </Typography>
@@ -296,7 +297,7 @@ export function AccountView() {
                         ) :  el === "Created Date" ? (
                           <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">    <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
@@ -318,7 +319,7 @@ export function AccountView() {
                       ):(
                           <Typography
                             variant="small"
-                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                            className="text-[11px] font-bold uppercase text-black"
                           >
                             {el}
                           </Typography>
@@ -344,7 +345,7 @@ export function AccountView() {
                       return (
                         <tr key={id}>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {moment(created_at).format("DD-MM-YYYY")}
                             </Typography>
                           </td>
@@ -354,7 +355,7 @@ export function AccountView() {
                                 <Typography
                                   variant="small"
                                   color="blue"
-                                  className="font-semibold underline"
+                                  className="font-semibold underline cursor-pointer"
                                 >
                                   {name}
                                 </Typography>
@@ -362,40 +363,40 @@ export function AccountView() {
                             </div>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {phoneNumber}
                             </Typography>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {type}
                             </Typography>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {source}
                             </Typography>
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
-                              color={availableStatus == "ACTIVE" ? "green" : "blue-gray"}
+                              variant="ghost"
+                              color={availableStatus == "ACTIVE" ? "green" : "black"}
                               value={availableStatus == "ACTIVE" ? "online" : "offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
-                              color={ownerStatus == "ACTIVE" ? "green" : "blue-gray"}
+                              variant="ghost"
+                              color={ownerStatus == "ACTIVE" ? "green" : "black"}
                               value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
-                              color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "blue-gray"}
+                              variant="ghost"
+                              color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "black"}
                               value={documentStatus?.status}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
@@ -417,7 +418,7 @@ export function AccountView() {
               </table>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+          <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
             <Typography variant="h6" color="white">
               No Accounts
             </Typography>

@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES } from '../../utils/constants';
+import { API_ROUTES, ColorStyles } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -249,12 +249,37 @@ const Booking = (props) => {
             return null;
         }
       };
+      const [isOpen, setIsOpen] = useState(false);
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
-            <div className={`${rightBookingView ? "w-4/6" : "w-full"}`}>
-                <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.type}/>
+            <div className='w-full'>
+                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.type}/>
             </div>
-            {rightBookingView && <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
+            {isOpen && 
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
+                setIsOpen(false)
+                onConfirmBooking()
+                setSelectedCustomer();
+                setEditBooking();
+                }}>
+                <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/4 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
+                <div className="flex-1 bg-white rounded-xl px-5 max-h-screen overflow-y-auto shadow p-4">
+                                        <div className='rounded-2xl justify-end items-end space-x-12 flex'>
+                                            <button
+                                                onClick={
+                                                    () => {
+                                                        setIsOpen(false)
+                                                        onConfirmBooking();
+                                                        setSelectedCustomer();
+                                                        setEditBooking();
+                                                    }
+                                                }
+                                                className="px-0 py-0 bg-black-500"
+                                            >
+                                                X
+                                            </button>
+                                        </div>
+                <div className="flex-1 bg-white p-3 rounded-xl w-auto">
                 {!showQuickCreateCustomer && <div className='text-2xl font-bold mb-8'>
                     <Typography variant="h5" color='#000000'>
                         <div className= "flex items-center">
@@ -507,18 +532,22 @@ const Booking = (props) => {
                                 <>
                                 <Button
                                     fullWidth
-                                    color="black"
+                                    color="blue"
                                     onClick={handleSubmit}
                                     disabled={!dirty || !isValid || !values.rideDate || (values.serviceType === 'CAB' && !values.cabType)}
-                                    className='my-2 mx-2'
+                                    className={`my-2 mx-2 ${ColorStyles.continueButtonColor}`}
                                 >
                                     Continue
                                 </Button>
                                 <Button
                                     fullWidth
-                                    color="black"
+                                    color="blue"
                                     className='mx-2'
-                                    onClick={()=>setRightBookingView(false)}
+                                    onClick={()=>{setRightBookingView(false);
+                                        editBooking(false);
+                                        setEditBooking(false)
+                                    }
+                                    }
                                 >
                                     Back
                                 </Button>
@@ -536,6 +565,7 @@ const Booking = (props) => {
                         onNext={() => {
                             setBookingStage(2);
                             onSelectBooking(bookingData)
+                            setIsOpen(false)
                         }}
                         onPrev={() => setBookingStage(0)} />
                     }
@@ -545,14 +575,17 @@ const Booking = (props) => {
                                 setBookingStage(0);
                                 setBookingData(null);
                                 setRightBookingView(false);
+                                setIsOpen(false)
                             }} />
                         )}
                 </>}
                 {bookingView && <>
-                    <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
+                    <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} setIsOpen={setIsOpen} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                 </>}
-
-            </div>}
+            </div>
+            </div>
+            </div>
+             </div>}
         </div>
     );
 };

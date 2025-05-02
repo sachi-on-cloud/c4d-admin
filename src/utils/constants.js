@@ -5,8 +5,8 @@ export const constants = {
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url_dev: 'https://seal-well-mite.ngrok-free.app',
-    url: 'https://api.c4d.smartapis.cyou'
-    //url: 'https://sit.api.c4d.smartapis.cyou/'
+    url: 'https://api.c4d.smartapis.cyou',
+    url_sit: 'https://sit.api.c4d.smartapis.cyou/'
 };
 
 export const getBaseUrl = () => {
@@ -900,6 +900,7 @@ export const API_ROUTES = {
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
     'RIDES_DRIVER_LIST': '/driver-request-list',
+    'RENTAL_REQUEST':'/request-rental',
     'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
 };
 
@@ -1125,3 +1126,14 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
 
     Warm regards,
     ${COMPANY_NAME} Team`;
+
+    export const ColorStyles = {
+        sidenavColors:"bg-[#1A73E8] text-white",
+        bgColor: "bg-[#1A73E8]",
+        PopoverHandlerText: "text-black",
+        bgStatusColor:" bg-[#1A73E8] text-white",
+        addButtonColor:"bg-[#1A73E8] text-white",
+        continueButtonColor:" bg-[#1A73E8] text-white",
+        backButton:" text-black border-gray-400 border-2 rounded-xl bg-white",
+        editButton:"bg-[#1A73E8] text-white",
+      }; 

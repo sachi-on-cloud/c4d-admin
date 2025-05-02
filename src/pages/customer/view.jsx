@@ -9,7 +9,7 @@ import {
 } from "@material-tailwind/react";
 import CustomerSearch from "@/components/CustomerSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 
 
@@ -94,7 +94,7 @@ export function CustomerView() {
       <Card>
         {customers.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+            <CardHeader variant="gradient" className={`mb-8 p-6 rounded-xl ${ColorStyles.bgColor}`}>
               <Typography variant="h6" color="white">
                 Customers List
               </Typography>
@@ -110,7 +110,7 @@ export function CustomerView() {
                       >
                         <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
@@ -134,7 +134,7 @@ export function CustomerView() {
                                 <Typography
                                   variant="small"
                                   color="blue"
-                                  className="font-semibold underline"
+                                  className="font-semibold underline cursor-pointer"
                                 >
                                   {firstName}
                                 </Typography>
@@ -145,7 +145,8 @@ export function CustomerView() {
                             </div>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-black"> 
+                              {/* text-blue-gray-600 */}
                               {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
@@ -173,7 +174,7 @@ export function CustomerView() {
                             <Button
                               as='a'
                               onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
-                              className="text-xs font-semibold text-white"
+                              className="text-xs font-semibold bg-[#1A73E8] text-white"
                             >
                               Edit
                             </Button>
@@ -186,7 +187,7 @@ export function CustomerView() {
               </table>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+          <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
             <Typography variant="h6" color="white">
               No Customers
             </Typography>

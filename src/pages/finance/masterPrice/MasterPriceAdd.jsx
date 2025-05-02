@@ -222,7 +222,7 @@ export function MasterPriceAdd() {
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                color="blue"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
                                 className='my-6 mx-2'

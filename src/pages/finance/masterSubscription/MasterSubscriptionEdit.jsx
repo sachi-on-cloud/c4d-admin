@@ -98,14 +98,14 @@ const MasterSubscriptionEdit = () => {
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Service Type</label>
                                     <Field as="select" name="serviceType"  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm">
                                         <option value="">Select Service Type</option>
-                                        <option value="DRIVER">Driver</option>
+                                        <option value="ACTING_DRIVER">Driver</option>
                                         <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
                                         
                                     </Field>
                                     <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Plan Name</label>
                                     <Field type="string" name="name"  className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
@@ -153,7 +153,7 @@ const MasterSubscriptionEdit = () => {
                             <div className="flex flex-row ">
                                 <Button fullWidth className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl"
                                     onClick={() => navigate(-1)}>Cancel</Button>
-                                <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-black rounded-xl" onClick={handleSubmit} disabled={!dirty || !isValid}>
+                                <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-cyan-500  rounded-xl" onClick={handleSubmit} disabled={!dirty || !isValid}>
                                     Submit
                                 </Button>
                             </div>

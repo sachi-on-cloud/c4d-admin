@@ -91,10 +91,9 @@ export function SearchDrivers(props) {
                     });
                 }
                 if (data?.success) {
-                    setDrivers(data?.data);
-                }
-                if (data?.success) {
-                    setDrivers(data?.data);
+                    let driverData = data?.data
+                    let filteredDrivers = driverData.map((val)=>({...val,fullData: val}))
+                    setDrivers(filteredDrivers);
                 } else {
                     setDrivers([]);
                 }
@@ -146,7 +145,20 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId, fullData) => {
-        if(service != "RIDES"){
+        if(service === "RENTAL")
+            {
+            const reqBody = {
+                bookingId: props?.bookingData?.id,
+                driverId: cabDriverId,
+                type: 'REQUEST_DRIVER',
+                package: props?.bookingData?.packageId,
+            }
+            let data = await ApiRequestUtils.post(API_ROUTES.RENTAL_REQUEST, reqBody);
+            console.log("DATADINREQUET",data);
+            if (data?.success) {
+                props?.onNext();
+            }
+        } else if(service != "RIDES"){
             const reqBody = {
             bookingId: props?.bookingData?.id,
             };
@@ -206,17 +218,17 @@ export function SearchDrivers(props) {
                     {/* <DriverSearch onSearch={getDriversList} /> */}
                     <Card>
                         {loading ? (
-                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
                                     {`Loading drivers....`}
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
-                            <CardBody className="overflow-x-auto overflow-y-auto max-w-[500px] px-0 pt-0 pb-2">
-                                <table className="w-full table-auto">
+                            <CardBody className="overflow-x-auto overflow-y-auto px-0 pt-0 pb-2">
+                                <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {["Name", "Phone Number", "Distance", "Local Count", "Outstation Count", "Status"].map((el) => (
+                                            {["Name", "Phone Number", "Distance", "Local Count", "Outstation Count", "Status","Assign/ReAssign"].map((el) => (
                                                 <th
                                                     key={el}
                                                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -280,7 +292,7 @@ export function SearchDrivers(props) {
                                                         </td>
                                                         <td className={className}>
                                                             <Chip
-                                                                variant="gradient"
+                                                                variant="ghost"
                                                                 color={status === "ACTIVE" ? "green" : "blue-gray"}
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -290,7 +302,7 @@ export function SearchDrivers(props) {
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
-                                                                className="text-xs font-semibold text-white"
+                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
                                                             >
                                                                 {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
                                                             </Button>}
@@ -302,7 +314,7 @@ export function SearchDrivers(props) {
                                     </tbody>
                                 </table>
                             </CardBody>) : (
-                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
                                     {`No ${props?.bookingData?.serviceType == "CAB" ? 'cabs' : 'drivers'} Near By`}
                                 </Typography>
@@ -313,7 +325,7 @@ export function SearchDrivers(props) {
                         <Button
                             fullWidth
                             onClick={() => { props?.onNext() }}
-                            className='text-white border-2 bg-black rounded-xl'
+                            className='text-white border-2 bg-[#1A73E8] rounded-xl'
                         >
                             {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
                         </Button>
@@ -324,20 +336,20 @@ export function SearchDrivers(props) {
                 <div className="flex flex-col w-full gap-y-4">
                     <Card>
                     {loadingRides ? (
-                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                        <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                             <Typography variant="h6" color="white">
                                 Requesting nearby drivers. Please wait 30 seconds...
                             </Typography>
                         </CardHeader>
                     ) : loading ? (
-                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                        <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                             <Typography variant="h6" color="white">
                                 Loading cabs...
                             </Typography>
                         </CardHeader>
                     ) : drivers.length > 0 ? (
-                            <CardBody className="overflow-x-auto overflow-y-auto max-w-[390px] px-0 pt-0 pb-2">
-                                <table className="w-full table-auto">
+                            <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
+                                <table className="w-full">
                                     <thead>
                                         <tr>
                                             {["Name", "Phone Number", "Cab Type", "Price Offered", "Trip Count", "Status", "Assign/Reassign"].map((el) => (
@@ -400,7 +412,7 @@ export function SearchDrivers(props) {
                                                         </td>
                                                         <td className={className}>
                                                             <Chip
-                                                                variant="gradient"
+                                                                variant="ghost"
                                                                 color={status === "ACTIVE" ? "green" : "blue-gray"}
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -410,7 +422,7 @@ export function SearchDrivers(props) {
                                                             <Button
                                                                 as="a"
                                                                 onClick={() => {onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id, fullData) }}
-                                                                className="text-xs font-semibold text-white"
+                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
                                                             >
                                                                 Assign Cab
                                                             </Button>
@@ -422,7 +434,7 @@ export function SearchDrivers(props) {
                                     </tbody>
                                 </table>
                             </CardBody>) : (
-                            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
                                     {`No ${props?.bookingData?.serviceType == "DRIVER" ? 'drivers' : 'cabs'} Near By`}
                                 </Typography>
@@ -433,7 +445,7 @@ export function SearchDrivers(props) {
                         <Button
                             fullWidth
                             onClick={() => { props?.onNext() }}
-                            className='text-white border-2 bg-black rounded-xl'
+                            className='text-white border-2 bg-[#1A73E8] rounded-xl'
                         >
                             {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
                         </Button>

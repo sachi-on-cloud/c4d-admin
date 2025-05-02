@@ -1,5 +1,5 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import {
@@ -102,11 +102,11 @@ export function DocumentVerificationView() {
         <div className="flex items-center cursor-pointer">
           <Typography
             variant="small"
-            className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1"
+            className="text-[11px] font-bold uppercase text-black mr-1"
           >
             {title}
           </Typography>
-          <FaFilter className="text-blue-gray-400 text-xs" />
+          <FaFilter className="text-black text-xs" />
         </div>
       </PopoverHandler>
       <PopoverContent className="p-2">
@@ -133,7 +133,7 @@ export function DocumentVerificationView() {
           <div className="relative flex-grow max-w-[500px]">
             <input
               type="text"
-              className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search Document"
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -148,8 +148,8 @@ export function DocumentVerificationView() {
           <>
             <CardHeader
               variant="gradient"
-              color="gray"
-              className="mb-8 p-6 flex-1 justify-between items-center"
+              // color="gray"
+              className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
             >
               <Typography variant="h6" color="white">
                 Documents List
@@ -164,7 +164,7 @@ export function DocumentVerificationView() {
                       "Phone Number",
                       "Type",
                       "Source",
-                      "Created Date",
+                      // "Created Date",
                       "KYC Status",
                     ].map((el, index) => (
                       <th
@@ -197,7 +197,7 @@ export function DocumentVerificationView() {
                         ) : (
                           <Typography
                             variant="small"
-                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                            className="text-[11px] font-bold uppercase text-black"
                           >
                             {el}
                           </Typography>
@@ -227,7 +227,7 @@ export function DocumentVerificationView() {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
                         })();
-                        const source = data["Driver.source"];
+                        const source = data["Driver.source"] || data["Account.source"];
                         const id = data["Cab.id"] ? data["Cab.id"] : data["Driver.id"] ?  data["Driver.id"] : data["Account.id"] ? data["Account.id"] : data["Register.id"] ? data["Register.id"] : data.id;
                         return (
                           <>
@@ -238,35 +238,36 @@ export function DocumentVerificationView() {
                                     <Typography 
                                       variant="small"
                                       color="blue"
-                                      className="font-semibold underline">
+                                      className="font-semibold underline cursor-pointer">
                                       {name}
                                     </Typography>
                                   </div>
                                 </div>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {number}
                                 </Typography>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {nameType}
                                 </Typography>
                               </td>
                               <td className={className}>
-                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                   {source}
                                 </Typography>
                               </td>
-                              <td className={className}>
+                              {/* <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                   
                                 </Typography>
-                              </td>
+                              </td> */}
                               <td className={className}>
                                 <Typography
-                                  className={`text-xs font-semibold ${data.isComplete ? "text-green-500" : "text-blue-500"}`}
+                                  variant="ghost"
+                                  className={`px-2 rounded-xl text-xs font-semibold w-fit ${data.isComplete ? "bg-green-100 text-green-500" : " bg-blue-100 text-blue-500"}`}
                                 >
                                   {status}
                                 </Typography>
@@ -280,7 +281,7 @@ export function DocumentVerificationView() {
               </table>
             </CardBody>
           </>):(
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+          <CardHeader variant="gradient" className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
             <Typography variant="h6" color="white">
               No Documents
             </Typography>

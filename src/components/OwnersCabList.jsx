@@ -6,6 +6,7 @@ import {
 } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import { ColorStyles } from "@/utils/constants";
 
 const OwnersCabList = ({cabsList, ownerName, type, id}) => {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                 <h2 className="text-2xl font-bold mb-4">Cabs List</h2>
                 {( !(type == 'Individual' && cabsList?.length >= 1) || (type == 'Company') )&& <div>
                     <Button 
+                        className={`text-white ${ColorStyles.addButtonColor}`}
                         onClick={() => navigate('/dashboard/vendors/account/allVehicles/add',{
                             state:{
                                 ownerName: ownerName,

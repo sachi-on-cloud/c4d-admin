@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -83,7 +83,7 @@ const CustomerDetails = () => {
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/customers'); }}
-                    className='my-6 px-8 text-white border-2 rounded-xl'
+                    className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>

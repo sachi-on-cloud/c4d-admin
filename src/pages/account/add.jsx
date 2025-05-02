@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 // import Select from 'react-select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, STATE_LIST ,THALUK_LIST,KYC_PROCESS} from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, STATE_LIST ,THALUK_LIST,KYC_PROCESS, ColorStyles} from '@/utils/constants';
 import { ACCOUNT_ADD_SCHEMA } from '@/utils/validations';
 import { Alert, Button ,Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Input, List, ListItem} from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
@@ -578,10 +578,10 @@ const AccountAdd = (props) => {
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                // color="blue-gray-50"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
-                                className='my-6 mx-2'
+                                className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                             >
                                 Continue
                             </Button>
@@ -674,7 +674,7 @@ const AccountAdd = (props) => {
                                 <Button
                                     fullWidth
                                     onClick={() => navigate('/dashboard/vendors/account')}
-                                    className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                                    className={`my-6 mx-2 ${ColorStyles.backButton}`}
                                 >
                                     Back
                                 </Button>

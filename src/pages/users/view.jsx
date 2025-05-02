@@ -15,7 +15,7 @@ import { authorsTableData } from "@/data";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import UserSearch from "@/components/UserSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useNavigate, useLocation } from 'react-router-dom';
 
 
@@ -117,7 +117,7 @@ export function UserView() {
       <Card>
         {users.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+            <CardHeader variant="gradient" className={`mb-8 p-6 ${ColorStyles.bgColor}`} >
               <Typography variant="h6" color="white">
                 Users List
               </Typography>
@@ -133,7 +133,7 @@ export function UserView() {
                       >
                         <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-blue-gray-900"
                         >
                           {el}
                         </Typography>
@@ -157,7 +157,7 @@ export function UserView() {
                                 <Typography
                                   variant="small"
                                   color="blue"
-                                  className="font-semibold underline"
+                                  className="font-semibold underline cursor-pointer"
                                 >
                                   {name}
                                 </Typography>
@@ -165,18 +165,18 @@ export function UserView() {
                             </div>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
                               {email}
                             </Typography>
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
+                              variant="ghost"
                               color={status == "ACTIVE" ? "green" : "blue-gray"}
                               value={status == "ACTIVE" ? "Active" : "In-Active"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -196,7 +196,7 @@ export function UserView() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/users/edit/${id}`)}
-                                className="text-xs font-semibold text-white"
+                                className="text-xs font-semibold text-white bg-[#1A73E8]"
                               >
                                 Edit
                               </Button>
@@ -211,7 +211,7 @@ export function UserView() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+          <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
             <Typography variant="h6" color="white">
               No Users
             </Typography>

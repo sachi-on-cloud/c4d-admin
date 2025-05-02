@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 
 const CustomerSearch = ({ onSearch }) => {
@@ -80,7 +80,7 @@ const CustomerSearch = ({ onSearch }) => {
         <div className="relative flex-grow max-w-[500px]">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-gray-200 focus:border-transparent"
             placeholder="Search Customer"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -90,7 +90,7 @@ const CustomerSearch = ({ onSearch }) => {
         </div>
         <button
           onClick={() => navigate(`/dashboard/customers/add`)}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md font-normal"
+          className={`ml-4 px-4 py-2 font-normal rounded-3xl ${ColorStyles.addButtonColor}`}
         >
           Add new
         </button>
@@ -296,7 +296,7 @@ const CustomerSearch = ({ onSearch }) => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  className="px-4 py-2 bg-gray-200 text-black-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                 >
                   Cancel
                 </button>

@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import Select from 'react-select';
 
@@ -272,10 +272,10 @@ const DriverMasterPriceTableEdit = () => {
                                 </div>
                             </div>
                             <div className="flex flex-row">
-                                <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
+                                <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                     Back
                                 </Button>
-                                <Button fullWidth color="black" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
+                                <Button fullWidth color="blue" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
                                     Save Changes
                                 </Button>
                             </div>

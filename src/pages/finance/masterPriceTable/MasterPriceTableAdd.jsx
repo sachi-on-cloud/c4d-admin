@@ -5,7 +5,7 @@ import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 
 const RATE_PARAMETER_OPTIONS = [
@@ -201,7 +201,7 @@ const PriceAdd = () => {
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="black" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth  onClick={handleSubmit} disabled={!dirty || !isValid} className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}>
                                 Continue
                             </Button>
                         </div>

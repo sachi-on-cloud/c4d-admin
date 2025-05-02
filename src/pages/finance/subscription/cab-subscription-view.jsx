@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import {
     Card,
     CardBody,
@@ -72,7 +72,7 @@ export function CabSubscriptionView() {
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Search Subscription"
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -82,7 +82,9 @@ export function CabSubscriptionView() {
                     </div>
                     <button
                         onClick={() => navigate('/dashboard/finance/cab-subscription/add')}
-                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className={`ml-4 px-4 py-2  rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            ColorStyles.addButtonColor
+                        }`}
                     >
                         Add new
                     </button>

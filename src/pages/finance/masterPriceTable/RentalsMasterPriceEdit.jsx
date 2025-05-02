@@ -49,6 +49,7 @@ const RentalsMasterPriceEdit = () => {
                     period: data?.data?.period || '',
                     baseFare: data?.data?.baseFare || 0,
                     kilometer: data?.data?.kilometer || 0,
+                    hourLimit: data?.data?.hourLimit || 0,
                     kilometerPrice: data?.data?.kilometerPrice || 0,
                     additionalMinCharge: data?.data?.additionalMinCharge || 0,
                     tollCharge: data?.data?.tollCharge || 0,
@@ -73,6 +74,23 @@ const RentalsMasterPriceEdit = () => {
                     additionalMinChargeMVP:data?.data?.additionalMinChargeMVP || 0,
                     additionalMinChargeSuv:data?.data?.additionalMinChargeSuv || 0,
                     additionalMinChargeSedan:data?.data?.additionalMinChargeSedan || 0,
+
+                    kilometerRoundPrice:data?.data?.kilometerRoundPrice || 0,
+                    kilometerRoundPriceMVP:data?.data?.kilometerRoundPriceMVP || 0,
+                    kilometerRoundPriceSuv:data?.data?.kilometerRoundPriceSuv || 0,
+                    kilometerRoundPriceSedan:data?.data?.kilometerRoundPriceSedan || 0,
+
+                    hourPrice: data?.data?.hourPrice || 0,
+                    hourPriceMVP: data?.data?.hourPriceMVP || 0,
+                    hourPriceSuv: data?.data?.hourPriceSuv || 0,
+                    hourPriceSedan: data?.data?.hourPriceSedan || 0,
+                    
+                    extraHourPrice: data?.data?.extraHourPrice || 0,
+                    extraHourPriceMVP: data?.data?.extraHourPriceMVP || 0,
+                    extraHourPriceSuv: data?.data?.extraHourPriceSuv || 0,
+                    extraHourPriceSedan: data?.data?.extraHourPriceSedan || 0,
+
+
                 });
             }
         } catch (error) {
@@ -92,6 +110,7 @@ const RentalsMasterPriceEdit = () => {
                 type: String(values.type),
                 period: Number(values.period),
                 kilometer: Number(values.kilometer),
+                hourLimit:Number(values.hourLimit),
                 serviceType: 'RENTAL',
                 baseFare: Number(values.baseFare),
                 kilometerPrice: Number(values.kilometerPrice),
@@ -118,6 +137,21 @@ const RentalsMasterPriceEdit = () => {
                 additionalMinChargeMVP:Number(values.additionalMinChargeMVP),
                 additionalMinChargeSuv:Number(values.additionalMinChargeSuv),
                 additionalMinChargeSedan:Number(values.additionalMinChargeSedan),
+
+                kilometerRoundPrice:Number(values.kilometerRoundPrice),
+                kilometerRoundPriceMVP:Number(values.kilometerRoundPriceMVP),
+                kilometerRoundPriceSuv:Number(values.kilometerRoundPriceSuv),
+                kilometerRoundPriceSedan:Number(values.kilometerRoundPriceSedan),
+
+                hourPrice: Number(values.hourPrice),
+                hourPriceMVP: Number(values.hourPriceMVP),
+                hourPriceSuv: Number(values.hourPriceSuv),
+                hourPriceSedan:Number(values.hourPriceSedan),
+
+                extraHourPrice: Number(values.extraHourPrice),
+                extraHourPriceMVP: Number(values.extraHourPriceMVP),
+                extraHourPriceSuv: Number(values.extraHourPriceSuv),
+                extraHourPriceSedan: Number(values.extraHourPriceSedan),
             };
 
             const response = await ApiRequestUtils.post(API_ROUTES.RENDAL_PRICE_EDIT, reqBody);
@@ -171,37 +205,66 @@ const RentalsMasterPriceEdit = () => {
                                 <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            {values?.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer</label>
                                 <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
                                 <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div>}
+                             {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">Hours Limits</label>
+                                <Field type="number" name="hourLimit" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourLimit" component="div" className="text-red-500 text-sm" />
+                            </div>}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
                                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
                                 <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
                             </div>
                              {/* new entry price*/}
-                            <div>
+                             {values?.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Price</label>
                                 <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price</label>
+                                <Field type="number" name="kilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPrice" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            }
+                            {values?.type !== 'Outstation' &&  <div>
                                 <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
                                 <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price (MUV) </label>
+                                <Field type="number" name="kilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPriceMVP" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            }
+                            {values?.type !== 'Outstation' &&  <div>
                                 <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
                                 <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="priceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price Suv</label>
+                                <Field type="number" name="kilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            }
+                            {values?.type !== 'Outstation' &&   <div>
                                 <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
                                 <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="priceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' && <div>
+                                <label className="text-sm font-medium text-gray-700">kilometer Round Price Sedan</label>
+                                <Field type="number" name="kilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="kilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
                             </div>
+                            }
                             {/* new entry kilometerPrice*/}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
@@ -218,6 +281,47 @@ const RentalsMasterPriceEdit = () => {
                                 <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="kilometerPriceSedan" component="div" className="text-red-500 text-sm" />
                             </div>
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price</label>
+                                <Field type="number" name="hourPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPrice" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price (MUV)</label>
+                                <Field type="number" name="hourPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPriceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price Suv</label>
+                                <Field type="number" name="hourPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPriceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Hour Price Sedan</label>
+                                <Field type="number" name="hourPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="hourPriceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>}
+
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Extra Hour Price</label>
+                                <Field type="number" name="extraHourPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPrice" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Extra HourPrice MUV</label>
+                                <Field type="number" name="extraHourPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPriceMVP" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Extra Hour Price Suv</label>
+                                <Field type="number" name="extraHourPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPriceSuv" component="div" className="text-red-500 text-sm" />
+                            </div>}
+                            {values?.type === 'Outstation' &&  <div>
+                                <label className="text-sm font-medium text-gray-700">Extra Hour Price Sedan</label>
+                                <Field type="number" name="extraHourPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="extraHourPriceSedan" component="div" className="text-red-500 text-sm" />
+                            </div>}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                 <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
@@ -320,7 +424,7 @@ const RentalsMasterPriceEdit = () => {
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="black" type="submit" disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="blue" type="submit" disabled={!dirty || !isValid} className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>

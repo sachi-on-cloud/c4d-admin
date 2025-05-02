@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
@@ -190,7 +190,7 @@ const CabDetails = ({btnShow = false, noApprove = false }) => {
             {!btnShow && <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => navigate(`/dashboard/vendors/account/details/${cab?.result?.AccountId}`)}
-                    className='my-6 px-8 text-white border-2 rounded-xl'
+                    className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>

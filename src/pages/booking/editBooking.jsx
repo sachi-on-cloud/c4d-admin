@@ -251,7 +251,7 @@ const EditBooking = (props) => {
                             <div className="space-y-3 my-3">
                                 <div className="grid grid-cols-2 gap-4">
                                     <Button
-                                        color={values.packageTypeSelected === 'Local' ? 'black' : 'gray'}
+                                        color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
                                         onClick={() => {
                                             if (values.packageTypeSelected !== 'Local') {
                                                 setFieldValue('packageTypeSelected', 'Local');
@@ -266,7 +266,7 @@ const EditBooking = (props) => {
                                         Local
                                     </Button>
                                     <Button
-                                        color={values.packageTypeSelected === 'Outstation' ? 'black' : 'gray'}
+                                        color={values.packageTypeSelected === 'Outstation' ? 'blue' : 'gray'}
                                         onClick={() => {
                                             if (values.packageTypeSelected !== 'Outstation') {
                                                 setFieldValue('packageTypeSelected', 'Outstation');
@@ -282,17 +282,17 @@ const EditBooking = (props) => {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Typography className="text-sm font-medium text-gray-700">Trip Type</Typography>
+                                    <Typography className="text-sm font-medium text-blue-700">Trip Type</Typography>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
-                                        <Button
-                                            color={values.tripType === 'Drop Only' ? 'black' : 'gray'}
+                                    {(values?.serviceType !== 'RENTAL') && (<Button
+                                            color={values.tripType === 'Drop Only' ? 'blue' : 'gray'}
                                             onClick={() => setFieldValue('tripType', 'Drop Only')}
                                             variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
                                         >
                                             Drop Only
-                                        </Button>
+                                        </Button>)}
                                         <Button
-                                            color={values.tripType === 'Round Trip' ? 'black' : 'gray'}
+                                            color={values.tripType === 'Round Trip' ? 'blue' : 'gray'}
                                             onClick={() => setFieldValue('tripType', 'Round Trip')}
                                             variant={values?.tripType === 'Round Trip' ? 'filled' : 'outlined'}
                                         >
@@ -300,8 +300,9 @@ const EditBooking = (props) => {
                                         </Button>
                                     </div>
                                 </div>
+                                {(values.serviceType !== 'RENTAL') && (
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700">Car Type</label>
+                                    <label className="text-sm font-medium text-black-700">Car Type</label>
                                     <div className="grid grid-cols-4 mt-2">
                                         {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
                                             <label key={carType} className="flex items-center space-x-2">
@@ -311,14 +312,16 @@ const EditBooking = (props) => {
                                                     value={carType}
                                                     className="h-4 w-4 text-blue-600"
                                                 />
-                                                <span className="text-gray-700">{carType}</span>
+                                                <span className="text-black-700">{carType}</span>
                                             </label>
                                         ))}
                                     </div>
                                     <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
                                 </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Transmission Type</label>
+                                )}
+                                
+                                {(values?.serviceType !== 'RENTAL') && (<div>
+                                    <label className="text-sm font-medium text-black-700">Transmission Type</label>
                                     <div className="grid grid-cols-2 mt-2">
                                         {['Manual', 'Automatic'].map((transType) => (
                                             <label key={transType} className="flex items-center space-x-2">
@@ -328,12 +331,13 @@ const EditBooking = (props) => {
                                                     value={transType}
                                                     className="h-4 w-4 text-blue-600"
                                                 />
-                                                <span className="text-gray-700">{transType}</span>
+                                                <span className="text-black-700">{transType}</span>
                                             </label>
                                         ))}
                                     </div>
                                     <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
                                 </div>
+                                 )}
                             </div>
                             <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
@@ -419,7 +423,7 @@ const EditBooking = (props) => {
                                 </div>
                             </div>}
                             <div className="p-2 space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">
+                                <label className="block text-sm font-medium text-black-700">
                                     Pickup Location <span className="text-red-500">*</span>
                                 </label>
                                 <Field
@@ -450,7 +454,7 @@ const EditBooking = (props) => {
                                 )}
                             </div>
                             {(values.tripType !=='Drop Only' || values.packageTypeSelected == 'Outstation' ) && <div className="p-2 space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">Drop Location<span className="text-red-500">*</span></label>
+                                <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                 <Field
                                     type="text"
                                     name="dropAddress"
@@ -519,20 +523,20 @@ const EditBooking = (props) => {
                                 </Card>
                             }
                             {values.packageTypeSelected == 'Outstation' && 
-                            <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                            <Button fullWidth className='my-6 mx-2 bg-[#1A73E8]' onClick={() => getQuoteOutstationDetails(values)}>
                                 Check Estimated Price
                             </Button>
                             }
                             <>
                                 <Button
-                                    color="black"
+                                    color="gray"
                                     onClick={onBackPressHandler}
                                     className='my-6 mx-2'
                                 >
                                     Back
                                 </Button>
                                 <Button
-                                    color="black"
+                                    color="blue"
                                     onClick={()=>{
                                         setFieldValue("submitType", "default");
                                         handleSubmit()
@@ -547,7 +551,7 @@ const EditBooking = (props) => {
                         {bookingData?.serviceType == "RIDES" && 
                             <>
                                 <div className="p-2 space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className="block text-sm font-medium text-black-700">
                                         Pickup Location <span className="text-red-500">*</span>
                                     </label>
                                     <Field
@@ -578,7 +582,7 @@ const EditBooking = (props) => {
                                     )}
                                 </div>
                                 <div className="p-2 space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">Drop Location<span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                     <Field
                                         type="text"
                                         name="dropAddress"
@@ -608,14 +612,14 @@ const EditBooking = (props) => {
                                 </div>
                                 <>
                                     <Button
-                                        color="black"
+                                        color="gray"
                                         onClick={onBackPressHandler}
                                         className='my-6 mx-2'
                                     >
                                         Back
                                     </Button>
                                     <Button
-                                        color="black"
+                                        color="blue"
                                         onClick={()=>{
                                             setFieldValue("submitType", "rides"); 
                                             handleSubmit()

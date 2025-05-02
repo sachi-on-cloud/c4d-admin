@@ -80,13 +80,13 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     customerId: Yup.object().shape({
         id: Yup.string().required('Customer ID is required'),
     }).required('Customer information is required'),
-    cabType: Yup.string().when('serviceType', {
-        is: 'CAB',
-        then: () => Yup.string().required('Cab type is required'),
-        otherwise: () => Yup.string(),
-    }),
+    // cabType: Yup.string().when('serviceType', {
+    //     is: 'CAB',
+    //     then: () => Yup.string().required('Cab type is required'),
+    //     otherwise: () => Yup.string(),
+    // }),
     carType: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val === 'DRIVER' || val === 'CAB',
         then: () => Yup.string().required('Car Type is required'),
         otherwise: () => Yup.string(),
     }),
@@ -96,7 +96,7 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
         otherwise: () => Yup.string(),
     }),
     tripType: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val == 'DRIVER',
         then: () => Yup.string().required('Trip Type is required'),
         otherwise: () => Yup.string(),
     }),
@@ -361,8 +361,8 @@ export const CAB_SCHEMA = Yup.object({
         )
         .trim(),
     insurance: Yup.string().required('Insurance Expiry Date is required'),
-    withDriver: Yup.string().required('Driver is required'),
     assignOrAddDriver: Yup.string().when(['withDriver'], {
+        withDriver: Yup.string().required('Driver is required'),
         is: (withDriver) => withDriver === 'Yes',
         then: () => Yup.string().required('Assign Or Add Driver is required'),
         otherwise: () => Yup.string()
@@ -535,8 +535,8 @@ export const CAB_ADD_SCHEMA = Yup.object({
         )
         .trim(),
     insurance: Yup.string().required('Insurance Expiry Date is required'),
-    withDriver: Yup.string().required('Driver is required'),
     assignOrAddDriver: Yup.string().when(['withDriver'], {
+        withDriver: Yup.string().required('Driver is required'),
         is: (withDriver) => withDriver === 'Yes',
         then: () => Yup.string().required('Assign Or Add Driver is required'),
         otherwise: () => Yup.string()

@@ -14,7 +14,7 @@ import {
 import { FaFilter } from 'react-icons/fa';
 import moment from "moment";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
@@ -152,10 +152,10 @@ export function DriverView() {
     <Popover placement="bottom-start">
       <PopoverHandler>
         <div className="flex items-center cursor-pointer">
-          <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400 mr-1">
+          <Typography variant="small" className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}>
             {title}
           </Typography>
-          <FaFilter className="text-blue-gray-400 text-xs" />
+          <FaFilter className="text-black text-xs" />
         </div>
       </PopoverHandler>
       <PopoverContent className="p-2">
@@ -212,7 +212,9 @@ export function DriverView() {
       <Card>
         {drivers.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
+            <CardHeader variant="gradient" className={`mb-8 p-6 flex-1 justify-between items-center ${
+              ColorStyles.bgColor
+            }`}>
               <Typography variant="h6" color="white">
                 Drivers List
               </Typography>
@@ -222,7 +224,7 @@ export function DriverView() {
                 <thead>
                   <tr>
                     <th onClick={() => handleSort('created_at')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer flex items-center">
-                      <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Created Date</Typography>
+                      <Typography variant="small" className="text-[11px] font-bold uppercase text-black">Created Date</Typography>
                       {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 mx-1 justify-center items-center text-black" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th>
                     {/* <th onClick={() => handleSort('firstName')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
@@ -285,7 +287,7 @@ export function DriverView() {
                       ) : (
                         <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
@@ -313,7 +315,7 @@ export function DriverView() {
                         return (
                           <tr key={id}>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {moment(created_at).format("DD-MM-YYYY")}
                               </Typography>
                             </td>
@@ -323,7 +325,7 @@ export function DriverView() {
                                   <Typography
                                     variant="small"
                                     color="blue"
-                                    className="font-semibold underline"
+                                    className="font-semibold underline cursor-pointer"
                                   >
                                     {firstName}
                                   </Typography>
@@ -334,50 +336,50 @@ export function DriverView() {
                               </div>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {phoneNumber}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600 ">
+                              <Typography className="text-xs font-semibold text-blue-gray-900 ">
                                 {localCount}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {outstationCount}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {source}
                               </Typography>
                             </td>
                             <td className={className}>
-                              <Typography className="text-xs font-semibold text-blue-gray-600">
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {driverType}
                               </Typography>
                             </td>
                             <td className={className}>
                               <Chip
-                                variant="gradient"
-                                color={status == "ACTIVE" ? "green" : "blue-gray"}
+                                variant="ghost"
+                                color={status == "ACTIVE" ? "green" : "black"}
                                 value={status == "ACTIVE" ? "online" : "offline"}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
                             </td>
                             <td className={className}>
                               <Chip
-                                variant="gradient"
-                                color={subscriptionStatus == "ACTIVE" ? "green" : subscriptionStatus == "BLOCKED" ? "red" : "blue-gray"}
+                                variant="ghost"
+                                color={subscriptionStatus == "ACTIVE" ? "green" : subscriptionStatus == "BLOCKED" ? "red" : "black"}
                                 value={subscriptionStatus}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
                             </td>
                             <td className={className}>
                               <Chip
-                                variant="gradient"
-                                color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "blue-gray"}
+                                variant="ghost"
+                                color={documentStatus?.status == "VERIFIED" ? "green" : documentStatus?.status == "DECLINED" ? "red" : "black"}
                                 value={documentStatus?.status}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
@@ -393,7 +395,8 @@ export function DriverView() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+          <CardHeader variant="gradient" className={`mb-8 p-6  ${ColorStyles.bgColor}`}>
+             {/* color="gray" */}
             <Typography variant="h6" color="white">
               No Drivers
             </Typography>

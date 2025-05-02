@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 
 const MasterSubscriptionDetails = () => {
     const navigate = useNavigate();
@@ -62,13 +62,13 @@ const MasterSubscriptionDetails = () => {
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Service Type</label>
                                     <Field as="select" name="serviceType" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select Service Type</option>
-                                        <option value="DRIVER">Driver</option>
+                                        <option value="ACTING DRIVER">Driver</option>
                                         <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
                                     </Field>
                                    
                                 </div>
                                 <div>
-                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">Plan Name</label>
                                     <Field type="string" name="name" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
@@ -120,7 +120,9 @@ const MasterSubscriptionDetails = () => {
                                 >
                                     Cancel
                                 </Button>
-                                <Button fullWidth className="my-6 mx-2 text-white border-2 border-gray-400 bg-black rounded-xl" onClick={() => navigate(`/dashboard/finance/master-subscription/edit/${id}`)}>
+                                <Button fullWidth className={`my-6 mx-2 border-2 border-gray-400 rounded-xl ${
+                                    ColorStyles.editButton
+                                }`} onClick={() => navigate(`/dashboard/finance/master-subscription/edit/${id}`)}>
                                     Edit
                                 </Button>
                             </div>

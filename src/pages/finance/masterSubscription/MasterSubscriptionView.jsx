@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import {
     Card,
     CardBody,
@@ -71,7 +71,7 @@ export function MasterSubscriptionView() {
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Search Subscription"
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -81,7 +81,9 @@ export function MasterSubscriptionView() {
                     </div>
                     <button
                         onClick={() => navigate('/dashboard/finance/master-subscription/add')}
-                        className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className={`ml-4 px-4 py-2 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            ColorStyles.addButtonColor
+                        }`}
                     >
                         Add new
                     </button>
@@ -90,7 +92,7 @@ export function MasterSubscriptionView() {
             <Card>
                 {masterSubscriptionList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
+                        <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}>
                             <Typography variant="h6" color="white">
                                Master Subscription List
                             </Typography>
@@ -99,14 +101,14 @@ export function MasterSubscriptionView() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                        {["Service Type", "Price","Name","Base Credits","Bonus Credits","Total Credits","Type","Validity (Months)"].map((el) => (
+                                        {["Service Type", "Price","Plan Name","Base Credits","Bonus Credits","Total Credits","Type","Validity (Months)"].map((el) => (
                                             <th
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                             >
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                    className="text-[11px] font-bold uppercase text-black"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -117,26 +119,27 @@ export function MasterSubscriptionView() {
                                 <tbody>
                                     {masterSubscriptionList.map((masterSubscription, index) => (
                                         <tr key={index} className="text-sm">
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.serviceType === "DRIVER" ? (<div>Acting Driver</div>): masterSubscription.serviceType || 
-                                            masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : masterSubscription.serviceType}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">
+                                            {masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : "Acting_Driver"}
+                                            </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div onClick={() => navigate(`/dashboard/finance/master-subscription/details/${masterSubscription.id}`)}>
                                                     <Typography
                                                         variant="small"
                                                         color="blue"
-                                                        className="font-semibold underline"
+                                                        className="font-semibold underline cursor-pointer"
                                                     >
                                                         {masterSubscription.packagePrice == 0 ? 'Free' : masterSubscription.packagePrice}
                                                     </Typography>
 
                                                 </div>
                                             </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.name ? masterSubscription.name : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.price == 0 ? 'Free' : masterSubscription.price}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.bonusPrice ? masterSubscription.bonusPrice : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.totalPrice ? masterSubscription.totalPrice : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.type ? masterSubscription.type : '-'}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{masterSubscription.validityDays ? masterSubscription.validityDays : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.name ? masterSubscription.name : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.price == 0 ? 'Free' : masterSubscription.price}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.bonusPrice ? masterSubscription.bonusPrice : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.totalPrice ? masterSubscription.totalPrice : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.type ? masterSubscription.type : '-'}</td>
+                                            <td className="border-b border-blue-gray-50 py-3 px-5 text-black">{masterSubscription.validityDays ? masterSubscription.validityDays : '-'}</td>
 
                                             {/* <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(masterSubscription.discountEndDate)}</td> */}
                                         </tr>
@@ -146,7 +149,7 @@ export function MasterSubscriptionView() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                    <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
                         <Typography variant="h6" color="white">
                             No Master Subscriptions
                         </Typography>

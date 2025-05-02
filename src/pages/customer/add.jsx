@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -197,10 +197,10 @@ const CustomerAdd = (props) => {
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                // color="text-black"
                                 onClick={handleSubmit}
                                 disabled={isEditMode ? false : !dirty || !isValid}
-                                className='my-6 mx-2'
+                                className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                             >
                                 {isEditMode ? 'Update' : 'Continue'}
                             </Button>

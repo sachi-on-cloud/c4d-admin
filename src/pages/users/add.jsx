@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, USER_ROLE, ROLE_PERMISSIONS, PERMISSION_OPTIONS, STATUS_OPTIONS } from '@/utils/constants';
+import { API_ROUTES, USER_ROLE, ROLE_PERMISSIONS, PERMISSION_OPTIONS, STATUS_OPTIONS, ColorStyles } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -178,7 +178,7 @@ const UserAdd = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
-                                className='my-6 mx-2'
+                                className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                             >
                                 Continue
                             </Button>

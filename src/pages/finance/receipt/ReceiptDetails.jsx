@@ -3,13 +3,16 @@ import { Formik, Form, Field } from 'formik';
 import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
+import ConfirmBooking from "@/pages/booking/confirmBooking";
 
 const ReceiptDetails = () => {
     const [receipt, setReceipt] = useState({});
     const { receiptNumber } = useParams();
+    const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     const pdfRef = useRef();
 
@@ -31,6 +34,7 @@ const ReceiptDetails = () => {
     const initialValues = {
         receiptNumber: receipt?.receiptNumber || "",
         receiptType: receipt?.receiptType || "",
+        bookingId:receipt?.bookingId || "",
         // contractNumber: receipt?.contractNumber?.value || "",
         createdDate: formatDate(receipt?.created_at) || "",
         packageType: receipt?.Subscription?.Plan?.name || "",
@@ -82,6 +86,18 @@ const ReceiptDetails = () => {
                                         <Field type="text" disabled name="receiptNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
                                     </div>
                                     <div className='space-y-1'>
+                                        <label className="text-sm font-medium text-gray-700">Booking Id</label>
+                                        <Field 
+                                            type="text" 
+                                            readOnly 
+                                            name="bookingId"
+                                            onClick={() => {
+                                                setIsOpen(true)
+                                            }}
+                                            className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 text-blue-900 underline font-medium cursor-pointer" 
+                                        />
+                                    </div>
+                                    <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Receipt Type</label>
                                         <Field type="text" disabled name="receiptType" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
@@ -130,17 +146,37 @@ const ReceiptDetails = () => {
             <div className='flex justify-center space-x-4 my-6'>
                 <Button
                     onClick={() => { navigate('/dashboard/finance/receipt'); }}
-                    className='my-6 px-8 text-white border-2 bg-black rounded-xl'
+                    className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>
                 <Button
                     onClick={handleDownloadPDF}
-                    className="my-6 px-8 text-white border-2 bg-blue-600 rounded-xl"
+                    className="my-6 px-8 text-white border-2 bg-green-500 rounded-xl"
                 >
                     Download PDF
                 </Button>
             </div>
+            <Dialog open={isOpen}>
+                <DialogHeader className="flex justify-end items-end">
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="text-gray-500 hover:text-black text-xl font-bold focus:outline-none"
+                    >
+                        ×
+                    </button>
+                </DialogHeader>
+                <DialogBody className="max-h-[80vh] overflow-y-auto">
+                    <ConfirmBooking 
+                        bookingData={{
+                            id: receipt?.bookingId,
+                            customerId: receipt?.customerId,
+                        }}
+                        setIsOpen={setIsOpen}
+                    />
+                </DialogBody>
+            </Dialog>
+
         </>
     );
 };

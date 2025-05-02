@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import {
     Card,
     CardBody,
@@ -66,7 +66,7 @@ export function InvoiceList() {
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Search Subscription"
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -79,7 +79,9 @@ export function InvoiceList() {
             <Card>
                 {invoiceList.length > 0 ? (
                     <>
-                        <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
+                        <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center ${
+                            ColorStyles.bgColor
+                        }`}>
                             <Typography variant="h6" color="white">
                                Invoice List
                             </Typography>
@@ -95,7 +97,7 @@ export function InvoiceList() {
                                             >
                                                 <Typography
                                                     variant="small"
-                                                    className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                    className="text-[11px] font-bold uppercase text-black"
                                                 >
                                                     {el}
                                                 </Typography>
@@ -112,17 +114,17 @@ export function InvoiceList() {
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
-                                                            className="font-semibold underline"
+                                                            className="font-semibold underline cursor-pointer"
                                                         >
                                                             {invoice?.invoiceNumber}
                                                         </Typography>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{formatDate(invoice?.created_at)}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.Subscription?.Plan?.name}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.amount}</td>
-                                            <td className="border-b border-blue-gray-50 py-3 px-5">{invoice?.status}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{formatDate(invoice?.created_at)}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.Subscription?.Plan?.name}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.amount}</td>
+                                            <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.status}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -130,7 +132,7 @@ export function InvoiceList() {
                         </CardBody>
                     </>
                 ) : (
-                    <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+                    <CardHeader variant="gradient" className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
                         <Typography variant="h6" color="white">
                             No Invoices
                         </Typography>

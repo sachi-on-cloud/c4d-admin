@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Button, Card, CardBody, Typography, Dialog, DialogHeader, DialogBody, DialogFooter } from '@material-tailwind/react';
 import moment from 'moment';
@@ -240,7 +240,7 @@ const PayableDetails = () => {
             <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => { navigate('/dashboard/finance/payable'); }}
-                    className='my-6 px-8 text-white border-2 rounded-xl'
+                    className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>

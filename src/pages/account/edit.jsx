@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Button, Input, List, ListItem,Dialog, DialogHeader, DialogBody,Typography,Card,CardBody} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
@@ -87,7 +87,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                 <div className="flex items-center gap-2">
                     <label
                         htmlFor={name}
-                        className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                        className="inline-block text-center text-white border border-gray-400 bg-[#1A73E8] rounded-lg px-4 py-1 cursor-pointer"
                     >
                         Update
                     </label>
@@ -717,13 +717,13 @@ const AccountEdit = () => {
                             <Button
                                 fullWidth
                                 onClick={() => { navigate('/dashboard/vendors/account'); }}
-                                className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
+                                className={`my-6 mx-2 ${ColorStyles.backButton}`}
                             >
                                 Back
                             </Button>
                             <Button
                                 fullWidth
-                                color="black"
+                                color="blue"
                                 onClick={handleSubmit}
                                 disabled={!dirty || !isValid}
                                 className='my-6 mx-2'

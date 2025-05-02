@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES } from '../../utils/constants';
+import { API_ROUTES, ColorStyles } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -183,7 +183,7 @@ const Booking = (props) => {
             adminBooking: true,
             serviceType: values.serviceType,
             cabType: values.cabType,
-            bookingType: values.tripType.toUpperCase(),
+            bookingType: values?.tripType?.toUpperCase(),
             transmissionType: values.transmissionType,
             carType: values.carType,
             fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -399,12 +399,54 @@ const Booking = (props) => {
                 return null;
         }
     };
+
+    // modal data
+    const [isOpen, setIsOpen] = useState(false);
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
-            <div className='w-4/6'>
-                <BookingsList customerId={selectedCustomer} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />
+            <div className='w-full'>
+                <div className='py-6 rounded-3xl flex justify-end'>
+                <button
+                    onClick={() => setIsOpen(true)}
+                    className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
+                >
+                    Add New Booking
+                </button>
+                
+                </div>            
+                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />
             </div>
-            <div className="flex-1 bg-white p-3 rounded-xl w-2/6 ">
+                <div>
+  {isOpen && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
+        setIsOpen(false)
+        onConfirmBooking()
+        setSelectedCustomer();
+        setEditBookingView();
+        setEditBooking();
+        setQuoteDetails();
+        }}>
+        <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/5 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
+        <div className="flex-1 bg-[#f5f5f5] rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4"> 
+            {/* max-h-screen overflow-y-auto shadow p-4 */}
+            
+                                <div className='rounded-2xl justify-end items-end space-x-12 flex'>
+                                    <button
+                                        onClick={
+                                            () => {
+                                                setIsOpen(false);
+                                                onConfirmBooking();
+                                                setSelectedCustomer();
+                                                setEditBookingView();
+                                                setEditBooking();
+                                                setQuoteDetails();
+                                            }
+                                        }
+                                        className="px-0 py-0 bg-black-500"
+                                    >
+                                        X
+                                    </button>
+                                </div>
                 {!showQuickCreateCustomer && !editBookingView && <div className='text-2xl font-bold mb-8'>
                     <Typography variant="h5" color='#000000'>
                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
@@ -447,7 +489,7 @@ const Booking = (props) => {
                                     {!editBookingView && <Button
                                         className="ml-3 w-1/2"
                                         fullWidth
-                                        color="black"
+                                        color="blue"
                                         onClick={() => { setShowQuickCreateCustomer(true) }}>
                                         Add New
                                     </Button>}
@@ -478,7 +520,7 @@ const Booking = (props) => {
                                     <div className="space-y-3 my-3">
                                         <div className="grid grid-cols-2 gap-4">
                                             <Button
-                                                color={values.packageTypeSelected === 'Local' ? 'black' : 'gray'}
+                                                color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
                                                 onClick={() => {
                                                     if (values.packageTypeSelected !== 'Local') {
                                                         setFieldValue('packageTypeSelected', 'Local');
@@ -494,7 +536,7 @@ const Booking = (props) => {
                                                 Local
                                             </Button>
                                             <Button
-                                                color={values.packageTypeSelected === 'Outstation' ? 'black' : 'gray'}
+                                                color={values.packageTypeSelected === 'Outstation' ? 'blue' : 'gray'}
                                                 onClick={() => {
                                                     if (values.packageTypeSelected !== 'Outstation') {
                                                         setFieldValue('packageTypeSelected', 'Outstation');
@@ -510,28 +552,32 @@ const Booking = (props) => {
                                                 Outstation
                                             </Button>
                                         </div>
-                                        <div>
-                                            <Typography className="text-sm font-medium text-gray-700">Trip Type</Typography>
+                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected ==='Outstation') || (values.serviceType === 'DRIVER'))  && (
+                                            <div>
+                                            <Typography className="text-sm font-medium text-black-700">Trip Type</Typography>
                                             <div className="grid grid-cols-2 gap-4 mt-2">
-                                                <Button
-                                                    color={values.tripType === 'Drop Only' ? 'black' : 'gray'}
+                                            <Button
+                                                    color={values.tripType === 'Drop Only' ? 'blue' : 'gray'}
                                                     onClick={() => setFieldValue('tripType', 'Drop Only')}
                                                     variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
                                                 >
                                                     Drop Only
                                                 </Button>
+
                                                 <Button
-                                                    color={values.tripType === 'Round Trip' ? 'black' : 'gray'}
+                                                    color={values.tripType === 'Round Trip' ? 'blue' : 'gray'}
                                                     onClick={() => setFieldValue('tripType', 'Round Trip')}
                                                     variant={values?.tripType === 'Round Trip' ? 'filled' : 'outlined'}
                                                 >
                                                     Round Trip
                                                 </Button>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700">Car Type</label>
-                                            <div className="grid grid-cols-4 mt-2">
+                                    </div>
+                                        )}    
+                                        <div className='grid grid-cols-2 mt-2 space-x-3'>
+                                        {(values.serviceType !== 'RENTAL') && (<div>
+                                            <label className="text-sm font-medium text-black-700">Car Type</label>
+                                            <div className="flex gap-4">
                                                 {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
                                                     <label key={carType} className="flex items-center space-x-2">
                                                         <Field
@@ -540,16 +586,17 @@ const Booking = (props) => {
                                                             value={carType}
                                                             className="h-4 w-4 text-blue-600"
                                                         />
-                                                        <span className="text-gray-700">{carType}</span>
+                                                        <span className="text-black-700">{carType}</span>
                                                     </label>
                                                 ))}
                                             </div>
                                             <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
                                         </div>
+                                    )}
                                         {(values.serviceType === 'DRIVER') && (
                                             <div>
-                                                <label className="text-sm font-medium text-gray-700">Transmission Type</label>
-                                                <div className="grid grid-cols-2 mt-2">
+                                                <label className="text-sm font-medium text-black-700">Transmission Type</label>
+                                                <div className="flex gap-2">
                                                     {['Manual', 'Automatic'].map((transType) => (
                                                         <label key={transType} className="flex items-center space-x-2">
                                                             <Field
@@ -558,7 +605,7 @@ const Booking = (props) => {
                                                                 value={transType}
                                                                 className="h-4 w-4 text-blue-600"
                                                             />
-                                                            <span className="text-gray-700">{transType}</span>
+                                                            <span className="text-black-700">{transType}</span>
                                                         </label>
                                                     ))}
                                                 </div>
@@ -566,9 +613,11 @@ const Booking = (props) => {
                                             </div>
                                         )}
                                     </div>
+                                        </div>
+                                        
                                 )}
 
-
+                            <div className='grid grid-cols-2 mt-2 space-x-3'>
                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && (
                                     <div className="flex-1 mb-2">
                                         <Typography variant="h6" className="mb-2">
@@ -628,7 +677,7 @@ const Booking = (props) => {
                                         />
                                     </div>
                                 )}
-
+                            </div>
 
                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && values.packageTypeSelected == 'Local' &&
                                     <div className="flex-1 mb-4">
@@ -733,9 +782,9 @@ const Booking = (props) => {
                                         )}
                                     </div>
                                 )} */}
-
-                                {((values.tripType) || (values.serviceType == 'RIDES')) && <div className="p-2 space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">
+                                <div className='grid grid-cols-2'>
+                                {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL')) && <div className="p-2 space-y-2">
+                                    <label className="block text-sm font-medium text-black-700">
                                         Pickup Location <span className="text-red-500">*</span>
                                     </label>
                                     <Field
@@ -765,14 +814,14 @@ const Booking = (props) => {
                                         </ul>
                                     )}
                                 </div>}
-
+                                    <div  className="p-2 space-y-2 space-x-3">
                                 {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
-                                    <div className="p-2 space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">Drop Location<span className="text-red-500">*</span></label>
+                                    <div>
+                                        <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                         <Field
                                             type="text"
                                             name="dropAddress"
-                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                            className="p-2  mt-2 w-full rounded-xl border-2 border-gray-300"
                                             placeholder="Enter drop location (Optional)"
                                             onChange={(e) => {
                                                 setFieldValue("dropAddress", e.target.value);
@@ -796,8 +845,10 @@ const Booking = (props) => {
                                             </ul>
                                         )}
                                     </div>
+                                
                                 )}
-
+                                </div>
+                                </div>
                                 {values.packageSelected &&
                                     <Card className="my-6">
                                         <div className="border rounded-xl bg-gray-200 p-4">
@@ -886,44 +937,46 @@ const Booking = (props) => {
 
                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                     fullWidth
-                                    color="black"
+                                    color="blue"
                                     onClick={() => {
                                         setFieldValue("submitType", "default");
                                         handleSubmit();
                                     }}
-                                    disabled={!dirty || !isValid || !values.rideDate}
-                                    className='my-6 mx-2'
+                                    disabled={!dirty || !isValid || (!values.rideDate && !values.toDate) || (!values.pickupAddress && !values.dropAddress)}
+                                    className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                 >
                                     Continue
                                 </Button>}
                                 {(values.serviceType == 'RIDES') &&
                                     <Button
                                         fullWidth
-                                        color="black"
+                                        color="blue"
                                         onClick={() => {
                                             setFieldValue("submitType", "rides");
                                             handleSubmit();
                                         }}
                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
-                                        className='my-6 mx-2'
+                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                     >
                                         Continue
                                     </Button>
                                 }
+                                <div className='p-3'>
                                 {values.serviceType == 'RENTAL' && 
                                     <Button
                                         fullWidth
-                                        color="black"
+                                        color="blue"
                                         onClick={() => {
                                             setFieldValue("submitType", "rental");
                                             handleSubmit();
                                         }}
-                                        // disabled={values.serviceType == 'RENTAL'}
-                                        className='my-6 mx-2'
+                                        disabled={!((values.pickupAddress || values.dropAddress) && (values.rideDate || values.toDate))}
+                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                     >
                                         Continue
                                     </Button> 
                                 }
+                                </div>
                             </>
                         )}
                     </Formik>}
@@ -931,17 +984,22 @@ const Booking = (props) => {
                         <SearchDrivers bookingData={bookingData} onNext={() => {
                             setBookingStage(0);
                             setBookingData(null);
+                            setIsOpen(false);
                         }} />
                     )}
                 </>}
                 {bookingView && <>
-                    <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
+                    <BookingItem bookingData={bookingData} setIsOpen={setIsOpen} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                 </>}
                 {editBookingView &&
-                    <EditBooking bookingData={bookingData} editCancel={onEditBackPress} />
+                    <EditBooking bookingData={bookingData} setIsOpen={setIsOpen} editCancel={onEditBackPress} />
                 }
             </div>
-        </div>
+      </div>
+    </div>
+  )}
+</div>
+</div>
     );
 };
 
