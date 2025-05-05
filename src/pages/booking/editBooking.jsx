@@ -541,7 +541,7 @@ const EditBooking = (props) => {
                                         setFieldValue("submitType", "default");
                                         handleSubmit()
                                     }}
-                                    // disabled={!dirty || !isValid}
+                                    disabled={!dirty || !isValid || (!values.rideDate && !values.toDate) || (!values.pickupAddress && !values.dropAddress)}
                                     className='my-6 mx-2'
                                 >
                                     Confirm Booking

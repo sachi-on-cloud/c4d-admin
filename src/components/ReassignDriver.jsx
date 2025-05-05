@@ -168,7 +168,7 @@ const ReassignDriver = () => {
 
             const data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_CAB, formData);
             if (data?.success) {
-                navigate('/dashboard/vendors/account/allVehicles', {
+                navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`, {
                     state: {
                         cabAdded: true,
                         cabName: data?.data?.name
@@ -339,7 +339,7 @@ const ReassignDriver = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/vendors/account/allVehicles'); }}
+                                onClick={() => { navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`)}}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel
@@ -349,7 +349,7 @@ const ReassignDriver = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || !isValid}
-                                className='my-6 mx-2'
+                                className='my-6 mx-2 bg-[#1A73E8]'
                             >
                                 Update
                             </Button>
