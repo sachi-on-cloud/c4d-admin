@@ -76,7 +76,7 @@ const ServiceAreasTab = () => {
         }
       } else {
         // Handle new area creation
-        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS_CREATE, {
+        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS, {
           ...formData,
           coordinates: coordinates,
           type: 'Service Area'

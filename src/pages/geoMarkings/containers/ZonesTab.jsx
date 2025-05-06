@@ -128,7 +128,7 @@ const ZonesTab = () => {
           }
         }
       } else {
-        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS_CREATE, {
+        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS, {
           ...formData,
           coordinates: coordinates,
           type: 'Zone',
