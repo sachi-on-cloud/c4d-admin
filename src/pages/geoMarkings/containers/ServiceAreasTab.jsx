@@ -14,6 +14,7 @@ const ServiceAreasTab = () => {
   const [selectedPolygon, setSelectedPolygon] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [updatedServiceAreas, setUpdatedServiceAreas] = useState([]);  // Local copy for updates
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, item: null });
@@ -28,6 +29,7 @@ const ServiceAreasTab = () => {
       const response = await ApiRequestUtils.get(API_ROUTES.GEO_MARKINGS_LIST);
       if (response?.success) {
         setServiceAreas(response.data || []);
+        setUpdatedServiceAreas(response.data || []); // Initialize local copy
       } else {
         throw new Error(response?.message || 'Failed to fetch service areas');
       }
@@ -58,6 +60,33 @@ const ServiceAreasTab = () => {
 
   const handleSave = async (formData) => {
     try {
+      // If we're editing an existing area
+      if (selectedItem) {
+        console.log(selectedItem);
+        const index = serviceAreas.findIndex(area => area.id === selectedItem.id);
+        if (index !== -1) {
+          const response = await ApiRequestUtils.update(`${API_ROUTES.GEO_MARKINGS}/${selectedItem.id}`, {
+            ...selectedItem,
+            ...formData,
+            coordinates: coordinates || updatedServiceAreas[index].coordinates
+          });
+          
+          if (!response?.success) {
+            throw new Error(response?.message || 'Failed to update service area');
+          }
+        }
+      } else {
+        // Handle new area creation
+        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS_CREATE, {
+          ...formData,
+          coordinates: coordinates
+        });
+        
+        if (!response?.success) {
+          throw new Error(response?.message || 'Failed to create service area');
+        }
+      }
+      
       setShowDrawingManager(false);
       setIsCreating(false);
       setCoordinates(null);
@@ -94,22 +123,16 @@ const ServiceAreasTab = () => {
     setCoordinates(coords);
   };
 
-  const handlePolygonUpdate = async (newCoordinates, index) => {
-    try {
-      const updatedArea = serviceAreas[index];
-      const response = await ApiRequestUtils.put(`${API_ROUTES.GEO_MARKINGS_UPDATE}/${updatedArea.id}`, {
-        ...updatedArea,
+  const handlePolygonUpdate = (newCoordinates, index) => {
+    setUpdatedServiceAreas(prev => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
         coordinates: newCoordinates
-      });
-      
-      if (response?.success) {
-        await fetchServiceAreas(); // Refresh the list
-      } else {
-        throw new Error(response?.message || 'Failed to update service area');
-      }
-    } catch (err) {
-      setError(err.message);
-    }
+      };
+      console.log(updated);
+      return updated;
+    });
   };
 
   const handlePolygonDelete = async (index) => {
@@ -146,7 +169,7 @@ const ServiceAreasTab = () => {
               onPolygonComplete={handlePolygonComplete}
               onPolygonUpdate={handlePolygonUpdate}
               onPolygonDelete={handlePolygonDelete}
-              existingPolygons={serviceAreas.map(area => area.coordinates)}
+              existingPolygons={updatedServiceAreas.map(area => area.coordinates)}
               showDrawingManager={showDrawingManager}
               initialPolygon={selectedItem?.coordinates}
               mapHeight="500px"

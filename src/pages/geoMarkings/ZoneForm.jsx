@@ -23,6 +23,7 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
     setIsSubmitting(true);
 
     try {
+      console.log(coordinates);
       if (!coordinates || coordinates.length < 3) {
         throw new Error('Please draw a valid polygon with at least 3 points');
       }
@@ -31,24 +32,13 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
         name: formData.name,
         description: formData.description,
         type: 'Zone',
-        serviceAreaId: serviceAreaId,
+        parent_id: serviceAreaId,
         coordinates: coordinates,
       };
-
-      const response = initialData?.id 
-        ? await ApiRequestUtils.update(`${API_ROUTES.GEO_MARKINGS}/${initialData.id}`, payload)
-        : await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS, payload);
-      
-      if (response?.success) {
-        onSave({
-          ...formData,
-          id: initialData?.id || response.data?.id,
-          coordinates
-        });
-      } else {
-        throw new Error(response?.message || `Failed to ${initialData ? 'update' : 'create'} zone`);
-      }
+      console.log(payload);
+      onSave(payload);
     } catch (err) {
+      console.log(err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);
@@ -92,7 +82,7 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
         <Button 
           type="submit" 
           className="mt-4"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !coordinates}
         >
           {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Zone
         </Button>

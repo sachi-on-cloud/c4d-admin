@@ -93,9 +93,15 @@ const GoogleMapDrawing = ({
 
   const handlePolygonComplete = useCallback((polygon) => {
     console.log('Polygon completed');
-    if (!polygon.getPath) return;
+    
+    // Get the underlying Google Maps polygon instance
+    const nativePolygon = polygon;
+    if (!nativePolygon) {
+      console.error('Could not access polygon instance');
+      return;
+    }
 
-    const path = polygon.getPath();
+    const path = nativePolygon.getPath();
     const coordinates = path.getArray().map(coord => ({
       lat: coord.lat(),
       lng: coord.lng()
@@ -113,14 +119,22 @@ const GoogleMapDrawing = ({
 
   // Add handlers for polygon path updates
   const handlePolygonPathChange = useCallback((polygon, index) => {
-    if (!polygon.getPath) return;
+    console.log('Polygon path changed');
+    
+    // Get the underlying Google Maps polygon instance
+    const nativePolygon = polygon;
+    if (!nativePolygon) {
+      console.error('Could not access polygon instance');
+      return;
+    }
 
-    const path = polygon.getPath();
+    const path = nativePolygon.getPath();
     const coordinates = path.getArray().map(coord => ({
       lat: coord.lat(),
       lng: coord.lng()
     }));
     
+    console.log('Updated coordinates:', coordinates);
     if (onPolygonUpdate) {
       onPolygonUpdate(coordinates, index);
     }
@@ -213,8 +227,8 @@ const GoogleMapDrawing = ({
                 editable: true,
                 draggable: true,
               }}
-              ref={ref => {
-                if (ref) polygonRefs.current[index] = ref;
+              onLoad={polygon => {
+                polygonRefs.current[index] = polygon;
               }}
               onMouseUp={() => {
                 if (polygonRefs.current[index]) {

@@ -14,6 +14,7 @@ const ZonesTab = () => {
   const [selectedPolygon, setSelectedPolygon] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [zones, setZones] = useState([]);
+  const [updatedZones, setUpdatedZones] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, item: null });
@@ -52,9 +53,10 @@ const ZonesTab = () => {
     
     try {
       setIsLoading(true);
-      const response = await ApiRequestUtils.get(`${API_ROUTES.GEO_MARKINGS}/?type=Zone&parent_id=${selectedServiceArea}`);
+      const response = await ApiRequestUtils.get(`${API_ROUTES.GEO_MARKINGS_LIST}?type=Zone&parent_id=${selectedServiceArea}`);
       if (response?.success) {
         setZones(response.data || []);
+        setUpdatedZones(response.data || []);
       } else {
         throw new Error(response?.message || 'Failed to fetch zones');
       }
@@ -87,14 +89,60 @@ const ZonesTab = () => {
     setCoordinates(null);
   };
 
+  const handlePolygonUpdate = (newCoordinates, index) => {
+    setUpdatedZones(prev => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        coordinates: newCoordinates
+      };
+      return updated;
+    });
+  };
+
+  const handlePolygonDelete = async (index) => {
+    try {
+      const zoneToDelete = zones[index];
+      setDeleteDialog({ open: true, item: zoneToDelete });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const handleSave = async (formData) => {
     try {
+      if (selectedItem) {
+        const index = zones.findIndex(zone => zone.id === selectedItem.id);
+        if (index !== -1) {
+          const response = await ApiRequestUtils.update(`${API_ROUTES.GEO_MARKINGS}/${selectedItem.id}`, {
+            ...selectedItem,
+            ...formData,
+            coordinates: coordinates || updatedZones[index].coordinates
+          });
+          
+          if (!response?.success) {
+            throw new Error(response?.message || 'Failed to update zone');
+          }
+        }
+      } else {
+        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS, {
+          ...formData,
+          coordinates: coordinates,
+          parent_id: selectedServiceArea
+        });
+        
+        if (!response?.success) {
+          throw new Error(response?.message || 'Failed to create zone');
+        }
+      }
+      
       setShowDrawingManager(false);
       setIsCreating(false);
       setCoordinates(null);
-      await fetchZones(); // Refresh the list
+      await fetchZones();
       handleCancel();
     } catch (err) {
+      console.log(err);
       setError(err.message);
     }
   };
@@ -110,7 +158,7 @@ const ZonesTab = () => {
     try {
       const response = await ApiRequestUtils.delete(`${API_ROUTES.GEO_MARKINGS_DELETE}/${deleteDialog.item.id}`);
       if (response?.success) {
-        await fetchZones(); // Refresh the list
+        await fetchZones();
       } else {
         throw new Error(response?.message || 'Failed to delete zone');
       }
@@ -153,7 +201,9 @@ const ZonesTab = () => {
           <div className="h-[500px] w-full">
             <GoogleMapDrawing
               onPolygonComplete={handlePolygonComplete}
-              existingPolygons={zones.map(zone => zone.coordinates)}
+              onPolygonUpdate={handlePolygonUpdate}
+              onPolygonDelete={handlePolygonDelete}
+              existingPolygons={updatedZones.map(zone => zone.coordinates)}
               showDrawingManager={showDrawingManager}
               initialPolygon={selectedItem?.coordinates}
               mapHeight="500px"
