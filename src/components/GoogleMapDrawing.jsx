@@ -78,10 +78,11 @@ const GoogleMapDrawing = ({
   }, []);
 
   const onMapLoad = useCallback((map) => {
+
     let key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     console.log(key);
 
-    console.log('Map loaded');
+    console.log('Map loaded successfully');
     setMap(map);
     map.setCenter(defaultCenter);
     
