@@ -1,0 +1,136 @@
+import React, { useState, useEffect } from 'react';
+import { Tabs, Tab, TabsHeader, TabsBody, TabPanel, Typography } from '@material-tailwind/react';
+import ServiceAreasTab from './containers/ServiceAreasTab';
+import ZonesTab from './containers/ZonesTab';
+
+const GeoMarkings = () => {
+  const [activeTab, setActiveTab] = useState('serviceAreas');
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [serviceAreas, setServiceAreas] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedPolygon, setSelectedPolygon] = useState(null);
+
+  useEffect(() => {
+    // TODO: Fetch existing service areas and zones from API
+    // This is where you'll make API calls to get the data
+  }, []);
+
+  const handlePolygonComplete = (coordinates) => {
+    setSelectedPolygon(coordinates);
+    setShowForm(true);
+  };
+
+  const handleServiceAreaSave = (formData) => {
+    if (!selectedPolygon) return;
+
+    const newServiceArea = {
+      ...formData,
+      coordinates: selectedPolygon,
+    };
+
+    // TODO: Save to API
+    setServiceAreas([...serviceAreas, newServiceArea]);
+    setShowForm(false);
+    setSelectedPolygon(null);
+  };
+
+  const handleZoneSave = (formData) => {
+    if (!selectedPolygon) return;
+
+    const newZone = {
+      ...formData,
+      coordinates: selectedPolygon,
+    };
+
+    // TODO: Save to API
+    setZones([...zones, newZone]);
+    setShowForm(false);
+    setSelectedPolygon(null);
+  };
+
+  const tabProps = {
+    showForm,
+    setShowForm,
+    selectedPolygon,
+    setSelectedPolygon,
+    handlePolygonComplete,
+    selectedItem,
+    setSelectedItem,
+  };
+
+  const data = [
+    {
+      label: "Service Areas",
+      value: "serviceAreas",
+      component: (
+        <ServiceAreasTab
+          {...tabProps}
+          handleServiceAreaSave={handleServiceAreaSave}
+          serviceAreas={serviceAreas}
+        />
+      ),
+    },
+    {
+      label: "Zones",
+      value: "zones",
+      component: (
+        <ZonesTab
+          {...tabProps}
+          handleZoneSave={handleZoneSave}
+          zones={zones}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <div className="p-4">
+      <Typography variant="h4" className="mb-6">GeoMarkings</Typography>
+      <Tabs value={activeTab} className="overflow-visible">
+        <TabsHeader 
+          className="bg-blue-gray-50/60 rounded-lg"
+          indicatorProps={{
+            className: "bg-blue-500/80 shadow-md shadow-blue-500/20 ",
+          }}
+        >
+          {data.map(({ label, value }) => (
+            <Tab
+              key={value}
+              value={value}
+              onClick={() => {
+                setActiveTab(value);
+                setSelectedItem(null);
+                setShowForm(false);
+                setSelectedPolygon(null);
+              }}
+              className={`${
+                activeTab === value 
+                  ? "text-white" 
+                  : "text-blue-gray-900"
+              } font-medium text-base py-4`}
+            >
+              {label}
+            </Tab>
+          ))}
+        </TabsHeader>
+        <TabsBody 
+          animate={{
+            initial: { opacity: 0, y: 10 },
+            mount: { opacity: 1, y: 0 },
+            unmount: { opacity: 0, y: 10 },
+          }}
+          className="mt-8"
+        >
+          {data.map(({ value, component }) => (
+            <TabPanel key={value} value={value} className="p-0">
+              {component}
+            </TabPanel>
+          ))}
+        </TabsBody>
+      </Tabs>
+    </div>
+  );
+};
+
+export default GeoMarkings; 

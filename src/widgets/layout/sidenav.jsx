@@ -649,6 +649,25 @@ const toggleSubMenu = (subMenu) =>
                 </NavLink>
                   
             </li>
+            <li>
+                <NavLink to={`/dashboard/admin/geo-markings`} end>
+                  {({ isActive }) => (
+                    <Button
+                    variant="text"
+                    className={`flex items-center gap-4 px-8 capitalize bg-blue-gray ${
+                      isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                    }`}
+                      fullWidth
+                    >
+                      <Typography color="inherit" className="font-medium px-6 capitalize ">
+                      GeoMarkings
+                      </Typography>
+
+                    </Button>
+                  )}
+                </NavLink>
+                  
+            </li>
           </ul>)}
 
         </ul>
