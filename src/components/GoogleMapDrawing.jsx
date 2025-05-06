@@ -5,7 +5,7 @@ import { useLoadScript, GoogleMap, DrawingManager, Polygon } from '@react-google
 const LIBRARIES = ['drawing', 'geometry'];
 
 // Default center (Chennai)
-const defaultCenter = { lat: 13.0827, lng: 80.2707 };
+const defaultCenter = { lat: 12.9324523, lng: 79.1377447 };
 
 const mapContainerStyle = {
   width: '100%',
@@ -34,10 +34,10 @@ const drawingManagerOptions = {
     drawingModes: ['polygon','circle']
   },
   polygonOptions: {
-    fillColor: '#FF0000',
-    fillOpacity: 0.3,
+    fillColor: '#82CFFD',
+    fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#FF0000',
+    strokeColor: '#0077BE',
     clickable: true,
     editable: true,
     draggable: true,
@@ -218,15 +218,7 @@ const GoogleMapDrawing = ({
             <Polygon
               key={index}
               path={polygonCoords}
-              options={{
-                fillColor: '#FF0000',
-                fillOpacity: 0.8,
-                strokeColor: '#00FF00',
-                strokeWeight: 2,
-                clickable: true,
-                editable: true,
-                draggable: true,
-              }}
+              options={{...drawingManagerOptions.polygonOptions}}
               onLoad={polygon => {
                 polygonRefs.current[index] = polygon;
               }}
