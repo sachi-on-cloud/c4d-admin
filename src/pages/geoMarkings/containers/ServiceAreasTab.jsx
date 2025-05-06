@@ -94,6 +94,33 @@ const ServiceAreasTab = () => {
     setCoordinates(coords);
   };
 
+  const handlePolygonUpdate = async (newCoordinates, index) => {
+    try {
+      const updatedArea = serviceAreas[index];
+      const response = await ApiRequestUtils.put(`${API_ROUTES.GEO_MARKINGS_UPDATE}/${updatedArea.id}`, {
+        ...updatedArea,
+        coordinates: newCoordinates
+      });
+      
+      if (response?.success) {
+        await fetchServiceAreas(); // Refresh the list
+      } else {
+        throw new Error(response?.message || 'Failed to update service area');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handlePolygonDelete = async (index) => {
+    try {
+      const areaToDelete = serviceAreas[index];
+      setDeleteDialog({ open: true, item: areaToDelete });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   // Show create/edit form with map
   if (isCreating || selectedItem) {
     return (
@@ -117,6 +144,8 @@ const ServiceAreasTab = () => {
           <div className="h-[500px] w-full">
             <GoogleMapDrawing
               onPolygonComplete={handlePolygonComplete}
+              onPolygonUpdate={handlePolygonUpdate}
+              onPolygonDelete={handlePolygonDelete}
               existingPolygons={serviceAreas.map(area => area.coordinates)}
               showDrawingManager={showDrawingManager}
               initialPolygon={selectedItem?.coordinates}

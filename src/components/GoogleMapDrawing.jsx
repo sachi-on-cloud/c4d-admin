@@ -50,6 +50,8 @@ const GoogleMapDrawing = ({
   zoom = 12,
   existingPolygons = [],
   onPolygonComplete,
+  onPolygonUpdate,
+  onPolygonDelete,
   mapHeight = '500px',
   showDrawingManager = false
 }) => {
@@ -78,11 +80,6 @@ const GoogleMapDrawing = ({
   }, []);
 
   const onMapLoad = useCallback((map) => {
-
-    let key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-    console.log(key);
-
-    console.log('Map loaded successfully');
     setMap(map);
     map.setCenter(defaultCenter);
     
@@ -113,6 +110,28 @@ const GoogleMapDrawing = ({
       drawingManagerRef.current.setDrawingMode(null);
     }
   }, [onPolygonComplete]);
+
+  // Add handlers for polygon path updates
+  const handlePolygonPathChange = useCallback((polygon, index) => {
+    if (!polygon.getPath) return;
+
+    const path = polygon.getPath();
+    const coordinates = path.getArray().map(coord => ({
+      lat: coord.lat(),
+      lng: coord.lng()
+    }));
+    
+    if (onPolygonUpdate) {
+      onPolygonUpdate(coordinates, index);
+    }
+  }, [onPolygonUpdate]);
+
+  // Add handlers for polygon deletion
+  const handlePolygonDelete = useCallback((index) => {
+    if (onPolygonDelete) {
+      onPolygonDelete(index);
+    }
+  }, [onPolygonDelete]);
 
   // Effect to handle drawing manager visibility
   useEffect(() => {
@@ -197,6 +216,17 @@ const GoogleMapDrawing = ({
               ref={ref => {
                 if (ref) polygonRefs.current[index] = ref;
               }}
+              onMouseUp={() => {
+                if (polygonRefs.current[index]) {
+                  handlePolygonPathChange(polygonRefs.current[index], index);
+                }
+              }}
+              onDragEnd={() => {
+                if (polygonRefs.current[index]) {
+                  handlePolygonPathChange(polygonRefs.current[index], index);
+                }
+              }}
+              onRightClick={() => handlePolygonDelete(index)}
             />
           ))}
         </GoogleMap>
