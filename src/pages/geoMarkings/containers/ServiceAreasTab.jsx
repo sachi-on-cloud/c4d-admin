@@ -26,7 +26,7 @@ const ServiceAreasTab = () => {
   const fetchServiceAreas = async () => {
     try {
       setIsLoading(true);
-      const response = await ApiRequestUtils.get(API_ROUTES.GEO_MARKINGS_LIST);
+      const response = await ApiRequestUtils.get(`${API_ROUTES.GEO_MARKINGS_LIST}?type=Service%20Area`);
       if (response?.success) {
         setServiceAreas(response.data || []);
         setUpdatedServiceAreas(response.data || []); // Initialize local copy
@@ -62,13 +62,12 @@ const ServiceAreasTab = () => {
     try {
       // If we're editing an existing area
       if (selectedItem) {
-        console.log(selectedItem);
         const index = serviceAreas.findIndex(area => area.id === selectedItem.id);
         if (index !== -1) {
           const response = await ApiRequestUtils.update(`${API_ROUTES.GEO_MARKINGS}/${selectedItem.id}`, {
             ...selectedItem,
             ...formData,
-            coordinates: coordinates || updatedServiceAreas[index].coordinates
+            coordinates: updatedServiceAreas[index].coordinates // Always use updatedServiceAreas
           });
           
           if (!response?.success) {
@@ -79,7 +78,8 @@ const ServiceAreasTab = () => {
         // Handle new area creation
         const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS_CREATE, {
           ...formData,
-          coordinates: coordinates
+          coordinates: coordinates,
+          type: 'Service Area'
         });
         
         if (!response?.success) {
@@ -98,9 +98,10 @@ const ServiceAreasTab = () => {
   };
 
   const handleEdit = (area) => {
+    const index = serviceAreas.findIndex(a => a.id === area.id);
     setSelectedItem(area);
     setShowForm(true);
-    setCoordinates(area.coordinates);
+    setCoordinates(updatedServiceAreas[index].coordinates); // Use updatedServiceAreas
     setTimeout(() => setShowDrawingManager(true), 500);
   };
 
@@ -130,7 +131,7 @@ const ServiceAreasTab = () => {
         ...updated[index],
         coordinates: newCoordinates
       };
-      console.log(updated);
+      console.log("updated on tab", updated);
       return updated;
     });
   };
@@ -180,7 +181,9 @@ const ServiceAreasTab = () => {
           <ServiceAreaForm
             onSave={handleSave}
             initialData={selectedItem}
-            coordinates={coordinates || selectedItem?.coordinates}
+            coordinates={selectedItem ? 
+              updatedServiceAreas[serviceAreas.findIndex(a => a.id === selectedItem.id)]?.coordinates 
+              : coordinates}
           />
         )}
       </div>

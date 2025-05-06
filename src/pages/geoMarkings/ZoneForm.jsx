@@ -6,8 +6,6 @@ import {
   Typography,
   Alert,
 } from '@material-tailwind/react';
-import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
 
 const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaId }) => {
   const [formData, setFormData] = useState({
@@ -28,15 +26,12 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
         throw new Error('Please draw a valid polygon with at least 3 points');
       }
 
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        type: 'Zone',
+      onSave({
+        ...formData,
+        coordinates,
         parent_id: serviceAreaId,
-        coordinates: coordinates,
-      };
-      console.log(payload);
-      onSave(payload);
+        type: 'Zone'
+      });
     } catch (err) {
       console.log(err);
       setError(err.message);

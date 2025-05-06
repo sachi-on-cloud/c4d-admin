@@ -111,13 +111,16 @@ const ZonesTab = () => {
 
   const handleSave = async (formData) => {
     try {
+      console.log(formData);
       if (selectedItem) {
         const index = zones.findIndex(zone => zone.id === selectedItem.id);
         if (index !== -1) {
           const response = await ApiRequestUtils.update(`${API_ROUTES.GEO_MARKINGS}/${selectedItem.id}`, {
             ...selectedItem,
             ...formData,
-            coordinates: coordinates || updatedZones[index].coordinates
+            coordinates: updatedZones[index].coordinates,
+            type: 'Zone',
+            parent_id: selectedServiceArea
           });
           
           if (!response?.success) {
@@ -125,9 +128,10 @@ const ZonesTab = () => {
           }
         }
       } else {
-        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS, {
+        const response = await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS_CREATE, {
           ...formData,
           coordinates: coordinates,
+          type: 'Zone',
           parent_id: selectedServiceArea
         });
         
@@ -142,15 +146,15 @@ const ZonesTab = () => {
       await fetchZones();
       handleCancel();
     } catch (err) {
-      console.log(err);
       setError(err.message);
     }
   };
 
   const handleEdit = (zone) => {
+    const index = zones.findIndex(z => z.id === zone.id);
     setSelectedItem(zone);
     setShowForm(true);
-    setCoordinates(zone.coordinates);
+    setCoordinates(updatedZones[index].coordinates);
     setTimeout(() => setShowDrawingManager(true), 500);
   };
 
@@ -174,7 +178,7 @@ const ZonesTab = () => {
   };
 
   const handleServiceAreaChange = (value) => {
-    setSelectedServiceArea(value);
+    setSelectedServiceArea(String(value));
     setError(null);
   };
 
@@ -214,7 +218,9 @@ const ZonesTab = () => {
           <ZoneForm
             onSave={handleSave}
             initialData={selectedItem}
-            coordinates={coordinates || selectedItem?.coordinates}
+            coordinates={selectedItem ? 
+              updatedZones[zones.findIndex(z => z.id === selectedItem.id)]?.coordinates 
+              : coordinates}
             serviceAreaId={selectedServiceArea}
           />
         )}

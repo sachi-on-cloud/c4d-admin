@@ -240,6 +240,11 @@ const GoogleMapDrawing = ({
                   handlePolygonPathChange(polygonRefs.current[index], index);
                 }
               }}
+              onChange={() => {
+                if (polygonRefs.current[index]) {
+                  handlePolygonPathChange(polygonRefs.current[index], index);
+                }
+              }}
               onRightClick={() => handlePolygonDelete(index)}
             />
           ))}

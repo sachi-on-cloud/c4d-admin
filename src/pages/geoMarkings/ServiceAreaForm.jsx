@@ -6,8 +6,6 @@ import {
   Typography,
   Alert,
 } from '@material-tailwind/react';
-import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES } from '@/utils/constants';
 
 const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => {
   const [formData, setFormData] = useState({
@@ -27,26 +25,10 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
         throw new Error('Please draw a valid polygon with at least 3 points');
       }
 
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        type: 'Service Area',
-        coordinates: coordinates,
-      };
-
-      const response = initialData?.id 
-        ? await ApiRequestUtils.update(`${API_ROUTES.GEO_MARKINGS}/${initialData.id}`, payload)
-        : await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS, payload);
-      
-      if (response?.success) {
-        onSave({
-          ...formData,
-          id: initialData?.id || response.data?.id,
-          coordinates
-        });
-      } else {
-        throw new Error(response?.message || `Failed to ${initialData ? 'update' : 'create'} service area`);
-      }
+      onSave({
+        ...formData,
+        coordinates
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -91,7 +73,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
         <Button 
           type="submit" 
           className="mt-4"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !coordinates}
         >
           {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Service Area
         </Button>
