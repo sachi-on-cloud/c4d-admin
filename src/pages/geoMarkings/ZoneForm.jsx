@@ -11,9 +11,31 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
+    config_data: {
+      ride_minimum_surcharge: initialData?.config_data?.ride_minimum_surcharge || 0,
+      rental_minimum_surcharge: initialData?.config_data?.rental_minimum_surcharge || 0,
+      ride_trip_amount_surcharge_percentage: initialData?.config_data?.ride_trip_amount_surcharge_percentage || 0,
+      rental_trip_amount_surcharge_percentage: initialData?.config_data?.rental_trip_amount_surcharge_percentage || 0,
+      off_time_surcharge_percentage: initialData?.config_data?.off_time_surcharge_percentage || 0,
+    }
   });
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleConfigChange = (field, value) => {
+    // Convert to number and validate
+    const numValue = parseFloat(value);
+    // Only update if it's a valid number or empty string (for user typing)
+    if (!isNaN(numValue) || value === '') {
+      setFormData(prev => ({
+        ...prev,
+        config_data: {
+          ...prev.config_data,
+          [field]: value === '' ? 0 : numValue
+        }
+      }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,9 +43,29 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
     setIsSubmitting(true);
 
     try {
-      console.log(coordinates);
       if (!coordinates || coordinates.length < 3) {
         throw new Error('Please draw a valid polygon with at least 3 points');
+      }
+
+      // Validate percentage fields are between 0 and 100
+      const percentageFields = [
+        'ride_trip_amount_surcharge_percentage',
+        'rental_trip_amount_surcharge_percentage',
+        'off_time_surcharge_percentage'
+      ];
+
+      for (const field of percentageFields) {
+        if (formData.config_data[field] < 0 || formData.config_data[field] > 100) {
+          throw new Error(`${field.replace(/_/g, ' ').toUpperCase()} must be between 0 and 100`);
+        }
+      }
+
+      // Validate minimum surcharge amounts are not negative
+      if (formData.config_data.ride_minimum_surcharge < 0) {
+        throw new Error('Ride minimum surcharge cannot be negative');
+      }
+      if (formData.config_data.rental_minimum_surcharge < 0) {
+        throw new Error('Rental minimum surcharge cannot be negative');
       }
 
       onSave({
@@ -74,9 +116,94 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
             placeholder="Enter description"
           />
         </div>
+
+        {/* Surcharge Configuration Section */}
+        <div className="mt-4">
+          <Typography variant="h6" color="blue-gray" className="mb-4">
+            Surcharge Configuration
+          </Typography>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Minimum Surcharge Amounts */}
+            <div>
+              <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
+                Ride Minimum Surcharge Amount
+              </Typography>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.config_data.ride_minimum_surcharge}
+                onChange={(e) => handleConfigChange('ride_minimum_surcharge', e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+            
+            <div>
+              <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
+                Rental Minimum Surcharge Amount
+              </Typography>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.config_data.rental_minimum_surcharge}
+                onChange={(e) => handleConfigChange('rental_minimum_surcharge', e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Percentage Based Surcharges */}
+            <div>
+              <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
+                Ride Trip Amount Based Surcharge (%)
+              </Typography>
+              <Input
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                value={formData.config_data.ride_trip_amount_surcharge_percentage}
+                onChange={(e) => handleConfigChange('ride_trip_amount_surcharge_percentage', e.target.value)}
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
+                Rental Trip Amount Based Surcharge (%)
+              </Typography>
+              <Input
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                value={formData.config_data.rental_trip_amount_surcharge_percentage}
+                onChange={(e) => handleConfigChange('rental_trip_amount_surcharge_percentage', e.target.value)}
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
+                Off Time Surcharge (%)
+              </Typography>
+              <Input
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                value={formData.config_data.off_time_surcharge_percentage}
+                onChange={(e) => handleConfigChange('off_time_surcharge_percentage', e.target.value)}
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </div>
+
         <Button 
           type="submit" 
-          className="mt-4"
+          className="mt-6"
           disabled={isSubmitting || !coordinates}
         >
           {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Zone

@@ -178,7 +178,7 @@ const ZonesTab = () => {
   };
 
   const handleServiceAreaChange = (value) => {
-    setSelectedServiceArea(String(value));
+    setSelectedServiceArea(value);
     setError(null);
   };
 
@@ -250,7 +250,7 @@ const ZonesTab = () => {
           onChange={handleServiceAreaChange}
         >
           {serviceAreas.map((area) => (
-            <Option key={area.id} value={area.id}>
+            <Option key={area.id} value={String(area.id)}>
               {area.name}
             </Option>
           ))}
