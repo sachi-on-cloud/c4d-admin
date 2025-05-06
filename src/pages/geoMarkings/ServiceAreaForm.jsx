@@ -4,17 +4,54 @@ import {
   Input,
   Button,
   Typography,
+  Alert,
 } from '@material-tailwind/react';
+import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import { API_ROUTES } from '@/utils/constants';
 
-const ServiceAreaForm = ({ onSave, initialData = null }) => {
+const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
   });
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      if (!coordinates || coordinates.length < 3) {
+        throw new Error('Please draw a valid polygon with at least 3 points');
+      }
+
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+        type: 'Service Area',
+        coordinates: coordinates,
+      };
+
+      const response = initialData?.id 
+        ? await ApiRequestUtils.update(`${API_ROUTES.GEO_MARKINGS}/${initialData.id}`, payload)
+        : await ApiRequestUtils.post(API_ROUTES.GEO_MARKINGS, payload);
+      
+      if (response?.success) {
+        onSave({
+          ...formData,
+          id: initialData?.id || response.data?.id,
+          coordinates
+        });
+      } else {
+        throw new Error(response?.message || `Failed to ${initialData ? 'update' : 'create'} service area`);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -22,6 +59,11 @@ const ServiceAreaForm = ({ onSave, initialData = null }) => {
       <Typography variant="h6" color="blue-gray" className="mb-4">
         Service Area Details
       </Typography>
+      {error && (
+        <Alert color="red" className="mb-4">
+          {error}
+        </Alert>
+      )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
@@ -46,8 +88,12 @@ const ServiceAreaForm = ({ onSave, initialData = null }) => {
             placeholder="Enter description"
           />
         </div>
-        <Button type="submit" className="mt-4">
-          {initialData ? 'Update' : 'Save'} Service Area
+        <Button 
+          type="submit" 
+          className="mt-4"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Service Area
         </Button>
       </form>
     </Card>
