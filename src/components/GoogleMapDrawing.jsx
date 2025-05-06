@@ -31,7 +31,7 @@ const drawingManagerOptions = {
   drawingControl: true,
   drawingControlOptions: {
     position: 2, // TOP_CENTER
-    drawingModes: ['polygon','circle']
+    drawingModes: ['polygon']
   },
   polygonOptions: {
     fillColor: '#82CFFD',

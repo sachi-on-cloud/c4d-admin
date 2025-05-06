@@ -21,9 +21,31 @@ const ZonesTab = () => {
   const [serviceAreas, setServiceAreas] = useState([]);
   const [selectedServiceArea, setSelectedServiceArea] = useState(null);
 
-  // Fetch service areas on component mount
+  // Fetch service areas on component mount and when tab gains focus
   useEffect(() => {
     fetchServiceAreas();
+
+    // Function to handle visibility change
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchServiceAreas();
+      }
+    };
+
+    // Function to handle focus
+    const handleFocus = () => {
+      fetchServiceAreas();
+    };
+
+    // Add event listeners
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   // Fetch zones whenever selected service area changes
@@ -111,7 +133,6 @@ const ZonesTab = () => {
 
   const handleSave = async (formData) => {
     try {
-      console.log(formData);
       if (selectedItem) {
         const index = zones.findIndex(zone => zone.id === selectedItem.id);
         if (index !== -1) {
