@@ -60,6 +60,7 @@ const GoogleMapDrawing = ({
   });
 
   const [map, setMap] = useState(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
   const drawingManagerRef = useRef(null);
   const polygonRefs = useRef([]);
 
@@ -79,23 +80,15 @@ const GoogleMapDrawing = ({
   const onMapLoad = useCallback((map) => {
     console.log('Map loaded');
     setMap(map);
+    map.setCenter(defaultCenter);
     
-    // Try to get user's location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          map.setCenter(userLocation);
-        },
-        () => map.setCenter(defaultCenter)
-      );
-    } else {
-      map.setCenter(defaultCenter);
-    }
   }, []);
+
+  useEffect(() => {
+    if (map) {
+      setIsMapLoaded(true);
+    }
+  }, [map]);
 
   const handlePolygonComplete = useCallback((polygon) => {
     console.log('Polygon completed');
@@ -177,20 +170,20 @@ const GoogleMapDrawing = ({
           options={mapOptions}
           onLoad={onMapLoad}
         >
-          <DrawingManager
+         {isMapLoaded && <DrawingManager
             onLoad={onLoadDrawingManager}
             onUnmount={onUnmountDrawingManager}
             options={drawingManagerOptions}
             onPolygonComplete={handlePolygonComplete}
-          />
+          />}
           
-          {existingPolygons.map((polygonCoords, index) => (
+          {isMapLoaded && existingPolygons.map((polygonCoords, index) => (
             <Polygon
               key={index}
               path={polygonCoords}
               options={{
-                fillColor: '#00FF00',
-                fillOpacity: 0.3,
+                fillColor: '#FF0000',
+                fillOpacity: 0.8,
                 strokeColor: '#00FF00',
                 strokeWeight: 2,
                 clickable: true,
@@ -203,6 +196,7 @@ const GoogleMapDrawing = ({
             />
           ))}
         </GoogleMap>
+        
       </div>
     </div>
   );
