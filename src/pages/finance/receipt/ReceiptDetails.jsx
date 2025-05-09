@@ -43,7 +43,9 @@ const ReceiptDetails = () => {
         paymentMethod: receipt?.paymentType || "",
         totalAmount: receipt?.amount || "",
         ownerName: receipt?.Subscription?.Cab?.Account?.name || '',
-        ownerPhoneNumber : receipt?.Subscription?.Cab?.Account?.phone_number || ''
+        ownerPhoneNumber : receipt?.Subscription?.Cab?.Account?.phone_number || '',
+        status: receipt?.Subscription?.status || "",
+        subscriptionId: receipt ?. subscriptionId || "",
     };
 
     function formatDate(isoDateString) {
@@ -113,6 +115,14 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Package Type</label>
                                         <Field type="text" disabled name="packageType" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>}
+                                    <div className='space-y-1'>
+                                        <label className="text-sm font-medium text-gray-700">Status</label>
+                                        <Field type="text" disabled name="status" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
+                                    </div>
+                                    <div className='space-y-1'>
+                                        <label className="text-sm font-medium text-gray-700">Contract Number</label>
+                                        <Field type="text" disabled name="subscriptionId" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
+                                    </div>
                                     {<><div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Driver Name</label>
                                         <Field type="text" disabled name="driverName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />

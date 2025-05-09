@@ -43,8 +43,9 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                             "Created At",
                                             "Driver Name",
                                             "Insurance Expiry Date",
-                                            // "Assign/Reassign"
-                                        ].map((el, index) => (
+                                            "Assign/Reassign"
+                                        ].filter((el) => !(type === 'Individual' && el === "Assign/Reassign"))
+                                        .map((el, index) => (
                                             <th
                                                 key={index}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -97,15 +98,20 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                                 {moment(insurance).format("DD-MM-YYYY")}
                                                             </Typography>
                                                         </td>
-                                                        {/* <td className={className}>
-                                                        {Drivers?.length>0 && <Button
-                                                            as="a"
-                                                            onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
-                                                            className="text-xs font-semibold text-white"
-                                                            >
-                                                            RE ASSIGN
-                                                            </Button>}
-                                                        </td> */}
+                                                        <td className={className}>
+                                                            {Drivers?.length > 0 && (
+                                                                (type === 'Company') || (type === 'Individual' && cabsList?.length < 1)
+                                                            ) && (
+                                                                    <Button
+                                                                        as="a"
+                                                                        onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
+                                                                        className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                                    >
+                                                                        RE ASSIGN
+                                                                    </Button>
+                                                                )}
+
+                                                        </td>
                                                     </tr>
                                                 </>
                                             );

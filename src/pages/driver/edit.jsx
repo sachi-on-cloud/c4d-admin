@@ -987,7 +987,7 @@ const DriverEdit = () => {
                                                     fullDocVal={imagePreviews.drivingLicenseImage}
                                                     image2={imagePreviews.drivingLicenseImage?.image2}
                                                 />
-                                                <DocumentUpload
+                                                {/* <DocumentUpload
                                                     label="Pan Image"
                                                     value={imagePreviews.panImage?.image1}
                                                     name="panImage"
@@ -995,7 +995,7 @@ const DriverEdit = () => {
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.panImage}
                                                     image2={imagePreviews.panImage?.image2}
-                                                />
+                                                /> */}
                                                 {/* <DocumentUpload
                                                     label="Consent Form Image"
                                                     value={imagePreviews.consentForm?.image1}

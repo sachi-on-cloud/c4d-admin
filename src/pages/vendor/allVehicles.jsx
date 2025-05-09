@@ -97,7 +97,7 @@ export function AllVehicles() {
       <Card>
         {cabs.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 flex-1 justify-between items-center">
+            <CardHeader variant="gradient" color="blue" className="mb-8 p-6 flex-1 justify-between items-center bg-[#1A73E8]">
               <Typography variant="h6" color="white">
                 All Vehicles List
               </Typography>
@@ -113,7 +113,7 @@ export function AllVehicles() {
                       >
                         <Typography
                           variant="small"
-                          className="text-[11px] font-bold uppercase text-blue-gray-400"
+                          className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
@@ -176,7 +176,7 @@ export function AllVehicles() {
                           </td>
                           <td className={className}>
                             <Chip
-                              variant="gradient"
+                              variant="ghost"
                               color={status == "ACTIVE" ? "green" : "blue-gray"}
                               value={status == "ACTIVE" ? "online" : "offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
@@ -196,7 +196,7 @@ export function AllVehicles() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/vendors/account/allVehicles/edit/${id}`)}
-                                className="text-xs font-semibold text-white"
+                                className="text-xs font-semibold text-white bg-[#1A73E8]"
                               >
                                 Edit
                               </Button>
@@ -205,7 +205,7 @@ export function AllVehicles() {
                               <Button
                                 as="a"
                                 onClick={() => { updateCabs(id, status) }}
-                                className="text-xs font-semibold text-white"
+                                className="text-xs font-semibold text-white bg-[#1A73E8]"
                               >
                                 {status == "ACTIVE" ? "Mark Offline" : "Mark Online"}
                               </Button>
@@ -214,7 +214,7 @@ export function AllVehicles() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
-                                className="text-xs font-semibold text-white"
+                                className="text-xs font-semibold text-white bg-[#1A73E8]"
                               >
                                 RE ASSIGN
                               </Button>
@@ -229,7 +229,7 @@ export function AllVehicles() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+          <CardHeader variant="gradient" color="blue" className="mb-8 p-6 bg-[#1A73E8]">
             <Typography variant="h6" color="white">
               No Vehicles Added
             </Typography>

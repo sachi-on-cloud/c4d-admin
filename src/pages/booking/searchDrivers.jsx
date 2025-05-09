@@ -352,7 +352,7 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {["Name", "Phone Number", "Cab Type", "Price Offered", "Trip Count", "Status", "Assign/Reassign"].map((el) => (
+                                            {["Name", "Phone Number", "Cab Type", "Price Offered", "Local Count" , "Outstation Count",  "Status", "Assign/Reassign"].map((el) => ( //"Trip Count",
                                                 <th
                                                     key={el}
                                                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -369,7 +369,7 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.map(
-                                            ({ id, name, status, carType, priceOffered, tripCount, phoneNumber, Drivers, fullData }, key) => {
+                                            ({ id, name, status, carType, priceOffered, outstationCount,intercityCount, tripCount, phoneNumber, Drivers, fullData }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -405,11 +405,23 @@ export function SearchDrivers(props) {
                                                                 {priceOffered}
                                                             </Typography>
                                                         </td>
+
                                                         <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {intercityCount}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {outstationCount}
+                                                            </Typography>
+                                                        </td>
+
+                                                        {/* <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {tripCount}
                                                             </Typography>
-                                                        </td>
+                                                        </td> */}
                                                         <td className={className}>
                                                             <Chip
                                                                 variant="ghost"
