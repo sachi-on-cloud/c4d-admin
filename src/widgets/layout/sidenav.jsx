@@ -320,6 +320,7 @@ const toggleSubMenu = (subMenu) =>
                     {[
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
+                      {label: "GeoMarkings", path:"/dashboard/admin/geo-markings"},
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>

@@ -66,6 +66,7 @@ import MasterPriceTableEdit from "./pages/finance/masterPriceTable/MasterPriceTa
 import RentalsPriceMasterAdd from "./pages/finance/masterPriceTable/RentalsMasterPriceAdd";
 import RentalsPriceMasterDetails from "./pages/finance/masterPriceTable/RentalsMasterPriceDetails";
 import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMasterPriceEdit";
+import GeoMarkings from "./pages/geoMarkings/geoMarkings";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -527,6 +528,13 @@ export const routes = [
         path: "/users/master-price/rides-edit/:id",
         element: <MasterPriceTableEdit />,
         display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "geo-markings",
+        path: "/admin/geo-markings",
+        element: <GeoMarkings />,
+        display: true
       },
     ],
   },
