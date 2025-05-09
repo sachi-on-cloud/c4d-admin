@@ -7,14 +7,21 @@ import {
     CardBody,
     CardHeader,
     Typography,
+    Popover,
+    PopoverHandler,
+    PopoverContent,
+    Checkbox
 } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
+import { FaFilter } from 'react-icons/fa';
 
 export function InvoiceList() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [invoiceList, setInvoiceList] = useState([]);
     const [allAccounts, setAllAccounts] = useState([]);
+    const [invoiceTypeFilter, setInvoiceTypeFilter]= useState(['All']);
+    const [paymentStatusFilter, setPaymentStatusFilter]= useState(['All']);  
 
     useEffect(() => {
         const fetchData = async () => {
@@ -58,7 +65,65 @@ export function InvoiceList() {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     }
+const handleFilterChange = (filterType,value) => {
+    if(filterType === 'status')
+    {
+        setPaymentStatusFilter(prev => {
+            if(value === 'All')
+            {
+                return['All']
+            }
+            else {
+                const newFilter = prev.includes(value) ?
+                prev.filter(item => item !== value) :
+                [...prev.filter(item => item !== 'All'), value];
+                return newFilter.length === 0 ? ['All'] : newFilter;
+            }
+        })
+    }
+    else if(filterType === "Subscription")
+    {
+        setInvoiceTypeFilter(prev => {
+            if(value === 'All')
+            {
+                return['All']
+            }
+            else {
+                const newFilter = prev.includes(value) ?
+                prev.filter(item => item !== value) :
+                [...prev.filter(item => item !== 'All') , value];
+                return newFilter.length === 0 ? ['All'] : newFilter
+            }
+        })
 
+    }
+}
+const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <div className="flex items-center cursor-pointer">
+          <Typography variant="small" className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}>
+            {title}
+          </Typography>
+          <FaFilter className="text-black text-xs" />
+        </div>
+      </PopoverHandler>
+      <PopoverContent className="p-2">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center mb-2">
+            <Checkbox
+              color="blue"
+              checked={selectedFilters.includes(option.value)}
+              onChange={() => onFilterChange(option.value)}
+            />
+            <Typography color="blue-gray" className="font-medium ml-2">
+              {option.label}
+            </Typography>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
     return (
         <div className="mb-8 flex flex-col gap-12">
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
@@ -95,18 +160,49 @@ export function InvoiceList() {
                                                 key={el}
                                                 className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                             >
-                                                <Typography
-                                                    variant="small"
-                                                    className="text-[11px] font-bold uppercase text-black"
-                                                >
-                                                    {el}
-                                                </Typography>
+                                                {el === "Status" ? (
+                                                    <FilterPopover
+                                                        title={el}
+                                                        options={[
+                                                            { value: "All", label: "All" },
+                                                            { value: "PAYMENT_COMPLETED", label: "Payment Completed" },
+                                                            { value: "PAYMENT_PENDING", label: "Payment Pending" },
+                                                            { value: "PAYMENT_CANCELLED", label: "Payment Cancelled" }
+                                                        ]}
+                                                        selectedFilters={paymentStatusFilter}
+                                                        onFilterChange={(value) => handleFilterChange("status", value)}
+                                                    />
+                                                ) : el === "Invoice Type" ? (
+                                                    <FilterPopover 
+                                                    title={el}
+                                                    options={[
+                                                        { value: 'All' , label: 'All'},
+                                                        { value: "Free Plan",label:"Free Plan" },
+                                                        { value: "Basic Plan",label:"Basic Plan" },
+                                                        { value: "Standard Plan",label:"Standard Plan" },
+                                                        { value: "Premium Plan",label:"Premium Plan" }
+                                                    ]}
+                                                    selectedFilters={invoiceTypeFilter}
+                                                    onFilterChange={(value) => handleFilterChange("Subscription",value) }
+                                                    />
+                                                ) : (
+                                                    <Typography
+                                                        variant="small"
+                                                        className="text-[11px] font-bold uppercase text-black"
+                                                    >
+                                                        {el}
+                                                    </Typography>
+                                                )}
                                             </th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {invoiceList.map((invoice,index) => (
+                                    {invoiceList.filter(invoiceList => 
+                                        (paymentStatusFilter.includes('All') || paymentStatusFilter.includes(invoiceList.status)) &&
+                                        (invoiceTypeFilter.includes('All') || invoiceTypeFilter.includes(invoiceList?.Subscription?.Plan?.name))
+                                    )
+                                    .map((invoice,index) => (
                                         <tr key={index} className="text-sm">
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">

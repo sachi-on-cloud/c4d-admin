@@ -104,7 +104,7 @@ const InvoiceDetails = () => {
                             driverName: invoice?.Subscription?.Cab?.driver_name || '',
                             driverPhoneNumber : invoice?.Subscription?.Cab?.phone_number || '',
                             ownerName: invoice?.Subscription?.Cab?.Account?.name || '',
-                            ownerPhoneNumber : invoice?.Subscription?.Cab?.Account?.phone_number || ''
+                            ownerPhoneNumber : invoice?.Subscription?.Cab?.Account?.phoneNumber || ''
                         }} 
                         enableReinitialize
                     >

@@ -340,7 +340,7 @@ const DriverAdd = () => {
         state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
     );
 
-    const DocumentUpload = ({ label, value, name, onChange, setModalData }) => {
+    const DocumentUpload = ({ label, value, name, onChange, setModalData ,fullDocVal}) => {
         return (
             <tr>
             <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -380,12 +380,12 @@ const DriverAdd = () => {
                         onClick={() => {
                             if (label === 'Live Photo') {
                                 setModalData({
-                                    image: typeof value === "string" ? value : URL.createObjectURL(value)
+                                    image: fullDocVal?.image1
                                 })
                             } else {
                                 setModalData({
-                                    image: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
-                                    image2: typeof value[1] === "string" ? value[1] : URL.createObjectURL(value[1])
+                                    image: fullDocVal?.image1,
+                                    image2: fullDocVal?.image2,
                                 })
                             }
                         }}
@@ -440,6 +440,18 @@ const DriverAdd = () => {
         console.log('formData ->', formData);
         const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
         console.log('DATA IN DOC INSERT :', data);
+        if(data?.success)
+        {
+            console.log(data);
+            setImagePreviews((prev) => ({
+                ...prev,
+                [label]: {
+                    image1: data?.data?.image1 || prev[label]?.image1,
+                    image2: data?.data?.image2 || prev[label]?.image2,
+                    id: data?.data?.id,
+                }
+            }))
+        }
     } catch (err) {
         console.log("ERR - >", err)
     }
@@ -471,6 +483,17 @@ const DriverAdd = () => {
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
 
             console.log('DATA IN DOC INSERT :', data);
+
+            if(data?.success)
+            {
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1:data?.data?.image1 || prev[label]?.image1,
+                        id:data?.data?.id,
+                    }
+                }))
+            }
         }
     }
 
@@ -988,52 +1011,66 @@ const DriverAdd = () => {
                                         <tbody>
                                             <DocumentUpload
                                                 label="Aadhaar Image"
-                                                value={values.aadhaarImage}
+                                                value={imagePreviews.aadhaarImage?.image1}
                                                 name="aadhaarImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.aadhaarImage}
+                                                image2={imagePreviews.aadhaarImage?.image2}
                                             />
                                             <DocumentUpload
                                                 label="PAN Image"
-                                                value={values.panImage}
+                                                value={imagePreviews.panImage?.image1}
                                                 name="panImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.panImage}
+                                                image2={imagePreviews.panImage?.image2}
                                             />
                                             {values.serviceType !== 'OWNER' &&<DocumentUpload
                                                 label="Driving License Image"
-                                                value={values.drivingLicenseImage}
+                                                value={imagePreviews.drivingLicenseImage?.image1}
                                                 name="drivingLicenseImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.drivingLicenseImage}
+                                                image2={imagePreviews.drivingLicenseImage?.image2}
                                             />}
                                             <DocumentUpload
                                                 label="Live Photo"
-                                                value={values.livePhoto}
+                                                value={imagePreviews.livePhoto?.image1}
                                                 name="livePhoto"
                                                 onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.livePhoto}
+                                                image2={imagePreviews.livePhoto?.image2}
                                             />
                                             {values.serviceType !== 'DRIVER' && <DocumentUpload
                                                 label="RC"
-                                                value={values.rc}
+                                                value={imagePreviews.rc?.image1}
                                                 name="rc"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.rc}
+                                                image2={imagePreviews.rc?.image2}
                                             />}
                                             {values.serviceType !== 'DRIVER' &&<DocumentUpload
                                                 label="Insurance"
-                                                value={values.insurance}
+                                                value={imagePreviews.insurance?.image1}
                                                 name="insurance"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.insurance}
+                                                image2={imagePreviews.insurance?.image2}
                                             />}
                                             {values.serviceType !== 'DRIVER' &&<DocumentUpload
                                                 label="Bank Statement"
-                                                value={values.bankStatement}
+                                                value={imagePreviews.bankStatement?.image1}
                                                 name="bankStatement"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.bankStatement}
+                                                image2={imagePreviews.bankStatement?.image2}
                                             />}
                                         </tbody>
                                     </table>

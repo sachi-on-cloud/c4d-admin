@@ -652,7 +652,8 @@ const AccountEdit = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <DocumentUpload
+                                            {values.type === "Individual" && <>
+                                                <DocumentUpload
                                                 label="Driving License Image"
                                                 value={imagePreviews.drivingLicenseImage?.image1}
                                                 name="drivingLicenseImage"
@@ -660,6 +661,8 @@ const AccountEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.drivingLicenseImage}
                                             />
+                                            </>}
+                                            
                                             <DocumentUpload
                                                 label="Aadhaar Image"
                                                 value={imagePreviews.aadhaarImage?.image1}
@@ -668,7 +671,8 @@ const AccountEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.aadhaarImage}
                                             />
-                                            <DocumentUpload
+                                            {values.type !== "Company" && values.type !== "Individual" && <>
+                                                <DocumentUpload
                                                 label="Pan Card"
                                                 value={imagePreviews.panImage?.image1}
                                                 name="panImage"
@@ -676,6 +680,8 @@ const AccountEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.panImage}
                                             />
+                                            </>}
+                                            
                                             <DocumentUpload
                                                 label="Live Photo"
                                                 value={imagePreviews.livePhoto?.image1}
@@ -692,14 +698,15 @@ const AccountEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.rcImage}
                                             />
-                                            {/* <DocumentUpload
+                                            {values.type !== "Company" && values.type !== "Individual" && <>
+                                                <DocumentUpload
                                                 label="Insurance Image"
                                                 value={imagePreviews?.insurranceImage?.image1}
                                                 name="insurranceImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage",imagePreviews?.insurranceImage?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.insurranceImage}
-                                            /> */}
+                                            />
                                             <DocumentUpload
                                                 label="Bank Statement"
                                                 value={imagePreviews.bankStatementImage?.image1}
@@ -708,6 +715,8 @@ const AccountEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.bankStatementImage}
                                             />
+                                            </>}
+                                            
                                         </tbody>
                                     </table>
                                 </CardBody>

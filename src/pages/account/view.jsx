@@ -267,8 +267,8 @@ export function AccountView() {
                             title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "InActive", label: "Offline" },
-                              { value: "Active", label: "Online" }
+                              { value: "InActive", label: "InActive" },
+                              { value: "Active", label: "Active" }
                             ]}
                             selectedFilters={statusFilter}
                             onFilterChange={(value) => handleFilterChange("ownerStatus", value)}

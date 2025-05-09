@@ -149,7 +149,7 @@ const AccountAdd = (props) => {
     }));
 
     
-    const DocumentUpload = ({ label, value, name, onChange, setModalData }) => {
+    const DocumentUpload = ({ label, value, name, onChange, setModalData,fullDocVal }) => {
         return (
             <tr>
             <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -189,18 +189,13 @@ const AccountAdd = (props) => {
                             onClick={() => {
                                 if (label === 'Live Photo' || label === 'Bank Statement') {
                                     setModalData({
-                                        image1: typeof value === "string" ? value : URL.createObjectURL(value),
+                                        image1: fullDocVal?.image1
                                     });
                                 } 
-                                // else if (label === 'Bank Statement') {
-                                //     setModalData({
-                                //         image1: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
-                                //     });
-                                // } 
                                 else {
                                     setModalData({
-                                        image1: typeof value[0] === "string" ? value[0] : URL.createObjectURL(value[0]),
-                                        image2: typeof value[1] === "string" ? value[1] : URL.createObjectURL(value[1]),
+                                        image1: fullDocVal?.image1,
+                                        image2: fullDocVal?.image2,
                                     });
                                 }
                             }}
@@ -290,6 +285,19 @@ const AccountAdd = (props) => {
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
 
             console.log('DATA IN DOC INSERT :', data);
+
+            if(data?.success)
+            {
+                console.log(data);
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]:{
+                        image1:data?.data?.image1 || prev[label]?.image1,
+                        image2:data?.data?.image1 || prev[label]?.image2,
+                        id:data?.data?.id,
+                    }
+                }))
+            }
         }
         catch (err)
         {
@@ -323,6 +331,18 @@ const AccountAdd = (props) => {
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
     
             console.log('DATA IN DOC INSERT :', data);
+
+
+            if(data?.success)
+            {
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]:{
+                        image1:data?.data?.image1 || prev[label]?.image1,
+                        id:data?.data?.id,
+                    }
+                }))
+            }
         }
     };
 
@@ -614,55 +634,73 @@ const AccountAdd = (props) => {
                                             </tr>
                                         </thead>
                                         <tbody>
+                                        {values.type === "Individual" && <>
                                             <DocumentUpload
                                                 label="Driving License Image"
-                                                value={values.drivingLicenseImage}
+                                                value={imagePreviews.drivingLicenseImage?.image1}
                                                 name="drivingLicenseImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.drivingLicenseImage}
+                                                image2={imagePreviews.drivingLicenseImage?.image2}
                                             />
+                                        </>}
                                             <DocumentUpload
                                                 label="Aadhaar Image"
-                                                value={values.aadhaarImage}
+                                                value={imagePreviews.aadhaarImage?.image1}
                                                 name="aadhaarImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.aadhaarImage}
+                                                image2={imagePreviews.aadhaarImage?.image2}
                                             />
+                                             {values.type !== "Company" && values.type !== "Individual" && <>
                                             <DocumentUpload
                                                 label="PAN Image"
-                                                value={values.panImage}
+                                                value={imagePreviews.panImage?.image1}
                                                 name="panImage"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.panImage}
+                                                image2={imagePreviews.panImage?.image2}
                                             />
+                                            </>}
                                             <DocumentUpload
                                                 label="Live Photo"
-                                                value={values.livePhoto}
+                                                value={imagePreviews.livePhoto?.image1}
                                                 name="livePhoto"
                                                 onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.livePhoto}
+                                                image2={imagePreviews.livePhoto?.image2}
                                             />
                                             <DocumentUpload
                                                 label="RC"
-                                                value={values.rc}
+                                                value={imagePreviews.rc?.image1}
                                                 name="rc"
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.rc}
+                                                image2={imagePreviews.rc?.image2}
                                             />
-                                            {/* <DocumentUpload
+                                            {values.type !== "Company" && values.type !== "Individual" && <>
+                                            <DocumentUpload
                                                 label="Insurance"
                                                 value={values.insurance}
                                                 name="insurance"
                                                 onChange={(e) => handleUpload(e, setFieldValue, "insurance")}
                                                 setModalData={setModalData}
-                                            /> */}
+                                            />
                                             <DocumentUpload
                                                 label="Bank Statement"
-                                                value={values.bankStatement}
+                                                value={imagePreviews.bankStatement?.image1}
                                                 name="bankStatement"
                                                 onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement")}
                                                 setModalData={setModalData}
+                                                fullDocVal={imagePreviews.bankStatement}
+                                                image2={imagePreviews.bankStatement?.image2}
                                             />
+                                            </>}
                                         </tbody>
                                     </table>
                                 </CardBody>
