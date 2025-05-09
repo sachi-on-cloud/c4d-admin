@@ -15,19 +15,20 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import Swal from "sweetalert2";
 
-const DocumentsList = ({ id, type, noApprove = true }) => {
+const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
     const [isDeclining, setIsDeclining] = useState(false);
     const [declineReason, setDeclineReason] = useState("");
+    const [cabs, setCabs] = useState(cabsList);
 
     const fetchData = async () => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
             "id": id,
             "user": type.toLowerCase()
         })
-        console.log("DATA IN DETAILS DOC", data);
+        //console.log("DATA IN DETAILS DOC", data);
         if (data.success) {
             setdocumentData(data?.data?.Proofs);
         }
@@ -162,7 +163,8 @@ const DocumentsList = ({ id, type, noApprove = true }) => {
                                                                                 image: image1,
                                                                                 image2: image2,
                                                                                 status,
-                                                                                User
+                                                                                User,
+                                                                                type
                                                                             });
                                                                         }}
                                                                     >
@@ -298,7 +300,22 @@ const DocumentsList = ({ id, type, noApprove = true }) => {
                             {!isDeclining ? (
                                 <div className="flex space-x-5">
                                     <Button
-                                        onClick={() => handleStatusChange(modalData.id, "APPROVED", "")}
+                                        onClick={() => {
+                                            if ((modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? cabs.length > 0 : true) {
+                                                handleStatusChange(modalData.id, "APPROVED", "")
+                                            } else {
+                                                setModalData(null);
+                                                setDeclineReason("");
+                                                setIsDeclining("");
+                                                Swal.fire({
+                                                    position: "top-end",
+                                                    icon: "error",
+                                                    title: "Please add cab first to approve this document.",
+                                                    showConfirmButton: false,
+                                                    timer: 1500
+                                                });
+                                            }
+                                        }}
                                         className="text-xs font-semibold text-black bg-white border border-black px-4 py-2"
                                     >
                                         Approve

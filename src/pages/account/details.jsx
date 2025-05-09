@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles} from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
@@ -9,7 +9,7 @@ import OwnersCabList from '@/components/OwnersCabList';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
 
-const AccountDetails = ({btnShow = false, noApprove = false }) => {
+const AccountDetails = ({ btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
     const [accountVal, setAccountVal] = useState({});
     const { id } = useParams();
@@ -17,7 +17,7 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
         if (id) {
             fetchItem(id);
         }
-    }, [id]); 
+    }, [id]);
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
         setAccountVal(data?.data?.data);
@@ -230,10 +230,10 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
                 </Formik>
             </div>
             {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} />}
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} />}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
-            {!btnShow && 
+            {!btnShow &&
                 <div className='flex justify-center w-full'>
                     <Button
                         onClick={() => { navigate('/dashboard/vendors/account'); }}
@@ -241,9 +241,8 @@ const AccountDetails = ({btnShow = false, noApprove = false }) => {
                     >
                         Back
                     </Button>
-                    <Button onClick={()=>{navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`)}} className={`my-6 px-8 border-2 rounded-xl ${
-                        ColorStyles.editButton
-                    }`}>
+                    <Button onClick={() => { navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`) }} className={`my-6 px-8 border-2 rounded-xl ${ColorStyles.editButton
+                        }`}>
                         Edit
                     </Button>
                 </div>
