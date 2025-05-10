@@ -36,7 +36,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
         pincode: accountVal?.pincode || '',
         status: accountVal?.availableStatus || 'Offline',
         ownerStatus: accountVal?.ownerStatus || 'InActive',
-        kycStatus: accountVal?.kycStatus || 'Pending',
+        kycStatus: accountVal?.documentStatus?.status
     };
 
     return (

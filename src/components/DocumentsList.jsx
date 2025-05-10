@@ -301,7 +301,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                 <div className="flex space-x-5">
                                     <Button
                                         onClick={() => {
-                                            if ((modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? cabs.length > 0 : true) {
+                                            if (type !== 'driver' && (modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? cabs.length > 0 : true) {
                                                 handleStatusChange(modalData.id, "APPROVED", "")
                                             } else {
                                                 setModalData(null);
