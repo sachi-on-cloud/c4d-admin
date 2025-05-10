@@ -293,7 +293,7 @@ const AccountAdd = (props) => {
                     ...prev,
                     [label]:{
                         image1:data?.data?.image1 || prev[label]?.image1,
-                        image2:data?.data?.image1 || prev[label]?.image2,
+                        image2:data?.data?.image2 || prev[label]?.image2,
                         id:data?.data?.id,
                     }
                 }))
@@ -313,7 +313,7 @@ const AccountAdd = (props) => {
             reader.onloadend = () => {
                 setImagePreviews((prev) => ({
                     ...prev,
-                    [label]: reader.result, // Update the specific preview
+                    [label]: reader.result,
                 }));
             };
             reader.readAsDataURL(file);

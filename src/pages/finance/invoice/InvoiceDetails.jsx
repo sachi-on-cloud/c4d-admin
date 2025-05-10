@@ -35,7 +35,24 @@ const InvoiceDetails = () => {
             console.error("Error fetching invoice details:", error);
         }
     };
-
+    const initialValues = {
+        invoiceNumber: invoice?.invoiceNumber || '',
+        invoiceType: 'Subscription',
+        invoiceCreatedDate: formatDate(invoice?.created_at) || '',
+        package: invoice?.Subscription?.Plan?.name || '',
+        status: invoice?.status || '',
+        // paymentMethod: invoice?.paymentMethod || '',
+        paymentMethod: 'Online',
+        amount: invoice?.amount || '',
+        driverName: invoice?.Subscription?.Driver?.firstName || '',
+        driverPhoneNumber: invoice?.Subscription?.Driver?.phoneNumber || '',
+        ownerName: invoice?.Subscription?.Cab?.Account?.name || '',
+        ownerPhoneNumber: invoice?.Subscription?.Cab?.Account?.phoneNumber || '',
+        //owner cab driver
+        ownerType: invoice?.Subscription?.Cab?.Account?.type || '',
+        cabDriverName:invoice?.Subscription?.Cab?.Drivers[0]?.firstName || '',
+        cabDriverPhoneNum: invoice?.Subscription?.Cab?.Drivers[0]?.phoneNumber || '',
+    }
     const handleDownloadPDF = () => {
         const input = pdfRef.current;
     
@@ -93,61 +110,61 @@ const InvoiceDetails = () => {
                 <h2 className="text-2xl font-bold mb-4">Invoice Details</h2>
                 <div ref={pdfRef}>
                     <Formik 
-                        initialValues={{     
-                            invoiceNumber: invoice?.invoiceNumber || '',
-                            invoiceType: 'Subscription',
-                            invoiceCreatedDate: formatDate(invoice?.created_at) || '',
-                            package: invoice?.Subscription?.Plan?.name || '',
-                            status: invoice?.status || '',
-                            paymentMethod: invoice?.paymentMethod || '',
-                            amount: invoice?.amount || '',
-                            driverName: invoice?.Subscription?.Cab?.driver_name || '',
-                            driverPhoneNumber : invoice?.Subscription?.Cab?.phone_number || '',
-                            ownerName: invoice?.Subscription?.Cab?.Account?.name || '',
-                            ownerPhoneNumber : invoice?.Subscription?.Cab?.Account?.phoneNumber || ''
-                        }} 
+                       initialValues={initialValues}
                         enableReinitialize
                     >
                         {(values) => (
                             <Form className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className='space-y-1'>
+                                    <div className='space-y-3'>
                                         <label className="text-sm font-medium text-gray-700">Invoice Number</label>
                                         <Field type="text" disabled name="invoiceNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
                                     </div>
-                                    <div className='space-y-1'>
+                                    <div className='space-y-3'>
                                         <label className="text-sm font-medium text-gray-700">Invoice Type</label>
                                         <Field type="text" disabled name="invoiceType" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div className='space-y-1'>
+                                    <div className='space-y-3'>
                                         <label className="text-sm font-medium text-gray-700">Created Date</label>
                                         <Field type="text" disabled name="invoiceCreatedDate" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div className='space-y-1'>
+                                    <div className='space-y-3'>
                                         <label className="text-sm font-medium text-gray-700">Package</label>
                                         <Field type="text" disabled name="package" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    {true && <>
-                                        <div className='space-y-1'>
+                                    {initialValues?.ownerType !== "Individual" && initialValues?.ownerType !== "Company" && <>
+                                        <div className='space-y-3'>
                                             <label className="text-sm font-medium text-gray-700">Driver Name</label>
                                             <Field type="text" disabled name="driverName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
-                                        <div className='space-y-1'>
+                                        <div className='space-y-3'>
                                             <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
                                             <Field type="text" disabled name="driverPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
                                     </>}
-                                    {true && <>
-                                        <div className='space-y-1'>
+                                    {initialValues?.ownerType != "" && <>
+                                        <div className='space-y-3'>
+                                            <label className="text-sm font-medium text-gray-700">Driver Name</label>
+                                            <Field type="text" disabled name="cabDriverName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div>
+                                        <div className='space-y-3'>
+                                            <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
+                                            <Field type="text" disabled name="cabDriverPhoneNum" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div>
+                                        {/* <div className='space-y-1'>
+                                            <label className="text-sm font-medium text-gray-700">Owner Type</label>
+                                            <Field type="text" disabled name="ownerType" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div> */}
+                                        <div className='space-y-3'>
                                             <label className="text-sm font-medium text-gray-700">Owner Name</label>
                                             <Field type="text" disabled name="ownerName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
-                                        <div className='space-y-1'>
+                                        <div className='space-y-3'>
                                             <label className="text-sm font-medium text-gray-700">Owner Phone Number</label>
                                             <Field type="text" disabled name="ownerPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                         </div>
                                     </>}
-                                    <div className='space-y-1'>
+                                    <div className='space-y-3'>
                                         <label className="text-sm font-medium text-gray-700">Status</label>
                                         <Field as="select" name="status" disabled={edit} className="p-2 h-[50px] w-full rounded-md border border-gray-300 bg-white"
                                             onChange={(e) => setStatus(e.target.value)}
@@ -158,11 +175,11 @@ const InvoiceDetails = () => {
                                             <option value="PAYMENT_CANCELLED">Payment Cancelled</option>
                                         </Field>                                    
                                     </div>
-                                    <div className='space-y-1'>
+                                    <div className='space-y-3'>
                                         <label className="text-sm font-medium text-gray-700">Payment Method</label>
                                         <Field type="text" disabled name="paymentMethod" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    <div className='space-y-1'>
+                                    <div className='space-y-3'>
                                         <label className="text-sm font-medium text-gray-700">Amount</label>
                                         <Field type="text" disabled name="amount" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>

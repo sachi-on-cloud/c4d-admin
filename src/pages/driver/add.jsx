@@ -1018,6 +1018,7 @@ const DriverAdd = () => {
                                                 fullDocVal={imagePreviews.aadhaarImage}
                                                 image2={imagePreviews.aadhaarImage?.image2}
                                             />
+                                            {values.serviceType !== 'DRIVER' && 
                                             <DocumentUpload
                                                 label="PAN Image"
                                                 value={imagePreviews.panImage?.image1}
@@ -1026,7 +1027,7 @@ const DriverAdd = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.panImage}
                                                 image2={imagePreviews.panImage?.image2}
-                                            />
+                                            />}
                                             {values.serviceType !== 'OWNER' &&<DocumentUpload
                                                 label="Driving License Image"
                                                 value={imagePreviews.drivingLicenseImage?.image1}
