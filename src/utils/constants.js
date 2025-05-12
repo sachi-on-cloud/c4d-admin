@@ -1067,6 +1067,8 @@ export const WHATSAPP_TRIP_START_TEMPLATE =
     Hello \${customerName},
     Your trip has started with \${driverName}.
 
+    Car Type: \${carType}
+    Start OTP: \${startOtp}
     Start Time: \${startTime}
     Package End Time: \${endTime}
 
@@ -1115,10 +1117,10 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     • Drop: \${drop}
     • Start Time: \${startTime}
     • End Time: \${endTime}
+    • End Otp: \${endOtp}
     • Total Duration: \${totalDuration}
     • Package Duration: \${packageDuration}
     • Extra Time: \${extraTime}
-    • Base Fare: ₹\${baseFare}
     • Extra Charges: ₹\${extraCharges}
     • Total Amount Paid: ₹\${totalAmount}
 

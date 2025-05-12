@@ -242,8 +242,10 @@ export const Utils = {
                     .replace('${bookingNumber}', bookingDetails.bookingNumber)
                     .replace('${customerName}', bookingDetails.Customer.firstName)
                     .replace('${driverName}',driverName)
+                    .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
                     .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
                     .replace('${endTime}', moment(endTime).format('hh:mm A'))
+                    .replace('${startOtp}',bookingDetails.startOtp)
                     .replace('${supportNumber}', supportNumber)
             );
         }
@@ -259,7 +261,7 @@ export const Utils = {
                     .replace('${driverName}', bookingDetails.Driver?.firstName)
                     .replace('${startTime}', Utils.formatTime(bookingDetails.startTime))
                     .replace('${endTime}', (bookingDetails.endTime))
-                    .replace('${baseFare}', bookingDetails.Package.price)
+                    // .replace('${baseFare}', bookingDetails.Package.price)
                     .replace('${extraFareCalculation}', `${bookingDetails.extraHours} hrs × ₹${bookingDetails.extraHourPrice} = ₹${bookingDetails.extraPrice}`)
                     .replace('${totalAmount}', totalFare)
                     .replace('${gpayNumber}', GPAY_NUMBER)
@@ -294,6 +296,7 @@ export const Utils = {
                     .replace('${drop}', bookingDetails.dropAddress?.name ? bookingDetails.dropAddress?.name : 'Not Added')
                     .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
                     .replace('${endTime}', moment(endTime).format('hh:mm A'))
+                    .replace('${endOtp}', bookingDetails.endOtp)
                     .replace('${totalDuration}', isNaN(duration.total) ? "0 hours" : duration.total)
                     .replace('${packageDuration}', `${bookingDetails.Package.period} hours`)
                     .replace('${extraTime}', isNaN(duration.extra) ? "0 hours" : duration.extra)
