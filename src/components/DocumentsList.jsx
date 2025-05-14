@@ -64,7 +64,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
             setIsDeclining("");
             setModalData(null)
             Swal.fire({
-                position: "top-end",
+                position: "center",
                 icon: "success",
                 title: `Document status updated to ${status}`,
                 showConfirmButton: false,
@@ -80,7 +80,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
             setIsDeclining("");
             setModalData(null)
             Swal.fire({
-                position: "top-end",
+                position: "center",
                 icon: "error",
                 title: "Failed to update status. Please try again.",
                 showConfirmButton: false,
@@ -308,7 +308,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                                 setDeclineReason("");
                                                 setIsDeclining("");
                                                 Swal.fire({
-                                                    position: "top-end",
+                                                    position: "center",
                                                     icon: "error",
                                                     title: "Please add cab first to approve this document.",
                                                     showConfirmButton: false,

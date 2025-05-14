@@ -6,11 +6,13 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import MasterPriceLog from './MasterPriceLog';
+import RidesPeakHourTableDetails from './RidesPeakHourTableDetails';
 
 const PriceDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [peakHours, setPeakHours] = useState([])
 
     useEffect(() => {
         fetchPriceDetails();
@@ -36,6 +38,7 @@ const PriceDetails = () => {
                     cancellationCharge: data?.data?.cancelCharge,
                     status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
                 });
+                setPeakHours(data.data.peakHours);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -51,7 +54,7 @@ const PriceDetails = () => {
             <h2 className="text-2xl font-bold mb-4">Pricing Details</h2>
             <Formik initialValues={initialValues} enableReinitialize>
                 {() => (
-                    <Form className="space-y-4">
+                    <Form className="space-y-7">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Base Fare (Mini, SUV, Sedan)</label>
@@ -124,6 +127,7 @@ const PriceDetails = () => {
                                 <Field type="number" name="cancellationCharge" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                         </div>
+                        <RidesPeakHourTableDetails priceData={peakHours}/>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back

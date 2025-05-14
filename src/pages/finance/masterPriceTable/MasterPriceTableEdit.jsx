@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
@@ -7,6 +7,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import Select from 'react-select';
 import { Utils } from '@/utils/utils';
+import RidesPeakHourTableEdit from './RidesPeakHourTableEdit';
 
 const RATE_PARAMETER_OPTIONS = [
     { value: 'RAINY_DAY', label: 'Rainy Day' },
@@ -23,10 +24,14 @@ const STATUS_OPTIONS = [
 ];
 
 const PRICE_SCHEMA = Yup.object().shape({
-    baseFare: Yup.number().required('Base Fare is required'),
-    baseFareMVP: Yup.number().required('Base Fare (MUV) is required'),
-    ratePerKm: Yup.number().required('Rate Per Km is required'),
-    ratePerKmMVP: Yup.number().required('Rate Per Km (MUV) is required'),
+    baseFare: Yup.number().required('Base Fare Mini is required'),
+    baseFareMVP: Yup.number().required('Base Fare MUV is required'),
+    baseFareSedan: Yup.number().required('Base Fare Sedan is required'),
+    baseFareSuv: Yup.number().required('Base Fare Suv is required'),
+    ratePerKm: Yup.number().required('Rate Per Km Mini is required'),
+    ratePerKmMVP: Yup.number().required('Rate Per Km MUV is required'),
+    ratePerKmSuv: Yup.number().required('Rate Per Km Suv is required'),
+    ratePerKmSedan: Yup.number().required('Rate Per Km Sedan is required'),
     ratePerMin: Yup.number().required('Rate Per Min is required'),
     additionalMin: Yup.number().required('Additional Min is required'),
     rateParameter: Yup.string().required('Rate Parameter is required'),
@@ -42,6 +47,8 @@ const PriceEdit = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [peakHours, setPeakHours] = useState([]);
+    const initialPeakHoursRef = useRef([]);
 
     useEffect(() => {
         fetchPriceDetails();
@@ -54,8 +61,12 @@ const PriceEdit = () => {
                 setInitialValues({
                     baseFare: data.data.baseFare,
                     baseFareMVP: data.data.baseFareMVP,
+                    baseFareSedan: data.data.baseFareSedan,
+                    baseFareSuv: data.data.baseFareSuv,
                     ratePerKm: data.data.kilometerPrice,
                     ratePerKmMVP: data.data.kilometerPriceMVP,
+                    ratePerKmSedan: data.data.kilometerPriceSedan,
+                    ratePerKmSuv: data.data.kilometerPriceSuv,
                     ratePerMin: data.data.minCharge,
                     additionalMin: data.data.additionalMinCharge,
                     rateParameter: data.data.rateParameter,
@@ -67,6 +78,8 @@ const PriceEdit = () => {
                     cancellationCharge: data.data.cancelCharge,
                     status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
                 });
+                setPeakHours(data.data.peakHours || []);
+                initialPeakHoursRef.current = data.data.peakHours;
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -77,13 +90,21 @@ const PriceEdit = () => {
         return timeString ? timeString.slice(0, 5) : "";
     };
 
+    const hasPeakHoursChanged = () => {
+        return JSON.stringify(peakHours) !== JSON.stringify(initialPeakHoursRef.current);
+    };
+
     const onSubmit = async (values) => {
         try {
             const reqBody = {
                 packageId:Number(id),
                 baseFare: Number(values.baseFare),
                 baseFareMVP: Number(values.baseFareMVP),
+                baseFareSuv: Number(values.baseFareSuv),
+                baseFareSedan: Number(values.baseFareSedan),
                 kilometerPrice: Number(values.ratePerKm),
+                kilometerPriceSedan: Number(values.ratePerKmSedan),
+                kilometerPriceSuv: Number(values.ratePerKmSuv),
                 kilometerPriceMVP: Number(values.ratePerKmMVP),
                 minCharge: Number(values.ratePerMin),
                 additionalMinCharge: Number(values.additionalMin),
@@ -96,6 +117,7 @@ const PriceEdit = () => {
                 cancelCharge: Number(values.cancellationCharge),
                 status: values.status == 'ACTIVE' ? 1 : 0,
                 serviceType:'RIDES',
+                peakHours: peakHours,
             };
             const response = await ApiRequestUtils.update(API_ROUTES.RIDES_PRICE_EDIT, reqBody);
             if (response?.success) {
@@ -114,24 +136,49 @@ const PriceEdit = () => {
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (Mini, SUV, Sedan)</label>
+                                <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
                                 <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
+                                <label className="text-sm font-medium text-gray-700">Base Fare Sedan</label>
+                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                            <label className="text-sm font-medium text-gray-700">Base Fare SUV</label>
+                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare MUV</label>
                                 <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (Mini, SUV, Sedan)</label>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Mini</label>
                                 <Field type="number" name="ratePerKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="ratePerKm" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MUV)</label>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Sedan</label>
+                                <Field type="number" name="ratePerKmSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="ratePerKmSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km SUV</label>
+                                <Field type="number" name="ratePerKmSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="ratePerKmSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km MUV</label>
                                 <Field type="number" name="ratePerKmMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="ratePerKmMVP" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
+                                <Field type="number" name="ratePerMin" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="ratePerMin" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
@@ -191,11 +238,12 @@ const PriceEdit = () => {
                                 <Field type="number" name="cancellationCharge" className="p-2 w-full rounded-md border-gray-300" />
                             </div>
                         </div>
+                        <RidesPeakHourTableEdit initialPriceData={peakHours} onUpdate={(data)=> setPeakHours(data)}/>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="blue" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="blue" onClick={handleSubmit} disabled={!(dirty || hasPeakHoursChanged()) || !isValid} className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>
