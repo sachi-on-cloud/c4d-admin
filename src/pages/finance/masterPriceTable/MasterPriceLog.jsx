@@ -49,6 +49,22 @@ const MasterPriceLog = ({ id }) => {
         "driver_charge": "Driver Charge"
     };
 
+    const formatPeakHours = (peakHours) => {
+        let hoursArray = Array.isArray(peakHours) ? peakHours : [];
+                if (hoursArray.length > 0 && Array.isArray(hoursArray[0])) {
+            hoursArray = hoursArray[0];
+        }
+        if (!hoursArray || hoursArray.length === 0) {
+            return "-";
+        }
+        return hoursArray
+            .map((hour) => {
+                const { start, end, kilometerPrice, kilometerPriceMVP, kilometerPriceSuv, kilometerPriceSedan } = hour;
+                return `${start}-${end} (Mini: ${kilometerPrice || "-"}, MUV: ${kilometerPriceMVP || "-"}, SUV: ${kilometerPriceSuv || "-"}, Sedan: ${kilometerPriceSedan || "-"})`;
+            })
+            .join(", ");
+    };
+
     return (
         <>
             <div className="flex flex-row justify-between px-2 mb-2 mt-4">
@@ -96,12 +112,12 @@ const MasterPriceLog = ({ id }) => {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {oldData[field] ? oldData[field] : '-' }
+                                                    {field!= "peak_hours" ? oldData[field] ? oldData[field] : '-' : formatPeakHours(oldData[field])}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {newData[field] ? newData[field] : '-' }
+                                                    {field!= "peak_hours" ? newData[field] ? newData[field] : '-' : formatPeakHours(oldData[field])}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
