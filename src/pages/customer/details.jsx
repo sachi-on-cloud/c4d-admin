@@ -5,11 +5,13 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
+import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
 
 const CustomerDetails = () => {
     const navigate = useNavigate();
     const [driverVal, setDriverVal] = useState({});
     const { id } = useParams();
+    const [showMore, setShowMore] = useState(false);
     useEffect(() => {
         if (id) {
             fetchItem(id);
@@ -24,6 +26,13 @@ const CustomerDetails = () => {
         firstName: driverVal?.firstName || '',
         phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         source: driverVal?.source || '',
+
+        tripId: driverVal?.Bookings?.id || '',
+        tripDate: driverVal?.Bookings?.endDate || '',
+        tripTime: driverVal?.Bookings?.endTime || '',
+        driverName: driverVal?.Driver?.firstName || '',
+        rating: driverVal?.Bookings?.CustomerFeedbacks?.rating || '',
+        comment: driverVal?.Bookings?.CustomerFeedbacks?.comments || '',
     };
 
 
@@ -73,6 +82,74 @@ const CustomerDetails = () => {
                                     </Field>
                                     <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                                 </div>
+                            </div>
+                            <div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMore(!showMore)}
+                                    className="text-black-600 text-sm mb-2 p-1  border-blue-gray-100 rounded-lg shadow-sm"
+                                >
+                                    <div className='flex font-medium'>
+                                        {showMore ? (
+                                            <>
+                                                <ChevronUpIcon className="w-5 h-5 ml-0 text-black" />
+                                                View Less
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ChevronDownIcon className="w-5 h-5 ml-0 text-black" />
+                                                View More
+                                            </>
+                                        )}
+                                    </div>
+                                </button>
+                                {showMore && (
+                                    <table className="w-full border border-gray-300 text-sm">
+                                        <thead className="bg-gray-300 text-left">
+                                            <tr>
+                                                <th className="p-2 border">Trip ID</th>
+                                                <th className="p-2 border">End Date</th>
+                                                <th className="p-2 border">End Time</th>
+                                                <th className="p-2 border">Driver Name</th>
+                                                <th className="p-2 border">Rating</th>
+                                                <th className="p-2 border">Comment</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {driverVal?.Bookings?.length > 0 ? (
+                                                driverVal.Bookings.map((trip) => {
+                                                    const rating = trip?.CustomerFeedbacks?.[0]?.rating ?? null;
+                                                    const comment = trip?.CustomerFeedbacks?.[0]?.comments ?? 'No feedback given';
+                                                    const driverName = trip?.Driver?.firstName ?? 'N/A';
+
+                                                    return (
+                                                        <tr key={trip.id}>
+                                                            <td className="p-2 border">{trip.id}</td>
+                                                            <td className="p-2 border">{trip.endDate}</td>
+                                                            <td className="p-2 border">{trip.endTime}</td>
+                                                            <td className="p-2 border">{driverName}</td>
+                                                            <td className="p-2 border flex">
+                                                                {rating !== null ? rating : 'No feedback given'}
+                                                                <StarIcon className="w-5 h-5 text-yellow-500" />
+                                                            </td>
+                                                            <td className="p-2 border">
+                                                            {comment}
+                                                            </td>
+
+                                                        </tr>
+                                                    );
+                                                })
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={6} className="p-2 border text-gray-500 text-center">
+                                                        No trips available.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                )}
 
                             </div>
                         </Form>
