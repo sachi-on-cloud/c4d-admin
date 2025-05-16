@@ -23,6 +23,8 @@ const ConfirmBooking = (props) => {
     const [kms, setKms] = useState();
     const [timeVal, setTimeVal] = useState();
     const [amount, setAmount] = useState();
+    const [customerFeedback, setCustomerFeedback] = useState();
+    const [driverFeedback, setDriverFeedback] = useState();
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -106,6 +108,16 @@ const ConfirmBooking = (props) => {
                     extraKMPrice: data?.data.extraKMPrice,
                     extraNightCharge: data?.data?.extraNightCharge,
                     extraNightChargePrice: data?.data?.extraNightChargePrice,
+                });
+                setCustomerFeedback({
+                    rating: data?.data?.CustomerFeedbacks?.[0]?.rating,
+                    comment: data?.data?.CustomerFeedbacks?.[0]?.comments,
+
+                });
+
+                setDriverFeedback({
+                    rating: data?.data?.Feedbacks?.[0]?.rating,
+                    comment: data?.data?.Feedbacks?.[0]?.message,
                 });
                 setPaymentDetails({
                     paymentCollected: data?.data?.paymentCollected,
@@ -229,6 +241,20 @@ const ConfirmBooking = (props) => {
                             </Typography>
                         </div>
                     </div>
+                        <div className="mt-6">
+                            <Typography variant="h6" className="mb-2">Customer Feedback</Typography>
+                            {customerFeedback ? (
+                                <div className="text-sm">
+                                    <div className="text-yellow-500 text-2xl">
+                                        {"★".repeat(Math.round(customerFeedback.rating)) + "☆".repeat(5 - Math.round(customerFeedback.rating))}
+                                    </div>
+                                    <div className="italic">"{customerFeedback.comment}"</div>
+                                </div>
+                            ) : (
+                                <Typography>No feedback given.</Typography>
+                            )} 
+                        </div>
+
                 </CardBody>
             </Card>
 
@@ -271,6 +297,20 @@ const ConfirmBooking = (props) => {
                                 </Typography>
                             </div>
                         </div>
+                            <div className="mt-6">
+                                <Typography variant="h6" className="mt-4 mb-2">Driver Feedback</Typography>
+                                {driverFeedback ? (
+                                    <div className="text-sm">
+                                        <div className="text-yellow-500 text-2xl">
+                                            {"★".repeat(Math.round(driverFeedback.rating)) + "☆".repeat(5 - Math.round(driverFeedback.rating))}
+                                        </div>
+                                        <div className="italic">"{driverFeedback.comment}"</div>
+                                    </div>
+                                ) : (
+                                    <Typography>No feedback given.</Typography>
+                                )}
+                            </div>
+
                     </CardBody>
                 </Card>
             }
