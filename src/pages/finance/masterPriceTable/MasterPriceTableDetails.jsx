@@ -24,9 +24,13 @@ const PriceDetails = () => {
             if (data?.success) {
                 setInitialValues({
                     baseFare: data?.data?.baseFare,
+                    baseFareSuv: data?.data?.baseFareSuv,
+                    baseFareSedan: data?.data?.baseFareSedan,
                     baseFareMVP: data?.data?.baseFareMVP,
                     ratePerKm: data?.data?.kilometerPrice,
                     ratePerKmMVP: data?.data?.kilometerPriceMVP,
+                    ratePerKmSedan: data?.data?.kilometerPriceSedan,
+                    ratePerKmSuv: data?.data?.kilometerPriceSuv,
                     ratePerMin: data?.data?.minCharge,
                     additionalMin: data?.data?.additionalMinCharge,
                     rateParameter: data?.data?.rateParameter,
@@ -57,20 +61,36 @@ const PriceDetails = () => {
                     <Form className="space-y-7">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (Mini, SUV, Sedan)</label>
-                                <Field type="number" name="baseFare" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
+                                <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
-                                <Field type="number" name="baseFareMVP" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <label className="text-sm font-medium text-gray-700">Base Fare Sedan</label>
+                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (Mini, SUV, Sedan)</label>
-                                <Field type="number" name="ratePerKm" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                            <label className="text-sm font-medium text-gray-700">Base Fare SUV</label>
+                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MUV)</label>
-                                <Field type="number" name="ratePerKmMVP" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <label className="text-sm font-medium text-gray-700">Base Fare MUV</label>
+                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Mini</label>
+                                <Field type="number" name="ratePerKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Sedan</label>
+                                <Field type="number" name="ratePerKmSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km SUV</label>
+                                <Field type="number" name="ratePerKmSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km MUV</label>
+                                <Field type="number" name="ratePerKmMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
