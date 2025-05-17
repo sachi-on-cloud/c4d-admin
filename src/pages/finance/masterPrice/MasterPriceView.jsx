@@ -64,7 +64,8 @@ export function MasterPriceView() {
                                         "Trip Type",
                                         "Hours",
                                         "Round Trip Rate",
-                                        "Drop Only",
+                                        "Drop Only < 50KM",
+                                        "Drop Only < 100KM",
                                         "Round Trip Rate - MUV",
                                         "Night Hours (10PM TO 6AM)",
                                         "Night Charges (10PM TO 6AM)",
@@ -86,7 +87,7 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {localPackageList.map(({ id, serviceType, type, period, dropPrice, priceSUV, addtionalmins, priceMVP, nighthours,nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extraPrice, cancelMins, surCharge, price }, key) => {
+                                {localPackageList.map(({ id, serviceType, type, period, dropPrice, dropPriceAbove,priceSUV, addtionalmins, priceMVP, nighthours,nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extraPrice, cancelMins, surCharge, price }, key) => {
                                     const className = `py-3 px-5 ${key === localPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
                                         <tr key={id}>
@@ -121,6 +122,11 @@ export function MasterPriceView() {
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {dropPrice} Extra
+                                                </Typography>
+                                            </td>
+                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {dropPriceAbove} Extra
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -181,6 +187,8 @@ export function MasterPriceView() {
                                         "Base Fare",
                                         "1 day trip Up to 300KM - Drop only",
                                         "1 day trip Up to 300KM - Round Trip",
+                                        "1 day trip Above 300 KM - Drop only",
+                                        "1 day trip Above 300 KM - Round Trip",
                                         "Additional Hours",
                                         "Night Hours (10PM TO 6AM)",
                                         "Night Charges (10PM TO 6AM)",
@@ -202,7 +210,7 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {outstationPackageList.map(({ id, serviceType, type, price, dropPrice, extraPrice,additionalMinCharge, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
+                                {outstationPackageList.map(({ id, serviceType, type, price, dropPrice,dropPriceAbove,extraHourPrice, extraPrice,additionalMinCharge, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
                                     const className = `py-3 px-5 ${key === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
                                         <tr key={id}>
@@ -234,6 +242,16 @@ export function MasterPriceView() {
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {price}
+                                                </Typography>
+                                            </td>
+                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {dropPriceAbove} extra
+                                                </Typography>
+                                            </td>
+                                              <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {baseFare} extra
                                                 </Typography>
                                             </td>
                                             {/* <td className={className}>
@@ -549,7 +567,7 @@ export function MasterPriceView() {
                                         "Package",
                                         "Base Fare",
                                         // "Kilometer",
-                                        "Hours Limit",
+                                        // "Hours Limit",
                                         "kilometer Round Price",
                                         "kilometer Round Price MVP",
                                         "kilometer Round Price Suv",
@@ -583,7 +601,7 @@ export function MasterPriceView() {
                                     baseFare,
                                     kilometerPrice,
                                     // kilometer,
-                                    hourLimit,
+                                    // hourLimit,
                                     kilometerRoundPrice,
                                     kilometerRoundPriceMVP,
                                     kilometerRoundPriceSuv,
@@ -630,11 +648,11 @@ export function MasterPriceView() {
                                                     {kilometer}
                                                 </Typography>
                                             </td> */}
-                                            <td className={className}>
+                                            {/* <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {hourLimit}
                                                 </Typography>
-                                            </td>
+                                            </td> */}
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {kilometerPrice}
