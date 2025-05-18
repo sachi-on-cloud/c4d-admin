@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Dashboard, Auth } from "@/layouts";
+import { Dashboard, Auth, Public } from "@/layouts";
 import { AuthProvider } from "./context/auth";
 import ProtectedRoute from '@/components/ProtectedComponent';
 import FcmToast from "./components/FcmToast";
@@ -57,6 +57,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/auth/*" element={<Auth />} />
+        <Route path="/public/*" element={<Public />} />
         <Route path="*" element={<Navigate to="/dashboard/booking" replace />} />
         {/* <Route path="*" element={<Dashboard />} /> */}
         {/* <Route path="/dashboard/booking" element={<Dashboard />} />
