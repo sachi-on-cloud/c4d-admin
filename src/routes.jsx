@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+import { DeleteAccount } from "@/pages/public/DeleteAccount";
 
 import { CustomerView } from "@/pages/customer";
 import { AccountView } from "@/pages/account";
@@ -554,6 +555,17 @@ export const routes = [
         name: "sign up",
         path: "/sign-up",
         element: <SignUp />,
+        display: false
+      },
+    ],
+  },
+  {
+    title: "public pages",
+    layout: "public",
+    pages: [
+      {
+        path: "/delete-my-account",
+        element: <DeleteAccount />,
         display: false
       },
     ],
