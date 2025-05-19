@@ -17,7 +17,7 @@ import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen=false}) {
+export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -62,7 +62,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         <Popover placement="bottom-start">
             <PopoverHandler>
                 <div className="flex items-center cursor-pointer">
-                    <Typography variant="small"  className="text-[11px] font-bold uppercase mr-1 text-white">
+                    <Typography variant="small" className="text-[11px] font-bold uppercase mr-1 text-white">
                         {title}
                     </Typography>
                     <FaFilter className="text-white text-xs" />
@@ -179,27 +179,27 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-          direction = 'descending';
+            direction = 'descending';
         }
         setSortConfig({ key, direction });
-    
+
         const sortedDrivers = [...bookingsList].sort((a, b) => {
-          if (key === 'created_at') {
-            return direction === 'ascending'
-              ? new Date(a[key]) - new Date(b[key])
-              : new Date(b[key]) - new Date(a[key]);
-          } else {
-            const aValue = a[key]?.toLowerCase() || '';
-            const bValue = b[key]?.toLowerCase() || '';
-            if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
-            if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
-            return 0;
-          }
+            if (key === 'created_at') {
+                return direction === 'ascending'
+                    ? new Date(a[key]) - new Date(b[key])
+                    : new Date(b[key]) - new Date(a[key]);
+            } else {
+                const aValue = a[key]?.toLowerCase() || '';
+                const bValue = b[key]?.toLowerCase() || '';
+                if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
+                if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
+                return 0;
+            }
         });
-    
+
         setBookingsList(sortedDrivers);
-      };
-      
+    };
+
     return (
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3 mb-2'>
@@ -208,7 +208,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                 </Typography>
             </div>
             <Card>
-                <CardBody> 
+                <CardBody>
                     {/* className="overflow-y-scroll overflow-x-auto max-h-screen" */}
                     {bookingsList.length === 0 ? (
                         <Typography variant="h5" color='#000000'>
@@ -220,7 +220,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                 <thead>
                                     <tr>
                                         {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status", "Assign Captain"].map((el) => ( // , "Owner" => cd before
-                                            
+
                                             <th
                                                 key={el}
                                                 className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}
@@ -239,54 +239,54 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     />
                                                 ) : el === "Created Date" ? (
                                                     <th
-                                                      onClick={() => handleSort('created_at')}
-                                                      className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
+                                                        onClick={() => handleSort('created_at')}
+                                                        className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
                                                     >
-                                                      <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                        Created Date
-                                                      </Typography>
-                                                      {sortConfig.key === 'created_at' && (
-                                                        sortConfig.direction === 'ascending' ? (
-                                                          <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                        ) : (
-                                                          <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                        )
-                                                      )}
-                                                    </th>
-                                                  ) : el === "Status" ? (
-                                                        <FilterPopover
-                                                            title={el}
-                                                            options={[
-                                                                { value: 'All', label: 'All' },
-                                                                { value: 'QUOTED', label: 'Quoted' },
-                                                                { value: 'CONFIRMED', label: 'Booking Confirmed' },
-                                                                { value: 'REQUEST_DRIVER', label: 'Request Driver' },
-                                                                { value: 'STARTED', label: 'Started' },
-                                                                { value: 'ENDED', label: 'Ended' },
-                                                                { value: 'CANCELLED', label: 'Cancelled' },
-                                                            ]}
-                                                            selectedFilters={statusFilter}
-                                                            onFilterChange={(value) => handleFilterChange('status', value)}
-                                                        />
-                                                    ) : el === "Source" ? (
-                                                        <FilterPopover
-                                                            title={el}
-                                                            options={[
-                                                                { value: 'All', label: 'All' },
-                                                                { value: 'Walk In', label: 'Walk In' },
-                                                                { value: 'Mobile App', label: 'Mobile App' },
-                                                                { value: 'Website', label: 'Website' },
-                                                                { value: 'Call', label: 'Call' },
-                                                            ]}
-                                                            selectedFilters={statusFilter}
-                                                            onFilterChange={(value) => handleFilterChange('status', value)}
-                                                        />
-                                                    )
-                                                        : (
-                                                            <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
-                                                                {el}
-                                                            </Typography>
+                                                        <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
+                                                            Created Date
+                                                        </Typography>
+                                                        {sortConfig.key === 'created_at' && (
+                                                            sortConfig.direction === 'ascending' ? (
+                                                                <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
+                                                            ) : (
+                                                                <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
+                                                            )
                                                         )}
+                                                    </th>
+                                                ) : el === "Status" ? (
+                                                    <FilterPopover
+                                                        title={el}
+                                                        options={[
+                                                            { value: 'All', label: 'All' },
+                                                            { value: 'QUOTED', label: 'Quoted' },
+                                                            { value: 'CONFIRMED', label: 'Booking Confirmed' },
+                                                            { value: 'REQUEST_DRIVER', label: 'Request Driver' },
+                                                            { value: 'STARTED', label: 'Started' },
+                                                            { value: 'ENDED', label: 'Ended' },
+                                                            { value: 'CANCELLED', label: 'Cancelled' },
+                                                        ]}
+                                                        selectedFilters={statusFilter}
+                                                        onFilterChange={(value) => handleFilterChange('status', value)}
+                                                    />
+                                                ) : el === "Source" ? (
+                                                    <FilterPopover
+                                                        title={el}
+                                                        options={[
+                                                            { value: 'All', label: 'All' },
+                                                            { value: 'Walk In', label: 'Walk In' },
+                                                            { value: 'Mobile App', label: 'Mobile App' },
+                                                            { value: 'Website', label: 'Website' },
+                                                            { value: 'Call', label: 'Call' },
+                                                        ]}
+                                                        selectedFilters={statusFilter}
+                                                        onFilterChange={(value) => handleFilterChange('status', value)}
+                                                    />
+                                                )
+                                                    : (
+                                                        <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
+                                                            {el}
+                                                        </Typography>
+                                                    )}
                                             </th>
                                         ))}
                                     </tr>
@@ -307,7 +307,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 <tr key={data?.id} className={className}>
                                                     <td className={className}>
                                                         <div className="flex items-center">
-                                                            <div onClick={() => {handleBookingSelect(data);
+                                                            <div onClick={() => {
+                                                                handleBookingSelect(data);
                                                                 setIsOpen(true)
                                                             }}>
                                                                 <Typography
@@ -416,6 +417,15 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                             >
                                                                 Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                            </Button>
+                                                        }
+                                                        {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
+                                                            <Button
+                                                                fullWidth
+                                                                onClick={() => onAssignDriverHandler(data)}
+                                                                className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                            >
+                                                                ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                             </Button>
                                                         }
                                                         {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&

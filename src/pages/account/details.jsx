@@ -236,7 +236,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
             {!btnShow &&
                 <div className='flex justify-center w-full'>
                     <Button
-                        onClick={() => { navigate('/dashboard/vendors/account'); }}
+                        onClick={() => navigate(-1)}
                         className={`my-6 px-8 ${ColorStyles.backButton}`}
                     >
                         Back

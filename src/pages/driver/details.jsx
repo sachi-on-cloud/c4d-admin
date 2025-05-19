@@ -333,7 +333,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
             {!btnShow && <div className='flex w-full'>
                 <Button
                     fullWidth
-                    onClick={() => navigate('/dashboard/vendors/account/drivers')}
+                    onClick={() => navigate(-1)}
                     className={`my-6 mx-2  ${ColorStyles.backButton}`}
                 >
                     Back
