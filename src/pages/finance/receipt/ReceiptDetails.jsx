@@ -46,6 +46,9 @@ const ReceiptDetails = () => {
         ownerPhoneNumber : receipt?.Subscription?.Cab?.Account?.phone_number || '',
         status: receipt?.Subscription?.status || "",
         subscriptionId: receipt ?. subscriptionId || "",
+        accountId: receipt?.Subscription?.Cab?.Account?.id || "",
+        DriverId: receipt?.DriverId || "",
+        ownerType: receipt?.Subscription?.Cab?.Account?.type || '',
     };
 
     function formatDate(isoDateString) {
@@ -70,10 +73,19 @@ const ReceiptDetails = () => {
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
             pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-            pdf.save(`Invoice_${invoice.invoiceNumber}.pdf`);
+            pdf.save(`Receipt_${receipt.receiptNumber}.pdf`);
         });
     };
-
+    const handleDriverNavigation = (DriverId) => {
+        if (DriverId) {
+            navigate(`/dashboard/vendors/account/drivers/details/${DriverId}`);
+        }
+    };
+    const handleOwnerNavigation = (accountId) => {
+        if (accountId) {
+            navigate(`/dashboard/vendors/account/details/${initialValues.accountId}`)
+        }
+    }
     return (
         <>
             <div className="p-4 mx-auto">
@@ -87,18 +99,20 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Receipt Number</label>
                                         <Field type="text" disabled name="receiptNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm" />
                                     </div>
-                                    <div className='space-y-1'>
-                                        <label className="text-sm font-medium text-gray-700">Booking Id</label>
-                                        <Field 
-                                            type="text" 
-                                            readOnly 
-                                            name="bookingId"
-                                            onClick={() => {
-                                                setIsOpen(true)
-                                            }}
-                                            className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 text-blue-900 underline font-medium cursor-pointer" 
-                                        />
-                                    </div>
+                                    {initialValues?.receiptType !== receipt?.receiptType || initialValues?.bookingId === receipt?.bookingId && (
+                                        <div className='space-y-1'>
+                                            <label className="text-sm font-medium text-gray-700">Booking Id</label>
+                                            <Field 
+                                                type="text" 
+                                                readOnly 
+                                                name="bookingId"
+                                                onClick={() => {
+                                                    setIsOpen(true)
+                                                }}
+                                                className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 text-blue-900 underline font-medium cursor-pointer" 
+                                            />
+                                        </div>
+                                    )}
                                     <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Receipt Type</label>
                                         <Field type="text" disabled name="receiptType" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
@@ -123,22 +137,36 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Contract Number</label>
                                         <Field type="text" disabled name="subscriptionId" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
-                                    {<><div className='space-y-1'>
-                                        <label className="text-sm font-medium text-gray-700">Driver Name</label>
-                                        <Field type="text" disabled name="driverName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div>
-                                    <div className='space-y-1'>
-                                        <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
-                                        <Field type="text" disabled name="driverPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div></>}
-                                    {<><div className='space-y-1'>
-                                        <label className="text-sm font-medium text-gray-700">Owner Name</label>
-                                        <Field type="text" disabled name="ownerName" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div>
-                                    <div className='space-y-1'>
-                                        <label className="text-sm font-medium text-gray-700">Owner Phone Number</label>
-                                        <Field type="text" disabled name="ownerPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
-                                    </div></>}
+                                    {initialValues?.driverName &&  <><div className='space-y-1'>
+                                            <label className="text-sm font-medium text-gray-700">Driver Name</label>
+                                            <Field
+                                                type="text"
+                                                readOnly
+                                                name="driverName" 
+                                                value={initialValues.driverName} 
+                                                onClick={() => handleDriverNavigation(initialValues.DriverId)} 
+                                                className="p-2 h-[50px] w-full rounded-md border text-blue-600 underline cursor-pointer bg-gray-200 border-gray-300" />
+                                        </div>
+                                        <div className='space-y-1'>
+                                                <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
+                                                <Field type="text" disabled name="driverPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
+                                        </div></>}
+                                    {initialValues?.ownerName && (
+                                        <>
+                                        <div className='space-y-1'>
+                                            <label className="text-sm font-medium text-gray-700">Owner Name</label>
+                                            <Field
+                                                name="ownerName"
+                                                value={initialValues.ownerName}
+                                                onClick={() => handleOwnerNavigation(initialValues.accountId)}
+                                                className={`p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 ${initialValues.accountId ? 'text-blue-600 underline cursor-pointer' : 'text-gray-600 cursor-not-allowed'
+                                                    }`}
+                                            />
+                                        </div>
+                                        <div className='space-y-1'>
+                                            <label className="text-sm font-medium text-gray-700">Owner Phone Number</label>
+                                            <Field type="text" disabled name="ownerPhoneNumber" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
+                                            </div></>)}
                                     <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Payment Method</label>
                                         <Field type="text" disabled name="paymentMethod" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
@@ -155,7 +183,7 @@ const ReceiptDetails = () => {
             </div>
             <div className='flex justify-center space-x-4 my-6'>
                 <Button
-                    onClick={() => { navigate('/dashboard/finance/receipt'); }}
+                    onClick={() => navigate('/dashboard/finance/receipt')}
                     className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
