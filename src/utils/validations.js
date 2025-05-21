@@ -407,6 +407,28 @@ export const CAB_SCHEMA = Yup.object({
     }),
     // notify: Yup.string().required('Notification Recipients is required'),
     // carType: Yup.string().required('Car Type is required'),
+    vehicleType: Yup.string().required('Vehicle Type is required'),
+    seater: Yup.string()
+        .required('Seater is required')
+        .oneOf(['4', '5', '6', '7', '8', '9', '10', '12', '14'],
+            'Seater must be 4, 5, 6, 7, 8, 9, 10, 12, or 14'),
+    luggage: Yup.number()
+        .typeError('Luggage must be a number')
+        .required('Luggage capacity is required')
+        .integer('Must be a whole number (e.g., 1, 2, 3)')
+        .min(0, 'Luggage cannot be negative')
+        .max(10, 'Maximum luggage capacity is 10'),
+    modelYear: Yup.string()
+        .required('Year of Model is required')
+        .test(
+            'is-valid-year',
+            'Model Year cannot be in the future',
+            (value) => {
+                if (!value) return true;
+                const currentYear = new Date().getFullYear();
+                return parseInt(value) <= currentYear;
+            }
+        ),
     packages: Yup.array()
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected'),
@@ -583,6 +605,28 @@ export const CAB_ADD_SCHEMA = Yup.object({
     }),
 
     carType: Yup.string().required('Car Type is required'),
+    vehicleType: Yup.string().required('Vehicle Type is required'),
+    seater: Yup.string()
+        .required('Seater is required')
+        .oneOf(['4', '5', '6', '7', '8', '9', '10', '12', '14'],
+            'Seater must be 4, 5, 6, 7, 8, 9, 10, 12, or 14'),
+    luggage: Yup.number()
+        .typeError('Luggage must be a number')
+        .required('Luggage capacity is required')
+        .integer('Must be a whole number (e.g., 1, 2, 3)')
+        .min(0, 'Luggage cannot be negative')
+        .max(10, 'Maximum luggage capacity is 10'),
+    modelYear: Yup.string()
+        .required('Year of Model is required')
+        .test(
+            'is-valid-year',
+            'Model Year cannot be in the future',
+            (value) => {
+                if (!value) return true;
+                const currentYear = new Date().getFullYear();
+                return parseInt(value) <= currentYear;
+            }
+        ),
     packages: Yup.array()
         .of(Yup.string().required('Each package must be selected'))
         .required('At least one package must be selected'),

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Button, Alert, Card, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
+import { Button, Card,Alert, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { CAB_SCHEMA } from '@/utils/validations';
@@ -62,13 +62,13 @@ const CabEdit = () => {
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
     // const [accountOptions, setAccountOptions] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
-    const [insuranceImagePreview ,setInsuranceImagePreview] = useState(null);
+    const [insuranceImagePreview, setInsuranceImagePreview] = useState(null);
     const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
-    const [isSubmitting, setIsSubmitting] = useState(false); 
-    const [modalData,setModalData] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [modalData, setModalData] = useState(null);
 
     // const getAccountNames = async () => {
     //     try {
@@ -86,14 +86,14 @@ const CabEdit = () => {
     // };
 
     const getAccountRelatedDrivers = async (accountId) => {
-            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS, {
-                accountId: accountId
-            });
-    
-            if (data?.success && data?.data.length > 0) {
-                setAccountRelatedDrivers(data?.data);
-            }
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS, {
+            accountId: accountId
+        });
+
+        if (data?.success && data?.data.length > 0) {
+            setAccountRelatedDrivers(data?.data);
         }
+    }
 
     function getNameById(id, obj) {
         for (const key in obj) {
@@ -131,8 +131,8 @@ const CabEdit = () => {
             });
             const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
             const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'),'CarWash');
-            const ridesPackage = packageData.filter(val=>{return val.type == 'Rides' })
+            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
+            const ridesPackage = packageData.filter(val => { return val.type == 'Rides' })
             setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage, ...ridesPackage]);
         }
     };
@@ -144,15 +144,15 @@ const CabEdit = () => {
     }, [id]);
 
     const fetchItem = async (itemId) => {
-        try{
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
-        if(data?.data) {
-            setCabVal(data.data);
-            getAccountRelatedDrivers(data?.data?.result?.Account?.id)
-        } else {
-            console.error('No cab data received');
-            navigate('/dashboard/vendors/account/allVehicles');
-         }
+        try {
+            const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
+            if (data?.data) {
+                setCabVal(data.data);
+                getAccountRelatedDrivers(data?.data?.result?.Account?.id)
+            } else {
+                console.error('No cab data received');
+                navigate('/dashboard/vendors/account/allVehicles');
+            }
         } catch (error) {
             console.error('Error fetching driver:', error);
             navigate('/dashboard/vendors/account/allVehicles');
@@ -175,6 +175,10 @@ const CabEdit = () => {
         driverAddress: "",
         licenseNumber: "",
         carType: cabVal?.result?.carType || "",
+        vehicleType: cabVal?.result?.vehicleType || "",
+        seater: cabVal?.result?.seater || "",
+        luggage: cabVal?.result?.luggage || "",
+        modelYear: cabVal?.result?.modelYear || "",
         packages: cabVal?.result?.packages || [],
         prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
         cabId: cabVal?.result?.id || '',
@@ -188,7 +192,7 @@ const CabEdit = () => {
             if (data?.success && data?.data) {
                 if (type === 'owner') {
                     setOwnerAddressSuggestions(data?.data);
-                    setDriverAddressSuggestions([]); 
+                    setDriverAddressSuggestions([]);
                 } else {
                     setDriverAddressSuggestions(data?.data);
                     setOwnerAddressSuggestions([]);
@@ -199,17 +203,17 @@ const CabEdit = () => {
                 setOwnerAddressSuggestions([]);
             } else {
                 setDriverAddressSuggestions([]);
-            } 
+            }
         }
     };
 
     const renderPriceTable = (title, prices, values) => {
         if (prices.length === 0) return null;
-        
+
         const sortedPrices = [...prices].sort((a, b) => {
             const packageA = packageDetails.find(p => p.id === a.packageId);
             const packageB = packageDetails.find(p => p.id === b.packageId);
-            
+
             if (title === "LOCAL") {
                 const hoursA = parseInt(packageA.period);
                 const hoursB = parseInt(packageB.period);
@@ -246,17 +250,17 @@ const CabEdit = () => {
                                                 {getNameById(priceItem.packageId, packageDetails)}
                                             </Typography>
                                         </td>
-                                        {['kilometer','baseFare','kilometerPrice','additionalMinCharge'].map((field) => (
+                                        {['kilometer', 'baseFare', 'kilometerPrice', 'additionalMinCharge'].map((field) => (
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
                                                     type="number"
                                                     className="w-full p-1 text-xs border rounded"
                                                 />
-                                                <ErrorMessage 
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`} 
-                                                    component="div" 
-                                                    className="text-red-500 text-xs" 
+                                                <ErrorMessage
+                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
+                                                    component="div"
+                                                    className="text-red-500 text-xs"
                                                 />
                                             </td>
                                         ))}
@@ -281,7 +285,7 @@ const CabEdit = () => {
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
-                                    {["Package","Base Fare", "Per Kilometer Rate", "Per Minute Rate"].map((el) => (
+                                    {["Package", "Base Fare", "Per Kilometer Rate", "Per Minute Rate"].map((el) => (
                                         <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
                                                 {el}
@@ -298,7 +302,7 @@ const CabEdit = () => {
                                                 Rides
                                             </Typography>
                                         </td>
-                                        {['baseFare','kilometerPrice','minCharge'].map((field) => (
+                                        {['baseFare', 'kilometerPrice', 'minCharge'].map((field) => (
                                             <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
                                                 <Field
                                                     name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
@@ -332,6 +336,10 @@ const CabEdit = () => {
                 curAddress: values.address,
                 insurance: values.insurance,
                 carType: values.carType,
+                vehicleType: values.vehicleType,
+                seater: values.seater,
+                luggage: values.luggage,
+                modelYear: values.modelYear,
                 assigned: values.assignedTo,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
@@ -344,7 +352,8 @@ const CabEdit = () => {
                 cabId: values.cabId,
             }
             const prices = values.prices;
-            let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices)};
+            let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices) };
+            //console.log("RESSSSS", res);
             const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, res);
             console.log('CAB DATA :', resp);
       if (!resp?.success && resp?.code === 203) {
@@ -463,6 +472,27 @@ const CabEdit = () => {
                                     </label>
                                 </div>
                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
+                                <Field type="text" name="vehicleType" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="vehicleType" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="seater" className="text-sm font-medium text-gray-700">Seater</label>
+                                <Field type="text" name="seater" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="luggage" className="text-sm font-medium text-gray-700">Luggage</label>
+                                <Field type="text" name="luggage" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="modelYear" className="text-sm font-medium text-gray-700">Year of Model</label>
+                                <Field type="text" name="modelYear" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="modelYear" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label htmlFor="assignedTo" className="text-sm font-medium text-gray-700">Assigned To</label>

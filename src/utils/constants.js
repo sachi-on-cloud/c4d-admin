@@ -905,6 +905,7 @@ export const API_ROUTES = {
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
     'GEO_MARKINGS_DELETE': '/geo-markings',
+    'GET_CAR_TYPE': '/car-type/',
 };
 
 export const KYC_PROCESS = {
