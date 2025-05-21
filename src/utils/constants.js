@@ -6,7 +6,7 @@ export const constants = {
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
-    url_sit: 'https://sit.api.c4d.smartapis.cyou/'
+    url_sit: 'https://sit.api.c4d.smartapis.cyou'
 };
 
 export const getBaseUrl = () => {
