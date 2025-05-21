@@ -900,11 +900,12 @@ export const API_ROUTES = {
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
     'RIDES_DRIVER_LIST': '/driver-request-list',
-    'RENTAL_REQUEST':'/request-rental',
+    'RENTAL_REQUEST': '/request-rental',
     'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
     'GEO_MARKINGS_DELETE': '/geo-markings',
+    'GET_CAR_TYPE': '/car-type/',
 };
 
 export const KYC_PROCESS = {
@@ -1132,13 +1133,13 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-    export const ColorStyles = {
-        sidenavColors:"bg-[#1A73E8] text-white",
-        bgColor: "bg-[#1A73E8]",
-        PopoverHandlerText: "text-black",
-        bgStatusColor:" bg-[#1A73E8] text-white",
-        addButtonColor:"bg-[#1A73E8] text-white",
-        continueButtonColor:" bg-[#1A73E8] text-white",
-        backButton:" text-black border-gray-400 border-2 rounded-xl bg-white",
-        editButton:"bg-[#1A73E8] text-white",
-      }; 
+export const ColorStyles = {
+    sidenavColors: "bg-[#1A73E8] text-white",
+    bgColor: "bg-[#1A73E8]",
+    PopoverHandlerText: "text-black",
+    bgStatusColor: " bg-[#1A73E8] text-white",
+    addButtonColor: "bg-[#1A73E8] text-white",
+    continueButtonColor: " bg-[#1A73E8] text-white",
+    backButton: " text-black border-gray-400 border-2 rounded-xl bg-white",
+    editButton: "bg-[#1A73E8] text-white",
+}; 
