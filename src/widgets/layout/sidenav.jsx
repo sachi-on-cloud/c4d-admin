@@ -86,7 +86,7 @@ const toggleSubMenu = (subMenu) =>
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
           >
-            C4D ADMIN
+            ROOT CABS
           </Typography>
         </Link>
         <IconButton

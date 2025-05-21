@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
-import { Button, Input, List, ListItem,Dialog, DialogHeader, DialogBody,Typography,Card,CardBody} from '@material-tailwind/react';
+import { Alert, Button, Input, List, ListItem,Dialog, DialogHeader, DialogBody,Typography,Card,CardBody} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
 import moment from 'moment';
@@ -136,6 +136,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
 const AccountEdit = () => {
     const [accountVal, setAccountVal] = useState({});
     const [imagePreview, setImagePreview] = useState(null);
+    const [alert, setAlert] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
     const [modalData,setModalData] = useState(null);
@@ -199,6 +200,8 @@ const AccountEdit = () => {
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
         try
         {
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
             const files = e.target.files;
         if (!files || files.length === 0) return;
 
@@ -212,6 +215,22 @@ const AccountEdit = () => {
 
             for(let i = 0; i < files.length; i++)
             {
+                if (!allowedTypes.includes(files[i].type)) {
+                    setAlert({
+                        message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
+                if (files[i].size > maxSize) {
+                    setAlert({
+                        message: "File size exceeds 10MB limit.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
                 const file = files[i];
                 uploadedFiles.push(file);
 
@@ -272,6 +291,13 @@ const AccountEdit = () => {
                     },
                 }));
             }
+             else {
+                setAlert({
+                    message: data?.message || "Failed to upload document. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
         }
         catch(err){
             console.error("Error during image upload:", err);
@@ -280,16 +306,36 @@ const AccountEdit = () => {
         
     };
     const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
+        try{
+        const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+        const maxSize = 10 * 1024 * 1024; // 10MB
         const file = e.target.files[0];
-        if(file)
-        {
+
+        if (!allowedTypes.includes(file.type)) {
+            setAlert({
+                message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                color: "red",
+            });
+            setTimeout(() => setAlert(null), 5000);
+            return;
+        }
+
+        if (file.size > maxSize) {
+            setAlert({
+                message: "File size exceeds 10MB limit.",
+                color: "red",
+            });
+            setTimeout(() => setAlert(null), 5000);
+            return;
+        }
+
             setFieldValue(label,file);
             const reader = new FileReader();
             reader.onloadend = () =>
             {
                 setImagePreviews((prev) => ({
                     ...prev,
-                    [label]: reader.result, // Update the specific preview
+                    [label]: reader.result, 
                 }));    
             };
             reader.readAsDataURL(file);
@@ -323,8 +369,23 @@ const AccountEdit = () => {
                     },
                 }));
             }
-
-        };
+              else 
+            {
+                setAlert({
+                    message: data?.message || "Failed to upload photo. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
+        }
+        catch (err) {
+            console.error("ERROR IN handlePhotoUpload:", err);
+            setAlert({
+                message: "An error occurred while uploading the photo.",
+                color: "red",
+            });
+            setTimeout(() => setAlert(null), 5000);
+        }
     }
     const handleGoogleAddressSelect = (place) => {
         if (!place || !place.formatted_address) {
@@ -445,6 +506,16 @@ const AccountEdit = () => {
 
     return (
         <div className="p-4 mx-auto">
+              {alert && (
+                            <div className='mb-2'>
+                                <Alert
+                                    color={alert.color}
+                                    className='py-3 px-6 rounded-xl'
+                                >
+                                    {alert.message}
+                                </Alert>
+                            </div>
+                        )}
             <h2 className="text-2xl font-bold mb-4">Update Account</h2>
             <Formik
                 initialValues={initialValues}

@@ -59,7 +59,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect}
 
 const DriverAdd = () => {
     const [driverVal, setDriverVal] = useState({});
-    const [alert, setAlert] = useState(false);
+    const [alert, setAlert] = useState(null);
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [districtSearchText, setDistrictSearchText] = useState("");
@@ -400,6 +400,8 @@ const DriverAdd = () => {
 
     const handleImageUpload = async (e, setFieldValue, label) => {
         try {
+        const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+        const maxSize = 10 * 1024 * 1024; // 10MB
         const files = e.target.files;
         if (files.length > 2) {
             alert("You can upload a maximum of two documents.");
@@ -410,6 +412,22 @@ const DriverAdd = () => {
         const previews = {};
     
         for (let i = 0; i < files.length; i++) {
+            if (!allowedTypes.includes(files[i].type)) {
+                    setAlert({
+                        message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
+                if (files[i].size > maxSize) {
+                    setAlert({
+                        message: "File size exceeds 10MB limit.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
             const file = files[i];
             uploadedFiles.push(file);
             
@@ -452,14 +470,39 @@ const DriverAdd = () => {
                 }
             }))
         }
+         else {
+                setAlert({
+                    message: data?.message || "Failed to upload document. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
     } catch (err) {
         console.log("ERR - >", err)
     }
     };
 
     const handlePhotoUpload = async (e, setFieldValue, label) => {
+        try {
         const file = e.target.files[0];
-        if (file) {
+        const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+         if (!allowedTypes.includes(file.type)) {
+                setAlert({
+                    message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+            if (file.size > maxSize) {
+                setAlert({
+                    message: "File size exceeds 10MB limit.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
             setFieldValue(label, file);
 
             const reader = new FileReader();
@@ -494,8 +537,23 @@ const DriverAdd = () => {
                     }
                 }))
             }
+            else 
+            {
+                setAlert({
+                    message: data?.message || "Failed to upload photo. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
         }
-    }
+        catch (err) {
+            setAlert({
+                message: "An error occurred while uploading the photo.",
+                color: "red",
+            });
+            setTimeout(() => setAlert(null), 5000);
+        } 
+    };
 
     const parseAddress = (address) => {
         if (!address || typeof address !== "string") {

@@ -61,7 +61,7 @@ const AccountAdd = (props) => {
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [thalukSearchText, setThalukSearchText] = useState("");
     const [stateSearchText, setStateSearchText] = useState("");
-    const [alert, setAlert] = useState(false);
+    const [alert, setAlert] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
     const [modalData, setModalData] = useState(null);
@@ -245,6 +245,8 @@ const AccountAdd = (props) => {
         try 
         {
             const files = e.target.files;
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
             if(files.length > 2)
             {
                 alert("You can upload a maximum of two documents.");
@@ -255,6 +257,22 @@ const AccountAdd = (props) => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
+                 if (!allowedTypes.includes(files[i].type)) {
+                    setAlert({
+                        message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
+                if (files[i].size > maxSize) {
+                    setAlert({
+                        message: "File size exceeds 10MB limit.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
                 const file = files[i];
                 uploadedFiles.push(file);
                 
@@ -298,6 +316,13 @@ const AccountAdd = (props) => {
                     }
                 }))
             }
+            else {
+                setAlert({
+                    message: data?.message || "Failed to upload document. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
         }
         catch (err)
         {
@@ -305,8 +330,28 @@ const AccountAdd = (props) => {
         }
     };
     const handlePhotoUpload = async (e, setFieldValue, label) => {
-        const file = e.target.files[0];
-        if (file) {
+        try {
+            const file = e.target.files[0];
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            if (!allowedTypes.includes(file.type)) {
+                setAlert({
+                    message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+            if (file.size > maxSize) {
+                setAlert({
+                    message: "File size exceeds 10MB limit.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+
             setFieldValue(label, file);
     
             const reader = new FileReader();
@@ -343,6 +388,20 @@ const AccountAdd = (props) => {
                     }
                 }))
             }
+            else 
+            {
+                setAlert({
+                    message: data?.message || "Failed to upload photo. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
+        } catch (err) {
+            setAlert({
+                message: "An error occurred while uploading the photo.",
+                color: "red",
+            });
+            setTimeout(() => setAlert(null), 5000);
         }
     };
 
