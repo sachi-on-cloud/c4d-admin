@@ -360,23 +360,43 @@ const CabAdd = () => {
             console.log('CAB DATA :', resp);
             if (!resp?.success && resp?.code === 203) {
                 setAlert({ message: 'Cab already exists', color: 'red' });
-                setTimeout(() => setAlert(null), 2000);
+                // setTimeout(() => setAlert(null), 2000);
                 resetForm();
-            } else {
-                // navigate('/dashboard/vendors/account/', {
-                //     state: {
-                //         cabAdded: true,
-                //         cabName: data?.data?.name
-                //     }
-                // });
-                navigate(`/dashboard/vendors/account/details/${accountId}`)
+            } 
+            else if (resp?.success && resp?.code === 200) {
+                setAlert({ message: 'Cab Added Successfully', color: 'green' }, () => {
+                    navigate(`/dashboard/vendors/account/details/${cabDetails?.accountId}`);
+                });
             }
+            // else {
+            //     // navigate('/dashboard/vendors/account/', {
+            //     //     state: {
+            //     //         cabAdded: true,
+            //     //         cabName: data?.data?.name
+            //     //     }
+            //     // });
+            //     navigate(`/dashboard/vendors/account/details/${accountId}`)
+            // }
         } catch (error) {
             console.error('Error creating driver and car:', error);
         }
         setSubmitting(false);
     };
-
+    useEffect(() => {
+        let timeoutId;
+        if (alert?.message === 'Cab Added Successfully') {
+            timeoutId = setTimeout(() => {
+                setAlert(null);
+                console.log('Navigating to:', `/dashboard/vendors/account/details/${accountId}`);
+                navigate(`/dashboard/vendors/account/details/${accountId}`);
+            }, 2000);
+        }
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [alert, accountId, navigate]);
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };

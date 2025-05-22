@@ -147,7 +147,9 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
                                             Thaluk
                                         </label>
-                                        <select
+                                        <Field type="text" name="thaluk" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        {/* <Field type="text" disabled name="thaluk" className="p-2 w-full rounded-md border-gray-300 shadow-sm" /> */}
+                                        {/* <select
                                             id="thaluk"
                                             name="thaluk"
                                             value={values.thaluk}
@@ -160,8 +162,8 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                                 <option key={thaluk.id} value={thaluk.id}>
                                                     {thaluk.name}
                                                 </option>
-                                            ))} */}
-                                        </select>
+                                            ))}
+                                        </select>  */}
                                         <ErrorMessage
                                             name="thaluk"
                                             component="div"
@@ -172,7 +174,8 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="district" className="text-sm font-medium text-gray-700">
                                             District
                                         </label>
-                                        <select
+                                        <Field type="text" disabled name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        {/* <select
                                             id="district"
                                             name="district"
                                             value={values.district}
@@ -181,12 +184,12 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
                                         >
                                             <option value="" disabled>Select District</option>
-                                            {/* {filteredDistricts.map((district) => (
+                                            {filteredDistricts.map((district) => (
                                                 <option key={district.id} value={district.id}>
                                                     {district.name}
                                                 </option>
-                                            ))} */}
-                                        </select>
+                                            ))}
+                                        </select> */}
                                         <ErrorMessage
                                             name="district"
                                             component="div"
@@ -197,7 +200,8 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="state" className="text-sm font-medium text-gray-700">
                                             State
                                         </label>
-                                        <select
+                                        <Field type="text" disabled name="state" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        {/* <select
                                             id="state"
                                             name="state"
                                             value={values.state}
@@ -206,12 +210,12 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
                                         >
                                             <option value="" disabled>Select State</option>
-                                            {/* {filteredState.map((state) => (
+                                            {filteredState.map((state) => (
                                                 <option key={state.id} value={state.id}>
                                                     {state.name}
                                                 </option>
-                                            ))} */}
-                                        </select>
+                                            ))}
+                                        </select> */}
                                         <ErrorMessage
                                             name="state"
                                             component="div"

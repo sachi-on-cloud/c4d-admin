@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
+import { Button, Card,Alert, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { CAB_SCHEMA } from '@/utils/validations';
@@ -56,7 +56,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
 
 const CabEdit = () => {
     const [cabVal, setCabVal] = useState({});
-    const [alert, setAlert] = useState(false);
+    const [alert, setAlert] = useState(null);
     const [packageDetails, setPackageDetails] = useState([]);
     const [ownerAddressSuggestions, setOwnerAddressSuggestions] = useState([]);
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
@@ -355,14 +355,14 @@ const CabEdit = () => {
             let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices) };
             //console.log("RESSSSS", res);
             const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, res);
-            //console.log('CAB DATA :', resp);
-            if (!resp?.success && resp?.code === 203) {
-                setAlert({ message: 'Cab already exists', color: 'red' });
-                setTimeout(() => setAlert(null), 2000);
-                resetForm();
-            } else {
-                navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`)
-            }
+            console.log('CAB DATA :', resp);
+      if (!resp?.success && resp?.code === 203) {
+        setAlert({ message: 'Cab already exists', color: 'red' });
+        // setTimeout(() => setAlert(null), 2000);
+        resetForm();
+      } else if (resp?.success && resp?.code === 200) {
+        setAlert({ message: 'Cab Updated Successfully', color: 'green' });
+      }
         } catch (error) {
             console.error('Error updating cab:', error);
         } finally {
@@ -374,8 +374,35 @@ const CabEdit = () => {
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };
+
+
+  useEffect(() => {
+    let timeoutId;
+    if (alert?.message === 'Cab Updated Successfully') {
+      timeoutId = setTimeout(() => {
+        setAlert(null);
+        console.log('Navigating to:', `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
+        navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
+      }, 5000);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [alert, cabVal, navigate]);
+
+
     return (
         <div className="p-4 mx-auto">
+                    {alert && <div className='mb-2'>
+                        <Alert
+                            color={alert.color}
+                            className='py-3 px-6 rounded-xl'
+                        >
+                            {alert.message}
+                        </Alert>
+                    </div>}
             <h2 className="text-2xl font-bold mb-4">Update Cab</h2>
             <Formik
                 initialValues={initialValues}
