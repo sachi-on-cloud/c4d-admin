@@ -17,7 +17,7 @@ const SubscriptionLog = ({ subscriptionlog }) => {
     return (
         <>
             <div className="flex flex-row justify-between px-2 mb-2 mt-4">
-                <h2 className="text-2xl font-bold mb-4">Contract Details </h2>
+                <h2 className="text-2xl font-bold mb-4">Credit Details </h2>
             </div>
             <Card>
                 {subscriptionLog && subscriptionLog.length > 0 ? (
@@ -25,7 +25,8 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
-                                    {["Package","Sub Type ", "Start date", "End date", "Remaining Earning", "Lapsed Earning", "Service Type", "Receipt","Status", "Discount"].map((el, index) => (
+                                    {/* "Service Type", "Receipt", "Status", "Discount" */}
+                                    {["Type", "Transaction Type", "Plan", "Base Credit", "Bonus Credit", "Utilized Credit", "Nett Credit",].map((el, index) => (
                                         <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography
                                                 variant="small"
@@ -39,43 +40,49 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                
-                                {subscriptionlog.map(({ id, subtype,Plan,startDate, endDate, remainingEarning, lapsedEarning, serviceType,receipt,status, subscribedDiscount }, key) => {
+
+                                {subscriptionlog.map(({ id, type, transactionType, baseCredit, bonusCredit, utilizedCredit, nettCredit, Plan, startDate, endDate, remainingEarning, lapsedEarning, serviceType, receipt, status, subscribedDiscount }, key) => {
                                     const className = `py-3 px-5 ${key === subscriptionlog.length - 1 ? "" : "border-b border-blue-gray-50"
                                         }`;
                                     return (
                                         <tr key={id}>
+
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                {Plan.name}
+                                                    {type}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                {subtype = Plan?.name === "Free" ? "Free" : "paid" }                                            
+                                                    {transactionType}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {status === 'DRAFT' ? '-' : moment(startDate).format("DD-MM-YYYY")}
+                                                    {Plan?.name}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {status === 'DRAFT' ? '-' : moment(endDate).format("DD-MM-YYYY")}
+                                                    {baseCredit}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {remainingEarning}
+                                                    {bonusCredit}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {lapsedEarning}
+                                                    {utilizedCredit}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {nettCredit}
+                                                </Typography>
+                                            </td>
+                                            {/* <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {serviceType = "Driver Only"}
                                                 </Typography>
@@ -94,7 +101,7 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {subscribedDiscount}
                                                 </Typography>
-                                            </td>
+                                            </td> */}
                                         </tr>
                                     );
                                 })}
@@ -102,12 +109,12 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                         </table>
                     </CardBody>
                 ) : (
-                    <h2 className="text-lg font-medium p-4">No Contract Details</h2>
+                    <h2 className="text-lg font-medium p-4">No Credit Details</h2>
                 )
                 }
             </Card>
         </>
     );
-    
+
 };
 export default SubscriptionLog;

@@ -10,6 +10,7 @@ import { Button } from '@material-tailwind/react';
 import PrintCabDetails from '@/components/PrintCabDetails';
 import DocumentsList from '@/components/DocumentsList';
 import CabPriceTableLog from './CabPriceTableLog';
+import SubscriptionLog from '@/components/SubscriptionLog';
 
 const CabDetails = ({ btnShow = false, noApprove = false }) => {
     //const [enablePrint, setEnablePrint] = useState(false);
@@ -207,6 +208,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
+            {cab && cab?.creditLog && <SubscriptionLog subscriptionlog={cab?.creditLog} />}
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}
             {/* <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} /> */}
