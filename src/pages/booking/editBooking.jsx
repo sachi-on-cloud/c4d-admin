@@ -303,7 +303,7 @@ const EditBooking = (props) => {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Typography className="text-sm font-medium text-blue-700">Trip Type</Typography>
+                                    <Typography className="text-sm font-medium text-black">Trip Type</Typography>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
                                     {(values?.serviceType !== 'RENTAL') && (<Button
                                             color={values.tripType === 'Drop Only' ? 'blue' : 'gray'}

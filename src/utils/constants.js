@@ -1152,7 +1152,7 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     ${COMPANY_NAME} Team`;
 
     export const ColorStyles = {
-        sidenavColors:"bg-[#1A73E8] text-white",
+        sidenavColors:"bg-[#b3ccff]",
         bgColor: "bg-[#1A73E8]",
         PopoverHandlerText: "text-black",
         bgStatusColor:" bg-[#1A73E8] text-white",
