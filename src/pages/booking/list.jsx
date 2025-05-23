@@ -30,7 +30,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         currentPage: 1,
         totalPages: 1,
         totalItems: 0,
-        itemsPerPage: 20,
+        itemsPerPage: 10,
     });
 
     const handleFilterChange = (filterType, value) => {
@@ -410,7 +410,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 End Trip
                                                             </Button>
                                                         } */}
-                                                        {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && data?.serviceType == "RIDES")) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                        {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                             <Button
                                                                 fullWidth
                                                                 onClick={() => onAssignDriverHandler(data)}
