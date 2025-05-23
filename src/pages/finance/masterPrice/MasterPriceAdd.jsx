@@ -87,7 +87,7 @@ export function MasterPriceAdd() {
                         <pre>{JSON.stringify(errors, null, 2)}</pre>
                         <p>Package Debug: {JSON.stringify(values.package, null, 2)}</p> */}
 
-                        <div className="p-4 bg-gray-50 grid grid-cols-2 gap-4">
+                        <div className="p-4 bg-blue-gray-100 grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Service Type</label>
                                 <Field as="select" name="serviceType" className="p-2 w-full rounded-md border-2 border-gray-300">

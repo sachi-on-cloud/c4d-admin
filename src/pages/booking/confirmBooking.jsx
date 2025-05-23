@@ -649,7 +649,7 @@ const ConfirmBooking = (props) => {
                                 fullWidth
                                 onClick={() => { props.onAssignDriver(bookingDetails); }}
                             >
-                                {props.bookingData.serviceType === "CAB"
+                                {props.bookingData.serviceType != "CAB" && props.bookingData.serviceType !="DRIVER"
                                     ? "Assign Cab"
                                     : "Assign Captain"}
                             </Button>

@@ -315,6 +315,7 @@ const RentalsMasterPriceEdit = () => {
                             </div>
 
                             {/* new entry ackilometerPrice*/}
+                            {values?.type === 'Outstation' && <>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Ac Kilometer Price</label>
                                 <Field type="number" name="acKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -335,6 +336,7 @@ const RentalsMasterPriceEdit = () => {
                                 <Field type="number" name="acKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="acKilometerPriceSedan" component="div" className="text-red-500 text-sm" />
                             </div>
+                            </>}
                             {values?.type === 'Outstation' && <>
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price</label>

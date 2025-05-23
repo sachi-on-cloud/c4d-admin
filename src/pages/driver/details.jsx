@@ -327,8 +327,8 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
             {/* {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />} */}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             {/* <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} /> */}
-            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} noApprove ={noApprove}/>}
-            {driver && driver?.subscriptionLog && <SubscriptionLog subscriptionlog={driver?.subscriptionLog} />}
+            {driver && driver?.creditLog && <SubscriptionLog subscriptionlog={driver?.creditLog} />}
+            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} noApprove={noApprove} />}
             {driver && driver?.documentLog && <DocumentLogs documentlogs={driver?.documentLog} />}
             {!btnShow && <div className='flex w-full'>
                 <Button

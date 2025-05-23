@@ -17,7 +17,7 @@ export function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50 mr-2">
-      <div className="w-72 h-full fixed top-0 left-0 z-10">
+      <div className="w-72 h-full fixed top-0 left-0 z-10  bg-blue-gray-100">
         <Sidenav
           routes={routes}
           brandImg={"/img/logo-ct.png"}
@@ -28,7 +28,7 @@ export function Dashboard() {
           sidenavColor={sidenavColor}
           sidenavType={sidenavType}
         />
-        <div className="flex-1 pl-7 pt-4 overflow-y-auto">
+        <div className="flex-1 pl-7 pt-4 overflow-y-auto bg-blue-gray-100">
           <Routes>
             {routes.map(
               ({ layout, pages }) =>

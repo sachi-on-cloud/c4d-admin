@@ -129,6 +129,8 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Package Type</label>
                                         <Field type="text" disabled name="packageType" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>}
+                                    {initialValues?.receiptType !== 'BOOKING' &&
+                                    <>
                                     <div className='space-y-1'>
                                         <label className="text-sm font-medium text-gray-700">Status</label>
                                         <Field type="text" disabled name="status" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
@@ -137,6 +139,7 @@ const ReceiptDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Contract Number</label>
                                         <Field type="text" disabled name="subscriptionId" className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300" />
                                     </div>
+                                    </>}
                                     {initialValues?.driverName &&  <><div className='space-y-1'>
                                             <label className="text-sm font-medium text-gray-700">Driver Name</label>
                                             <Field

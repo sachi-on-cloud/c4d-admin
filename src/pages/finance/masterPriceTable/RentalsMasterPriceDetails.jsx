@@ -173,7 +173,7 @@ const RentalsPriceMasterDetails = () => {
                             {/* new entry Mini */}
                             <div>
                             <h2 className="text-2xl font-bold mb-4">Mini</h2>
-                            { initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-5 gap-2'}>
+                            { initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-4 gap-2'}>
 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Base Fare</label>
@@ -193,11 +193,11 @@ const RentalsPriceMasterDetails = () => {
                                 <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
                                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
-
+                                {initialValues?.type === 'Outstation' && 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Price</label>
                                         <Field type="number" name="acKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                                    </div>
+                                    </div>}
                                     {initialValues?.type === 'Outstation' && <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price</label>
                                         <Field type="number" name="acKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -230,7 +230,7 @@ const RentalsPriceMasterDetails = () => {
                             <br/>
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Sedan</h2>
-                                { initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-5 gap-2'}>
+                                { initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-4 gap-2'}>
 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">BaseFare (Sedan)</label>
@@ -249,10 +249,11 @@ const RentalsPriceMasterDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Kilometer Price (Sedan)</label>
                                         <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
+                                    {initialValues?.type === 'Outstation' && 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Price (Sedan)</label>
                                         <Field type="number" name="acKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                                    </div>
+                                    </div>}
                                     {initialValues?.type === 'Outstation' && <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price Sedan</label>
                                         <Field type="number" name="acKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -286,7 +287,7 @@ const RentalsPriceMasterDetails = () => {
                             {/* new entry SUV */}
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">SUV</h2>
-                                {initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-5 gap-2'}>
+                                {initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-4 gap-2'}>
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Base Fare (Suv)</label>
                                         <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -304,10 +305,11 @@ const RentalsPriceMasterDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Kilometer Price (Suv)</label>
                                         <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
+                                    {initialValues?.type === 'Outstation' && 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Price Suv</label>
                                         <Field type="number" name="acKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                                    </div>
+                                    </div>}
                                     {initialValues?.type === 'Outstation' && <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price Suv</label>
                                         <Field type="number" name="acKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -340,7 +342,7 @@ const RentalsPriceMasterDetails = () => {
                             {/* new entry MUV */}
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">MUV</h2>
-                                {initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-5 gap-2'}>
+                                {initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-4 gap-2'}>
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
                                         <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
@@ -357,11 +359,11 @@ const RentalsPriceMasterDetails = () => {
                                         <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
                                         <Field type="number" name="kilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
-
+                                        {initialValues?.type === 'Outstation' && 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Price (MUV)</label>
                                         <Field type="number" name="acKilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
-                                    </div>
+                                    </div>}
                                     {initialValues?.type === 'Outstation' && <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price MVP</label>
                                         <Field type="number" name="acKilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />

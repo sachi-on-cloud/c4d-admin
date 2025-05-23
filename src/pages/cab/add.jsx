@@ -63,6 +63,8 @@ const CabAdd = () => {
     const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
     const [accountOptions, setAccountOptions] = useState([]);
     const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
+    const [carType, setCarType] = useState([]);
+    const [selectedCarType, setSelectedCarType] = useState('');
     const { id } = useParams();
     const [imagePreview, setImagePreview] = useState(null);
     const [insuranceImagePreview, setInsuranceImagePreview] = useState(null);
@@ -111,6 +113,13 @@ const CabAdd = () => {
         }
     };
 
+    const getCarTypes = async (accountId) => {
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CAR_TYPE + "all");
+        if (data?.success && data?.data.length > 0) {
+            setCarType(data?.data);
+        }
+    };
+
     const getPackageListDetails = async () => {
         const data = await ApiRequestUtils.get(API_ROUTES.PACKAGE_CABS_LIST);
         if (data?.success) {
@@ -118,7 +127,7 @@ const CabAdd = () => {
                 const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
                 return {
                     ...option,
-                    period: `${option.type =='Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
+                    period: `${option.type == 'Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
                 };
             });
             //console.log("PACKAGE", packageData);
@@ -136,6 +145,7 @@ const CabAdd = () => {
     // };
 
     useEffect(() => {
+        getCarTypes();
         getPackageListDetails();
         getAccountNames();
         getAccountRelatedDrivers(accountId);
@@ -330,6 +340,10 @@ const CabAdd = () => {
                 curAddress: values.address,
                 insurance: values.insurance,
                 carType: values.carType,
+                vehicleType: values.vehicleType,
+                seater: values.seater,
+                luggage: values.luggage,
+                modelYear: values.modelYear,
                 assigned: values.assignedTo,
                 withDriver: values.withDriver,
                 driverName: values.driverName,
@@ -346,23 +360,43 @@ const CabAdd = () => {
             console.log('CAB DATA :', resp);
             if (!resp?.success && resp?.code === 203) {
                 setAlert({ message: 'Cab already exists', color: 'red' });
-                setTimeout(() => setAlert(null), 2000);
+                // setTimeout(() => setAlert(null), 2000);
                 resetForm();
-            } else {
-                // navigate('/dashboard/vendors/account/', {
-                //     state: {
-                //         cabAdded: true,
-                //         cabName: data?.data?.name
-                //     }
-                // });
-                navigate(`/dashboard/vendors/account/details/${accountId}`)
+            } 
+            else if (resp?.success && resp?.code === 200) {
+                setAlert({ message: 'Cab Added Successfully', color: 'green' }, () => {
+                    navigate(`/dashboard/vendors/account/details/${cabDetails?.accountId}`);
+                });
             }
+            // else {
+            //     // navigate('/dashboard/vendors/account/', {
+            //     //     state: {
+            //     //         cabAdded: true,
+            //     //         cabName: data?.data?.name
+            //     //     }
+            //     // });
+            //     navigate(`/dashboard/vendors/account/details/${accountId}`)
+            // }
         } catch (error) {
             console.error('Error creating driver and car:', error);
         }
         setSubmitting(false);
     };
-
+    useEffect(() => {
+        let timeoutId;
+        if (alert?.message === 'Cab Added Successfully') {
+            timeoutId = setTimeout(() => {
+                setAlert(null);
+                console.log('Navigating to:', `/dashboard/vendors/account/details/${accountId}`);
+                navigate(`/dashboard/vendors/account/details/${accountId}`);
+            }, 2000);
+        }
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [alert, accountId, navigate]);
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };
@@ -429,23 +463,52 @@ const CabAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="MINI" className="form-radio" />
+                                        <Field type="radio" name="carType" value="MINI" className="form-radio" onClick={() => setSelectedCarType("Mini")} />
                                         <span className="ml-2">Mini</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="SUV" className="form-radio" />
+                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" onClick={() => setSelectedCarType("Sedan")} />
+                                        <span className="ml-2">Sedan</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <Field type="radio" name="carType" value="SUV" className="form-radio" onClick={() => setSelectedCarType("SUV")} />
                                         <span className="ml-2">SUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="MUV" className="form-radio" />
+                                        <Field type="radio" name="carType" value="MUV" className="form-radio" onClick={() => setSelectedCarType("MUV")} />
                                         <span className="ml-2">MUV</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" />
-                                        <span className="ml-2">Sedan</span>
                                     </label>
                                 </div>
                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
+                                <Field as="select" name="vehicleType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="">Select Type</option>
+                                    {carType
+                                        .filter((type) => type.carType == selectedCarType)
+                                        .map((type) => (
+                                            <option key={type.id} value={type.carModel}>
+                                                {type.carModel}
+                                            </option>
+                                        ))}
+                                </Field>
+                                <ErrorMessage name="vehicleType" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="seater" className="text-sm font-medium text-gray-700">Seater</label>
+                                <Field type="text" name="seater" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="luggage" className="text-sm font-medium text-gray-700">Luggage</label>
+                                <Field type="text" name="luggage" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="modelYear" className="text-sm font-medium text-gray-700">Year of Model</label>
+                                <Field type="text" name="modelYear" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <ErrorMessage name="modelYear" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label htmlFor="assignedTo" className="text-sm font-medium text-gray-700">Assigned To</label>
