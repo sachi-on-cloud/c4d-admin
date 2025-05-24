@@ -85,6 +85,7 @@ const Booking = (props) => {
             pickupLong: values?.pickupLocation?.lng,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
+            acType:values?.acType?.toUpperCase(),
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
         //console.log("QOYTEE DATA", data);
@@ -184,6 +185,7 @@ const Booking = (props) => {
             serviceType: values.serviceType,
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
+            acType:values?.acType?.toUpperCase(),
             transmissionType: values.transmissionType,
             carType: values.carType,
             fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -574,6 +576,29 @@ const Booking = (props) => {
                                                                 </div>
                                                             </div>
                                                         )}
+                                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation')) && (
+                                                            <div>
+                                                                <Typography className="text-sm font-medium text-black-700">AC Type</Typography>
+                                                                <div className="grid grid-cols-2 gap-4 mt-2">
+                                                                    <Button
+                                                                        color={values.acType === 'Ac' ? 'blue' : 'gray'}
+                                                                        onClick={() => setFieldValue('acType', 'Ac')}
+                                                                        variant={values?.acType === 'Ac' ? 'filled' : 'outlined'}
+                                                                    >
+                                                                        AC
+                                                                    </Button>
+
+                                                                    <Button
+                                                                        color={values.acType === 'Non Ac' ? 'blue' : 'gray'}
+                                                                        onClick={() => setFieldValue('acType', 'Non Ac')}
+                                                                        variant={values?.acType === 'Non Ac' ? 'filled' : 'outlined'}
+                                                                    >
+                                                                        NON AC
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
                                                         <div className='grid grid-cols-2 mt-2 space-x-3'>
                                                             {(values.serviceType !== 'RENTAL') && (<div>
                                                                 <label className="text-sm font-medium text-black-700">Car Type</label>

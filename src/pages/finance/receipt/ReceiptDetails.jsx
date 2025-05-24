@@ -213,7 +213,7 @@ const ReceiptDetails = () => {
                             id: receipt?.bookingId,
                             customerId: receipt?.customerId,
                         }}
-                        setIsOpen={setIsOpen}
+                        setIsOpen={setIsOpen} onConfirm={setIsOpen}
                     />
                 </DialogBody>
             </Dialog>
