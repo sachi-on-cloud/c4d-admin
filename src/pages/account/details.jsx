@@ -57,13 +57,13 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
                                         <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                             <option value="">Select Type</option>
-                                            <option value="Individual">Driver With Vehicle</option>
+                                            <option value="Individual">Owner Cum Vehicle</option>
                                             <option value="Company">Travels</option>
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'driverWithVehicles' ? "Full Name" : 'Company Name'}</label>
+                                        <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'Individual' ? "Full Name" : 'Company Name'}</label>
                                         <Field type="text" name="name" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                         <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
@@ -240,7 +240,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
             {!btnShow &&
                 <div className='flex justify-center w-full'>
                     <Button
-                        onClick={() => navigate(-1)}
+                        onClick={() => { navigate('/dashboard/vendors/account'); }}
                         className={`my-6 px-8 ${ColorStyles.backButton}`}
                     >
                         Back

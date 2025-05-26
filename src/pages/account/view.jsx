@@ -179,6 +179,11 @@ export function AccountView() {
       })
     }
   };
+  const typeLabels = {
+  Individual: "Owner Cum Vehicle",
+  Company: "Travels"
+};
+
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
       <Popover placement="bottom-start">
         <PopoverHandler>
@@ -230,7 +235,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","Account Name","Phone Number","Service Type","Source","Available Status","Owner Status","KYC Status"].map((el) => (
+                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","Available Status","Owner Status","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -277,8 +282,8 @@ export function AccountView() {
                           <FilterPopover title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "InActive", label: "Offline" },
-                              { value: "Active", label: "Online" }
+                              { value: "Offline", label: "Offline" },
+                              { value: "Online", label: "Online" }
                             ]}
                             selectedFilters={availableStatusFilter}
                             onFilterChange={(value) => handleFilterChange("availableStatus", value)}
@@ -288,8 +293,8 @@ export function AccountView() {
                             title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "Company", label: "Company" },
-                              { value: "Individual", label: "Individual" },
+                              { value: "Company", label: "Travels" },
+                              { value: "Individual", label: "Owner Cum Vehicle" },
                             ]}
                             selectedFilters={serviceTypeFilter}
                             onFilterChange={(value) => handleFilterChange("type", value)}
@@ -336,7 +341,7 @@ export function AccountView() {
                     (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
                     (documentTypeFilter.includes('All') || documentTypeFilter.includes(account.documentStatus?.status))
                   ).map(
-                    ({id, created_at, name, phoneNumber, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
+                    ({id, created_at, name, email,phoneNumber, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
                       const className = `py-3 px-5 ${key === accounts.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -362,6 +367,11 @@ export function AccountView() {
                               </div>
                             </div>
                           </td>
+                           <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {email}
+                            </Typography>
+                          </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
                               {phoneNumber}
@@ -369,9 +379,14 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
-                              {type}
+                              {typeLabels[type] || type}
                             </Typography>
                           </td>
+                          {/* <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {type}
+                            </Typography>
+                          </td> */}
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
                               {source}
@@ -381,7 +396,7 @@ export function AccountView() {
                             <Chip
                               variant="ghost"
                               color={availableStatus == "ACTIVE" ? "green" : "black"}
-                              value={availableStatus == "ACTIVE" ? "online" : "offline"}
+                              value={availableStatus == "ACTIVE" ? "Online" : "Offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>

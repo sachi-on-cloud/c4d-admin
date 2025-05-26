@@ -900,7 +900,7 @@ export const API_ROUTES = {
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
     'RIDES_DRIVER_LIST': '/driver-request-list',
-    'RENTAL_REQUEST':'/request-rental',
+    'RENTAL_REQUEST': '/request-rental',
     'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
@@ -1060,6 +1060,22 @@ export const WHATSAPP_DRIVER_ASSIGNED_TEMPLATE =
 
     Thank you,
     ${COMPANY_NAME} Team`;
+export const WHATSAPP_RIDE_TRIP_START_TEMPLATE =
+    `${COMPANY_NAME} Trip Update
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Your trip has started with \${driverName}.
+
+    Car Type: \${carType}
+    Start OTP: \${startOtp}
+    Start Time: \${startTime}
+
+    If you need any assistance, feel free to contact our support team \${supportNumber}. 
+    We hope you enjoy your journey!
+
+    Thank you,
+    ${COMPANY_NAME} Team`;
 
 export const WHATSAPP_TRIP_START_TEMPLATE =
     `${COMPANY_NAME} Trip Update
@@ -1151,13 +1167,13 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-    export const ColorStyles = {
-        sidenavColors:"bg-[#b3ccff]",
-        bgColor: "bg-[#1A73E8]",
-        PopoverHandlerText: "text-black",
-        bgStatusColor:" bg-[#1A73E8] text-white",
-        addButtonColor:"bg-[#1A73E8] text-white",
-        continueButtonColor:" bg-[#1A73E8] text-white",
-        backButton:" text-black border-gray-400 border-2 rounded-xl bg-white",
-        editButton:"bg-[#1A73E8] text-white",
-      }; 
+export const ColorStyles = {
+    sidenavColors: "bg-[#b3ccff]",
+    bgColor: "bg-[#1A73E8]",
+    PopoverHandlerText: "text-black",
+    bgStatusColor: " bg-[#1A73E8] text-white",
+    addButtonColor: "bg-[#1A73E8] text-white",
+    continueButtonColor: " bg-[#1A73E8] text-white",
+    backButton: " text-black border-gray-400 border-2 rounded-xl bg-white",
+    editButton: "bg-[#1A73E8] text-white",
+}; 

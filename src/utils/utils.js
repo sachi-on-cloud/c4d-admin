@@ -1,6 +1,6 @@
 // import { Dimensions } from 'react';
 import moment from "moment";
-import { GPAY_NAME, GPAY_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE } from "./constants";
+import { GPAY_NAME, GPAY_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE, WHATSAPP_RIDE_TRIP_START_TEMPLATE } from "./constants";
 
 export const Utils = {
     formatSelectedDate: (date) => {
@@ -237,17 +237,29 @@ export const Utils = {
         if (bookingDetails?.status === "STARTED") {
             const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
             const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
-            text = encodeURIComponent(
-                WHATSAPP_TRIP_START_TEMPLATE
-                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
-                    .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', driverName)
-                    .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
-                    .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
-                    .replace('${endTime}', moment(endTime).format('hh:mm A'))
-                    .replace('${startOtp}', bookingDetails.startOtp)
-                    .replace('${supportNumber}', supportNumber)
-            );
+            (bookingDetails.serviceType == "DRIVER" || bookingDetails.serviceType == "RENTAL") && bookingDetails.packageType == "Local" ?
+                text = encodeURIComponent(
+                    WHATSAPP_TRIP_START_TEMPLATE
+                        .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                        .replace('${customerName}', bookingDetails.Customer.firstName)
+                        .replace('${driverName}', driverName)
+                        .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
+                        .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
+                        .replace('${endTime}', moment(endTime).format('hh:mm A'))
+                        .replace('${startOtp}', bookingDetails.startOtp)
+                        .replace('${supportNumber}', supportNumber)
+                )
+                :
+                text = encodeURIComponent(
+                    WHATSAPP_RIDE_TRIP_START_TEMPLATE
+                        .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                        .replace('${customerName}', bookingDetails.Customer.firstName)
+                        .replace('${driverName}', driverName)
+                        .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
+                        .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
+                        .replace('${startOtp}', bookingDetails.startOtp)
+                        .replace('${supportNumber}', supportNumber)
+                );
         }
 
 
