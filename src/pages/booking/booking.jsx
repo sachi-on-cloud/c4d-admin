@@ -334,6 +334,9 @@ const Booking = (props) => {
         if(val?.serviceType == "DRIVER" && val?.packageTypeSelected == "Outstation"){
             return !val?.dropLocation ? true : false;
         }
+        // if(val?.serviceType == "DRIVER" && val?.tripType == 'Round Trip' && val?.packageSelected == 'Outstation'){
+        //     return !(val?.toDate && val?.toTime) ? true : false;
+        // }
         return false
     };
 

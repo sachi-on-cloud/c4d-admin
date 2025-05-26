@@ -293,8 +293,8 @@ export function AccountView() {
                             title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "Company", label: "Company" },
-                              { value: "Individual", label: "Individual" },
+                              { value: "Company", label: "Travels" },
+                              { value: "Individual", label: "Owner Cum Vehicle" },
                             ]}
                             selectedFilters={serviceTypeFilter}
                             onFilterChange={(value) => handleFilterChange("type", value)}

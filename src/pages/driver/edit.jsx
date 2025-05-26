@@ -422,7 +422,6 @@ const DriverEdit = () => {
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             const files = e.target.files;
-            if (!files || files.length === 0) return;
 
             if (files.length > 2) {
                 alert("You can upload a maximum of two documents.");
@@ -657,6 +656,16 @@ const DriverEdit = () => {
 
     return (
         <div className="p-4 mx-auto">
+            {alert && (
+                <div className="mb-2">
+                    <Alert
+                        color={alert.color}
+                        className="py-3 px-6 rounded-xl"
+                    >
+                        {alert.message}
+                    </Alert>
+                </div>
+            )}
             <h2 className="text-2xl font-bold mb-4">Update Driver</h2>
             <Formik
                 initialValues={initialValues}

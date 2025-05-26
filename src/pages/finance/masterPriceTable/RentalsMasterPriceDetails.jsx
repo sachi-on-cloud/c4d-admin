@@ -329,7 +329,7 @@ const RentalsPriceMasterDetails = () => {
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
                                         <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price Suv</label>
-                                        <Field type="number" name="acExtraKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                                        <Field type="number" name="acExtraKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Additional Min Charge (Suv)</label>
