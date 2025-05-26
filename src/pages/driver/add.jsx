@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
-import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem,Dialog, DialogHeader, DialogBody} from '@material-tailwind/react';
+import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
 import Select from 'react-select'
 
-const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect}) => {
+const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
@@ -65,7 +65,7 @@ const DriverAdd = () => {
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [thalukSearchText, setThalukSearchText] = useState("");
     const [stateSearchText, setStateSearchText] = useState("");
-    const [owner , setOwners] = useState([]);
+    const [owner, setOwners] = useState([]);
     const [isEditable, setIsEditable] = useState(true);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
@@ -73,8 +73,8 @@ const DriverAdd = () => {
         livePhoto: null,
         drivingLicenseImage: null,
         consentForm: null,
-        panImage:null
-    });      
+        panImage: null
+    });
     const [modalData, setModalData] = useState(null);
     const { id } = useParams();
     const [driverAdded, setDriverAdded] = useState({
@@ -173,7 +173,7 @@ const DriverAdd = () => {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
                 address: query
             });
-            console.log("data",data)
+            console.log("data", data)
             if (data?.success && data?.data) {
                 setAddressSuggestions(data?.data)
             }
@@ -184,11 +184,11 @@ const DriverAdd = () => {
 
     // const renderPriceTable = (title, prices, values) => {
     //     if (prices.length === 0) return null;
-        
+
     //     const sortedPrices = [...prices].sort((a, b) => {
     //         const packageA = packageDetails.find(p => p.id === a.packageId);
     //         const packageB = packageDetails.find(p => p.id === b.packageId);
-            
+
     //         if (title === "LOCAL") {
     //             const hoursA = parseInt(packageA.period);
     //             const hoursB = parseInt(packageB.period);
@@ -269,7 +269,7 @@ const DriverAdd = () => {
                 thaluk: values.thaluk,
                 district: values.district,
                 state: values.state,
-                country: "India", 
+                country: "India",
                 pincode: values.pinCode || "",
                 reference1: values.reference1 || "",
                 reference1_phone: values.phoneNumber1 || "",
@@ -321,14 +321,14 @@ const DriverAdd = () => {
     const filteredDistricts = districtOptions.filter(district =>
         district.name.toLowerCase().includes(districtSearchText.toLowerCase())
     );
-    
+
     const thalukOptions = THALUK_LIST.map(thaluk => ({
         id: thaluk.value,
         name: thaluk.label
     }));
 
-    const filteredThaluk = thalukOptions.filter(thaluk => 
-        thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase()) 
+    const filteredThaluk = thalukOptions.filter(thaluk =>
+        thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase())
     );
 
     const stateOptions = STATE_LIST.map(state => ({
@@ -336,83 +336,83 @@ const DriverAdd = () => {
         name: state.label
     }));
 
-    const filteredState = stateOptions.filter(state => 
-        state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
+    const filteredState = stateOptions.filter(state =>
+        state.name.toLowerCase().includes(stateSearchText.toLowerCase())
     );
 
-    const DocumentUpload = ({ label, value, name, onChange, setModalData ,fullDocVal}) => {
+    const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal }) => {
         return (
             <tr>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
-            </td>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography
-                    className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}
-                >
-                    {value ? "UPLOADED" : "NO DOCUMENTS"}
-                </Typography>
-            </td>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
-                <div className="flex items-center gap-2">
-                    <label
-                        htmlFor={name}
-                        className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
-                    >
-                        Upload
-                    </label>
-                    <input
-                        type="file"
-                        accept="image/*, application/pdf" 
-                        id={name}
-                        name={name}
-                        onChange={onChange}
-                        className="hidden"
-                        multiple={name !== "livePhoto"}
-                    />
-                </div>
-            </td>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
-                {value && (
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography
-                        variant="small"
-                        className="font-semibold underline cursor-pointer text-blue-900"
-                        onClick={() => {
-                            if (label === 'Live Photo') {
-                                setModalData({
-                                    image: fullDocVal?.image1
-                                })
-                            } else {
-                                setModalData({
-                                    image: fullDocVal?.image1,
-                                    image2: fullDocVal?.image2,
-                                })
-                            }
-                        }}
+                        className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}
                     >
-                        View/Download
+                        {value ? "UPLOADED" : "NO DOCUMENTS"}
                     </Typography>
-                )}
-            </td>
-        </tr>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <div className="flex items-center gap-2">
+                        <label
+                            htmlFor={name}
+                            className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                        >
+                            Upload
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*, application/pdf"
+                            id={name}
+                            name={name}
+                            onChange={onChange}
+                            className="hidden"
+                            multiple={name !== "livePhoto"}
+                        />
+                    </div>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    {value && (
+                        <Typography
+                            variant="small"
+                            className="font-semibold underline cursor-pointer text-blue-900"
+                            onClick={() => {
+                                if (label === 'Live Photo') {
+                                    setModalData({
+                                        image: fullDocVal?.image1
+                                    })
+                                } else {
+                                    setModalData({
+                                        image: fullDocVal?.image1,
+                                        image2: fullDocVal?.image2,
+                                    })
+                                }
+                            }}
+                        >
+                            View/Download
+                        </Typography>
+                    )}
+                </td>
+            </tr>
         );
     };
 
     const handleImageUpload = async (e, setFieldValue, label) => {
         try {
-        const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        const files = e.target.files;
-        if (files.length > 2) {
-            alert("You can upload a maximum of two documents.");
-            return;
-        }
-    
-        const uploadedFiles = [];
-        const previews = {};
-    
-        for (let i = 0; i < files.length; i++) {
-            if (!allowedTypes.includes(files[i].type)) {
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const files = e.target.files;
+            if (files.length > 2) {
+                alert("You can upload a maximum of two documents.");
+                return;
+            }
+
+            const uploadedFiles = [];
+            const previews = {};
+
+            for (let i = 0; i < files.length; i++) {
+                if (!allowedTypes.includes(files[i].type)) {
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                         color: "red",
@@ -428,66 +428,65 @@ const DriverAdd = () => {
                     setTimeout(() => setAlert(null), 5000);
                     return;
                 }
-            const file = files[i];
-            uploadedFiles.push(file);
-            
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                previews[label] = reader.result;
-                setImagePreviews((prev) => ({ ...prev, ...previews }));
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        setFieldValue(label, uploadedFiles);
-    
-        const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
-    
-        const formData = new FormData();
-        formData.append('type', type);
-        formData.append('driverId', driverAdded?.driverId);
-        formData.append('idNumber', '326363636363');
-        formData.append('name', 'name');
-        
-        formData.append('image1', files[0]);
-        formData.append('extImage1', files[0].name.split('.')[1]);
-        formData.append('fileTypeImage1', files[0].type);
-        formData.append('image2', files[1]);
-        formData.append('extImage2', files[1].name.split('.')[1]);
-        formData.append('fileTypeImage2', files[1].type);
-        console.log('formData ->', formData);
-        const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
-        console.log('DATA IN DOC INSERT :', data);
-        if(data?.success)
-        {
-            console.log(data);
-            setImagePreviews((prev) => ({
-                ...prev,
-                [label]: {
-                    image1: data?.data?.image1 || prev[label]?.image1,
-                    image2: data?.data?.image2 || prev[label]?.image2,
-                    id: data?.data?.id,
-                }
-            }))
-        }
-         else {
+                const file = files[i];
+                uploadedFiles.push(file);
+
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    previews[label] = reader.result;
+                    setImagePreviews((prev) => ({ ...prev, ...previews }));
+                };
+                reader.readAsDataURL(file);
+            }
+
+            setFieldValue(label, uploadedFiles);
+
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
+
+            const formData = new FormData();
+            formData.append('type', type);
+            formData.append('driverId', driverAdded?.driverId);
+            formData.append('idNumber', '326363636363');
+            formData.append('name', 'name');
+
+            formData.append('image1', files[0]);
+            formData.append('extImage1', files[0].name.split('.')[1]);
+            formData.append('fileTypeImage1', files[0].type);
+            formData.append('image2', files[1]);
+            formData.append('extImage2', files[1].name.split('.')[1]);
+            formData.append('fileTypeImage2', files[1].type);
+            console.log('formData ->', formData);
+            const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
+            console.log('DATA IN DOC INSERT :', data);
+            if (data?.success) {
+                console.log(data);
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        image2: data?.data?.image2 || prev[label]?.image2,
+                        id: data?.data?.id,
+                    }
+                }))
+            }
+            else {
                 setAlert({
                     message: data?.message || "Failed to upload document. Please try again.",
                     color: "red",
                 });
                 setTimeout(() => setAlert(null), 5000);
             }
-    } catch (err) {
-        console.log("ERR - >", err)
-    }
+        } catch (err) {
+            console.log("ERR - >", err)
+        }
     };
 
     const handlePhotoUpload = async (e, setFieldValue, label) => {
         try {
-        const file = e.target.files[0];
-        const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-         if (!allowedTypes.includes(file.type)) {
+            const file = e.target.files[0];
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (!allowedTypes.includes(file.type)) {
                 setAlert({
                     message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                     color: "red",
@@ -527,18 +526,16 @@ const DriverAdd = () => {
 
             console.log('DATA IN DOC INSERT :', data);
 
-            if(data?.success)
-            {
+            if (data?.success) {
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
-                        image1:data?.data?.image1 || prev[label]?.image1,
-                        id:data?.data?.id,
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        id: data?.data?.id,
                     }
                 }))
             }
-            else 
-            {
+            else {
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",
@@ -552,7 +549,7 @@ const DriverAdd = () => {
                 color: "red",
             });
             setTimeout(() => setAlert(null), 5000);
-        } 
+        }
     };
 
     const parseAddress = (address) => {
@@ -567,7 +564,7 @@ const DriverAdd = () => {
                 pincode: "",
             };
         }
-    
+
         const parts = address.split(", ").reverse();
         return {
             street: parts[4] || "",
@@ -578,7 +575,7 @@ const DriverAdd = () => {
             pincode: "",
         };
     };
-    
+
     const extractPincode = (addressComponents) => {
         const pincodeObj = addressComponents.find((comp) =>
             comp.types.includes("postal_code")
@@ -591,12 +588,12 @@ const DriverAdd = () => {
             console.error("Google Address selection is invalid", place);
             return;
         }
-    
+
         const parsedAddress = parseAddress(place.formatted_address);
         parsedAddress.pincode = extractPincode(place.address_components);
-    
+
         setFieldValue("address", place.formatted_address);
-    
+
         if (isSameAddress) {
             setFieldValue("streetName", parsedAddress.street);
             setFieldValue("thaluk", parsedAddress.taluk);
@@ -605,7 +602,7 @@ const DriverAdd = () => {
             setFieldValue("pinCode", parsedAddress.pincode);
         }
     };
-    
+
     return (
         <div className="p-4 mx-auto">
             {alert && (
@@ -636,6 +633,7 @@ const DriverAdd = () => {
                                             <option value="">Select salutation</option>
                                             <option value="Mr">Mr</option>
                                             <option value="Mrs">Mrs</option>
+                                            <option value="Miss">Miss</option>
                                             <option value="Others">Others</option>
                                         </Field>
                                         <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
@@ -652,7 +650,7 @@ const DriverAdd = () => {
                                     </div>
                                     <div>
                                         <label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</label>
-                                        <Field type="date" disabled={!isEditable}  name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()} 
+                                        <Field type="date" disabled={!isEditable} name="dateOfBirth" className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.dateOfBirth} max={currentDate()}
                                             onChange={(e) => {
                                                 setFieldValue('dateOfBirth', e.target.value);
                                                 if (e.target.value) {
@@ -660,7 +658,7 @@ const DriverAdd = () => {
                                                     const birthDate = new Date(e.target.value);
                                                     let age = today.getFullYear() - birthDate.getFullYear();
                                                     const monthDiff = today.getMonth() - birthDate.getMonth();
-                                                    
+
                                                     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
                                                         age--;
                                                     }
@@ -673,28 +671,28 @@ const DriverAdd = () => {
                                     </div>
                                     <div>
                                         <label htmlFor="age" className="text-sm font-medium text-gray-700">Age</label>
-                                        <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled/>
+                                        <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                         <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                        <Field type="tel" name="phoneNumber" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                        <Field type="tel" name="phoneNumber" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                         <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
                                         <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                        <Field type="text" name="license" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <Field type="text" name="license" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
                                         <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">License Type</p>
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="licenseType" disabled={!isEditable}  value="type1" className="form-radio" />
+                                                <Field type="radio" name="licenseType" disabled={!isEditable} value="type1" className="form-radio" />
                                                 <span className="ml-2">White Board</span>
                                             </label>
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" name="licenseType" disabled={!isEditable}  value="type2" className="form-radio" />
+                                                <Field type="radio" name="licenseType" disabled={!isEditable} value="type2" className="form-radio" />
                                                 <span className="ml-2">Yellow Board</span>
                                             </label>
                                         </div>
@@ -702,18 +700,18 @@ const DriverAdd = () => {
                                     </div>
                                     <div>
                                         <label htmlFor="licenseExpiryDate" className="text-sm font-medium text-gray-700">License Expiry Date</label>
-                                        <Field type="date" name="licenseExpiryDate" disabled={!isEditable}  className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.licenseExpiryDate} min={currentDate()} ></Field>
+                                        <Field type="date" name="licenseExpiryDate" disabled={!isEditable} className="p-2 w-full rounded-xl border-2 border-gray-300" value={values.licenseExpiryDate} min={currentDate()} ></Field>
                                         <ErrorMessage name="licenseExpiryDate" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">Preference</p>
                                         <div className="space-x-4">
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" disabled={!isEditable}  name="transmissionType" value="Automatic" className="form-radio" />
+                                                <Field type="radio" disabled={!isEditable} name="transmissionType" value="Automatic" className="form-radio" />
                                                 <span className="ml-2">Automatic</span>
                                             </label>
                                             <label className="inline-flex items-center">
-                                                <Field type="radio" disabled={!isEditable}  name="transmissionType" value="Manual" className="form-radio" />
+                                                <Field type="radio" disabled={!isEditable} name="transmissionType" value="Manual" className="form-radio" />
                                                 <span className="ml-2">Manual</span>
                                             </label>
                                         </div>
@@ -779,7 +777,7 @@ const DriverAdd = () => {
                                                     form={form}
                                                     suggestions={addressSuggestions}
                                                     onSearch={searchLocations}
-                                                    disabled={!isEditable} 
+                                                    disabled={!isEditable}
                                                     onSelect={handleGoogleAddressSelect}
                                                 />
                                             )}
@@ -793,7 +791,7 @@ const DriverAdd = () => {
                                         type="checkbox"
                                         id="sameAddress"
                                         checked={isSameAddress}
-                                        disabled={!isEditable} 
+                                        disabled={!isEditable}
                                         onChange={(e) => {
                                             setIsSameAddress(e.target.checked);
                                             if (e.target.checked) {
@@ -810,7 +808,7 @@ const DriverAdd = () => {
                                                 setFieldValue("state", "");
                                                 setFieldValue("pinCode", "");
                                             }
-                                        }}                                        
+                                        }}
                                         className="mr-2"
                                     />
                                     <label htmlFor="sameAddress" className="text-sm text-gray-700">
@@ -826,7 +824,7 @@ const DriverAdd = () => {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label htmlFor="streetName" className="text-sm font-medium text-gray-700">Street Name</label>
-                                            <Field type="text" name="streetName" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <Field type="text" name="streetName" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                             <ErrorMessage name="streetName" component="div" className="text-red-500 text-sm my-1" />
                                         </div>
                                         <div>
@@ -853,7 +851,7 @@ const DriverAdd = () => {
                                                 component="div"
                                                 className="text-red-500 text-sm mt-1"
                                             />
-                                        </div>     
+                                        </div>
                                         <div>
                                             <label htmlFor="district" className="text-sm font-medium text-gray-700">
                                                 District
@@ -906,27 +904,27 @@ const DriverAdd = () => {
                                         </div>
                                         <div>
                                             <label htmlFor="pinCode" className="text-sm font-medium text-gray-700">Pincode</label>
-                                            <Field type="text" name="pinCode" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <Field type="text" name="pinCode" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                             <ErrorMessage name="pinCode" component="div" className="text-red-500 text-sm my-1" />
                                         </div>
                                         <div>
                                             <label htmlFor="reference1" className="text-sm font-medium text-gray-700">Reference 1</label>
-                                            <Field type="text" name="reference1" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" />
+                                            <Field type="text" name="reference1" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" />
                                             <ErrorMessage name="reference1" component="div" className="text-red-500 text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="phoneNumber1" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                            <Field type="tel" name="phoneNumber1" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                            <Field type="tel" name="phoneNumber1" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                             <ErrorMessage name="phoneNumber1" component="div" className="text-red-500 text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="reference2" className="text-sm font-medium text-gray-700">Reference 2</label>
-                                            <Field type="text" name="reference2" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" />
+                                            <Field type="text" name="reference2" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" />
                                             <ErrorMessage name="reference2" component="div" className="text-red-500 text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="phoneNumber2" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                            <Field type="tel" name="phoneNumber2" disabled={!isEditable}  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                            <Field type="tel" name="phoneNumber2" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                             <ErrorMessage name="phoneNumber2" component="div" className="text-red-500 text-sm" />
                                         </div>
                                         {/* <div>
@@ -1039,103 +1037,103 @@ const DriverAdd = () => {
                                 </Button>
                             </div>
                         }
-                        {driverAdded.value && 
+                        {driverAdded.value &&
                             <div className="mt-6">
-                            <div className="flex flex-row justify-between px-2 mb-2">
-                                <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
-                                    Document Upload
-                                </Typography>
-                            </div>
-                            <Card>
-                                <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
-                                    <table className="w-full min-w-[640px] table-auto">
-                                        <thead>
-                                            <tr>
-                                                {["Type", "Status", "Action", ""].map((el, index) => (
-                                                    <th
-                                                        key={index}
-                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                                    >
-                                                        <Typography
-                                                            variant="small"
-                                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                <div className="flex flex-row justify-between px-2 mb-2">
+                                    <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
+                                        Document Upload
+                                    </Typography>
+                                </div>
+                                <Card>
+                                    <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+                                        <table className="w-full min-w-[640px] table-auto">
+                                            <thead>
+                                                <tr>
+                                                    {["Type", "Status", "Action", ""].map((el, index) => (
+                                                        <th
+                                                            key={index}
+                                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                                         >
-                                                            {el}
-                                                        </Typography>
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <DocumentUpload
-                                                label="Aadhaar Image"
-                                                value={imagePreviews.aadhaarImage?.image1}
-                                                name="aadhaarImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.aadhaarImage}
-                                                image2={imagePreviews.aadhaarImage?.image2}
-                                            />
-                                            {values.serviceType !== 'DRIVER' && 
-                                            <DocumentUpload
-                                                label="PAN Image"
-                                                value={imagePreviews.panImage?.image1}
-                                                name="panImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.panImage}
-                                                image2={imagePreviews.panImage?.image2}
-                                            />}
-                                            {values.serviceType !== 'OWNER' &&<DocumentUpload
-                                                label="Driving License Image"
-                                                value={imagePreviews.drivingLicenseImage?.image1}
-                                                name="drivingLicenseImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.drivingLicenseImage}
-                                                image2={imagePreviews.drivingLicenseImage?.image2}
-                                            />}
-                                            <DocumentUpload
-                                                label="Live Photo"
-                                                value={imagePreviews.livePhoto?.image1}
-                                                name="livePhoto"
-                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.livePhoto}
-                                                image2={imagePreviews.livePhoto?.image2}
-                                            />
-                                            {values.serviceType !== 'DRIVER' && <DocumentUpload
-                                                label="RC"
-                                                value={imagePreviews.rc?.image1}
-                                                name="rc"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.rc}
-                                                image2={imagePreviews.rc?.image2}
-                                            />}
-                                            {values.serviceType !== 'DRIVER' &&<DocumentUpload
-                                                label="Insurance"
-                                                value={imagePreviews.insurance?.image1}
-                                                name="insurance"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.insurance}
-                                                image2={imagePreviews.insurance?.image2}
-                                            />}
-                                            {values.serviceType !== 'DRIVER' &&<DocumentUpload
-                                                label="Bank Statement"
-                                                value={imagePreviews.bankStatement?.image1}
-                                                name="bankStatement"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.bankStatement}
-                                                image2={imagePreviews.bankStatement?.image2}
-                                            />}
-                                        </tbody>
-                                    </table>
-                                </CardBody>
-                            </Card>
-                        </div> 
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                            >
+                                                                {el}
+                                                            </Typography>
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <DocumentUpload
+                                                    label="Aadhaar Image"
+                                                    value={imagePreviews.aadhaarImage?.image1}
+                                                    name="aadhaarImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.aadhaarImage}
+                                                    image2={imagePreviews.aadhaarImage?.image2}
+                                                />
+                                                {values.serviceType !== 'DRIVER' &&
+                                                    <DocumentUpload
+                                                        label="PAN Image"
+                                                        value={imagePreviews.panImage?.image1}
+                                                        name="panImage"
+                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
+                                                        setModalData={setModalData}
+                                                        fullDocVal={imagePreviews.panImage}
+                                                        image2={imagePreviews.panImage?.image2}
+                                                    />}
+                                                {values.serviceType !== 'OWNER' && <DocumentUpload
+                                                    label="Driving License Image"
+                                                    value={imagePreviews.drivingLicenseImage?.image1}
+                                                    name="drivingLicenseImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.drivingLicenseImage}
+                                                    image2={imagePreviews.drivingLicenseImage?.image2}
+                                                />}
+                                                <DocumentUpload
+                                                    label="Live Photo"
+                                                    value={imagePreviews.livePhoto?.image1}
+                                                    name="livePhoto"
+                                                    onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.livePhoto}
+                                                    image2={imagePreviews.livePhoto?.image2}
+                                                />
+                                                {values.serviceType !== 'DRIVER' && <DocumentUpload
+                                                    label="RC"
+                                                    value={imagePreviews.rc?.image1}
+                                                    name="rc"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.rc}
+                                                    image2={imagePreviews.rc?.image2}
+                                                />}
+                                                {values.serviceType !== 'DRIVER' && <DocumentUpload
+                                                    label="Insurance"
+                                                    value={imagePreviews.insurance?.image1}
+                                                    name="insurance"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.insurance}
+                                                    image2={imagePreviews.insurance?.image2}
+                                                />}
+                                                {values.serviceType !== 'DRIVER' && <DocumentUpload
+                                                    label="Bank Statement"
+                                                    value={imagePreviews.bankStatement?.image1}
+                                                    name="bankStatement"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "bankStatement")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.bankStatement}
+                                                    image2={imagePreviews.bankStatement?.image2}
+                                                />}
+                                            </tbody>
+                                        </table>
+                                    </CardBody>
+                                </Card>
+                            </div>
                         }
                         {driverAdded.value &&
                             <div className='flex flex-row'>
@@ -1175,15 +1173,15 @@ const DriverAdd = () => {
             {modalData && (
                 <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
                     <DialogHeader>
-                    <div className="flex justify-between items-center w-full">
-                        <Typography variant="h6">Document Details</Typography>
-                        <button
-                        className="text-gray-600 hover:text-gray-900"
-                        onClick={() => setModalData(null)}
-                        >
-                        X
-                        </button>
-                    </div>
+                        <div className="flex justify-between items-center w-full">
+                            <Typography variant="h6">Document Details</Typography>
+                            <button
+                                className="text-gray-600 hover:text-gray-900"
+                                onClick={() => setModalData(null)}
+                            >
+                                X
+                            </button>
+                        </div>
                     </DialogHeader>
                     <DialogBody divider>
                         <div className="flex flex-col items-center space-y-3">
