@@ -327,6 +327,15 @@ const Booking = (props) => {
         googleMapsApiKey: "AIzaSyBophy4_QEc4vRjYu222kNHtuNiDga29Uo"
     });
 
+    const validationCheckForDriver = (val) => {
+        if(val?.serviceType == "DRIVER" && val?.tripType == 'Round Trip' && val?.packageTypeSelected == 'Local'){
+            return !val?.dropLocation ? true : false;
+        }
+        if(val?.serviceType == "DRIVER" && val?.packageTypeSelected == "Outstation"){
+            return !val?.dropLocation ? true : false;
+        }
+        return false
+    };
 
     // const handlePickupMarkerDragEnd = useCallback((event) => {
     //     const newLat = event.latLng.lat();
@@ -970,7 +979,7 @@ const Booking = (props) => {
                                                         setFieldValue("submitType", "default");
                                                         handleSubmit();
                                                     }}
-                                                    disabled={!dirty || !isValid || (!values.rideDate && !values.toDate) || (!values.pickupAddress && !values.dropAddress)}
+                                                    disabled={!dirty || !isValid || (!values.rideDate && !values.toDate) || (!values.pickupAddress && !values.dropAddress)|| validationCheckForDriver(values)}
                                                     className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                 >
                                                     Continue
