@@ -111,6 +111,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                             <option value="">Select salutation</option>
                                             <option value="Mr">Mr</option>
                                             <option value="Mrs">Mrs</option>
+                                            <option value="Miss">Miss</option>
                                             <option value="Others">Others</option>
                                         </Field>
                                         <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />

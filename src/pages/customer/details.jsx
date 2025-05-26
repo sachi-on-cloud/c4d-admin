@@ -55,6 +55,7 @@ const CustomerDetails = () => {
                                         <option value="">Select salutation</option>
                                         <option value="Mr">Mr</option>
                                         <option value="Mrs">Mrs</option>
+                                        <option value="Miss">Miss</option>
                                         <option value="Others">Others</option>
                                     </Field>
                                     <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
@@ -134,7 +135,7 @@ const CustomerDetails = () => {
                                                                 <StarIcon className="w-5 h-5 text-yellow-500" />
                                                             </td>
                                                             <td className="p-2 border">
-                                                            {comment}
+                                                                {comment}
                                                             </td>
 
                                                         </tr>

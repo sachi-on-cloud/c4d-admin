@@ -432,7 +432,7 @@ const DriverEdit = () => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
-                 if (!allowedTypes.includes(files[i].type)) {
+                if (!allowedTypes.includes(files[i].type)) {
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                         color: "red",
@@ -509,7 +509,7 @@ const DriverEdit = () => {
                     },
                 }));
             }
-               else {
+            else {
                 setAlert({
                     message: data?.message || "Failed to upload document. Please try again.",
                     color: "red",
@@ -521,28 +521,28 @@ const DriverEdit = () => {
         }
     };
     const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
-        try{
-        const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        const file = e.target.files[0];
-        
-         if (!allowedTypes.includes(file.type)) {
-            setAlert({
-                message: "Invalid file type. Please upload JPG, PNG, or PDF.",
-                color: "red",
-            });
-            setTimeout(() => setAlert(null), 5000);
-            return;
-        }
+        try {
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const file = e.target.files[0];
 
-        if (file.size > maxSize) {
-            setAlert({
-                message: "File size exceeds 10MB limit.",
-                color: "red",
-            });
-            setTimeout(() => setAlert(null), 5000);
-            return;
-        }
+            if (!allowedTypes.includes(file.type)) {
+                setAlert({
+                    message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+
+            if (file.size > maxSize) {
+                setAlert({
+                    message: "File size exceeds 10MB limit.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
             setFieldValue(label, file);
 
             const reader = new FileReader();
@@ -582,8 +582,7 @@ const DriverEdit = () => {
                     },
                 }));
             }
-             else 
-            {
+            else {
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",
@@ -594,7 +593,7 @@ const DriverEdit = () => {
 
             // console.log('DATA IN DOC UPDATE :', data);
         }
-        catch(err) {
+        catch (err) {
             setAlert({
                 message: "An error occurred while uploading the photo.",
                 color: "red",
@@ -682,6 +681,7 @@ const DriverEdit = () => {
                                     <option value="">Select salutation</option>
                                     <option value="Mr">Mr</option>
                                     <option value="Mrs">Mrs</option>
+                                    <option value="Miss">Miss</option>
                                     <option value="Others">Others</option>
                                 </Field>
                                 <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
