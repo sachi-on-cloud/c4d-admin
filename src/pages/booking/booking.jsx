@@ -327,19 +327,48 @@ const Booking = (props) => {
         googleMapsApiKey: "AIzaSyBophy4_QEc4vRjYu222kNHtuNiDga29Uo"
     });
 
-    const validationCheckForDriver = (val) => {
-        if(val?.serviceType == "DRIVER" && val?.tripType == 'Round Trip' && val?.packageTypeSelected == 'Local'){
-            return !val?.dropLocation ? true : false;
-        }
-        if(val?.serviceType == "DRIVER" && val?.packageTypeSelected == "Outstation"){
-            return !val?.dropLocation ? true : false;
-        }
-        // if(val?.serviceType == "DRIVER" && val?.tripType == 'Round Trip' && val?.packageSelected == 'Outstation'){
-        //     return !(val?.toDate && val?.toTime) ? true : false;
-        // }
-        return false
-    };
+const validationCheckForDriver = (val) => {
+    if (!val || val.serviceType !== "DRIVER") { return false; }
 
+    const currentDate = new Date(); 
+    const rideDate = val.rideDate ? new Date(val.rideDate) : null;
+    if (!rideDate || rideDate <= currentDate) { return true; }
+
+    if (val.packageTypeSelected === "Local") 
+        { 
+            if (!val.packageSelected) { return true; } return false; 
+        }
+
+    if(val.packageTypeSelected === "Local" && val.tripType === "Round Trip")
+    {
+        if(!val.dropLocation) { return true; } return false; 
+    }
+
+    if (val.packageTypeSelected === "Outstation" && val.tripType === "Drop Only") 
+        {
+        if (!val.dropLocation) { return true; } return false;
+        }
+
+    if (val.packageTypeSelected === "Outstation" && val.tripType === "Round Trip") 
+        {
+        if (!val.dropLocation || !val.toDate || !val.toTime) { return true; } return false;
+        }
+
+    return false;
+};
+
+const validationCheckForDriverRental = (val) => {
+    if(!val || val.serviceType !== "RENTAL") { return false; }
+
+    if(val.packageTypeSelected == "Outstation" && val.tripType === "Drop Only")
+    {
+        if(!val.dropLocation) { return true; } return false;
+    }
+    if(val.packageTypeSelected == "Outstation")
+    {
+        if(!val.acType) { return true; } return false;
+    }
+}
     // const handlePickupMarkerDragEnd = useCallback((event) => {
     //     const newLat = event.latLng.lat();
     //     const newLng = event.latLng.lng();
@@ -982,7 +1011,17 @@ const Booking = (props) => {
                                                         setFieldValue("submitType", "default");
                                                         handleSubmit();
                                                     }}
-                                                    disabled={!dirty || !isValid || (!values.rideDate && !values.toDate) || (!values.pickupAddress && !values.dropAddress)|| validationCheckForDriver(values)}
+                                                    disabled={
+                                                                !dirty || 
+                                                                !isValid || 
+                                                                !values.rideDate || 
+                                                                !values.packageTypeSelected || 
+                                                                !values.pickupAddress || 
+                                                                (values.packageTypeSelected === "Local" && !values.packageSelected) || 
+                                                                (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
+                                                                (values.packageTypeSelected === "Local" && values.tripType === "Round Trip" && !values.dropAddress) || 
+                                                                validationCheckForDriver(values)
+                                                            }
                                                     className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                 >
                                                     Continue
@@ -1010,7 +1049,18 @@ const Booking = (props) => {
                                                                 setFieldValue("submitType", "rental");
                                                                 handleSubmit();
                                                             }}
-                                                            disabled={!((values.pickupAddress || values.dropAddress) && (values.rideDate || values.toDate))}
+                                                              disabled={
+                                                            !dirty ||
+                                                            !isValid ||
+                                                            !values.rideDate ||
+                                                            !values.packageTypeSelected ||
+                                                            !values.pickupAddress ||
+                                                            (values.packageTypeSelected === "Local" && !values.packageSelected) ||
+                                                            (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
+                                                            (values.packageTypeSelected === "Outstation" && !values.acType) ||
+                                                            (values.packageTypeSelected === "Outstation" && values.tripType === "Round Trip" && !values.toDate) ||
+                                                            validationCheckForDriverRental(values)
+                                                        }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
                                                             Continue

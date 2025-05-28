@@ -68,6 +68,8 @@ import RentalsPriceMasterAdd from "./pages/finance/masterPriceTable/RentalsMaste
 import RentalsPriceMasterDetails from "./pages/finance/masterPriceTable/RentalsMasterPriceDetails";
 import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMasterPriceEdit";
 import GeoMarkings from "./pages/geoMarkings/geoMarkings";
+import NotificationList from "./pages/vendor/notificationList";
+import NotificationListApp from "./pages/vendor/notificationadd"
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -124,6 +126,20 @@ export const routes = [
         name: "drivers",
         path: "/vendors/account/drivers",
         element: <DriverView />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "marketing",
+        path: "/vendors/notificationList",
+        element: <NotificationList />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "marketing add",
+        path: "/vendors/notification/add",
+        element: <NotificationListApp />,
         display: true
       },
       {
