@@ -52,7 +52,7 @@ import PayableDetails from "./pages/finance/payable/details";
 import UserEdit from "./pages/users/edit";
 import { MasterSubscriptionView } from "./pages/finance/masterSubscription/MasterSubscriptionView";
 import MasterSubscriptionAdd from "./pages/finance/masterSubscription/MasterSubscriptionAdd";
-import  MasterSubscriptionDetails  from "./pages/finance/masterSubscription/MasterSubscriptionDetails";
+import MasterSubscriptionDetails from "./pages/finance/masterSubscription/MasterSubscriptionDetails";
 import MasterSubscriptionEdit from "./pages/finance/masterSubscription/MasterSubscriptionEdit";
 import { MasterPriceView } from "./pages/finance/masterPrice/MasterPriceView";
 import { MasterPriceAdd } from "./pages/finance/masterPrice/MasterPriceAdd";
@@ -70,7 +70,8 @@ import RentalsPriceMasterDetails from "./pages/finance/masterPriceTable/RentalsM
 import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMasterPriceEdit";
 import GeoMarkings from "./pages/geoMarkings/geoMarkings";
 import NotificationList from "./pages/vendor/notificationList";
-import NotificationListApp from "./pages/vendor/notificationadd"
+import NotificationListApp from "./pages/vendor/notificationadd";
+import InstantReward from "./pages/vendor/instantReward";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -129,7 +130,7 @@ export const routes = [
         element: <DriverView />,
         display: true
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "marketing",
         path: "/vendors/notificationList",
@@ -416,14 +417,14 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
-        name : "Master Subscription Details",
+        name: "Master Subscription Details",
         path: "/finance/master-subscription/details/:id",
         element: <MasterSubscriptionDetails />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
-        name : "Master Subscription Edit",
+        name: "Master Subscription Edit",
         path: "/finance/master-subscription/edit/:id",
         element: <MasterSubscriptionEdit />,
         display: false
@@ -444,6 +445,13 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "instant reward",
+        path: "/users/instant-reward",
+        element: <InstantReward />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Master Price Add",
         path: "/users/master-price/driver-add",
         element: <MasterPriceAdd />,
@@ -457,11 +465,11 @@ export const routes = [
         display: false
       },
       {
-        icon:<UserIcon {...icon} />,
+        icon: <UserIcon {...icon} />,
         name: "Driver Price Table Edit",
         path: "/users/master-price/driver-edit/:id",
-        element:<DriverMasterPriceTableEdit />,
-        display:false
+        element: <DriverMasterPriceTableEdit />,
+        display: false
       },
       {
         icon: <UserIcon {...icon} />,
@@ -585,7 +593,7 @@ export const routes = [
         element: <DeleteAccount />,
         display: false
       },
-            {
+      {
         path: "/root-price-details",
         element: <PriceList />,
         display: false

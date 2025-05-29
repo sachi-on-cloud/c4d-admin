@@ -113,6 +113,7 @@ const CustomerSearch = ({ onSearch }) => {
                   <option value="">Select salutation</option>
                   <option value="Mr">Mr</option>
                   <option value="Mrs">Mrs</option>
+                  <option value="Miss">Miss</option>
                   <option value="Others">Others</option>
                 </select>
               </div>

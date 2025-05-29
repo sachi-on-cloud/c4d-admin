@@ -10,22 +10,24 @@ import {
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth";
-import { ChevronDownIcon, 
-  ChevronUpIcon, 
-  HomeIcon, 
-  TruckIcon, 
-  IdentificationIcon, 
-  UserCircleIcon, 
-  DocumentTextIcon, 
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  HomeIcon,
+  TruckIcon,
+  IdentificationIcon,
+  UserCircleIcon,
+  DocumentTextIcon,
   BuildingStorefrontIcon,
   ChartBarIcon,
   DocumentCheckIcon,
-  UserGroupIcon } from '@heroicons/react/24/solid';
+  UserGroupIcon
+} from '@heroicons/react/24/solid';
 import { ColorStyles } from "@/utils/constants";
 
 const menuItems = [
-  { name: "Home", path: "/dashboard/booking", permission: "Home" , end : true },
-  { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings"},
+  { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
+  { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { name: "Finance", path: "/dashboard/finance", permission: "Finance" },
@@ -44,22 +46,20 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
   const navigate = useNavigate();
   const { logout } = useAuth();
-// new entry
-const [openMenu,setOpenMenu] = useState(null);
-const [openSubMenu,setOpenSubMenu] = useState(null);
-const [isOpen, setIsOpen] = useState(false);
+  // new entry
+  const [openMenu, setOpenMenu] = useState(null);
+  const [openSubMenu, setOpenSubMenu] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-const toggleMenu = (menu) => 
-{
-  setOpenMenu((prev) => (prev === menu ? null : menu));
-  setOpenSubMenu(null);
-}
+  const toggleMenu = (menu) => {
+    setOpenMenu((prev) => (prev === menu ? null : menu));
+    setOpenSubMenu(null);
+  }
 
 
-const toggleSubMenu = (subMenu) => 
-{
-  setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
-};
+  const toggleSubMenu = (subMenu) => {
+    setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
+  };
   const [userPermissions, setUserPermissions] = useState(null);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ const toggleSubMenu = (subMenu) =>
       const user = JSON.parse(dataFromStorage);
       setUserPermissions(user.permission || []);
     }
-  }, []); 
+  }, []);
 
   if (userPermissions === null) {
     return <div>Loading...</div>;
@@ -76,9 +76,8 @@ const toggleSubMenu = (subMenu) =>
 
   return (
     <aside
-      className={`${sidenavTypes[sidenavType]} ${
-        openSidenav ? "translate-x-0" : "-translate-x-80"
-      } fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
+      className={`${sidenavTypes[sidenavType]} ${openSidenav ? "translate-x-0" : "-translate-x-80"
+        } fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
     >
       <div className={`relative`}>
         <Link to="/" className="py-6 px-8 text-center">
@@ -102,7 +101,7 @@ const toggleSubMenu = (subMenu) =>
       </div>
       <div className="m-1 h-[calc(100vh-150px)] overflow-y-auto">
         <ul className="flex flex-col gap-1">
-       {menuItems
+          {menuItems
             .filter(item => userPermissions.includes(item.permission))
             .map(({ name, path, end }) => (
               <li key={name}>
@@ -125,10 +124,10 @@ const toggleSubMenu = (subMenu) =>
                       {name === "All Bookings" ? (
                         <DocumentTextIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
-                      ) 
-                       : (null)}
+                      )
+                        : (null)}
                       {name === "Customers" ? (
-                        
+
                         <UserGroupIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
@@ -155,15 +154,15 @@ const toggleSubMenu = (subMenu) =>
 
                       <Typography color="inherit" className="font-medium capitalize">
                         {name.toLowerCase()}
-                     </Typography>
+                      </Typography>
 
-                     {name !== "Home" && (<div className="ml-auto">
-                            {isActive ? (
-                              <ChevronUpIcon className="w-5 h-5" />
-                            ) : (
-                              <ChevronDownIcon className="w-5 h-5" />
-                            )}
-                          </div>)}
+                      {name !== "Home" && (<div className="ml-auto">
+                        {isActive ? (
+                          <ChevronUpIcon className="w-5 h-5" />
+                        ) : (
+                          <ChevronDownIcon className="w-5 h-5" />
+                        )}
+                      </div>)}
                     </Button>
                   )}
                 </NavLink>
@@ -256,7 +255,7 @@ const toggleSubMenu = (subMenu) =>
                     ))}
                   </ul>
                 )}
-                {name === "Finance" && openSubMenu === "Finance"  &&(
+                {name === "Finance" && openSubMenu === "Finance" && (
                   <ul className="ml-0">
                     {[
                       { label: "All Payments", path: "/dashboard/finance" },
@@ -321,7 +320,8 @@ const toggleSubMenu = (subMenu) =>
                     {[
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
-                      {label: "GeoMarkings", path:"/dashboard/admin/geo-markings"},
+                      { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
+                      { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
