@@ -7,6 +7,7 @@ import {
 import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
+import { PriceList } from "@/pages/public/price";
 
 import { CustomerView } from "@/pages/customer";
 import { AccountView } from "@/pages/account";
@@ -68,6 +69,8 @@ import RentalsPriceMasterAdd from "./pages/finance/masterPriceTable/RentalsMaste
 import RentalsPriceMasterDetails from "./pages/finance/masterPriceTable/RentalsMasterPriceDetails";
 import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMasterPriceEdit";
 import GeoMarkings from "./pages/geoMarkings/geoMarkings";
+import NotificationList from "./pages/vendor/notificationList";
+import NotificationListApp from "./pages/vendor/notificationadd"
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -124,6 +127,20 @@ export const routes = [
         name: "drivers",
         path: "/vendors/account/drivers",
         element: <DriverView />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "marketing",
+        path: "/vendors/notificationList",
+        element: <NotificationList />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "marketing add",
+        path: "/vendors/notification/add",
+        element: <NotificationListApp />,
         display: true
       },
       {
@@ -566,6 +583,11 @@ export const routes = [
       {
         path: "/delete-my-account",
         element: <DeleteAccount />,
+        display: false
+      },
+            {
+        path: "/root-price-details",
+        element: <PriceList />,
         display: false
       },
     ],

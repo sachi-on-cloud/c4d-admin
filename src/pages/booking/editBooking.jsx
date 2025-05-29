@@ -19,6 +19,7 @@ const EditBooking = (props) => {
     const [dropLocation, setDropLocation] = useState(null);
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         if (props.bookingData) {
@@ -59,6 +60,7 @@ const EditBooking = (props) => {
             pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
             dropLat: values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat,
             dropLong: values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong,
+            acType:values?.acType?.toUpperCase(),
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
         console.log("QOYTEE DATA",data);
@@ -81,6 +83,7 @@ const EditBooking = (props) => {
         rideTime: bookingData?.fromDate ? moment(bookingData.fromDate).format('HH:mm') : '',
         toDate: bookingData?.toDate ? moment(bookingData.toDate).format('YYYY-MM-DD') : '',
         toTime: bookingData?.toDate ? moment(bookingData.toDate).format('HH:mm') : '',
+        acType: bookingData?.acType == "Ac" ? "Ac" : "Non Ac" || ''
     };
     
     const searchLocations = async (query, isPickup) => {
@@ -153,6 +156,7 @@ const EditBooking = (props) => {
 
     const onBackPressHandler = async () => {
         props.editCancel()
+        setIsOpen(false);
     };
 
     function convertTimeFormat(time) {
@@ -193,6 +197,7 @@ const EditBooking = (props) => {
                 dropLong: null,
                 dropAddress: null,
                 toDate: null,
+                acType: values?.acType.toUpperCase()
             };
             if(values.packageTypeSelected == 'Outstation' && values?.tripType?.toUpperCase() == 'ROUND TRIP'){
                 data.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();       
@@ -360,6 +365,28 @@ const EditBooking = (props) => {
                                 </div>
                                  )}
                             </div>
+                            {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation')) && (
+                                        <div>
+                                            <Typography className="text-sm font-medium text-black-700">AC Type</Typography>
+                                            <div className="grid grid-cols-2 gap-4 mt-2">
+                                                <Button
+                                                    color={values.acType === 'Ac' ? 'blue' : 'gray'}
+                                                    onClick={() => setFieldValue('acType', 'Ac')}
+                                                    variant={values?.acType === 'Ac' ? 'filled' : 'outlined'}
+                                                >
+                                                    AC
+                                                </Button>
+
+                                                <Button
+                                                    color={values.acType === 'Non Ac' ? 'blue' : 'gray'}
+                                                    onClick={() => setFieldValue('acType', 'Non Ac')}
+                                                    variant={values?.acType === 'Non Ac' ? 'filled' : 'outlined'}
+                                                >
+                                                    NON AC
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
                             <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
                                     Pickup Date & Time

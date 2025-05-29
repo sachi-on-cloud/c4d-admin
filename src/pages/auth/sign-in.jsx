@@ -110,8 +110,14 @@ export function SignIn() {
 
   return (
     <section className="m-8 flex gap-4">
-      <div className="w-full mt-24">
+      <div className="w-full mt-10">
         <div className="text-center">
+          <img
+            src="/img/app_icon_root.png"
+            alt="Root Cabs"
+            className="mx-auto mb-4 rounded-full"
+            style={{ maxHeight: '100px' }}
+          />
           <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>
           <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to Sign In.</Typography>
         </div>

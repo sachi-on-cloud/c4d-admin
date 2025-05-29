@@ -232,6 +232,7 @@ const toggleSubMenu = (subMenu) =>
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Drivers Only", path: "/dashboard/vendors/account/drivers" },
+                      { label: "Notification", path: "/dashboard/vendors/notificationList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
