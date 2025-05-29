@@ -7,6 +7,7 @@ import {
 import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
+import { PriceList } from "@/pages/public/price";
 
 import { CustomerView } from "@/pages/customer";
 import { AccountView } from "@/pages/account";
@@ -582,6 +583,11 @@ export const routes = [
       {
         path: "/delete-my-account",
         element: <DeleteAccount />,
+        display: false
+      },
+            {
+        path: "/root-price-details",
+        element: <PriceList />,
         display: false
       },
     ],
