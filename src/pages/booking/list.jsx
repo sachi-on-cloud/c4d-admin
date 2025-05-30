@@ -135,7 +135,12 @@ else if (filterType === 'range') {
     };
 
     useEffect(() => {
+        // getBookingsList(pagination.currentPage);
+        const intervalId = setInterval(() => {
         getBookingsList(pagination.currentPage);
+    }, 10000);
+
+    return () => clearInterval(intervalId);
     }, [customerId, bookingStage, type, pagination.currentPage]);
 
     const handlePageChange = (page) => {

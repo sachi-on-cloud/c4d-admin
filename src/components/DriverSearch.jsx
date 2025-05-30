@@ -3,7 +3,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { ColorStyles } from '@/utils/constants';
 
-const DriverSearch = ({ onSearch }) => {
+const DriverSearch = ({ onSearch, hideAddNewButton=false }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -23,7 +23,8 @@ const DriverSearch = ({ onSearch }) => {
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
           </div>
-        </div>
+        </div> 
+        {!hideAddNewButton && ( 
         <button 
           onClick={() => navigate(`/dashboard/vendors/account/drivers/add`)}
           className={`ml-4 px-4 py-2 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
@@ -32,6 +33,7 @@ const DriverSearch = ({ onSearch }) => {
         >
           Add new
         </button>
+        )}
       </div>
     </div>
   );

@@ -216,7 +216,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                                     className="form-radio"
                                                     disabled
                                                 />
-                                                <span className="ml-2">Driver Only</span>
+                                                <span className="ml-2">Acting Driver</span>
                                             </label>
                                             <label className="inline-flex items-center">
                                                 <Field

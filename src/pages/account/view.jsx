@@ -180,7 +180,7 @@ export function AccountView() {
     }
   };
   const typeLabels = {
-  Individual: "Owner Cum Vehicle",
+  Individual: "Owner Cum Driver",
   Company: "Travels"
 };
 
@@ -294,7 +294,7 @@ export function AccountView() {
                             options={[
                               { value: "All", label: "All" },
                               { value: "Company", label: "Travels" },
-                              { value: "Individual", label: "Owner Cum Vehicle" },
+                              { value: "Individual", label: "Owner Cum Driver" },
                             ]}
                             selectedFilters={serviceTypeFilter}
                             onFilterChange={(value) => handleFilterChange("type", value)}

@@ -230,8 +230,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   <ul className="ml-0">
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
-                      { label: "Drivers Only", path: "/dashboard/vendors/account/drivers" },
-                      { label: "Notification", path: "/dashboard/vendors/notificationList" },
+                      { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -321,6 +320,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
+                      { label: "Notification", path: "/dashboard/vendors/notificationList" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                     ].map(({ label, path }) => (
                       <li key={label}>
