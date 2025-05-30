@@ -908,6 +908,7 @@ export const API_ROUTES = {
     'GET_CAR_TYPE': '/car-type/',
     'POST_NOTIFICATION_ADD': '/send-notification',
     'GET_NOTIFICATION': '/get-notification',
+    'INSTANT_REWARD': '/instant-reward',
 };
 
 export const KYC_PROCESS = {

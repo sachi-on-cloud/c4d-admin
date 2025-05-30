@@ -799,7 +799,7 @@ const DriverEdit = () => {
                                             value="DRIVER"
                                             className="form-radio"
                                         />
-                                        <span className="ml-2">Driver Only</span>
+                                        <span className="ml-2">Acting Driver</span>
                                     </label>
                                     <label className="inline-flex items-center">
                                         <Field

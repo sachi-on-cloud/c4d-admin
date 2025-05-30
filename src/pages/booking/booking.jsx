@@ -469,7 +469,7 @@ const validationCheckForDriverRental = (val) => {
                         setEditBooking();
                         setQuoteDetails();
                     }}>
-                        <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/5 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
+                        <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
                             <div className="flex-1 bg-[#f5f5f5] rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
                                 {/* max-h-screen overflow-y-auto shadow p-4 */}
 

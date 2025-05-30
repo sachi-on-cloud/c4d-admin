@@ -739,7 +739,7 @@ const DriverAdd = () => {
                                                     className="form-radio"
                                                     disabled={!isEditable}
                                                 />
-                                                <span className="ml-2">Driver Only</span>
+                                                <span className="ml-2">Acting Driver</span>
                                             </label>
                                             <label className="inline-flex items-center">
                                                 <Field

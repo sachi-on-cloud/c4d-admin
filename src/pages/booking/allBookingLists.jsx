@@ -262,7 +262,7 @@ const Booking = (props) => {
                 setSelectedCustomer();
                 setEditBooking();
                 }}>
-                <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-2/4 shadow-lg relative" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%] shadow-lg relative" onClick={(e) => e.stopPropagation()}>
                 <div className="flex-1 bg-white rounded-xl px-5 max-h-screen overflow-y-auto shadow p-4">
                                         <div className='rounded-2xl justify-end items-end space-x-12 flex'>
                                             <button
