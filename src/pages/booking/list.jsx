@@ -16,7 +16,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
-import DateRangeFilter from './DateRangeFilter';
+// import DateRangeFilter from './DateRangeFilter';
 
 export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false }) {
     const navigate = useNavigate();
@@ -356,14 +356,16 @@ const handleSort = (key) => {
                                                             )
                                                         )}
                                                     </div>
-                                                ) : el === "Booking Date" ? (
-                                                            <FilterPopover
-                                                                title={el}
-                                                                customContent={
-                                                                   <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
-                                                                }
-                                                            />
-                                                        ) :(
+                                                ) : 
+                                                // el === "Booking Date" ? (
+                                                //             <FilterPopover
+                                                //                 title={el}
+                                                //                 customContent={
+                                                //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
+                                                //                 }
+                                                //             />
+                                                //         ) 
+                                                        (
                                                         <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
                                                             {el}
                                                         </Typography>
