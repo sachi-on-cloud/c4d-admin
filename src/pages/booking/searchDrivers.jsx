@@ -31,7 +31,8 @@ export function SearchDrivers(props) {
                     if (isNumeric) {
                         return regex.test(option.phoneNumber);
                     } else {
-                        return regex.test(option.firstName);
+                    const nameField = props.bookingData.serviceType === 'DRIVER' ? option.firstName : option.name ;
+                    return regex.test(nameField);
                     }
                 });
                 setDrivers(filtredOptions);
@@ -215,7 +216,7 @@ export function SearchDrivers(props) {
         <>
             {props?.bookingData?.serviceType === 'DRIVER' &&
                 <div className="flex flex-col w-full gap-y-4">
-                    {/* <DriverSearch onSearch={getDriversList} /> */}
+                    <DriverSearch onSearch={getDriversList} hideAddNewButton={true} />
                     <Card>
                         {loading ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
@@ -334,6 +335,7 @@ export function SearchDrivers(props) {
             }
             {props?.bookingData?.serviceType != 'DRIVER' &&
                 <div className="flex flex-col w-full gap-y-4">
+                    <DriverSearch onSearch={getDriversList} hideAddNewButton={true} />
                     <Card>
                     {loadingRides ? (
                         <CardHeader variant="gradient" color="blue" className="mb-8 p-6">

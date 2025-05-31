@@ -19,7 +19,7 @@ const DRIVER_SCHEMA = Yup.object().shape({
     period: Yup.number().required('Period is required'),
     price: Yup.number().required('Price is required'),
     priceMVP: Yup.number().required('Price MUV is required'),
-    dropPrice: Yup.number().required('Drop Price is required'),
+    // dropPrice: Yup.number().required('Drop Price is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
     cancelCharge: Yup.number().required('Cancel Charge is required'),
     extraPrice: Yup.number().required('Extra Price is required'),
@@ -68,6 +68,7 @@ const DriverMasterPriceTableEdit = () => {
                     baseFare:data.data.baseFare,
                     kilometer:data.data.kilometer,
                     extraKmPrice:data.data.extraKmPrice,
+                    dropPriceAbove:data.data.dropPriceAbove,
 
 
                     status: data.data.status == 1 ? "ACTIVE" : 'IN_ACTIVE',
@@ -106,6 +107,8 @@ const DriverMasterPriceTableEdit = () => {
 
                 cancelMins: Utils.convertMinutesToTimeFormat(values.cancelMins),
                 cancelCharge: Number(values.cancelCharge),
+                dropPriceAbove:Number(values.dropPriceAbove),
+                kilometer : Number(values.kilometer),
 
                 status: values.status === 'ACTIVE' ? 1 : 0,
             };
@@ -162,6 +165,11 @@ const DriverMasterPriceTableEdit = () => {
                                     <Field type="number" name="period"  disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="period" component="div" className="text-red-500 text-sm" />
                                 </div>
+                                   <div>
+                                        <label className="text-sm font-medium text-gray-700">Kilometer</label>
+                                        <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
+                                        <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
+                                    </div>
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Price</label>
                                     <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
@@ -184,15 +192,8 @@ const DriverMasterPriceTableEdit = () => {
                                         <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                         <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                }
-                                {values?.type === 'Outstation' &&
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Kilometer</label>
-                                        <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                        <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
-                                    </div>
-                                }
-                                {values?.type === 'Outstation' &&
+                                }                                 
+                                {values?.type === 'Outstation' && 
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
                                         <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
@@ -209,6 +210,13 @@ const DriverMasterPriceTableEdit = () => {
                                     <Field type="number" name="dropPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="dropPrice" component="div" className="text-red-500 text-sm" />
                                 </div>
+                                
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Drop Price Above</label>
+                                    <Field type="number" name="dropPriceAbove" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="dropPriceAbove" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Additional Mins</label>
                                     <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

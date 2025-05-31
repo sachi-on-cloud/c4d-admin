@@ -23,6 +23,8 @@ const ConfirmBooking = (props) => {
     const [kms, setKms] = useState();
     const [timeVal, setTimeVal] = useState();
     const [amount, setAmount] = useState();
+    const [customerFeedback, setCustomerFeedback] = useState();
+    const [driverFeedback, setDriverFeedback] = useState();
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -94,7 +96,7 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            setBookingDetails(data?.data);
+            setBookingDetails({...data?.data, estimatedPrice:data?.estimatedPrice});
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({
                     price: data?.data?.price,
@@ -106,6 +108,16 @@ const ConfirmBooking = (props) => {
                     extraKMPrice: data?.data.extraKMPrice,
                     extraNightCharge: data?.data?.extraNightCharge,
                     extraNightChargePrice: data?.data?.extraNightChargePrice,
+                });
+                setCustomerFeedback({
+                    rating: data?.data?.CustomerFeedbacks?.[0]?.rating,
+                    comment: data?.data?.CustomerFeedbacks?.[0]?.comments,
+
+                });
+
+                setDriverFeedback({
+                    rating: data?.data?.Feedbacks?.[0]?.rating,
+                    comment: data?.data?.Feedbacks?.[0]?.message,
                 });
                 setPaymentDetails({
                     paymentCollected: data?.data?.paymentCollected,
@@ -229,6 +241,20 @@ const ConfirmBooking = (props) => {
                             </Typography>
                         </div>
                     </div>
+                        <div className="mt-6">
+                            <Typography variant="h6" className="mb-2">Customer Feedback</Typography>
+                            {customerFeedback ? (
+                                <div className="text-sm">
+                                    <div className="text-yellow-500 text-2xl">
+                                        {"★".repeat(Math.round(customerFeedback.rating)) + "☆".repeat(5 - Math.round(customerFeedback.rating))}
+                                    </div>
+                                    <div className="italic">"{customerFeedback.comment}"</div>
+                                </div>
+                            ) : (
+                                <Typography>No feedback given.</Typography>
+                            )} 
+                        </div>
+
                 </CardBody>
             </Card>
 
@@ -271,6 +297,20 @@ const ConfirmBooking = (props) => {
                                 </Typography>
                             </div>
                         </div>
+                            <div className="mt-6">
+                                <Typography variant="h6" className="mt-4 mb-2">Driver Feedback</Typography>
+                                {driverFeedback ? (
+                                    <div className="text-sm">
+                                        <div className="text-yellow-500 text-2xl">
+                                            {"★".repeat(Math.round(driverFeedback.rating)) + "☆".repeat(5 - Math.round(driverFeedback.rating))}
+                                        </div>
+                                        <div className="italic">"{driverFeedback.comment}"</div>
+                                    </div>
+                                ) : (
+                                    <Typography>No feedback given.</Typography>
+                                )}
+                            </div>
+
                     </CardBody>
                 </Card>
             }
@@ -304,7 +344,8 @@ const ConfirmBooking = (props) => {
                         {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Price:</Typography>
-                                <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography>
+                                {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                <Typography>₹ { bookingDetails?.serviceType == "RIDES" ? bookingDetails?.estimatedPrice : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography>
                             </div>
                         }
                         {bookingDetails?.status === BOOKING_STATUS.ENDED &&
@@ -609,7 +650,7 @@ const ConfirmBooking = (props) => {
                                 fullWidth
                                 onClick={() => { props.onAssignDriver(bookingDetails); }}
                             >
-                                {props.bookingData.serviceType === "CAB"
+                                {props.bookingData.serviceType != "CAB" && props.bookingData.serviceType !="DRIVER"
                                     ? "Assign Cab"
                                     : "Assign Captain"}
                             </Button>

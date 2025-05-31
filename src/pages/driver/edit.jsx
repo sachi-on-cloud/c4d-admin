@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
-import { Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
+import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_SCHEMA } from '@/utils/validations';
@@ -50,7 +50,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, onSelect }) => {
 
 const DriverEdit = () => {
     const [driverVal, setDriverVal] = useState({});
-    const [alert, setAlert] = useState(false);
+    const [alert, setAlert] = useState(null);
     const [packageDetails, setPackageDetails] = useState([]);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -419,8 +419,9 @@ const DriverEdit = () => {
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
         try {
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
             const files = e.target.files;
-            if (!files || files.length === 0) return;
 
             if (files.length > 2) {
                 alert("You can upload a maximum of two documents.");
@@ -431,6 +432,22 @@ const DriverEdit = () => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
+                if (!allowedTypes.includes(files[i].type)) {
+                    setAlert({
+                        message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
+                if (files[i].size > maxSize) {
+                    setAlert({
+                        message: "File size exceeds 10MB limit.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
                 const file = files[i];
                 uploadedFiles.push(file);
 
@@ -492,13 +509,40 @@ const DriverEdit = () => {
                     },
                 }));
             }
+            else {
+                setAlert({
+                    message: data?.message || "Failed to upload document. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
         } catch (err) {
             console.error("Error during image upload:", err);
         }
     };
     const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
-        const file = e.target.files[0];
-        if (file) {
+        try {
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const file = e.target.files[0];
+
+            if (!allowedTypes.includes(file.type)) {
+                setAlert({
+                    message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+
+            if (file.size > maxSize) {
+                setAlert({
+                    message: "File size exceeds 10MB limit.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
             setFieldValue(label, file);
 
             const reader = new FileReader();
@@ -538,9 +582,23 @@ const DriverEdit = () => {
                     },
                 }));
             }
+            else {
+                setAlert({
+                    message: data?.message || "Failed to upload photo. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
 
 
             // console.log('DATA IN DOC UPDATE :', data);
+        }
+        catch (err) {
+            setAlert({
+                message: "An error occurred while uploading the photo.",
+                color: "red",
+            });
+            setTimeout(() => setAlert(null), 5000);
         }
     }
 
@@ -597,6 +655,16 @@ const DriverEdit = () => {
 
     return (
         <div className="p-4 mx-auto">
+            {alert && (
+                <div className="mb-2">
+                    <Alert
+                        color={alert.color}
+                        className="py-3 px-6 rounded-xl"
+                    >
+                        {alert.message}
+                    </Alert>
+                </div>
+            )}
             <h2 className="text-2xl font-bold mb-4">Update Driver</h2>
             <Formik
                 initialValues={initialValues}
@@ -613,6 +681,7 @@ const DriverEdit = () => {
                                     <option value="">Select salutation</option>
                                     <option value="Mr">Mr</option>
                                     <option value="Mrs">Mrs</option>
+                                    <option value="Miss">Miss</option>
                                     <option value="Others">Others</option>
                                 </Field>
                                 <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
@@ -730,7 +799,7 @@ const DriverEdit = () => {
                                             value="DRIVER"
                                             className="form-radio"
                                         />
-                                        <span className="ml-2">Driver Only</span>
+                                        <span className="ml-2">Acting Driver</span>
                                     </label>
                                     <label className="inline-flex items-center">
                                         <Field

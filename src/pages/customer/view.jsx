@@ -11,6 +11,7 @@ import CustomerSearch from "@/components/CustomerSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
 
 
 export function CustomerView() {
@@ -18,6 +19,7 @@ export function CustomerView() {
   const [customers, setCustomers] = useState([]);
   const [allCustomers, setAllCustomers] = useState([]);
   const [alert, setAlert] = useState(false);
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const location = useLocation();
 
@@ -51,6 +53,7 @@ export function CustomerView() {
       const filteredCustomers = allCustomers.filter((customer) => {
         const name = (customer.firstName || "").toLowerCase();
         const phone = (customer.phoneNumber || "").toLowerCase();
+        const rating = (customer.rating || "");
 
         const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
 
@@ -103,24 +106,43 @@ export function CustomerView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", ""].map((el) => (
+                    {["Name", "Phone Number","Rating", ""].map((el) => (
                       <th
                         key={el}
-                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                        className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer"
+                        onClick={() => {
+                          setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+                          const sorted = [...customers].sort((a, b) => {
+                            const aRating = a.rating ?? 0;
+                            const bRating = b.rating ?? 0;
+                            return sortOrder === 'asc' ? aRating - bRating : bRating - aRating;
+                          });
+                          setCustomers(sorted);
+                        }}
+
                       >
-                        <Typography
-                          variant="small"
-                          className="text-[11px] font-bold uppercase text-black"
-                        >
-                          {el}
-                        </Typography>
+                        <div className="flex items-center">
+                          <Typography
+                            variant="small"
+                            className="text-[11px] font-bold uppercase text-black"
+                          >
+                            {el}
+                          </Typography>
+                          {el === 'Rating' && (
+                            sortOrder === 'asc' ? (
+                              <ChevronUpIcon className="w-4 h-4 ml-1 text-black" />
+                            ) : (
+                              <ChevronDownIcon className="w-4 h-4 ml-1 text-black" />
+                            )
+                          )}
+                        </div>
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {customers.map(
-                    ({ id, firstName, lastName, phoneNumber, email }, key) => {
+                    ({ id, firstName, lastName, phoneNumber, rating,email }, key) => {
                       const className = `py-3 px-5 ${key === customers.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -149,6 +171,13 @@ export function CustomerView() {
                               {/* text-blue-gray-600 */}
                               {formatPhoneNumber(phoneNumber)}
                             </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-black">
+                              <div className='flex'>
+                                {rating}<StarIcon className="w-5 h-5 text-yellow-500" />                  
+                              </div> 
+                              </Typography>
                           </td>
                           {/* <td className={className}>
                         <Chip

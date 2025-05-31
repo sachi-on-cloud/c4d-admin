@@ -41,8 +41,12 @@ const PriceAdd = () => {
 
     const initialValues = {
         baseFare: '',
+        baseFareSuv:'',
+        baseFareSedan:'',
         baseFareMVP: '',
         ratePerKm: '',
+        ratePerKmSuv:'',
+        ratePerKmSedan:'',
         ratePerKmMVP: '',
         ratePerMin: '',
         additionalMin: '',
@@ -62,7 +66,11 @@ const PriceAdd = () => {
             const reqBody = {
                 'baseFare': values.baseFare,
                 'baseFareMVP': values.baseFareMVP,
+                'baseFareSedan':values.baseFareSedan,
+                'baseFareSuv':values.baseFareSuv,
                 'kilometerPrice': values.ratePerKm,
+                'kilometerPriceSuv':values.ratePerKmSuv,
+                'kilometerPriceSedan':values.ratePerKmSedan,
                 'kilometerPriceMVP': values.ratePerKmMVP,
                 'minCharge': values.ratePerMin,
                 'rateParameter': values.rateParameter,
@@ -104,22 +112,42 @@ const PriceAdd = () => {
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare(Mini, SUV, Sedan)</label>
+                                <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
                                 <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
+                                <label className="text-sm font-medium text-gray-700">Base Fare Sedan</label>
+                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                            <label className="text-sm font-medium text-gray-700">Base Fare SUV</label>
+                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseFareSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Fare MUV</label>
                                 <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km(Mini, SUV, Sedan)</label>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Mini</label>
                                 <Field type="number" name="ratePerKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="ratePerKm" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MUV)</label>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Sedan</label>
+                                <Field type="number" name="ratePerKmSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="ratePerKmSedan" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km SUV</label>
+                                <Field type="number" name="ratePerKmSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="ratePerKmSuv" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km MUV</label>
                                 <Field type="number" name="ratePerKmMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="ratePerKmMVP" component="div" className="text-red-500 text-sm" />
                             </div>

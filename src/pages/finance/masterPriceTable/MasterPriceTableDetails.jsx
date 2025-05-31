@@ -6,11 +6,13 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import MasterPriceLog from './MasterPriceLog';
+import RidesPeakHourTableDetails from './RidesPeakHourTableDetails';
 
 const PriceDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [peakHours, setPeakHours] = useState([])
 
     useEffect(() => {
         fetchPriceDetails();
@@ -22,9 +24,13 @@ const PriceDetails = () => {
             if (data?.success) {
                 setInitialValues({
                     baseFare: data?.data?.baseFare,
+                    baseFareSuv: data?.data?.baseFareSuv,
+                    baseFareSedan: data?.data?.baseFareSedan,
                     baseFareMVP: data?.data?.baseFareMVP,
                     ratePerKm: data?.data?.kilometerPrice,
                     ratePerKmMVP: data?.data?.kilometerPriceMVP,
+                    ratePerKmSedan: data?.data?.kilometerPriceSedan,
+                    ratePerKmSuv: data?.data?.kilometerPriceSuv,
                     ratePerMin: data?.data?.minCharge,
                     additionalMin: data?.data?.additionalMinCharge,
                     rateParameter: data?.data?.rateParameter,
@@ -36,6 +42,7 @@ const PriceDetails = () => {
                     cancellationCharge: data?.data?.cancelCharge,
                     status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
                 });
+                setPeakHours(data.data.peakHours);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -51,23 +58,39 @@ const PriceDetails = () => {
             <h2 className="text-2xl font-bold mb-4">Pricing Details</h2>
             <Formik initialValues={initialValues} enableReinitialize>
                 {() => (
-                    <Form className="space-y-4">
+                    <Form className="space-y-7">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (Mini, SUV, Sedan)</label>
-                                <Field type="number" name="baseFare" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
+                                <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
-                                <Field type="number" name="baseFareMVP" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <label className="text-sm font-medium text-gray-700">Base Fare Sedan</label>
+                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (Mini, SUV, Sedan)</label>
-                                <Field type="number" name="ratePerKm" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                            <label className="text-sm font-medium text-gray-700">Base Fare SUV</label>
+                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km (MUV)</label>
-                                <Field type="number" name="ratePerKmMVP" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <label className="text-sm font-medium text-gray-700">Base Fare MUV</label>
+                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Mini</label>
+                                <Field type="number" name="ratePerKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km Sedan</label>
+                                <Field type="number" name="ratePerKmSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km SUV</label>
+                                <Field type="number" name="ratePerKmSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Rate Per Km MUV</label>
+                                <Field type="number" name="ratePerKmMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
@@ -124,6 +147,7 @@ const PriceDetails = () => {
                                 <Field type="number" name="cancellationCharge" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                         </div>
+                        <RidesPeakHourTableDetails priceData={peakHours}/>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back

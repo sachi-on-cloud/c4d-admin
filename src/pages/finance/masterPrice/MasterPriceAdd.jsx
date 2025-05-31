@@ -19,7 +19,6 @@ export function MasterPriceAdd() {
         waitingCharge: '',
         dropOnly: '',
         additionalMins: '',
-        extraHours: '',
         nightHoursFrom: '00:00',
         nightHoursTo: '00:00',
         nightCharge: '',
@@ -27,6 +26,8 @@ export function MasterPriceAdd() {
         cancelCharge: '',
         active: "",
         extraPrice:'',
+        kilometer:'',
+        dropPriceAbove:'',
     };
 
     const handleSubmit = async (values) => {
@@ -45,7 +46,9 @@ export function MasterPriceAdd() {
                 waitingCharge: values.waitingCharge,
                 nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo),
-                extraPrice: values.extraHours,
+                extraPrice: values.extraPrice,
+                kilometer: values.kilometer,
+                dropPriceAbove: values.dropPriceAbove,
                 status: 1,
             };
             if (values.type === 'Outstation') {
@@ -84,7 +87,7 @@ export function MasterPriceAdd() {
                         <pre>{JSON.stringify(errors, null, 2)}</pre>
                         <p>Package Debug: {JSON.stringify(values.package, null, 2)}</p> */}
 
-                        <div className="p-4 bg-gray-50 grid grid-cols-2 gap-4">
+                        <div className="p-4 bg-blue-gray-100 grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Service Type</label>
                                 <Field as="select" name="serviceType" className="p-2 w-full rounded-md border-2 border-gray-300">
@@ -115,6 +118,11 @@ export function MasterPriceAdd() {
                                 <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
+                                    <label className="text-sm font-medium text-gray-700">Kilometer</label>
+                                    <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
+                                    <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
+                                </div>
+                            <div>
                                 <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
                                 <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                 <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
@@ -129,13 +137,6 @@ export function MasterPriceAdd() {
                                     <label className="text-sm font-medium text-gray-700">Base Fare</label>
                                     <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                     <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
-                                </div>
-                            }
-                            {values?.type === 'Outstation' && 
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Kilometer</label>
-                                    <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                    <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
                                 </div>
                             }
                             {values?.type === 'Outstation' &&<div>
@@ -155,14 +156,20 @@ export function MasterPriceAdd() {
                                 <ErrorMessage name="dropPrice" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
+                                <label className="text-sm font-medium text-gray-700">Drop Price Above</label>
+                                <Field type="number" name="dropPriceAbove" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
+                                <ErrorMessage name="dropPriceAbove" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            
+                            <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Mins</label>
                                 <Field type="number" name="additionalMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                 <ErrorMessage name="additionalMins" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Extra Hours</label>
-                                <Field type="number" name="extraHours" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="extraHours" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Extra Price</label>
+                                <Field type="number" name="extraPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
+                                <ErrorMessage name="extraPrice" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>

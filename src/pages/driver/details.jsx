@@ -111,6 +111,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                             <option value="">Select salutation</option>
                                             <option value="Mr">Mr</option>
                                             <option value="Mrs">Mrs</option>
+                                            <option value="Miss">Miss</option>
                                             <option value="Others">Others</option>
                                         </Field>
                                         <ErrorMessage name="salutation" component="div" className="text-red-500 text-sm" />
@@ -215,7 +216,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                                     className="form-radio"
                                                     disabled
                                                 />
-                                                <span className="ml-2">Driver Only</span>
+                                                <span className="ml-2">Acting Driver</span>
                                             </label>
                                             <label className="inline-flex items-center">
                                                 <Field
@@ -327,8 +328,8 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
             {/* {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />} */}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             {/* <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} /> */}
-            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} noApprove ={noApprove}/>}
-            {driver && driver?.subscriptionLog && <SubscriptionLog subscriptionlog={driver?.subscriptionLog} />}
+            {driver && driver?.creditLog && <SubscriptionLog subscriptionlog={driver?.creditLog} />}
+            {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} noApprove={noApprove} />}
             {driver && driver?.documentLog && <DocumentLogs documentlogs={driver?.documentLog} />}
             {!btnShow && <div className='flex w-full'>
                 <Button

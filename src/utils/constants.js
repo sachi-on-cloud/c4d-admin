@@ -5,8 +5,8 @@ export const constants = {
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     url_dev: 'https://seal-well-mite.ngrok-free.app',
-    url: 'https://api.c4d.smartapis.cyou',
-    url_sit: 'https://sit.api.c4d.smartapis.cyou/'
+    url: import.meta.env.VITE_API_ENDPOINT,
+    url_sit: 'https://sit.api.c4d.smartapis.cyou'
 };
 
 export const getBaseUrl = () => {
@@ -900,11 +900,15 @@ export const API_ROUTES = {
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
     'RIDES_DRIVER_LIST': '/driver-request-list',
-    'RENTAL_REQUEST':'/request-rental',
+    'RENTAL_REQUEST': '/request-rental',
     'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
     'GEO_MARKINGS_DELETE': '/geo-markings',
+    'GET_CAR_TYPE': '/car-type/',
+    'POST_NOTIFICATION_ADD': '/send-notification',
+    'GET_NOTIFICATION': '/get-notification',
+    'INSTANT_REWARD': '/instant-reward',
 };
 
 export const KYC_PROCESS = {
@@ -981,12 +985,12 @@ export const whatsappMessage = "Hello, I would like to chat with you!";
 
 export const supportNumber = "+919999999999";
 export const supportEmail = "c4dsupport@texve.com";
-export const supportMessage = `Welcome to C4D.\n Please raise your query!`;
+export const supportMessage = `Welcome to Root Cabs.\n Please raise your query!`;
 
-export const COMPANY_NAME = 'C4D';
+export const COMPANY_NAME = 'Root Cabs';
 export const GST_NUMBER = '1234567890ABC';
 export const GPAY_NUMBER = '8888888888';
-export const GPAY_NAME = 'C4D PRIVATE LIMITED';
+export const GPAY_NAME = 'ROOT CABS PRIVATE LIMITED';
 
 export const USER_ROLE = [
     { id: 'SUPER_USER', role: 'Super user' },
@@ -1059,6 +1063,22 @@ export const WHATSAPP_DRIVER_ASSIGNED_TEMPLATE =
 
     Thank you,
     ${COMPANY_NAME} Team`;
+export const WHATSAPP_RIDE_TRIP_START_TEMPLATE =
+    `${COMPANY_NAME} Trip Update
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Your trip has started with \${driverName}.
+
+    Car Type: \${carType}
+    Start OTP: \${startOtp}
+    Start Time: \${startTime}
+
+    If you need any assistance, feel free to contact our support team \${supportNumber}. 
+    We hope you enjoy your journey!
+
+    Thank you,
+    ${COMPANY_NAME} Team`;
 
 export const WHATSAPP_TRIP_START_TEMPLATE =
     `${COMPANY_NAME} Trip Update
@@ -1067,6 +1087,8 @@ export const WHATSAPP_TRIP_START_TEMPLATE =
     Hello \${customerName},
     Your trip has started with \${driverName}.
 
+    Car Type: \${carType}
+    Start OTP: \${startOtp}
     Start Time: \${startTime}
     Package End Time: \${endTime}
 
@@ -1102,6 +1124,27 @@ export const WHATSAPP_PAYMENT_REQUEST_TEMPLATE =
     Best regards,
     ${COMPANY_NAME} Team`;
 
+export const WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE =
+    `${COMPANY_NAME} Trip Completed
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Thank you for choosing ${COMPANY_NAME}! Your trip with \${driverName} has been successfully completed.
+
+    Trip Summary:
+    • Pickup: \${pickup}
+    • Drop: \${drop}
+    • Start Time: \${startTime}
+    • End Time: \${endTime}
+    • Total Duration: \${totalDuration}
+    • Extra Time: \${extraTime}
+    • Extra Charges: ₹\${extraCharges}
+    • Total Amount Paid: ₹\${totalAmount}
+
+    We hope you had a great journey!
+
+    Warm regards,
+    ${COMPANY_NAME} Team`;
 
 export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     `${COMPANY_NAME} Trip Completed
@@ -1115,28 +1158,25 @@ export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
     • Drop: \${drop}
     • Start Time: \${startTime}
     • End Time: \${endTime}
+    • End Otp: \${endOtp}
     • Total Duration: \${totalDuration}
     • Package Duration: \${packageDuration}
     • Extra Time: \${extraTime}
-    • Base Fare: ₹\${baseFare}
     • Extra Charges: ₹\${extraCharges}
     • Total Amount Paid: ₹\${totalAmount}
-
-    Payment Received ✅
-    Payment ID: \${transactionId}
 
     We hope you had a great journey!
 
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-    export const ColorStyles = {
-        sidenavColors:"bg-[#1A73E8] text-white",
-        bgColor: "bg-[#1A73E8]",
-        PopoverHandlerText: "text-black",
-        bgStatusColor:" bg-[#1A73E8] text-white",
-        addButtonColor:"bg-[#1A73E8] text-white",
-        continueButtonColor:" bg-[#1A73E8] text-white",
-        backButton:" text-black border-gray-400 border-2 rounded-xl bg-white",
-        editButton:"bg-[#1A73E8] text-white",
-      }; 
+export const ColorStyles = {
+    sidenavColors: "bg-[#b3ccff]",
+    bgColor: "bg-[#1A73E8]",
+    PopoverHandlerText: "text-black",
+    bgStatusColor: " bg-[#1A73E8] text-white",
+    addButtonColor: "bg-[#1A73E8] text-white",
+    continueButtonColor: " bg-[#1A73E8] text-white",
+    backButton: " text-black border-gray-400 border-2 rounded-xl bg-white",
+    editButton: "bg-[#1A73E8] text-white",
+}; 

@@ -1,6 +1,6 @@
 // import { Dimensions } from 'react';
 import moment from "moment";
-import { GPAY_NAME, GPAY_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE } from "./constants";
+import { GPAY_NAME, GPAY_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE, WHATSAPP_RIDE_TRIP_START_TEMPLATE } from "./constants";
 
 export const Utils = {
     formatSelectedDate: (date) => {
@@ -40,10 +40,10 @@ export const Utils = {
     convertTimeFormat: (time) => {
         let [hours, minutes, seconds] = time.split(':');
         hours = parseInt(hours);
-    
+
         const period = hours >= 12 ? 'p.m.' : 'a.m.';
         hours = hours % 12 || 12;
-    
+
         return `${hours}:${minutes} ${period}`;
     },
 
@@ -213,7 +213,7 @@ export const Utils = {
 
         return `${displayHours}:${displayMinutes}:${displaySeconds}`;
     },
-    
+
     generateWhatsAppMessage: (bookingDetails) => {
         let text = '';
         if (bookingDetails?.status === "INITIATED" && (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id)) {
@@ -237,15 +237,29 @@ export const Utils = {
         if (bookingDetails?.status === "STARTED") {
             const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
             const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
-            text = encodeURIComponent(
-                WHATSAPP_TRIP_START_TEMPLATE
-                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
-                    .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}',driverName)
-                    .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
-                    .replace('${endTime}', moment(endTime).format('hh:mm A'))
-                    .replace('${supportNumber}', supportNumber)
-            );
+            (bookingDetails.serviceType == "DRIVER" || bookingDetails.serviceType == "RENTAL") && bookingDetails.packageType == "Local" ?
+                text = encodeURIComponent(
+                    WHATSAPP_TRIP_START_TEMPLATE
+                        .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                        .replace('${customerName}', bookingDetails.Customer.firstName)
+                        .replace('${driverName}', driverName)
+                        .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
+                        .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
+                        .replace('${endTime}', moment(endTime).format('hh:mm A'))
+                        .replace('${startOtp}', bookingDetails.startOtp)
+                        .replace('${supportNumber}', supportNumber)
+                )
+                :
+                text = encodeURIComponent(
+                    WHATSAPP_RIDE_TRIP_START_TEMPLATE
+                        .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                        .replace('${customerName}', bookingDetails.Customer.firstName)
+                        .replace('${driverName}', driverName)
+                        .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
+                        .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
+                        .replace('${startOtp}', bookingDetails.startOtp)
+                        .replace('${supportNumber}', supportNumber)
+                );
         }
 
 
@@ -259,7 +273,7 @@ export const Utils = {
                     .replace('${driverName}', bookingDetails.Driver?.firstName)
                     .replace('${startTime}', Utils.formatTime(bookingDetails.startTime))
                     .replace('${endTime}', (bookingDetails.endTime))
-                    .replace('${baseFare}', bookingDetails.Package.price)
+                    // .replace('${baseFare}', bookingDetails.Package.price)
                     .replace('${extraFareCalculation}', `${bookingDetails.extraHours} hrs × ₹${bookingDetails.extraHourPrice} = ₹${bookingDetails.extraPrice}`)
                     .replace('${totalAmount}', totalFare)
                     .replace('${gpayNumber}', GPAY_NUMBER)
@@ -268,13 +282,13 @@ export const Utils = {
             );
         }
 
-        if(bookingDetails?.status === "ENDED" && !bookingDetails?.paymentStatus) {
+        if (bookingDetails?.status === "ENDED" && !bookingDetails?.paymentStatus) {
             // const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
             text = encodeURIComponent(
                 WHATSAPP_PAYMENT_REQUEST_TEMPLATE
-                .replace('${bookingNumber}', bookingDetails.bookingNumber)
-                .replace('${customerName}', bookingDetails.Customer.firstName)
-                .replace('${driverName}', bookingDetails.Driver?.firstName)
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${driverName}', bookingDetails.Driver?.firstName)
             )
         }
 
@@ -284,36 +298,54 @@ export const Utils = {
             const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
             const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
             const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
-            
-            text = encodeURIComponent(
-                WHATSAPP_TRIP_COMPLETION_TEMPLATE
+            const endDateTimeString = bookingDetails.endDate && bookingDetails.endTime ? `${bookingDetails.endDate}T${bookingDetails.endTime}` : null;
+            const endDate = bookingDetails.endedTime ? bookingDetails.endedTime : endDateTimeString;
+            bookingDetails.serviceType != "RIDES" ?
+                text =
+                encodeURIComponent(WHATSAPP_TRIP_COMPLETION_TEMPLATE
                     .replace('${bookingNumber}', bookingDetails.bookingNumber)
                     .replace('${customerName}', bookingDetails.Customer.firstName)
                     .replace('${driverName}', driverName)
                     .replace('${pickup}', bookingDetails.pickupAddress?.name)
-                    .replace('${drop}', bookingDetails.dropAddress?.name ? bookingDetails.dropAddress?.name : 'Not Added')
-                    .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
-                    .replace('${endTime}', moment(endTime).format('hh:mm A'))
-                    .replace('${totalDuration}', isNaN(duration.total) ? "0 hours" : duration.total)
+                    .replace('${drop}', bookingDetails.endAddress?.name ? bookingDetails.endAddress?.name : 'Not Added')
+                    .replace('${startTime}', moment(bookingDetails.startTime).format('DD-MM-YYYY hh:mm A'))
+                    .replace('${endTime}', moment(endDate).format('DD-MM-YYYY hh:mm A'))
+                    .replace('${endOtp}', bookingDetails.endOtp)
+                    .replace('${totalDuration}', bookingDetails.totalHours)//isNaN(duration.total) ? "0 hours" : duration.total)
                     .replace('${packageDuration}', `${bookingDetails.Package.period} hours`)
                     .replace('${extraTime}', isNaN(duration.extra) ? "0 hours" : duration.extra)
-                    // .replace('${baseFare}', bookingDetails.Package.price)
+                    //.replace('${baseFare}', bookingDetails.Package.price)
                     .replace('${extraCharges}', bookingDetails.extraPrice)
                     .replace('${totalAmount}', bookingDetails.totalPrice)
-                    .replace('${transactionId}', bookingDetails.transactionId ? bookingDetails.transactionId :'Processing')
-            );
+                    .replace('${transactionId}', bookingDetails.transactionId ? bookingDetails.transactionId : 'Processing'))
+                :
+                text =
+                encodeURIComponent(WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${driverName}', driverName)
+                    .replace('${pickup}', bookingDetails.pickupAddress?.name)
+                    .replace('${drop}', bookingDetails.endAddress?.name ? bookingDetails.endAddress?.name : 'Not Added')
+                    .replace('${startTime}', moment(bookingDetails.startTime).format('DD-MM-YYYY hh:mm A'))
+                    .replace('${endTime}', moment(endDate).format('DD-MM-YYYY hh:mm A'))
+                    .replace('${totalDuration}', bookingDetails.totalHours)//isNaN(duration.total) ? "0 hours" : duration.total)
+                    .replace('${extraTime}', isNaN(duration.extra) ? "0 hours" : duration.extra)
+                    //.replace('${baseFare}', bookingDetails.Package.price)
+                    .replace('${extraCharges}', bookingDetails.extraPrice)
+                    .replace('${totalAmount}', bookingDetails.totalPrice)
+                    .replace('${transactionId}', bookingDetails.transactionId ? bookingDetails.transactionId : 'Processing'))
         }
 
         if (text === '') {
             text = encodeURIComponent(
-                    (bookingDetails?.Driver ? `Driver Name: ${bookingDetails?.Driver.firstName}\nDriver Number: ${bookingDetails?.Driver.phoneNumber}\n` : '') +
-                    `Pickup Address: ${bookingDetails?.pickupAddress?.name}\n` +
-                    (bookingDetails?.dropAddress ? `Drop Address: ${bookingDetails?.dropAddress?.name}\n` : '')
-                );
+                (bookingDetails?.Driver ? `Driver Name: ${bookingDetails?.Driver.firstName}\nDriver Number: ${bookingDetails?.Driver.phoneNumber}\n` : '') +
+                `Pickup Address: ${bookingDetails?.pickupAddress?.name}\n` +
+                (bookingDetails?.dropAddress ? `Drop Address: ${bookingDetails?.dropAddress?.name}\n` : '')
+            );
         }
 
         return `https://wa.me/${bookingDetails?.Customer?.phoneNumber.replace(/^(\+91)/, '')}?text=${text}`
-        
+
     },
 
     calculateEndTime: (startTime, duration) => {
