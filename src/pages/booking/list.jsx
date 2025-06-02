@@ -138,7 +138,7 @@ else if (filterType === 'range') {
         // getBookingsList(pagination.currentPage);
         const intervalId = setInterval(() => {
         getBookingsList(pagination.currentPage);
-    }, 10000);
+    }, 5000);
 
     return () => clearInterval(intervalId);
     }, [customerId, bookingStage, type, pagination.currentPage]);
