@@ -268,13 +268,13 @@ const EditBooking = (props) => {
                                     <Field as="select" name="serviceType" disabled className="p-2 w-full rounded-xl border-2 border-gray-300">
                                         <option value="">Service Type</option>
                                         <option value="DRIVER">Driver</option>
-                                        <option value="RENTALS">Rentals</option>
+                                        <option value="RENTAL">Rentals</option>
                                         <option value="RIDES">Rides</option>
                                     </Field>
                                     <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
-                            <div className="space-y-3 my-3">
+                            <div className={`space-y-3 my-3 ${values.serviceType === 'RENTAL' ? 'hidden' : ''}`}>
                                 <div className="grid grid-cols-2 gap-4">
                                     <Button
                                         color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
@@ -314,6 +314,7 @@ const EditBooking = (props) => {
                                             color={values.tripType === 'Drop Only' ? 'blue' : 'gray'}
                                             onClick={() => setFieldValue('tripType', 'Drop Only')}
                                             variant={values?.tripType === 'Drop Only' ? 'filled' : 'outlined'}
+                                            disabled
                                         >
                                             Drop Only
                                         </Button>)}
@@ -321,6 +322,7 @@ const EditBooking = (props) => {
                                             color={values.tripType === 'Round Trip' ? 'blue' : 'gray'}
                                             onClick={() => setFieldValue('tripType', 'Round Trip')}
                                             variant={values?.tripType === 'Round Trip' ? 'filled' : 'outlined'}
+                                            disabled
                                         >
                                             Round Trip
                                         </Button>
@@ -451,6 +453,9 @@ const EditBooking = (props) => {
                                                 if (values.serviceType === 'CAR_WASH') {
                                                     return item.type === 'CarWash';
                                                 }
+                                                else if (values.serviceType === 'RENTAL' && values.tripType === 'Local') {
+                                                    return item.serviceType === 'RENTAL'  && item.type === 'Local';
+                                                    }
                                                 return values.packageTypeSelected === item.type;
                                             })
                                             .map((item) => (

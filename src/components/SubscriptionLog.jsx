@@ -79,7 +79,7 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                             <thead>
                                 <tr>
                                     {/* "Service Type", "Receipt", "Status", "Discount" */}
-                                    {["Type", "Transaction Type", "ReceiptId", "Date", "Plan", "Amount", "End Date", "Base Credit", "Bonus Credit", "Booking Number", "Booking Status", "Utilized Credit", "Nett Credit", "Remaining Credit"].map((el, index) => (
+                                    {["Type", "Transaction Type", "receiptNumber", "Date", "Plan", "Amount", "End Date", "Base Credit", "Bonus Credit", "Booking Number", "Booking Status", "Utilized Credit", "Nett Credit", "Remaining Credit"].map((el, index) => (
                                         <th key={index} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography
                                                 variant="small"
@@ -97,7 +97,7 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                                 {/* {subscriptionlog.map(({ id, type, transactionType, baseCredit, bonusCredit, utilizedCredit, nettCredit, Plan, startDate, endDate, remainingEarning, lapsedEarning, serviceType, receipt, status, subscribedDiscount }, key) => {
                                     const className = `py-3 px-5 ${key === subscriptionlog.length - 1 ? "" : "border-b border-blue-gray-50"
                                         }`; */}
-                                {paginatedData.map(({ id, type, transactionType, ReceiptId, amount, baseCredit, bonusCredit, utilizedCredit, nettCredit, remainingCredit, Subscription, Plan, Booking, startDate, endDate, remainingEarning, lapsedEarning, serviceType, receipt, status, created_at }, key) => {
+                                {paginatedData.map(({ id, type, transactionType, receiptNumber, amount, baseCredit, bonusCredit, utilizedCredit, nettCredit, remainingCredit, Subscription, Plan, Receipt,Booking, startDate, endDate, remainingEarning, lapsedEarning, serviceType, receipt, status, created_at }, key) => {
                                     const className = `py-3 px-5 ${key === paginatedData.length - 1 ? "" : "border-b border-blue-gray-50"
                                         }`;
                                     return (
@@ -115,9 +115,9 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-600 cursor-pointer underline"
-                                                // onClick={() => navigate(`/dashboard/finance/receipt/details/C4D00000008`)} 
+                                                onClick={() => navigate(`/dashboard/finance/receipt/details/${Receipt?.receiptNumber}`)} 
                                                 >
-                                                    {ReceiptId}
+                                                    {Receipt?.receiptNumber}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
