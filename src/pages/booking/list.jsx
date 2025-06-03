@@ -25,7 +25,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
 
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
-    const[sourceFilter,setSourceFilter] = useState(['All']);
+    const [sourceFilter, setSourceFilter] = useState(['All']);
     const [showPickedBooking, setShowPickedBooking] = useState(0);
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
     const [pagination, setPagination] = useState({
@@ -61,10 +61,9 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                 }
             });
         }
-        else if (filterType === 'source')
-        {
+        else if (filterType === 'source') {
             setSourceFilter(prev => {
-                 if (value === 'All') {
+                if (value === 'All') {
                     return ['All'];
                 } else {
                     const newFilter = prev.includes(value)
@@ -74,14 +73,14 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                 }
             })
         }
-else if (filterType === 'range') {
-      // Expect value to be an object { startDate, endDate }
-      const { startDate, endDate } = value;
-      setFilteredRange({ startDate, endDate });
-      console.log('Filtered Range:', { startDate, endDate });
-    }
+        else if (filterType === 'range') {
+            // Expect value to be an object { startDate, endDate }
+            const { startDate, endDate } = value;
+            setFilteredRange({ startDate, endDate });
+            console.log('Filtered Range:', { startDate, endDate });
+        }
     };
-    const FilterPopover = ({ title, options, selectedFilters, onFilterChange,customContent }) => (
+    const FilterPopover = ({ title, options, selectedFilters, onFilterChange, customContent }) => (
         <Popover placement="bottom-start">
             <PopoverHandler>
                 <div className="flex items-center cursor-pointer">
@@ -92,21 +91,21 @@ else if (filterType === 'range') {
                 </div>
             </PopoverHandler>
             <PopoverContent className="p-2">
-                 {customContent ? (
-                customContent
-            ) : (
-                options.map((option) => (
-                    <div key={option.value} className="flex items-center mb-2">
-                        <Checkbox
-                            color="blue"
-                            checked={selectedFilters.includes(option.value)}
-                            onChange={() => onFilterChange(option.value)}
-                        />
-                        <Typography color="blue-gray" className="font-medium ml-2">
-                            {option.label}
-                        </Typography>
-                    </div>
-                ))
+                {customContent ? (
+                    customContent
+                ) : (
+                    options.map((option) => (
+                        <div key={option.value} className="flex items-center mb-2">
+                            <Checkbox
+                                color="blue"
+                                checked={selectedFilters.includes(option.value)}
+                                onChange={() => onFilterChange(option.value)}
+                            />
+                            <Typography color="blue-gray" className="font-medium ml-2">
+                                {option.label}
+                            </Typography>
+                        </div>
+                    ))
                 )}
             </PopoverContent>
         </Popover>
@@ -135,12 +134,12 @@ else if (filterType === 'range') {
     };
 
     useEffect(() => {
-        // getBookingsList(pagination.currentPage);
-        const intervalId = setInterval(() => {
         getBookingsList(pagination.currentPage);
-    }, 5000);
+        const intervalId = setInterval(() => {
+            getBookingsList(pagination.currentPage);
+        }, 10000);
 
-    return () => clearInterval(intervalId);
+        return () => clearInterval(intervalId);
     }, [customerId, bookingStage, type, pagination.currentPage]);
 
     const handlePageChange = (page) => {
@@ -208,7 +207,7 @@ else if (filterType === 'range') {
 
         return `${day}-${month}-${year}`;
     }
-const handleSort = (key) => {
+    const handleSort = (key) => {
         let direction = 'ascending';
         let isNameSort = key === 'firstName';
 
@@ -325,51 +324,51 @@ const handleSort = (key) => {
                                                     />
                                                 )
                                                     : el === "Customer Name" ? (
-                                                    <div
-                                                        onClick={() => handleSort('firstName')}
-                                                        className="cursor-pointer flex items-center"
-                                                    >
-                                                        <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                            Customer Name
-                                                        </Typography>
-                                                        {nameSortConfig.key === 'firstName' && (
-                                                            nameSortConfig.direction === 'ascending' ? (
-                                                                <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                            ) : (
-                                                                <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                            )
-                                                        )}
-                                                    </div>
-                                                ) : el=== 'Driver Name' ? (
-                                                    <div
-                                                        onClick={() => handleSort('firstName')}
-                                                        className="cursor-pointer flex items-center"
-                                                    >
-                                                        <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                            Driver Name
-                                                        </Typography>
-                                                        {nameSortConfig.key === 'firstName' && (
-                                                            nameSortConfig.direction === 'ascending' ? (
-                                                                <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                            ) : (
-                                                                <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                            )
-                                                        )}
-                                                    </div>
-                                                ) : 
-                                                // el === "Booking Date" ? (
-                                                //             <FilterPopover
-                                                //                 title={el}
-                                                //                 customContent={
-                                                //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
-                                                //                 }
-                                                //             />
-                                                //         ) 
+                                                        <div
+                                                            onClick={() => handleSort('firstName')}
+                                                            className="cursor-pointer flex items-center"
+                                                        >
+                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
+                                                                Customer Name
+                                                            </Typography>
+                                                            {nameSortConfig.key === 'firstName' && (
+                                                                nameSortConfig.direction === 'ascending' ? (
+                                                                    <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
+                                                                ) : (
+                                                                    <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    ) : el === 'Driver Name' ? (
+                                                        <div
+                                                            onClick={() => handleSort('firstName')}
+                                                            className="cursor-pointer flex items-center"
+                                                        >
+                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
+                                                                Driver Name
+                                                            </Typography>
+                                                            {nameSortConfig.key === 'firstName' && (
+                                                                nameSortConfig.direction === 'ascending' ? (
+                                                                    <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
+                                                                ) : (
+                                                                    <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    ) :
+                                                        // el === "Booking Date" ? (
+                                                        //             <FilterPopover
+                                                        //                 title={el}
+                                                        //                 customContent={
+                                                        //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
+                                                        //                 }
+                                                        //             />
+                                                        //         ) 
                                                         (
-                                                        <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
-                                                            {el}
-                                                        </Typography>
-                                                    )}
+                                                            <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
+                                                                {el}
+                                                            </Typography>
+                                                        )}
                                             </th>
                                         ))}
                                     </tr>
