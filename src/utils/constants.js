@@ -909,6 +909,8 @@ export const API_ROUTES = {
     'POST_NOTIFICATION_ADD': '/send-notification',
     'GET_NOTIFICATION': '/get-notification',
     'INSTANT_REWARD': '/instant-reward',
+    'CUSTOMER_WALLET': '/getWalletTransactions',
+    'DRIVER_WALLET': '/getDriverWalletTransactions'
 };
 
 export const KYC_PROCESS = {

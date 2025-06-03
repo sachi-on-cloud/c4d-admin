@@ -13,7 +13,7 @@ export const PERSONALINFO_SCHEMA = Yup.object().shape({
 export const VEHICLEINFO_SCHEMA = Yup.object().shape({
     nickName: Yup.string().required('Nickname is required'), // Nickname is required
     carNumber: Yup.string()
-        .matches('^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$', 'Invalid Car Number')
+        .matches('^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$', 'Invalid Car Number')
         .required('Car Number is required'),
     carType: Yup.string().required('Car Type is required'),
     fuelType: Yup.string().required('Fuel Type is required'),
@@ -341,7 +341,7 @@ export const DRIVER_SCHEMA = Yup.object({
 export const CAB_SCHEMA = Yup.object({
     name: Yup.string().required('Vehicle Name is required'),
     // ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
-    carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
+    carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{1,2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
     address: Yup.string()
         .required('Address is required')
         .min(5, 'Address must be at least 5 characters')
@@ -539,7 +539,7 @@ export const REASSIGN_DRIVER = Yup.object({
 export const CAB_ADD_SCHEMA = Yup.object({
     name: Yup.string().required('Owner Name is required'),
     // ownerPhoneNumber: Yup.string().matches(/^[6-9]{1}[0-9]{9}/, 'Must be a valid mobile number').required('Phone number is required'),
-    carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
+    carNumber: Yup.string().matches('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{1,2}[0-9]{4}$', 'Invalid Car Number').required('Car Number is required'),
     address: Yup.string()
         .required('Address is required')
         .min(5, 'Address must be at least 5 characters')

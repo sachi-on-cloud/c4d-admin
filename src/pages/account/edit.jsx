@@ -529,9 +529,9 @@ const AccountEdit = () => {
                             <div className='grid grid-cols-2 gap-4'>
                                 <div>
                                     <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
-                                    <Field as="select" name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select Type</option>
-                                        <option value="Individual">Driver With Vehicle</option>
+                                        <option value="Individual">Owner cum Driver</option>
                                         <option value="Company">Travels</option>
                                     </Field>
                                     <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
