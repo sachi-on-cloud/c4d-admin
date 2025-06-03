@@ -6,6 +6,7 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
+import CustomerWalletLog from '@/components/CustomerWalletLog';
 
 const CustomerDetails = () => {
     const navigate = useNavigate();
@@ -84,6 +85,7 @@ const CustomerDetails = () => {
                                     <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
+                            <CustomerWalletLog customerId={id} />
                             <div>
                                 <button
                                     type="button"

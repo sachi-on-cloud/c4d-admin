@@ -11,6 +11,7 @@ import PrintDriverDetails from '@/components/PrintDriverDetails';
 import DocumentsList from '@/components/DocumentsList';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
+import DriverWalletLog from '@/components/DriverWalletLog';
 
 const DriverDetails = ({ btnShow = false, noApprove = false }) => {
     // const [enablePrint, setEnablePrint] = useState(false);
@@ -328,6 +329,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
             {/* {driver?.price && <PriceTable type={"driverId"} id={id} packages={packageDetails} selectedPackages={driver?.result?.packages} />} */}
             {/* {driver?.wallet && <WalletDetails wallet={driver?.wallet} onFetch={() => fetchItem(id)} />} */}
             {/* <PrintDriverDetails ref={printRef} packages={packageDetails} driverId={id} onFetch={() => fetchItem(id)} /> */}
+            <DriverWalletLog driverId={id} />
             {driver && driver?.creditLog && <SubscriptionLog subscriptionlog={driver?.creditLog} />}
             {driver && driver?.result?.id && <DocumentsList id={driver?.result?.id} type={'driver'} noApprove={noApprove} />}
             {driver && driver?.documentLog && <DocumentLogs documentlogs={driver?.documentLog} />}
