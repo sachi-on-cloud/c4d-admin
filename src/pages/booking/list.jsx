@@ -16,6 +16,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
 export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false }) {
@@ -421,7 +422,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     </td>
                                                     <td className={className}>
                                                         <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                            {formatDate(data?.fromDate)}
+                                                            {/* {formatDate(data?.fromDate) HH:mm:ss.SSSZ} */}
+                                                            {moment(data?.fromDate).format('DD-MM-YYYY hh:mm A')}
                                                         </Typography>
                                                     </td>
                                                     <td className={className}>
