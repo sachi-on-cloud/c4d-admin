@@ -87,28 +87,9 @@ const CustomerDetails = () => {
                             </div>
                             <CustomerWalletLog customerId={id} />
                             <div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowMore(!showMore)}
-                                    className="text-black-600 text-sm mb-2 p-1  border-blue-gray-100 rounded-lg shadow-sm"
-                                >
-                                    <div className='flex font-medium'>
-                                        {showMore ? (
-                                            <>
-                                                <ChevronUpIcon className="w-5 h-5 ml-0 text-black" />
-                                                View Less
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ChevronDownIcon className="w-5 h-5 ml-0 text-black" />
-                                                View More
-                                            </>
-                                        )}
-                                    </div>
-                                </button>
-                                {showMore && (
-                                    <table className="w-full border border-gray-300 text-sm">
-                                        <thead className="bg-gray-300 text-left">
+                                    <h2 className="text-2xl font-bold mb-4">Feedback Details</h2>
+                                    <table className="w-full border bg-blue-gray-50 py-3 text-sm">
+                                        <thead className=" text-left">
                                             <tr>
                                                 <th className="p-2 border">Trip ID</th>
                                                 <th className="p-2 border">End Date</th>
@@ -123,7 +104,7 @@ const CustomerDetails = () => {
                                             {driverVal?.Bookings?.length > 0 ? (
                                                 driverVal.Bookings.map((trip) => {
                                                     const rating = trip?.CustomerFeedbacks?.[0]?.rating ?? null;
-                                                    const comment = trip?.CustomerFeedbacks?.[0]?.comments ?? 'No feedback given';
+                                                    const comment = trip?.CustomerFeedbacks?.[0]?.comments ?? '-';
                                                     const driverName = trip?.Driver?.firstName ?? 'N/A';
 
                                                     return (
@@ -133,7 +114,7 @@ const CustomerDetails = () => {
                                                             <td className="p-2 border">{trip.endTime}</td>
                                                             <td className="p-2 border">{driverName}</td>
                                                             <td className="p-2 border flex">
-                                                                {rating !== null ? rating : 'No feedback given'}
+                                                                {rating !== null ? rating : '0'}
                                                                 <StarIcon className="w-5 h-5 text-yellow-500" />
                                                             </td>
                                                             <td className="p-2 border">
@@ -152,7 +133,6 @@ const CustomerDetails = () => {
                                             )}
                                         </tbody>
                                     </table>
-                                )}
 
                             </div>
                         </Form>

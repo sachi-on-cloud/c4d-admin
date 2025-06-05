@@ -348,7 +348,7 @@ const CabEdit = () => {
                 driverLicense: values.licenseNumber,
                 packages: values.packages,
                 accountId: values.accountId,
-                driverId: values.driverId,
+                driverId: values.assignOrAddDriver == 'Add' ? '' : values.driverId,
                 cabId: values.cabId,
             }
             const prices = values.prices;
@@ -356,6 +356,10 @@ const CabEdit = () => {
             //console.log("RESSSSS", res);
             const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, res);
             console.log('CAB DATA :', resp);
+            if (!resp?.success && resp?.code === 401) {
+                console.log("Driver Existed");
+                setAlert({ message: 'Driver with this phone number already exists', color: 'red' });
+            }
       if (!resp?.success && resp?.code === 203) {
         setAlert({ message: 'Cab already exists', color: 'red' });
         // setTimeout(() => setAlert(null), 2000);

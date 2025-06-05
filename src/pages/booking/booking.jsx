@@ -77,10 +77,11 @@ const Booking = (props) => {
 
     const getQuoteOutstationDetails = async (values) => {
         const quoteData = {
+            serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType,
             bookingType: values?.tripType?.toUpperCase(),
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values?.carType,
+            carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
             pickupLat: values?.pickupLocation?.lat,
             pickupLong: values?.pickupLocation?.lng,
             dropLat: values?.dropLocation?.lat,
@@ -166,8 +167,9 @@ const Booking = (props) => {
                 name: values.dropAddress
             },
         }
-        let data = ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
+        let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
+            setIsOpen(false);
             setBookingData(data?.data);
         }
     }
@@ -208,6 +210,7 @@ const Booking = (props) => {
         let data;
         data = await ApiRequestUtils.post(values.serviceType == "DRIVER" ? API_ROUTES.ADD_NEW_BOOKING : API_ROUTES.ADD_NEW_RENTAL_BOOKING, bookingData, values?.customerId?.id);
         if (data?.success) {
+            setIsOpen(false);
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
@@ -244,7 +247,7 @@ const Booking = (props) => {
 
     const onEditBackPress = () => {
         setEditBookingView(false);
-
+        setIsOpen(false);
     };
 
     const onSelectBooking = (data) => {
@@ -580,8 +583,8 @@ const validationCheckForDriverRental = (val) => {
                                                     </div>
                                                 </div>}
                                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI')) && (
-                                                    <div className={`space-y-3 my-3 ${values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'hidden' : ''}`}>
-                                                        <div className="grid grid-cols-2 gap-4">
+                                                    <div className='space-y-3 my-3'>
+                                                        <div className={`grid grid-cols-2 gap-4 ${values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'hidden' : ''}`}>
                                                          {(values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'DRIVER') &&  <Button
                                                                 color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
                                                                 onClick={() => {
@@ -617,7 +620,7 @@ const validationCheckForDriverRental = (val) => {
                                                             </Button>}
                                                         </div>
                                                         {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageTypeSelected === 'Local') || (values.serviceType === 'RENTAL_DROP_TAXI' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'DRIVER')) && (
-                                                            <div>
+                                                            <div className={['RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(values.serviceType) ? 'hidden' : ''}>
                                                                 <Typography className="text-sm font-medium text-black-700">Trip Type</Typography>
                                                                 <div className="grid grid-cols-2 gap-4 mt-2">
                                                                         {(values.serviceType === 'RENTAL_DROP_TAXI' ||
@@ -645,7 +648,7 @@ const validationCheckForDriverRental = (val) => {
                                                             )}
 
                                                         <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                            {(values.serviceType === 'DRIVER') && (<div>
+                                                            {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (<div>
                                                                 <label className="text-sm font-medium text-black-700">Car Type</label>
                                                                 <div className="flex gap-4">
                                                                     {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
@@ -975,11 +978,35 @@ const validationCheckForDriverRental = (val) => {
                                                             <hr className="my-2 border border-black" />
                                                             <div className="mt-4">
                                                                 <>
-                                                                    <div className="flex justify-between">
+                                                                    <div className="grid grid-cols-2 justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount}
+                                                                            ₹ {quoteDetails.amount.estimatedPrice}
                                                                         </Typography>
+                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.baseFare} 
+                                                                        </Typography>
+                                                                        <Typography color="gray" variant="h6">Estimated Distance</Typography>
+                                                                        <Typography>
+                                                                             {Math.round(quoteDetails.amount.estimatedDistance)}
+                                                                        </Typography>
+                                                                        <Typography color="gray" variant="h6">Kilometer Price Value</Typography>
+                                                                        <Typography>
+                                                                           ₹{quoteDetails.amount.kilometerPriceVal}
+                                                                        </Typography>
+                                                                        {/* <Typography color="gray" variant="h6">Extra Km Price</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.extraKmPrice}
+                                                                        </Typography> */}
+                                                                        {/* <Typography color="gray" variant="h6">difference Days</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.differenceDays}
+                                                                        </Typography> */}
+                                                                        {/* <Typography color="gray" variant="h6">driver Charge</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.driverCharge}
+                                                                        </Typography> */}
                                                                     </div>
                                                                 </>
                                                             </div>
@@ -1145,10 +1172,10 @@ const validationCheckForDriverRental = (val) => {
                                     )}
                                 </>}
                                 {bookingView && <>
-                                    <BookingItem bookingData={bookingData} setIsOpen={setIsOpen} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
+                                    <BookingItem bookingData={bookingData} setIsOpen={()=>setIsOpen(false)} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                                 </>}
                                 {editBookingView &&
-                                    <EditBooking bookingData={bookingData} setIsOpen={setIsOpen} editCancel={onEditBackPress} />
+                                    <EditBooking bookingData={bookingData} setIsOpen={()=>setIsOpen(false)} editCancel={onEditBackPress} />
                                 }
                             </div>
                         </div>
