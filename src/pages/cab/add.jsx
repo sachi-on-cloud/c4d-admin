@@ -362,7 +362,12 @@ const CabAdd = () => {
                 setAlert({ message: 'Cab already exists', color: 'red' });
                 // setTimeout(() => setAlert(null), 2000);
                 resetForm();
-            } 
+            }
+            if(!resp?.success && resp?.code === 401)
+                {
+                    setAlert({ message: 'Driver with this phone number already exists', color: 'red' });
+                    resetForm();
+                } 
             else if (resp?.success && resp?.code === 200) {
                 setAlert({ message: 'Cab Added Successfully', color: 'green' }, () => {
                     navigate(`/dashboard/vendors/account/details/${cabDetails?.accountId}`);

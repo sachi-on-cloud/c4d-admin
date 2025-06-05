@@ -17,6 +17,7 @@ import { BookingsList, SearchDrivers } from '.';
 import SearchableDropdown from '@/components/SearchableDropdown';
 import SelectLocation from './selectLocation';
 import BookingItem from "./confirmBooking"
+import EditBooking from './editBooking';
 
 // Format date to YYYY-MM-DD for input's min attribute
 const currentDate = () => {
@@ -40,6 +41,8 @@ const Booking = (props) => {
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
     const [rightBookingView,setRightBookingView] = useState(false);
+
+    const [editBookingView, setEditBookingView] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -178,7 +181,13 @@ const Booking = (props) => {
         setEditBooking(data);
         setBookingStage(0);
         setBookingView(false);
+        setEditBookingView(true)
     }
+
+    const onEditBackPress = () => {
+        setEditBookingView(false);
+        setIsOpen(false)
+    };
 
     const onSelectBooking = (data) => {
         setBookingStage(4);
@@ -186,6 +195,7 @@ const Booking = (props) => {
         setBookingView(true);
         setEditBooking();
         setRightBookingView(true);
+        setEditBookingView(false);
     }
     const onConfirmBooking = () => {
         setBookingStage(0);
@@ -288,11 +298,11 @@ const Booking = (props) => {
                                 {`Booking Details - ${bookingData?.bookingNumber}`} 
                                 {bookingData?.status && getStatusDisplay(bookingData.status)}
                             </>
-                        ) : ( bookingStage === 0 ? `Edit Booking- ${bookingData?.bookingNumber}` : bookingStage === 1 ? `Edit Booking- ${bookingData?.bookingNumber}` : bookingData?.serviceType != "DRIVER" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
+                        ) : ( bookingStage === 0 ? '' : bookingData?.serviceType != "DRIVER" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
                         </div>
                     </Typography>
                 </div>}
-                {!showQuickCreateCustomer && !bookingView && <>
+                {/* {!showQuickCreateCustomer && !bookingView && <>
                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                         initialValues={initialValues}
                         onSubmit={async (values, { resetForm }) => {
@@ -459,7 +469,6 @@ const Booking = (props) => {
                                                 })
                                                 .map((item) => (
                                                     <option key={item.id} value={item.id}>
-                                                        {/* {item.period} {values.packageTypeSelected === 'Outstation' ? 'd' : values.packageTypeSelected === 'Intercity' ? 'hr' : ''} */}
                                                         {values.serviceType === 'CAR_WASH'
                                                             ? (
                                                                 <span>
@@ -557,31 +566,23 @@ const Booking = (props) => {
                         )}
                     </Formik>}
                     <hr />
-                    {bookingStage === 1 && <SelectLocation
-                        serviceType={bookingData?.serviceType}
-                        bookingId={bookingData?.id}
-                        customerId={bookingData?.customerId}
-                        editBooking={editBooking}
-                        onNext={() => {
-                            setBookingStage(2);
-                            onSelectBooking(bookingData)
-                            setIsOpen(false)
-                        }}
-                        onPrev={() => setBookingStage(0)} />
-                    }
-                    {
-                        bookingStage === 2 && bookingData && (
-                            <SearchDrivers bookingData={bookingData} onNext={() => {
-                                setBookingStage(0);
-                                setBookingData(null);
-                                setRightBookingView(false);
-                                setIsOpen(false)
-                            }} />
-                        )}
-                </>}
+                    
+                </>} */}
+                {
+                    bookingStage === 2 && bookingData && (
+                    <SearchDrivers bookingData={bookingData} onNext={() => {
+                        setBookingStage(0);
+                        setBookingData(null);
+                        setRightBookingView(false);
+                        setIsOpen(false)
+                    }} />
+                )}
                 {bookingView && <>
                     <BookingItem bookingData={bookingData} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} setIsOpen={setIsOpen} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                 </>}
+                {editBookingView &&
+                    <EditBooking bookingData={bookingData} setIsOpen={()=>setIsOpen(false)} editCancel={onEditBackPress} />
+                }
             </div>
             </div>
             </div>

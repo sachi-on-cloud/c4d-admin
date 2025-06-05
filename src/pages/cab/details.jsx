@@ -11,6 +11,7 @@ import PrintCabDetails from '@/components/PrintCabDetails';
 import DocumentsList from '@/components/DocumentsList';
 import CabPriceTableLog from './CabPriceTableLog';
 import SubscriptionLog from '@/components/SubscriptionLog';
+import CabDriverWalletLog from '@/components/CabDriverWallet';
 
 const CabDetails = ({ btnShow = false, noApprove = false }) => {
     //const [enablePrint, setEnablePrint] = useState(false);
@@ -208,6 +209,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
+            <CabDriverWalletLog cabId={id} />
             {cab && cab?.creditLog && <SubscriptionLog subscriptionlog={cab?.creditLog} />}
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}

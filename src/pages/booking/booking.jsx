@@ -77,10 +77,11 @@ const Booking = (props) => {
 
     const getQuoteOutstationDetails = async (values) => {
         const quoteData = {
+            serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType,
             bookingType: values?.tripType?.toUpperCase(),
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values?.carType,
+            carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
             pickupLat: values?.pickupLocation?.lat,
             pickupLong: values?.pickupLocation?.lng,
             dropLat: values?.dropLocation?.lat,
@@ -166,8 +167,9 @@ const Booking = (props) => {
                 name: values.dropAddress
             },
         }
-        let data = ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
+        let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
+            setIsOpen(false);
             setBookingData(data?.data);
         }
     }
@@ -208,6 +210,7 @@ const Booking = (props) => {
         let data;
         data = await ApiRequestUtils.post(values.serviceType == "DRIVER" ? API_ROUTES.ADD_NEW_BOOKING : API_ROUTES.ADD_NEW_RENTAL_BOOKING, bookingData, values?.customerId?.id);
         if (data?.success) {
+            setIsOpen(false);
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
@@ -244,7 +247,7 @@ const Booking = (props) => {
 
     const onEditBackPress = () => {
         setEditBookingView(false);
-
+        setIsOpen(false);
     };
 
     const onSelectBooking = (data) => {
@@ -276,9 +279,27 @@ const Booking = (props) => {
 
         if (newServiceType === 'CAR_WASH') {
             setFieldValue("packageTypeSelected", "CarWash");
-        } else if (newServiceType === 'DRIVER' || newServiceType === 'RENTAL') {
+        } else if (newServiceType === 'DRIVER') {
             setFieldValue("packageTypeSelected", "Local");
-        } else {
+        }
+        else if(newServiceType === 'RENTAL_HOURLY_PACKAGE')
+        {
+            setFieldValue("packageTypeSelected", "Local");
+            setFieldValue("tripType", "Drop Only");
+        }
+        else if (newServiceType === 'RENTAL')
+        {
+            setFieldValue("packageTypeSelected", "Outstation");
+            setFieldValue("tripType", "Round Trip"); 
+            setFieldValue("acType", "Ac");
+        }
+        else if (newServiceType === 'RENTAL_DROP_TAXI')
+        {
+            setFieldValue("packageTypeSelected", "Outstation");
+            setFieldValue("tripType", "Drop Only"); 
+            setFieldValue("acType", "Ac");
+        }
+         else {
             setFieldValue("packageTypeSelected", "");
         }
 
@@ -330,9 +351,9 @@ const Booking = (props) => {
 const validationCheckForDriver = (val) => {
     if (!val || val.serviceType !== "DRIVER") { return false; }
 
-    const currentDate = new Date(); 
-    const rideDate = val.rideDate ? new Date(val.rideDate) : null;
-    if (!rideDate || rideDate <= currentDate) { return true; }
+    // const currentDate = new Date(); 
+    // const rideDate = val.rideDate ? new Date(val.rideDate) : null;
+    // if (!rideDate || rideDate <= currentDate) { return true; }
 
     if (val.packageTypeSelected === "Local") 
         { 
@@ -552,17 +573,19 @@ const validationCheckForDriverRental = (val) => {
 
                                                         }}>
                                                             <option value="">Service Type</option>
-                                                            <option value="DRIVER">Driver</option>
-                                                            <option value="RENTAL">Rentals</option>
-                                                            <option value="RIDES">Rides</option>
+                                                            <option value="DRIVER">Acting Driver</option>
+                                                            <option value="RIDES">Local Rides</option>
+                                                            <option value="RENTAL_HOURLY_PACKAGE">Hourly Package</option>
+                                                            <option value="RENTAL_DROP_TAXI">Drop Taxi</option>
+                                                            <option value="RENTAL">OutStation</option>
                                                         </Field>
                                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                                     </div>
                                                 </div>}
-                                                {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL') && (
-                                                    <div className="space-y-3 my-3">
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <Button
+                                                {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI')) && (
+                                                    <div className='space-y-3 my-3'>
+                                                        <div className={`grid grid-cols-2 gap-4 ${values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'hidden' : ''}`}>
+                                                         {(values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'DRIVER') &&  <Button
                                                                 color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
                                                                 onClick={() => {
                                                                     if (values.packageTypeSelected !== 'Local') {
@@ -577,7 +600,8 @@ const validationCheckForDriverRental = (val) => {
                                                                 variant={values?.packageTypeSelected === 'Local' ? 'filled' : 'outlined'}
                                                             >
                                                                 Local
-                                                            </Button>
+                                                            </Button>}
+                                                            {(values.serviceType === 'RENTAL' || values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL_DROP_TAXI') &&
                                                             <Button
                                                                 color={values.packageTypeSelected === 'Outstation' ? 'blue' : 'gray'}
                                                                 onClick={() => {
@@ -593,12 +617,15 @@ const validationCheckForDriverRental = (val) => {
                                                                 variant={values?.packageTypeSelected === 'Outstation' ? 'filled' : 'outlined'}
                                                             >
                                                                 Outstation
-                                                            </Button>
+                                                            </Button>}
                                                         </div>
-                                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'DRIVER')) && (
-                                                            <div>
+                                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageTypeSelected === 'Local') || (values.serviceType === 'RENTAL_DROP_TAXI' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'DRIVER')) && (
+                                                            <div className={['RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(values.serviceType) ? 'hidden' : ''}>
                                                                 <Typography className="text-sm font-medium text-black-700">Trip Type</Typography>
                                                                 <div className="grid grid-cols-2 gap-4 mt-2">
+                                                                        {(values.serviceType === 'RENTAL_DROP_TAXI' ||
+                                                                            values.serviceType === 'DRIVER' ||
+                                                                            values.serviceType === 'RENTAL_HOURLY_PACKAGE') && (
                                                                     <Button
                                                                         color={values.tripType === 'Drop Only' ? 'blue' : 'gray'}
                                                                         onClick={() => setFieldValue('tripType', 'Drop Only')}
@@ -606,7 +633,8 @@ const validationCheckForDriverRental = (val) => {
                                                                     >
                                                                         Drop Only
                                                                     </Button>
-
+                                                                            )}
+                                                                        {(values.serviceType === 'RENTAL' || values.serviceType === 'DRIVER') && (
                                                                     <Button
                                                                         color={values.tripType === 'Round Trip' ? 'blue' : 'gray'}
                                                                         onClick={() => setFieldValue('tripType', 'Round Trip')}
@@ -614,34 +642,13 @@ const validationCheckForDriverRental = (val) => {
                                                                     >
                                                                         Round Trip
                                                                     </Button>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        )}
-                                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation')) && (
-                                                            <div>
-                                                                <Typography className="text-sm font-medium text-black-700">AC Type</Typography>
-                                                                <div className="grid grid-cols-2 gap-4 mt-2">
-                                                                    <Button
-                                                                        color={values.acType === 'Ac' ? 'blue' : 'gray'}
-                                                                        onClick={() => setFieldValue('acType', 'Ac')}
-                                                                        variant={values?.acType === 'Ac' ? 'filled' : 'outlined'}
-                                                                    >
-                                                                        AC
-                                                                    </Button>
-
-                                                                    <Button
-                                                                        color={values.acType === 'Non Ac' ? 'blue' : 'gray'}
-                                                                        onClick={() => setFieldValue('acType', 'Non Ac')}
-                                                                        variant={values?.acType === 'Non Ac' ? 'filled' : 'outlined'}
-                                                                    >
-                                                                        NON AC
-                                                                    </Button>
-                                                                </div>
-                                                            </div>
-                                                        )}
+                                                            )}
 
                                                         <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                            {(values.serviceType !== 'RENTAL') && (<div>
+                                                            {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (<div>
                                                                 <label className="text-sm font-medium text-black-700">Car Type</label>
                                                                 <div className="flex gap-4">
                                                                     {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
@@ -682,9 +689,30 @@ const validationCheckForDriverRental = (val) => {
                                                     </div>
 
                                                 )}
+                                                {(((values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI') && values.packageTypeSelected === 'Outstation')) && (
+                                                            <div>
+                                                                <Typography className="text-sm font-medium text-black-700">AC Type</Typography>
+                                                                <div className="grid grid-cols-2 gap-4 mt-2">
+                                                                    <Button
+                                                                        color={values.acType === 'Ac' ? 'blue' : 'gray'}
+                                                                        onClick={() => setFieldValue('acType', 'Ac')}
+                                                                        variant={values?.acType === 'Ac' ? 'filled' : 'outlined'}
+                                                                    >
+                                                                        AC
+                                                                    </Button>
 
+                                                                    <Button
+                                                                        color={values.acType === 'Non Ac' ? 'blue' : 'gray'}
+                                                                        onClick={() => setFieldValue('acType', 'Non Ac')}
+                                                                        variant={values?.acType === 'Non Ac' ? 'filled' : 'outlined'}
+                                                                    >
+                                                                        NON AC
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && (
+                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Pickup Date & Time
@@ -745,7 +773,7 @@ const validationCheckForDriverRental = (val) => {
                                                     )}
                                                 </div>
 
-                                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL') && values.packageTypeSelected == 'Local' &&
+                                                {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE') && values.packageTypeSelected == 'Local' &&
                                                     <div className="flex-1 mb-4">
                                                         <div>
                                                             <Typography variant="h6" className="mb-2">
@@ -771,8 +799,8 @@ const validationCheckForDriverRental = (val) => {
                                                                         else if (values.serviceType === 'DRIVER') {
                                                                             return item.serviceType === 'DRIVER' && item.type === 'Local';
                                                                         }
-                                                                        else if (values.serviceType === 'RENTAL') {
-                                                                            return item.serviceType === 'RENTAL' && item.type === 'Local';
+                                                                        else if (values.serviceType === 'RENTAL'|| values.serviceType ==='RENTAL_HOURLY_PACKAGE') {
+                                                                            return item.serviceType === 'RENTAL' ||  item.serviceType === 'RENTAL_HOURLY_PACKAGE' && item.type === 'Local';
                                                                         }
                                                                         return values.packageTypeSelected === item.type;
                                                                     })
@@ -849,7 +877,7 @@ const validationCheckForDriverRental = (val) => {
                                     </div>
                                 )} */}
                                                 <div className='grid grid-cols-2'>
-                                                    {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL')) && <div className="p-2 space-y-2">
+                                                    {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL')|| (values.serviceType == 'RENTAL_HOURLY_PACKAGE')) && <div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Pickup Location <span className="text-red-500">*</span>
                                                         </label>
@@ -881,7 +909,7 @@ const validationCheckForDriverRental = (val) => {
                                                         )}
                                                     </div>}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                                                 <Field
@@ -931,7 +959,7 @@ const validationCheckForDriverRental = (val) => {
                                                                     <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            {values.serviceType === 'DRIVER' || (values.serviceType === 'RENTAL' && values.packageTypeSelected == "Local") ?
+                                                                            {values.serviceType === 'DRIVER' || (values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageTypeSelected == "Local") ?
                                                                                 ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || "")
                                                                                 : ""
                                                                             }
@@ -950,11 +978,35 @@ const validationCheckForDriverRental = (val) => {
                                                             <hr className="my-2 border border-black" />
                                                             <div className="mt-4">
                                                                 <>
-                                                                    <div className="flex justify-between">
+                                                                    <div className="grid grid-cols-2 justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount}
+                                                                            ₹ {quoteDetails.amount.estimatedPrice}
                                                                         </Typography>
+                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.baseFare} 
+                                                                        </Typography>
+                                                                        <Typography color="gray" variant="h6">Estimated Distance</Typography>
+                                                                        <Typography>
+                                                                             {Math.round(quoteDetails.amount.estimatedDistance)}
+                                                                        </Typography>
+                                                                        <Typography color="gray" variant="h6">Kilometer Price Value</Typography>
+                                                                        <Typography>
+                                                                           ₹{quoteDetails.amount.kilometerPriceVal}
+                                                                        </Typography>
+                                                                        {/* <Typography color="gray" variant="h6">Extra Km Price</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.extraKmPrice}
+                                                                        </Typography> */}
+                                                                        {/* <Typography color="gray" variant="h6">difference Days</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.differenceDays}
+                                                                        </Typography> */}
+                                                                        {/* <Typography color="gray" variant="h6">driver Charge</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.driverCharge}
+                                                                        </Typography> */}
                                                                     </div>
                                                                 </>
                                                             </div>
@@ -1066,6 +1118,47 @@ const validationCheckForDriverRental = (val) => {
                                                             Continue
                                                         </Button>
                                                     }
+                                                    {values.serviceType == 'RENTAL_HOURLY_PACKAGE' &&
+                                                            <Button
+                                                            fullWidth
+                                                            color="blue"
+                                                            onClick={() => {
+                                                                setFieldValue("submitType", "rental");
+                                                                handleSubmit();
+                                                            }}
+                                                            disabled={
+                                                            !dirty ||
+                                                            !isValid ||
+                                                            !values.rideDate ||
+                                                            !values.packageSelected ||
+                                                            !values.pickupAddress
+                                                            }
+                                                            className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                                        >
+                                                            Continue
+                                                        </Button>
+                                                    }
+                                                     {values.serviceType == 'RENTAL_DROP_TAXI' &&
+                                                            <Button
+                                                            fullWidth
+                                                            color="blue"
+                                                            onClick={() => {
+                                                                setFieldValue("submitType", "rental");
+                                                                handleSubmit();
+                                                            }}
+                                                            disabled={
+                                                            !dirty ||
+                                                            !isValid ||
+                                                            !values.rideDate ||
+                                                            !values.acType ||
+                                                            !values.pickupAddress ||
+                                                            !values.dropAddress
+                                                        }
+                                                            className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                                        >
+                                                            Continue
+                                                        </Button>
+                                                    }
                                                 </div>
                                             </>
                                         )}
@@ -1079,10 +1172,10 @@ const validationCheckForDriverRental = (val) => {
                                     )}
                                 </>}
                                 {bookingView && <>
-                                    <BookingItem bookingData={bookingData} setIsOpen={setIsOpen} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
+                                    <BookingItem bookingData={bookingData} setIsOpen={()=>setIsOpen(false)} onCancel={onCancelBookingView} onAssignDriver={onAssignDriver} onEdit={onEditBooking} onConfirm={onConfirmBooking} />
                                 </>}
                                 {editBookingView &&
-                                    <EditBooking bookingData={bookingData} setIsOpen={setIsOpen} editCancel={onEditBackPress} />
+                                    <EditBooking bookingData={bookingData} setIsOpen={()=>setIsOpen(false)} editCancel={onEditBackPress} />
                                 }
                             </div>
                         </div>
