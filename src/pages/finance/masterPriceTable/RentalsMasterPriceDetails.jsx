@@ -114,7 +114,7 @@ const RentalsPriceMasterDetails = () => {
                                 <Field type="string" name="period" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             {initialValues?.type !== 'Outstation' && <div> 
-                                <label className="text-sm font-medium text-gray-700">Kilometer</label>
+                                <label className="text-sm font-medium text-gray-700">KM</label>
                                 <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>}
                             <div>
@@ -186,38 +186,38 @@ const RentalsPriceMasterDetails = () => {
                             </div>
                             }
                             {initialValues?.type === 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">kilometer Round Price</label>
+                                <label className="text-sm font-medium text-gray-700">KM Round</label>
                                 <Field type="number" name="kilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>}
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
+                                <label className="text-sm font-medium text-gray-700">KM Rate</label>
                                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                                 {initialValues?.type === 'Outstation' && 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Price</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Price</label>
                                         <Field type="number" name="acKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Round</label>
                                         <Field type="number" name="acKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
 
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
                                         <Field type="number" name="extraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
 
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Round</label>
                                         <Field type="number" name="extraKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Price</label>
                                         <Field type="number" name="acExtraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Round</label>
                                         <Field type="number" name="acExtraKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
@@ -233,51 +233,51 @@ const RentalsPriceMasterDetails = () => {
                                 { initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-4 gap-2'}>
 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">BaseFare (Sedan)</label>
+                                        <label className="text-sm font-medium text-gray-700">BaseFare</label>
                                         <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                     {initialValues?.type !== 'Outstation' &&
                                         <div>
-                                            <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
+                                            <label className="text-sm font-medium text-gray-700">Price</label>
                                             <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                         </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">kilometer Round Price (Sedan)</label>
+                                        <label className="text-sm font-medium text-gray-700">KM Round</label>
                                         <Field type="number" name="kilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Kilometer Price (Sedan)</label>
+                                        <label className="text-sm font-medium text-gray-700">KM Price</label>
                                         <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                     {initialValues?.type === 'Outstation' && 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Price (Sedan)</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Price</label>
                                         <Field type="number" name="acKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price Sedan</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Round</label>
                                         <Field type="number" name="acKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
 
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Price Sedan</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
                                         <Field type="number" name="extraKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
 
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price Sedan</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Round</label>
                                         <Field type="number" name="extraKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price Sedan</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Price</label>
                                         <Field type="number" name="acExtraKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price Sedan</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Round</label>
                                         <Field type="number" name="acExtraKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Additional Min Charge (Sedan)</label>
+                                        <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                         <Field type="number" name="additionalMinChargeSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                 </div>
@@ -289,50 +289,50 @@ const RentalsPriceMasterDetails = () => {
                                 <h2 className="text-2xl font-bold mb-4">SUV</h2>
                                 {initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-4 gap-2'}>
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Base Fare (Suv)</label>
+                                        <label className="text-sm font-medium text-gray-700">Base Fare</label>
                                         <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                     {initialValues?.type !== 'Outstation' &&
                                         <div>
-                                            <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
+                                            <label className="text-sm font-medium text-gray-700">Price</label>
                                             <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                         </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">kilometer Round Price (Suv)</label>
+                                        <label className="text-sm font-medium text-gray-700">KM Round</label>
                                         <Field type="number" name="kilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Kilometer Price (Suv)</label>
+                                        <label className="text-sm font-medium text-gray-700">KM Price</label>
                                         <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                     {initialValues?.type === 'Outstation' && 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Price Suv</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Price</label>
                                         <Field type="number" name="acKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price Suv</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Round</label>
                                         <Field type="number" name="acKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Price Suv</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
                                         <Field type="number" name="extraKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
 
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price Suv</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Round</label>
                                         <Field type="number" name="extraKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price Suv</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Price</label>
                                         <Field type="number" name="acExtraKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price Suv</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Round</label>
                                         <Field type="number" name="acExtraKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Additional Min Charge (Suv)</label>
+                                        <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                         <Field type="number" name="additionalMinChargeSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                 </div>
@@ -344,49 +344,49 @@ const RentalsPriceMasterDetails = () => {
                                 <h2 className="text-2xl font-bold mb-4">MUV</h2>
                                 {initialValues?.type && (<div className={initialValues.type === 'Outstation' ? 'grid grid-cols-10 gap-2' : 'grid grid-cols-4 gap-2'}>
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">Base Fare</label>
                                         <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                     {initialValues?.type !== 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">Price </label>
                                         <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">kilometer Round Price (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">KM Round</label>
                                         <Field type="number" name="kilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">KM Price</label>
                                         <Field type="number" name="kilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                         {initialValues?.type === 'Outstation' && 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Price (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Price</label>
                                         <Field type="number" name="acKilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price MVP</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac KM Round</label>
                                         <Field type="number" name="acKilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Price (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
                                         <Field type="number" name="extraKilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
 
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">Extra KM Round</label>
                                         <Field type="number" name="extraKilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price MVP</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Price</label>
                                         <Field type="number" name="acExtraKilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     {initialValues?.type === 'Outstation' && <div>
-                                        <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price MVP</label>
+                                        <label className="text-sm font-medium text-gray-700">Ac Extra KM Round</label>
                                         <Field type="number" name="acExtraKilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>}
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Additional Min Charge (MUV)</label>
+                                        <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                         <Field type="number" name="additionalMinChargeMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                     </div>
                                 </div>

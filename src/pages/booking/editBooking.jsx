@@ -19,7 +19,6 @@ const EditBooking = (props) => {
     const [dropLocation, setDropLocation] = useState(null);
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
-    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         if (props.bookingData) {
@@ -52,10 +51,11 @@ const EditBooking = (props) => {
 
     const getQuoteOutstationDetails = async (values) =>{
         const quoteData = {
+            serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType,
             bookingType: values?.tripType?.toUpperCase(),
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values?.carType,
+            carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
             pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
             pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
             dropLat: values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat,
@@ -156,7 +156,6 @@ const EditBooking = (props) => {
 
     const onBackPressHandler = async () => {
         props.editCancel()
-        setIsOpen(false);
     };
 
     function convertTimeFormat(time) {
@@ -274,8 +273,8 @@ const EditBooking = (props) => {
                                     <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
-                            <div className={`space-y-3 my-3 ${values.serviceType === 'RENTAL' ? 'hidden' : ''}`}>
-                                <div className="grid grid-cols-2 gap-4">
+                            <div className='space-y-3 my-3'>
+                                <div className={`grid grid-cols-2 gap-4 ${values.serviceType === 'RENTAL' ? 'hidden' : ''}`}>
                                     <Button
                                         color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
                                         onClick={() => {
@@ -307,7 +306,7 @@ const EditBooking = (props) => {
                                         Outstation
                                     </Button>
                                 </div>
-                                <div>
+                                <div className={['RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(values.serviceType) ? 'hidden' : ''}>
                                     <Typography className="text-sm font-medium text-black">Trip Type</Typography>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
                                     {(values?.serviceType !== 'RENTAL') && (<Button
@@ -328,7 +327,6 @@ const EditBooking = (props) => {
                                         </Button>
                                     </div>
                                 </div>
-                                {(values.serviceType !== 'RENTAL') && (
                                 <div>
                                     <label className="text-sm font-medium text-black-700">Car Type</label>
                                     <div className="grid grid-cols-4 mt-2">
@@ -346,7 +344,7 @@ const EditBooking = (props) => {
                                     </div>
                                     <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
                                 </div>
-                                )}
+                                
                                 
                                 {(values?.serviceType !== 'RENTAL') && (<div>
                                     <label className="text-sm font-medium text-black-700">Transmission Type</label>
@@ -564,11 +562,35 @@ const EditBooking = (props) => {
                                         <hr className="my-2 border border-black" />
                                         <div className="mt-4">
                                             <>
-                                                <div className="flex justify-between">
+                                                <div className="grid grid-cols-2 justify-between">
                                                     <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                     <Typography>
-                                                        ₹ {quoteDetails.amount}
+                                                        ₹ {quoteDetails.amount.estimatedPrice}
                                                     </Typography>
+                                                    <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                    <Typography>
+                                                        ₹ {quoteDetails.amount.baseFare} 
+                                                    </Typography>
+                                                    <Typography color="gray" variant="h6">Estimated Distance</Typography>
+                                                    <Typography>
+                                                            {Math.round(quoteDetails.amount.estimatedDistance)}
+                                                    </Typography>
+                                                    <Typography color="gray" variant="h6">Kilometer Price Value</Typography>
+                                                    <Typography>
+                                                        ₹{quoteDetails.amount.kilometerPriceVal}
+                                                    </Typography>
+                                                    {/* <Typography color="gray" variant="h6">Extra Km Price</Typography>
+                                                    <Typography>
+                                                        ₹ {quoteDetails.amount.extraKmPrice}
+                                                    </Typography> */}
+                                                    {/* <Typography color="gray" variant="h6">difference Days</Typography>
+                                                    <Typography>
+                                                        ₹ {quoteDetails.amount.differenceDays}
+                                                    </Typography> */}
+                                                    {/* <Typography color="gray" variant="h6">driver Charge</Typography>
+                                                    <Typography>
+                                                        ₹ {quoteDetails.amount.driverCharge}
+                                                    </Typography> */}
                                                 </div>
                                             </>
                                         </div>

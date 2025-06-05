@@ -338,14 +338,20 @@ const ConfirmBooking = (props) => {
                         </div>
                         {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package:</Typography>
-                            <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "days" : bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
+                            <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
+                                        ${bookingDetails?.packageType === "Outstation" ? bookingDetails.totalDays + ' Days' : 
+                                        bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
                         </div>}
                         {/* need to add logic for price */}
                         {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Price:</Typography>
                                 {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                <Typography>₹ { bookingDetails?.serviceType == "RIDES" ? bookingDetails?.estimatedPrice : bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography>
+                                <Typography>₹ { bookingDetails?.serviceType == "RIDES" ? bookingDetails?.Package?.price : 
+                                bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : 
+                                bookingDetails?.Driver ? bookingDetails?.Package?.price : 
+                                bookingDetails?.Package?.price ? bookingDetails?.Package?.price : 
+                                bookingDetails?.Package?.price}</Typography>
                             </div>
                         }
                         {bookingDetails?.status === BOOKING_STATUS.ENDED &&
