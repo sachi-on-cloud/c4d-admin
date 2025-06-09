@@ -136,11 +136,11 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
 
     useEffect(() => {
         getBookingsList(pagination.currentPage);
-        const intervalId = setInterval(() => {
-            getBookingsList(pagination.currentPage);
-        }, 10000);
+        // const intervalId = setInterval(() => {
+        //     getBookingsList(pagination.currentPage);
+        // }, 10000);
 
-        return () => clearInterval(intervalId);
+        // return () => clearInterval(intervalId);
     }, [customerId, bookingStage, type, pagination.currentPage]);
 
     const handlePageChange = (page) => {
@@ -244,7 +244,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
 
     return (
         <div className="flex flex-col bg-white rounded-xl" >
-            <div className='px-3 py-3 mb-2'>
+            <div className='px-3 mb-2'>
                 <Typography variant="h5" color='#000000'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : ''}
                 </Typography>
@@ -258,6 +258,12 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                         </Typography>
                     ) : (
                         <>
+                            <div className='w-full flex justify-end mb-2'>
+                                <button className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2" onClick={() => getBookingsList(pagination.currentPage)}>
+                                <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+                                <span>Refresh</span>
+                                </button>                            
+                            </div>
                             <table className="w-full table-auto">
                                 <thead>
                                     <tr>

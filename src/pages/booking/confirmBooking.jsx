@@ -326,32 +326,60 @@ const ConfirmBooking = (props) => {
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Service Type:</Typography>
-                            <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType}</Typography>
+                            <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation' }</Typography>
                         </div>
-                        {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
+                        {/* {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
-                        </div>}
+                        </div>} */}
                         <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Trip Date:</Typography>
-                            <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY HH:mm ")}</Typography>
+                            <Typography color="gray" variant="h6">Start Date:</Typography>
+                            <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
                         </div>
-                        {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Package:</Typography>
-                            <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
-                                        ${bookingDetails?.packageType === "Outstation" ? bookingDetails.totalDays + ' Days' : 
-                                        bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
-                        </div>}
+                        {bookingDetails?.toDate &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">End Date:</Typography>
+                                <Typography>{moment(bookingDetails.toDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                            </div>
+                        }
+                        {bookingDetails?.packageType == "Outstation" &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">AC Type:</Typography>
+                                <Typography>{bookingDetails?.acType}</Typography>
+                            </div>
+                        }
+                        {bookingDetails?.serviceType !='RIDES' && 
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Package:</Typography>
+                                <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
+                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails.totalDays ? bookingDetails?.totalDays + ' Days' : bookingDetails?.value?.differenceDays + ' Days' : 
+                                            bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
+                            </div>
+                        }
+                        {bookingDetails?.value?.baseFare > 0 && 
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Base Fare:</Typography>
+                                <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
+                            </div>
+                        }
+                        {bookingDetails?.value?.kilometerPriceVal > 0 &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Per KM Rate:</Typography>
+                                <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>
+                            </div>
+                        }
+                        {bookingDetails?.value?.estimatedDistance > 0 &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Total Distance:</Typography>
+                                <Typography>{(Number(bookingDetails?.value?.estimatedDistance)).toFixed(1)} Kms</Typography>
+                            </div>
+                        }
                         {/* need to add logic for price */}
                         {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Price:</Typography>
                                 {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                <Typography>₹ { bookingDetails?.serviceType == "RIDES" ? bookingDetails?.Package?.price : 
-                                bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.price : 
-                                bookingDetails?.Driver ? bookingDetails?.Package?.price : 
-                                bookingDetails?.Package?.price ? bookingDetails?.Package?.price : 
-                                bookingDetails?.Package?.price}</Typography>
+                                <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.Package?.price : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL' ) ? bookingDetails?.Package?.price : bookingDetails?.value?.estimatedPrice}</Typography>
                             </div>
                         }
                         {bookingDetails?.status === BOOKING_STATUS.ENDED &&
