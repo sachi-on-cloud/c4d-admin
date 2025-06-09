@@ -29,7 +29,6 @@ export function DocumentVerificationView() {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
     const fetchDoc = async () => {
       const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'All');
       if (data?.success) {
@@ -37,6 +36,8 @@ export function DocumentVerificationView() {
         setAllAccounts(data?.data);
       }
     };
+
+  useEffect(() => {
     fetchDoc();
   }, []);
 
@@ -129,7 +130,7 @@ export function DocumentVerificationView() {
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="relative flex-grow max-w-[500px]">
             <input
               type="text"
@@ -140,6 +141,15 @@ export function DocumentVerificationView() {
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
             </div>
+          </div>
+          <div className="ml-4">
+            <button
+              className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
+              onClick={() => fetchDoc()}
+            >
+              <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+              <span>Refresh</span>
+            </button>
           </div>
         </div>
       </div>
