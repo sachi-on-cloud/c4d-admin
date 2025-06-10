@@ -9,7 +9,8 @@ import {
     PopoverHandler,
     PopoverContent,
     Checkbox,
-    IconButton
+    IconButton,
+    Spinner
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -37,6 +38,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     });
     const [nameSortConfig, setNameSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
     const [filteredRange, setFilteredRange] = useState({});
+    const [loading, setLoading] = useState(true);
 
     const handleFilterChange = (filterType, value) => {
         if (filterType === 'status') {
@@ -116,6 +118,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const paramsPassed = location.state;
 
     const getBookingsList = async (page = 1) => {
+        setLoading(true);
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
             "customerId": customerId,
             'type': type ? type : '',
@@ -123,6 +126,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
             'limit': pagination.itemsPerPage,
         });
         if (data?.success) {
+            setLoading(false);
             setBookingsList(data?.data);
             setSelectedBookingId(null);
             setPagination({
@@ -135,12 +139,13 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     };
 
     useEffect(() => {
+        setLoading(true);
         getBookingsList(pagination.currentPage);
-        const intervalId = setInterval(() => {
-            getBookingsList(pagination.currentPage);
-        }, 10000);
+        // const intervalId = setInterval(() => {
+        //     getBookingsList(pagination.currentPage);
+        // }, 10000);
 
-        return () => clearInterval(intervalId);
+        // return () => clearInterval(intervalId);
     }, [customerId, bookingStage, type, pagination.currentPage]);
 
     const handlePageChange = (page) => {
@@ -238,322 +243,335 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
             }
             return 0;
         });
-
         setBookingsList(sortedBookings);
     };
 
     return (
         <div className="flex flex-col bg-white rounded-xl" >
-            <div className='px-3 py-3 mb-2'>
+            <div className='px-3 py-3'>
                 <Typography variant="h5" color='#000000'>
-                    {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : ''}
+                    {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
                 </Typography>
             </div>
-            <Card>
-                <CardBody>
-                    {/* className="overflow-y-scroll overflow-x-auto max-h-screen" */}
-                    {bookingsList.length === 0 ? (
-                        <Typography variant="h5" color='#000000'>
-                            No Bookings
-                        </Typography>
-                    ) : (
-                        <>
-                            <table className="w-full table-auto">
-                                <thead>
-                                    <tr>
-                                        {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+            {loading ? 
+                <>
+                    <div className="flex justify-center items-center h-screen">
+                        <Spinner className="h-12 w-12" />
+                    </div>
+                </>
+                :
+                <Card>
+                    <CardBody>
+                        {/* className="overflow-y-scroll overflow-x-auto max-h-screen" */}
+                        {bookingsList.length === 0 ? (
+                            <Typography variant="h5" color='#000000'>
+                                No Bookings
+                            </Typography>
+                        ) : (
+                            <>
+                                <div className='absolute right-10 -top-10'>
+                                    <button className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2" onClick={() => getBookingsList(pagination.currentPage)}>
+                                    <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+                                    <span>Refresh</span>
+                                    </button>                            
+                                </div>
+                                <table className="w-full table-auto">
+                                    <thead>
+                                        <tr>
+                                            {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status", "Assign Captain"].map((el) => ( // , "Owner" => cd before
 
-                                            <th
-                                                key={el}
-                                                className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}
-                                            >
-                                                {el === "Service Type" && type === "" ? (
-                                                    <FilterPopover
-                                                        title={el}
-                                                        options={[
-                                                            { value: 'All', label: 'All' },
-                                                            { value: 'DRIVER', label: 'Acting Driver' },
-                                                            { value: 'CAR_WASH', label: 'Car Wash' },
-                                                            { value: 'CAB', label: 'Cab' }
-                                                        ]}
-                                                        selectedFilters={serviceTypeFilter}
-                                                        onFilterChange={(value) => handleFilterChange('serviceType', value)}
-                                                    />
-                                                ) : el === "Created Date" ? (
-                                                    <th
-                                                        onClick={() => handleSort('created_at')}
-                                                        className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
-                                                    >
-                                                        <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                            Created Date
-                                                        </Typography>
-                                                        {sortConfig.key === 'created_at' && (
-                                                            sortConfig.direction === 'ascending' ? (
-                                                                <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                            ) : (
-                                                                <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                            )
-                                                        )}
-                                                    </th>
-                                                ) : el === "Status" ? (
-                                                    <FilterPopover
-                                                        title={el}
-                                                        options={[
-                                                            { value: 'All', label: 'All' },
-                                                            { value: 'QUOTED', label: 'Quoted' },
-                                                            { value: 'CONFIRMED', label: 'Booking Confirmed' },
-                                                            { value: 'REQUEST_DRIVER', label: 'Request Driver' },
-                                                            { value: 'STARTED', label: 'Started' },
-                                                            { value: 'ENDED', label: 'Ended' },
-                                                            { value: 'CANCELLED', label: 'Cancelled' },
-                                                        ]}
-                                                        selectedFilters={statusFilter}
-                                                        onFilterChange={(value) => handleFilterChange('status', value)}
-                                                    />
-                                                ) : el === "Source" ? (
-                                                    <FilterPopover
-                                                        title={el}
-                                                        options={[
-                                                            { value: 'All', label: 'All' },
-                                                            { value: 'Walk In', label: 'Walk In' },
-                                                            { value: 'Mobile App', label: 'Mobile App' },
-                                                            { value: 'Website', label: 'Website' },
-                                                            { value: 'Call', label: 'Call' },
-                                                        ]}
-                                                        selectedFilters={sourceFilter}
-                                                        onFilterChange={(value) => handleFilterChange('source', value)}
-                                                    />
-                                                )
-                                                    : el === "Customer Name" ? (
-                                                        <div
-                                                            onClick={() => handleSort('firstName')}
-                                                            className="cursor-pointer flex items-center"
+                                                <th
+                                                    key={el}
+                                                    className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}
+                                                >
+                                                    {el === "Service Type" && type === "" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'DRIVER', label: 'Acting Driver' },
+                                                                { value: 'CAR_WASH', label: 'Car Wash' },
+                                                                { value: 'CAB', label: 'Cab' }
+                                                            ]}
+                                                            selectedFilters={serviceTypeFilter}
+                                                            onFilterChange={(value) => handleFilterChange('serviceType', value)}
+                                                        />
+                                                    ) : el === "Created Date" ? (
+                                                        <th
+                                                            onClick={() => handleSort('created_at')}
+                                                            className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
                                                         >
                                                             <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                                Customer Name
+                                                                Created Date
                                                             </Typography>
-                                                            {nameSortConfig.key === 'firstName' && (
-                                                                nameSortConfig.direction === 'ascending' ? (
+                                                            {sortConfig.key === 'created_at' && (
+                                                                sortConfig.direction === 'ascending' ? (
                                                                     <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
                                                                 ) : (
                                                                     <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
                                                                 )
                                                             )}
-                                                        </div>
-                                                    ) : el === 'Driver Name' ? (
-                                                        <div
-                                                            onClick={() => handleSort('firstName')}
-                                                            className="cursor-pointer flex items-center"
-                                                        >
-                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                                Driver Name
-                                                            </Typography>
-                                                            {nameSortConfig.key === 'firstName' && (
-                                                                nameSortConfig.direction === 'ascending' ? (
-                                                                    <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                                ) : (
-                                                                    <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                                )
-                                                            )}
-                                                        </div>
-                                                    ) :
-                                                        // el === "Booking Date" ? (
-                                                        //             <FilterPopover
-                                                        //                 title={el}
-                                                        //                 customContent={
-                                                        //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
-                                                        //                 }
-                                                        //             />
-                                                        //         ) 
-                                                        (
-                                                            <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
-                                                                {el}
-                                                            </Typography>
-                                                        )}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {bookingsList
-                                        .filter(booking =>
-                                            (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
-                                            (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
-                                            (sourceFilter.includes('All') || sourceFilter.includes(booking.source))
-                                        )
-                                        .map((data, key) => {
-                                            const isSelected = data.id === selectedBookingId;
-                                            const className = `p-3 ${key === bookingsList.length - 1
-                                                ? "mb-4"
-                                                : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors duration-200`;
-
-                                            return (
-                                                <tr key={data?.id} className={className}>
-                                                    <td className={className}>
-                                                        <div className="flex items-center">
-                                                            <div onClick={() => {
-                                                                handleBookingSelect(data);
-                                                                setIsOpen(true)
-                                                            }}>
-                                                                <Typography
-                                                                    variant="small"
-                                                                    color="blue"
-                                                                    className="font-semibold underline cursor-pointer"
-                                                                >
-                                                                    {data?.bookingNumber}
+                                                        </th>
+                                                    ) : el === "Status" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'QUOTED', label: 'Quoted' },
+                                                                { value: 'CONFIRMED', label: 'Booking Confirmed' },
+                                                                { value: 'REQUEST_DRIVER', label: 'Request Driver' },
+                                                                { value: 'STARTED', label: 'Started' },
+                                                                { value: 'ENDED', label: 'Ended' },
+                                                                { value: 'CANCELLED', label: 'Cancelled' },
+                                                            ]}
+                                                            selectedFilters={statusFilter}
+                                                            onFilterChange={(value) => handleFilterChange('status', value)}
+                                                        />
+                                                    ) : el === "Source" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'Walk In', label: 'Walk In' },
+                                                                { value: 'Mobile App', label: 'Mobile App' },
+                                                                { value: 'Website', label: 'Website' },
+                                                                { value: 'Call', label: 'Call' },
+                                                            ]}
+                                                            selectedFilters={sourceFilter}
+                                                            onFilterChange={(value) => handleFilterChange('source', value)}
+                                                        />
+                                                    )
+                                                        : el === "Customer Name" ? (
+                                                            <div
+                                                                onClick={() => handleSort('firstName')}
+                                                                className="cursor-pointer flex items-center"
+                                                            >
+                                                                <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
+                                                                    Customer Name
                                                                 </Typography>
+                                                                {nameSortConfig.key === 'firstName' && (
+                                                                    nameSortConfig.direction === 'ascending' ? (
+                                                                        <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
+                                                                    ) : (
+                                                                        <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
+                                                                    )
+                                                                )}
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                            {data?.Customer?.firstName ? data?.Customer?.firstName : '-'}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                            {data?.Driver?.firstName ? data?.Driver?.firstName : '-'}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                            {data?.source ? data?.source : '-'}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                            {/* {formatDate(data?.fromDate) HH:mm:ss.SSSZ} */}
-                                                            {moment(data?.fromDate).format('DD-MM-YYYY hh:mm A')}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                            {formatDate(data?.created_at)}
-                                                        </Typography>
-                                                    </td>
-                                                    {/* <td className={className}>
-                                                        <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                        {data?.ownership === "ASSIGNED_TO_SUPPORT" ? (
-                                                        <div>Assigned To Support</div>
-                                                        ) : data?.ownership}
+                                                        ) : el === 'Driver Name' ? (
+                                                            <div
+                                                                onClick={() => handleSort('firstName')}
+                                                                className="cursor-pointer flex items-center"
+                                                            >
+                                                                <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
+                                                                    Driver Name
+                                                                </Typography>
+                                                                {nameSortConfig.key === 'firstName' && (
+                                                                    nameSortConfig.direction === 'ascending' ? (
+                                                                        <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
+                                                                    ) : (
+                                                                        <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                        ) :
+                                                            // el === "Booking Date" ? (
+                                                            //             <FilterPopover
+                                                            //                 title={el}
+                                                            //                 customContent={
+                                                            //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
+                                                            //                 }
+                                                            //             />
+                                                            //         ) 
+                                                            (
+                                                                <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
+                                                                    {el}
+                                                                </Typography>
+                                                            )}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {bookingsList
+                                            .filter(booking =>
+                                                (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
+                                                (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
+                                                (sourceFilter.includes('All') || sourceFilter.includes(booking.source))
+                                            )
+                                            .map((data, key) => {
+                                                const isSelected = data.id === selectedBookingId;
+                                                const className = `p-3 ${key === bookingsList.length - 1
+                                                    ? "mb-4"
+                                                    : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors duration-200`;
 
-                                                        </Typography>
-                                                        </td> */}
-                                                    {/* <td className={className}>
-                                                        {data?.status == "STARTED" ?
-                                                            <Chip
-                                                                variant="gradient"
-                                                                color={"blue"}
-                                                                value={"ON TRIP"}
-                                                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                                                            />
-                                                            : data?.status == "ENDED" ?
+                                                return (
+                                                    <tr key={data?.id} className={className}>
+                                                        <td className={className}>
+                                                            <div className="flex items-center">
+                                                                <div onClick={() => {
+                                                                    handleBookingSelect(data);
+                                                                    setIsOpen(true)
+                                                                }}>
+                                                                    <Typography
+                                                                        variant="small"
+                                                                        color="blue"
+                                                                        className="font-semibold underline cursor-pointer"
+                                                                    >
+                                                                        {data?.bookingNumber}
+                                                                    </Typography>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.Customer?.firstName ? data?.Customer?.firstName : '-'}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.Driver?.firstName ? data?.Driver?.firstName : '-'}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.source ? data?.source : '-'}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {/* {formatDate(data?.fromDate) HH:mm:ss.SSSZ} */}
+                                                                {moment(data?.fromDate).format('DD-MM-YYYY / hh:mm A')}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {moment(data?.created_at).format('DD-MM-YYYY / hh:mm A')}
+                                                            </Typography>
+                                                        </td>
+                                                        {/* <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                            {data?.ownership === "ASSIGNED_TO_SUPPORT" ? (
+                                                            <div>Assigned To Support</div>
+                                                            ) : data?.ownership}
+
+                                                            </Typography>
+                                                            </td> */}
+                                                        {/* <td className={className}>
+                                                            {data?.status == "STARTED" ?
                                                                 <Chip
                                                                     variant="gradient"
-                                                                    color={"green"}
-                                                                    value={"COMPLETED"}
+                                                                    color={"blue"}
+                                                                    value={"ON TRIP"}
                                                                     className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                 />
-                                                                : data?.status == "CANCELLED" ?
+                                                                : data?.status == "ENDED" ?
                                                                     <Chip
                                                                         variant="gradient"
-                                                                        color={"red"}
-                                                                        value={"CANCELLED"}
+                                                                        color={"green"}
+                                                                        value={"COMPLETED"}
                                                                         className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                     />
-                                                                    : data?.status == "INITIATED" && (data?.Driver?.id || data?.Cab?.id) ?
-                                                                        < Chip
-                                                                            variant="gradient"
-                                                                            value={"BOOKED"}
-                                                                            className="py-0.5 px-2 text-[11px] font-medium w-fit"
-                                                                        />
-
-                                                                        :
+                                                                    : data?.status == "CANCELLED" ?
                                                                         <Chip
                                                                             variant="gradient"
-                                                                            // color={online ? "green" : "blue-gray"}
-                                                                            value={"INITIATED"}
+                                                                            color={"red"}
+                                                                            value={"CANCELLED"}
                                                                             className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                                         />
-                                                        }
-                                                    </td> */}
-                                                    <td>
-                                                        <Chip
-                                                            variant="ghost"
-                                                            // color={"blue"}
-                                                            value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
-                                                            className={`py-0.5 px-2 text-[11px] font-medium w-fit ${ColorStyles.bgStatusColor}`}
-                                                        />
-                                                    </td>
-                                                    <td className={className}>
-                                                        {/* {data?.status === 'STARTED' &&
-                                                            <Button
-                                                                fullWidth
-                                                                onClick={() => onEndTrip(data?.id, data?.Driver?.id)}
-                                                                className="text-xs font-semibold text-white"
-                                                            >
-                                                                End Trip
-                                                            </Button>
-                                                        } */}
-                                                        {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
-                                                            <Button
-                                                                fullWidth
-                                                                onClick={() => onAssignDriverHandler(data)}
-                                                                className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
-                                                            >
-                                                                Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
-                                                            </Button>
-                                                        }
-                                                        {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
-                                                            <Button
-                                                                fullWidth
-                                                                onClick={() => onAssignDriverHandler(data)}
-                                                                className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
-                                                            >
-                                                                ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
-                                                            </Button>
-                                                        }
-                                                        {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
-                                                            <Button
-                                                                fullWidth
-                                                                onClick={() => onAssignDriverHandler(data)}
-                                                                className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
-                                                            >
-                                                                Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
-                                                            </Button>
-                                                        }
-                                                    </td>
-                                                </tr>
-                                            );
-                                        }
-                                        )}
-                                </tbody>
-                            </table>
-                            <div className="flex items-center justify-center mt-4">
-                                <Button
-                                    size="sm"
-                                    variant="text"
-                                    disabled={pagination.currentPage === 1}
-                                    onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                    className="mx-1"
-                                >
-                                    {"<"}
-                                </Button>
-                                {generatePageButtons()}
-                                <Button
-                                    size="sm"
-                                    variant="text"
-                                    disabled={pagination.currentPage === pagination.totalPages}
-                                    onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                    className="mx-1"
-                                >
-                                    {">"}
-                                </Button>
-                            </div>
-                        </>
-                    )}
-                </CardBody>
-            </Card>
+                                                                        : data?.status == "INITIATED" && (data?.Driver?.id || data?.Cab?.id) ?
+                                                                            < Chip
+                                                                                variant="gradient"
+                                                                                value={"BOOKED"}
+                                                                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                                            />
+
+                                                                            :
+                                                                            <Chip
+                                                                                variant="gradient"
+                                                                                // color={online ? "green" : "blue-gray"}
+                                                                                value={"INITIATED"}
+                                                                                className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                                                                            />
+                                                            }
+                                                        </td> */}
+                                                        <td>
+                                                            <Chip
+                                                                variant="ghost"
+                                                                // color={"blue"}
+                                                                value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
+                                                                className={`py-0.5 px-2 text-[11px] font-medium w-fit ${ColorStyles.bgStatusColor}`}
+                                                            />
+                                                        </td>
+                                                        <td className={className}>
+                                                            {/* {data?.status === 'STARTED' &&
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onEndTrip(data?.id, data?.Driver?.id)}
+                                                                    className="text-xs font-semibold text-white"
+                                                                >
+                                                                    End Trip
+                                                                </Button>
+                                                            } */}
+                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onAssignDriverHandler(data)}
+                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                >
+                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                </Button>
+                                                            }
+                                                            {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onAssignDriverHandler(data)}
+                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                >
+                                                                    ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                </Button>
+                                                            }
+                                                            {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onAssignDriverHandler(data)}
+                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                >
+                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                </Button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            }
+                                            )}
+                                    </tbody>
+                                </table>
+                                <div className="flex items-center justify-center mt-4">
+                                    <Button
+                                        size="sm"
+                                        variant="text"
+                                        disabled={pagination.currentPage === 1}
+                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                        className="mx-1"
+                                    >
+                                        {"<"}
+                                    </Button>
+                                    {generatePageButtons()}
+                                    <Button
+                                        size="sm"
+                                        variant="text"
+                                        disabled={pagination.currentPage === pagination.totalPages}
+                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                        className="mx-1"
+                                    >
+                                        {">"}
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                    </CardBody>
+                </Card>
+            }
         </div>
     );
 }

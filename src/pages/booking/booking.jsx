@@ -91,9 +91,27 @@ const Booking = (props) => {
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
         //console.log("QOYTEE DATA", data);
         if (data.success) {
-            setQuoteDetails(data.data);
+            setQuoteDetails(data?.data);
+        }
+    };
+
+    const getQuoteRides = async (val) => {
+        const quoteDate = {
+            serviceType: val.serviceType,
+            bookingType: "",
+            fromDate: moment(`${val?.rideDate} ${val?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            carType: '',
+            pickupLat: val?.pickupLocation?.lat,
+            pickupLong: val?.pickupLocation?.lng,
+            dropLat: val?.dropLocation?.lat,
+            dropLong: val?.dropLocation?.lng,
+        }
+        const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
+        if(data?.success){
+            setQuoteDetails(data?.data)
         }
     }
+
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
@@ -478,7 +496,7 @@ const validationCheckForDriverRental = (val) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />
+                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp}/>
             </div>
             <div>
                 {isOpen && (
@@ -538,6 +556,7 @@ const validationCheckForDriverRental = (val) => {
                                             resetForm();
                                             setRange({});
                                             setLoading(false);
+                                            setQuoteDetails();
                                         }}
                                         validationSchema={BOOKING_DETAILS_SCHEMA}
                                         enableReinitialize={true}
@@ -987,14 +1006,14 @@ const validationCheckForDriverRental = (val) => {
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.baseFare} 
                                                                         </Typography>
-                                                                        <Typography color="gray" variant="h6">Estimated Distance</Typography>
-                                                                        <Typography>
-                                                                             {Math.round(quoteDetails.amount.estimatedDistance)}
-                                                                        </Typography>
-                                                                        <Typography color="gray" variant="h6">Kilometer Price Value</Typography>
-                                                                        <Typography>
-                                                                           ₹{quoteDetails.amount.kilometerPriceVal}
-                                                                        </Typography>
+                                                                        {values.serviceType !=='DRIVER' && <Typography color="gray" variant="h6">Estimated Distance</Typography>}
+                                                                        {values.serviceType !=='DRIVER' && <Typography>
+                                                                             {Math.round(quoteDetails.amount.estimatedDistance)} Kms
+                                                                        </Typography>}
+                                                                        {values.serviceType !=='DRIVER' && <Typography color="gray" variant="h6">Kilometer Price Value</Typography>}
+                                                                        {values.serviceType !=='DRIVER' && <Typography>
+                                                                           ₹ {quoteDetails.amount.kilometerPriceVal}
+                                                                        </Typography>}
                                                                         {/* <Typography color="gray" variant="h6">Extra Km Price</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.extraKmPrice}
@@ -1052,6 +1071,12 @@ const validationCheckForDriverRental = (val) => {
 
                                                 {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+
+                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }

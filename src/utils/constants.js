@@ -4,6 +4,7 @@ export const constants = {
     // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
+    // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou'
@@ -911,7 +912,8 @@ export const API_ROUTES = {
     'INSTANT_REWARD': '/instant-reward',
     'CUSTOMER_WALLET': '/getWalletTransactions',
     'DRIVER_WALLET': '/getDriverWalletTransactions',
-    'CAB_WALLET': '/getCabWalletTransactions'
+    'CAB_WALLET': '/getCabWalletTransactions',
+    'ADD_NOTES_BOOKING':'/add-notes',
 };
 
 export const KYC_PROCESS = {
