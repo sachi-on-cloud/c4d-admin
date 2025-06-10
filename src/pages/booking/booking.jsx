@@ -496,7 +496,7 @@ const validationCheckForDriverRental = (val) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} />
+                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp}/>
             </div>
             <div>
                 {isOpen && (

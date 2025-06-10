@@ -16,6 +16,7 @@ import { API_ROUTES, BOOKING_STATUS, COMPANY_NAME, GST_NUMBER, supportNumber, WH
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
+import TextBoxWithList from "@/components/BookingNotes";
 
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
@@ -96,7 +97,7 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            setBookingDetails({...data?.data, estimatedPrice:data?.estimatedPrice});
+            setBookingDetails({...data?.data, estimatedPrice:data?.estimatedPrice, notesData:data?.notes});
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({
                     price: data?.data?.price,
@@ -208,6 +209,15 @@ const ConfirmBooking = (props) => {
 
         if (data?.success) {
             props.onConfirm();
+        }
+    };
+
+    const addNotes = async(text) => {
+        setLoading(true);
+        text.bookingId = props.bookingData.id
+        const response = await ApiRequestUtils.post(API_ROUTES.ADD_NOTES_BOOKING, text);
+        if(response?.success){
+            getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
     };
 
@@ -841,6 +851,7 @@ const ConfirmBooking = (props) => {
                         </div>
                     </div>
                 )}
+                <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData}/>
             </>
         </div>
     );
