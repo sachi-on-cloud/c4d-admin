@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 // import Select from 'react-select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, STATE_LIST ,THALUK_LIST,KYC_PROCESS, ColorStyles} from '@/utils/constants';
+import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
 import { ACCOUNT_ADD_SCHEMA } from '@/utils/validations';
-import { Alert, Button ,Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Input, List, ListItem} from '@material-tailwind/react';
+import { Alert, Button, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Input, List, ListItem, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 import Select from 'react-select'
 
-const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect}) => {
+const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
@@ -78,17 +78,17 @@ const AccountAdd = (props) => {
         livePhoto: null,
         drivingLicenseImage: null,
         consentForm: null,
-        panImage:null,
-        bankStatementImage:null,
-    }); 
+        panImage: null,
+        bankStatementImage: null,
+    });
 
-   
+
     const initialValues = {
-        type:"",
+        type: "",
         name: "",
         phoneNumber: "",
         email: "",
-        source:"",
+        source: "",
         address: "",
         street: "",
         thaluk: "",
@@ -97,7 +97,7 @@ const AccountAdd = (props) => {
         pincode: "",
     };
 
-    const onSubmit = async (values, { setSubmitting, setFieldError}) => {
+    const onSubmit = async (values, { setSubmitting, setFieldError }) => {
         // console.log('Form submission started with values:', values);
         try {
             const reqBody = {
@@ -115,23 +115,23 @@ const AccountAdd = (props) => {
             }
             let data;
             data = await ApiRequestUtils.post(API_ROUTES.CREATE_ACCOUNT, reqBody);
-                if (!data?.success && data?.code === 203) {
-                    setAlert({ message: 'Account already exists!', color: 'red' });
-                    setTimeout(() => setAlert(null), 5000);
-                    resetForm();
-                } else {
-                    // navigate('/dashboard/vendors/account', {
-                    //     state: {
-                    //         accountAdded:  true,
-                    //         accountName: values.name
-                    //     }
-                    // });
-                    setOwnerAdded({
-                        ownerId: data?.data?.id,
-                        value: true
-                    });
-                    setIsEditable(false);
-                }
+            if (!data?.success && data?.code === 203) {
+                setAlert({ message: 'Account already exists!', color: 'red' });
+                setTimeout(() => setAlert(null), 5000);
+                resetForm();
+            } else {
+                // navigate('/dashboard/vendors/account', {
+                //     state: {
+                //         accountAdded:  true,
+                //         accountName: values.name
+                //     }
+                // });
+                setOwnerAdded({
+                    ownerId: data?.data?.id,
+                    value: true
+                });
+                setIsEditable(false);
+            }
         } catch (error) {
             console.error('Error submitting form:', error);
         }
@@ -143,45 +143,45 @@ const AccountAdd = (props) => {
         name: district.label
     }));
 
-    const thalukOptions = THALUK_LIST.map(thaluk=>({
-        id:thaluk.value,
-        name:thaluk.label
+    const thalukOptions = THALUK_LIST.map(thaluk => ({
+        id: thaluk.value,
+        name: thaluk.label
     }));
 
-    
-    const DocumentUpload = ({ label, value, name, onChange, setModalData,fullDocVal }) => {
+
+    const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal }) => {
         return (
             <tr>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
-            </td>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography
-                    className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}
-                >
-                    {value ? "UPLOADED" : "NO DOCUMENTS"}
-                </Typography>
-            </td>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
-                <div className="flex items-center gap-2">
-                    <label
-                        htmlFor={name}
-                        className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <Typography
+                        className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}
                     >
-                        Upload
-                    </label>
-                    <input
-                        type="file"
-                        accept="image/*, application/pdf" 
-                        id={name}
-                        name={name}
-                        onChange={onChange}
-                        className="hidden"
-                        multiple={name !== "livePhoto" && name !== "bankStatement"}
-                    />
-                </div>
-            </td>
-            <td className="py-3 px-5 border-b border-blue-gray-50">
+                        {value ? "UPLOADED" : "NO DOCUMENTS"}
+                    </Typography>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
+                    <div className="flex items-center gap-2">
+                        <label
+                            htmlFor={name}
+                            className="inline-block text-center text-white border border-gray-400 bg-black rounded-lg px-4 py-1 cursor-pointer"
+                        >
+                            Upload
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*, application/pdf"
+                            id={name}
+                            name={name}
+                            onChange={onChange}
+                            className="hidden"
+                            multiple={name !== "livePhoto" && name !== "bankStatement"}
+                        />
+                    </div>
+                </td>
+                <td className="py-3 px-5 border-b border-blue-gray-50">
                     {value && (
                         <Typography
                             variant="small"
@@ -191,7 +191,7 @@ const AccountAdd = (props) => {
                                     setModalData({
                                         image1: fullDocVal?.image1
                                     });
-                                } 
+                                }
                                 else {
                                     setModalData({
                                         image1: fullDocVal?.image1,
@@ -206,7 +206,7 @@ const AccountAdd = (props) => {
                 </td>
 
 
-        </tr>
+            </tr>
         );
     };
 
@@ -223,8 +223,8 @@ const AccountAdd = (props) => {
         name: state.label
     }));
 
-    const filteredState = stateOptions.filter(state => 
-        state.name.toLowerCase().includes(stateSearchText.toLowerCase()) 
+    const filteredState = stateOptions.filter(state =>
+        state.name.toLowerCase().includes(stateSearchText.toLowerCase())
     );
 
     const searchLocations = async (query) => {
@@ -232,7 +232,7 @@ const AccountAdd = (props) => {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
                 address: query
             });
-            console.log("data",data)
+            console.log("data", data)
             if (data?.success && data?.data) {
                 setAddressSuggestions(data?.data)
             }
@@ -242,13 +242,11 @@ const AccountAdd = (props) => {
     };
 
     const handleImageUpload = async (e, setFieldValue, label) => {
-        try 
-        {
+        try {
             const files = e.target.files;
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
-            if(files.length > 2)
-            {
+            if (files.length > 2) {
                 alert("You can upload a maximum of two documents.");
                 return;
             }
@@ -257,7 +255,7 @@ const AccountAdd = (props) => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
-                 if (!allowedTypes.includes(files[i].type)) {
+                if (!allowedTypes.includes(files[i].type)) {
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                         color: "red",
@@ -275,7 +273,7 @@ const AccountAdd = (props) => {
                 }
                 const file = files[i];
                 uploadedFiles.push(file);
-                
+
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     previews[label] = reader.result;
@@ -285,10 +283,10 @@ const AccountAdd = (props) => {
 
                 setFieldValue(label, uploadedFiles);
             }
-        
-        
 
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rc' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'panImage' ? KYC_PROCESS.PAN  : KYC_PROCESS.LIVE_PHOTO;
+
+
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rc' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
             const formData = new FormData();
 
             formData.append('image1', files[0]);
@@ -304,15 +302,14 @@ const AccountAdd = (props) => {
 
             console.log('DATA IN DOC INSERT :', data);
 
-            if(data?.success)
-            {
+            if (data?.success) {
                 console.log(data);
                 setImagePreviews((prev) => ({
                     ...prev,
-                    [label]:{
-                        image1:data?.data?.image1 || prev[label]?.image1,
-                        image2:data?.data?.image2 || prev[label]?.image2,
-                        id:data?.data?.id,
+                    [label]: {
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        image2: data?.data?.image2 || prev[label]?.image2,
+                        id: data?.data?.id,
                     }
                 }))
             }
@@ -324,8 +321,7 @@ const AccountAdd = (props) => {
                 setTimeout(() => setAlert(null), 5000);
             }
         }
-        catch (err)
-        {
+        catch (err) {
             console.log("ERR - >", err);
         }
     };
@@ -353,7 +349,7 @@ const AccountAdd = (props) => {
             }
 
             setFieldValue(label, file);
-    
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreviews((prev) => ({
@@ -362,34 +358,32 @@ const AccountAdd = (props) => {
                 }));
             };
             reader.readAsDataURL(file);
-    
-          const type = label === 'livePhoto' ? KYC_PROCESS.LIVE_PHOTO : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT:'';
-    
+
+            const type = label === 'livePhoto' ? KYC_PROCESS.LIVE_PHOTO : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : '';
+
             const formData = new FormData();
-    
-            formData.append('image1', file); 
-            formData.append('extImage1', file.name.split('.').pop()); 
-            formData.append('fileTypeImage1', file.type); 
+
+            formData.append('image1', file);
+            formData.append('extImage1', file.name.split('.').pop());
+            formData.append('fileTypeImage1', file.type);
             formData.append('type', type);
             formData.append('accountId', ownerAdded?.ownerId);
-    
+
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
-    
+
             console.log('DATA IN DOC INSERT :', data);
 
 
-            if(data?.success)
-            {
+            if (data?.success) {
                 setImagePreviews((prev) => ({
                     ...prev,
-                    [label]:{
-                        image1:data?.data?.image1 || prev[label]?.image1,
-                        id:data?.data?.id,
+                    [label]: {
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        id: data?.data?.id,
                     }
                 }))
             }
-            else 
-            {
+            else {
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",
@@ -405,18 +399,18 @@ const AccountAdd = (props) => {
         }
     };
 
-    
+
     const handleGoogleAddressSelect = (place) => {
         if (!place || !place.formatted_address) {
             console.error("Google Address selection is invalid", place);
             return;
         }
-    
+
         const parsedAddress = parseAddress(place.formatted_address);
         parsedAddress.pincode = extractPincode(place.address_components);
-    
+
         setFieldValue("address", place.formatted_address);
-    
+
         if (isSameAddress) {
             setFieldValue("street", parsedAddress.street);
             setFieldValue("thaluk", parsedAddress.taluk);
@@ -438,7 +432,7 @@ const AccountAdd = (props) => {
                 pincode: "",
             };
         }
-    
+
         const parts = address.split(", ").reverse();
         return {
             street: parts[4] || "",
@@ -469,7 +463,7 @@ const AccountAdd = (props) => {
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
-                {({ handleSubmit, dirty, isValid, setFieldValue, values, errors, touched}) => (
+                {({ handleSubmit, dirty, isValid, setFieldValue, values, errors, touched }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-1 gap-4">
                             <div className='grid grid-cols-2 gap-4'>
@@ -483,7 +477,7 @@ const AccountAdd = (props) => {
                                     <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'driverWithVehicles' ? "Full Name" : 'Company Name' }</label>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'driverWithVehicles' ? "Full Name" : 'Company Name'}</label>
                                     <Field type="text" name="name" disabled={!isEditable} className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                     <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
@@ -517,7 +511,7 @@ const AccountAdd = (props) => {
                                                 form={form}
                                                 suggestions={addressSuggestions}
                                                 onSearch={searchLocations}
-                                                disabled={!isEditable} 
+                                                disabled={!isEditable}
                                                 onSelect={handleGoogleAddressSelect}
                                             />
                                         )}
@@ -548,7 +542,7 @@ const AccountAdd = (props) => {
                                                 setFieldValue("state", "");
                                                 setFieldValue("pincode", "");
                                             }
-                                        }}                                        
+                                        }}
                                         className="mr-2"
                                     />
                                     <label htmlFor="sameAddress" className="text-sm text-gray-700">
@@ -589,7 +583,7 @@ const AccountAdd = (props) => {
                                         component="div"
                                         className="text-red-500 text-sm mt-1"
                                     />
-                                </div>     
+                                </div>
                                 <div>
                                     <label htmlFor="district" className="text-sm font-medium text-gray-700">
                                         District
@@ -642,7 +636,7 @@ const AccountAdd = (props) => {
                                 </div>
                                 <div>
                                     <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
-                                    <Field type="text" disabled={!isEditable} name="pincode"  className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <Field type="text" disabled={!isEditable} name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
                             </div>
@@ -665,106 +659,106 @@ const AccountAdd = (props) => {
                                 Continue
                             </Button>
                         </div>}
-                        {ownerAdded.value && 
+                        {ownerAdded.value &&
                             <div className="mt-6">
-                            <div className="flex flex-row justify-between px-2 mb-2">
-                                <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
-                                    Document Upload
-                                </Typography>
-                            </div>
-                            <Card>
-                                <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
-                                    <table className="w-full min-w-[640px] table-auto">
-                                        <thead>
-                                            <tr>
-                                                {["Type", "Status", "Action", ""].map((el, index) => (
-                                                    <th
-                                                        key={index}
-                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                                    >
-                                                        <Typography
-                                                            variant="small"
-                                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                <div className="flex flex-row justify-between px-2 mb-2">
+                                    <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
+                                        Document Upload
+                                    </Typography>
+                                </div>
+                                <Card>
+                                    <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+                                        <table className="w-full min-w-[640px] table-auto">
+                                            <thead>
+                                                <tr>
+                                                    {["Type", "Status", "Action", ""].map((el, index) => (
+                                                        <th
+                                                            key={index}
+                                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                                         >
-                                                            {el}
-                                                        </Typography>
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        {values.type === "Individual" && <>
-                                            <DocumentUpload
-                                                label="Driving License Image"
-                                                value={imagePreviews.drivingLicenseImage?.image1}
-                                                name="drivingLicenseImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.drivingLicenseImage}
-                                                image2={imagePreviews.drivingLicenseImage?.image2}
-                                            />
-                                        </>}
-                                            <DocumentUpload
-                                                label="Aadhaar Image"
-                                                value={imagePreviews.aadhaarImage?.image1}
-                                                name="aadhaarImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.aadhaarImage}
-                                                image2={imagePreviews.aadhaarImage?.image2}
-                                            />
-                                             {values.type !== "Company" && values.type !== "Individual" && <>
-                                            <DocumentUpload
-                                                label="PAN Image"
-                                                value={imagePreviews.panImage?.image1}
-                                                name="panImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.panImage}
-                                                image2={imagePreviews.panImage?.image2}
-                                            />
-                                            </>}
-                                            <DocumentUpload
-                                                label="Live Photo"
-                                                value={imagePreviews.livePhoto?.image1}
-                                                name="livePhoto"
-                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.livePhoto}
-                                                image2={imagePreviews.livePhoto?.image2}
-                                            />
-                                            <DocumentUpload
-                                                label="RC"
-                                                value={imagePreviews.rc?.image1}
-                                                name="rc"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.rc}
-                                                image2={imagePreviews.rc?.image2}
-                                            />
-                                            {values.type !== "Company" && values.type !== "Individual" && <>
-                                            <DocumentUpload
-                                                label="Insurance"
-                                                value={values.insurance}
-                                                name="insurance"
-                                                onChange={(e) => handleUpload(e, setFieldValue, "insurance")}
-                                                setModalData={setModalData}
-                                            />
-                                            <DocumentUpload
-                                                label="Bank Statement"
-                                                value={imagePreviews.bankStatement?.image1}
-                                                name="bankStatement"
-                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement")}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.bankStatement}
-                                                image2={imagePreviews.bankStatement?.image2}
-                                            />
-                                            </>}
-                                        </tbody>
-                                    </table>
-                                </CardBody>
-                            </Card>
-                        </div> 
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                            >
+                                                                {el}
+                                                            </Typography>
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {values.type === "Individual" && <>
+                                                    <DocumentUpload
+                                                        label="Driving License Image"
+                                                        value={imagePreviews.drivingLicenseImage?.image1}
+                                                        name="drivingLicenseImage"
+                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
+                                                        setModalData={setModalData}
+                                                        fullDocVal={imagePreviews.drivingLicenseImage}
+                                                        image2={imagePreviews.drivingLicenseImage?.image2}
+                                                    />
+                                                </>}
+                                                <DocumentUpload
+                                                    label="Aadhaar Image"
+                                                    value={imagePreviews.aadhaarImage?.image1}
+                                                    name="aadhaarImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.aadhaarImage}
+                                                    image2={imagePreviews.aadhaarImage?.image2}
+                                                />
+                                                {values.type !== "Company" && values.type !== "Individual" && <>
+                                                    <DocumentUpload
+                                                        label="PAN Image"
+                                                        value={imagePreviews.panImage?.image1}
+                                                        name="panImage"
+                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
+                                                        setModalData={setModalData}
+                                                        fullDocVal={imagePreviews.panImage}
+                                                        image2={imagePreviews.panImage?.image2}
+                                                    />
+                                                </>}
+                                                <DocumentUpload
+                                                    label="Live Photo"
+                                                    value={imagePreviews.livePhoto?.image1}
+                                                    name="livePhoto"
+                                                    onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.livePhoto}
+                                                    image2={imagePreviews.livePhoto?.image2}
+                                                />
+                                                <DocumentUpload
+                                                    label="RC"
+                                                    value={imagePreviews.rc?.image1}
+                                                    name="rc"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.rc}
+                                                    image2={imagePreviews.rc?.image2}
+                                                />
+                                                {values.type !== "Company" && values.type !== "Individual" && <>
+                                                    <DocumentUpload
+                                                        label="Insurance"
+                                                        value={values.insurance}
+                                                        name="insurance"
+                                                        onChange={(e) => handleUpload(e, setFieldValue, "insurance")}
+                                                        setModalData={setModalData}
+                                                    />
+                                                    <DocumentUpload
+                                                        label="Bank Statement"
+                                                        value={imagePreviews.bankStatement?.image1}
+                                                        name="bankStatement"
+                                                        onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement")}
+                                                        setModalData={setModalData}
+                                                        fullDocVal={imagePreviews.bankStatement}
+                                                        image2={imagePreviews.bankStatement?.image2}
+                                                    />
+                                                </>}
+                                            </tbody>
+                                        </table>
+                                    </CardBody>
+                                </Card>
+                            </div>
                         }
                         {ownerAdded.value &&
                             <div className='flex flex-row'>
@@ -789,21 +783,21 @@ const AccountAdd = (props) => {
                 )}
             </Formik>
             {modalData && (
-                            <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
-                                <DialogHeader>
-                                <div className="flex justify-between items-center w-full">
-                                    <Typography variant="h6">Document Details</Typography>
-                                    <button
-                                    className="text-gray-600 hover:text-gray-900"
-                                    onClick={() => setModalData(null)}
-                                    >
-                                    X
-                                    </button>
-                                </div>
-                                </DialogHeader>
-                                <DialogBody divider>
-                                <div className="flex flex-col items-center space-y-3">
-                                <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
+                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                    <DialogHeader>
+                        <div className="flex justify-between items-center w-full">
+                            <Typography variant="h6">Document Details</Typography>
+                            <button
+                                className="text-gray-600 hover:text-gray-900"
+                                onClick={() => setModalData(null)}
+                            >
+                                X
+                            </button>
+                        </div>
+                    </DialogHeader>
+                    <DialogBody divider>
+                        <div className="flex flex-col items-center space-y-3">
+                            <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
                                 {modalData.image1 && (
                                     <iframe
                                         src={modalData.image1}
@@ -820,31 +814,31 @@ const AccountAdd = (props) => {
                                 )}
                             </div>
 
-            
-                                        <div className="flex justify-center mt-4">
-                                            <a
-                                                href={modalData.image1}
-                                                download
-                                                target="_blank"
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                            >
-                                                Download Image 1
-                                            </a>
-                                            {modalData.image2 && (
-                                                <a
-                                                    href={modalData.image2}
-                                                    download
-                                                    target="_blank"
-                                                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                                >
-                                                    Download Image 2
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-                                </DialogBody>
-                            </Dialog>
-                        )}
+
+                            <div className="flex justify-center mt-4">
+                                <a
+                                    href={modalData.image1}
+                                    download
+                                    target="_blank"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    Download Image 1
+                                </a>
+                                {modalData.image2 && (
+                                    <a
+                                        href={modalData.image2}
+                                        download
+                                        target="_blank"
+                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    >
+                                        Download Image 2
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </DialogBody>
+                </Dialog>
+            )}
         </div>
     );
 };
