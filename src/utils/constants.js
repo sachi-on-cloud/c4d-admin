@@ -912,7 +912,8 @@ export const API_ROUTES = {
     'INSTANT_REWARD': '/instant-reward',
     'CUSTOMER_WALLET': '/getWalletTransactions',
     'DRIVER_WALLET': '/getDriverWalletTransactions',
-    'CAB_WALLET': '/getCabWalletTransactions'
+    'CAB_WALLET': '/getCabWalletTransactions',
+    'ADD_NOTES_BOOKING':'/add-notes',
 };
 
 export const KYC_PROCESS = {
