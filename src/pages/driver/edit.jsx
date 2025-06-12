@@ -67,6 +67,7 @@ const DriverEdit = () => {
     const navigate = useNavigate();
     const [modalData, setModalData] = useState(null);
     const [isSameAddress, setIsSameAddress] = useState(false);
+    const [loading, setLoading] = useState(false);
 
 
     const currentDate = () => {
@@ -81,6 +82,13 @@ const DriverEdit = () => {
         }
         return null;
     }
+            if (loading) {
+            return (
+                <div className="flex justify-center items-center h-screen">
+                    <Spinner className="h-12 w-12" />
+                </div>
+            );
+        }
 
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
@@ -419,11 +427,13 @@ const DriverEdit = () => {
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
         try {
+            setLoading(true);
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             const files = e.target.files;
 
             if (files.length > 2) {
+                setLoading(false);
                 alert("You can upload a maximum of two documents.");
                 return;
             }
@@ -432,6 +442,7 @@ const DriverEdit = () => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
+                setLoading(false);
                 if (!allowedTypes.includes(files[i].type)) {
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
@@ -441,6 +452,7 @@ const DriverEdit = () => {
                     return;
                 }
                 if (files[i].size > maxSize) {
+                    setLoading(false);
                     setAlert({
                         message: "File size exceeds 10MB limit.",
                         color: "red",
@@ -500,6 +512,7 @@ const DriverEdit = () => {
             }
 
             if (data?.success) {
+                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -510,6 +523,7 @@ const DriverEdit = () => {
                 }));
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload document. Please try again.",
                     color: "red",
@@ -522,11 +536,13 @@ const DriverEdit = () => {
     };
     const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
         try {
+            setLoading(true);
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             const file = e.target.files[0];
 
             if (!allowedTypes.includes(file.type)) {
+                setLoading(false);
                 setAlert({
                     message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                     color: "red",
@@ -536,6 +552,7 @@ const DriverEdit = () => {
             }
 
             if (file.size > maxSize) {
+                setLoading(false);
                 setAlert({
                     message: "File size exceeds 10MB limit.",
                     color: "red",
@@ -574,6 +591,7 @@ const DriverEdit = () => {
             }
 
             if (data?.success) {
+                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -583,6 +601,7 @@ const DriverEdit = () => {
                 }));
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",

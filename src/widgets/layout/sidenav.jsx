@@ -231,6 +231,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
+                      { label: "Vehicles List" , path:"/dashboard/Vendors/vehicleList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>

@@ -130,7 +130,7 @@ export const ACCOUNT_ADD_SCHEMA = Yup.object().shape({
         .matches(/^\d{10}$/, 'Phone Number must be exactly 10 digits')
         .required('Phone Number is required'),
     source: Yup.string().required('Source is required'),
-    email: Yup.string().email('Invalid email format').required('Email is required'),
+    // email: Yup.string().email('Invalid email format').required('Email is required'),
     address: Yup.string().required('Current Address is required'),
     street: Yup.string().required('Street Name is required'),
     thaluk: Yup.string().required('Thaluk is required'),
@@ -148,7 +148,7 @@ export const ACCOUNT_EDIT_SCHEMA = Yup.object().shape({
         .matches(/^\d{10}$/, 'Phone Number must be exactly 10 digits')
         .required('Phone Number is required'),
     source: Yup.string().required('Source is required'),
-    email: Yup.string().email('Invalid email format').required('Email is required'),
+    // email: Yup.string().email('Invalid email format').required('Email is required'),
     address: Yup.string().required('Current Address is required'),
     street: Yup.string().required('Street Name is required'),
     thaluk: Yup.string().required('Thaluk is required'),

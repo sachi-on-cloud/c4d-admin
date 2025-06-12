@@ -268,7 +268,7 @@ const ConfirmBooking = (props) => {
                 </CardBody>
             </Card>
 
-            {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED") &&
+            {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED" || bookingDetails?.status == "CUSTOMER_CANCELLED") &&
                 <Card className="mb-2">
                     <CardBody>
                         <div className="flex justify-between mb-2">
@@ -358,7 +358,13 @@ const ConfirmBooking = (props) => {
                                 <Typography>{bookingDetails?.acType}</Typography>
                             </div>
                         }
-                        {bookingDetails?.serviceType !='RIDES' && 
+                         {bookingDetails?.serviceType !='RIDES' &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Car Type:</Typography>
+                                <Typography>{bookingDetails?.carType}</Typography>
+                            </div>
+                        }
+                        {bookingDetails?.serviceType !='RIDES' && bookingDetails?.packageType != 'Outstation' &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Package:</Typography>
                                 <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
@@ -387,7 +393,7 @@ const ConfirmBooking = (props) => {
                         {/* need to add logic for price */}
                         {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Price:</Typography>
+                                <Typography color="gray" variant="h6">Estimated Price:</Typography> 
                                 {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                 <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.Package?.price : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL' ) ? bookingDetails?.Package?.price : bookingDetails?.value?.estimatedPrice}</Typography>
                             </div>

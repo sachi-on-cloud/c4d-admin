@@ -67,6 +67,7 @@ const DriverAdd = () => {
     const [stateSearchText, setStateSearchText] = useState("");
     const [owner, setOwners] = useState([]);
     const [isEditable, setIsEditable] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         policeClearance: null,
@@ -89,7 +90,13 @@ const DriverAdd = () => {
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };
-
+        if (loading) {
+            return (
+                <div className="flex justify-center items-center h-screen">
+                    <Spinner className="h-12 w-12" />
+                </div>
+            );
+        }
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
             if (type === 'Local') {
@@ -400,10 +407,12 @@ const DriverAdd = () => {
 
     const handleImageUpload = async (e, setFieldValue, label) => {
         try {
+            setLoading(true);
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             const files = e.target.files;
             if (files.length > 2) {
+                setLoading(false);
                 alert("You can upload a maximum of two documents.");
                 return;
             }
@@ -412,6 +421,7 @@ const DriverAdd = () => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
+                setLoading(false);
                 if (!allowedTypes.includes(files[i].type)) {
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
@@ -421,6 +431,7 @@ const DriverAdd = () => {
                     return;
                 }
                 if (files[i].size > maxSize) {
+                    setLoading(false);
                     setAlert({
                         message: "File size exceeds 10MB limit.",
                         color: "red",
@@ -459,6 +470,7 @@ const DriverAdd = () => {
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
             console.log('DATA IN DOC INSERT :', data);
             if (data?.success) {
+                setLoading(false);
                 console.log(data);
                 setImagePreviews((prev) => ({
                     ...prev,
@@ -470,6 +482,7 @@ const DriverAdd = () => {
                 }))
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload document. Please try again.",
                     color: "red",
@@ -483,10 +496,12 @@ const DriverAdd = () => {
 
     const handlePhotoUpload = async (e, setFieldValue, label) => {
         try {
+            setLoading(true);
             const file = e.target.files[0];
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             if (!allowedTypes.includes(file.type)) {
+                setLoading(false);
                 setAlert({
                     message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                     color: "red",
@@ -495,6 +510,7 @@ const DriverAdd = () => {
                 return;
             }
             if (file.size > maxSize) {
+                setLoading(false);
                 setAlert({
                     message: "File size exceeds 10MB limit.",
                     color: "red",
@@ -527,6 +543,7 @@ const DriverAdd = () => {
             console.log('DATA IN DOC INSERT :', data);
 
             if (data?.success) {
+                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -536,6 +553,7 @@ const DriverAdd = () => {
                 }))
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",

@@ -67,6 +67,7 @@ const AccountAdd = (props) => {
     const [modalData, setModalData] = useState(null);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSameAddress, setIsSameAddress] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [ownerAdded, setOwnerAdded] = useState({
         ownerId: "",
         value: false
@@ -82,7 +83,13 @@ const AccountAdd = (props) => {
         bankStatementImage: null,
     });
 
-
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Spinner className="h-12 w-12" />
+            </div>
+        );
+    }
     const initialValues = {
         type: "",
         name: "",
@@ -243,10 +250,12 @@ const AccountAdd = (props) => {
 
     const handleImageUpload = async (e, setFieldValue, label) => {
         try {
+            setLoading(true);
             const files = e.target.files;
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             if (files.length > 2) {
+                setLoading(false);
                 alert("You can upload a maximum of two documents.");
                 return;
             }
@@ -256,6 +265,7 @@ const AccountAdd = (props) => {
 
             for (let i = 0; i < files.length; i++) {
                 if (!allowedTypes.includes(files[i].type)) {
+                    setLoading(false);
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                         color: "red",
@@ -264,6 +274,7 @@ const AccountAdd = (props) => {
                     return;
                 }
                 if (files[i].size > maxSize) {
+                    setLoading(false);
                     setAlert({
                         message: "File size exceeds 10MB limit.",
                         color: "red",
@@ -303,7 +314,8 @@ const AccountAdd = (props) => {
             console.log('DATA IN DOC INSERT :', data);
 
             if (data?.success) {
-                console.log(data);
+                // console.log(data);
+                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -314,6 +326,7 @@ const AccountAdd = (props) => {
                 }))
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload document. Please try again.",
                     color: "red",
@@ -327,11 +340,13 @@ const AccountAdd = (props) => {
     };
     const handlePhotoUpload = async (e, setFieldValue, label) => {
         try {
+            setLoading(true);
             const file = e.target.files[0];
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
 
             if (!allowedTypes.includes(file.type)) {
+                setLoading(false);
                 setAlert({
                     message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                     color: "red",
@@ -340,6 +355,7 @@ const AccountAdd = (props) => {
                 return;
             }
             if (file.size > maxSize) {
+                setLoading(false);
                 setAlert({
                     message: "File size exceeds 10MB limit.",
                     color: "red",
@@ -375,6 +391,7 @@ const AccountAdd = (props) => {
 
 
             if (data?.success) {
+                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -384,6 +401,7 @@ const AccountAdd = (props) => {
                 }))
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",

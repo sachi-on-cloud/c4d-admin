@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Spinner,
 } from "@material-tailwind/react";
 import { FaFilter } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
@@ -26,14 +27,22 @@ export function PendingDocList() {
   const [allAccounts, setAllAccounts] = useState([]);
   const [typeFilter, setTypeFilter] = useState(["All"]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false); 
   const navigate = useNavigate();
 
     const fetchDoc = async () => {
+      setLoading(true); 
+    try {
       const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'Pending');
       if (data?.success) {
         setAccounts(data?.data);
         setAllAccounts(data?.data);
       }
+      } catch (error) {
+      console.error("Error fetching documents:", error);
+    } finally {
+      setLoading(false); 
+    }
     };
 
   useEffect(() => {
@@ -129,15 +138,24 @@ export function PendingDocList() {
             <button
               className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
               onClick={() => fetchDoc()}
+              disabled={loading}
             >
-              <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+              {loading ? (
+                <Spinner className="w-4 h-4" />
+              ) : (
+                <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+              )}
               <span>Refresh</span>
             </button>
           </div>
         </div>
       </div>
       <Card>
-        {accounts.length > 0 ? (
+         {loading ? (
+           <div className="flex justify-center items-center h-screen bg-white">
+                <Spinner className="h-12 w-12" />
+            </div>
+        ) :accounts.length > 0 ? (
           <>
             <CardHeader
               variant="gradient"

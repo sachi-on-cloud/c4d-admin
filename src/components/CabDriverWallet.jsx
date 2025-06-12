@@ -20,7 +20,7 @@ const CabDriverWalletLog = ({ cabId }) => {
 
       try {
         const data = await ApiRequestUtils.get(`${API_ROUTES.CAB_WALLET}/${cabId}`);
-        console.log("API Response:", data);
+        // console.log("API Response:", data);
 
         if (data?.success) {
           setWalletLog(data?.data?.WalletTransactions || []);
