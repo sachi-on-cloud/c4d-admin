@@ -914,6 +914,7 @@ export const API_ROUTES = {
     'DRIVER_WALLET': '/getDriverWalletTransactions',
     'CAB_WALLET': '/getCabWalletTransactions',
     'ADD_NOTES_BOOKING':'/add-notes',
+    'GET_ALL_VEHICLESLIST':'/admin/cabs',
 };
 
 export const KYC_PROCESS = {

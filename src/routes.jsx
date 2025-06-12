@@ -73,6 +73,7 @@ import GeoMarkings from "./pages/geoMarkings/geoMarkings";
 import NotificationList from "./pages/vendor/notificationList";
 import NotificationListApp from "./pages/vendor/notificationadd";
 import InstantReward from "./pages/vendor/instantReward";
+import { VehiclesList } from "./pages/vendor/vehiclesList";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -122,6 +123,13 @@ export const routes = [
         name: "customers",
         path: "/customers/details/:id",
         element: <CustomerDetails />,
+        display: false
+      },
+      {
+         icon: <UserIcon {...icon} />,
+        name: "vehicleList",
+        path: "/vendors/vehicleList",
+        element: <VehiclesList />,
         display: false
       },
       {

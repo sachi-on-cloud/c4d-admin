@@ -317,11 +317,13 @@ const AccountEdit = () => {
     };
     const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
         try {
+            setLoading(true);
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             const file = e.target.files[0];
 
             if (!allowedTypes.includes(file.type)) {
+                setLoading(false);
                 setAlert({
                     message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                     color: "red",
@@ -331,6 +333,7 @@ const AccountEdit = () => {
             }
 
             if (file.size > maxSize) {
+                setLoading(false);
                 setAlert({
                     message: "File size exceeds 10MB limit.",
                     color: "red",
@@ -370,6 +373,7 @@ const AccountEdit = () => {
                 console.log("updated data => ", data)
             }
             if (data?.success) {
+                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -379,6 +383,7 @@ const AccountEdit = () => {
                 }));
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",

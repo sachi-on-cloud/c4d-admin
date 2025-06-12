@@ -8,6 +8,7 @@ import {
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { useNavigate } from 'react-router-dom';
+import moment from "moment";
 
 export function NotificationList() {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ export function NotificationList() {
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">App</th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Message</th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">City</th>
+                <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Created Date</th>
               </tr>
             </thead>
             <tbody>
@@ -71,6 +73,7 @@ export function NotificationList() {
                     <td className="py-3 px-5">{item.app || '-'}</td>
                     <td className="py-3 px-5">{item.message || '-'}</td>
                     <td className="py-3 px-5">{item.city || '-'}</td>
+                    <td className="py-3 px-5">{moment(item?.created_at).format('DD-MM-YYYY / hh:mm A') || '-'}</td>                  
                   </tr>
                 ))
               )}

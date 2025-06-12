@@ -402,7 +402,11 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 const isSelected = data.id === selectedBookingId;
                                                 const className = `p-3 ${key === bookingsList.length - 1
                                                     ? "mb-4"
-                                                    : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors duration-200`;
+                                                    : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50'
+                                                        : data?.status === "QUOTED"
+                                                        ? "bg-yellow-200"
+                                                        : "hover:bg-gray-50"
+                                                        } transition-colors duration-200`;
 
                                                 return (
                                                     <tr key={data?.id} className={className}>
