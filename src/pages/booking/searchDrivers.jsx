@@ -354,7 +354,7 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {["Name", "Phone Number", "Cab Type", "Price Offered", "Local Count" , "Outstation Count",  "Status", "Assign/Reassign"].map((el) => ( //"Trip Count",
+                                            {["Name", "Driver Name","Phone Number", "Cab Type", "Price Offered", "Local Count" , "Outstation Count",  "Status", "Assign/Reassign"].map((el) => ( //"Trip Count",
                                                 <th
                                                     key={el}
                                                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -392,9 +392,14 @@ export function SearchDrivers(props) {
                                                                 </div>
                                                             </div>
                                                         </td>
+                                                         <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {(Drivers?.[0]?.firstName) ? Drivers?.[0]?.firstName : firstName}
+                                                            </Typography>
+                                                        </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {phoneNumber}
+                                                                {(Drivers?.[0]?.phoneNumber) ? Drivers?.[0]?.phoneNumber : phoneNumber}
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>
