@@ -153,7 +153,7 @@ export function MasterPriceDetailsAndEdit() {
                                     </>
                             }
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700">extra Price</label>
+                                    <label className="text-sm font-medium text-gray-700">Extra Hours</label>
                                     <Field type="number" name="extraPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                 </div>
                             

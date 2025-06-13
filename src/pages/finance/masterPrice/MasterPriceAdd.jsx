@@ -167,7 +167,7 @@ export function MasterPriceAdd() {
                                 <ErrorMessage name="additionalMins" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Extra Price</label>
+                                <label className="text-sm font-medium text-gray-700">Extra Hours</label>
                                 <Field type="number" name="extraPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                 <ErrorMessage name="extraPrice" component="div" className="text-red-500 text-sm" />
                             </div>
