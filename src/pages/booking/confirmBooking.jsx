@@ -387,7 +387,7 @@ const ConfirmBooking = (props) => {
                         {bookingDetails?.value?.estimatedDistance > 0 &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Total Distance:</Typography>
-                                <Typography>{(Number(bookingDetails?.value?.estimatedDistance)).toFixed(1)} Kms</Typography>
+                                <Typography>{(Number(bookingDetails?.value?.estimatedDistance)+Number(bookingDetails?.Package?.baseKm)).toFixed(1)} Kms</Typography>
                             </div>
                         }
                         {/* need to add logic for price */}
@@ -400,7 +400,7 @@ const ConfirmBooking = (props) => {
                         }
                         {bookingDetails?.status === BOOKING_STATUS.ENDED &&
                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Price:</Typography>
+                                <Typography color="gray" variant="h6">Estimated Price:</Typography>
                                 <Typography>₹ {amount?.total}</Typography>
                             </div>
                         }
