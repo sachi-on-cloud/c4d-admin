@@ -34,7 +34,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         currentPage: 1,
         totalPages: 1,
         totalItems: 0,
-        itemsPerPage: 10,
+        itemsPerPage: 15,
     });
     const [nameSortConfig, setNameSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
     const [filteredRange, setFilteredRange] = useState({});
