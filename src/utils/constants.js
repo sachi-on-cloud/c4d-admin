@@ -910,6 +910,7 @@ export const API_ROUTES = {
     'POST_NOTIFICATION_ADD': '/send-notification',
     'GET_NOTIFICATION': '/get-notification',
     'INSTANT_REWARD': '/instant-reward',
+    'GET_REWARD':'/get-instant-reward',
     'CUSTOMER_WALLET': '/getWalletTransactions',
     'DRIVER_WALLET': '/getDriverWalletTransactions',
     'CAB_WALLET': '/getCabWalletTransactions',
