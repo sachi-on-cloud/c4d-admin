@@ -9,32 +9,92 @@ import {
   PopoverHandler,
   PopoverContent,
   Checkbox,
+  Button,
+  Spinner,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useNavigate } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import moment from "moment";
 import { FaFilter } from "react-icons/fa";
 
-export function VehiclesList() {
+export function VehiclesList({ id = 0 }) {
   const [vehicleList, setVehicleList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState(["All"]);
   const [subScriptionStatusFilter, setSubScriptionStatusFilter] = useState(["All"]);
   const [typeFilter, setTypeFilter] = useState(["All"]);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 15,
+  });
   const navigate = useNavigate();
 
-  const fetchCabList = async () => {
-    const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_VEHICLESLIST);
-    if (data?.success) {
-      setVehicleList(data.data || []); 
+  const fetchCabList = async (page = 1) => {
+    setLoading(true);
+    try {
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_VEHICLESLIST, {
+        id: id,
+        page: page,
+        limit: pagination.itemsPerPage,
+      });
+      if (data?.success) {
+        setVehicleList(data.data || []);
+        setPagination({
+          currentPage: page,
+          totalPages: data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 15,
+        });
+      } else {
+        console.error('API request failed:', data?.message);
+      }
+    } catch (error) {
+      console.error('Error fetching vehicle list:', error);
+    } finally {
+      setLoading(false); 
     }
   };
 
   useEffect(() => {
-    fetchCabList();
-  }, []);
+    fetchCabList(pagination.currentPage);
+  }, [id, pagination.currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+    }
+  };
+
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+          className={`mx-1 ${ColorStyles.bgColor} text-white`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
+  };
 
 const filteredVehicles = vehicleList.filter((vehicle) => {
   const matchesSearch = ['name', 'carNumber', 'driverName'].some((field) => {
@@ -78,9 +138,7 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
           : [...prev.filter((item) => item !== "All"), value];
         return newFilter.length === 0 ? ["All"] : newFilter;
       });
-    }
-    else if(filterType === "subscriptionStatus")
-    {
+    }  else if(filterType === "subscriptionStatus") {
       setSubScriptionStatusFilter((prev) => {
         if (value === "All") return ["All"];
         const newFilter = prev.includes(value)
@@ -90,6 +148,7 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
       });
     }
   };
+
   const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
     <Popover placement="bottom-start">
       <PopoverHandler>
@@ -119,6 +178,15 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
       </PopoverContent>
     </Popover>
   );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner className="h-12 w-12" />
+      </div>
+    );
+  }
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
@@ -147,7 +215,7 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Driver Name", "Cab Name", "Vehicle Type", "Vehicle Number", "Registration Date", "Available Status","Subscription Status"].map((el) => (
+                    {["Driver Name", "Cab Name", "Vehicle Type", "Vehicle Number", "Address","Registration Date", "Available Status", "Subscription Status"].map((el) => (
                       <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                         {el === "Vehicle Type" ? (
                           <FilterPopover
@@ -162,7 +230,7 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                             selectedFilters={typeFilter}
                             onFilterChange={(value) => handleFilterChange("carType", value)}
                           />
-                        ) : el === "Subscription Status"  ? (
+                        ) : el === "Subscription Status" ? (
                           <FilterPopover
                             title={el}
                             options={[
@@ -173,20 +241,18 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                             selectedFilters={subScriptionStatusFilter}
                             onFilterChange={(value) => handleFilterChange("subscriptionStatus", value)}
                           />
-                        ) : 
-                        el === "Available Status" ? (
+                        ) : el === "Available Status" ? (
                           <FilterPopover
                             title={el}
                             options={[
-                              { value: "All" , label: "All"},
+                              { value: "All", label: "All" },
                               { value: "ACTIVE", label: "Active" },
                               { value: "IN_ACTIVE", label: "In_Active" },
                             ]}
-                            selectedFilters={statusFilter} 
-                            onFilterChange={(value) => handleFilterChange("Drivers" , value)}
+                            selectedFilters={statusFilter}
+                            onFilterChange={(value) => handleFilterChange("Drivers", value)}
                           />
-                        )
-                        : (
+                        ) : (
                           <Typography
                             variant="small"
                             className="text-[11px] font-bold uppercase text-black"
@@ -199,7 +265,7 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredVehicles.map(({ id, driverName, name, vehicleType, carType, type, assigned, Account, carNumber, Drivers, subscriptionStatus, status, created_at }) => (
+                  {filteredVehicles.map(({ id, driverName, name, vehicleType, carType, type, assigned, driverAddress,curAddress,Account, carNumber, Drivers, subscriptionStatus, status, created_at }) => (
                     <tr key={id}>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Typography className="text-xs font-semibold text-blue-gray-600">{driverName || Account?.name}</Typography>
@@ -217,6 +283,9 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                       </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Typography className="text-xs font-semibold text-blue-gray-600">{carNumber}</Typography>
+                      </td>
+                      <td className="py-3 px-5 border-b border-blue-gray-50">
+                        <Typography className="text-xs font-semibold text-blue-gray-600">{driverAddress || curAddress}</Typography>
                       </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -243,6 +312,27 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                   ))}
                 </tbody>
               </table>
+              <div className="flex items-center justify-center mt-4">
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={pagination.currentPage === 1}
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  className="mx-1"
+                >
+                  {'<'}
+                </Button>
+                {generatePageButtons()}
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  className="mx-1"
+                >
+                  {'>'}
+                </Button>
+              </div>
             </CardBody>
           </>
         ) : (
