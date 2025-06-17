@@ -5,7 +5,8 @@ import {
   CardBody,
   Typography,
   Button,
-  Alert
+  Alert,
+  Spinner
 } from "@material-tailwind/react";
 import CustomerSearch from "@/components/CustomerSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -20,18 +21,37 @@ export function CustomerView() {
   const [allCustomers, setAllCustomers] = useState([]);
   const [alert, setAlert] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc');
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: 0,
+      itemsPerPage: 10,
+    });
 
   const location = useLocation();
 
   useEffect(() => {
-    const fetchCustomers = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS);
+    const fetchCustomers = async (page = 1) => {
+      setLoading(true);
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_CUSTOMERS,{
+        page: page,
+        limit: pagination.itemsPerPage,
+      });
       if (data?.success) {
         setCustomers(data?.data);
         setAllCustomers(data?.data);
+        setPagination({
+          currentPage: page,
+          totalPages: data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 10,
+        });
+        setLoading(true);
       }
+      setLoading(false);
     };
-    fetchCustomers();
+    fetchCustomers(pagination.currentPage);
 
     if (location.state?.customerAdded || location.state?.customerUpdated) {
       const action = location.state.customerAdded ? 'added' : 'updated';
@@ -44,7 +64,39 @@ export function CustomerView() {
       // Clear the state to prevent showing the alert on page refresh
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate]);
+  }, [location, navigate,pagination.currentPage]);
+
+    const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+    }
+  };
+
+    const generatePageButtons = () => {
+      const buttons = [];
+      const maxVisible = 5;
+      let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+  
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+  
+      for (let i = startPage; i <= endPage; i++) {
+        buttons.push(
+          <Button
+            key={i}
+            size="sm"
+            variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+            className={`mx-1 ${ColorStyles.bgColor} text-white`}
+            onClick={() => handlePageChange(i)}
+          >
+            {i}
+          </Button>
+        );
+      }
+      return buttons;
+    };
 
   const getCustomers = async (searchQuery) => {
     if (searchQuery && searchQuery.trim() !== "") {
@@ -82,6 +134,13 @@ export function CustomerView() {
   //     }, 2000);
   //   }
   // }, []);
+      if (loading) {
+          return (
+              <div className="flex justify-center items-center h-screen">
+                  <Spinner className="h-12 w-12" />
+              </div>
+          );
+      }
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && (
@@ -214,6 +273,27 @@ export function CustomerView() {
                   )}
                 </tbody>
               </table>
+                      <div className="flex items-center justify-center mt-4">
+                        <Button
+                          size="sm"
+                          variant="text"
+                          disabled={pagination.currentPage === 1}
+                          onClick={() => handlePageChange(pagination.currentPage - 1)}
+                          className="mx-1"
+                        >
+                          {'<'}
+                        </Button>
+                        {generatePageButtons()}
+                        <Button
+                          size="sm"
+                          variant="text"
+                          disabled={pagination.currentPage === pagination.totalPages}
+                          onClick={() => handlePageChange(pagination.currentPage + 1)}
+                          className="mx-1"
+                        >
+                          {'>'}
+                        </Button>
+                    </div>
             </CardBody>
           </>) : (
           <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>

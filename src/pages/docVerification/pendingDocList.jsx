@@ -27,16 +27,31 @@ export function PendingDocList() {
   const [allAccounts, setAllAccounts] = useState([]);
   const [typeFilter, setTypeFilter] = useState(["All"]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+            currentPage: 1,
+            totalPages: 1,
+            totalItems: 0,
+            itemsPerPage: 15,
+          });  
   const navigate = useNavigate();
 
-    const fetchDoc = async () => {
+    const fetchDoc = async (page = 1) => {
       setLoading(true); 
     try {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'Pending');
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'Pending',{
+        page: page,
+        limit: pagination.itemsPerPage,
+      });
       if (data?.success) {
         setAccounts(data?.data);
         setAllAccounts(data?.data);
+        setPagination({
+          currentPage: page,
+          totalPages: data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 15,
+        });
       }
       } catch (error) {
       console.error("Error fetching documents:", error);
@@ -46,12 +61,43 @@ export function PendingDocList() {
     };
 
   useEffect(() => {
-    fetchDoc();
-  }, []);
+    fetchDoc(pagination.currentPage);
+  }, [pagination.currentPage]);
 
   useEffect(() => {
     getDetails(searchQuery.trim());
   }, [searchQuery]);
+
+    const handlePageChange = (page) => {
+      if (page >= 1 && page <= pagination.totalPages) {
+        setPagination((prev) => ({ ...prev, currentPage: page }));
+      }
+    };
+    const generatePageButtons = () => {
+            const buttons = [];
+            const maxVisible = 5;
+            let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+        
+            if (endPage - startPage < maxVisible - 1) {
+              startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+        
+            for (let i = startPage; i <= endPage; i++) {
+              buttons.push(
+                <Button
+                  key={i}
+                  size="sm"
+                  variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+                  className={`mx-1 ${ColorStyles.bgColor} text-white`}
+                  onClick={() => handlePageChange(i)}
+                >
+                  {i}
+                </Button>
+              );
+            }
+            return buttons;
+    };
 
   const getDetails = async (searchQuery) => {
     if (searchQuery && searchQuery.trim() !== "") {
@@ -275,6 +321,29 @@ export function PendingDocList() {
                     )}
                 </tbody>
               </table>
+
+              <div className="flex items-center justify-center mt-4">
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={pagination.currentPage === 1}
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    className="mx-1"
+                  >
+                    {'<'}
+                  </Button>
+                  {generatePageButtons()}
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={pagination.currentPage === pagination.totalPages}
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    className="mx-1"
+                  >
+                    {'>'}
+                  </Button>
+                </div>
+
             </CardBody>
           </>):(
           <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>

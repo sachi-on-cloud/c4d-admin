@@ -10,6 +10,8 @@ import {
   PopoverHandler,
   PopoverContent,
   Checkbox,
+  Button,
+  Spinner,
 } from "@material-tailwind/react";
 import { FaFilter } from 'react-icons/fa';
 import moment from "moment";
@@ -28,6 +30,13 @@ export function DriverView() {
   const [documentTypeFilter, setDocumentTypeFilter] = useState(['All'])
   const [sourceFilter,setSourceFilter] = useState(['All'])
   const [subscriptionStatusFilter,setsubscriptionStatusFilter] = useState(['All'])
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+          currentPage: 1,
+          totalPages: 1,
+          totalItems: 0,
+          itemsPerPage: 10,
+        }); 
 
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   // const [searchQuery, setSearchQuery] = useState('');
@@ -36,16 +45,28 @@ export function DriverView() {
   const paramsPassed = location.state;
 
   const navigate = useNavigate();
-  const fetchDrivers = async () => {
-    const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_DRIVERS);
+  const fetchDrivers = async (page = 1) => {
+    setLoading(true);
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_DRIVERS, {
+        page: page,
+        limit: pagination.itemsPerPage,
+    });
     if (data?.success) {
       setDrivers(data?.data);
       setAllDrivers(data?.data);
+      setPagination({
+          currentPage: page,
+          totalPages: data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 10,
+        });
+        setLoading(true);
     }
+    setLoading(false);
   };
   useEffect(() => {
-    fetchDrivers();
-  }, []);
+    fetchDrivers(pagination.currentPage);
+  }, [pagination.currentPage]);
 
   const getDrivers = async (searchQuery) => {
     //console.log("searchQuery",searchQuery);
@@ -174,6 +195,36 @@ export function DriverView() {
       </PopoverContent>
     </Popover>
   );
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+    }
+  };
+  const generatePageButtons = () => {
+          const buttons = [];
+          const maxVisible = 5;
+          let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+          let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+      
+          if (endPage - startPage < maxVisible - 1) {
+            startPage = Math.max(1, endPage - maxVisible + 1);
+          }
+      
+          for (let i = startPage; i <= endPage; i++) {
+            buttons.push(
+              <Button
+                key={i}
+                size="sm"
+                variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+                className={`mx-1 ${ColorStyles.bgColor} text-white`}
+                onClick={() => handlePageChange(i)}
+              >
+                {i}
+              </Button>
+            );
+          }
+          return buttons;
+  };
 
   const handleSort = (key) => {
     let direction = 'ascending';
@@ -198,6 +249,13 @@ export function DriverView() {
 
     setDrivers(sortedDrivers);
   };
+        if (loading) {
+            return (
+                <div className="flex justify-center items-center h-screen">
+                    <Spinner className="h-12 w-12" />
+                </div>
+            );
+        }
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && <div className='mb-2'>
@@ -392,6 +450,29 @@ export function DriverView() {
                     )}
                 </tbody>
               </table>
+
+              <div className="flex items-center justify-center mt-4">
+                                                    <Button
+                                                      size="sm"
+                                                      variant="text"
+                                                      disabled={pagination.currentPage === 1}
+                                                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                                      className="mx-1"
+                                                    >
+                                                      {'<'}
+                                                    </Button>
+                                                    {generatePageButtons()}
+                                                    <Button
+                                                      size="sm"
+                                                      variant="text"
+                                                      disabled={pagination.currentPage === pagination.totalPages}
+                                                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                                      className="mx-1"
+                                                    >
+                                                      {'>'}
+                                                    </Button>
+              </div>
+              
             </CardBody>
 
           </>) : (
