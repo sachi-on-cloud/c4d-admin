@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardHeader,
@@ -14,6 +14,13 @@ import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 export function CustomerView() {
   const navigate = useNavigate();
@@ -23,36 +30,55 @@ export function CustomerView() {
   const [sortOrder, setSortOrder] = useState('asc');
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
-      currentPage: 1,
-      totalPages: 1,
-      totalItems: 0,
-      itemsPerPage: 10,
-    });
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10,
+    search: ''
+  });
 
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchCustomers = async (page = 1) => {
-      setLoading(true);
+  const fetchCustomers = async (page = 1, searchQuery = '', showLoader = false) => {
+    if (showLoader) setLoading(true);
+    try {
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_CUSTOMERS,{
         page: page,
         limit: pagination.itemsPerPage,
+        search: searchQuery.trim(),
       });
       if (data?.success) {
-        setCustomers(data?.data);
-        setAllCustomers(data?.data);
+        setCustomers(data?.data || []);
         setPagination({
           currentPage: page,
           totalPages: data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 10,
+          search: searchQuery.trim(),
         });
-        setLoading(true);
       }
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    } finally {
       setLoading(false);
-    };
-    fetchCustomers(pagination.currentPage);
+    }
+  };
 
+  const getCustomers = useCallback(
+    debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1,
+        search: searchQuery
+      }));
+      fetchCustomers(1, searchQuery, false); 
+    }, 1000),
+    [pagination.itemsPerPage] 
+  );
+
+  useEffect(() => {
+    fetchCustomers(pagination.currentPage, pagination.search, true); // Show loader for initial load and pagination
+    
     if (location.state?.customerAdded || location.state?.customerUpdated) {
       const action = location.state.customerAdded ? 'added' : 'updated';
       setAlert({
@@ -61,86 +87,50 @@ export function CustomerView() {
       setTimeout(() => {
         setAlert(null);
       }, 5000);
-      // Clear the state to prevent showing the alert on page refresh
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate,pagination.currentPage]);
+  }, [location, navigate, pagination.currentPage, pagination.search]);
 
-    const handlePageChange = (page) => {
+  const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchCustomers(page, pagination.search, true); // Show loader for pagination
     }
   };
 
-    const generatePageButtons = () => {
-      const buttons = [];
-      const maxVisible = 5;
-      let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
-      let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
-  
-      if (endPage - startPage < maxVisible - 1) {
-        startPage = Math.max(1, endPage - maxVisible + 1);
-      }
-  
-      for (let i = startPage; i <= endPage; i++) {
-        buttons.push(
-          <Button
-            key={i}
-            size="sm"
-            variant={i === pagination.currentPage ? 'filled' : 'outlined'}
-            className={`mx-1 ${ColorStyles.bgColor} text-white`}
-            onClick={() => handlePageChange(i)}
-          >
-            {i}
-          </Button>
-        );
-      }
-      return buttons;
-    };
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
 
-  const getCustomers = async (searchQuery) => {
-    if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-
-      const filteredCustomers = allCustomers.filter((customer) => {
-        const name = (customer.firstName || "").toLowerCase();
-        const phone = (customer.phoneNumber || "").toLowerCase();
-        const rating = (customer.rating || "");
-
-        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-
-        return name.startsWith(query) || 
-          phoneNumberWithoutCountryCode.startsWith(query);
-      });
-      setCustomers(filteredCustomers);
-      
-    } else {
-      setCustomers(allCustomers);
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
     }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+          className={`mx-1 ${ColorStyles.bgColor} text-white`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
   };
 
-  function formatPhoneNumber(phoneNumber) {
-    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
-      return phoneNumber;
+  const formatPhoneNumber = (phoneNumber) => {
+    if (phoneNumber) {
+      return phoneNumber.startsWith("+91") ? phoneNumber : `+91${phoneNumber}`;
     }
-    return `+91${phoneNumber}`;}
-  }
+    return '';
+  };
 
-  // useEffect(() => {
-  //   if (paramsPassed?.customerAdded) {
-  //     setAlert(true);
-  //     setTimeout(() => {
-  //       setAlert(false);
-  //     }, 2000);
-  //   }
-  // }, []);
-      if (loading) {
-          return (
-              <div className="flex justify-center items-center h-screen">
-                  <Spinner className="h-12 w-12" />
-              </div>
-          );
-      }
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && (
@@ -200,7 +190,17 @@ export function CustomerView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {customers.map(
+                  
+                  {loading ? (
+                    <tr>
+                      <td colSpan={4} className="py-3 px-5">
+                        <div className="flex justify-center items-center">
+                          <Spinner className="h-12 w-12" />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    customers.map(
                     ({ id, firstName, lastName, phoneNumber, rating,email }, key) => {
                       const className = `py-3 px-5 ${key === customers.length - 1
                         ? ""
@@ -270,7 +270,7 @@ export function CustomerView() {
                         </tr>
                       );
                     }
-                  )}
+                  ))}
                 </tbody>
               </table>
                       <div className="flex items-center justify-center mt-4">

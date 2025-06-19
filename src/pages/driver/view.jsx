@@ -289,7 +289,7 @@ export function DriverView() {
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
                       {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th> */}
-                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "Driver Status", "KYC Status"].map((el) => (
+                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status"].map((el) => (
                       <th
                       key={el}
                       className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -318,7 +318,7 @@ export function DriverView() {
                         selectedFilters={sourceFilter}
                         onFilterChange={(value) => handleFilterChange("source", value)}
                         />
-                    ) : el === "Driver Status" ? (
+                    ) : el === "subscription Status" ? (
                       <FilterPopover title={el}
                         options={[
                           { value: "All", label: "All" },

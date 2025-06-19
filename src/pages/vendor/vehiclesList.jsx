@@ -265,10 +265,11 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredVehicles.map(({ id, driverName, name, vehicleType, carType, type, assigned, driverAddress,curAddress,Account, carNumber, Drivers, subscriptionStatus, status, created_at }) => (
+                  {filteredVehicles.map(
+                    ({ id, driverName, name, vehicleType, carType, type, assigned,firstName,driverAddress,curAddress,Account, carNumber, Drivers, subscriptionStatus, status, created_at }) => (                      
                     <tr key={id}>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
-                        <Typography className="text-xs font-semibold text-blue-gray-600">{driverName || Account?.name}</Typography>
+                        <Typography className="text-xs font-semibold text-blue-gray-600">{Drivers[0]?.firstName || driverName || Account?.name || ''}</Typography>
                       </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <div
@@ -284,9 +285,11 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Typography className="text-xs font-semibold text-blue-gray-600">{carNumber}</Typography>
                       </td>
-                      <td className="py-3 px-5 border-b border-blue-gray-50">
-                        <Typography className="text-xs font-semibold text-blue-gray-600">{driverAddress || curAddress}</Typography>
-                      </td>
+                        <td className="py-3 px-5 border-b border-blue-gray-50">
+                          <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {Drivers?.[0]?.curAddress?.name || Drivers?.[0]?.curAddress ||  driverAddress || curAddress || 'N/A'}
+                          </Typography>
+                        </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Typography className="text-xs font-semibold text-blue-gray-600">
                           {moment(created_at).format('DD-MM-YYYY / hh:mm A')}

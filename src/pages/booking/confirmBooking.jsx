@@ -232,6 +232,228 @@ const ConfirmBooking = (props) => {
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto">
+            <div className="grid grid-cols-4 gap-4 my-2">
+                    {/* <Button
+                        color="blue"
+                        ripple="light"
+                        fullWidth
+                        onClick={onBackPressHandler}
+                    >
+                        Back
+                    </Button> */}
+
+                    {bookingDetails.status === "QUOTED" && (
+                        <Button
+                            color="blue"
+                            variant="outlined"
+                            ripple="dark"
+                            fullWidth
+                            onClick={() => {handleBookingAction(BOOKING_STATUS.CONFIRMED);  
+                            }}
+                        >
+                            Confirm Booking
+                        </Button>
+                    )}
+
+                    {bookingDetails.status !== "ENDED" &&
+                        bookingDetails.status !== "STARTED" &&
+                        bookingDetails.status !== "CANCELLED" && (
+                            <>
+                                {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
+                                    (
+                                        <Button
+                                            color="blue"
+                                            variant="outlined"
+                                            ripple="dark"
+                                            fullWidth
+                                            onClick={() => setShowCancelReason(true)}
+                                        >
+                                            Cancel Booking
+                                        </Button>
+                                    )
+                                }
+                            </>
+                        )
+                    }
+
+                    {bookingDetails?.status === 'QUOTED' && (
+                        <Button
+                            color="blue"
+                            variant="outlined"
+                            ripple="dark"
+                            fullWidth
+                            onClick={() => { props.onEdit(bookingDetails) }}
+                        >
+                            Edit Booking
+                        </Button>
+                    )}
+
+                    {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES")) &&
+                        bookingDetails?.pickupAddress &&
+                        !bookingDetails?.Driver?.id &&
+                        !bookingDetails?.Cab?.id && (
+                            <Button
+                                color="blue"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType != "CAB" && props.bookingData.serviceType !="DRIVER"
+                                    ? "Assign Cab"
+                                    : "Assign Captain"}
+                            </Button>
+                        )}
+
+                    {bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
+                        bookingDetails?.pickupAddress &&
+                        !bookingDetails?.Driver?.id &&
+                        !bookingDetails?.Cab?.id && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType === "CAB"
+                                    ? "Assign Cab"
+                                    : "Assign Captain"}
+                            </Button>
+                        )}
+
+                    {['QUOTED','CONFIRMED', 'BOOKING_ACCEPTED'].includes(bookingDetails.status) &&
+                        (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            >
+                                {props.bookingData.serviceType !== "DRIVER"
+                                    ? "Choose Another Cab"
+                                    : "Choose Another Captain"}
+                            </Button>
+                        )}
+
+                    {/* {(bookingDetails.status === 'BOOKING_ACCEPTED' && //start
+                        dateVal &&
+                        timeVal &&
+                        kms) ? (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                Start Trip
+                            </Button>
+                            ) : 
+                        (bookingDetails?.serviceType === 'CAR_WASH' && bookingDetails.status === 'INITIATED' && dateVal && timeVal ) ?
+                            (<Button
+                                    color="black"
+                                    ripple="light"
+                                    fullWidth
+                                    onClick={onConfirmPressHandler}
+                                >
+                                    Start Trip
+                            </Button> 
+                        ) : <></>
+                    } */}
+
+                    {/* {(bookingDetails.status === 'STARTED' &&
+                        dateVal &&
+                        timeVal &&
+                        kms &&
+                        paymentDetails.paymentCollected &&
+                        paymentDetails.paymentMethod &&
+                        paymentDetails.paymentStatus ) ? (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                End Trip
+                            </Button>
+                        ) : (
+                        bookingDetails?.serviceType === 'CAR_WASH' &&
+                        bookingDetails.status === 'STARTED' &&
+                        dateVal &&
+                        timeVal &&
+                        paymentDetails.paymentCollected &&
+                        paymentDetails.paymentMethod &&
+                        paymentDetails.paymentStatus) ? (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                End Trip
+                            </Button>
+                        ) :<></>
+                    } */}
+                </div>
+                {showCancelReason && (
+                    <div className="mt-4 space-y-2">
+                        <select
+                            name="cancelBy"
+                            value={cancelData.cancelBy}
+                            onChange={handleCancelChange}
+                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                        >
+                            <option value="">Select who cancelled</option>
+                            <option value="Customer">Cancelled by Customer</option>
+                            <option value="Driver">Cancelled by Driver</option>
+                        </select>
+                        <Input
+                            type="text"
+                            name="cancelReason"
+                            value={cancelData.cancelReason}
+                            onChange={handleCancelChange}
+                            placeholder="Enter cancellation reason..."
+                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                        />
+                        <div className="flex items-center space-x-4">
+                            <label className="font-medium">Cancellation Charge Applicable:</label>
+                            <label className="inline-flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    name="cancelCharge"
+                                    value="Yes"
+                                    checked={cancelData.cancelCharge === "Yes"}
+                                    onChange={handleCancelChange}
+                                />
+                                <span>Yes</span>
+                            </label>
+                            <label className="inline-flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    name="cancelCharge"
+                                    value="No"
+                                    checked={cancelData.cancelCharge === "No"}
+                                    onChange={handleCancelChange}
+                                />
+                                <span>No</span>
+                            </label>
+                        </div>
+                        <div className="flex space-x-2">
+                            <Button
+                                color="red"
+                                onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED, cancelData)}
+                                disabled={!cancelData.cancelReason.trim() || !cancelData.cancelBy || !cancelData.cancelCharge}
+                            >
+                                Confirm Cancel
+                            </Button>
+                            <Button
+                                color="gray"
+                                variant="outlined"
+                                onClick={() => setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "" })}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                )}
             <div className="grid grid-cols-2 gap-4">
             <Card className="mb-2">
                 <CardBody>
@@ -633,230 +855,7 @@ const ConfirmBooking = (props) => {
                     </Card>
                 }
                 </div>
-                <div className="grid grid-cols-3 gap-4 my-2">
-                    <Button
-                        color="blue"
-                        ripple="light"
-                        fullWidth
-                        onClick={onBackPressHandler}
-                    >
-                        Back
-                    </Button>
-
-                    {bookingDetails.status === "QUOTED" && (
-                        <Button
-                            color="blue"
-                            variant="outlined"
-                            ripple="dark"
-                            fullWidth
-                            onClick={() => {handleBookingAction(BOOKING_STATUS.CONFIRMED);
-                                setIsOpen(false);
-                            }}
-                        >
-                            Confirm Booking
-                        </Button>
-                    )}
-
-                    {bookingDetails.status !== "ENDED" &&
-                        bookingDetails.status !== "STARTED" &&
-                        bookingDetails.status !== "CANCELLED" && (
-                            <>
-                                {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
-                                    (
-                                        <Button
-                                            color="blue"
-                                            variant="outlined"
-                                            ripple="dark"
-                                            fullWidth
-                                            onClick={() => setShowCancelReason(true)}
-                                        >
-                                            Cancel Booking
-                                        </Button>
-                                    )
-                                }
-                            </>
-                        )
-                    }
-
-                    {bookingDetails?.status === 'QUOTED' && (
-                        <Button
-                            color="blue"
-                            variant="outlined"
-                            ripple="dark"
-                            fullWidth
-                            onClick={() => { props.onEdit(bookingDetails) }}
-                        >
-                            Edit Booking
-                        </Button>
-                    )}
-
-                    {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES")) &&
-                        bookingDetails?.pickupAddress &&
-                        !bookingDetails?.Driver?.id &&
-                        !bookingDetails?.Cab?.id && (
-                            <Button
-                                color="blue"
-                                ripple="light"
-                                fullWidth
-                                onClick={() => { props.onAssignDriver(bookingDetails); }}
-                            >
-                                {props.bookingData.serviceType != "CAB" && props.bookingData.serviceType !="DRIVER"
-                                    ? "Assign Cab"
-                                    : "Assign Captain"}
-                            </Button>
-                        )}
-
-                    {bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
-                        bookingDetails?.pickupAddress &&
-                        !bookingDetails?.Driver?.id &&
-                        !bookingDetails?.Cab?.id && (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={() => { props.onAssignDriver(bookingDetails); }}
-                            >
-                                {props.bookingData.serviceType === "CAB"
-                                    ? "Assign Cab"
-                                    : "Assign Captain"}
-                            </Button>
-                        )}
-
-                    {['QUOTED','CONFIRMED', 'BOOKING_ACCEPTED'].includes(bookingDetails.status) &&
-                        (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={() => { props.onAssignDriver(bookingDetails); }}
-                            >
-                                {props.bookingData.serviceType !== "DRIVER"
-                                    ? "Choose Another Cab"
-                                    : "Choose Another Captain"}
-                            </Button>
-                        )}
-
-                    {/* {(bookingDetails.status === 'BOOKING_ACCEPTED' && //start
-                        dateVal &&
-                        timeVal &&
-                        kms) ? (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={onConfirmPressHandler}
-                            >
-                                Start Trip
-                            </Button>
-                            ) : 
-                        (bookingDetails?.serviceType === 'CAR_WASH' && bookingDetails.status === 'INITIATED' && dateVal && timeVal ) ?
-                            (<Button
-                                    color="black"
-                                    ripple="light"
-                                    fullWidth
-                                    onClick={onConfirmPressHandler}
-                                >
-                                    Start Trip
-                            </Button> 
-                        ) : <></>
-                    } */}
-
-                    {/* {(bookingDetails.status === 'STARTED' &&
-                        dateVal &&
-                        timeVal &&
-                        kms &&
-                        paymentDetails.paymentCollected &&
-                        paymentDetails.paymentMethod &&
-                        paymentDetails.paymentStatus ) ? (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={onConfirmPressHandler}
-                            >
-                                End Trip
-                            </Button>
-                        ) : (
-                        bookingDetails?.serviceType === 'CAR_WASH' &&
-                        bookingDetails.status === 'STARTED' &&
-                        dateVal &&
-                        timeVal &&
-                        paymentDetails.paymentCollected &&
-                        paymentDetails.paymentMethod &&
-                        paymentDetails.paymentStatus) ? (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={onConfirmPressHandler}
-                            >
-                                End Trip
-                            </Button>
-                        ) :<></>
-                    } */}
-                </div>
-
-                {showCancelReason && (
-                    <div className="mt-4 space-y-2">
-                        <select
-                            name="cancelBy"
-                            value={cancelData.cancelBy}
-                            onChange={handleCancelChange}
-                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
-                        >
-                            <option value="">Select who cancelled</option>
-                            <option value="Customer">Cancelled by Customer</option>
-                            <option value="Driver">Cancelled by Driver</option>
-                        </select>
-                        <Input
-                            type="text"
-                            name="cancelReason"
-                            value={cancelData.cancelReason}
-                            onChange={handleCancelChange}
-                            placeholder="Enter cancellation reason..."
-                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
-                        />
-                        <div className="flex items-center space-x-4">
-                            <label className="font-medium">Cancellation Charge Applicable:</label>
-                            <label className="inline-flex items-center space-x-2">
-                                <input
-                                    type="radio"
-                                    name="cancelCharge"
-                                    value="Yes"
-                                    checked={cancelData.cancelCharge === "Yes"}
-                                    onChange={handleCancelChange}
-                                />
-                                <span>Yes</span>
-                            </label>
-                            <label className="inline-flex items-center space-x-2">
-                                <input
-                                    type="radio"
-                                    name="cancelCharge"
-                                    value="No"
-                                    checked={cancelData.cancelCharge === "No"}
-                                    onChange={handleCancelChange}
-                                />
-                                <span>No</span>
-                            </label>
-                        </div>
-                        <div className="flex space-x-2">
-                            <Button
-                                color="red"
-                                onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED, cancelData)}
-                                disabled={!cancelData.cancelReason.trim() || !cancelData.cancelBy || !cancelData.cancelCharge}
-                            >
-                                Confirm Cancel
-                            </Button>
-                            <Button
-                                color="gray"
-                                variant="outlined"
-                                onClick={() => setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "" })}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                )}
+                
                 <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData}/>
             </>
         </div>
