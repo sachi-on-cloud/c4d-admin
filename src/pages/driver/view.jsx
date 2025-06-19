@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardHeader,
@@ -21,6 +21,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 export function DriverView() {
   const [drivers, setDrivers] = useState([]);
   const [allDrivers, setAllDrivers] = useState([]);
@@ -32,10 +40,11 @@ export function DriverView() {
   const [subscriptionStatusFilter,setsubscriptionStatusFilter] = useState(['All'])
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
-          currentPage: 1,
-          totalPages: 1,
-          totalItems: 0,
-          itemsPerPage: 10,
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10,
+    search: '',
         }); 
 
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
@@ -45,11 +54,14 @@ export function DriverView() {
   const paramsPassed = location.state;
 
   const navigate = useNavigate();
-  const fetchDrivers = async (page = 1) => {
-    setLoading(true);
+
+  const fetchDrivers = async (page = 1, searchQuery = '', showLoader = true) => {
+    try {
+      //if (showLoader) setLoading(true);
     const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_DRIVERS, {
-        page: page,
+        page,
         limit: pagination.itemsPerPage,
+        search: searchQuery.trim(),
     });
     if (data?.success) {
       setDrivers(data?.data);
@@ -59,38 +71,35 @@ export function DriverView() {
           totalPages: data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 10,
+          search: searchQuery.trim(),
         });
-        setLoading(true);
-    }
-    setLoading(false);
-  };
-  useEffect(() => {
-    fetchDrivers(pagination.currentPage);
-  }, [pagination.currentPage]);
-
-  const getDrivers = async (searchQuery) => {
-    //console.log("searchQuery",searchQuery);
-    if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-
-      const filteredDrivers = allDrivers.filter((driver) => {
-        const name = (driver.firstName || "").toLowerCase();
-        const phone = (driver.phoneNumber || "").toLowerCase();
-
-        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-
-        return name.startsWith(query) ||
-          phoneNumberWithoutCountryCode.startsWith(query);
-      });
-      setDrivers(filteredDrivers);
-      // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
-      // if (data?.success) {
-      //   setDrivers(data?.data);
-      // }
-    } else {
-      setDrivers(allDrivers);
+      } 
+    } catch (err) {
+      setDrivers([]);
+      setAllDrivers([]);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const getDrivers = useCallback(
+    debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1,
+        search: searchQuery,
+      }));
+      fetchDrivers(1, searchQuery, false);
+    }, 1000),
+    [pagination.itemsPerPage]
+  );
+
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
+    }
+    return `+91${phoneNumber}`;}
+  }
   const updateDrivers = async (driverId, status) => {
     let driverData = {
       driverId,
@@ -99,15 +108,20 @@ export function DriverView() {
     const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVERS, driverData);
     fetchDrivers('');
   };
+
   useEffect(() => {
-    getDrivers('');
-    if (paramsPassed?.driverAdded || paramsPassed?.driverUpdated) {
-      setAlert(true);
-      setTimeout(() => {
-        setAlert(false);
-      }, 2000);
-    }
-  }, [])
+    fetchDrivers(pagination.currentPage, pagination.search);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
+
+  // useEffect(() => {
+  //   getDrivers('');
+  //   if (paramsPassed?.driverAdded || paramsPassed?.driverUpdated) {
+  //     setAlert(true);
+  //     setTimeout(() => {
+  //       setAlert(false);
+  //     }, 2000);
+  //   }
+  // }, [])
 
   // useEffect(() => {
   //   getDrivers(searchQuery.trim());
@@ -249,13 +263,7 @@ export function DriverView() {
 
     setDrivers(sortedDrivers);
   };
-        if (loading) {
-            return (
-                <div className="flex justify-center items-center h-screen">
-                    <Spinner className="h-12 w-12" />
-                </div>
-            );
-        }
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && <div className='mb-2'>
@@ -356,8 +364,16 @@ export function DriverView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {drivers.
-                    filter(driver =>
+                  {loading ? (
+                      <tr>
+                        <td colSpan={9} className="py-3 px-5">
+                          <div className="flex justify-center items-center">
+                            <Spinner className="h-12 w-12" />
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      drivers.filter(driver =>
                       (statusFilter.includes('All') || statusFilter.includes(driver?.status)) && 
                       (sourceFilter.includes('All') || sourceFilter.includes(driver.source)) &&
                       (subscriptionStatusFilter.includes('All') || subscriptionStatusFilter.includes(driver?.subscriptionStatus)) && 
@@ -395,7 +411,7 @@ export function DriverView() {
                             </td>
                             <td className={className}>
                               <Typography className="text-xs font-semibold text-blue-gray-900">
-                                {phoneNumber}
+                                {formatPhoneNumber(phoneNumber)}
                               </Typography>
                             </td>
                             <td className={className}>
@@ -447,7 +463,7 @@ export function DriverView() {
                           </tr>
                         );
                       }
-                    )}
+                    ))}
                 </tbody>
               </table>
 
