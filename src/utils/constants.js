@@ -900,9 +900,11 @@ export const API_ROUTES = {
     'MASTER_SUBSCRIPTION_EDIT': '/admin/plan/update',
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
+    'GET_RENTAL_CAB_DRIVERS': '/assign/rentalDriver',
     'RIDES_DRIVER_LIST': '/driver-request-list',
     'RENTAL_REQUEST': '/request-rental',
     'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
+    'CONFIRM_RENTAL_BOOKING': '/confirm-rental-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
     'GEO_MARKINGS_DELETE': '/geo-markings',
@@ -910,12 +912,12 @@ export const API_ROUTES = {
     'POST_NOTIFICATION_ADD': '/send-notification',
     'GET_NOTIFICATION': '/get-notification',
     'INSTANT_REWARD': '/instant-reward',
-    'GET_REWARD':'/get-instant-reward',
+    'GET_REWARD': '/get-instant-reward',
     'CUSTOMER_WALLET': '/getWalletTransactions',
     'DRIVER_WALLET': '/getDriverWalletTransactions',
     'CAB_WALLET': '/getCabWalletTransactions',
-    'ADD_NOTES_BOOKING':'/add-notes',
-    'GET_ALL_VEHICLESLIST':'/admin/cabs',
+    'ADD_NOTES_BOOKING': '/add-notes',
+    'GET_ALL_VEHICLESLIST': '/admin/cabs',
 };
 
 export const KYC_PROCESS = {

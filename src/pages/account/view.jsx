@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardHeader,
@@ -21,6 +21,13 @@ import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 export function AccountView() {
   const navigate = useNavigate();
@@ -41,15 +48,17 @@ export function AccountView() {
         currentPage: 1,
         totalPages: 1,
         totalItems: 0,
-        itemsPerPage: 10,
+        itemsPerPage: 15,
+        search: '',
       }); 
 
-  useEffect(() => {
-    const fetchAccounts = async (page = 1) => {
-      setLoading(true);
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_ACCOUNTS,{
-        page: page,
+  const fetchAccounts = async (page = 1, searchQuery = '', showLoader = true) => {
+    if (showLoader) setLoading(true);
+    try {
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_ACCOUNTS, {
+        page,
         limit: pagination.itemsPerPage,
+        search: searchQuery.trim(),
       });
       if (data?.success) {
         setAccounts(data?.data);
@@ -59,12 +68,18 @@ export function AccountView() {
           totalPages: data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 10,
+          search: searchQuery.trim(),
         });
-        setLoading(true);
       }
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+    } finally {
       setLoading(false);
-    };
-    fetchAccounts(pagination.currentPage);
+    }
+  };
+
+  useEffect(() => {
+    fetchAccounts(pagination.currentPage, pagination.search, true);
 
     if (location.state?.accountAdded || location.state?.accountUpdated) {
       const action = location.state.accountAdded ? 'added' : 'updated';
@@ -77,11 +92,12 @@ export function AccountView() {
       }, 5000);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate,pagination.currentPage]);
+  }, [location, navigate,pagination.currentPage, pagination.search]);
 
-    const handlePageChange = (page) => {
+  const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchAccounts(page, pagination.search, true);
     }
   };
 
@@ -111,26 +127,17 @@ export function AccountView() {
         return buttons;
       };
 
-  const getAccounts = async (searchQuery) => {
-    if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-
-      const filteredAccounts = allAccounts.filter((account) => {
-        const name = (account.name || "").toLowerCase();
-        const phone = (account.phoneNumber || "").toLowerCase();
-
-        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-
-        return name.startsWith(query) ||
-          phoneNumberWithoutCountryCode.startsWith(query);
-      });
-      setAccounts(filteredAccounts);
-
-    } else {
-      setAccounts(allAccounts);
-    }
-  };
-
+  const getAccounts = useCallback(
+    debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1,
+        search: searchQuery,
+      }));
+      fetchAccounts(1, searchQuery, false);
+    }, 1000),
+    [pagination.itemsPerPage]
+  );
   function formatPhoneNumber(phoneNumber) {
     if(phoneNumber){if (phoneNumber.startsWith("+91")) {
       return phoneNumber;
@@ -235,13 +242,7 @@ export function AccountView() {
   Individual: "Owner Cum Driver",
   Company: "Travels"
 };
-      if (loading) {
-          return (
-              <div className="flex justify-center items-center h-screen">
-                  <Spinner className="h-12 w-12" />
-              </div>
-          );
-      }
+
 
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
       <Popover placement="bottom-start">
@@ -294,7 +295,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","Available Status","Owner Status","KYC Status"].map((el) => (
+                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","Available Status","Subscription Status","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -326,7 +327,7 @@ export function AccountView() {
                           selectedFilters={sourceFilter}
                           onFilterChange={(value) => handleFilterChange("source", value)}
                           />
-                      ): el === "Owner Status" ? (
+                      ): el === "Subscription Status" ? (
                           <FilterPopover
                             title={el}
                             options={[
@@ -393,7 +394,16 @@ export function AccountView() {
                   </tr>
                 </thead>
                 <tbody>
-                {accounts.filter(account =>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={9} className="py-3 px-5">
+                        <div className="flex justify-center items-center">
+                          <Spinner className="h-12 w-12" />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    accounts.filter(account =>
                     (statusFilter.includes('All') || statusFilter.includes(account.ownerStatus)) && 
                     (sourceFilter.includes('All') || sourceFilter.includes(account.source)) &&
                     (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(account.type)) &&
@@ -433,7 +443,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           <td className={className}>
@@ -486,7 +496,7 @@ export function AccountView() {
                           </td> */}
                         </tr>
                       );
-                    }
+                    })
                   )}
                 </tbody>
               </table>

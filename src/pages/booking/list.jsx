@@ -198,6 +198,13 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         setSelectedBookingId(data.id);
         setIsOpen(true)
     };
+    const onRequestDriverHandler = (data, requestDriver) => {
+        setShowPickedBooking(data?.id);
+        data.requestType = requestDriver;
+        onAssignDriver(data);
+        setSelectedBookingId(data.id);
+        setIsOpen(true)
+    };
 
     const handleBookingSelect = (data) => {
         setSelectedBookingId(data.id);
@@ -253,7 +260,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
                 </Typography>
             </div>
-            {loading ? 
+            {loading ?
                 <>
                     <div className="flex justify-center items-center h-screen">
                         <Spinner className="h-12 w-12" />
@@ -271,9 +278,9 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                             <>
                                 <div className='absolute right-10 -top-10'>
                                     <button className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2" onClick={() => getBookingsList(pagination.currentPage)}>
-                                    <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
-                                    <span>Refresh</span>
-                                    </button>                            
+                                        <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+                                        <span>Refresh</span>
+                                    </button>
                                 </div>
                                 <table className="w-full table-auto">
                                     <thead>
@@ -404,9 +411,9 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                     ? "mb-4"
                                                     : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50'
                                                         : data?.status === "QUOTED"
-                                                        ? "bg-yellow-200"
-                                                        : "hover:bg-gray-50"
-                                                        } transition-colors duration-200`;
+                                                            ? "bg-yellow-200"
+                                                            : "hover:bg-gray-50"
+                                                    } transition-colors duration-200`;
 
                                                 return (
                                                     <tr key={data?.id} className={className}>
@@ -516,6 +523,15 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                     End Trip
                                                                 </Button>
                                                             } */}
+                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
+                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
+                                                                >
+                                                                    Request {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                </Button>
+                                                            }
                                                             {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
