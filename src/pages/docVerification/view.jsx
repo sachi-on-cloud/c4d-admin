@@ -1,6 +1,6 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import {
   Card,
@@ -21,6 +21,15 @@ import {
 import { FaFilter } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 export function DocumentVerificationView() {
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
@@ -33,15 +42,17 @@ export function DocumentVerificationView() {
             totalPages: 1,
             totalItems: 0,
             itemsPerPage: 15,
+            search:'',
           }); 
   const navigate = useNavigate();
 
-  const fetchDoc = async (page = 1) => {
-    setLoading(true); 
+  const fetchDoc = async (page = 1, searchQuery = '', showLoader = true) => {
+    if(showLoader) setLoading(true); 
     try {
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'All' , {
         page: page,
         limit: pagination.itemsPerPage,
+        search:searchQuery.trim(),
       });
       if (data?.success) {
         setAccounts(data?.data);
@@ -51,6 +62,7 @@ export function DocumentVerificationView() {
           totalPages: data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 15,
+          search:searchQuery.trim(),
         });
       }
     } catch (error) {
@@ -60,13 +72,26 @@ export function DocumentVerificationView() {
     }
   };
 
+const getDetails = useCallback(
+   debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage:1,
+        search:searchQuery,
+      }))
+      fetchDoc(1,searchQuery,true);
+    },1000),
+    [pagination.itemsPerPage]
+  )
+
   useEffect(() => {
-    fetchDoc(pagination.currentPage);
-  }, [pagination.currentPage]);
+    fetchDoc(pagination.currentPage,pagination.search,true);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchDoc(page,pagination.search, true)
     }
   };
   const generatePageButtons = () => {
@@ -95,35 +120,35 @@ export function DocumentVerificationView() {
           return buttons;
   };
 
-  useEffect(() => {
-    getDetails(searchQuery.trim());
-  }, [searchQuery]);
+  // useEffect(() => {
+  //   getDetails(searchQuery.trim());
+  // }, [searchQuery]);
 
-  const getDetails = async (searchQuery) => {
-    if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
+  // const getDetails = async (searchQuery) => {
+  //   if (searchQuery && searchQuery.trim() !== "") {
+  //     const query = searchQuery.toLowerCase().trim();
 
-      const filteredAccounts = allAccounts.filter((acc) => {
-        const name = (
-          acc["Register.firstName"] ||
-          acc["Driver.firstName"] ||
-          acc["Account.name"] ||
-          acc["Cab.name"]||
-          ""
-        ).toLowerCase();
-        const phone = acc["Register.phoneNumber"] || acc["Driver.phoneNumber"] || acc["Account.phoneNumber"] || "";
-        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-        return (
-          name.startsWith(query) ||
-          phone.startsWith(query) ||
-          phoneNumberWithoutCountryCode.startsWith(query)
-        );
-      });
-      setAccounts(filteredAccounts);
-    } else {
-      setAccounts(allAccounts);
-    }
-  };
+  //     const filteredAccounts = allAccounts.filter((acc) => {
+  //       const name = (
+  //         acc["Register.firstName"] ||
+  //         acc["Driver.firstName"] ||
+  //         acc["Account.name"] ||
+  //         acc["Cab.name"]||
+  //         ""
+  //       ).toLowerCase();
+  //       const phone = acc["Register.phoneNumber"] || acc["Driver.phoneNumber"] || acc["Account.phoneNumber"] || "";
+  //       const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
+  //       return (
+  //         name.startsWith(query) ||
+  //         phone.startsWith(query) ||
+  //         phoneNumberWithoutCountryCode.startsWith(query)
+  //       );
+  //     });
+  //     setAccounts(filteredAccounts);
+  //   } else {
+  //     setAccounts(allAccounts);
+  //   }
+  // };
 
   const handleFilterChange = (filterType, value) => {
     if (filterType === "status") {
@@ -186,15 +211,17 @@ export function DocumentVerificationView() {
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <div className="relative flex-grow max-w-[500px]">
-            <input
+            {/* <input
               type="text"
               className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search Document"
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {setSearchQuery(e.target.value)
+                                getDetails(e.target.value)
+              }}
             />
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
-            </div>
+            </div> */}
           </div>
           <div className="ml-4">
             <button
@@ -213,11 +240,7 @@ export function DocumentVerificationView() {
         </div>
       </div>
       <Card>
-        {loading ? (
-           <div className="flex justify-center items-center h-screen bg-white">
-                <Spinner className="h-12 w-12" />
-            </div>
-        ) : accounts.length > 0 ? (
+        {accounts.length > 0 ? (
           <>
             <CardHeader
               variant="gradient"
@@ -280,7 +303,17 @@ export function DocumentVerificationView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {accounts.filter((account) => {
+                  {loading ? (
+                  <tr>
+                      <td colSpan={9} className="py-3 px-5">
+                        <div className="flex justify-center items-center">
+                          <Spinner className="h-12 w-12" />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+
+                  accounts.filter((account) => {
                         const status = account.isComplete ? "APPROVED" : "PENDING";
                         const type = account["Register.id"] ? "Driver": account["Driver.id"] ? "Driver": account["Account.id"] ? "Account": account["Cab.id"] ? "Cab": "";
                         return (
@@ -349,7 +382,7 @@ export function DocumentVerificationView() {
                           </>
                         );
                       }
-                    )}
+                    ))}
                 </tbody>
               </table>
 

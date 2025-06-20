@@ -641,18 +641,49 @@ const ConfirmBooking = (props) => {
                                 </div>
                             }
                             {/* need to add logic for price */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Estimated Price:</Typography>
                                     {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.Package?.price : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.Package?.price : bookingDetails?.value?.estimatedPrice}</Typography>
                                 </div>
+                              {bookingDetails?.offerPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Offer Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
+                                </div>}
+                                 {bookingDetails?.totalPrice > 0 &&
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Todal Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
+                                </div>}
+
+                                </>
                             }
-                            {bookingDetails?.status === BOOKING_STATUS.ENDED &&
+
+                            {bookingDetails?.status === BOOKING_STATUS.ENDED && <>
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Estimated Price:</Typography>
                                     <Typography>₹ {amount?.total}</Typography>
                                 </div>
+                                {bookingDetails?.offerPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Offer Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
+                                </div>
+                                }
+                                {bookingDetails?.totalPrice > 0 &&
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Todal Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
+                                </div>
+                                }
+                                </>
+
                             }
                             {/* {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>

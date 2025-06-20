@@ -434,7 +434,7 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {["Name", "Driver Name", "Phone Number", "Cab Type", "Price Offered", "Local Count", "Outstation Count", "Status", "Assign/Reassign"].map((el) => ( //"Trip Count",
+                                            {["Name", "Driver Name", "Phone Number", "Cab Type", "Price Offered", "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration","Assign/Reassign"].map((el) => ( //"Trip Count",
                                                 <th
                                                     key={el}
                                                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -451,7 +451,7 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.map(
-                                            ({ id, name, status, carType, priceOffered, outstationCount, intercityCount, tripCount, firstName, phoneNumber, Drivers, fullData }, key) => {
+                                            ({ id, name, status, carType, priceOffered, outstationCount, intercityCount, travelDistance,travelDuration,tripCount, firstName, phoneNumber, Drivers, fullData }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -516,6 +516,16 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
+                                                        </td>
+                                                         <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {travelDistance}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {travelDuration} Min.
+                                                            </Typography>
                                                         </td>
                                                         <td className={className}>
                                                             <Button

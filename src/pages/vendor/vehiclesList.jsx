@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback} from 'react';
 import {
   Card,
   CardHeader,
@@ -19,28 +19,38 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import moment from "moment";
 import { FaFilter } from "react-icons/fa";
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 export function VehiclesList({ id = 0 }) {
   const [vehicleList, setVehicleList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState(["All"]);
   const [subScriptionStatusFilter, setSubScriptionStatusFilter] = useState(["All"]);
   const [typeFilter, setTypeFilter] = useState(["All"]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 15,
+    search:'',
   });
   const navigate = useNavigate();
 
-  const fetchCabList = async (page = 1) => {
-    setLoading(true);
+  const fetchCabList = async (page = 1, searchQuery = '', showLoader = false) => {
+    if(showLoader) setLoading(true);
     try {
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_VEHICLESLIST, {
         id: id,
         page: page,
         limit: pagination.itemsPerPage,
+        search:searchQuery.trim(),
       });
       if (data?.success) {
         setVehicleList(data.data || []);
@@ -49,6 +59,7 @@ export function VehiclesList({ id = 0 }) {
           totalPages: data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 15,
+          search:searchQuery.trim(),
         });
       } else {
         console.error('API request failed:', data?.message);
@@ -60,13 +71,26 @@ export function VehiclesList({ id = 0 }) {
     }
   };
 
+  const getVehicles = useCallback(
+    debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage:1,
+        search:searchQuery,
+      }))
+      fetchCabList(1,searchQuery,true);
+    },1000),
+    [pagination.itemsPerPage]
+  )
+
   useEffect(() => {
-    fetchCabList(pagination.currentPage);
-  }, [id, pagination.currentPage]);
+    fetchCabList(pagination.currentPage,pagination.search, true);
+  }, [id, pagination.currentPage, pagination.itemsPerPage]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchCabList(page,pagination.search, true)
     }
   };
 
@@ -96,30 +120,30 @@ export function VehiclesList({ id = 0 }) {
     return buttons;
   };
 
-const filteredVehicles = vehicleList.filter((vehicle) => {
-  const matchesSearch = ['name', 'carNumber', 'driverName'].some((field) => {
-    if (field === 'carNumber') {
-      const fieldValue = vehicle[field]?.toString().replace(/\s/g, '');
-      const query = searchQuery.replace(/\s/g, '');
-      return fieldValue?.includes(query);
-    } else {
-      const fieldValue = vehicle[field]?.toString().toLowerCase();
-      const query = searchQuery.toLowerCase();
-      return fieldValue?.includes(query);
-    }
-  });
+// const filteredVehicles = vehicleList.filter((vehicle) => {
+//   const matchesSearch = ['name', 'carNumber', 'driverName'].some((field) => {
+//     if (field === 'carNumber') {
+//       const fieldValue = vehicle[field]?.toString().replace(/\s/g, '');
+//       const query = searchQuery.replace(/\s/g, '');
+//       return fieldValue?.includes(query);
+//     } else {
+//       const fieldValue = vehicle[field]?.toString().toLowerCase();
+//       const query = searchQuery.toLowerCase();
+//       return fieldValue?.includes(query);
+//     }
+//   });
 
-  const status = vehicle.Drivers[0]?.status || '';
-  const carType = vehicle.carType || '';
-    const subscriptionStatus = vehicle.subscriptionStatus || '';
+//   const status = vehicle.Drivers[0]?.status || '';
+//   const carType = vehicle.carType || '';
+//     const subscriptionStatus = vehicle.subscriptionStatus || '';
 
-  return (
-    matchesSearch &&
-    (statusFilter.includes('All') || statusFilter.includes(status)) &&
-    (typeFilter.includes('All') || typeFilter.includes(carType))&&
-    (subScriptionStatusFilter.includes('All') || subScriptionStatusFilter.includes(subscriptionStatus) )
-);
-})
+//   return (
+//     matchesSearch &&
+//     (statusFilter.includes('All') || statusFilter.includes(status)) &&
+//     (typeFilter.includes('All') || typeFilter.includes(carType))&&
+//     (subScriptionStatusFilter.includes('All') || subScriptionStatusFilter.includes(subscriptionStatus) )
+// );
+// })
 
   const handleFilterChange = (filterType, value) => {
     if (filterType === "Drivers") {
@@ -179,13 +203,7 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
     </Popover>
   );
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner className="h-12 w-12" />
-      </div>
-    );
-  }
+
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -196,7 +214,9 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
             className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Search vehicle"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {setSearchQuery(e.target.value);
+                              getVehicles(e.target.value);
+            }}
           />
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
@@ -205,11 +225,11 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
       </div>
 
       <Card>
-        {filteredVehicles.length > 0 ? (
+        {vehicleList.length > 0 ? (
           <>
             <CardHeader variant="gradient" color="blue" className="mb-8 p-6 flex justify-between items-center">
               <Typography variant="h6" color="white">Vehicles</Typography>
-              <Typography variant="h6" color="white">{filteredVehicles.length} vehicles found</Typography>
+              <Typography variant="h6" color="white">{vehicleList.length} vehicles found</Typography>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
@@ -265,7 +285,20 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredVehicles.map(
+                  {loading ? (
+                      <tr>
+                      <td colSpan={9} className="py-3 px-5">
+                        <div className="flex justify-center items-center">
+                          <Spinner className="h-12 w-12" />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                  vehicleList.filter(name => 
+                    (statusFilter.includes('All') || statusFilter.includes(name?.Drivers[0]?.status)) &&
+                    (typeFilter.includes('All') || typeFilter.includes(name?.carType))&&
+                    (subScriptionStatusFilter.includes('All') || subScriptionStatusFilter.includes(name?.subscriptionStatus) )
+                  ).map(
                     ({ id, driverName, name, vehicleType, carType, type, assigned,firstName,driverAddress,curAddress,Account, carNumber, Drivers, subscriptionStatus, status, created_at }) => (                      
                     <tr key={id}>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -312,7 +345,7 @@ const filteredVehicles = vehicleList.filter((vehicle) => {
                         />
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
               <div className="flex items-center justify-center mt-4">

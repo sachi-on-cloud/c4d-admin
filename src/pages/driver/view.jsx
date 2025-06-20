@@ -43,7 +43,7 @@ export function DriverView() {
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
-    itemsPerPage: 10,
+    itemsPerPage: 15,
     search: '',
         }); 
 
@@ -55,9 +55,9 @@ export function DriverView() {
 
   const navigate = useNavigate();
 
-  const fetchDrivers = async (page = 1, searchQuery = '', showLoader = true) => {
+  const fetchDrivers = async (page = 1, searchQuery = '', showLoader = false) => {
     try {
-      //if (showLoader) setLoading(true);
+      if (showLoader) setLoading(true);
     const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_DRIVERS, {
         page,
         limit: pagination.itemsPerPage,
@@ -70,13 +70,12 @@ export function DriverView() {
           currentPage: page,
           totalPages: data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
-          itemsPerPage: data?.pagination?.itemsPerPage || 10,
+          itemsPerPage: data?.pagination?.itemsPerPage || 15,
           search: searchQuery.trim(),
         });
       } 
     } catch (err) {
-      setDrivers([]);
-      setAllDrivers([]);
+   console.error('Error fetching drivers:', err);
     } finally {
       setLoading(false);
     }
@@ -89,10 +88,15 @@ export function DriverView() {
         currentPage: 1,
         search: searchQuery,
       }));
-      fetchDrivers(1, searchQuery, false);
+      fetchDrivers(1, searchQuery, true);
     }, 1000),
     [pagination.itemsPerPage]
   );
+
+useEffect(() => {
+    fetchDrivers(pagination.currentPage, pagination.search, true);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
+
 
   function formatPhoneNumber(phoneNumber) {
     if(phoneNumber){if (phoneNumber.startsWith("+91")) {
@@ -109,9 +113,6 @@ export function DriverView() {
     fetchDrivers('');
   };
 
-  useEffect(() => {
-    fetchDrivers(pagination.currentPage, pagination.search);
-  }, [pagination.currentPage, pagination.itemsPerPage]);
 
   // useEffect(() => {
   //   getDrivers('');
@@ -212,6 +213,7 @@ export function DriverView() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchDrivers(page,pagination.search, true)
     }
   };
   const generatePageButtons = () => {

@@ -48,7 +48,7 @@ export function AccountView() {
         currentPage: 1,
         totalPages: 1,
         totalItems: 0,
-        itemsPerPage: 10,
+        itemsPerPage: 15,
         search: '',
       }); 
 
@@ -295,7 +295,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","Available Status","Owner Status","KYC Status"].map((el) => (
+                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","Available Status","Subscription Status","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -327,7 +327,7 @@ export function AccountView() {
                           selectedFilters={sourceFilter}
                           onFilterChange={(value) => handleFilterChange("source", value)}
                           />
-                      ): el === "Owner Status" ? (
+                      ): el === "Subscription Status" ? (
                           <FilterPopover
                             title={el}
                             options={[
