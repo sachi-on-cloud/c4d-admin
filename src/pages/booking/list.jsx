@@ -329,7 +329,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 { value: 'REQUEST_DRIVER', label: 'Request Driver' },
                                                                 { value: 'STARTED', label: 'Started' },
                                                                 { value: 'ENDED', label: 'Ended' },
-                                                                { value: 'CANCELLED', label: 'Cancelled' },
+                                                                { value: 'CUSTOMER_CANCELLED', label: 'Cancelled' },
                                                             ]}
                                                             selectedFilters={statusFilter}
                                                             onFilterChange={(value) => handleFilterChange('status', value)}
