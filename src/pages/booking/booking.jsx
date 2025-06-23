@@ -57,7 +57,9 @@ const Booking = (props) => {
 
     const fetchData = async () => {
         try {
-            const response = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS);
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_CUSTOMERS,{
+                forSearch:true
+            });
             setCustomerData(response.data);
         } catch (error) {
             console.error('Error fetching data:', error);

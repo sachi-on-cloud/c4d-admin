@@ -34,7 +34,8 @@ export function CustomerView() {
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10,
-    search: ''
+    search: '',
+    forSearch:false
   });
 
   const location = useLocation();
@@ -46,6 +47,7 @@ export function CustomerView() {
         page: page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
+        forSearch:false
       });
       if (data?.success) {
         setCustomers(data?.data || []);
@@ -55,6 +57,7 @@ export function CustomerView() {
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 10,
           search: searchQuery.trim(),
+          forSearch:false
         });
       }
     } catch (error) {

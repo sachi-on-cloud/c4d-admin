@@ -289,7 +289,7 @@ const ConfirmBooking = (props) => {
                     </Button>
                 )}
 
-                {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES")) &&
+                {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "DRIVER" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RENTAL")) &&
                     bookingDetails?.pickupAddress &&
                     !bookingDetails?.Driver?.id &&
                     !bookingDetails?.Cab?.id && (
@@ -313,7 +313,7 @@ const ConfirmBooking = (props) => {
                         </Button>
                     )}
 
-                {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES")) &&
+                {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "DRIVER" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RENTAL")) &&
                     bookingDetails?.pickupAddress &&
                     !bookingDetails?.Driver?.id &&
                     !bookingDetails?.Cab?.id && (
@@ -620,6 +620,13 @@ const ConfirmBooking = (props) => {
                                     <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
                                             ${bookingDetails?.packageType === "Outstation" ? bookingDetails.totalDays ? bookingDetails?.totalDays + ' Days' : bookingDetails?.value?.differenceDays + ' Days' :
                                             bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
+                                </div>
+                            }
+                            {bookingDetails?.serviceType == 'DRIVER' && 
+                              <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">KM:</Typography>
+                                    <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.kilometer+ ' Km' : ''}
+                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails?.value?.travelDistance + ' Km':''}`}</Typography>
                                 </div>
                             }
                             {bookingDetails?.value?.baseFare > 0 &&
