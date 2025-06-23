@@ -449,7 +449,7 @@ const Booking = (props) => {
                         Completed
                     </span>
                 );
-            case 'cancelled':
+            case 'customer_cancelled':
                 return (
                     <span className="mx-3 px-2 py-1 text-white bg-red-600 rounded-md text-sm font-medium">
                         Cancelled
@@ -476,7 +476,7 @@ const Booking = (props) => {
                         CONFIRMED
                     </span>
                     );
-                case 'requet_driver':
+                case 'request_driver':
                    return(
                         <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
                         REQUEST DRIVER
