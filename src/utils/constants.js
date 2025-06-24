@@ -919,6 +919,7 @@ export const API_ROUTES = {
     'CAB_WALLET': '/getCabWalletTransactions',
     'ADD_NOTES_BOOKING': '/add-notes',
     'GET_ALL_VEHICLESLIST': '/admin/cabs',
+    'PUT_OWNER_SHIP': '/update-booking-ownership',
 };
 
 export const KYC_PROCESS = {
