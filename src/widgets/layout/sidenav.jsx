@@ -6,6 +6,7 @@ import {
   Button,
   IconButton,
   Typography,
+  Spinner
 } from "@material-tailwind/react";
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 import React, { useEffect, useState } from "react";
@@ -23,7 +24,8 @@ import {
   DocumentCheckIcon,
   UserGroupIcon
 } from '@heroicons/react/24/solid';
-import { ColorStyles } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
+import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
@@ -36,6 +38,7 @@ const menuItems = [
 ];
 
 export function Sidenav({ brandImg, brandName, routes }) {
+  //const [loading, setLoading] = useState(false);
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavColor, sidenavType, openSidenav } = controller;
   const sidenavTypes = {
@@ -56,12 +59,18 @@ export function Sidenav({ brandImg, brandName, routes }) {
     setOpenSubMenu(null);
   }
 
-
+  const handleSignOut = async (e) => {
+    //setLoading(true);
+    e.preventDefault();
+    const response = await ApiRequestUtils.post(API_ROUTES.USER_LOGOUT);
+    await logout();
+    //setLoading(false);
+    navigate("/auth/sign-in");
+  }
   const toggleSubMenu = (subMenu) => {
     setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
   };
   const [userPermissions, setUserPermissions] = useState(null);
-
   useEffect(() => {
     const dataFromStorage = localStorage.getItem('loggedInUser');
     if (dataFromStorage) {
@@ -73,6 +82,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
   if (userPermissions === null) {
     return <div>Loading...</div>;
   }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       <Spinner className="h-12 w-12" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <aside
@@ -231,7 +247,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
-                      { label: "Vehicles" , path:"/dashboard/Vendors/vehicleList" },
+                      { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -353,7 +369,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
       <Link
         to="/auth/sign-in"
         className="flex items-center bg-red-900 text-white gap-2 p-3 rounded-lg absolute bottom-4 ml-3 hover:bg-gray-900"
-        onClick={() => logout()}
+        onClick={handleSignOut}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
