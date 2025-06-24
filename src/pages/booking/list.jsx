@@ -571,7 +571,7 @@ useEffect(() => {
                                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.User?.name}
                                                                 </Typography>
-                                                            ) : (data?.status === 'QUOTED' || data?.status === 'REQUEST_DRIVER') ? (
+                                                            ) : 
                                                                 <Button
                                                                 fullWidth
                                                                 className="text-xs font-semibold text-white"
@@ -579,12 +579,12 @@ useEffect(() => {
                                                                 disabled={loading}
                                                                 >
                                                                 {loading ? (
-                                                                    <Spinner className="h-4 w-4" /> // Smaller spinner size for button
+                                                                    <Spinner className="h-4 w-4" />
                                                                 ) : (
                                                                     'Assign To Me'
                                                                 )}
                                                                 </Button>
-                                                            ) : ""}
+                                                            }
                                                          </td>
                                                         
                                                         <td className={className}>
