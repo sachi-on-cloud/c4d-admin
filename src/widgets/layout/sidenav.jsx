@@ -76,8 +76,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
   return (
     <aside
-      className={`${sidenavTypes[sidenavType]} ${openSidenav ? "translate-x-0" : "-translate-x-80"
-        } fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
+      className={`${sidenavTypes[sidenavType]} 
+  ${openSidenav ? "translate-x-0" : "translate-x-0"} 
+  fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] max-w-[288px] 
+  rounded-xl transition-transform duration-300 
+  border border-blue-gray-100`}
     >
       <div className={`relative`}>
         <Link to="/" className="py-6 px-8 text-center">
@@ -231,7 +234,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
-                      { label: "Vehicles" , path:"/dashboard/Vendors/vehicleList" },
+                      { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>

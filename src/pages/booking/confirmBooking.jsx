@@ -656,7 +656,7 @@ const ConfirmBooking = (props) => {
                                 </div>
                               {bookingDetails?.offerPrice > 0 &&
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Offer Price:</Typography>
+                                    <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
                                     {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
                                 </div>}
@@ -677,7 +677,7 @@ const ConfirmBooking = (props) => {
                                 </div>
                                 {bookingDetails?.offerPrice > 0 &&
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Offer Price:</Typography>
+                                    <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
                                     {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
                                 </div>
