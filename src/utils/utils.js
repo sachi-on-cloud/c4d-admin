@@ -234,7 +234,7 @@ export const Utils = {
         }
 
         // Trip start message
-        if (bookingDetails?.status === "STARTED") {
+        if (bookingDetails?.status === "STARTED" || bookingDetails?.status === "DRIVER_ON_THE_WAY" || bookingDetails?.status === "DRIVER_REACHED" || bookingDetails?.status ==="BOOKING_ACCEPTED") {
             const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
             const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
             (bookingDetails.serviceType == "DRIVER" || bookingDetails.serviceType == "RENTAL") && bookingDetails.packageType == "Local" ?

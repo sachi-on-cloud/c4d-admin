@@ -39,6 +39,17 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const [nameSortConfig, setNameSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
     const [filteredRange, setFilteredRange] = useState({});
     const [loading, setLoading] = useState(true);
+    const [userId, setUserId] = useState(null);  
+
+useEffect(() => {
+  const storedUser = localStorage.getItem('loggedInUser');
+  if (storedUser) {
+    const userData = JSON.parse(storedUser);     
+    setUserId(userData.id); 
+  } else {
+    console.warn('No loggedInUser found in localStorage');
+  }
+}, []);
 
     const handleFilterChange = (filterType, value) => {
         if (filterType === 'status') {
@@ -138,6 +149,47 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
         }
     };
 
+            const handleOnClick = async (bookingId) => {
+            if (!userId) {
+                console.error('No userId available');
+                return;
+            }
+            setLoading(true);
+            try {
+                
+                const data = await UpdateOwnerShip(bookingId, userId);
+                if (data?.success) {
+                setBookingsList(Array.isArray(data?.data) ? data?.data : []);
+                
+                }
+            } catch (error) {
+                console.error('Error updating ownership:', error);
+            }
+            };
+
+            const UpdateOwnerShip = async (bookingId, userId) => {
+                setLoading(false);
+                try {
+                const data = await ApiRequestUtils.update(API_ROUTES.PUT_OWNER_SHIP, {
+                    bookingId,
+                    userId,
+                })
+                if(data?.success)
+                {
+                    setLoading(false);
+                    setPagination({
+                            currentPage: data?.pagination?.currentPage || 1,
+                            totalPages: data?.pagination?.totalPages || 1,
+                            totalItems: data?.pagination?.totalItems || 0,
+                            itemsPerPage: data?.pagination?.itemsPerPage || 20,
+                        })
+                }
+                
+                } catch (error) {
+                console.error('UpdateOwnerShip Error:', error);
+                }
+            };
+  
     useEffect(() => {
         setLoading(true);
         getBookingsList(pagination.currentPage);
@@ -285,7 +337,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+                                            {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
 
                                                 <th
                                                     key={el}
@@ -406,13 +458,14 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                 (sourceFilter.includes('All') || sourceFilter.includes(booking.source))
                                             )
                                             .map((data, key) => {
-                                                const isSelected = data.id === selectedBookingId;
-                                                const className = `p-3 ${key === bookingsList.length - 1
-                                                    ? "mb-4"
-                                                    : "border-b border-blue-gray-50"} ${isSelected ? 'bg-blue-50'
-                                                        : data?.status === "QUOTED"
-                                                            ? "bg-yellow-200"
-                                                            : "hover:bg-gray-50"
+                                               const isSelected = data.id === selectedBookingId;
+                                                    const className = `p-3 ${key === bookingsList.length - 1
+                                                        ? "mb-4"
+                                                        : "border-b border-blue-gray-50"} ${
+                                                        data?.isSosCalled == true ? 'bg-red-500 text-white'
+                                                        : isSelected ? 'bg-blue-50'
+                                                        : data?.status === "QUOTED" ? "bg-yellow-200"
+                                                        : "hover:bg-gray-50"
                                                     } transition-colors duration-200`;
 
                                                 return (
@@ -513,6 +566,27 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${ColorStyles.bgStatusColor}`}
                                                             />
                                                         </td>
+                                                       <td className={className}>
+                                                            {data?.userId ? (
+                                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.User?.name}
+                                                                </Typography>
+                                                            ) : (data?.status === 'QUOTED' || data?.status === 'REQUEST_DRIVER') ? (
+                                                                <Button
+                                                                fullWidth
+                                                                className="text-xs font-semibold text-white"
+                                                                onClick={() => handleOnClick(data.id)}
+                                                                disabled={loading}
+                                                                >
+                                                                {loading ? (
+                                                                    <Spinner className="h-4 w-4" /> // Smaller spinner size for button
+                                                                ) : (
+                                                                    'Assign To Me'
+                                                                )}
+                                                                </Button>
+                                                            ) : ""}
+                                                         </td>
+                                                        
                                                         <td className={className}>
                                                             {/* {data?.status === 'STARTED' &&
                                                                 <Button
@@ -560,11 +634,11 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
                                                                 </Button>
                                                             }
                                                         </td>
-                                                    </tr>
-                                                );
+                                               </tr>
+                        );
                                             }
                                             )}
-                                    </tbody>
+                  </tbody>
                                 </table>
                                 <div className="flex items-center justify-center mt-4">
                                     <Button

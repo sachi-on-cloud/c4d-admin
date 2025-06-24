@@ -837,6 +837,7 @@ export const API_ROUTES = {
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',
     'USER_LOGIN': '/login',
+    'USER_LOGOUT': '/logout',
     'GET_USER_BY_ID': '/users/',
     'GET_USER_BY_TOKEN': '/session/users',
     'GET_PRICE': '/get-price',
@@ -918,6 +919,7 @@ export const API_ROUTES = {
     'CAB_WALLET': '/getCabWalletTransactions',
     'ADD_NOTES_BOOKING': '/add-notes',
     'GET_ALL_VEHICLESLIST': '/admin/cabs',
+    'PUT_OWNER_SHIP': '/update-booking-ownership',
 };
 
 export const KYC_PROCESS = {
