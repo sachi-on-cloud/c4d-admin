@@ -9,6 +9,7 @@ import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
 import { PriceList } from "@/pages/public/price";
 
+
 import { CustomerView } from "@/pages/customer";
 import { AccountView } from "@/pages/account";
 import { DriverView } from "@/pages/driver";
