@@ -1132,7 +1132,6 @@ export const  WHATSAPP_TRIP_COMPLETED=`
      • Start Time: \${startTime}
      • End Time: \${endTime}
      • End OTP: \${endOtp}
-     • Total Duration: \${totalDuration}
      • Package Duration:\${bookedDuration}
      • Extra Time: \${extraTime}
      • Extra Charges: ₹\${extraCharges}
