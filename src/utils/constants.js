@@ -920,6 +920,9 @@ export const API_ROUTES = {
     'ADD_NOTES_BOOKING': '/add-notes',
     'GET_ALL_VEHICLESLIST': '/admin/cabs',
     'PUT_OWNER_SHIP': '/update-booking-ownership',
+    'DRIVER_NOTIFY': '/notify',
+    'GET_DRIVER_NOTIFY':'/get-notify-contents',
+    'UPDATE_DRIVER_NOTIFY':'/update-notify',
 };
 
 export const KYC_PROCESS = {

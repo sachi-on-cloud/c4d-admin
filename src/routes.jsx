@@ -73,6 +73,9 @@ import NotificationList from "./pages/vendor/notificationList";
 import NotificationListApp from "./pages/vendor/notificationadd";
 import InstantReward from "./pages/vendor/instantReward";
 import { VehiclesList } from "./pages/vendor/vehiclesList";
+import DriverNotificationList from "./pages/vendor/driverNotificationList";
+import DriverNotificationListAdd from "./pages/vendor/driverNotificationAdd";
+import DriverNotificationListEdit from "./pages/vendor/driverNotificationEdit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -143,6 +146,27 @@ export const routes = [
         name: "marketing",
         path: "/vendors/notificationList",
         element: <NotificationList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification",
+        path: "/vendors/driverNotificationList",
+        element: <DriverNotificationList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification add",
+        path: "/vendors/driverNotificationList/add",
+        element: <DriverNotificationListAdd/>,
+        display: true
+      },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification edit",
+        path: "/vendors/driverNotificationList/edit/:id",
+        element: <DriverNotificationListEdit/>,
         display: true
       },
       {
