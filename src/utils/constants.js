@@ -923,6 +923,15 @@ export const API_ROUTES = {
     'DRIVER_NOTIFY': '/notify',
     'GET_DRIVER_NOTIFY':'/get-notify-contents',
     'UPDATE_DRIVER_NOTIFY':'/update-notify',
+    'GET_VERSIONCONTROL':'/get-current-version',
+    'PUT_VERSIONCONTROL':'/update-current-version',
+    'GET_DISCOUNT':'/all-discount',
+    'POST_DISCOUNT':'/add-discount',
+    'PUT_DISCOUNT':'/update-discount',
+    'GET_GST':'/list-gst',
+    'PUT_GST':'/update-gst',
+    'POST_GST':'/add-gst',
+
 };
 
 export const KYC_PROCESS = {

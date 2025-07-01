@@ -343,6 +343,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Notification", path: "/dashboard/vendors/notificationList" },
                       { label: "Driver Notification", path: "/dashboard/vendors/driverNotificationList" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
+                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
+                      { label: "DiscountModule", path: "/dashboard/user/discountModuleList" },
+                      { label: "GST", path: "/dashboard/user/GSTList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
