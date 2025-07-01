@@ -653,7 +653,7 @@ const CabEdit = () => {
                                     <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select status</option>
                                         <option value="ACTIVE">Active</option>
-                                        <option value="NOT_ACTIVE">In_Active</option>
+                                        <option value="IN_ACTIVE">In_Active</option>
                                         <option value="BLOCKED">Blocked</option>
                                     </Field>
                                     <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
