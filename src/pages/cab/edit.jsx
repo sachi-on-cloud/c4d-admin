@@ -182,6 +182,7 @@ const CabEdit = () => {
         packages: cabVal?.result?.packages || [],
         prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
         cabId: cabVal?.result?.id || '',
+        status: cabVal?.result?.status || '',
     };
 
     const searchLocations = async (query, type) => {
@@ -350,6 +351,7 @@ const CabEdit = () => {
                 accountId: values.accountId,
                 driverId: values.assignOrAddDriver == 'Add' ? '' : values.driverId,
                 cabId: values.cabId,
+                status: values?.status || '',
             }
             const prices = values.prices;
             let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices) };
@@ -385,7 +387,7 @@ const CabEdit = () => {
     if (alert?.message === 'Cab Updated Successfully') {
       timeoutId = setTimeout(() => {
         setAlert(null);
-        console.log('Navigating to:', `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
+        // console.log('Navigating to:', `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
         navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
       }, 5000);
     }
@@ -646,6 +648,16 @@ const CabEdit = () => {
                                     showCheckbox={true}
                                 />
                             </div>
+                                <div>
+                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
+                                    <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select status</option>
+                                        <option value="ACTIVE">Active</option>
+                                        <option value="IN_ACTIVE">In_Active</option>
+                                        <option value="BLOCKED">Blocked</option>
+                                    </Field>
+                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                                </div>
                         </div>
 
                         {values.packages.length > 0 && (

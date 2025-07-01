@@ -61,6 +61,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
         ownerPhoneNumber: cab?.result?.ownerPhoneNumber ? cab?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cab?.result?.carNumber || "",
         address: cab?.result?.curAddress || "",
+        status: cab?.result?.status || "",
         insurance: cab?.result?.insurance || "",
         driverName: cab?.result?.Drivers[0] ? cab?.result?.Drivers[0].firstName : cab?.result?.driverName ? cab?.result?.driverName : "",
         phoneNumber: cab?.result?.phoneNumber || "",
@@ -203,6 +204,11 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                                         className="w-full rounded-xl border-gray-300 bg-gray-200 border"
                                         disable={true}
                                     />
+                                </div>
+                                <div>
+                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
+                                    <Field type="text" name="status" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
                             </div>
                         </div>

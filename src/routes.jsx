@@ -74,6 +74,17 @@ import NotificationList from "./pages/vendor/notificationList";
 import NotificationListApp from "./pages/vendor/notificationadd";
 import InstantReward from "./pages/vendor/instantReward";
 import { VehiclesList } from "./pages/vendor/vehiclesList";
+import DriverNotificationList from "./pages/vendor/driverNotificationList";
+import DriverNotificationListAdd from "./pages/vendor/driverNotificationAdd";
+import DriverNotificationListEdit from "./pages/vendor/driverNotificationEdit";
+import VersionControlList from "./pages/versionControl/VersionControlList";
+import VersionControlEdit from "./pages/versionControl/VersionControlEdit";
+import DiscountView from "./pages/discountModule/view";
+import DiscountEdit from "./pages/discountModule/edit";
+import DiscountAdd from "./pages/discountModule/add";
+import GstView from "./pages/GST/view";
+import GstAdd from "./pages/GST/add";
+import GstEdit from "./pages/GST/edit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -144,6 +155,27 @@ export const routes = [
         name: "marketing",
         path: "/vendors/notificationList",
         element: <NotificationList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification",
+        path: "/vendors/driverNotificationList",
+        element: <DriverNotificationList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification add",
+        path: "/vendors/driverNotificationList/add",
+        element: <DriverNotificationListAdd/>,
+        display: true
+      },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification edit",
+        path: "/vendors/driverNotificationList/edit/:id",
+        element: <DriverNotificationListEdit/>,
         display: true
       },
       {
@@ -571,6 +603,63 @@ export const routes = [
         element: <GeoMarkings />,
         display: true
       },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "version control add",
+        path: "/user/versionControlList",
+        element: <VersionControlList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "version control edit",
+        path: "/user/versionControl/edit",
+        element: <VersionControlEdit />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "discount module list",
+        path: "/user/discountModuleList",
+        element: <DiscountView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "discount module edit",
+        path: "/user/discountModule/edit/:id",
+        element: <DiscountEdit/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "discount module add",
+        path: "/user/discountModule/add",
+        element: <DiscountAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST List",
+        path: "/user/GSTList",
+        element: <GstView/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST add",
+        path: "/user/GST/add",
+        element: <GstAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST edit",
+        path: "/user/GST/edit/:id",
+        element: <GstEdit/>,
+        display: true
+      },
+
     ],
   },
   {

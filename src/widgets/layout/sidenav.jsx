@@ -128,7 +128,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   {({ isActive }) => (
                     <Button
                       variant="text"
-                      className={`flex items-center gap-4 px-4 capitalize  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                      className={`flex items-center gap-3 px-3 capitalize  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                         }`}
                       fullWidth
                       onClick={() => toggleSubMenu(name)}
@@ -341,7 +341,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
                       { label: "Notification", path: "/dashboard/vendors/notificationList" },
+                      { label: "Driver Notification", path: "/dashboard/vendors/driverNotificationList" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
+                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
+                      { label: "DiscountModule", path: "/dashboard/user/discountModuleList" },
+                      { label: "GST", path: "/dashboard/user/GSTList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>

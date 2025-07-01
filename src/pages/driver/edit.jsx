@@ -82,13 +82,6 @@ const DriverEdit = () => {
         }
         return null;
     }
-            if (loading) {
-            return (
-                <div className="flex justify-center items-center h-screen">
-                    <Spinner className="h-12 w-12" />
-                </div>
-            );
-        }
 
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
@@ -157,6 +150,8 @@ const DriverEdit = () => {
         motherName: driverVal?.result?.motherName || "",
         dateOfBirth: driverVal?.result?.dob || "",
         age: driverVal?.result?.age || "",
+        status: driverVal?.result?.status || "",
+        driverExperience: driverVal?.driverExperience || "",
         phoneNumber: driverVal?.result?.phoneNumber ? driverVal?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driverVal?.result?.license || "",
         licenseType: driverVal?.result?.licenseType || "",
@@ -277,6 +272,8 @@ const DriverEdit = () => {
                 motherName: values.motherName || "",
                 dob: values.dateOfBirth || "",
                 age: values.age || "",
+                driverExperience: values.driverExperience || "",
+                status: values.status || "",
                 phoneNumber: "+91" + values.phoneNumber,
                 license: values.license,
                 licenseType: values.licenseType || "",
@@ -503,10 +500,12 @@ const DriverEdit = () => {
 
             let data;
             if (docId) {
+                setLoading(true)
                 formData.append("documentId", docId);
                 data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
                 //console.log("Document Updated:", data);
             } else {
+                setLoading(true)
                 data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
                 //console.log("New Document Uploaded:", data);
             }
@@ -674,6 +673,12 @@ const DriverEdit = () => {
 
     return (
         <div className="p-4 mx-auto">
+            {loading ? (
+                <div className="flex justify-center items-center h-screen">
+                    <Spinner className="h-12 w-12" />
+                </div>
+            ) : (
+                <>
             {alert && (
                 <div className="mb-2">
                     <Alert
@@ -747,7 +752,21 @@ const DriverEdit = () => {
                                 <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                 <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                             </div>
-
+                           <div>
+                                <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
+                                <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="">Select status</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="IN_ACTIVE">In_Active</option>
+                                    <option value="BLOCKED">Blocked</option>
+                                </Field>
+                                <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="driverExperience" className="text-sm font-medium text-gray-700">Driver Experience</label>
+                                <Field type="text" name="driverExperience" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="driverExperience" component="div" className="text-red-500 text-sm my-1" />
+                            </div>
                             <div>
                                 <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                 <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
@@ -1232,6 +1251,7 @@ const DriverEdit = () => {
                     </DialogBody>
                 </Dialog>
             )}
+            </>)}
         </div>
     );
 };

@@ -768,3 +768,77 @@ export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
     // nightHoursFrom:Yup.time().required('Night Hours To End 06:00 AM.')
 });
 
+export const VERSION_CONTROL_EDIT=Yup.object().shape({
+    name: Yup.string().required('Name is required'),
+    applicationFor: Yup.string().required('Application type is required'),
+    latestVersion: Yup.string()
+      .matches(
+        /^\d+\.\d+\.\d+$/,
+        'Version must be in format X.Y.Z (e.g., 2.0.0)'
+      )
+      .test(
+        'is-valid-version',
+        'Version must be at least 1.0.0',
+        (value) => {
+          if (!value) return false;
+          const [major] = value.split('.').map(Number);
+          return major >= 1;
+        }
+      )
+      .required('Version is required'),
+  });
+
+  export const DISCOUNT_ADD_SCHEMA = Yup.object({
+    percentage: Yup.number()
+      .typeError('Percentage must be a number')
+      .required('Percentage is required')
+      .min(0, 'Must be at least 0%')
+      .max(100, 'Cannot exceed 100%'),
+    startDate: Yup.string().required('Start date is required'),
+    endDate: Yup.string().required('End date is required'),
+    serviceType: Yup.string().required('Service type is required'),
+    isActive: Yup.boolean().required('Status is required'),
+  });
+
+export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
+    discountId: Yup.number().required('Discount ID is required'),
+    percentage: Yup.number()
+      .typeError('Percentage must be a number')
+      .required('Percentage is required')
+      .min(0, 'Minimum is 0%')
+      .max(100, 'Maximum is 100%'),
+    startDate: Yup.string().required('Start date is required'),
+    endDate: Yup.string().required('End date is required'),
+    serviceType: Yup.string().required('Service type is required'),
+    isActive: Yup.boolean().required('Status is required'),
+  });
+
+   export const GST_EDIT_SCHEMA = Yup.object().shape({
+    serviceType: Yup.string().required('Service type is required'),
+    name: Yup.string().required('Name is required'),
+    totalGst: Yup.number()
+      .typeError('GST must be a number')
+      .required('GST % is required')
+      .min(0, 'Minimum is 0%')
+      .max(100, 'Maximum is 100%'),
+    hsnCode: Yup.string().required('HSN Code is required'),
+    serviceCategory: Yup.string().required('Category is required'),
+    serviceDescription: Yup.string().required('Description is required'),
+    gstNo: Yup.string().required('GST No is required'),
+    isActive: Yup.boolean().required(),
+  });
+  export const GST_ADD_SCHEMA = Yup.object({
+      serviceType: Yup.string().required('Service Type is required'),
+      name: Yup.string().required('Name is required'),
+      totalGst: Yup.number()
+        .typeError('Total GST must be a number')
+        .required('Total GST is required')
+        .min(0, 'Minimum is 0%')
+        .max(100, 'Maximum is 100%'),
+      hsnCode: Yup.string().required('HSN Code is required'),
+      serviceCategory: Yup.string().required('Service Category is required'),
+      serviceDescription: Yup.string().required('Service Description is required'),
+      gstNo: Yup.string().required('GST No is required'),
+      isActive: Yup.boolean().required('Status is required'),
+    });
+
