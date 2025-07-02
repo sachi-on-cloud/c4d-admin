@@ -62,7 +62,7 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
         dateOfBirth: driver?.result?.dob || "",
         age: driver?.result?.age || "",
         status: driver?.result?.status || "",
-        driverExperience: driver?.result?.driverExperience || "",
+        // driverExperience: driver?.result?.driverExperience || "",
         phoneNumber: driver?.result?.phoneNumber ? driver?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driver?.result?.license || "",
         licenseType: driver?.result?.licenseType || "",
@@ -150,11 +150,11 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                         <ErrorMessage name="status" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
 
-                                    <div>
+                                    {/* <div>
                                             <label htmlFor="driverExperience" className="text-sm font-medium text-gray-700">Driver Experience</label>
                                             <Field type="text" name="driverExperience" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200"/>
                                             <ErrorMessage name="driverExperience" component="div" className="text-red-500 text-sm" />
-                                        </div>
+                                        </div> */}
 
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>

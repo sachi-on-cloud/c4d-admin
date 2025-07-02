@@ -151,7 +151,7 @@ const DriverEdit = () => {
         dateOfBirth: driverVal?.result?.dob || "",
         age: driverVal?.result?.age || "",
         status: driverVal?.result?.status || "",
-        driverExperience: driverVal?.driverExperience || "",
+        // driverExperience: driverVal?.driverExperience || "",
         phoneNumber: driverVal?.result?.phoneNumber ? driverVal?.result?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driverVal?.result?.license || "",
         licenseType: driverVal?.result?.licenseType || "",
@@ -272,7 +272,7 @@ const DriverEdit = () => {
                 motherName: values.motherName || "",
                 dob: values.dateOfBirth || "",
                 age: values.age || "",
-                driverExperience: values.driverExperience || "",
+                // driverExperience: values.driverExperience || "",
                 status: values.status || "",
                 phoneNumber: "+91" + values.phoneNumber,
                 license: values.license,
@@ -762,11 +762,11 @@ const DriverEdit = () => {
                                 </Field>
                                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label htmlFor="driverExperience" className="text-sm font-medium text-gray-700">Driver Experience</label>
                                 <Field type="text" name="driverExperience" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="driverExperience" component="div" className="text-red-500 text-sm my-1" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                 <Field type="tel" name="phoneNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
