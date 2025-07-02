@@ -30,7 +30,7 @@ const DiscountAdd = () => {
   endDate: values.endDate
     ? new Date(values.endDate).toISOString().split('T')[0]
     : undefined,
-  isActive: values.isActive === 'true' || values.isActive === true,
+  isActive: values.isActive
 };
 
     try {

@@ -82,7 +82,9 @@ import VersionControlEdit from "./pages/versionControl/VersionControlEdit";
 import DiscountView from "./pages/discountModule/view";
 import DiscountEdit from "./pages/discountModule/edit";
 import DiscountAdd from "./pages/discountModule/add";
-
+import GstView from "./pages/GST/view";
+import GstAdd from "./pages/GST/add";
+import GstEdit from "./pages/GST/edit";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -251,6 +253,28 @@ export const routes = [
         path: "/vendors/account/allVehicles/edit/:id",
         element: <CabEdit />,
         display: false
+      },
+     
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST List",
+        path: "/user/GSTList",
+        element: <GstView/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST add",
+        path: "/user/GST/add",
+        element: <GstAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST edit",
+        path: "/user/GST/edit/:id",
+        element: <GstEdit/>,
+        display: true
       },
       {
         icon: <UserIcon {...icon} />,
