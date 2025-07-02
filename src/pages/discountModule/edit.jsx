@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Button, Alert } from '@material-tailwind/react';
+import { Button, Alert, Spinner } from '@material-tailwind/react';
 import * as Yup from 'yup';
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
@@ -24,11 +24,8 @@ const DiscountEdit = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
 
-  const formatDateTimeLocal = (isoString) => {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+  const formatDateOnly = (isoString) => {
+    return isoString ? isoString.slice(0, 10) : '';
   };
 
   useEffect(() => {
@@ -40,8 +37,8 @@ const DiscountEdit = () => {
           setInitialValues({
             discountId: discountFromState.discountId || discountFromState.id,
             percentage: discountFromState.percentage || '',
-            startDate: formatDateTimeLocal(discountFromState.startDate),
-            endDate: formatDateTimeLocal(discountFromState.endDate),
+            startDate: formatDateOnly(discountFromState.startDate),
+            endDate: formatDateOnly(discountFromState.endDate),
             serviceType: discountFromState.serviceType || '',
             isActive: discountFromState.isActive ? 'true' : 'false',
           });
@@ -51,8 +48,8 @@ const DiscountEdit = () => {
           setInitialValues({
             discountId: data.discountId || data.id,
             percentage: data.percentage || '',
-            startDate: formatDateTimeLocal(data.startDate),
-            endDate: formatDateTimeLocal(data.endDate),
+            startDate: formatDateOnly(data.startDate),
+            endDate: formatDateOnly(data.endDate),
             serviceType: data.serviceType || '',
             isActive: data.isActive ? 'true' : 'false',
           });
@@ -74,15 +71,23 @@ const DiscountEdit = () => {
       const payload = {
         discountId: Number(values.discountId),
         serviceType: values.serviceType?.trim(),
-        percentage: values.percentage !== '' && !isNaN(values.percentage) ? Number(values.percentage) : 0,
-        startDate: values.startDate ? new Date(values.startDate).toISOString().split('T')[0] : undefined,
-        endDate: values.endDate ? new Date(values.endDate).toISOString().split('T')[0] : undefined,
-        isActive: values.isActive
+        percentage:
+          values.percentage !== '' && !isNaN(values.percentage)
+            ? Number(values.percentage)
+            : 0,
+        startDate: values.startDate,
+         
+        endDate: values.endDate,
+        
+        isActive: values.isActive === 'true',
       };
+      
 
       const response = await ApiRequestUtils.update(API_ROUTES.PUT_DISCOUNT, payload);
+    
 
       if (response?.success) {
+        
         navigate('/dashboard/user/discountModuleList', {
           state: { updatedDiscount: response.data },
         });
@@ -100,7 +105,11 @@ const DiscountEdit = () => {
   };
 
   if (loading || !initialValues) {
-    return <div className="p-4 text-center">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner className="h-12 w-12" />
+      </div>
+    );
   }
 
   return (
@@ -150,20 +159,20 @@ const DiscountEdit = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700">Start Date & Time</label>
+                <label className="text-sm font-medium text-gray-700">Start Date</label>
                 <Field
                   name="startDate"
-                  type="datetime-local"
+                  type="date"
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 />
                 <ErrorMessage name="startDate" component="div" className="text-red-500 text-sm" />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700">End Date & Time</label>
+                <label className="text-sm font-medium text-gray-700">End Date</label>
                 <Field
                   name="endDate"
-                  type="datetime-local"
+                  type="date"
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 />
                 <ErrorMessage name="endDate" component="div" className="text-red-500 text-sm" />
