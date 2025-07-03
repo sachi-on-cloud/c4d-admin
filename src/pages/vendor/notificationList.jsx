@@ -43,7 +43,7 @@ export function NotificationList() {
           className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
         >
           <Typography variant="h6" color="white">
-            Notification List
+             All Push Notification
           </Typography>
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

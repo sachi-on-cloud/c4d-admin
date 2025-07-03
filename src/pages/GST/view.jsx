@@ -65,10 +65,13 @@ const GstView = () => {
                 <tr>
                   <th className="py-3 px-5 text-left">Service Type</th>
                   <th className="py-3 px-5 text-left">Name</th>
+                  <th className='py-3 px-5 text-left'>Customer</th>
+                  <th className='py-3 px-5 text-left'>Driver</th>
                   <th className="py-3 px-5 text-left">Description</th>
                   <th className="py-3 px-5 text-left">Total GST (%)</th>
                   <th className="py-3 px-5 text-left">Status</th>
                   <th className="py-3 px-5 text-left">Actions</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -81,6 +84,8 @@ const GstView = () => {
                     <tr key={index} className="border-b">
                       <td className="py-3 px-5">{item.serviceType}</td>
                       <td className="py-3 px-5">{item.name}</td>
+                      <td className='py-3 px-5'>{item.customer||'-'}</td>
+                      <td className='py-3 px-5'>{item.driver||'-'}</td>
                       <td className="py-3 px-5">{item.description||'-'}</td>
                       <td className="py-3 px-5">{item.config?.totalGst}%</td>
                       <td className="py-3 px-5">

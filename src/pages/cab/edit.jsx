@@ -69,6 +69,7 @@ const CabEdit = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalData, setModalData] = useState(null);
+    const [blockedReason, setBlockedReason] = useState(cabVal?.result?.blockedReason || '');
 
     // const getAccountNames = async () => {
     //     try {
@@ -183,6 +184,7 @@ const CabEdit = () => {
         prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
         cabId: cabVal?.result?.id || '',
         status: cabVal?.result?.status || '',
+        blockedReason: cabVal?.result?.blockedReason || '',
     };
 
     const searchLocations = async (query, type) => {
@@ -330,6 +332,14 @@ const CabEdit = () => {
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         if (isSubmitting) return;
         setIsSubmitting(true);
+         if (values.status === 'BLOCKED' && !blockedReason.trim()) {
+        setAlert({
+            message: "Please enter a reason for blocking",
+            color: "red",
+        });
+        setTimeout(() => setAlert(null), 5000);
+        return;
+    }
         try {
             const cabDetails = {
                 name: values.name,
@@ -352,6 +362,7 @@ const CabEdit = () => {
                 driverId: values.assignOrAddDriver == 'Add' ? '' : values.driverId,
                 cabId: values.cabId,
                 status: values?.status || '',
+                 ...(values.status === 'BLOCKED' && { blockedReason: blockedReason }),
             }
             const prices = values.prices;
             let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices) };
@@ -397,6 +408,7 @@ const CabEdit = () => {
       }
     };
   }, [alert, cabVal, navigate]);
+  
 
 
     return (
@@ -419,6 +431,8 @@ const CabEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
+                            <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p>
+                        <pre>{JSON.stringify(errors, null, 2)}</pre>
                             <div>
                                 <label htmlFor="name" className="text-sm font-medium text-gray-700">Vehicle Name</label>
                                 <Field type="text" name="name" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
@@ -657,6 +671,19 @@ const CabEdit = () => {
                                         <option value="BLOCKED">Blocked</option>
                                     </Field>
                                     <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                                    {values.status === 'BLOCKED' && (
+        <div className="mt-2">
+            <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">Block Reason*</label>
+            <input
+                type="text"
+                id="blockedReason"
+                value={blockedReason}
+                onChange={(e) => setBlockedReason(e.target.value)}
+                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                required
+            />
+        </div>
+    )}
                                 </div>
                         </div>
 
@@ -730,3 +757,5 @@ const CabEdit = () => {
 };
 
 export default CabEdit;
+
+// modify

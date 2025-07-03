@@ -32,7 +32,7 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
-  { name: "Finance", path: "/dashboard/finance", permission: "Finance" },
+  { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
 ];
@@ -94,7 +94,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
     <aside
       className={`${sidenavTypes[sidenavType]} 
   ${openSidenav ? "translate-x-0" : "translate-x-0"} 
-  fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] max-w-[288px] 
+  fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] max-w-[308px] 
   rounded-xl transition-transform duration-300 
   border border-blue-gray-100`}
     >
@@ -277,7 +277,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 {name === "Finance" && openSubMenu === "Finance" && (
                   <ul className="ml-0">
                     {[
-                      { label: "All Payments", path: "/dashboard/finance" },
+                    
                       { label: "Invoice", path: "/dashboard/finance/invoice" },
                       { label: "Receipt", path: "/dashboard/finance/receipt" },
                       { label: "Master Subscription", path: "/dashboard/finance/master-subscription" },
@@ -340,12 +340,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
-                      { label: "Notification", path: "/dashboard/vendors/notificationList" },
-                      { label: "Driver Notification", path: "/dashboard/vendors/driverNotificationList" },
+                      { label: " All Push Notification", path: "/dashboard/vendors/notificationList" },
+                      { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                        { label: "Version Control", path: "/dashboard/user/versionControlList" },
                       { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
                       { label: "GST", path: "/dashboard/user/GSTList" },
+                       { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>

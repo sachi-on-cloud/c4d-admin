@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
-import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody,Spinner } from '@material-tailwind/react';
+import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody,Spinner , DialogFooter,} from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_SCHEMA } from '@/utils/validations';
@@ -179,7 +179,9 @@ const DriverEdit = () => {
         source: driverVal?.result?.source || "",
         serviceType: driverVal?.result?.serviceType || "",
     };
-
+    
+    const [showBlockedReason, setShowBlockedReason] = useState(false);
+const [blockedReason, setBlockedReason] = useState('');
     const searchLocations = async (query) => {
         if (query.length > 2) {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
@@ -211,6 +213,8 @@ const DriverEdit = () => {
             }
             return 0;
         });
+
+      
         return (
             <div className="mb-8">
                 <h3 className="text-xl font-bold mb-4">{title}</h3>
@@ -273,7 +277,7 @@ const DriverEdit = () => {
                 dob: values.dateOfBirth || "",
                 age: values.age || "",
                 driverExperience: values.driverExperience || "",
-                status: values.status || "",
+                status: values.status || "",...(values.status === 'BLOCKED' && { blockedReason: blockedReason }),
                 phoneNumber: "+91" + values.phoneNumber,
                 license: values.license,
                 licenseType: values.licenseType || "",
@@ -299,6 +303,7 @@ const DriverEdit = () => {
                 source: values.source,
                 serviceType: values.serviceType,
             };
+            
             let driverData = { driverDetails }
             //return;
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER, driverData);
@@ -314,8 +319,8 @@ const DriverEdit = () => {
                 throw new Error(data?.message || 'Update failed');
             }
         } catch (error) {
-            console.error('Error updating driver:', error);
-            alert(error.message || 'Failed to update driver. Please try again.');
+            // console.error('Error updating driver:', error);
+            // alert(error.message || 'Failed to update driver. Please try again.');
         } finally {
             setIsSubmitting(false);
             setSubmitting(false);
@@ -754,14 +759,42 @@ const DriverEdit = () => {
                             </div>
                            <div>
                                 <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
-                                <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                 onChange={(e) => {
+                                        setFieldValue('status', e.target.value);
+                                          if (e.target.value === 'BLOCKED') {
+                                               setShowBlockedReason(true);
+                                           }
+                                           else {
+                                           setBlockedReason(''); 
+                                        }
+                                       }}>                   
                                     <option value="">Select status</option>
                                     <option value="ACTIVE">Active</option>
                                     <option value="IN_ACTIVE">In_Active</option>
                                     <option value="BLOCKED">Blocked</option>
                                 </Field>
                                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                                 {values.status === 'BLOCKED' && (
+                                  <div className="mt-2">
+                               <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">
+                             Block Reason
+                            </label>
+                           <input
+                            type="text"
+                            id="blockedReason"
+                            value={blockedReason}
+                              onChange={(e) => setBlockedReason(e.target.value)}
+                                 className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                required
+                             />
+                               </div>
+                                 )}
+
                             </div>
+                        
+                           
+
                             <div>
                                 <label htmlFor="driverExperience" className="text-sm font-medium text-gray-700">Driver Experience</label>
                                 <Field type="text" name="driverExperience" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
