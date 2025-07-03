@@ -931,6 +931,7 @@ export const API_ROUTES = {
     'GET_GST':'/list-gst',
     'PUT_GST':'/update-gst',
     'POST_GST':'/add-gst',
+    'GET_BANNER':'/banner',
 
 };
 

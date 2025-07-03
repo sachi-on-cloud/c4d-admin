@@ -148,7 +148,14 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
                                         <Field type="text" name="status" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
                                         <ErrorMessage name="status" component="div" className="text-red-500 text-sm my-1" />
+                                        {values.status === 'BLOCKED' && driver?.result?.blockedReason && (
+        <div className="mt-2 p-2 bg-gray-100 rounded-md">
+            <Typography variant="small" className="font-semibold">Block Reason:</Typography>
+            <Typography variant="small">{driver?.result?.blockedReason}</Typography>
+        </div>
+    )}
                                     </div>
+                                    
 
                                     {/* <div>
                                             <label htmlFor="driverExperience" className="text-sm font-medium text-gray-700">Driver Experience</label>
@@ -361,3 +368,17 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
 };
 
 export default DriverDetails;
+
+{/* <div>
+    <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
+    <Field type="text" name="status" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+    <ErrorMessage name="status" component="div" className="text-red-500 text-sm my-1" />
+    
+    {/* Add this block to show the blocked reason */}
+//     {values.status === 'BLOCKED' && driver?.result?.blockedReason && (
+//         <div className="mt-2 p-2 bg-gray-100 rounded-md">
+//             <Typography variant="small" className="font-semibold">Block Reason:</Typography>
+//             <Typography variant="small">{driver?.result?.blockedReason}</Typography>
+//         </div>
+//     )}
+// </div> */}

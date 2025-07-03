@@ -5,15 +5,7 @@ import { Button, Alert, Spinner } from '@material-tailwind/react';
 import * as Yup from 'yup';
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-
-const DISCOUNT_EDIT_SCHEMA = Yup.object().shape({
-  discountId: Yup.number().required('Discount ID is required'),
-  serviceType: Yup.string().required('Service type is required'),
-  percentage: Yup.number().required('Percentage is required').min(0).max(100),
-  startDate: Yup.string().required('Start Date is required'),
-  endDate: Yup.string().required('End Date is required'),
-  isActive: Yup.string().required('Status is required'),
-});
+import { DISCOUNT_EDIT_SCHEMA } from '@/utils/validations';
 
 const DiscountEdit = () => {
   const { id } = useParams();

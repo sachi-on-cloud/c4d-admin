@@ -26,6 +26,7 @@ const ConfirmBooking = (props) => {
     const [amount, setAmount] = useState();
     const [customerFeedback, setCustomerFeedback] = useState();
     const [driverFeedback, setDriverFeedback] = useState();
+    const [showDetails, setShowDetails] = useState(true);
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -165,6 +166,10 @@ const ConfirmBooking = (props) => {
         if (props.bookingData) {
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
+        if(props?.hideAllNewButton){
+            setShowDetails(false);
+
+        }
     }, [props.bookingData]);
 
     const onBackPressHandler = async () => {
@@ -232,6 +237,7 @@ const ConfirmBooking = (props) => {
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto">
+            {showDetails &&(
             <div className="grid grid-cols-5 gap-2 my-2">
                 {/* <Button
                         color="blue"
@@ -421,6 +427,7 @@ const ConfirmBooking = (props) => {
                         ) :<></>
                     } */}
             </div>
+        )}
             {showCancelReason && (
                 <div className="mt-4 space-y-2">
                     <select
@@ -482,6 +489,7 @@ const ConfirmBooking = (props) => {
                     </div>
                 </div>
             )}
+            {showDetails && (
             <div className="grid grid-cols-2 gap-4">
                 <Card className="mb-2">
                     <CardBody>
@@ -575,6 +583,7 @@ const ConfirmBooking = (props) => {
                     </Card>
                 }
             </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
                 <Card className="mb-2">
                     <CardBody>
@@ -704,7 +713,7 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
 
-                <Card>
+                <Card className="mb-2">
                     <CardBody>
                         <div className="flex justify-between mb-2">
                             <Typography variant="h5">Location Details </Typography>
@@ -922,7 +931,7 @@ const ConfirmBooking = (props) => {
                     }
                 </div>
 
-                <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} />
+                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} /> }
             </>
         </div>
     );
