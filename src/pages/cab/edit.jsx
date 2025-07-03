@@ -431,8 +431,6 @@ const CabEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p>
-                        <pre>{JSON.stringify(errors, null, 2)}</pre>
                             <div>
                                 <label htmlFor="name" className="text-sm font-medium text-gray-700">Vehicle Name</label>
                                 <Field type="text" name="name" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
@@ -672,18 +670,17 @@ const CabEdit = () => {
                                     </Field>
                                     <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                                     {values.status === 'BLOCKED' && (
-        <div className="mt-2">
-            <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">Block Reason*</label>
-            <input
-                type="text"
-                id="blockedReason"
-                value={blockedReason}
-                onChange={(e) => setBlockedReason(e.target.value)}
-                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                required
-            />
-        </div>
-    )}
+                                        <div className="mt-2">
+                                            <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">Block Reason</label>
+                                            <input
+                                                type="text"
+                                                id="blockedReason"
+                                                value={blockedReason}
+                                                onChange={(e) => setBlockedReason(e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                            />
+                                        </div>
+                                )}
                                 </div>
                         </div>
 
