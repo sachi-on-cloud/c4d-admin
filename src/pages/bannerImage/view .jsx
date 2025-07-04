@@ -7,37 +7,54 @@ import {
   Button,
   Spinner,
 } from '@material-tailwind/react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import moment from 'moment';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 
 const BannerView = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [bannerList, setBannerList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        const res = await ApiRequestUtils.get(API_ROUTES.GET_BANNER);
-        const list = Array.isArray(res?.data?.data) ? res.data.data : [];
-        setBannerList(list);
-      } catch (err) {
-        console.error('Failed to fetch banner list:', err);
-        setBannerList([]);
-      } finally {
-        setLoading(false);
+  const fetchBanners = async () => {
+    try {
+      setLoading(true);
+      const res = await ApiRequestUtils.get(API_ROUTES.GET_BANNER);
+      console.log('Full API Response:', res); 
+      
+      // Handle different response structures
+      let list = [];
+      if (Array.isArray(res?.data?.data)) {
+        list = res.data.data;
+      } else if (Array.isArray(res?.data)) {
+        list = res.data;
       }
-    };
+      
+      
+      const updated = location.state?.updatedBanner;
+      if (updated) {
+        list = list.map((item) => item.id === updated.id ? updated : item);
+      }
 
-    fetchBanners();
-  }, []);
+      setBannerList(list);
+    } catch (err) {
+      console.error('Failed to fetch banner list:', err);
+      setBannerList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  fetchBanners();
+}, [location.state]);
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="flex items-center justify-end">
         <button
-          onClick={() => navigate('/dashboard/user/banner/add')}
+          onClick={() => navigate('/dashboard/user/bannerimg/add')}
           className="ml-4 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
         >
           Add New
@@ -51,8 +68,8 @@ const BannerView = () => {
 
         <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-10">
-              <Spinner className="h-10 w-10 mb-2" />
+            <div className="flex justify-center items-center py-10">
+              <Spinner className="h-10 w-10" />
             </div>
           ) : (
             <table className="w-full min-w-[1000px] table-auto">
@@ -64,7 +81,7 @@ const BannerView = () => {
                   <th className="py-3 px-5 text-left">From Date</th>
                   <th className="py-3 px-5 text-left">To Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
-                  <th className="py-3 px-5 text-left">Actions</th>
+                  
                 </tr>
               </thead>
               <tbody>
@@ -86,28 +103,20 @@ const BannerView = () => {
                       </td>
                       <td className="py-3 px-5">{item.type || '-'}</td>
                       <td className="py-3 px-5">{item.redirectUrl || '-'}</td>
-                      <td className="py-3 px-5">{item.fromDate || '-'}</td>
-                      <td className="py-3 px-5">{item.toDate || '-'}</td>
                       <td className="py-3 px-5">
-                        {item.isActive ? (
+                        {item.fromDate ? moment(item.fromDate).format('DD-MM-YYYY') : '-'}
+                      </td>
+                      <td className="py-3 px-5">
+                        {item.toDate ? moment(item.toDate).format('DD-MM-YYYY') : '-'}
+                      </td>
+                      <td className="py-3 px-5">
+                        {item.status ? (
                           <span className="text-green-600 font-semibold">Active</span>
                         ) : (
                           <span className="text-red-600 font-semibold">Inactive</span>
                         )}
                       </td>
-                      <td className="py-3 px-5">
-                        <Button
-                          onClick={() =>
-                            navigate(`/dashboard/user/banner/edit/${item.id}`, {
-                              state: { banner: item },
-                            })
-                          }
-                          size="sm"
-                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                        >
-                          Edit
-                        </Button>
-                      </td>
+                     
                     </tr>
                   ))
                 )}
