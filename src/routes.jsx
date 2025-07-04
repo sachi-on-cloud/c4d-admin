@@ -85,6 +85,7 @@ import GstView from "./pages/GST/view";
 import GstAdd from "./pages/GST/add";
 import GstEdit from "./pages/GST/edit";
 import BannerView from "./pages/bannerImage/view ";
+import AddBanner from "./pages/bannerImage/add";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -281,6 +282,13 @@ export const routes = [
         name: "Banner image view",
         path: "/user/bannerimgView",
         element: <BannerView/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Banner image add",
+        path: "/user/bannerimg/add",
+        element: <AddBanner/>,
         display: true
       },
       {
