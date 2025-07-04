@@ -56,7 +56,7 @@ const AddBanner = () => {
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
       formData.append('image', values.image, values.image.name);
-      formData.append('fileType', values.image?.type || '');
+      formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
 
       const response = await ApiRequestUtils.postDocs(API_ROUTES.POST_BANNER, formData);
