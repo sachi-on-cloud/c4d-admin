@@ -693,7 +693,7 @@ const ConfirmBooking = (props) => {
                                 }
                                 {bookingDetails?.totalPrice > 0 &&
                                  <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total Price:</Typography>
+                                    <Typography color="gray" variant="h6">Price:</Typography>
                                     {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
                                 </div>
@@ -825,7 +825,7 @@ const ConfirmBooking = (props) => {
             {amount && (
                 <Card className="my-6">
                     <div className="border rounded-xl bg-gray-200 p-4">
-                        <h2 className="text-2xl font-bold text-center">Invoice</h2>
+                        <h2 className="text-2xl font-bold text-center">Receipt</h2>
                         {/* <div className="mt-3">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Company Name: </Typography>
@@ -845,10 +845,10 @@ const ConfirmBooking = (props) => {
                             </div>
                             {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
                                 <>
-                                    <div className="flex justify-between">
+                                    {/* <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
-                                    </div>
+                                    </div> */}
                                     {amount.extraKMs > 0 && <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
@@ -869,11 +869,60 @@ const ConfirmBooking = (props) => {
                                 </> : ""
                             }
                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Total:</Typography>
+                                <Typography color="gray" variant="h6">Sub Total:</Typography>
                                 <Typography style={{
                                     fontWeight: 'bold'
                                 }}>₹ {amount?.total}</Typography>
                             </div>
+                                {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Discount Amount:</Typography>
+                                        <Typography>₹ {bookingDetails?.paymentDetails?.details?.discountAmount}</Typography>
+                                    </div>
+                                }
+                                
+                                 {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Wallet Amount Used:</Typography>
+                                            <Typography>₹ {bookingDetails?.paymentDetails?.details?.walletAmountUsed}</Typography>
+                                        </div>
+                                 }
+                                
+                                
+                                 
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Start Time:</Typography>
+                                    <Typography>{moment(bookingDetails.startTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>moment{bookingDetails.startTime}</Typography> */}
+                                </div>
+                                
+                                 
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Ended Time:</Typography>
+                                     <Typography>{moment(bookingDetails.endedTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
+                                </div>
+                                
+                                
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Start KM:</Typography>
+                                    <Typography>{bookingDetails?.startKM}</Typography>
+                                </div>
+                                
+                                
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">End KM:</Typography>
+                                    <Typography>{bookingDetails?.endKM}</Typography>
+                                </div>
+                                
+                                {/* Amount After Gst:  */}
+                                {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Total:</Typography>
+                                        <Typography>₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
+                                    </div>
+                                }
+                                
                         </div>
                     </div>
                 </Card>
