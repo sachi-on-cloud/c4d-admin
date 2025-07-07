@@ -104,7 +104,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
           >
-            ROOT CABS
+             <div className="flex items-center gap-2 px-8 py-6 text-center">
+            <img
+                src="/img/app_icon.png"
+                alt=" ROOT CABS"
+                className="h-6 w-6 rounded-full"
+              />
+              ROOT CABS
+             </div>
           </Typography>
         </Link>
         <IconButton
@@ -199,13 +206,41 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-4 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
+                                {label === "All" && (
+                                <img
+                                  src="/img/all.png"
+                                  alt="All"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                             {label === "Drivers" && (
+                                <img
+                                  src="/img/driver.png"
+                                  alt="Driver"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Rides" && (
+                                <img
+                                  src="/img/rides.png"
+                                  alt="Rides"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Rentals" && (
+                                <img
+                                  src="/img/rental.png"
+                                  alt="Rentals"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
                               <Typography
                                 color="inherit"
-                                className="font-medium px-6 capitalize"
+                                className="font-medium px-3 capitalize"
                               >
                                 {label}
                               </Typography>
@@ -227,13 +262,23 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-4 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
+                                {label === "All" && (
+                                  <div className="space-x-0">
+                                      <img
+                                  src="/img/all.png"
+                                  alt="All"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                                  </div>
+                              
+                              )}
                               <Typography
                                 color="inherit"
-                                className="font-medium px-6 capitalize"
+                                className="font-medium px-3 capitalize"
                               >
                                 {label}
                               </Typography>
@@ -257,13 +302,35 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-4 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
+                                {label === "Owners" && (
+                                <img
+                                  src="/img/owners.png"
+                                  alt="Owners"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                {label === "Acting Driver" && (
+                                <img
+                                  src="/img/acting_driver.png"
+                                  alt="Acting Driver"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                {label === "Vehicles" && (
+                                <img
+                                  src="/img/vehicles.png"
+                                  alt="Vehicles"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+
                               <Typography
                                 color="inherit"
-                                className="font-medium px-6 capitalize"
+                                className="font-medium px-3 capitalize"
                               >
                                 {label}
                               </Typography>
@@ -287,13 +354,34 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-4 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
+                               {label === "Invoice" && (
+                                <img
+                                  src="/img/invoice.png"
+                                  alt="Invoice"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                {label === "Receipt" && (
+                                <img
+                                  src="/img/recipt.png"
+                                  alt="Receipt"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                {label === "Master Subscription" && (
+                                <img
+                                  src="/img/subscription.png"
+                                  alt="Master Subscription"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
                               <Typography
                                 color="inherit"
-                                className="font-medium px-6 capitalize"
+                                className="font-medium px-3 capitalize"
                               >
                                 {label}
                               </Typography>
@@ -308,7 +396,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 {name === "Document Verification" && openSubMenu === "Document Verification" && (
                   <ul className="ml-0">
                     {[
-                      { label: " All", path: "/dashboard/doc-verification" },
+                      { label: "All", path: "/dashboard/doc-verification" },
                       { label: "Pending Documents", path: "/dashboard/doc-verification/pending" },
                     ].map(({ label, path }) => (
                       <li key={label}>
@@ -316,13 +404,27 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-4 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
+                              {label === "All" && (
+                                <img
+                                  src="/img/all.png"
+                                  alt="All"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Pending Documents" && (
+                                <img
+                                  src="/img/pending_doc.png"
+                                  alt="Pending Documents"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
                               <Typography
                                 color="inherit"
-                                className="font-medium px-6 capitalize"
+                                className="font-medium px-3 capitalize"
                               >
                                 {label}
                               </Typography>
@@ -340,7 +442,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
-                      { label: " All Push Notification", path: "/dashboard/vendors/notificationList" },
+                      { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
                       { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                        { label: "Version Control", path: "/dashboard/user/versionControlList" },
@@ -353,13 +455,83 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-4 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
+                              {label === "Users" && (
+                                <img
+                                  src="/img/user.png"
+                                  alt="Users"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Master Price Table" && (
+                                <img
+                                  src="/img/master_price.png"
+                                  alt="Master Price"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Instant Reward" && (
+                                <img
+                                  src="/img/reward.png"
+                                  alt="Instant Reward"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "All Push Notification" && (
+                                <img
+                                  src="/img/push_notification.png"
+                                  alt="All Push Notification"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                {label === "Drivers App Notification" && (
+                                <img
+                                  src="/img/driver_app_notification.png"
+                                  alt="Drivers App Notification"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "GeoMarkings" && (
+                                <img
+                                  src="/img/geo_marking.png"
+                                  alt="GeoMarkings"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Version Control" && (
+                                <img
+                                  src="/img/version_control.png"
+                                  alt="Version Control"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Discount Module" && (
+                                <img
+                                  src="/img/discount.png"
+                                  alt="Version Control"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "GST" && (
+                                <img
+                                  src="/img/gst.png"
+                                  alt="GST"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                {label === "Banner Image" && (
+                                <img
+                                  src="/img/banner_img.png"
+                                  alt="Banner Image"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
                               <Typography
                                 color="inherit"
-                                className="font-medium px-6 capitalize"
+                                className="font-medium px-3 capitalize"
                               >
                                 {label}
                               </Typography>

@@ -30,12 +30,12 @@ const AddBanner = () => {
     image: Yup.mixed()
       .required('Image is required')
       .test('fileType', 'Only JPEG or PNG files are allowed', (value) =>
-        value ? ['image/jpeg', 'image/png'].includes(value.type) : false
+        value ? ['image/jpeg', 'image/png','image/gif'].includes(value.type) : false
       ),
   });
 
   const handleImageUpload = (file, setFieldValue) => {
-    const validTypes = ['image/jpeg', 'image/png'];
+    const validTypes = ['image/jpeg', 'image/png','image/gif'];
     if (!file || !validTypes.includes(file.type)) {
       alert('Only JPEG and PNG images are allowed.');
       return;
@@ -128,7 +128,7 @@ const AddBanner = () => {
                 <input
                   name="image"
                   type="file"
-                  accept="image/jpeg,image/png"
+                  accept="image/*"
                   className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
                   onChange={(e) => handleImageUpload(e.currentTarget.files[0], setFieldValue)}
                 />
