@@ -12,7 +12,7 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, COMPANY_NAME, GST_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, GPAY_NAME, GPAY_NUMBER } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS  } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
@@ -26,6 +26,7 @@ const ConfirmBooking = (props) => {
     const [amount, setAmount] = useState();
     const [customerFeedback, setCustomerFeedback] = useState();
     const [driverFeedback, setDriverFeedback] = useState();
+    const [showDetails, setShowDetails] = useState(true);
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -165,6 +166,10 @@ const ConfirmBooking = (props) => {
         if (props.bookingData) {
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
+        if(props?.hideAllNewButton){
+            setShowDetails(false);
+
+        }
     }, [props.bookingData]);
 
     const onBackPressHandler = async () => {
@@ -232,6 +237,7 @@ const ConfirmBooking = (props) => {
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto">
+            {showDetails &&(
             <div className="grid grid-cols-5 gap-2 my-2">
                 {/* <Button
                         color="blue"
@@ -421,6 +427,7 @@ const ConfirmBooking = (props) => {
                         ) :<></>
                     } */}
             </div>
+        )}
             {showCancelReason && (
                 <div className="mt-4 space-y-2">
                     <select
@@ -482,6 +489,7 @@ const ConfirmBooking = (props) => {
                     </div>
                 </div>
             )}
+            {showDetails && (
             <div className="grid grid-cols-2 gap-4">
                 <Card className="mb-2">
                     <CardBody>
@@ -532,7 +540,7 @@ const ConfirmBooking = (props) => {
                                 </div>
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
-                                    <Typography>{bookingDetails?.cancelRequestedBy}</Typography>
+                                    <Typography>{bookingDetails?.cancelRequestedBy || 'Customer'}</Typography>
                                 </div>
                             </div>
                         </CardBody>
@@ -575,6 +583,7 @@ const ConfirmBooking = (props) => {
                     </Card>
                 }
             </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
                 <Card className="mb-2">
                     <CardBody>
@@ -684,7 +693,7 @@ const ConfirmBooking = (props) => {
                                 }
                                 {bookingDetails?.totalPrice > 0 &&
                                  <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total Price:</Typography>
+                                    <Typography color="gray" variant="h6">Price:</Typography>
                                     {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
                                 </div>
@@ -704,7 +713,7 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
 
-                <Card>
+                <Card className="mb-2">
                     <CardBody>
                         <div className="flex justify-between mb-2">
                             <Typography variant="h5">Location Details </Typography>
@@ -816,7 +825,7 @@ const ConfirmBooking = (props) => {
             {amount && (
                 <Card className="my-6">
                     <div className="border rounded-xl bg-gray-200 p-4">
-                        <h2 className="text-2xl font-bold text-center">Invoice</h2>
+                        <h2 className="text-2xl font-bold text-center">Receipt</h2>
                         {/* <div className="mt-3">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Company Name: </Typography>
@@ -836,10 +845,10 @@ const ConfirmBooking = (props) => {
                             </div>
                             {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
                                 <>
-                                    <div className="flex justify-between">
+                                    {/* <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
-                                    </div>
+                                    </div> */}
                                     {amount.extraKMs > 0 && <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
@@ -860,11 +869,60 @@ const ConfirmBooking = (props) => {
                                 </> : ""
                             }
                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Total:</Typography>
+                                <Typography color="gray" variant="h6">Sub Total:</Typography>
                                 <Typography style={{
                                     fontWeight: 'bold'
                                 }}>₹ {amount?.total}</Typography>
                             </div>
+                                {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Discount Amount:</Typography>
+                                        <Typography>₹ {bookingDetails?.paymentDetails?.details?.discountAmount}</Typography>
+                                    </div>
+                                }
+                                
+                                 {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Wallet Amount Used:</Typography>
+                                            <Typography>₹ {bookingDetails?.paymentDetails?.details?.walletAmountUsed}</Typography>
+                                        </div>
+                                 }
+                                
+                                
+                                 
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Start Time:</Typography>
+                                    <Typography>{moment(bookingDetails.startTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>moment{bookingDetails.startTime}</Typography> */}
+                                </div>
+                                
+                                 
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Ended Time:</Typography>
+                                     <Typography>{moment(bookingDetails.endedTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
+                                </div>
+                                
+                                
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Start KM:</Typography>
+                                    <Typography>{bookingDetails?.startKM}</Typography>
+                                </div>
+                                
+                                
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">End KM:</Typography>
+                                    <Typography>{bookingDetails?.endKM}</Typography>
+                                </div>
+                                
+                                {/* Amount After Gst:  */}
+                                {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Total:</Typography>
+                                        <Typography>₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
+                                    </div>
+                                }
+                                
                         </div>
                     </div>
                 </Card>
@@ -922,7 +980,7 @@ const ConfirmBooking = (props) => {
                     }
                 </div>
 
-                <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} />
+                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} /> }
             </>
         </div>
     );

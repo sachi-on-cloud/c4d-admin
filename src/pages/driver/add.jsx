@@ -145,6 +145,7 @@ const DriverAdd = () => {
         fatherName: driverVal?.fatherName || "",
         dateOfBirth: driverVal?.dob || "",
         age: driverVal?.age || "",
+        // driverExperience: driverVal?.driverExperience || "",
         phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driverVal?.license || "",
         licenseType: driverVal?.licenseType || "",
@@ -266,6 +267,7 @@ const DriverAdd = () => {
                 fatherName: values.fatherName || "",
                 dob: values.dateOfBirth || "",
                 age: values.age || "",
+                // driverExperience: values.driverExperience || "",
                 phoneNumber: "+91" + values.phoneNumber,
                 license: values.license,
                 licenseType: values.licenseType || "",
@@ -692,6 +694,13 @@ const DriverAdd = () => {
                                         <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                         <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
+
+                                     {/* <div>
+                                        <label htmlFor="driverExperience" className="text-sm font-medium text-gray-700">Driver Experience</label>
+                                        <Field type="text" name="driverExperience" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="driverExperience" component="div" className="text-red-500 text-sm my-1" />
+                                    </div> */}
+
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                         <Field type="tel" name="phoneNumber" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" maxLength={10} />

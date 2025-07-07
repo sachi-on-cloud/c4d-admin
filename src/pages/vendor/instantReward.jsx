@@ -52,7 +52,9 @@ const InstantReward = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const customerData = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS);
+      const customerData = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_CUSTOMERS,{
+        forSearch:true
+      });
       // console.log('Customer Data:', customerData?.data);
       setCustomers(customerData?.success && customerData?.data.length > 0 ? customerData.data : []);
     } catch (error) {
