@@ -319,7 +319,9 @@ export function MasterPriceView() {
                                 <tr>
                                     {[
                                         "Rate Parameter",
-                                        "Base Fare (Mini,SUV,Sedan)",
+                                        "Base Fare (Mini)",
+                                        "Base Fare (Sedan)",
+                                        "Base Fare (SUV)",
                                         "Base Fare (MUV)",
                                         "Rate Per KM (Mini,SUV,Sedan)",
                                         "Rate Per KM (MUV)",
@@ -342,6 +344,8 @@ export function MasterPriceView() {
                                 {ridesData.map(({
                                     id,
                                     baseFare,
+                                    baseFareSedan, 
+                                    baseFareSuv,
                                     baseFareMVP,
                                     kilometerPrice,
                                     kilometerPriceMVP,
@@ -370,6 +374,16 @@ export function MasterPriceView() {
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {baseFare}
+                                                </Typography>
+                                            </td>
+                                              <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFareSedan}
+                                                </Typography>
+                                            </td>
+                                              <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFareSuv}
                                                 </Typography>
                                             </td>
                                             <td className={className}>

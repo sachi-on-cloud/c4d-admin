@@ -540,7 +540,7 @@ const ConfirmBooking = (props) => {
                                 </div>
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
-                                    <Typography>{bookingDetails?.cancelRequestedBy}</Typography>
+                                    <Typography>{bookingDetails?.cancelRequestedBy || 'Customer'}</Typography>
                                 </div>
                             </div>
                         </CardBody>

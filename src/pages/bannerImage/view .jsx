@@ -6,6 +6,7 @@ import {
   Typography,
   Button,
   Spinner,
+  Switch,
 } from '@material-tailwind/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
@@ -17,6 +18,7 @@ const BannerView = () => {
   const location = useLocation();
   const [bannerList, setBannerList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingBannerId, setUpdatingBannerId] = useState(null);
 
   useEffect(() => {
   const fetchBanners = async () => {
@@ -50,6 +52,32 @@ const BannerView = () => {
 
   fetchBanners();
 }, [location.state]);
+
+  const handleStatusToggle = async (bannerId, newStatus) => {
+    try {
+      setLoading(true);
+      setUpdatingBannerId(bannerId);
+      // console.log('Updating Banner:', { bannerId, status: newStatus });
+
+      const res = await ApiRequestUtils.update(API_ROUTES.UPDATE_BANNER, {
+        bannerId: bannerId,
+        status: newStatus,
+      });
+      // console.log('Update Response ====> :', res);
+
+      setBannerList((prevList) =>
+        prevList.map((item) =>
+          item.id === bannerId ? { ...item, status: newStatus } : item
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update banner status:', err);
+    } finally {
+      setUpdatingBannerId(null);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="flex items-center justify-end">
@@ -110,11 +138,13 @@ const BannerView = () => {
                         {item.toDate ? moment(item.toDate).format('DD-MM-YYYY') : '-'}
                       </td>
                       <td className="py-3 px-5">
-                        {item.status ? (
-                          <span className="text-green-600 font-semibold">Active</span>
-                        ) : (
-                          <span className="text-red-600 font-semibold">Inactive</span>
-                        )}
+                        <Switch
+                          color="blue"
+                          checked={item.status}
+                          onChange={() => handleStatusToggle(item.id, !item.status)}
+                          disabled={updatingBannerId === item.id}
+                          label={item.status ? 'Active' : 'Inactive'}
+                        />
                       </td>
                      
                     </tr>
