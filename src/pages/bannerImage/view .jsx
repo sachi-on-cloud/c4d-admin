@@ -25,7 +25,7 @@ const BannerView = () => {
     try {
       setLoading(true);
       const res = await ApiRequestUtils.get(API_ROUTES.GET_BANNER);
-      console.log('Full API Response:', res); 
+      // console.log('Full API Response:', res); 
       
       // Handle different response structures
       let list = [];
@@ -106,8 +106,8 @@ const BannerView = () => {
                   <th className="py-3 px-5 text-left">Image</th>
                   <th className="py-3 px-5 text-left">Type</th>
                   <th className="py-3 px-5 text-left">Redirect URL</th>
-                  <th className="py-3 px-5 text-left">From Date</th>
-                  <th className="py-3 px-5 text-left">To Date</th>
+                  {/* <th className="py-3 px-5 text-left">From Date</th> */}
+                  {/* <th className="py-3 px-5 text-left">To Date</th> */}
                   <th className="py-3 px-5 text-left">Status</th>
                   
                 </tr>
@@ -133,7 +133,7 @@ const BannerView = () => {
                       <td className="py-3 px-5">{item.redirectUrl || '-'}</td>
                       <td className="py-3 px-5">
                         {item.fromDate ? moment(item.fromDate).format('DD-MM-YYYY') : '-'}
-                      </td>
+                      </td> 
                       <td className="py-3 px-5">
                         {item.toDate ? moment(item.toDate).format('DD-MM-YYYY') : '-'}
                       </td>
