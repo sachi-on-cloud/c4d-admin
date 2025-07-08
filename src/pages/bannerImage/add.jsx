@@ -12,8 +12,8 @@ const AddBanner = () => {
   const [error, setError] = useState(null);
 
   const initialValues = {
-    fromDate: '',
-    toDate: '',
+    // fromDate: '',
+    // toDate: '',
     redirectUrl: '',
     status: true,
     type: '',
@@ -22,8 +22,8 @@ const AddBanner = () => {
 
   // ✅ Yup Validation Schema
   const validationSchema = Yup.object().shape({
-    fromDate: Yup.string().required('From date is required'),
-    toDate: Yup.string().required('To date is required'),
+    // fromDate: Yup.string().required('From date is required'),
+    // toDate: Yup.string().required('To date is required'),
     redirectUrl: Yup.string().required('Redirect URL is required'),
     status: Yup.boolean().required('Status is required'),
     type: Yup.string().required('Type is required'),
@@ -47,11 +47,11 @@ const AddBanner = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      console.log('Sending image:', values.image?.name, values.image?.type);
+      // console.log('Sending image:', values.image?.name, values.image?.type);
 
       const formData = new FormData();
-      formData.append('fromDate', values.fromDate);
-      formData.append('toDate', values.toDate);
+      // formData.append('fromDate', values.fromDate);
+      // formData.append('toDate', values.toDate);
       formData.append('redirectUrl', values.redirectUrl.trim());
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
@@ -84,9 +84,10 @@ const AddBanner = () => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting, setFieldValue }) => (
+        {({ isSubmitting, values,setFieldValue }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+              {values.type == "BANNER" &&  <>
               <div>
                 <label className="text-sm font-medium text-gray-700">From Date</label>
                 <Field name="fromDate" type="date" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
@@ -97,7 +98,7 @@ const AddBanner = () => {
                 <label className="text-sm font-medium text-gray-700">To Date</label>
                 <Field name="toDate" type="date" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
                 <ErrorMessage name="toDate" component="div" className="text-red-500 text-sm" />
-              </div>
+              </div> </>}
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Redirect URL</label>
@@ -107,7 +108,14 @@ const AddBanner = () => {
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Type</label>
-                <Field name="type" type="text" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
+                <Field as="select" name="type" className="p-2 w-full rounded-md border border-gray-300 shadow-sm">
+                  <option value="">select the Type</option>
+                  <option value="TOP">Top</option>
+                  <option value="BOTTOM">Bottom</option>
+                  <option value="YOUTUBE">YouTube</option>
+                  <option value="BACKGROUND">Background</option>
+                  <option value="BANNER">Banner</option>
+                </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
               </div>
 
