@@ -484,6 +484,36 @@ const Booking = (props) => {
                         REQUEST DRIVER
                     </span>
                     );
+                case 'booking_accepted':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        BOOKING ACCEPTED
+                    </span>
+                    );
+                case 'end_otp':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                        END OTP
+                    </span>
+                    );
+                case 'driver_on_the_way':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        DRIVER ON THE WAY
+                    </span>
+                    );
+                case 'driver_reached':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
+                        DRIVER REACHED
+                    </span>
+                    );
+                case 'payment_requested':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+                        PAYMENT REQUESTED
+                    </span>
+                    );
             default:
                 return null;
         }
