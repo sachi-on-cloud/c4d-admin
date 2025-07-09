@@ -1015,7 +1015,8 @@ const Booking = (props) => {
                                                                         </Typography>
                                                                         {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Estimated Distance</Typography>}
                                                                         {values.serviceType !== 'DRIVER' && <Typography>
-                                                                            {Math.round(quoteDetails.amount.estimatedDistance)} Kms
+                                                                            {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
+                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm))} Kms
                                                                         </Typography>}
                                                                         {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer Price Value</Typography>}
                                                                         {values.serviceType !== 'DRIVER' && <Typography>

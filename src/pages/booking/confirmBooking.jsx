@@ -214,6 +214,7 @@ const ConfirmBooking = (props) => {
 
         if (data?.success) {
             props.onConfirm();
+            props.setIsOpen(false);
         }
     };
 
@@ -295,7 +296,7 @@ const ConfirmBooking = (props) => {
                     </Button>
                 )}
 
-                {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "DRIVER" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RENTAL")) &&
+                {/* {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "DRIVER" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RENTAL")) &&
                     bookingDetails?.pickupAddress &&
                     !bookingDetails?.Driver?.id &&
                     !bookingDetails?.Cab?.id && (
@@ -334,7 +335,7 @@ const ConfirmBooking = (props) => {
                                 ? "Request Cab"
                                 : "Request Captain"}
                         </Button>
-                    )}
+                    )} */}
 
                 {bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
                     bookingDetails?.pickupAddress &&
