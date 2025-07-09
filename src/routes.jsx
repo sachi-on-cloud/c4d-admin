@@ -86,6 +86,8 @@ import GstAdd from "./pages/GST/add";
 import GstEdit from "./pages/GST/edit";
 import BannerView from "./pages/bannerImage/view ";
 import AddBanner from "./pages/bannerImage/add";
+import TestimoinalView from "./pages/testimoinal/view";
+import TestimoinalAdd from "./pages/testimoinal/add";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -672,6 +674,20 @@ export const routes = [
         name: "discount module add",
         path: "/user/discountModule/add",
         element: <DiscountAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "testimoinal view",
+        path: "/user/testimonialView",
+        element: <TestimoinalView/>,
+        display: true
+      },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "testimoinal add",
+        path: "/user/testimonial/add",
+        element: <TestimoinalAdd/>,
         display: true
       },
 
