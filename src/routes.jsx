@@ -88,6 +88,7 @@ import BannerView from "./pages/bannerImage/view ";
 import AddBanner from "./pages/bannerImage/add";
 import TestimoinalView from "./pages/testimoinal/view";
 import TestimoinalAdd from "./pages/testimoinal/add";
+import { OnlineVehiclesList } from "./pages/vendor/onlineVehiclesList";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -143,6 +144,13 @@ export const routes = [
         name: "vehicleList",
         path: "/vendors/vehicleList",
         element: <VehiclesList />,
+        display: false
+      },
+       {
+         icon: <UserIcon {...icon} />,
+        name: "Online Vehicles List",
+        path: "/vendors/onlineVehiclesList",
+        element: <OnlineVehiclesList />,
         display: false
       },
       {
@@ -723,7 +731,7 @@ export const routes = [
         display: false
       },
       {
-        path: "/root-price-details",
+        path: "/rate-card-details",
         element: <PriceList />,
         display: false
       },

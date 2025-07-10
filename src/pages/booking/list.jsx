@@ -39,6 +39,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const [nameSortConfig, setNameSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
     const [filteredRange, setFilteredRange] = useState({});
     const [loading, setLoading] = useState(true);
+    const [loadingStates, setLoadingStates] = useState({});
     const [userId, setUserId] = useState(null);  
 
 useEffect(() => {
@@ -154,39 +155,30 @@ useEffect(() => {
                 console.error('No userId available');
                 return;
             }
-            setLoading(true);
             try {
-                
+                setLoadingStates(prev => ({ ...prev, [bookingId]: true }));
                 const data = await UpdateOwnerShip(bookingId, userId);
                 if (data?.success) {
-                setBookingsList(Array.isArray(data?.data) ? data?.data : []);
-                
+                    await getBookingsList(pagination.currentPage);
                 }
             } catch (error) {
                 console.error('Error updating ownership:', error);
+                setLoadingStates(prev => ({ ...prev, [bookingId]: false }));
             }
             };
 
             const UpdateOwnerShip = async (bookingId, userId) => {
-                setLoading(false);
                 try {
                 const data = await ApiRequestUtils.update(API_ROUTES.PUT_OWNER_SHIP, {
                     bookingId,
                     userId,
-                })
-                if(data?.success)
-                {
-                    setLoading(false);
-                    setPagination({
-                            currentPage: data?.pagination?.currentPage || 1,
-                            totalPages: data?.pagination?.totalPages || 1,
-                            totalItems: data?.pagination?.totalItems || 0,
-                            itemsPerPage: data?.pagination?.itemsPerPage || 20,
-                        })
-                }
-                
+                });
+                console.log('UpdateOwnerShip API response:', data);
+                setLoadingStates(prev => ({ ...prev, [bookingId]: false }));
+                return data;
                 } catch (error) {
                 console.error('UpdateOwnerShip Error:', error);
+                setLoadingStates(prev => ({ ...prev, [bookingId]: false }));
                 }
             };
   
@@ -464,7 +456,6 @@ useEffect(() => {
                                                         : "border-b border-blue-gray-50"} ${
                                                         data?.isSosCalled == true ? 'bg-red-500 text-white'
                                                         : isSelected ? 'bg-blue-50'
-                                                        : data?.status === "QUOTED" ? "bg-yellow-200"
                                                         : "hover:bg-gray-50"
                                                     } transition-colors duration-200`;
 
@@ -519,8 +510,8 @@ useEffect(() => {
                                                             ) : data?.ownership}
 
                                                             </Typography>
-                                                            </td> */}
-                                                        {/* <td className={className}>
+                                                            </td> 
+                                                        <td className={className}>
                                                             {data?.status == "STARTED" ?
                                                                 <Chip
                                                                     variant="gradient"
@@ -563,7 +554,11 @@ useEffect(() => {
                                                                 variant="ghost"
                                                                 // color={"blue"}
                                                                 value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
-                                                                className={`py-0.5 px-2 text-[11px] font-medium w-fit ${ColorStyles.bgStatusColor}`}
+                                                                className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
+                                                                    data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
+                                                                    data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
+                                                                    data?.status === "CONFIRMED" ? "bg-green-600 text-white" : "bg-blue-600 text-white"
+                                                                }`}
                                                             />
                                                         </td>
                                                        <td className={className}>
@@ -571,20 +566,20 @@ useEffect(() => {
                                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.User?.name}
                                                                 </Typography>
-                                                            ) : 
+                                                            ) : (
                                                                 <Button
                                                                 fullWidth
                                                                 className="text-xs font-semibold text-white"
                                                                 onClick={() => handleOnClick(data.id)}
-                                                                disabled={loading}
-                                                                >
-                                                                {loading ? (
+                                                                disabled={loadingStates[data.id]}
+                                                            >
+                                                                {loadingStates[data.id] ? (
                                                                     <Spinner className="h-4 w-4" />
                                                                 ) : (
                                                                     'Assign To Me'
                                                                 )}
                                                                 </Button>
-                                                            }
+                                                            )}
                                                          </td>
                                                         
                                                         <td className={className}>

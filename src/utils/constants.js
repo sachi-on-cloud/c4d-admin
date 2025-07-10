@@ -806,6 +806,7 @@ export const API_ROUTES = {
     'UPDATE_BOOKING': '/update-booking',
     'UPDATE_RIDES_BOOKING': '/edit-rides-booking',
     'CANCEL_ADMIN_BOOKING': "/booking-cancel",
+    'CHECK_PRESENCE' : '/check-presence',
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',

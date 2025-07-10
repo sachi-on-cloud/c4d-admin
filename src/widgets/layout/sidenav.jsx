@@ -296,6 +296,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
+                      { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -324,6 +325,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/vehicles.png"
                                   alt="Vehicles"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                 {label === "Online Vehicles List" && (
+                                <img
+                                  src="/img/vehicleslist.png"
+                                  alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
