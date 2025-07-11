@@ -41,7 +41,20 @@ export function VehiclesList({ id = 0 }) {
     itemsPerPage: 15,
     search:'',
   });
+  const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
   const navigate = useNavigate();
+
+  const checkPresence = async (id)=>{
+      try{
+         const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE,{driverId:id});
+      }
+      catch(error){
+  
+      }
+      finally{
+        setStatusCheckedDriverIds(prev => [...prev, id]);
+      }
+    }
 
   const fetchCabList = async (page = 1, searchQuery = '', showLoader = false) => {
     if(showLoader) setLoading(true);
@@ -338,6 +351,12 @@ export function VehiclesList({ id = 0 }) {
                           value={Drivers[0]?.status === "ACTIVE" ? "Active" : "In_Active"}
                           className="py-0.5 px-2 text-[11px] font-medium w-fit"
                         />
+                         {Drivers[0]?.status === "ACTIVE" && statusCheckedDriverIds.indexOf(Drivers[0]?.id)==-1 &&  <Typography
+                          className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                          onClick={()=>checkPresence(Drivers[0]?.id)}
+                        >
+                          Check Status
+                        </Typography>}
                       </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Chip

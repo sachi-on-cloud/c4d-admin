@@ -806,6 +806,7 @@ export const API_ROUTES = {
     'UPDATE_BOOKING': '/update-booking',
     'UPDATE_RIDES_BOOKING': '/edit-rides-booking',
     'CANCEL_ADMIN_BOOKING': "/booking-cancel",
+    'CHECK_PRESENCE' : '/check-presence',
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',
@@ -933,7 +934,10 @@ export const API_ROUTES = {
     'POST_GST':'/add-gst',
     'GET_BANNER':'/banner',
     'POST_BANNER':'/banner/add',
-    'UPDATE_BANNER':'/banner/update'
+    'UPDATE_BANNER':'/banner/update',
+    'GET_TESTIMOINAL':'/testimonial',
+    'POST_TESTIMOINAL':'/testimonial/add',
+    'UPDATE_TESTIMONIAL':'/testimonial/update',
 
 };
 

@@ -106,8 +106,8 @@ const BannerView = () => {
                   <th className="py-3 px-5 text-left">Image</th>
                   <th className="py-3 px-5 text-left">Type</th>
                   <th className="py-3 px-5 text-left">Redirect URL</th>
-                  {/* <th className="py-3 px-5 text-left">From Date</th> */}
-                  {/* <th className="py-3 px-5 text-left">To Date</th> */}
+                  <th className="py-3 px-5 text-left">From Date</th>
+                  <th className="py-3 px-5 text-left">To Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
                   
                 </tr>

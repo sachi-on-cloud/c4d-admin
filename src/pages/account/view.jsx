@@ -51,6 +51,7 @@ export function AccountView() {
         itemsPerPage: 15,
         search: '',
       }); 
+  // const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
 
   const fetchAccounts = async (page = 1, searchQuery = '', showLoader = true) => {
     if (showLoader) setLoading(true);
@@ -78,6 +79,18 @@ export function AccountView() {
     }
   };
 
+  // const checkPresence = async (id)=>{
+   
+  //   try{
+  //      const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE,{driverId:id});
+  //   }
+  //   catch(error){
+
+  //   }
+  //   finally{
+  //     setStatusCheckedDriverIds(prev => [...prev, id]);
+  //   }
+  // }
   useEffect(() => {
     fetchAccounts(pagination.currentPage, pagination.search, true);
 

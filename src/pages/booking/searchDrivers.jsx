@@ -20,6 +20,19 @@ export function SearchDrivers(props) {
     const [sortDirection, setSortDirection] = useState('asc');
     const [loading, setLoading] = useState(false);
     const [loadingRides, setLoadingRides] = useState(false);
+    const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
+
+     const checkPresence = async (id)=>{
+          try{
+             const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE,{driverId:id});
+          }
+          catch(error){
+      
+          }
+          finally{
+            setStatusCheckedDriverIds(prev => [...prev, id]);
+          }
+        }
 
     const getDriversList = async (searchQuery = '') => {
         setLoading(true);
@@ -406,6 +419,12 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
+                                                              {status === "ACTIVE" && statusCheckedDriverIds.indexOf(id)==-1 &&  <Typography
+                                                                    className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                    onClick={()=>checkPresence(id)}
+                                                                >
+                                                                    Check Status
+                                                                </Typography>}
                                                         </td>
                                                         <td className={className}>
                                                             {status === "ACTIVE" && <Button
@@ -552,6 +571,12 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
+                                                            {status === "ACTIVE" && statusCheckedDriverIds.indexOf(id)==-1 &&  <Typography
+                                                                    className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                    onClick={()=>checkPresence(id)}
+                                                                >
+                                                                    Check Status
+                                                                </Typography>}
                                                         </td>
                                                          <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
