@@ -21,6 +21,7 @@ export function DriverNotificationList() {
 
       useEffect(() => {
           const fetchDriverNotificationList = async () => {
+            setLoading(false);
             try {
               const data = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_NOTIFY);
               setdriverNotification(data.data || []);

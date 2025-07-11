@@ -665,6 +665,18 @@ const ConfirmBooking = (props) => {
                                     <Typography>{(Number(bookingDetails?.value?.estimatedDistance) + Number(bookingDetails?.Package?.baseKm)).toFixed(1)} Kms</Typography>
                                 </div>
                             }
+                            {/* {(bookingDetails?.serviceType == 'RENTAL' && bookingDetails?.packageType == 'Outstation' && bookingDetails?.bookingType == 'ROUND TRIP') &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total Days:</Typography>
+                                    <Typography>{bookingDetails?.value?.displayTime}</Typography>
+                                </div>
+                            }
+                            {(bookingDetails?.serviceType == 'RENTAL' && bookingDetails?.packageType == 'Outstation' && bookingDetails?.bookingType == 'DROP ONLY') &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total Days:</Typography>
+                                    <Typography>{bookingDetails?.value?.displayTime}</Typography>
+                                </div>
+                            } */}
                             {/* need to add logic for price */}
                             {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
                                 <div className="flex justify-between">
@@ -893,14 +905,14 @@ const ConfirmBooking = (props) => {
                                 }
                                 {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
                                     <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Discount Amount:</Typography>
+                                        <Typography color="gray" variant="h6">Discount Applied:</Typography>
                                         <Typography>₹ {bookingDetails?.paymentDetails?.details?.discountAmount}</Typography>
                                     </div>
                                 }
                                 
                                  {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
                                         <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">Wallet Amount Used:</Typography>
+                                            <Typography color="gray" variant="h6">Wallet Points Used:</Typography>
                                             <Typography>₹ {bookingDetails?.paymentDetails?.details?.walletAmountUsed}</Typography>
                                         </div>
                                  }
@@ -915,7 +927,7 @@ const ConfirmBooking = (props) => {
                                 
                                  
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Ended Time:</Typography>
+                                    <Typography color="gray" variant="h6">End Time:</Typography>
                                      <Typography>{moment(bookingDetails.endedTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
                                     {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
                                 </div>
@@ -932,7 +944,42 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.endKM}</Typography>
                                 </div>
                                 </>}
-                                
+                                {bookingDetails?.extraHours >0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
+                                     <Typography>{bookingDetails?.extraHours}</Typography>     
+                                </div>
+                                }
+                                 {/* {bookingDetails?.extraHourPrice >0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
+                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
+                                </div>
+                                } */}
+                                {bookingDetails?.extraHourPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs Price:</Typography>
+                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
+                                </div>
+                                }
+                                 {bookingDetails?.extraKMs > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra KMs:</Typography>
+                                     <Typography>{bookingDetails?.extraKMs}</Typography>     
+                                </div>
+                                }
+                                 {bookingDetails?.extraKMPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra KM Price:</Typography>
+                                     <Typography>{bookingDetails?.extraKMPrice}</Typography>     
+                                </div>
+                                }
+                                {bookingDetails?.extraNightChargePrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra KM Price:</Typography>
+                                     <Typography>{bookingDetails?.extraNightChargePrice}</Typography>     
+                                </div>
+                                }
                                 
                                 
                         </div>

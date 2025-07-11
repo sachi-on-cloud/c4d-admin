@@ -419,12 +419,16 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                              {status === "ACTIVE" && statusCheckedDriverIds.indexOf(id)==-1 &&  <Typography
+                                                              {status === 'ACTIVE' &&
+                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
+                                                                Drivers?.[0]?.id && (
+                                                                <Typography
                                                                     className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                    onClick={()=>checkPresence(id)}
+                                                                    onClick={() => checkPresence(Drivers[0].id, id)}
                                                                 >
                                                                     Check Status
-                                                                </Typography>}
+                                                                </Typography>
+                                                                )}
                                                         </td>
                                                         <td className={className}>
                                                             {status === "ACTIVE" && <Button
@@ -571,12 +575,16 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === "ACTIVE" && statusCheckedDriverIds.indexOf(id)==-1 &&  <Typography
+                                                            {status === 'ACTIVE' &&
+                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
+                                                                Drivers?.[0]?.id && (
+                                                                <Typography
                                                                     className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                    onClick={()=>checkPresence(id)}
+                                                                    onClick={() => checkPresence(Drivers[0].id, id)}
                                                                 >
                                                                     Check Status
-                                                                </Typography>}
+                                                                </Typography>
+                                                                )}
                                                         </td>
                                                          <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
