@@ -455,7 +455,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                        { label: "Version Control", path: "/dashboard/user/versionControlList" },
                       { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
-                      { label: "GST", path: "/dashboard/user/GSTList" },
+                      { label: "TAX", path: "/dashboard/user/GSTList" },
                        { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                        { label: "Testimonial", path: "/dashboard/user/testimonialView" },
                     ].map(({ label, path }) => (
@@ -524,10 +524,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "GST" && (
+                               {label === "TAX" && (
                                 <img
                                   src="/img/gst.png"
-                                  alt="GST"
+                                  alt="TAX"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}

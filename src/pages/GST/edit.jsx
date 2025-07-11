@@ -113,7 +113,7 @@ const GstEdit = () => {
         </Alert>
       )}
 
-      <h2 className="text-2xl font-bold mb-4">Edit GST</h2>
+      <h2 className="text-2xl font-bold mb-4">Edit TAX</h2>
 
       <Formik
         enableReinitialize
