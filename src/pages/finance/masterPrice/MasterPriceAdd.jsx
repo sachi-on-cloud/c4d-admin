@@ -50,6 +50,7 @@ export function MasterPriceAdd() {
                 kilometer: values.kilometer,
                 dropPriceAbove: values.dropPriceAbove,
                 status: 1,
+                extraKmPrice:values.extraKmPrice,
             };
             if (values.type === 'Outstation') {
                 masterpriceList['baseFare'] = values.baseFare;
@@ -139,12 +140,12 @@ export function MasterPriceAdd() {
                                     <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                                 </div>
                             }
-                            {values?.type === 'Outstation' &&<div>
+                            <div>
                                     <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
                                     <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                     <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
                                 </div>
-                            }
+                            
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Waiting Charges</label>
                                 <Field type="number" name="waitingCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
