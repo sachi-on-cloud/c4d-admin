@@ -19,7 +19,6 @@ export function OnlineVehiclesList({ id = 0 }) {
   const [vehicleList, setVehicleList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
-  const [refreshInterval, setRefreshInterval] = useState(null);
   const [selectedInterval, setSelectedInterval] = useState('');
   const intervalRef = useRef(null);
   const navigate = useNavigate();
@@ -94,24 +93,17 @@ export function OnlineVehiclesList({ id = 0 }) {
     }
   };
 
-  const handleRunRefresh = () => {
-    if (selectedInterval) {
+  const handleIntervalChange = (value) => {
+    setSelectedInterval(value);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      intervalRef.current = null;
       }
-      const intervalSeconds = parseInt(selectedInterval);
+    if (value) {
+      const intervalSeconds = parseInt(value);
       intervalRef.current = setInterval(() => {
         fetchCabList();
       }, intervalSeconds * 1000);
-      setRefreshInterval(intervalSeconds);
-    }
-  };
-
-  const handleStopRefresh = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-      setRefreshInterval(null);
     }
   };
 
@@ -129,36 +121,16 @@ export function OnlineVehiclesList({ id = 0 }) {
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm flex justify-between items-center">
         <div className="flex items-center gap-4 max-w-[500px]">
           <Select
-            label="Refresh Every"
+            label={selectedInterval ? `Refreshing every ${selectedInterval}` : 'Select Refresh Interval'}
             value={selectedInterval}
-            onChange={(value) => setSelectedInterval(value)}
+            onChange={handleIntervalChange}
           >
+            <Option value="">Stop Refresh</Option>
             {['5', '10', '15', '20', '30', '60', '90', '120'].map((sec) => (
-              <Option key={sec} value={sec}>{`${sec}s`}</Option>
+              <Option key={sec} value={sec}>{`${sec} sec`}</Option>
             ))}
           </Select>
-          <Button
-            color="blue"
-            size="sm"
-            onClick={handleRunRefresh}
-            disabled={!selectedInterval || refreshInterval !== null}
-          >
-            Run
-          </Button>
-          <Button
-            color="red"
-            size="sm"
-            onClick={handleStopRefresh}
-            disabled={!refreshInterval}
-          >
-            Stop
-          </Button>
         </div>
-        {refreshInterval && (
-          <Typography variant="medium" color="blue-gray">
-            Refreshing every {refreshInterval}s
-          </Typography>
-        )}
       </div>
       <Card>
        {vehicleList.length > 0 ? (
