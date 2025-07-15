@@ -22,10 +22,7 @@ const AddBanner = () => {
 
   // ✅ Yup Validation Schema
   const validationSchema = Yup.object().shape({
-    // fromDate: Yup.string().required('From date is required'),
-    // toDate: Yup.string().required('To date is required'),
-    redirectUrl: Yup.string().required('Redirect URL is required'),
-    status: Yup.boolean().required('Status is required'),
+    // status: Yup.boolean().required('Status is required'),
     type: Yup.string().required('Type is required'),
     image: Yup.mixed()
       .required('Image is required')
@@ -115,6 +112,7 @@ const AddBanner = () => {
                   <option value="YOUTUBE">YouTube</option>
                   <option value="BACKGROUND">Background</option>
                   <option value="BANNER">Banner</option>
+                  <option value="STATS">Stats</option>
                 </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
               </div>
