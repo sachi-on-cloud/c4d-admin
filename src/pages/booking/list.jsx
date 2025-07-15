@@ -557,7 +557,9 @@ useEffect(() => {
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
                                                                     data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
-                                                                    data?.status === "CONFIRMED" ? "bg-green-600 text-white" : "bg-blue-600 text-white"
+                                                                    data?.status === "CONFIRMED" ? "bg-green-600 text-white" : 
+                                                                    data?.status === "BOOKING_ACCEPTED" ? "bg-green-600 text-white":
+                                                                    data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-200 text-black": "bg-blue-600 text-white" 
                                                                 }`}
                                                             />
                                                         </td>

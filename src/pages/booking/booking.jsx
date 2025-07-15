@@ -1035,23 +1035,26 @@ const Booking = (props) => {
                                                             <div className="mt-4">
                                                                 <>
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                                        <Typography>
-                                                                            ₹ {quoteDetails.amount.estimatedPrice}
-                                                                        </Typography>
-                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
-                                                                        <Typography>
-                                                                            ₹ {quoteDetails.amount.baseFare}
-                                                                        </Typography>
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Estimated Distance</Typography>}
+                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer</Typography>}
                                                                         {values.serviceType !== 'DRIVER' && <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
                                                                             {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm))} Kms
                                                                         </Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer Price Value</Typography>}
+                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Per Km Rate</Typography>}
                                                                         {values.serviceType !== 'DRIVER' && <Typography>
                                                                             ₹ {quoteDetails.amount.kilometerPriceVal}
                                                                         </Typography>}
+                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.baseFare}
+                                                                        </Typography>
+                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.estimatedPrice}
+                                                                        </Typography>
+                                                                        
+                                                                        
+                                                                        
                                                                         {/* <Typography color="gray" variant="h6">Extra Km Price</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.extraKmPrice}
