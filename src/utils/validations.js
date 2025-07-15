@@ -435,19 +435,19 @@ export const CAB_SCHEMA = Yup.object({
 
     //wallet: Yup.string().required('Wallet is required'),
     type: Yup.string()
-        .oneOf(["RENTAL"], "Rides"),
+        .oneOf(["RENTAL","Rides"]),
 
     prices: Yup.array().of(
         Yup.object().shape({
             kilometer: Yup.number()
                 .typeError("Kilometer must be a number")
                 .positive("Kilometer must be greater than zero")
-                .required("Kilometer is required"),
-                // .when("type", {
-                //     is: (type) => type === "RENTAL",
-                //     then: (schema) => schema.required("Kilometer is required."),
-                //     otherwise: (schema) => schema.notRequired(),
-                // }),
+                .required("Kilometer is required")
+                .when("type", {
+                    is:"RENTAL",
+                    then: (schema) => schema.required("Kilometer is required."),
+                    otherwise: (schema) => schema.notRequired(),
+                }),
 
             baseFare: Yup.number()
                 .typeError("Base Fare must be a number")
@@ -462,12 +462,12 @@ export const CAB_SCHEMA = Yup.object({
             additionalMinCharge: Yup.number()
                 .typeError("Additional Mins Charge must be a number")
                 .positive("Additional Mins Charge must be greater than zero")
-                .required("Additional Mins Charge  is required"),
-                // .when("type", {
-                //     is: (type) => type === "RENTAL",
-                //     then: (schema) => schema.required("Additional Mins Charge is required"),
-                //     otherwise: (schema) => schema.notRequired(),
-                // }),
+                .required("Additional Mins Charge  is required")
+                .when("type", {
+                    is:"RENTAL",
+                    then: (schema) => schema.required("Additional Mins Charge is required"),
+                    otherwise: (schema) => schema.notRequired(),
+                }),
 
             minCharge: Yup.number()
                 .typeError("Mins Charge must be a number")
@@ -632,7 +632,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
         .required('At least one package must be selected'),
 
     type: Yup.string()
-        .oneOf(["RENTAL"], "Rides"),
+        .oneOf(["RENTAL","Rides"]),
 
     prices: Yup.array().of(
         Yup.object().shape({
@@ -640,13 +640,13 @@ export const CAB_ADD_SCHEMA = Yup.object({
             kilometer: Yup.number()
                 .typeError("Kilometer must be a number")
                 .positive("Kilometer must be greater than zero")
-                .required("Kilometer is required"),
-                // .when("type", {
-                //     is: (type) => type === "RENTAL",
-                //     then: (schema) => schema.required("Kilometer is required."),
-                //     otherwise: (schema) => schema.notRequired(),
-
-                // }),
+                .required("Kilometer is required")
+                .when("type", {
+                    is: "RENTAL",
+                    then: (schema) => schema.required("Kilometer  is required."),
+                    otherwise: (schema) => schema.notRequired(),
+                }),
+                
 
             baseFare: Yup.number()
                 .typeError("Base Fare must be a number")
@@ -661,13 +661,13 @@ export const CAB_ADD_SCHEMA = Yup.object({
             additionalMinCharge: Yup.number()
                 .typeError("Additional Mins Charge must be a number")
                 .positive("Additional Mins Charge  must be greater than zero")
-                .required("Additional Mins Charge  is required"),
-                // .when("type", {
-                //     is: (type) => type === "RENTAL",
-                //     then: (schema) => schema.required("Additional Mins Charge  is required"),
-                //     otherwise: (schema) => schema.notRequired(),
+                .required("Additional Mins Charge  is required")
+                .when("type", {
+                    is: "RENTAL",
+                    then: (schema) => schema.required("Additional Mins Charge  is required"),
+                    otherwise: (schema) => schema.notRequired(),
 
-                // }),
+                }),
 
             minCharge: Yup.number()
                 .typeError("Mins Charge must be a number")
