@@ -452,15 +452,7 @@ useEffect(() => {
                                                 Are you sure you want to reassign? 
                                             </Typography>
                                             <div className="flex justify-center gap-3">
-                                                <Button
-                                                variant="outlined"
-                                                onClick={() => { setShowReassignModal(false);
-                                                                            // setSelectedBookingForReassign(null);
-                                                                        }}
-                                                className={" text-white w-28 mt-14 bg-black"}
-                                                >
-                                                No
-                                                </Button>
+                                               
                                                 <Button
                                                 className={`${ColorStyles.bgStatusColor} text-white w-28 mt-14`}
                                                 onClick={() => {
@@ -470,6 +462,15 @@ useEffect(() => {
                                                 }}
                                                 >
                                                 Yes
+                                                </Button>
+                                                 <Button
+                                                variant="outlined"
+                                                onClick={() => { setShowReassignModal(false);
+                                                                //  setSelectedBookingForReassign(null);
+                                                                        }}
+                                                className={" text-white w-28 mt-14 bg-black"}
+                                                >
+                                                No
                                                 </Button>
                                             </div>
                                             </div>
@@ -506,7 +507,7 @@ useEffect(() => {
                                                                         className="font-semibold underline cursor-pointer"
                                                                     >
                                                                         {data?.bookingNumber}
-                                                                    </Typography>
+                                                                    </Typography> 
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -595,13 +596,13 @@ useEffect(() => {
                                                                     data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-200 text-black": 
                                                                     data?.status === "ENDED" ? "bg-green-600 text-white" :
                                                                     data?.status === "STARTED" ? "bg-blue-600   text-white":
-                                                                    data?.status === "CUSTOMER_CANCELLED"? "bg-red-600   text-white":
                                                                     data?.status === "INITIATED"? "bg-gray-600   text-white":
                                                                     data?.status === "END_OTP" ? "bg-gray-600   text-white":
                                                                     data?.status ===  "DRIVER_ON_THE_WAY" ? "bg-blue-600   text-white":
                                                                     data?.status === "DRIVER_REACHED" ? "bg-yellow-600  text-white":
                                                                     data?.status === "PAYMENT_REQUESTED" ? "bg-green-600  text-white":
                                                                     "bg-blue-600  text-white"
+                                                                    
                                                                 }`}
                                                             />
                                                         </td>
@@ -673,6 +674,7 @@ useEffect(() => {
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                 >
                                                                     Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                   
                                                                 </Button>
                                                             }
                                                         </td>
