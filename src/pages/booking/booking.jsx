@@ -467,26 +467,26 @@ const Booking = (props) => {
                 }
                 case 'quoted':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
                         QUOTED
                     </span>
                 );
 
                 case 'confirmed':
                     return(
-                        <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
                         CONFIRMED
                     </span>
                     );
                 case 'request_driver':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-orange-600 rounded-md text-sm font-medium">
                         REQUEST DRIVER
                     </span>
                     );
                 case 'booking_accepted':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
                         BOOKING ACCEPTED
                     </span>
                     );
