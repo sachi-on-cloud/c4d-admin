@@ -453,7 +453,7 @@ const Booking = (props) => {
                 );
             case 'customer_cancelled':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-red-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-gray-200 rounded-md text-sm font-medium">
                         Cancelled
                     </span>
                 );
@@ -467,21 +467,51 @@ const Booking = (props) => {
                 }
                 case 'quoted':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
                         QUOTED
                     </span>
                 );
 
                 case 'confirmed':
                     return(
-                        <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
                         CONFIRMED
                     </span>
                     );
                 case 'request_driver':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-orange-600 rounded-md text-sm font-medium">
                         REQUEST DRIVER
+                    </span>
+                    );
+                case 'booking_accepted':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+                        BOOKING ACCEPTED
+                    </span>
+                    );
+                case 'end_otp':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+                        END OTP
+                    </span>
+                    );
+                case 'driver_on_the_way':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        DRIVER ON THE WAY
+                    </span>
+                    );
+                case 'driver_reached':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
+                        DRIVER REACHED
+                    </span>
+                    );
+                case 'payment_requested':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+                        PAYMENT REQUESTED
                     </span>
                     );
             default:
@@ -1005,22 +1035,26 @@ const Booking = (props) => {
                                                             <div className="mt-4">
                                                                 <>
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                                        <Typography>
-                                                                            ₹ {quoteDetails.amount.estimatedPrice}
-                                                                        </Typography>
+                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer</Typography>}
+                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                            {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
+                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm))} Kms
+                                                                        </Typography>}
+                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Per Km Rate</Typography>}
+                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                            ₹ {quoteDetails.amount.kilometerPriceVal}
+                                                                        </Typography>}
                                                                         <Typography color="gray" variant="h6">Base Fare</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.baseFare}
                                                                         </Typography>
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Estimated Distance</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
-                                                                            {Math.round(quoteDetails.amount.estimatedDistance)} Kms
-                                                                        </Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer Price Value</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
-                                                                            ₹ {quoteDetails.amount.kilometerPriceVal}
-                                                                        </Typography>}
+                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.estimatedPrice}
+                                                                        </Typography>
+                                                                        
+                                                                        
+                                                                        
                                                                         {/* <Typography color="gray" variant="h6">Extra Km Price</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.extraKmPrice}

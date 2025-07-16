@@ -14,6 +14,7 @@ const VersionControlEdit = () => {
     name: state?.name || '',
     applicationFor: state?.applicationFor || '',
     latestVersion: state?.latestVersion || '',
+    isMandatory: state?.isMandatory || false,
   };
 
   
@@ -24,6 +25,7 @@ const VersionControlEdit = () => {
         name: values.name,
         applicationFor: values.applicationFor,
         latestVersion: values.latestVersion,
+        isMandatory: values.isMandatory,
       };
 
       // console.log('Sending POST request:', requestBody);
@@ -49,7 +51,7 @@ const VersionControlEdit = () => {
           validationSchema={VERSION_CONTROL_EDIT}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, isValid }) => (
+          {({ isSubmitting, isValid, setFieldValue, values }) => (
             <Form className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -74,6 +76,28 @@ const VersionControlEdit = () => {
                     <option value="CUSTOMER">CUSTOMER</option>
                   </Field>
                   <ErrorMessage name="applicationFor" component="div" className="text-red-500 text-sm mt-1" />
+                </div>
+                <div className="mt-4">
+                  <label className="text-sm font-medium text-gray-700 flex items-center">Mandatory</label>
+                  <div className="flex gap-2 pt-2">
+                    <Field
+                      type="checkbox"
+                      name="isMandatory"
+                      checked={values.isMandatory === true}
+                      onChange={() => setFieldValue('isMandatory', true)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <label className="text-sm font-medium text-gray-700">True</label>
+                    <Field
+                      type="checkbox"
+                      name="isMandatory"
+                      checked={values.isMandatory === false}
+                      onChange={() => setFieldValue('isMandatory', false)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <label className="text-sm font-medium text-gray-700">False</label>
+                    <ErrorMessage name="isMandatory" component="div" className="text-red-500 text-sm mt-1" />
+                  </div>
                 </div>
 
                 <div>

@@ -50,7 +50,7 @@ const GstView = () => {
 
       <Card>
         <CardHeader className="mb-8 p-6 flex justify-between items-center bg-blue-600">
-          <Typography variant="h6" color="white">GST List</Typography>
+          <Typography variant="h6" color="white">TAX List</Typography>
         </CardHeader>
 
         <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
@@ -68,7 +68,7 @@ const GstView = () => {
                   <th className='py-3 px-5 text-left'>Customer</th>
                   <th className='py-3 px-5 text-left'>Driver</th>
                   <th className="py-3 px-5 text-left">Description</th>
-                  <th className="py-3 px-5 text-left">Total GST (%)</th>
+                  <th className="py-3 px-5 text-left">Total TAX (%)</th>
                   <th className="py-3 px-5 text-left">Status</th>
                   <th className="py-3 px-5 text-left">Actions</th>
 
@@ -77,7 +77,7 @@ const GstView = () => {
               <tbody>
                 {gstList.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4">No GST Entries Found</td>
+                    <td colSpan="6" className="text-center py-4">No TAX Entries Found</td>
                   </tr>
                 ) : (
                   gstList.map((item, index) => (

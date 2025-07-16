@@ -296,6 +296,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
+                      { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -324,6 +325,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/vehicles.png"
                                   alt="Vehicles"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                 {label === "Online Vehicles List" && (
+                                <img
+                                  src="/img/vehicleslist.png"
+                                  alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
@@ -447,8 +455,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                        { label: "Version Control", path: "/dashboard/user/versionControlList" },
                       { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
-                      { label: "GST", path: "/dashboard/user/GSTList" },
+                      { label: "TAX", path: "/dashboard/user/GSTList" },
                        { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
+                       { label: "Testimonial", path: "/dashboard/user/testimonialView" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -515,10 +524,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "GST" && (
+                               {label === "TAX" && (
                                 <img
                                   src="/img/gst.png"
-                                  alt="GST"
+                                  alt="TAX"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
@@ -526,6 +535,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/banner_img.png"
                                   alt="Banner Image"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              {label === "Testimonial" && (
+                                <img
+                                  src="/img/testimonial.png"
+                                  alt="Testimonials Image"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}

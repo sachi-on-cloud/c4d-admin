@@ -98,7 +98,7 @@ const DriverMasterPriceTableEdit = () => {
                 waitingCharge: Number(values.waitingCharge),
                 additionalMinCharge: Number(values.additionalMinCharge),
                 extraPrice: Number(values.extraPrice),
-
+                extraKmPrice:Number(values.extraKmPrice),
                 dropPrice: Number(values.dropPrice),
 
                 nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
@@ -180,6 +180,7 @@ const DriverMasterPriceTableEdit = () => {
                                     <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
                                 </div>
+                                
 
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Free Waiting Time</label>
@@ -193,13 +194,13 @@ const DriverMasterPriceTableEdit = () => {
                                         <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                                     </div>
                                 }                                 
-                                {values?.type === 'Outstation' && 
+                               
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
                                         <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                         <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                }
+                                
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Waiting Charges</label>
                                     <Field type="number" name="waitingCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

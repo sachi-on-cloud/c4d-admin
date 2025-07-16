@@ -435,7 +435,7 @@ export const CAB_SCHEMA = Yup.object({
 
     //wallet: Yup.string().required('Wallet is required'),
     type: Yup.string()
-        .oneOf(["RENTAL"], "Rides"),
+        .oneOf(["RENTAL","Rides"]),
 
     prices: Yup.array().of(
         Yup.object().shape({
@@ -444,7 +444,7 @@ export const CAB_SCHEMA = Yup.object({
                 .positive("Kilometer must be greater than zero")
                 .required("Kilometer is required")
                 .when("type", {
-                    is: (type) => type === "RENTAL",
+                    is:"RENTAL",
                     then: (schema) => schema.required("Kilometer is required."),
                     otherwise: (schema) => schema.notRequired(),
                 }),
@@ -464,7 +464,7 @@ export const CAB_SCHEMA = Yup.object({
                 .positive("Additional Mins Charge must be greater than zero")
                 .required("Additional Mins Charge  is required")
                 .when("type", {
-                    is: (type) => type === "RENTAL",
+                    is:"RENTAL",
                     then: (schema) => schema.required("Additional Mins Charge is required"),
                     otherwise: (schema) => schema.notRequired(),
                 }),
@@ -603,7 +603,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
         then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
-
+    carNumber:Yup.string().required('Car Number is requried'),
     carType: Yup.string().required('Car Type is required'),
     vehicleType: Yup.string().required('Vehicle Type is required'),
     seater: Yup.string()
@@ -632,7 +632,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
         .required('At least one package must be selected'),
 
     type: Yup.string()
-        .oneOf(["RENTAL"], "Rides"),
+        .oneOf(["RENTAL","Rides"]),
 
     prices: Yup.array().of(
         Yup.object().shape({
@@ -642,11 +642,11 @@ export const CAB_ADD_SCHEMA = Yup.object({
                 .positive("Kilometer must be greater than zero")
                 .required("Kilometer is required")
                 .when("type", {
-                    is: (type) => type === "RENTAL",
-                    then: (schema) => schema.required("Kilometer is required."),
+                    is: "RENTAL",
+                    then: (schema) => schema.required("Kilometer  is required."),
                     otherwise: (schema) => schema.notRequired(),
-
                 }),
+                
 
             baseFare: Yup.number()
                 .typeError("Base Fare must be a number")
@@ -663,7 +663,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
                 .positive("Additional Mins Charge  must be greater than zero")
                 .required("Additional Mins Charge  is required")
                 .when("type", {
-                    is: (type) => type === "RENTAL",
+                    is: "RENTAL",
                     then: (schema) => schema.required("Additional Mins Charge  is required"),
                     otherwise: (schema) => schema.notRequired(),
 
