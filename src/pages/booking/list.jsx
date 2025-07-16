@@ -41,7 +41,8 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const [loading, setLoading] = useState(true);
     const [loadingStates, setLoadingStates] = useState({});
     const [userId, setUserId] = useState(null);  
-
+    const [showReassignModal, setShowReassignModal] = useState(false);
+    const [selectedBookingForReassign, setSelectedBookingForReassign] = useState(null);
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
   if (storedUser) {
@@ -443,6 +444,38 @@ useEffect(() => {
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {showReassignModal && (
+                                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                            <div className="bg-white/95 p-6 rounded-lg max-w-md w-full h-80">
+                                            
+                                            <Typography className="text-2xl font-extrabold text-center mb-1 mt-10 ">
+                                                Are you sure you want to reassign? 
+                                            </Typography>
+                                            <div className="flex justify-center gap-3">
+                                                <Button
+                                                variant="outlined"
+                                                onClick={() => { setShowReassignModal(false);
+                                                                            // setSelectedBookingForReassign(null);
+                                                                        }}
+                                                className={" text-white w-28 mt-14 bg-black"}
+                                                >
+                                                No
+                                                </Button>
+                                                <Button
+                                                className={`${ColorStyles.bgStatusColor} text-white w-28 mt-14`}
+                                                onClick={() => {
+                                                    onRequestDriverHandler(selectedBookingForReassign, 'REQUEST_ALL');
+                                                    setShowReassignModal(false);
+                                                    setSelectedBookingForReassign(null);
+                                                }}
+                                                >
+                                                Yes
+                                                </Button>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        
+                                        )}
                                         {bookingsList
                                             .filter(booking =>
                                                 (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
@@ -559,7 +592,16 @@ useEffect(() => {
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
                                                                     data?.status === "CONFIRMED" ? "bg-green-600 text-white" : 
                                                                     data?.status === "BOOKING_ACCEPTED" ? "bg-green-600 text-white":
-                                                                    data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-200 text-black": "bg-blue-600 text-white" 
+                                                                    data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-200 text-black": 
+                                                                    data?.status === "ENDED" ? "bg-green-600 text-white" :
+                                                                    data?.status === "STARTED" ? "bg-blue-600   text-white":
+                                                                    data?.status === "CUSTOMER_CANCELLED"? "bg-red-600   text-white":
+                                                                    data?.status === "INITIATED"? "bg-gray-600   text-white":
+                                                                    data?.status === "END_OTP" ? "bg-gray-600   text-white":
+                                                                    data?.status ===  "DRIVER_ON_THE_WAY" ? "bg-blue-600   text-white":
+                                                                    data?.status === "DRIVER_REACHED" ? "bg-yellow-600  text-white":
+                                                                    data?.status === "PAYMENT_REQUESTED" ? "bg-green-600  text-white":
+                                                                    "bg-blue-600  text-white"
                                                                 }`}
                                                             />
                                                         </td>
@@ -615,7 +657,10 @@ useEffect(() => {
                                                             {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
-                                                                    onClick={() => onAssignDriverHandler(data)}
+                                                                    onClick={() => {
+                                                                    setSelectedBookingForReassign(data);
+                                                                    setShowReassignModal(true);
+                                                                    }}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                 >
                                                                     ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
