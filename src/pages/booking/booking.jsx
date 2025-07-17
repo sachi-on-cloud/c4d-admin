@@ -453,7 +453,7 @@ const Booking = (props) => {
                 );
             case 'customer_cancelled':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-gray-200 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
                         Cancelled
                     </span>
                 );
