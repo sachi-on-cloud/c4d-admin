@@ -732,7 +732,7 @@ export const routes = [
         display: false
       },
       {
-        path: "/rate-card-details",
+        path: "/rate-card",
         element: <PriceList />,
         display: false
       },
