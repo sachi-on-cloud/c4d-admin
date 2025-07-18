@@ -593,7 +593,7 @@ useEffect(() => {
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
                                                                     data?.status === "CONFIRMED" ? "bg-green-600 text-white" : 
                                                                     data?.status === "BOOKING_ACCEPTED" ? "bg-green-600 text-white":
-                                                                    data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-200 text-black": 
+                                                                    data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-600 text-white": 
                                                                     data?.status === "ENDED" ? "bg-green-600 text-white" :
                                                                     data?.status === "STARTED" ? "bg-blue-600   text-white":
                                                                     data?.status === "INITIATED"? "bg-gray-600   text-white":
