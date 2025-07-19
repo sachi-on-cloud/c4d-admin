@@ -71,6 +71,7 @@ export function MasterPriceDetailsAndEdit() {
                 nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo),
                 extraPrice: values.extraPrice,
+                extraKmPrice:values.extraKmPrice,
                 additionalMinCharge: values.additionalMinCharge,
                 status: values.status === 'Active' ? 1 : 0,
                 dropPriceAbove:values.dropPriceAbove,
@@ -126,6 +127,7 @@ export function MasterPriceDetailsAndEdit() {
                                     <Field type="number" name="kilometer" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                                     
                                 </div>
+                                 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Price</label>
                                 <Field type="number" name="price" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
@@ -139,21 +141,22 @@ export function MasterPriceDetailsAndEdit() {
                                 <label className="text-sm font-medium text-gray-700">Free Waiting Time</label>
                                 <Field type="number" name="waitingMins" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200"/>
                             </div>
+                             <div>
+                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
+                                    <Field type="number" name="extraKmPrice" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                    
+                                </div>
                             {values?.type === 'Outstation' && <>
                             
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Base Fare</label>
                                     <Field type="number" name="baseFare" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                                 </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
-                                    <Field type="number" name="extraKmPrice" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
-                                    
-                                </div>
+                               
                                     </>
                             }
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700">extra Price</label>
+                                    <label className="text-sm font-medium text-gray-700">Extra Hours</label>
                                     <Field type="number" name="extraPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                 </div>
                             

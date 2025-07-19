@@ -244,284 +244,16 @@ const RentalsPriceMasterAdd = () => {
                                 </Field>
                                 <ErrorMessage name="period" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare</label>
-                                <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {/* new entry baseFare*/}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (MUV)</label>
-                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare(Suv)</label>
-                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFareSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare (Sedan)</label>
-                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
-                            </div>
-
                             {values.type !== 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">Kilometer</label>
+                                <label className="text-sm font-medium text-gray-700">KM</label>
                                 <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
                             </div>}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Kilometer Rate</label>
-                                <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {/* new entry price*/}
-                            {values?.type === 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">kilometer Round Price</label>
-                                <Field type="number" name="kilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerRoundPrice" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            }
-                            {values?.type === 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">kilometer Round Price MVP</label>
-                                <Field type="number" name="kilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerRoundPriceMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            }
-                            {values?.type === 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">kilometer Round Price Suv</label>
-                                <Field type="number" name="kilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            }
-                            {values?.type === 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">kilometer Round Price Sedan</label>
-                                <Field type="number" name="kilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            }
-                            {values.type !== 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">Price</label>
-                                <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
-                            </div>}
-                            {values.type !== 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
-                                <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
-                            </div>}
-                            {values.type !== 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">Price (Suv)</label>
-                                <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="priceSuv" component="div" className="text-red-500 text-sm" />
-                            </div>}
-                            {values.type !== 'Outstation' && <div>
-                                <label className="text-sm font-medium text-gray-700">Price (Sedan)</label>
-                                <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="priceSedan" component="div" className="text-red-500 text-sm" />
-                            </div>}
-                            {/* new entry kilometerPrice*/}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Kilometer Price (MUV)</label>
-                                <Field type="number" name="kilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerPriceMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Kilometer Price (Suv)</label>
-                                <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerPriceSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Kilometer Price (Sedan)</label>
-                                <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="kilometerPriceSedan" component="div" className="text-red-500 text-sm" />
-                            </div>
-
-                            {/* new entry ackilometerPrice*/}
-                            {values.type == 'Outstation' && 
-                            <>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Ac Kilometer Price</label>
-                                <Field type="number" name="acKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="acKilometerPrice" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Ac Kilometer Price MVP</label>
-                                <Field type="number" name="acKilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="acKilometerPriceMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Ac Kilometer Price Suv</label>
-                                <Field type="number" name="acKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="acKilometerPriceSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Ac Kilometer Price Sedan</label>
-                                <Field type="number" name="acKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="acKilometerPriceSedan" component="div" className="text-red-500 text-sm" />
-                            </div></>}
-
-                            {values?.type === 'Outstation' && <>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price</label>
-                                    <Field type="number" name="acKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acKilometerRoundPrice" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price MVP</label>
-                                    <Field type="number" name="acKilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acKilometerRoundPriceMVP" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price Suv</label>
-                                    <Field type="number" name="acKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acKilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Kilometer Round Price Sedan</label>
-                                    <Field type="number" name="acKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acKilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
-                                </div>
-                            </>}
-                            {/* {acExtraKilometerPrice} */}
-                            {values?.type === 'Outstation' && <>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price</label>
-                                    <Field type="number" name="acExtraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerPrice" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price MVP</label>
-                                    <Field type="number" name="acExtraKilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerPriceMVP" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price Suv</label>
-                                    <Field type="number" name="acExtraKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerPriceSuv" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Price Sedan</label>
-                                    <Field type="number" name="acExtraKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerPriceSedan" component="div" className="text-red-500 text-sm" />
-                                </div>
-                            </>}
-
-                            {/* extraKilometerPrice and Drop Only Round Trip */}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
-                                    <Field type="number" name="extraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerPrice" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Price (MUV)</label>
-                                    <Field type="number" name="extraKilometerPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerPriceMVP" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Price Suv</label>
-                                    <Field type="number" name="extraKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerPriceSuv" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Price Sedan</label>
-                                    <Field type="number" name="extraKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerPriceSedan" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price</label>
-                                    <Field type="number" name="extraKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerRoundPrice" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price (MUV)</label>
-                                    <Field type="number" name="extraKilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerRoundPriceMVP" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price Suv</label>
-                                    <Field type="number" name="extraKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Round Price Sedan</label>
-                                    <Field type="number" name="extraKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraKilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
-                                </div>}
-
-                                {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price</label>
-                                    <Field type="number" name="acExtraKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerRoundPrice" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price (MUV)</label>
-                                    <Field type="number" name="acExtraKilometerRoundPriceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerRoundPriceMVP" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price Suv</label>
-                                    <Field type="number" name="acExtraKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
-                                </div>}
-                            {values?.type === "Outstation" &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Ac Extra Kilometer Round Price Sedan</label>
-                                    <Field type="number" name="acExtraKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="acExtraKilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
-                                </div>}
-
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min</label>
-                                <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="additionalMinCharge" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {/* new entry additionalMinCharge*/}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (MUV)</label>
-                                <Field type="number" name="additionalMinChargeMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="additionalMinChargeMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (Suv)</label>
-                                <Field type="number" name="additionalMinChargeSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="additionalMinChargeSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min Charge (Sedan)</label>
-                                <Field type="number" name="additionalMinChargeSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="additionalMinChargeSedan" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {/* <div>
-                                <label className="text-sm font-medium text-gray-700">Variant</label>
-                                <Field as="select" name="carType" className="p-2 w-full rounded-md border-2 border-gray-300">
-                                    <option value="">Select Variant</option>
-                                    <option value="Mini">Mini</option>
-                                    <option value="Sedan">Sedan</option>
-                                    <option value="SUV">SUV</option>
-                                    <option value="MVP">MVP</option>
-                                </Field>
-                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                            </div> */}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
                             </div>
-                            
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
                                 <Select
@@ -581,6 +313,300 @@ const RentalsPriceMasterAdd = () => {
                                 <ErrorMessage name="cancelCharge" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
+                        
+                        <div>
+                                <div className='grid grid-cols-5 pb-5'>
+                                <h2 className="text-2xl font-bold">Mini</h2>
+                                {values.type === 'Outstation' && (<>
+                                <h2 className="text-2xl font-bold">Drop Only  Non AC</h2>                               
+                                <h2 className="text-2xl font-bold pl-16">Drop Only  AC</h2>
+                                <h2 className="text-2xl font-bold pl-16">Round Trip  Non AC</h2>
+                                <h2 className="text-2xl font-bold pl-16">Round Trip  AC</h2>
+                               </>)}
+                                </div>
+                            <div className="flex gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Base Fare</label>
+                                    <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Additional Min Charge</label>
+                                    <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="additionalMinCharge" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">KM Price</label>
+                                    <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                {values.type !== 'Outstation' && (
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">Price</label>
+                                        <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                )}
+                                {values.type === 'Outstation' && (
+                                    <>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
+                                            <Field type="number" name="extraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="extraKilometerPrice" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC KM Price</label>
+                                            <Field type="number" name="acKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acKilometerPrice" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC Extra KM Price</label>
+                                            <Field type="number" name="acExtraKilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acExtraKilometerPrice" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">KM Round Price</label>
+                                            <Field type="number" name="kilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="kilometerRoundPrice" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Extra KM Round Price</label>
+                                            <Field type="number" name="extraKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="extraKilometerRoundPrice" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC KM Round Price</label>
+                                            <Field type="number" name="acKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acKilometerRoundPrice" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC Extra KM Round Price</label>
+                                            <Field type="number" name="acExtraKilometerRoundPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acExtraKilometerRoundPrice" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                                                <div>
+                            <h2 className="text-2xl font-bold mb-4">Sedan</h2>
+                            <div className="flex gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Base Fare</label>
+                                    <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                 <div>
+                                    <label className="text-sm font-medium text-gray-700">Additional Min Charge</label>
+                                    <Field type="number" name="additionalMinChargeSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="additionalMinChargeSedan" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">KM Price</label>
+                                    <Field type="number" name="kilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="kilometerPriceSedan" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                {values.type !== 'Outstation' && (
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">Price</label>
+                                        <Field type="number" name="priceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="priceSedan" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                )}
+                               
+                                {values.type === 'Outstation' && (
+                                    <>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
+                                            <Field type="number" name="extraKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="extraKilometerPriceSedan" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC KM Price</label>
+                                            <Field type="number" name="acKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acKilometerPriceSedan" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC Extra KM Price</label>
+                                            <Field type="number" name="acExtraKilometerPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acExtraKilometerPriceSedan" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">KM Round Price</label>
+                                            <Field type="number" name="kilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="kilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Extra KM Round Price</label>
+                                            <Field type="number" name="extraKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="extraKilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC KM Round Price</label>
+                                            <Field type="number" name="acKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acKilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC Extra KM Round Price</label>
+                                            <Field type="number" name="acExtraKilometerRoundPriceSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acExtraKilometerRoundPriceSedan" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                      
+
+                        <div>
+                            <h2 className="text-2xl font-bold mb-4">SUV</h2>
+                            <div className="flex gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Base Fare</label>
+                                    <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="baseFareSuv" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                 <div>
+                                    <label className="text-sm font-medium text-gray-700">Additional Min Charge</label>
+                                    <Field type="number" name="additionalMinChargeSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="additionalMinChargeSuv" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">KM Price</label>
+                                    <Field type="number" name="kilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="kilometerPriceSuv" component="div" className="text-red-500 text-sm" />
+                                </div>
+
+                                {values.type !== 'Outstation' && (
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">Price</label>
+                                        <Field type="number" name="priceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="priceSuv" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                )}
+                               
+
+                                {values.type === 'Outstation' && (
+                                    <>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
+                                            <Field type="number" name="extraKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="extraKilometerPriceSuv" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC KM Price</label>
+                                            <Field type="number" name="acKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acKilometerPriceSuv" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC Extra KM Price</label>
+                                            <Field type="number" name="acExtraKilometerPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acExtraKilometerPriceSuv" component="div" className="text-red-500 text-sm" />
+                                        </div>
+
+
+
+
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">KM Round Price</label>
+                                            <Field type="number" name="kilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="kilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Extra KM Round Price</label>
+                                            <Field type="number" name="extraKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="extraKilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC KM Round Price</label>
+                                            <Field type="number" name="acKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acKilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">AC Extra KM Round Price</label>
+                                            <Field type="number" name="acExtraKilometerRoundPriceSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="acExtraKilometerRoundPriceSuv" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                          <div>
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">MUV</h2>
+                                <div className="flex gap-4">
+
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">Base Fare</label>
+                                        <Field type="number" name="baseFareMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="baseFareMUV" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">Additional Min Charge</label>
+                                        <Field type="number" name="additionalMinChargeMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="additionalMinChargeMUV" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">KM Price</label>
+                                        <Field type="number" name="kilometerPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="kilometerPriceMUV" component="div" className="text-red-500 text-sm" />
+                                    </div>
+
+
+
+                                    {values.type !== 'Outstation' && (
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Price</label>
+                                            <Field type="number" name="priceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                            <ErrorMessage name="priceMUV" component="div" className="text-red-500 text-sm" />
+                                        </div>
+                                    )}
+                                    
+
+
+                                    {values.type === 'Outstation' && (
+                                        <>
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">Extra KM Price</label>
+                                                <Field type="number" name="extraKilometerPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="extraKilometerPriceMUV" component="div" className="text-red-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">AC KM Price</label>
+                                                <Field type="number" name="acKilometerPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="acKilometerPriceMUV" component="div" className="text-red-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">AC Extra KM Price</label>
+                                                <Field type="number" name="acExtraKilometerPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="acExtraKilometerPriceMUV" component="div" className="text-red-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">KM Round Price</label>
+                                                <Field type="number" name="kilometerRoundPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="kilometerRoundPriceMUV" component="div" className="text-red-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">Extra KM Round Price</label>
+                                                <Field type="number" name="extraKilometerRoundPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="extraKilometerRoundPriceMUV" component="div" className="text-red-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">AC KM Round Price</label>
+                                                <Field type="number" name="acKilometerRoundPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="acKilometerRoundPriceMUV" component="div" className="text-red-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-gray-700">AC Extra KM Round Price</label>
+                                                <Field type="number" name="acExtraKilometerRoundPriceMUV" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                                <ErrorMessage name="acExtraKilometerRoundPriceMUV" component="div" className="text-red-500 text-sm" />
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel

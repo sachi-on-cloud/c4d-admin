@@ -106,8 +106,10 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                             "Status",
                                             "View Details",
                                             "Created At",
+                                            "Updated At",
                                             "Verified By",
-                                            "Verified At"
+                                            "Verified At",
+                                            
                                         ].map((el, index) => (
                                             <th
                                                 key={index}
@@ -125,7 +127,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                 </thead>
                                 <tbody>
                                     {documentData.map(
-                                        ({ id, type, image1, status, User, created_at, updated_at, image2 }, key) => {
+                                        ({ id, type, image1, status, User, created_at ,updated_at, image2,Proofs }, key) => {
                                             const className = `py-3 px-5 ${key === documentData.length - 1
                                                 ? ""
                                                 : "border-b border-blue-gray-50"
@@ -178,6 +180,12 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                                                 {moment(created_at).format("DD-MM-YYYY")}
                                                             </Typography>
                                                         </td>
+                                                    <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                            {status !== 'PENDING' ? 
+                                                            moment(Proofs?.[0]?.updated_at).format("DD-MM-YYYY"):""}
+                                                            </Typography>
+                                                            </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {User ? User?.name : ''}
@@ -185,7 +193,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {status !== 'PENDING' ? moment(updated_at).format("DD-MM-YYYY") : ""}
+                                                                 {status !== 'PENDING' ? moment(updated_at).format("DD-MM-YYYY") : ""}
                                                             </Typography>
                                                         </td>
                                                     </tr>

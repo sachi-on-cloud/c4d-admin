@@ -191,10 +191,10 @@ const PriceEdit = () => {
                                 />
                                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
                                 <Field type="number" name="ratePerMin" className="p-2 w-full rounded-md border-gray-300" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Min</label>
                                 <Field type="number" name="additionalMin" className="p-2 w-full rounded-md border-gray-300" />

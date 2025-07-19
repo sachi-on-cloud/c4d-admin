@@ -30,16 +30,16 @@ const DocumentsDetails = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("TYPE--->", type);
+      // console.log("TYPE--->", type);
       const loggedInUser = localStorage.getItem('loggedInUser');
       const name = JSON.parse(loggedInUser).name;
-      console.log('name ->', name);
+      // console.log('name ->', name);
       setUser(name);
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
         "id": id,
         "user": type.toLowerCase()
       })
-      console.log("DATA IN DETAILS DOC", data);
+      // console.log("DATA IN DETAILS DOC", data);
       if (type == 'Register') {
         setInitialValues({
           salutation: data?.data?.salutation || '',
@@ -75,7 +75,7 @@ const DocumentsDetails = () => {
       verifiedBy: user
     };
     const data = await ApiRequestUtils.update(API_ROUTES.GET_DOCUMENT_DETAILS_LIST, docData);
-    console.log("DATAAA", data)
+    // console.log("DATAAA", data)
     if (data?.success) {
       alert(`Document status updated to ${status}`);
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {

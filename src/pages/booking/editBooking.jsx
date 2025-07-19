@@ -306,7 +306,7 @@ const EditBooking = (props) => {
                                         Outstation
                                     </Button>
                                 </div>
-                                <div className={['RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(values.serviceType) ? 'hidden' : ''}>
+                                <div className={['RENTAL'].includes(values.serviceType) ? 'hidden' : ''}>
                                     <Typography className="text-sm font-medium text-black">Trip Type</Typography>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
                                     {(values?.serviceType !== 'RENTAL') && (<Button
@@ -504,7 +504,7 @@ const EditBooking = (props) => {
                                     </ul>
                                 )}
                             </div>
-                            {(values.tripType !=='Drop Only' || values.packageTypeSelected == 'Outstation' ) && <div className="p-2 space-y-2">
+                            {(values.tripType !== 'Drop Only' || values.packageTypeSelected === 'Outstation') && !(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Local') && ( <div className="p-2 space-y-2">
                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                 <Field
                                     type="text"
@@ -532,7 +532,7 @@ const EditBooking = (props) => {
                                         ))}
                                     </ul>
                                 )}
-                            </div>}
+                            </div>)}
                             {values.packageSelected && values.packageTypeSelected =='Local' && <Card className="my-6">
                                 <div className="border rounded-xl bg-gray-200 p-4">
                                     <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>

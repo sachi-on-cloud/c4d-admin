@@ -12,10 +12,11 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, COMPANY_NAME, GST_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, GPAY_NAME, GPAY_NUMBER } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS  } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
+import TextBoxWithList from "@/components/BookingNotes";
 
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
@@ -25,6 +26,7 @@ const ConfirmBooking = (props) => {
     const [amount, setAmount] = useState();
     const [customerFeedback, setCustomerFeedback] = useState();
     const [driverFeedback, setDriverFeedback] = useState();
+    const [showDetails, setShowDetails] = useState(true);
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -96,7 +98,7 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            setBookingDetails({...data?.data, estimatedPrice:data?.estimatedPrice});
+            setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, notesData: data?.notes });
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({
                     price: data?.data?.price,
@@ -164,6 +166,10 @@ const ConfirmBooking = (props) => {
         if (props.bookingData) {
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
+        if(props?.hideAllNewButton){
+            setShowDetails(false);
+
+        }
     }, [props.bookingData]);
 
     const onBackPressHandler = async () => {
@@ -204,10 +210,20 @@ const ConfirmBooking = (props) => {
                 : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             reqBody
         );
-        console.log("CANCELBOKING",data);
+        console.log("CANCELBOKING", data);
 
         if (data?.success) {
             props.onConfirm();
+            props.setIsOpen(false);
+        }
+    };
+
+    const addNotes = async (text) => {
+        setLoading(true);
+        text.bookingId = props.bookingData.id
+        const response = await ApiRequestUtils.post(API_ROUTES.ADD_NOTES_BOOKING, text);
+        if (response?.success) {
+            getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
     };
 
@@ -222,25 +238,278 @@ const ConfirmBooking = (props) => {
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto">
+            {showDetails &&(
+            <div className="grid grid-cols-5 gap-2 my-2">
+                {/* <Button
+                        color="blue"
+                        ripple="light"
+                        fullWidth
+                        onClick={onBackPressHandler}
+                    >
+                        Back
+                    </Button> */}
+
+                {bookingDetails.status === "QUOTED" && (
+                    <Button
+                        color="green"
+                        variant="outlined"
+                        ripple="dark"
+                        fullWidth
+                        onClick={() => {
+                            handleBookingAction(BOOKING_STATUS.CONFIRMED);
+                        }}
+                    >
+                        Confirm
+                    </Button>
+                )}
+
+                {bookingDetails.status !== "ENDED" &&
+                    bookingDetails.status !== "STARTED" &&
+                    bookingDetails.status !== "CANCELLED" && (
+                        <>
+                            {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
+                                (
+                                    <Button
+                                        color="red"
+                                        variant="outlined"
+                                        ripple="dark"
+                                        fullWidth
+                                        onClick={() => setShowCancelReason(true)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                )
+                            }
+                        </>
+                    )
+                }
+
+                {bookingDetails?.status === 'QUOTED' && (
+                    <Button
+                        color="black"
+                        variant="outlined"
+                        ripple="dark"
+                        fullWidth
+                        onClick={() => { props.onEdit(bookingDetails) }}
+                    >
+                        Edit
+                    </Button>
+                )}
+
+                {/* {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "DRIVER" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RENTAL")) &&
+                    bookingDetails?.pickupAddress &&
+                    !bookingDetails?.Driver?.id &&
+                    !bookingDetails?.Cab?.id && (
+                        <Button
+                            color="blue"
+                            variant="outlined"
+                            ripple="light"
+                            fullWidth
+                            onClick={() => {
+                                let obj = { ...bookingDetails };
+                                obj.requestType = "REQUEST_ALL";
+                                setBookingDetails(obj);
+
+                                props.onAssignDriver(bookingDetails);
+
+                            }}
+                        >
+                            {props.bookingData.serviceType != "CAB" && props.bookingData.serviceType != "DRIVER"
+                                ? "Assign Cab"
+                                : "Assign Captain"}
+                        </Button>
+                    )}
+
+                {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "DRIVER" || bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RENTAL")) &&
+                    bookingDetails?.pickupAddress &&
+                    !bookingDetails?.Driver?.id &&
+                    !bookingDetails?.Cab?.id && (
+                        <Button
+                            color="blue"
+                            variant="outlined"
+                            ripple="light"
+                            fullWidth
+                            onClick={() => { props.onAssignDriver(bookingDetails); }}
+                        >
+                            {props.bookingData.serviceType != "CAB" && props.bookingData.serviceType != "DRIVER"
+                                ? "Request Cab"
+                                : "Request Captain"}
+                        </Button>
+                    )} */}
+
+                {bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
+                    bookingDetails?.pickupAddress &&
+                    !bookingDetails?.Driver?.id &&
+                    !bookingDetails?.Cab?.id && (
+                        <Button
+                            color="black"
+                            variant="outlined"
+                            ripple="light"
+                            fullWidth
+                            onClick={() => { props.onAssignDriver(bookingDetails); }}
+                        >
+                            {props.bookingData.serviceType === "CAB"
+                                ? "Assign Cab"
+                                : "Assign Captain"}
+                        </Button>
+                    )}
+
+                {['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(bookingDetails.status) &&
+                    (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
+                        <Button
+                            color="black"
+                            variant="outlined"
+                            ripple="light"
+                            fullWidth
+                            onClick={() => { props.onAssignDriver(bookingDetails); }}
+                        >
+                            {props.bookingData.serviceType !== "DRIVER"
+                                ? "Choose Another Cab"
+                                : "Choose Another Captain"}
+                        </Button>
+                    )}
+
+                {/* {(bookingDetails.status === 'BOOKING_ACCEPTED' && //start
+                        dateVal &&
+                        timeVal &&
+                        kms) ? (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                Start Trip
+                            </Button>
+                            ) : 
+                        (bookingDetails?.serviceType === 'CAR_WASH' && bookingDetails.status === 'INITIATED' && dateVal && timeVal ) ?
+                            (<Button
+                                    color="black"
+                                    ripple="light"
+                                    fullWidth
+                                    onClick={onConfirmPressHandler}
+                                >
+                                    Start Trip
+                            </Button> 
+                        ) : <></>
+                    } */}
+
+                {/* {(bookingDetails.status === 'STARTED' &&
+                        dateVal &&
+                        timeVal &&
+                        kms &&
+                        paymentDetails.paymentCollected &&
+                        paymentDetails.paymentMethod &&
+                        paymentDetails.paymentStatus ) ? (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                End Trip
+                            </Button>
+                        ) : (
+                        bookingDetails?.serviceType === 'CAR_WASH' &&
+                        bookingDetails.status === 'STARTED' &&
+                        dateVal &&
+                        timeVal &&
+                        paymentDetails.paymentCollected &&
+                        paymentDetails.paymentMethod &&
+                        paymentDetails.paymentStatus) ? (
+                            <Button
+                                color="black"
+                                ripple="light"
+                                fullWidth
+                                onClick={onConfirmPressHandler}
+                            >
+                                End Trip
+                            </Button>
+                        ) :<></>
+                    } */}
+            </div>
+        )}
+            {showCancelReason && (
+                <div className="mt-4 space-y-2">
+                    <select
+                        name="cancelBy"
+                        value={cancelData.cancelBy}
+                        onChange={handleCancelChange}
+                        className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                    >
+                        <option value="">Select who cancelled</option>
+                        <option value="Customer">Cancelled by Customer</option>
+                        <option value="Driver">Cancelled by Driver</option>
+                    </select>
+                    <Input
+                        type="text"
+                        name="cancelReason"
+                        value={cancelData.cancelReason}
+                        onChange={handleCancelChange}
+                        placeholder="Enter cancellation reason..."
+                        className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                    />
+                    <div className="flex items-center space-x-4">
+                        <label className="font-medium">Cancellation Charge Applicable:</label>
+                        <label className="inline-flex items-center space-x-2">
+                            <input
+                                type="radio"
+                                name="cancelCharge"
+                                value="Yes"
+                                checked={cancelData.cancelCharge === "Yes"}
+                                onChange={handleCancelChange}
+                            />
+                            <span>Yes</span>
+                        </label>
+                        <label className="inline-flex items-center space-x-2">
+                            <input
+                                type="radio"
+                                name="cancelCharge"
+                                value="No"
+                                checked={cancelData.cancelCharge === "No"}
+                                onChange={handleCancelChange}
+                            />
+                            <span>No</span>
+                        </label>
+                    </div>
+                    <div className="flex space-x-2">
+                        <Button
+                            color="red"
+                            onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED, cancelData)}
+                            disabled={!cancelData.cancelReason.trim() || !cancelData.cancelBy || !cancelData.cancelCharge}
+                        >
+                            Confirm Cancel
+                        </Button>
+                        <Button
+                            color="gray"
+                            variant="outlined"
+                            onClick={() => setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "" })}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            )}
+            {showDetails && (
             <div className="grid grid-cols-2 gap-4">
-            <Card className="mb-2">
-                <CardBody>
-                    <div className="flex justify-between mb-2">
-                        <Typography variant="h5">Customer Details </Typography>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="space-y-2">
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Name:</Typography>
-                            <Typography>{bookingDetails?.Customer?.firstName}</Typography>
+                <Card className="mb-2">
+                    <CardBody>
+                        <div className="flex justify-between mb-2">
+                            <Typography variant="h5">Customer Details </Typography>
                         </div>
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Phone Number:</Typography>
-                            <Typography>
-                                {bookingDetails?.Customer?.phoneNumber}
-                            </Typography>
+                        <hr className="my-2" />
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Name:</Typography>
+                                <Typography>{bookingDetails?.Customer?.firstName}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Phone Number:</Typography>
+                                <Typography>
+                                    {bookingDetails?.Customer?.phoneNumber}
+                                </Typography>
+                            </div>
                         </div>
-                    </div>
                         <div className="mt-6">
                             <Typography variant="h6" className="mb-2">Customer Feedback</Typography>
                             {customerFeedback ? (
@@ -252,51 +521,51 @@ const ConfirmBooking = (props) => {
                                 </div>
                             ) : (
                                 <Typography>No feedback given.</Typography>
-                            )} 
+                            )}
                         </div>
 
-                </CardBody>
-            </Card>
-
-            {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED") &&
-                <Card className="mb-2">
-                    <CardBody>
-                        <div className="flex justify-between mb-2">
-                            <Typography variant="h5">Cancellation Reason</Typography>
-                        </div>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Reason:</Typography>
-                                <Typography>{bookingDetails?.cancelReason}</Typography>
-                            </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
-                                <Typography>{bookingDetails?.cancelRequestedBy}</Typography>
-                            </div>
-                        </div>
                     </CardBody>
                 </Card>
-            }
-            {bookingDetails?.Driver?.id &&
-                <Card className="mb-2">
-                    <CardBody>
-                        <div className="flex justify-between mb-2">
-                            <Typography variant="h5">Driver Details </Typography>
-                        </div>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Name:</Typography>
-                                <Typography>{bookingDetails?.Driver?.firstName}</Typography>
+
+                {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED" || bookingDetails?.status == "CUSTOMER_CANCELLED") &&
+                    <Card className="mb-2">
+                        <CardBody>
+                            <div className="flex justify-between mb-2">
+                                <Typography variant="h5">Cancellation Reason</Typography>
                             </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Phone Number:</Typography>
-                                <Typography>
-                                    {bookingDetails?.Driver?.phoneNumber}
-                                </Typography>
+                            <hr className="my-2" />
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Reason:</Typography>
+                                    <Typography>{bookingDetails?.cancelReason}</Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
+                                    <Typography>{bookingDetails?.cancelRequestedBy || 'Customer'}</Typography>
+                                </div>
                             </div>
-                        </div>
+                        </CardBody>
+                    </Card>
+                }
+                {bookingDetails?.Driver?.id &&
+                    <Card className="mb-2">
+                        <CardBody>
+                            <div className="flex justify-between mb-2">
+                                <Typography variant="h5">Driver Details </Typography>
+                            </div>
+                            <hr className="my-2" />
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Name:</Typography>
+                                    <Typography>{bookingDetails?.Driver?.firstName}</Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Phone Number:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.Driver?.phoneNumber}
+                                    </Typography>
+                                </div>
+                            </div>
                             <div className="mt-6">
                                 <Typography variant="h6" className="mt-4 mb-2">Driver Feedback</Typography>
                                 {driverFeedback ? (
@@ -311,116 +580,182 @@ const ConfirmBooking = (props) => {
                                 )}
                             </div>
 
-                    </CardBody>
-                </Card>
-            }
+                        </CardBody>
+                    </Card>
+                }
             </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
-            <Card className="mb-2">
-                <CardBody>
-                    <div className="flex justify-between mb-2">
-                        <Typography variant="h5">Ride Details</Typography>
-                        <Typography variant="h6" color="green"><a target="_blank" href={Utils.generateWhatsAppMessage(bookingDetails)}>Share on Whatsapp</a></Typography>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="space-y-2">
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Service Type:</Typography>
-                            <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation' }</Typography>
+                <Card className="mb-2">
+                    <CardBody>
+                        <div className="flex justify-between mb-2">
+                            <Typography variant="h5">Ride Details</Typography>
+                            <Typography variant="h6" color="green"><a target="_blank" href={Utils.generateWhatsAppMessage(bookingDetails)}>Share on Whatsapp</a></Typography>
                         </div>
-                        {/* {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
+                        <hr className="my-2" />
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Service Type:</Typography>
+                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
+                            </div>
+                            {/* {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
                         </div>} */}
+                      {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType =='Local') && 
                         <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Start Date:</Typography>
-                            <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                        <Typography color="gray" variant="h6">KM:</Typography>
+                        <Typography>
+                        {bookingDetails?.packageType === 'Local' ? `${bookingDetails?.Package?.kilometer} Km` : ''}
+                        </Typography>
                         </div>
-                        {bookingDetails?.toDate &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">End Date:</Typography>
-                                <Typography>{moment(bookingDetails.toDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
-                            </div>
                         }
-                        {bookingDetails?.packageType == "Outstation" &&
                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">AC Type:</Typography>
-                                <Typography>{bookingDetails?.acType}</Typography>
+                                <Typography color="gray" variant="h6">Start Date:</Typography>
+                                <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
                             </div>
-                        }
-                        {bookingDetails?.serviceType !='RIDES' && 
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Package:</Typography>
-                                <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
-                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails.totalDays ? bookingDetails?.totalDays + ' Days' : bookingDetails?.value?.differenceDays + ' Days' : 
+                            {bookingDetails?.toDate &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">End Date:</Typography>
+                                    <Typography>{moment(bookingDetails.toDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                </div>
+                            }
+                            {bookingDetails?.packageType == "Outstation" &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">AC Type:</Typography>
+                                    <Typography>{bookingDetails?.acType}</Typography>
+                                </div>
+                            }
+                            {bookingDetails?.serviceType != 'RIDES' &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Car Type:</Typography>
+                                    <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
+                                </div>
+                            }
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Package:</Typography>
+                                    <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
+                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails.totalDays ? bookingDetails?.totalDays + ' Days' : bookingDetails?.value?.differenceDays + ' Days' :
                                             bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
-                            </div>
-                        }
-                        {bookingDetails?.value?.baseFare > 0 && 
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Base Fare:</Typography>
-                                <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
-                            </div>
-                        }
-                        {bookingDetails?.value?.kilometerPriceVal > 0 &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Per KM Rate:</Typography>
-                                <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>
-                            </div>
-                        }
-                        {bookingDetails?.value?.estimatedDistance > 0 &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Total Distance:</Typography>
-                                <Typography>{(Number(bookingDetails?.value?.estimatedDistance)).toFixed(1)} Kms</Typography>
-                            </div>
-                        }
-                        {/* need to add logic for price */}
-                        {bookingDetails?.status !== BOOKING_STATUS.ENDED &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Price:</Typography>
-                                {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.Package?.price : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL' ) ? bookingDetails?.Package?.price : bookingDetails?.value?.estimatedPrice}</Typography>
-                            </div>
-                        }
-                        {bookingDetails?.status === BOOKING_STATUS.ENDED &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Price:</Typography>
-                                <Typography>₹ {amount?.total}</Typography>
-                            </div>
-                        }
-                        {/* {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
+                                </div>
+                            }
+                            {bookingDetails?.serviceType == 'DRIVER' && 
+                              <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">KM:</Typography>
+                                    <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.kilometer+ ' Km' : ''}
+                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails?.value?.travelDistance + ' Km':''}`}</Typography>
+                                </div>
+                            }
+                            {bookingDetails?.value?.baseFare > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Base Fare:</Typography>
+                                    <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
+                                </div>
+                            }
+                            {bookingDetails?.value?.kilometerPriceVal > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Per KM Rate:</Typography>
+                                    <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>
+                                </div>
+                            }
+                            {bookingDetails?.value?.estimatedDistance > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total Distance:</Typography>
+                                    <Typography>{(Number(bookingDetails?.value?.estimatedDistance) + Number(bookingDetails?.Package?.baseKm)).toFixed(1)} Kms</Typography>
+                                </div>
+                            }
+                            {/* {(bookingDetails?.serviceType == 'RENTAL' && bookingDetails?.packageType == 'Outstation' && bookingDetails?.bookingType == 'ROUND TRIP') &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total Days:</Typography>
+                                    <Typography>{bookingDetails?.value?.displayTime}</Typography>
+                                </div>
+                            }
+                            {(bookingDetails?.serviceType == 'RENTAL' && bookingDetails?.packageType == 'Outstation' && bookingDetails?.bookingType == 'DROP ONLY') &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total Days:</Typography>
+                                    <Typography>{bookingDetails?.value?.displayTime}</Typography>
+                                </div>
+                            } */}
+                            {/* need to add logic for price */}
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Estimated Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.Package?.price : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.Package?.price : bookingDetails?.value?.estimatedPrice}</Typography>
+                                </div>
+                              {bookingDetails?.offerPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
+                                </div>}
+                                 {bookingDetails?.totalPrice > 0 &&
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
+                                </div>}
+
+                                </>
+                            }
+
+                            {bookingDetails?.status === BOOKING_STATUS.ENDED && <>
+                                {bookingDetails?.offerPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
+                                </div>
+                                }
+                                {bookingDetails?.totalPrice > 0 &&
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Price:</Typography>
+                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
+                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
+                                </div>
+                                }
+                               
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total:</Typography>
+                                    <Typography className="font-bold">₹ {amount?.total}</Typography>
+                                </div>
+                                 </>
+
+                            }
+                            {/* {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Price:</Typography>
                             <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
                         </div>} */}
-                        {/* <div className="flex justify-between">
+                            {/* <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Car:</Typography>
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
                         </div> */}
-                    </div>
-                </CardBody>
-            </Card>
+                        </div>
+                    </CardBody>
+                </Card>
 
-            <Card>
-                <CardBody>
-                    <div className="flex justify-between mb-2">
-                        <Typography variant="h5">Location Details </Typography>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="space-y-2">
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Pickup: </Typography>
-                            <Typography>{bookingDetails?.pickupAddress?.name}</Typography>
+                <Card className="mb-2">
+                    <CardBody>
+                        <div className="flex justify-between mb-2">
+                            <Typography variant="h5">Location Details </Typography>
                         </div>
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Drop-off: </Typography>
-                            <Typography>
-                                {bookingDetails?.dropAddress?.name || "Not Added"}
-                            </Typography>
+                        <hr className="my-2" />
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Pickup: </Typography>
+                                <Typography>{bookingDetails?.pickupAddress?.name}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Drop-off: </Typography>
+                                <Typography>
+                                    {bookingDetails?.dropAddress?.name || "Not Added"}
+                                </Typography>
+                            </div>
                         </div>
-                    </div>
-                </CardBody>
-            </Card>
-            </div>  
+                    </CardBody>
+                </Card>
+            </div>
             {/*{(bookingDetails?.status === 'STARTED') ||
                 ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) &&
                 <Card className="my-4 gap-4">
@@ -512,7 +847,7 @@ const ConfirmBooking = (props) => {
             {amount && (
                 <Card className="my-6">
                     <div className="border rounded-xl bg-gray-200 p-4">
-                        <h2 className="text-2xl font-bold text-center">Invoice</h2>
+                        <h2 className="text-2xl font-bold text-center">Receipt</h2>
                         {/* <div className="mt-3">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Company Name: </Typography>
@@ -525,17 +860,17 @@ const ConfirmBooking = (props) => {
                         </div> */}
                         <hr className="my-2 border border-black" />
                         <div className="mt-4">
-                            <div className="flex justify-between">
+                            {/* <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Package:</Typography>
                                 <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Local" ? "hr" : ""
                                     }`}</Typography>
-                            </div>
+                            </div> */}
                             {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
                                 <>
-                                    <div className="flex justify-between">
+                                    {/* <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
-                                    </div>
+                                    </div> */}
                                     {amount.extraKMs > 0 && <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
@@ -555,25 +890,111 @@ const ConfirmBooking = (props) => {
                                     }
                                 </> : ""
                             }
-                            <div className="flex justify-between">
+                            {/* <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Total:</Typography>
                                 <Typography style={{
                                     fontWeight: 'bold'
                                 }}>₹ {amount?.total}</Typography>
-                            </div>
+                            </div> */}
+                            {/* Amount After Gst:  */}
+                                {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Total:</Typography>
+                                        <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
+                                    </div>
+                                }
+                                {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
+                                    <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                        <Typography>₹ {bookingDetails?.paymentDetails?.details?.discountAmount}</Typography>
+                                    </div>
+                                }
+                                
+                                 {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Wallet Points Used:</Typography>
+                                            <Typography>₹ {bookingDetails?.paymentDetails?.details?.walletAmountUsed}</Typography>
+                                        </div>
+                                 }
+                                
+                                
+                                 
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Start Time:</Typography>
+                                    <Typography>{moment(bookingDetails.startTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>moment{bookingDetails.startTime}</Typography> */}
+                                </div>
+                                
+                                 
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">End Time:</Typography>
+                                     <Typography>{moment(bookingDetails.endedTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
+                                </div>
+                                
+                                {bookingDetails?.serviceType !== "RIDES" &&  <>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Start KM:</Typography>
+                                    <Typography>{bookingDetails?.startKM}</Typography>
+                                </div>
+                                
+                                
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">End KM:</Typography>
+                                    <Typography>{bookingDetails?.endKM}</Typography>
+                                </div>
+                                </>}
+                                {bookingDetails?.extraHours >0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
+                                     <Typography>{bookingDetails?.extraHours}</Typography>     
+                                </div>
+                                }
+                                 {/* {bookingDetails?.extraHourPrice >0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
+                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
+                                </div>
+                                } */}
+                                {bookingDetails?.extraHourPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs Price:</Typography>
+                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
+                                </div>
+                                }
+                                 {bookingDetails?.extraKMs > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra KMs:</Typography>
+                                     <Typography>{bookingDetails?.extraKMs}</Typography>     
+                                </div>
+                                }
+                                 {bookingDetails?.extraKMPrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra KM Price:</Typography>
+                                     <Typography>{bookingDetails?.extraKMPrice}</Typography>     
+                                </div>
+                                }
+                                {bookingDetails?.extraNightChargePrice > 0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra KM Price:</Typography>
+                                     <Typography>{bookingDetails?.extraNightChargePrice}</Typography>     
+                                </div>
+                                }
+                                
+                                
                         </div>
                     </div>
                 </Card>
             )}
             <>
-            <div className="">
-                {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
-                    <Card>
-                        <CardBody>
-                            <div className="flex justify-between mb-2">
-                                <Typography variant="h5">Payment Details</Typography>
-                            </div>
-                            <hr className="my-2"/>
+                <div className="">
+                    {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
+                        <Card>
+                            <CardBody>
+                                <div className="flex justify-between mb-2">
+                                    <Typography variant="h5">Payment Details</Typography>
+                                </div>
+                                <hr className="my-2" />
                                 <div className="space-y-2">
                                     {/* Payment Collected */}
                                     <div className="grid grid-cols-6 gap-x-4">
@@ -611,236 +1032,14 @@ const ConfirmBooking = (props) => {
                                             <Option value="NOT PAID">NOT PAID</Option>
                                         </Select>
                                     </div>
-                            </div>
-                            
-                        </CardBody>
-                    </Card>
-                }
-                </div>
-                <div className="grid grid-cols-3 gap-4 my-2">
-                    <Button
-                        color="blue"
-                        ripple="light"
-                        fullWidth
-                        onClick={onBackPressHandler}
-                    >
-                        Back
-                    </Button>
+                                </div>
 
-                    {bookingDetails.status === "QUOTED" && (
-                        <Button
-                            color="blue"
-                            variant="outlined"
-                            ripple="dark"
-                            fullWidth
-                            onClick={() => {handleBookingAction(BOOKING_STATUS.CONFIRMED);
-                                setIsOpen(false);
-                            }}
-                        >
-                            Confirm Booking
-                        </Button>
-                    )}
-
-                    {bookingDetails.status !== "ENDED" &&
-                        bookingDetails.status !== "STARTED" &&
-                        bookingDetails.status !== "CANCELLED" && (
-                            <>
-                                {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
-                                    (
-                                        <Button
-                                            color="blue"
-                                            variant="outlined"
-                                            ripple="dark"
-                                            fullWidth
-                                            onClick={() => setShowCancelReason(true)}
-                                        >
-                                            Cancel Booking
-                                        </Button>
-                                    )
-                                }
-                            </>
-                        )
+                            </CardBody>
+                        </Card>
                     }
-
-                    {bookingDetails?.status === 'QUOTED' && (
-                        <Button
-                            color="blue"
-                            variant="outlined"
-                            ripple="dark"
-                            fullWidth
-                            onClick={() => { props.onEdit(bookingDetails) }}
-                        >
-                            Edit Booking
-                        </Button>
-                    )}
-
-                    {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(bookingDetails.status) || (bookingDetails.status == "REQUEST_DRIVER" && bookingDetails.serviceType == "RIDES")) &&
-                        bookingDetails?.pickupAddress &&
-                        !bookingDetails?.Driver?.id &&
-                        !bookingDetails?.Cab?.id && (
-                            <Button
-                                color="blue"
-                                ripple="light"
-                                fullWidth
-                                onClick={() => { props.onAssignDriver(bookingDetails); }}
-                            >
-                                {props.bookingData.serviceType != "CAB" && props.bookingData.serviceType !="DRIVER"
-                                    ? "Assign Cab"
-                                    : "Assign Captain"}
-                            </Button>
-                        )}
-
-                    {bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
-                        bookingDetails?.pickupAddress &&
-                        !bookingDetails?.Driver?.id &&
-                        !bookingDetails?.Cab?.id && (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={() => { props.onAssignDriver(bookingDetails); }}
-                            >
-                                {props.bookingData.serviceType === "CAB"
-                                    ? "Assign Cab"
-                                    : "Assign Captain"}
-                            </Button>
-                        )}
-
-                    {['QUOTED','CONFIRMED', 'BOOKING_ACCEPTED'].includes(bookingDetails.status) &&
-                        (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={() => { props.onAssignDriver(bookingDetails); }}
-                            >
-                                {props.bookingData.serviceType !== "DRIVER"
-                                    ? "Choose Another Cab"
-                                    : "Choose Another Captain"}
-                            </Button>
-                        )}
-
-                    {/* {(bookingDetails.status === 'BOOKING_ACCEPTED' && //start
-                        dateVal &&
-                        timeVal &&
-                        kms) ? (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={onConfirmPressHandler}
-                            >
-                                Start Trip
-                            </Button>
-                            ) : 
-                        (bookingDetails?.serviceType === 'CAR_WASH' && bookingDetails.status === 'INITIATED' && dateVal && timeVal ) ?
-                            (<Button
-                                    color="black"
-                                    ripple="light"
-                                    fullWidth
-                                    onClick={onConfirmPressHandler}
-                                >
-                                    Start Trip
-                            </Button> 
-                        ) : <></>
-                    } */}
-
-                    {/* {(bookingDetails.status === 'STARTED' &&
-                        dateVal &&
-                        timeVal &&
-                        kms &&
-                        paymentDetails.paymentCollected &&
-                        paymentDetails.paymentMethod &&
-                        paymentDetails.paymentStatus ) ? (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={onConfirmPressHandler}
-                            >
-                                End Trip
-                            </Button>
-                        ) : (
-                        bookingDetails?.serviceType === 'CAR_WASH' &&
-                        bookingDetails.status === 'STARTED' &&
-                        dateVal &&
-                        timeVal &&
-                        paymentDetails.paymentCollected &&
-                        paymentDetails.paymentMethod &&
-                        paymentDetails.paymentStatus) ? (
-                            <Button
-                                color="black"
-                                ripple="light"
-                                fullWidth
-                                onClick={onConfirmPressHandler}
-                            >
-                                End Trip
-                            </Button>
-                        ) :<></>
-                    } */}
                 </div>
 
-                {showCancelReason && (
-                    <div className="mt-4 space-y-2">
-                        <select
-                            name="cancelBy"
-                            value={cancelData.cancelBy}
-                            onChange={handleCancelChange}
-                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
-                        >
-                            <option value="">Select who cancelled</option>
-                            <option value="Customer">Cancelled by Customer</option>
-                            <option value="Driver">Cancelled by Driver</option>
-                        </select>
-                        <Input
-                            type="text"
-                            name="cancelReason"
-                            value={cancelData.cancelReason}
-                            onChange={handleCancelChange}
-                            placeholder="Enter cancellation reason..."
-                            className="border border-gray-300 px-2 py-1 rounded-md w-full"
-                        />
-                        <div className="flex items-center space-x-4">
-                            <label className="font-medium">Cancellation Charge Applicable:</label>
-                            <label className="inline-flex items-center space-x-2">
-                                <input
-                                    type="radio"
-                                    name="cancelCharge"
-                                    value="Yes"
-                                    checked={cancelData.cancelCharge === "Yes"}
-                                    onChange={handleCancelChange}
-                                />
-                                <span>Yes</span>
-                            </label>
-                            <label className="inline-flex items-center space-x-2">
-                                <input
-                                    type="radio"
-                                    name="cancelCharge"
-                                    value="No"
-                                    checked={cancelData.cancelCharge === "No"}
-                                    onChange={handleCancelChange}
-                                />
-                                <span>No</span>
-                            </label>
-                        </div>
-                        <div className="flex space-x-2">
-                            <Button
-                                color="red"
-                                onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED, cancelData)}
-                                disabled={!cancelData.cancelReason.trim() || !cancelData.cancelBy || !cancelData.cancelCharge}
-                            >
-                                Confirm Cancel
-                            </Button>
-                            <Button
-                                color="gray"
-                                variant="outlined"
-                                onClick={() => setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "" })}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                )}
+                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} /> }
             </>
         </div>
     );
