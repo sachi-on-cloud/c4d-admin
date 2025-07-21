@@ -7,11 +7,14 @@ import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
 import CustomerWalletLog from '@/components/CustomerWalletLog';
+import CustomerBookingNotes from '@/components/CustomerBookingNotes';
+import moment from "moment";
 
 const CustomerDetails = () => {
     const navigate = useNavigate();
     const [driverVal, setDriverVal] = useState({});
     const { id } = useParams();
+    const [notes, setNotes] = useState([]);
     const [showMore, setShowMore] = useState(false);
     useEffect(() => {
         if (id) {
@@ -21,6 +24,9 @@ const CustomerDetails = () => {
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CUSTOMER + `/${itemId}`);
         setDriverVal(data.data);
+        if (Array.isArray(data.notes)) {
+            setNotes(data.notes);
+        }
     };
     const initialValues = {
         salutation: driverVal?.salutation || '',
@@ -138,6 +144,39 @@ const CustomerDetails = () => {
                         </Form>
                     )}
                 </Formik>
+                <div className='py-3'>
+                    <CustomerBookingNotes customerId={id} />
+                <div className="mt-6">
+                <h2 className="text-xl font-bold mb-4">Existing Notes</h2>
+                <div className="flex-1">
+                    {notes.length === 0 ? (
+                    <p className="text-center text-gray-500 text-base mt-5">No notes available.</p>
+                    ) : (
+                    <ul className="space-y-3">
+                        {notes.map((note) => (
+                        <li
+                            key={note?.id}
+                            className="bg-white rounded-lg p-3 shadow-sm border"
+                        >
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                                {note?.noteType || 'Note'}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                                {moment(note?.created_at).format('DD-MM-YYYY / hh:mm A')}
+                                </span>
+                            </div>
+                            <div className="mb-1">
+                                
+                            </div>
+                            <p className="text-base text-gray-700">{note?.notes}</p>
+                        </li>
+                        ))}
+                    </ul>
+                    )}
+                </div>
+                </div>
+                </div> 
             </div>
 
             <div className='flex justify-center w-full'>

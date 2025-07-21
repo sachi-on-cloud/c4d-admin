@@ -12,6 +12,7 @@ import DocumentsList from '@/components/DocumentsList';
 import CabPriceTableLog from './CabPriceTableLog';
 import SubscriptionLog from '@/components/SubscriptionLog';
 import CabDriverWalletLog from '@/components/CabDriverWallet';
+import DriverBookingNotes from '@/components/DriverBookingNotes';
 
 const CabDetails = ({ btnShow = false, noApprove = false }) => {
     //const [enablePrint, setEnablePrint] = useState(false);
@@ -215,6 +216,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
+            <DriverBookingNotes cabId={id} />
             <CabDriverWalletLog cabId={id} />
             {cab && cab?.creditLog && <SubscriptionLog subscriptionlog={cab?.creditLog} />}
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
