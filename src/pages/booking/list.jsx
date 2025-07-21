@@ -93,7 +93,7 @@ useEffect(() => {
             // Expect value to be an object { startDate, endDate }
             const { startDate, endDate } = value;
             setFilteredRange({ startDate, endDate });
-            console.log('Filtered Range:', { startDate, endDate });
+            // console.log('Filtered Range:', { startDate, endDate });
         }
     };
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange, customContent }) => (
@@ -174,7 +174,7 @@ useEffect(() => {
                     bookingId,
                     userId,
                 });
-                console.log('UpdateOwnerShip API response:', data);
+                // console.log('UpdateOwnerShip API response:', data);
                 setLoadingStates(prev => ({ ...prev, [bookingId]: false }));
                 return data;
                 } catch (error) {
@@ -330,7 +330,7 @@ useEffect(() => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+                                            {["Booking ID", "Customer Name", "Customer Phone Number","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
 
                                                 <th
                                                     key={el}
@@ -514,6 +514,11 @@ useEffect(() => {
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.Customer?.firstName ? data?.Customer?.firstName : '-'}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.Customer?.phoneNumber ? data?.Customer?.phoneNumber : '-'}
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>

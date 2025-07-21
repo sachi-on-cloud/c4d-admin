@@ -16,6 +16,7 @@ import {
 } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 import { FaFilter } from 'react-icons/fa';
+import moment from 'moment';
 
 export function InvoiceList() {
     const navigate = useNavigate();
@@ -257,7 +258,7 @@ export function InvoiceList() {
                                                             {invoice?.invoiceNumber}
                                                         </Typography>
                                                     </td>
-                                                    <td className="border-b border-blue-gray-50 text-black py-3 px-5">{formatDate(invoice?.created_at)}</td>
+                                                    <td className="border-b border-blue-gray-50 text-black py-3 px-5">{moment(invoice?.created_at).format('DD-MM-YYYY')}</td>
                                                     <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.Subscription?.Plan?.name}</td>
                                                     <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.amount}</td>
                                                     <td className="border-b border-blue-gray-50 text-black py-3 px-5">{invoice?.status}</td>
