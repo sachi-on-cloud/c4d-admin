@@ -86,9 +86,9 @@ export function PendingDocList() {
     fetchDoc(pagination.currentPage,pagination.search,true);
   }, [pagination.currentPage, pagination.itemsPerPage]);
 
-  // useEffect(() => {
-  //   getDetails(searchQuery.trim());
-  // }, [searchQuery]);
+  useEffect(() => {
+    getDetails(searchQuery.trim());
+  }, [searchQuery]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
@@ -193,7 +193,7 @@ export function PendingDocList() {
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
         <div className="flex items-center justify-between">
           <div className="relative flex-grow max-w-[500px]">
-            {/* <input
+            <input
               type="text"
               className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search Document"
@@ -203,7 +203,7 @@ export function PendingDocList() {
             />
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
-            </div> */}
+            </div>
           </div>
           <div className="ml-4">
             <button

@@ -160,14 +160,16 @@ const CustomerDetails = () => {
                         >
                             <div className="flex justify-between items-center mb-2">
                                 <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                                {note.User.name || '-'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center mb-2">
+                                  <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
                                 {note?.noteType || 'Note'}
                             </span>
                             <span className="text-sm text-gray-500">
                                 {moment(note?.created_at).format('DD-MM-YYYY / hh:mm A')}
                                 </span>
-                            </div>
-                            <div className="mb-1">
-                                
                             </div>
                             <p className="text-base text-gray-700">{note?.notes}</p>
                         </li>

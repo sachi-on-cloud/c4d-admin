@@ -5,13 +5,19 @@ import {
     CardBody,
     Typography,
     Chip,
-    Button
+    Button,
+    Checkbox,
+    Popover,
+    PopoverHandler,
+    PopoverContent,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import ConfirmBooking from './confirmBooking';
+import { ColorStyles } from '@/utils/constants';
+import { FaFilter } from 'react-icons/fa';
 
 
 export function SearchDrivers(props) {
@@ -21,6 +27,7 @@ export function SearchDrivers(props) {
     const [loading, setLoading] = useState(false);
     const [loadingRides, setLoadingRides] = useState(false);
     const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
+    const [cabTypeFilter, setCabTypeFilter] = useState(['All']);
 
     const checkPresence = async (id) => {
         try {
@@ -327,6 +334,54 @@ export function SearchDrivers(props) {
         }
     };
 
+    const handleFilterChange = (filterType, value) => {
+        // console.log(`Filter type: ${filterType}, Value: ${value}`); // Debug filter changes
+        if (filterType === 'carType') {
+            setCabTypeFilter(prev => {
+                const newFilter = value === 'All'
+                    ? ['All']
+                    : prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+               // console.log('New cabTypeFilter:', newFilter); // Debug state update
+                return newFilter.length === 0 ? ['All'] : newFilter;
+            });
+        }
+    };
+
+    const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+        <Popover placement="bottom-start">
+            <PopoverHandler>
+                <div
+                    className="flex items-center cursor-pointer"
+                //     onClick={() => console.log("PopoverHandler clicked")} // Debug click event
+                >
+                    <Typography variant="small" className="text-[11px] font-bold uppercase mr-1 text-blue-gray-400">
+                        {title}
+                    </Typography>
+                    <FaFilter className="text-gray-600 text-xs" />
+                </div>
+            </PopoverHandler>
+            <PopoverContent className="p-2 z-50 bg-white shadow-lg"> {/* Added styles for visibility */}
+                {options.map((option) => (
+                    <div key={option.value} className="flex items-center mb-2">
+                        <Checkbox
+                            color="blue"
+                            checked={selectedFilters.includes(option.value)}
+                            onChange={() => {
+                              //  console.log(`Checkbox clicked: ${option.value}`); // Debug checkbox
+                                onFilterChange('carType', option.value);
+                            }}
+                        />
+                        <Typography color="blue-gray" className="font-medium ml-2">
+                            {option.label}
+                        </Typography>
+                    </div>
+                ))}
+            </PopoverContent>
+        </Popover>
+    );
+
     return (
         <>
             <ConfirmBooking bookingData={props.bookingData} hideAllNewButton={true} />
@@ -419,7 +474,7 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&
+                                                            {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
                                                                 Drivers?.[0]?.id && (
                                                                     <Typography
@@ -434,9 +489,9 @@ export function SearchDrivers(props) {
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
-                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
-                                                            >
-                                                                {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
+                                                                    className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                                >
+                                                                    {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
                                                             </Button>}
                                                         </td>
                                                     </tr>
@@ -492,18 +547,33 @@ export function SearchDrivers(props) {
                                                         key={el}
                                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                                     >
-                                                        <Typography
-                                                            variant="small"
-                                                            className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
-                                                        >
-                                                            {el}
-                                                        </Typography>
+                                                        {el === "Cab Type" ? (
+                                                            <FilterPopover
+                                                                title={el}
+                                                                options={[
+                                                                        { value: "All", label: "All" },
+                                                                    { value: "MINI", label: "Mini" },
+                                                                    { value: "Sedan", label: "Sedan" },
+                                                                    { value: "SUV", label: "Suv" },
+                                                                    { value: "MUV", label: "Muv" },
+                                                                ]}
+                                                                selectedFilters={cabTypeFilter}
+                                                                onFilterChange={handleFilterChange}
+                                                            />
+                                                        ) : (
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                            >
+                                                                {el}
+                                                            </Typography>
+                                                        )}
                                                     </th>
                                                 ))}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {drivers.map(
+                                        {drivers.filter(driver => cabTypeFilter.includes('All') || cabTypeFilter.includes(driver.carType)).map(
                                             ({ id, name, status, carType, Shifts, priceOffered, curAddress, outstationCount, intercityCount, travelDistance, travelDuration, driverName, tripCount, firstName, phoneNumber, Drivers, fullData }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
@@ -575,7 +645,7 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&
+                                                            {status === 'ACTIVE' &&   props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
                                                                 Drivers?.[0]?.id && (
                                                                     <Typography
