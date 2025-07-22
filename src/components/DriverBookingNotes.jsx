@@ -56,7 +56,7 @@ const DriverBookingNotes = ({ cabId }) => {
 
   return (
     <div className="p-4 border rounded-md bg-gray-50">
-      <h2 className="text-xl font-bold mb-4">Add Note</h2>
+      <h2 className="text-xl font-bold mb-4">Add Notes</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -123,6 +123,11 @@ const DriverBookingNotes = ({ cabId }) => {
                   key={note?.id}
                   className="bg-white rounded-lg p-3 shadow-sm border"
                 >
+                  <div className="flex justify-between items-center mb-2">
+                     <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                      {note.User.name || '-'}
+                    </span>
+                  </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
                       {note?.noteType || 'Note'}

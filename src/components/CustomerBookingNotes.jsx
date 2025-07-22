@@ -34,7 +34,7 @@ const CustomerBookingNotes = ({ customerId }) => {
 
   return (
     <div className="p-4 border rounded-md bg-gray-50">
-      <h2 className="text-xl font-bold mb-4">Add Note</h2>
+      <h2 className="text-xl font-bold mb-4">Add Notes</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}

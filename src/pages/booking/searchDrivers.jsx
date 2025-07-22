@@ -419,7 +419,7 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&
+                                                            {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
                                                                 Drivers?.[0]?.id && (
                                                                     <Typography
@@ -575,7 +575,7 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&
+                                                            {status === 'ACTIVE' &&   props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
                                                                 Drivers?.[0]?.id && (
                                                                     <Typography
