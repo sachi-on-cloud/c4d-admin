@@ -31,8 +31,7 @@ export function ReceiptList() {
         totalPages: 1,
         totalItems: 0,
         itemsPerPage: 15,
-         search: searchQuery.trim(),
-        //   forSearch:false
+        search: '',
     });
 
     const debounce = (func, delay) => {
@@ -43,7 +42,7 @@ export function ReceiptList() {
         };
     };
 
-    const fetchReceipts = async (page = 1, showLoader = false) => {
+    const fetchReceipts = async (page = 1, searchQuery = '', showLoader = false) => {
         if (showLoader) setLoading(true);
         try {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_RECEIPT_LIST, {
@@ -58,7 +57,7 @@ export function ReceiptList() {
                 setPagination({
                     ...pagination,
                     currentPage: page,
-                    totalPages: data?.pagination?.totalPages || 1,
+                    totalPages: searchQuery.trim() ? 1 : (data?.pagination?.totalPages || 1),
                     totalItems: data?.pagination?.totalItems || 0,
                     itemsPerPage: data?.pagination?.itemsPerPage || 15,
                      search: searchQuery.trim(),
@@ -71,18 +70,18 @@ export function ReceiptList() {
         }
     };
 
-    const getReceipts = debounce(() => {
+    const getReceipts = debounce((searchQuery) => {
         setPagination(prev => ({
             ...prev,
             currentPage: 1,
              search: searchQuery
         }));
-        fetchReceipts(1, true);
+        fetchReceipts(1, searchQuery, true);
     }, 1000);
 
     useEffect(() => {
         fetchReceipts(pagination.currentPage,pagination.search, true);
-    }, [pagination.currentPage]);
+    }, [pagination.currentPage,pagination.itemsPerPage,]);
    
 
     const handlePageChange = (page) => {
@@ -170,9 +169,10 @@ export function ReceiptList() {
                             type="text"
                             className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Search Receipt Number"
+                            value={searchQuery}
                             onChange={(e) => {
                                 setSearchQuery(e.target.value);
-                                getReceipts();
+                                getReceipts(e.target.value);
                             }}
                         />
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -260,7 +260,7 @@ export function ReceiptList() {
                                 <Button
                                     size="sm"
                                     variant="text"
-                                    disabled={pagination.currentPage === 1}
+                                    disabled={pagination.currentPage === 1 }
                                     onClick={() => handlePageChange(pagination.currentPage - 1)}
                                     className="mx-1"
                                 >
@@ -270,7 +270,7 @@ export function ReceiptList() {
                                 <Button
                                     size="sm"
                                     variant="text"
-                                    disabled={pagination.currentPage === pagination.totalPages}
+                                    disabled={pagination.currentPage === pagination.totalPages }
                                     onClick={() => handlePageChange(pagination.currentPage + 1)}
                                     className="mx-1"
                                 >
