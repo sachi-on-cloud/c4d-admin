@@ -330,7 +330,7 @@ useEffect(() => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name", "Customer Phone Number","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
 
                                                 <th
                                                     key={el}
@@ -512,15 +512,20 @@ useEffect(() => {
                                                             </div>
                                                         </td>
                                                         <td className={className}>
-                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                            <div className="flex flex-col">
+                                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.Customer?.firstName ? data?.Customer?.firstName : '-'}
-                                                            </Typography>
-                                                        </td>
-                                                        <td className={className}>
+                                                                </Typography>
+                                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.Customer?.phoneNumber ? data?.Customer?.phoneNumber : '-'}
+                                                                </Typography>
+                                                            </div>
+                                                            </td>
+                                                        {/* <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.Customer?.phoneNumber ? data?.Customer?.phoneNumber : '-'}
                                                             </Typography>
-                                                        </td>
+                                                        </td> */}
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.Driver?.firstName ? data?.Driver?.firstName : '-'}
