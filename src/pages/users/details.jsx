@@ -94,6 +94,12 @@ const UserDetails = () => {
                 >
                     Back
                 </Button>
+                <Button
+                     onClick={() => navigate(`/dashboard/users/edit/${id}`)}
+                    className={`my-6 px-8 ${ColorStyles.editButton}`}
+                >
+                    Edit
+                </Button>
             </div>
         </>
     );
