@@ -27,7 +27,7 @@ export function SearchDrivers(props) {
     const [loading, setLoading] = useState(false);
     const [loadingRides, setLoadingRides] = useState(false);
     const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
-    const [cabTypeFilter, setcabTypeFilter] = useState(['All']);
+    const [cabTypeFilter, setCabTypeFilter] = useState(['All']);
 
     const checkPresence = async (id) => {
         try {
@@ -335,37 +335,43 @@ export function SearchDrivers(props) {
     };
 
     const handleFilterChange = (filterType, value) => {
-       if (filterType === 'carType') {
-    setcabTypeFilter(prev => {
-        if (value === 'All') {
-            return ['All'];
-        } else {
-            const newFilter = prev.includes(value)
-                ? prev.filter(item => item !== value)
-                : [...prev.filter(item => item !== 'All'), value];
-            return newFilter.length === 0 ? ['All'] : newFilter;
+        // console.log(`Filter type: ${filterType}, Value: ${value}`); // Debug filter changes
+        if (filterType === 'carType') {
+            setCabTypeFilter(prev => {
+                const newFilter = value === 'All'
+                    ? ['All']
+                    : prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+               // console.log('New cabTypeFilter:', newFilter); // Debug state update
+                return newFilter.length === 0 ? ['All'] : newFilter;
+            });
         }
-    });
-}
     };
 
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
         <Popover placement="bottom-start">
             <PopoverHandler>
-                <div className="flex items-center cursor-pointer">
-                    <Typography variant="small" className='text-[11px] font-bold uppercase mr-1 text-blue-gray-400'>
+                <div
+                    className="flex items-center cursor-pointer"
+                //     onClick={() => console.log("PopoverHandler clicked")} // Debug click event
+                >
+                    <Typography variant="small" className="text-[11px] font-bold uppercase mr-1 text-blue-gray-400">
                         {title}
                     </Typography>
-                    <FaFilter className="text-gray text-xs" />
+                    <FaFilter className="text-gray-600 text-xs" />
                 </div>
             </PopoverHandler>
-            <PopoverContent className="p-2">
+            <PopoverContent className="p-2 z-50 bg-white shadow-lg"> {/* Added styles for visibility */}
                 {options.map((option) => (
                     <div key={option.value} className="flex items-center mb-2">
                         <Checkbox
                             color="blue"
                             checked={selectedFilters.includes(option.value)}
-                            onChange={() => onFilterChange(option.value)}
+                            onChange={() => {
+                              //  console.log(`Checkbox clicked: ${option.value}`); // Debug checkbox
+                                onFilterChange('carType', option.value);
+                            }}
                         />
                         <Typography color="blue-gray" className="font-medium ml-2">
                             {option.label}
@@ -483,9 +489,9 @@ export function SearchDrivers(props) {
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
-                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
-                                                            >
-                                                                {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
+                                                                    className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                                >
+                                                                    {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
                                                             </Button>}
                                                         </td>
                                                     </tr>
@@ -545,22 +551,22 @@ export function SearchDrivers(props) {
                                                             <FilterPopover
                                                                 title={el}
                                                                 options={[
-                                                                    { value: "All", label: "All" },
-                                                                    { value: "MINI", label: "MINI" },
+                                                                        { value: "All", label: "All" },
+                                                                    { value: "MINI", label: "Mini" },
                                                                     { value: "Sedan", label: "Sedan" },
-                                                                    { value: "SUV", label: "SUV" },
-                                                                    { value: "MUV", label: "MUV" },
+                                                                    { value: "SUV", label: "Suv" },
+                                                                    { value: "MUV", label: "Muv" },
                                                                 ]}
                                                                 selectedFilters={cabTypeFilter}
-                                                                onFilterChange={(value) => handleFilterChange("carType", value)}
+                                                                onFilterChange={handleFilterChange}
                                                             />
                                                         ) : (
-                                                        <Typography
-                                                            variant="small"
-                                                            className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
-                                                        >
-                                                            {el}
-                                                        </Typography>
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                            >
+                                                                {el}
+                                                            </Typography>
                                                         )}
                                                     </th>
                                                 ))}
