@@ -457,6 +457,12 @@ const Booking = (props) => {
                         Cancelled
                     </span>
                 );
+                case 'cancelled':
+                return (
+                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                       Customer Cancelled
+                    </span>
+                );
             case 'initiated':
                 if (bookingData?.Driver?.id || bookingData?.Cab?.id) {
                     return (
@@ -512,6 +518,12 @@ const Booking = (props) => {
                    return(
                         <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
                         PAYMENT REQUESTED
+                    </span>
+                    );
+                      case 'support_cancelled':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        SUPPORT CANCELLED
                     </span>
                     );
             default:

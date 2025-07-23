@@ -66,7 +66,7 @@ export function AccountView() {
         setAllAccounts(data?.data);
         setPagination({
           currentPage: page,
-          totalPages: data?.pagination?.totalPages || 1,
+          totalPages:searchQuery.trim() ? 1 : data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 10,
           search: searchQuery.trim(),
