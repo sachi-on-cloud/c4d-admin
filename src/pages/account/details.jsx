@@ -78,12 +78,12 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
+                                        <label htmlFor="status" className="text-sm font-medium text-gray-700">Available Status</label>
                                         <Field type="text" name="status" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700">Subscription Status</label>
+                                        <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700"> Status</label>
                                         <Field type="text" name="ownerStatus" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
                                     </div>
