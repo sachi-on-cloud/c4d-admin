@@ -354,7 +354,11 @@ const handleTabChange = (value) => {
                 <div className='absolute right-10 -top-10'>
                     <button
                         className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
-                        onClick={() => getBookingsList(pagination.currentPage)}
+                        onClick={() => {
+                            getBookingsList(pagination.currentPage);
+                            setStatusFilter(['All']);
+                            setSourceFilter(['All']);
+                        }}
                     >
                         <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
                         <span>Refresh</span>
@@ -362,7 +366,7 @@ const handleTabChange = (value) => {
                 </div>
                 <CardBody>
                     <Tabs  value={activeTab} >
-                        <TabsHeader className="bg-gray-300">
+                        <TabsHeader className="bg-gray-300 z-0">
                             {tabs.map(({ label, value }) => (
                                 <Tab
                                     key={value}
@@ -371,7 +375,7 @@ const handleTabChange = (value) => {
                                         // console.log('Tab clicked:', value);
                                         handleTabChange(value);
                                     }}
-                                    className={`cursor-pointer`}
+                                    className='cursor-pointer'
                                 >
                                     <Typography variant="small" className="font-bold">
                                         {label}
@@ -381,6 +385,9 @@ const handleTabChange = (value) => {
                             ))}
                         </TabsHeader>
                         <TabsBody>
+                            {/* <Typography variant="small" className="mt-2 text-blue-gray-600">
+                                Total Bookings: {pagination.totalItems}
+                            </Typography> */}
                             {tabs.map(({ value }) => (
                                 <TabPanel key={value} value={value}>
                                     {loading ? (
@@ -390,6 +397,7 @@ const handleTabChange = (value) => {
                                     ) : bookingsList.length === 0 ? (
                             <Typography variant="h5" color='#000000'>
                                 No Bookings
+                                {/* {activeTab} Bookings ({statusFilter ? ('status'): statusFilter.join(', ')}): {bookingsList.length} */}
                             </Typography>
                         ) : (
                             <>
