@@ -83,13 +83,6 @@ const AccountAdd = (props) => {
         bankStatementImage: null,
     });
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <Spinner className="h-12 w-12" />
-            </div>
-        );
-    }
     const initialValues = {
         type: "",
         name: "",
@@ -677,7 +670,13 @@ const AccountAdd = (props) => {
                                 Continue
                             </Button>
                         </div>}
-                        {ownerAdded.value &&
+                        {ownerAdded.value && (
+                            <div>
+                                {loading ? (
+                                <div className="flex justify-center items-center h-screen">
+                                    <Spinner className="h-12 w-12" />
+                                </div>
+                                ) : (
                             <div className="mt-6">
                                 <div className="flex flex-row justify-between px-2 mb-2">
                                     <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
@@ -686,9 +685,9 @@ const AccountAdd = (props) => {
                                 </div>
                                 <Card>
                                     <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
-                                        <table className="w-full min-w-[640px] table-auto">
-                                            <thead>
-                                                <tr>
+                                                <table className="w-full min-w-[640px] table-auto">
+                                                <thead>
+                                                    <tr>
                                                     {["Type", "Status", "Action", ""].map((el, index) => (
                                                         <th
                                                             key={index}
@@ -705,7 +704,7 @@ const AccountAdd = (props) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {values.type === "Individual" && <>
+                                                    {values.type === "Individual" && (
                                                     <DocumentUpload
                                                         label="Driving License Image"
                                                         value={imagePreviews.drivingLicenseImage?.image1}
@@ -715,8 +714,8 @@ const AccountAdd = (props) => {
                                                         fullDocVal={imagePreviews.drivingLicenseImage}
                                                         image2={imagePreviews.drivingLicenseImage?.image2}
                                                     />
-                                                </>}
-                                                <DocumentUpload
+                                                    )}
+                                                    <DocumentUpload
                                                     label="Aadhaar Image"
                                                     value={imagePreviews.aadhaarImage?.image1}
                                                     name="aadhaarImage"
@@ -724,8 +723,8 @@ const AccountAdd = (props) => {
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.aadhaarImage}
                                                     image2={imagePreviews.aadhaarImage?.image2}
-                                                />
-                                                {values.type !== "Company" && values.type !== "Individual" && <>
+                                                    />
+                                                    {values.type !== "Company" && values.type !== "Individual" && (
                                                     <DocumentUpload
                                                         label="PAN Image"
                                                         value={imagePreviews.panImage?.image1}
@@ -735,8 +734,8 @@ const AccountAdd = (props) => {
                                                         fullDocVal={imagePreviews.panImage}
                                                         image2={imagePreviews.panImage?.image2}
                                                     />
-                                                </>}
-                                                <DocumentUpload
+                                                    )}
+                                                    <DocumentUpload
                                                     label="Live Photo"
                                                     value={imagePreviews.livePhoto?.image1}
                                                     name="livePhoto"
@@ -744,8 +743,8 @@ const AccountAdd = (props) => {
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.livePhoto}
                                                     image2={imagePreviews.livePhoto?.image2}
-                                                />
-                                                <DocumentUpload
+                                                    />
+                                                    <DocumentUpload
                                                     label="RC"
                                                     value={imagePreviews.rc?.image1}
                                                     name="rc"
@@ -753,8 +752,9 @@ const AccountAdd = (props) => {
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.rc}
                                                     image2={imagePreviews.rc?.image2}
-                                                />
-                                                {values.type !== "Company" && values.type !== "Individual" && <>
+                                                    />
+                                            {values.type !== "Company" && values.type !== "Individual" && (
+                                            <>
                                                     <DocumentUpload
                                                         label="Insurance"
                                                         value={values.insurance}
@@ -771,13 +771,16 @@ const AccountAdd = (props) => {
                                                         fullDocVal={imagePreviews.bankStatement}
                                                         image2={imagePreviews.bankStatement?.image2}
                                                     />
-                                                </>}
-                                            </tbody>
+                                            </>
+                                            )}
+                                        </tbody>
                                         </table>
                                     </CardBody>
                                 </Card>
                             </div>
-                        }
+                                )}
+                            </div>
+                            )}
                         {ownerAdded.value &&
                             <div className='flex flex-row'>
                                 <Button
