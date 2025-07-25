@@ -438,6 +438,7 @@ const ConfirmBooking = (props) => {
                         className="border border-gray-300 px-2 py-1 rounded-md w-full"
                     >
                         <option value="">Select who cancelled</option>
+                        <option value="SUPPORT_CANCELLED">Cancelled By Support</option>
                         <option value="Customer">Cancelled by Customer</option>
                         <option value="Driver">Cancelled by Driver</option>
                     </select>

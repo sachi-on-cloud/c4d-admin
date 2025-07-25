@@ -66,7 +66,7 @@ export function AccountView() {
         setAllAccounts(data?.data);
         setPagination({
           currentPage: page,
-          totalPages: data?.pagination?.totalPages || 1,
+          totalPages:searchQuery.trim() ? 1 : data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 10,
           search: searchQuery.trim(),
@@ -308,7 +308,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","Available Status","Subscription Status","KYC Status"].map((el) => (
+                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -340,28 +340,30 @@ export function AccountView() {
                           selectedFilters={sourceFilter}
                           onFilterChange={(value) => handleFilterChange("source", value)}
                           />
-                      ): el === "Subscription Status" ? (
-                          <FilterPopover
-                            title={el}
-                            options={[
-                              { value: "All", label: "All" },
-                              { value: "InActive", label: "InActive" },
-                              { value: "Active", label: "Active" }
-                            ]}
-                            selectedFilters={statusFilter}
-                            onFilterChange={(value) => handleFilterChange("ownerStatus", value)}
-                          />
-                        ) : el === "Available Status" ? (
-                          <FilterPopover title={el}
-                            options={[
-                              { value: "All", label: "All" },
-                              { value: "Offline", label: "Offline" },
-                              { value: "Online", label: "Online" }
-                            ]}
-                            selectedFilters={availableStatusFilter}
-                            onFilterChange={(value) => handleFilterChange("availableStatus", value)}
-                          />
-                        ) : el === "Service Type" ? (
+                      )
+                      // : el === "Subscription Status" ? (
+                      //     <FilterPopover
+                      //       title={el}
+                      //       options={[
+                      //         { value: "All", label: "All" },
+                      //         { value: "InActive", label: "InActive" },
+                      //         { value: "Active", label: "Active" }
+                      //       ]}
+                      //       selectedFilters={statusFilter}
+                      //       onFilterChange={(value) => handleFilterChange("ownerStatus", value)}
+                      //     />
+                      //   ) : el === "Available Status" ? (
+                      //     <FilterPopover title={el}
+                      //       options={[
+                      //         { value: "All", label: "All" },
+                      //         { value: "Offline", label: "Offline" },
+                      //         { value: "Online", label: "Online" }
+                      //       ]}
+                      //       selectedFilters={availableStatusFilter}
+                      //       onFilterChange={(value) => handleFilterChange("availableStatus", value)}
+                      //     />
+                      //   )
+                         : el === "Service Type" ? (
                           <FilterPopover
                             title={el}
                             options={[
@@ -417,10 +419,10 @@ export function AccountView() {
                     </tr>
                   ) : (
                     accounts.filter(account =>
-                    (statusFilter.includes('All') || statusFilter.includes(account.ownerStatus)) && 
+                    // (statusFilter.includes('All') || statusFilter.includes(account.ownerStatus)) && 
                     (sourceFilter.includes('All') || sourceFilter.includes(account.source)) &&
                     (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(account.type)) &&
-                    (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
+                    // (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
                     (documentTypeFilter.includes('All') || documentTypeFilter.includes(account.documentStatus?.status))
                   ).map(
                     ({id, created_at, name, email,phoneNumber, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
@@ -474,22 +476,25 @@ export function AccountView() {
                               {source}
                             </Typography>
                           </td>
-                          <td className={className}>
+                          {/* <td className={className}>
                             <Chip
                               variant="ghost"
                               color={availableStatus == "ACTIVE" ? "green" : "black"}
                               value={availableStatus == "ACTIVE" ? "Online" : "Offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
-                          </td>
-                          <td className={className}>
+                          </td>*/}
+                          {/* <td className={className}>
                             <Chip
                               variant="ghost"
-                              color={ownerStatus == "ACTIVE" ? "green" : "black"}
-                              value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
+                              color={ownerStatus == "Active" ? "green" : "black"}
+                                value={ownerStatus === "Active" ? "Active" : ownerStatus === "InActive"? "InActive": "Blocked"
+                                     }
+
+
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
-                          </td>
+                          </td>  */}
                           <td className={className}>
                             <Chip
                               variant="ghost"

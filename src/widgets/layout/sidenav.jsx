@@ -70,12 +70,16 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const toggleSubMenu = (subMenu) => {
     setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
   };
+ 
   const [userPermissions, setUserPermissions] = useState(null);
+ const [userName, setUserName] = useState("");
   useEffect(() => {
     const dataFromStorage = localStorage.getItem('loggedInUser');
+    
     if (dataFromStorage) {
       const user = JSON.parse(dataFromStorage);
       setUserPermissions(user.permission || []);
+        setUserName(user?.email || "");
     }
   }, []);
 
@@ -104,14 +108,23 @@ export function Sidenav({ brandImg, brandName, routes }) {
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
           >
-             <div className="flex items-center gap-2 px-8 py-6 text-center">
+             <div className="flex items-center gap-2 px-8 pt-6   text-center">
             <img
                 src="/img/app_icon.png"
                 alt=" ROOT CABS"
                 className="h-6 w-6 rounded-full"
               />
               ROOT CABS
-             </div>
+              </div>
+                <div className="flex items-center gap-1 px-2 text-center pl-16">
+                  {/* <img
+                src="/img/profile.png"
+                alt=" ROOT CABS"
+                className="h-8 w-8 rounded-full"
+              /> */}
+               <p className="text-sm font-semibold pr-12"> {userName}</p>
+               </div>
+            
           </Typography>
         </Link>
         <IconButton

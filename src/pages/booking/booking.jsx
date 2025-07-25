@@ -457,6 +457,12 @@ const Booking = (props) => {
                         Cancelled
                     </span>
                 );
+                case 'cancelled':
+                return (
+                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                       Customer Cancelled
+                    </span>
+                );
             case 'initiated':
                 if (bookingData?.Driver?.id || bookingData?.Cab?.id) {
                     return (
@@ -514,6 +520,12 @@ const Booking = (props) => {
                         PAYMENT REQUESTED
                     </span>
                     );
+                      case 'support_cancelled':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        SUPPORT CANCELLED
+                    </span>
+                    );
             default:
                 return null;
         }
@@ -524,7 +536,12 @@ const Booking = (props) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
-                <div className='py-6 rounded-3xl flex justify-end'>
+                <div className='py-6 rounded-3xl flex justify-between'>
+                    {customerData && <div className="p-2 flex w-[40%]">
+                        <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
+                            setSelectedCustomer(val.id)
+                        }} />
+                    </div>}
                     <button
                         onClick={() => setIsOpen(true)}
                         className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
@@ -935,7 +952,7 @@ const Booking = (props) => {
                                                 <div className='grid grid-cols-2'>
                                                     {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL') || (values.serviceType == 'RENTAL_HOURLY_PACKAGE')) && <div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
-                                                            Pickup Location <span className="text-red-500">*</span>
+                                                           Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
                                                         <Field
                                                             type="text"

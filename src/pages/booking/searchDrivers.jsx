@@ -5,13 +5,19 @@ import {
     CardBody,
     Typography,
     Chip,
-    Button
+    Button,
+    Checkbox,
+    Popover,
+    PopoverHandler,
+    PopoverContent,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import ConfirmBooking from './confirmBooking';
+import { ColorStyles } from '@/utils/constants';
+import { FaFilter } from 'react-icons/fa';
 
 
 export function SearchDrivers(props) {
@@ -21,18 +27,19 @@ export function SearchDrivers(props) {
     const [loading, setLoading] = useState(false);
     const [loadingRides, setLoadingRides] = useState(false);
     const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
+    const [cabTypeFilter, setCabTypeFilter] = useState(['All']);
 
-     const checkPresence = async (id)=>{
-          try{
-             const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE,{driverId:id});
-          }
-          catch(error){
-      
-          }
-          finally{
-            setStatusCheckedDriverIds(prev => [...prev, id]);
-          }
+    const checkPresence = async (id) => {
+        try {
+            const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId: id });
         }
+        catch (error) {
+
+        }
+        finally {
+            setStatusCheckedDriverIds(prev => [...prev, id]);
+        }
+    }
 
     const getDriversList = async (searchQuery = '') => {
         setLoading(true);
@@ -50,7 +57,7 @@ export function SearchDrivers(props) {
                     }
                 });
                 setDrivers(filtredOptions);
-            } else if (props.bookingData.serviceType === 'RIDES') {
+            } else if (props.bookingData.serviceType === 'RIDES' && props.bookingData.requestType == 'REQUEST_ALL') {
                 setLoadingRides(true);
                 try {
                     let data = {
@@ -75,11 +82,11 @@ export function SearchDrivers(props) {
                                     tripCount: item.Driver?.totalRides || 0,
                                     Drivers: [{ id: item.DriverId }],
                                     fullData: item,
-                                    curAddress:item.Shift?.curAddress?.name || '',
+                                    curAddress: item.Shift?.curAddress?.name || '',
                                     travelDistance: item.travelDistance || '',
                                     travelDuration: item.travelDuration || 0,
-                                    intercityCount:item.localCount || 0,
-                                    outstationCount:item.outstationCount || 0,
+                                    intercityCount: item.localCount || 0,
+                                    outstationCount: item.outstationCount || 0,
                                 }));
                                 console.log("Formatted Drivers:", formattedDrivers);
                                 setDrivers(formattedDrivers);
@@ -115,7 +122,7 @@ export function SearchDrivers(props) {
                             console.log("30 seconds passed. Checking driver availability...");
                             let checkDriverStatus = await ApiRequestUtils.get(API_ROUTES.RIDES_DRIVER_LIST + '/' + props.bookingData.id);
                             if (checkDriverStatus?.data?.length > 0) {
-                                const formattedDrivers = checkDriverStatus.data.map((item) => ({                                 
+                                const formattedDrivers = checkDriverStatus.data.map((item) => ({
                                     id: item.Driver?.Cab?.id,
                                     name: item.Driver?.Cab?.name || 'N/A',
                                     driverName: item.Driver?.firstName || 'N/A',
@@ -126,11 +133,11 @@ export function SearchDrivers(props) {
                                     tripCount: item.Driver?.totalRides || 0,
                                     Drivers: [{ id: item.DriverId }],
                                     fullData: item,
-                                    curAddress:item.Shift?.curAddress?.name || '',
+                                    curAddress: item.Shift?.curAddress?.name || '',
                                     travelDistance: item.travelDistance || '',
                                     travelDuration: item.travelDuration || 0,
-                                    intercityCount:item.localCount || 0,
-                                    outstationCount:item.outstationCount || 0,
+                                    intercityCount: item.localCount || 0,
+                                    outstationCount: item.outstationCount || 0,
                                 }));
                                 // console.log("Formatted Drivers:", formattedDrivers);
                                 setDrivers(formattedDrivers);
@@ -218,6 +225,7 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId, fullData) => {
+    //   console.log("fullData",fullData)
         if (service == "RENTAL" && props?.bookingData?.requestType == 'REQUEST_ALL') {
             const reqBody = {
                 bookingId: fullData.BookingId,
@@ -248,8 +256,8 @@ export function SearchDrivers(props) {
                         priceOffered: item.offerPrice || item.driverPrice || 0,
                         tripCount: item.Driver?.totalRides || 0,
                         Drivers: [{ id: item.DriverId }],
-                        intercityCount:item.localCount || 0,
-                        outstationCount:item.outstationCount || 0,
+                        intercityCount: item.localCount || 0,
+                        outstationCount: item.outstationCount || 0,
                     }));
                     // console.log("Updated Drivers:", formattedDrivers); 
                     setDrivers(formattedDrivers);
@@ -285,16 +293,21 @@ export function SearchDrivers(props) {
                 props?.onNext();
             }
         } else if (service == "RIDES") {
+            // console.log('shiftId', fullData.Shifts[0].id);
+            // console.log('estimatedDistance', fullData.travelDistance);
+            // console.log('estimatedMin', fullData.travelDuration);
+            // console.log("fullData",fullData)
             const reqBody = {
-                bookingId: fullData.BookingId,
+                bookingId: props?.bookingData.id,
                 status: 'BOOKING_ACCEPTED',
                 driverId: cabDriverId,
-                shiftId: fullData.ShiftId,
+                shiftId: fullData.Shifts[0].id,
                 cabId: driverId,
-                offerPrice: fullData.offerPrice,
-                estimatedDistance: fullData.estimatedDistance,
-                estimatedMin: fullData.estimatedMin,
+                offerPrice: fullData.offerPrice || 0,
+                estimatedDistance: fullData.travelDistance,
+                estimatedMin: fullData.travelDuration,
             };
+            // console.log("reqBody",reqBody)
             const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RIDES_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
@@ -313,8 +326,8 @@ export function SearchDrivers(props) {
                         priceOffered: item.offerPrice || item.driverPrice || 0,
                         tripCount: item.Driver?.totalRides || 0,
                         Drivers: [{ id: item.DriverId }],
-                        intercityCount:item.localCount || 0,
-                        outstationCount:item.outstationCount || 0,
+                        intercityCount: item.localCount || 0,
+                        outstationCount: item.outstationCount || 0,
                     }));
                     // console.log("Formatted Drivers:", formattedDrivers);
                     setDrivers(formattedDrivers);
@@ -327,9 +340,57 @@ export function SearchDrivers(props) {
         }
     };
 
+    const handleFilterChange = (filterType, value) => {
+        // console.log(`Filter type: ${filterType}, Value: ${value}`); // Debug filter changes
+        if (filterType === 'carType') {
+            setCabTypeFilter(prev => {
+                const newFilter = value === 'All'
+                    ? ['All']
+                    : prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+               // console.log('New cabTypeFilter:', newFilter); // Debug state update
+                return newFilter.length === 0 ? ['All'] : newFilter;
+            });
+        }
+    };
+
+    const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+        <Popover placement="bottom-start">
+            <PopoverHandler>
+                <div
+                    className="flex items-center cursor-pointer"
+                //     onClick={() => console.log("PopoverHandler clicked")} // Debug click event
+                >
+                    <Typography variant="small" className="text-[11px] font-bold uppercase mr-1 text-blue-gray-400">
+                        {title}
+                    </Typography>
+                    <FaFilter className="text-gray-600 text-xs" />
+                </div>
+            </PopoverHandler>
+            <PopoverContent className="p-2 z-50 bg-white shadow-lg"> {/* Added styles for visibility */}
+                {options.map((option) => (
+                    <div key={option.value} className="flex items-center mb-2">
+                        <Checkbox
+                            color="blue"
+                            checked={selectedFilters.includes(option.value)}
+                            onChange={() => {
+                              //  console.log(`Checkbox clicked: ${option.value}`); // Debug checkbox
+                                onFilterChange('carType', option.value);
+                            }}
+                        />
+                        <Typography color="blue-gray" className="font-medium ml-2">
+                            {option.label}
+                        </Typography>
+                    </div>
+                ))}
+            </PopoverContent>
+        </Popover>
+    );
+
     return (
         <>
-            <ConfirmBooking bookingData={props.bookingData} hideAllNewButton={true}/>          
+            <ConfirmBooking bookingData={props.bookingData} hideAllNewButton={true} />
             {props?.bookingData?.serviceType === 'DRIVER' &&
                 <div className="flex flex-col w-full gap-y-4">
                     {/* <DriverSearch onSearch={getDriversList} hideAddNewButton={true} /> */}
@@ -345,7 +406,7 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {["Name", "Phone Number", "Current Address","Distance", "Local Count", "Outstation Count", "Status", "Assign/ReAssign"].map((el) => (
+                                            {["Name", "Phone Number", "Current Address", "Distance", "Local Count", "Outstation Count", "Status", "Assign/ReAssign"].map((el) => (
                                                 <th
                                                     key={el}
                                                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -366,7 +427,7 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.map(
-                                            ({ id, firstName, name, Shifts,curAddress,status, phoneNumber, distance, localCount, outstationCount, Drivers }, key) => {
+                                            ({ id, firstName, name, Shifts, curAddress, status, phoneNumber, distance, localCount, outstationCount, Drivers }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -419,24 +480,24 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                              {status === 'ACTIVE' &&
+                                                            {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
                                                                 Drivers?.[0]?.id && (
-                                                                <Typography
-                                                                    className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                    onClick={() => checkPresence(Drivers[0].id, id)}
-                                                                >
-                                                                    Check Status
-                                                                </Typography>
+                                                                    <Typography
+                                                                        className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                        onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                    >
+                                                                        Check Status
+                                                                    </Typography>
                                                                 )}
                                                         </td>
                                                         <td className={className}>
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
-                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
-                                                            >
-                                                                {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
+                                                                    className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                                >
+                                                                    {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
                                                             </Button>}
                                                         </td>
                                                     </tr>
@@ -485,26 +546,41 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {["Cab Name", "Driver Name", "Phone Number", "Current Address","Cab Type", 
-                                            ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []), 
-                                                "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration","Assign/Reassign"].map((el) => ( //"Trip Count",
-                                                <th
-                                                    key={el}
-                                                    className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                                >
-                                                    <Typography
-                                                        variant="small"
-                                                        className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                            {["Cab Name", "Driver Name", "Phone Number", "Current Address", "Cab Type",
+                                                ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []),
+                                                "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => ( //"Trip Count",
+                                                    <th
+                                                        key={el}
+                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                                     >
-                                                        {el}
-                                                    </Typography>
-                                                </th>
-                                            ))}
+                                                        {el === "Cab Type" ? (
+                                                            <FilterPopover
+                                                                title={el}
+                                                                options={[
+                                                                        { value: "All", label: "All" },
+                                                                    { value: "MINI", label: "Mini" },
+                                                                    { value: "Sedan", label: "Sedan" },
+                                                                    { value: "SUV", label: "Suv" },
+                                                                    { value: "MUV", label: "Muv" },
+                                                                ]}
+                                                                selectedFilters={cabTypeFilter}
+                                                                onFilterChange={handleFilterChange}
+                                                            />
+                                                        ) : (
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                            >
+                                                                {el}
+                                                            </Typography>
+                                                        )}
+                                                    </th>
+                                                ))}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {drivers.map(
-                                            ({ id, name, status, carType, Shifts,priceOffered,curAddress,outstationCount, intercityCount, travelDistance,travelDuration,driverName,tripCount, firstName, phoneNumber, Drivers, fullData }, key) => {
+                                        {drivers.filter(driver => cabTypeFilter.includes('All') || cabTypeFilter.includes(driver.carType)).map(
+                                            ({ id, name, status, carType, Shifts, priceOffered, curAddress, outstationCount, intercityCount, travelDistance, travelDuration, driverName, tripCount, firstName, phoneNumber, Drivers, fullData }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
@@ -535,7 +611,7 @@ export function SearchDrivers(props) {
                                                                 {(Drivers?.[0]?.phoneNumber) ? Drivers?.[0]?.phoneNumber : phoneNumber}
                                                             </Typography>
                                                         </td>
-                                                         <td className={className}>
+                                                        <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {(Shifts?.[0]?.curAddress?.name || curAddress?.name) || curAddress}
                                                             </Typography>
@@ -545,12 +621,12 @@ export function SearchDrivers(props) {
                                                                 {carType}
                                                             </Typography>
                                                         </td>
-                                                        {props.bookingData.requestType == 'REQUEST_ALL' && 
-                                                        <td className={className}>
-                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {priceOffered}
-                                                            </Typography>
-                                                        </td>
+                                                        {props.bookingData.requestType == 'REQUEST_ALL' &&
+                                                            <td className={className}>
+                                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                    {priceOffered}
+                                                                </Typography>
+                                                            </td>
                                                         }
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -575,18 +651,18 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&
+                                                            {status === 'ACTIVE' &&   props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
                                                                 Drivers?.[0]?.id && (
-                                                                <Typography
-                                                                    className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                    onClick={() => checkPresence(Drivers[0].id, id)}
-                                                                >
-                                                                    Check Status
-                                                                </Typography>
+                                                                    <Typography
+                                                                        className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                        onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                    >
+                                                                        Check Status
+                                                                    </Typography>
                                                                 )}
                                                         </td>
-                                                         <td className={className}>
+                                                        <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {travelDistance}
                                                             </Typography>

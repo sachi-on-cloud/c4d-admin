@@ -90,13 +90,6 @@ const DriverAdd = () => {
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };
-        if (loading) {
-            return (
-                <div className="flex justify-center items-center h-screen">
-                    <Spinner className="h-12 w-12" />
-                </div>
-            );
-        }
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
             if (type === 'Local') {
@@ -423,8 +416,9 @@ const DriverAdd = () => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
-                setLoading(false);
-                if (!allowedTypes.includes(files[i].type)) {
+                const file = files[i];
+                if (!allowedTypes.includes(file.type)) {
+                    setLoading(false);
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                         color: "red",
@@ -432,7 +426,7 @@ const DriverAdd = () => {
                     setTimeout(() => setAlert(null), 5000);
                     return;
                 }
-                if (files[i].size > maxSize) {
+                if (file.size > maxSize) {
                     setLoading(false);
                     setAlert({
                         message: "File size exceeds 10MB limit.",
@@ -441,7 +435,6 @@ const DriverAdd = () => {
                     setTimeout(() => setAlert(null), 5000);
                     return;
                 }
-                const file = files[i];
                 uploadedFiles.push(file);
 
                 const reader = new FileReader();
@@ -472,8 +465,6 @@ const DriverAdd = () => {
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
             console.log('DATA IN DOC INSERT :', data);
             if (data?.success) {
-                setLoading(false);
-                console.log(data);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -481,18 +472,18 @@ const DriverAdd = () => {
                         image2: data?.data?.image2 || prev[label]?.image2,
                         id: data?.data?.id,
                     }
-                }))
-            }
-            else {
-                setLoading(false);
+                }));
+            } else {
                 setAlert({
                     message: data?.message || "Failed to upload document. Please try again.",
                     color: "red",
                 });
                 setTimeout(() => setAlert(null), 5000);
             }
+            setLoading(false); 
         } catch (err) {
-            console.log("ERR - >", err)
+            console.log("ERR ->", err);
+            setLoading(false);
         }
     };
 
@@ -1064,7 +1055,14 @@ const DriverAdd = () => {
                                 </Button>
                             </div>
                         }
-                        {driverAdded.value &&
+                        {driverAdded.value && (
+                            <div>
+                            {loading ? (
+                            <div className="flex justify-center items-center h-screen">
+                                <Spinner className="h-12 w-12" />
+                            </div>
+                            ) : (
+                        
                             <div className="mt-6">
                                 <div className="flex flex-row justify-between px-2 mb-2">
                                     <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
@@ -1161,8 +1159,11 @@ const DriverAdd = () => {
                                     </CardBody>
                                 </Card>
                             </div>
-                        }
-                        {driverAdded.value &&
+                        )}
+                        </div>
+                        )}
+                        
+                        {driverAdded.value && 
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
