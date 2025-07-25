@@ -402,7 +402,7 @@ export const CAB_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{14}$', 'Invalid Driver\'s License').required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     // notify: Yup.string().required('Notification Recipients is required'),
@@ -600,7 +600,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{14}$', 'Invalid Driver\'s License').required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     carNumber:Yup.string().required('Car Number is requried'),
