@@ -225,6 +225,7 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId, fullData) => {
+    //   console.log("fullData",fullData)
         if (service == "RENTAL" && props?.bookingData?.requestType == 'REQUEST_ALL') {
             const reqBody = {
                 bookingId: fullData.BookingId,
@@ -292,16 +293,21 @@ export function SearchDrivers(props) {
                 props?.onNext();
             }
         } else if (service == "RIDES") {
+            // console.log('shiftId', fullData.Shifts[0].id);
+            // console.log('estimatedDistance', fullData.travelDistance);
+            // console.log('estimatedMin', fullData.travelDuration);
+            // console.log("fullData",fullData)
             const reqBody = {
-                bookingId: fullData.BookingId,
+                bookingId: props?.bookingData.id,
                 status: 'BOOKING_ACCEPTED',
                 driverId: cabDriverId,
-                shiftId: fullData.ShiftId,
+                shiftId: fullData.Shifts[0].id,
                 cabId: driverId,
-                offerPrice: fullData.offerPrice,
-                estimatedDistance: fullData.estimatedDistance,
-                estimatedMin: fullData.estimatedMin,
+                offerPrice: fullData.offerPrice || 0,
+                estimatedDistance: fullData.travelDistance,
+                estimatedMin: fullData.travelDuration,
             };
+            // console.log("reqBody",reqBody)
             const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RIDES_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
