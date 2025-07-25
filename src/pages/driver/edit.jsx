@@ -703,7 +703,8 @@ const [blockedReason, setBlockedReason] = useState('');
             >
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
-                        <div className='grid grid-cols-2 gap-7'>
+                        <div className='grid grid-cols-1 gap-7'>
+                            <div className='grid grid-cols-2 gap-7'>
                             <div>
                                 <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
                                 <Field as="select" name="salutation" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
@@ -914,6 +915,7 @@ const [blockedReason, setBlockedReason] = useState('');
                                 </Field>
                                 <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                             </div>
+                        </div>
                         </div>
 
                         <div className="flex items-center mt-2">
@@ -1193,7 +1195,7 @@ const [blockedReason, setBlockedReason] = useState('');
                                 )}
                             </div>
                         )} */}
-                        <div className='flex flex-row'>
+                        <div className='grid grid-cols-2 gap-7'>
                             <Button
                                 fullWidth
                                 onClick={() => navigate(`/dashboard/vendors/account/drivers`)}
