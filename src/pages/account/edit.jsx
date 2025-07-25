@@ -205,6 +205,7 @@ const AccountEdit = () => {
         pincode: accountVal?.pincode || "",
         image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : '',
         docDates: accountVal?.Proofs,
+        ownerStatus:accountVal?.ownerStatus || ""
     };
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
@@ -372,7 +373,7 @@ const AccountEdit = () => {
 
                 formData.append('documentId', docId);
                 data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
-                console.log("updated data => ", data)
+                // console.log("updated data => ", data)
             }
             if (data?.success) {
                 setLoading(false);
@@ -427,7 +428,7 @@ const AccountEdit = () => {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
                 address: query
             });
-            console.log("data", data)
+            // console.log("data", data)
             if (data?.success && data?.data) {
                 setAddressSuggestions(data?.data)
             }
@@ -437,7 +438,7 @@ const AccountEdit = () => {
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
-        console.log('onSubmit :', values)
+        // console.log('onSubmit :', values)
         try {
             const formData = {
                 type: values?.type ? values?.type : accountVal.type,
@@ -456,7 +457,7 @@ const AccountEdit = () => {
                 blockedReason: values?.ownerStatus === 'Blocked' ? values?.blockedReason : '',
             }
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, formData);
-            console.log('data in driver UPDATE :', data);
+            // console.log('data in driver UPDATE :', data);
             navigate('/dashboard/vendors/account', {
                 state: {
                     accountUpdated: true,
