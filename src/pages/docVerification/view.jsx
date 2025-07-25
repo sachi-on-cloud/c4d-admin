@@ -20,6 +20,7 @@ import {
 } from "@material-tailwind/react";
 import { FaFilter } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
+import moment from "moment";
 
 
 const debounce = (func, delay) => {
@@ -260,7 +261,7 @@ const getDetails = useCallback(
                       "Phone Number",
                       "Type",
                       "Source",
-                      // "Created Date",
+                      "Created Date",
                       "KYC Status",
                     ].map((el, index) => (
                       <th
@@ -365,11 +366,11 @@ const getDetails = useCallback(
                                   {source}
                                 </Typography>
                               </td>
-                              {/* <td className={className}>
+                              <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                  
+                                {moment(data?.latest_created_at).format("DD-MM-YYYY")}
                                 </Typography>
-                              </td> */}
+                              </td>
                               <td className={className}>
                                 <Typography
                                   variant="ghost"

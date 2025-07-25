@@ -483,15 +483,18 @@ export function AccountView() {
                               value={availableStatus == "ACTIVE" ? "Online" : "Offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
-                          </td>
-                          <td className={className}>
+                          </td>*/}
+                          {/* <td className={className}>
                             <Chip
                               variant="ghost"
-                              color={ownerStatus == "ACTIVE" ? "green" : "black"}
-                              value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
+                              color={ownerStatus == "Active" ? "green" : "black"}
+                                value={ownerStatus === "Active" ? "Active" : ownerStatus === "InActive"? "InActive": "Blocked"
+                                     }
+
+
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
-                          </td> */}
+                          </td>  */}
                           <td className={className}>
                             <Chip
                               variant="ghost"

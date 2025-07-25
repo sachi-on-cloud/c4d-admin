@@ -146,6 +146,7 @@ const AccountEdit = () => {
     const [stateSearchText, setStateSearchText] = useState("");
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [blockedReason, setBlockedReason] = useState(accountVal?.result?.blockedReason || '');
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         policeClearance: null,
@@ -178,6 +179,7 @@ const AccountEdit = () => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
         //console.log(' data - Fetch Item :', data?.data);
         setAccountVal(data?.data?.data);
+        setBlockedReason(data?.data?.data?.blockedReason || '');
         setImagePreviews({
             aadhaarImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.AADHAAR),
             drivingLicenseImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.DRIVING_LICENSE),
@@ -450,6 +452,8 @@ const AccountEdit = () => {
                 pincode: values?.pincode ? values?.pincode : accountVal.pincode,
                 source: values?.source ? values?.source : accountVal.source,
                 accountId: accountVal?.id,
+                ownerStatus: values?.ownerStatus ? values?.ownerStatus : accountVal.ownerStatus,
+                blockedReason: values?.ownerStatus === 'Blocked' ? values?.blockedReason : '',
             }
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, formData);
             console.log('data in driver UPDATE :', data);
@@ -706,6 +710,38 @@ const AccountEdit = () => {
                                     <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
                                     <Field type="text" name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700">Owner Status</label>
+                                    <Field 
+                                        as="select" 
+                                        name="ownerStatus" 
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                        onChange={(e) => {
+                                            setFieldValue("ownerStatus", e.target.value);
+                                            if (e.target.value !== 'Blocked') {
+                                                setFieldValue("blockedReason", "");
+                                            }
+                                        }}
+                                    >
+                                        <option value="">Select status</option>
+                                        <option value="Active">Active</option>
+                                        <option value="InActive">In_Active</option>
+                                        <option value="Blocked">Blocked</option>
+                                    </Field>
+                                    <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
+                                    {values.ownerStatus === 'Blocked' && (
+                                        <div className="mt-2">
+                                            <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">Block Reason</label>
+                                            <Field
+                                                type="text"
+                                                id="blockedReason"
+                                                name="blockedReason"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                            />
+                                            <ErrorMessage name="blockedReason" component="div" className="text-red-500 text-sm mt-1" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
