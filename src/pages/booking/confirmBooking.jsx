@@ -945,12 +945,12 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.endKM}</Typography>
                                 </div>
                                 </>}
-                                {bookingDetails?.extraHours >0 &&
+                                {bookingDetails?.extraHours >0 && (
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                     <Typography>{bookingDetails?.extraHours}</Typography>     
+                                    <Typography color="gray" variant="h6">{`${Math.floor(bookingDetails.extraHours / 60)} hrs ${bookingDetails.extraHours % 60} min`}</Typography>
                                 </div>
-                                }
+                                )}
                                  {/* {bookingDetails?.extraHourPrice >0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs:</Typography>
