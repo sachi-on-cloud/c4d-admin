@@ -573,7 +573,7 @@ const handleTabChange = (value) => {
                                                             <div className="flex items-center">
                                                                 <div onClick={() => {
                                                                     handleBookingSelect(data);
-                                                                    setIsOpen(true)
+                                                                    setIsOpen(true);
                                                                 }}>
                                                                     <Typography
                                                                         variant="small"
@@ -726,6 +726,7 @@ const handleTabChange = (value) => {
                                                                     fullWidth
                                                                     onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     Request {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                 </Button>
@@ -735,6 +736,7 @@ const handleTabChange = (value) => {
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                 </Button>
@@ -747,6 +749,7 @@ const handleTabChange = (value) => {
                                                                     setShowReassignModal(true);
                                                                     }}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                 </Button>
@@ -756,6 +759,7 @@ const handleTabChange = (value) => {
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                    

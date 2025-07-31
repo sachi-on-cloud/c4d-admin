@@ -10,6 +10,7 @@ import {
     Popover,
     PopoverHandler,
     PopoverContent,
+    Progress,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
@@ -18,7 +19,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import ConfirmBooking from './confirmBooking';
 import { ColorStyles } from '@/utils/constants';
 import { FaFilter } from 'react-icons/fa';
-
+import { Spinner } from "@material-tailwind/react";
 
 export function SearchDrivers(props) {
     const [drivers, setDrivers] = useState([]);
@@ -27,19 +28,91 @@ export function SearchDrivers(props) {
     const [loading, setLoading] = useState(false);
     const [loadingRides, setLoadingRides] = useState(false);
     const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
+    const [checkingStatusDriverIds, setCheckingStatusDriverIds] = useState([]);
     const [cabTypeFilter, setCabTypeFilter] = useState(['All']);
+    const [checkingAllStatus, setCheckingAllStatus] = useState(false);
 
-    const checkPresence = async (id) => {
+    const checkPresence = async (driverId, rowId) => {
+        setCheckingStatusDriverIds((prev) => [...prev, driverId]);
+
         try {
-            const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId: id });
-        }
-        catch (error) {
+            const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
 
+            setTimeout(async () => {
+                await getDriversList();
+                setCheckingStatusDriverIds(prev => prev.filter(id => id !== driverId));
+                setStatusCheckedDriverIds(prev => [...prev, driverId]);
+            }, 30000);
+        } catch (error) {
+            console.error("Error checking presence:", error);
+            setCheckingStatusDriverIds(prev => prev.filter(id => id !== driverId));
         }
-        finally {
-            setStatusCheckedDriverIds(prev => [...prev, id]);
+    };
+
+    const checkAllStatus = async () => {
+        const driversToCheck = drivers.filter(
+            (driver) => 
+                driver.Drivers?.length > 0 && 
+                !statusCheckedDriverIds.includes(driver.Drivers[0]?.id) &&
+                driver.status === "ACTIVE"
+        );
+
+        if (driversToCheck.length === 0) {
+            console.log("No drivers available to check status");
+            return;
         }
-    }
+
+        setCheckingAllStatus(true);
+        setCheckingStatusDriverIds(driversToCheck.map(d => d.Drivers[0].id));
+        
+        try {
+            await Promise.all(driversToCheck.map(driver => 
+                ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId: driver.Drivers[0].id })
+            ));
+
+            setTimeout(async () => {
+                await getDriversList();
+                setStatusCheckedDriverIds(prev => [
+                    ...prev,
+                    ...driversToCheck.map(d => d.Drivers[0].id)
+                ]);
+                setCheckingStatusDriverIds([]);
+                setCheckingAllStatus(false);
+            }, 30000);
+        } catch (error) {
+            console.error("Error checking presence:", error);
+            setCheckingStatusDriverIds([]);
+            setCheckingAllStatus(false);
+        }
+    };
+    const AnimatedProgress = ({ duration = 30000 }) => {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let startTime = null;
+    let animationFrameId = null;
+
+    const animate = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const newProgress = Math.min((elapsed / duration) * 100, 100);
+      setProgress(newProgress);
+
+      if (elapsed < duration) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [duration]);
+
+  return <Progress value={progress} size="sm" color="blue" className="w-16 inline-block ml-1" />;
+};
+
 
     const getDriversList = async (searchQuery = '') => {
         setLoading(true);
@@ -139,7 +212,6 @@ export function SearchDrivers(props) {
                                     intercityCount: item.localCount || 0,
                                     outstationCount: item.outstationCount || 0,
                                 }));
-                                // console.log("Formatted Drivers:", formattedDrivers);
                                 setDrivers(formattedDrivers);
                             } else {
                                 console.log("No driver found.");
@@ -225,7 +297,6 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId, fullData) => {
-    //   console.log("fullData",fullData)
         if (service == "RENTAL" && props?.bookingData?.requestType == 'REQUEST_ALL') {
             const reqBody = {
                 bookingId: fullData.BookingId,
@@ -259,7 +330,6 @@ export function SearchDrivers(props) {
                         intercityCount: item.localCount || 0,
                         outstationCount: item.outstationCount || 0,
                     }));
-                    // console.log("Updated Drivers:", formattedDrivers); 
                     setDrivers(formattedDrivers);
                 } else {
                     setDrivers([]);
@@ -293,10 +363,6 @@ export function SearchDrivers(props) {
                 props?.onNext();
             }
         } else if (service == "RIDES") {
-            // console.log('shiftId', fullData.Shifts[0].id);
-            // console.log('estimatedDistance', fullData.travelDistance);
-            // console.log('estimatedMin', fullData.travelDuration);
-            // console.log("fullData",fullData)
             const reqBody = {
                 bookingId: props?.bookingData.id,
                 status: 'BOOKING_ACCEPTED',
@@ -307,7 +373,6 @@ export function SearchDrivers(props) {
                 estimatedDistance: fullData.travelDistance,
                 estimatedMin: fullData.travelDuration,
             };
-            // console.log("reqBody",reqBody)
             const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RIDES_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
@@ -329,9 +394,7 @@ export function SearchDrivers(props) {
                         intercityCount: item.localCount || 0,
                         outstationCount: item.outstationCount || 0,
                     }));
-                    // console.log("Formatted Drivers:", formattedDrivers);
                     setDrivers(formattedDrivers);
-                    // console.log("Updated Drivers:", formattedDrivers);
                 } else {
                     setDrivers([]);
                     console.log("No drivers found.");
@@ -341,7 +404,6 @@ export function SearchDrivers(props) {
     };
 
     const handleFilterChange = (filterType, value) => {
-        // console.log(`Filter type: ${filterType}, Value: ${value}`); // Debug filter changes
         if (filterType === 'carType') {
             setCabTypeFilter(prev => {
                 const newFilter = value === 'All'
@@ -349,7 +411,6 @@ export function SearchDrivers(props) {
                     : prev.includes(value)
                         ? prev.filter(item => item !== value)
                         : [...prev.filter(item => item !== 'All'), value];
-               // console.log('New cabTypeFilter:', newFilter); // Debug state update
                 return newFilter.length === 0 ? ['All'] : newFilter;
             });
         }
@@ -358,26 +419,20 @@ export function SearchDrivers(props) {
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
         <Popover placement="bottom-start">
             <PopoverHandler>
-                <div
-                    className="flex items-center cursor-pointer"
-                //     onClick={() => console.log("PopoverHandler clicked")} // Debug click event
-                >
+                <div className="flex items-center cursor-pointer">
                     <Typography variant="small" className="text-[11px] font-bold uppercase mr-1 text-blue-gray-400">
                         {title}
                     </Typography>
                     <FaFilter className="text-gray-600 text-xs" />
                 </div>
             </PopoverHandler>
-            <PopoverContent className="p-2 z-50 bg-white shadow-lg"> {/* Added styles for visibility */}
+            <PopoverContent className="p-2 z-50 bg-white shadow-lg">
                 {options.map((option) => (
                     <div key={option.value} className="flex items-center mb-2">
                         <Checkbox
                             color="blue"
                             checked={selectedFilters.includes(option.value)}
-                            onChange={() => {
-                              //  console.log(`Checkbox clicked: ${option.value}`); // Debug checkbox
-                                onFilterChange('carType', option.value);
-                            }}
+                            onChange={() => onFilterChange('carType', option.value)}
                         />
                         <Typography color="blue-gray" className="font-medium ml-2">
                             {option.label}
@@ -393,7 +448,6 @@ export function SearchDrivers(props) {
             <ConfirmBooking bookingData={props.bookingData} hideAllNewButton={true} />
             {props?.bookingData?.serviceType === 'DRIVER' &&
                 <div className="flex flex-col w-full gap-y-4">
-                    {/* <DriverSearch onSearch={getDriversList} hideAddNewButton={true} /> */}
                     <Card>
                         {loading ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
@@ -481,23 +535,26 @@ export function SearchDrivers(props) {
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
                                                             {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
-                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
-                                                                Drivers?.[0]?.id && (
-                                                                    <Typography
-                                                                        className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                        onClick={() => checkPresence(Drivers[0].id, id)}
-                                                                    >
-                                                                        Check Status
-                                                                    </Typography>
+                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) && (
+                                                                    checkingStatusDriverIds.includes(Drivers?.[0]?.id) ? (
+                                                                       <AnimatedProgress duration={30000} />
+                                                                    ) : (
+                                                                        <Typography
+                                                                            className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                            onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                        >
+                                                                            Check Status
+                                                                        </Typography>
+                                                                    )
                                                                 )}
                                                         </td>
                                                         <td className={className}>
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
-                                                                    className="text-xs font-semibold text-white bg-[#1A73E8]"
-                                                                >
-                                                                    {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
+                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                            >
+                                                                {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
                                                             </Button>}
                                                         </td>
                                                     </tr>
@@ -526,8 +583,24 @@ export function SearchDrivers(props) {
                 </div >
             }
             {props?.bookingData?.serviceType != 'DRIVER' &&
-                <div className="flex flex-col w-full gap-y-4">
-                    {/* <DriverSearch onSearch={getDriversList} hideAddNewButton={true} /> */}
+                <div className="flex flex-col w-full">
+                    <div className="flex justify-end mb-4">
+                        <Button
+                            color="red"
+                            size="sm"
+                            className="w-36"
+                            onClick={checkAllStatus}
+                            disabled={checkingAllStatus}
+                        >
+                            {checkingAllStatus ? (
+                                <div className="flex items-center justify-center">
+                                    <Spinner className="h-4 w-4 mr-2" />
+                                     {/* <AnimatedProgress duration={30000} /> */}
+                                    Checking...
+                                </div>
+                            ) : "Check All Status"}
+                        </Button>
+                    </div>
                     <Card>
                         {loadingRides ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
@@ -548,7 +621,7 @@ export function SearchDrivers(props) {
                                         <tr>
                                             {["Cab Name", "Driver Name", "Phone Number", "Current Address", "Cab Type",
                                                 ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []),
-                                                "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => ( //"Trip Count",
+                                                "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
                                                     <th
                                                         key={el}
                                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -638,12 +711,6 @@ export function SearchDrivers(props) {
                                                                 {outstationCount}
                                                             </Typography>
                                                         </td>
-
-                                                        {/* <td className={className}>
-                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {tripCount}
-                                                            </Typography>
-                                                        </td> */}
                                                         <td className={className}>
                                                             <Chip
                                                                 variant="ghost"
@@ -651,15 +718,18 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&   props.bookingData.requestType !== 'REQUEST_ALL' &&
-                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
-                                                                Drivers?.[0]?.id && (
-                                                                    <Typography
-                                                                        className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                        onClick={() => checkPresence(Drivers[0].id, id)}
-                                                                    >
-                                                                        Check Status
-                                                                    </Typography>
+                                                            {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
+                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) && (
+                                                                    checkingStatusDriverIds.includes(Drivers?.[0]?.id) ? (
+                                                                        <AnimatedProgress duration={30000} />
+                                                                    ) : (
+                                                                        <Typography
+                                                                            className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                            onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                        >
+                                                                            Check Status
+                                                                        </Typography>
+                                                                    )
                                                                 )}
                                                         </td>
                                                         <td className={className}>
