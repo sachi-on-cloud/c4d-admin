@@ -538,9 +538,15 @@ const Booking = (props) => {
             <div className='w-full'>
                 <div className='py-6 rounded-3xl flex justify-between'>
                     {customerData && <div className="p-2 flex w-[40%]">
-                        <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
-                            setSelectedCustomer(val.id)
-                        }} />
+                        <SearchableDropdown 
+  searchVal={setCustomerNumber} 
+  addVal={addCustomerNumber} 
+  selected={editBooking?.customerId} 
+  options={customerData} 
+  onSelect={(val) => {
+    setSelectedCustomer(val.id);
+  }} 
+/>
                     </div>}
                     <button
                         onClick={() => setIsOpen(true)}
@@ -618,10 +624,16 @@ const Booking = (props) => {
                                         {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
                                             <>
                                                 {customerData && <div className="p-2 flex">
-                                                    <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
-                                                        setFieldValue('customerId', val);
-                                                        setSelectedCustomer(val.id)
-                                                    }} />
+                                                   <SearchableDropdown 
+    searchVal={setCustomerNumber} 
+    addVal={addCustomerNumber} 
+    selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
+    options={customerData} 
+    onSelect={(val) => {
+      setFieldValue('customerId', val);
+      setSelectedCustomer(val.id);
+    }} 
+  />
 
                                                     {!editBookingView && <Button
                                                         className="ml-3 w-1/2"
