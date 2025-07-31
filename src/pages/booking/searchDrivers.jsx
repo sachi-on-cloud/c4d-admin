@@ -10,6 +10,7 @@ import {
     Popover,
     PopoverHandler,
     PopoverContent,
+    Spinner,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
@@ -27,19 +28,65 @@ export function SearchDrivers(props) {
     const [loading, setLoading] = useState(false);
     const [loadingRides, setLoadingRides] = useState(false);
     const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
+    const [checkingStatusDriverIds, setCheckingStatusDriverIds] = useState([]);
     const [cabTypeFilter, setCabTypeFilter] = useState(['All']);
+    const [checkingAllStatus, setCheckingAllStatus] = useState(false);
 
-    const checkPresence = async (id) => {
+    const checkPresence = async (driverId, rowId) => {
+        setCheckingStatusDriverIds((prev) => [...prev, driverId]);
+
         try {
-            const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId: id });
-        }
-        catch (error) {
+            await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
 
+            setTimeout(async () => {
+                await getDriversList();
+                setCheckingStatusDriverIds(prev => prev.filter(id => id !== driverId));
+                setStatusCheckedDriverIds(prev => [...prev, driverId]);
+            }, 30000);
+        } catch (error) {
+            console.error("Error checking presence:", error);
+            setCheckingStatusDriverIds(prev => prev.filter(id => id !== driverId));
         }
-        finally {
-            setStatusCheckedDriverIds(prev => [...prev, id]);
-        }
+    };
+
+    const checkAllStatus = async () => {
+    const driversToCheck = drivers.filter(
+        (driver) => 
+            driver.Drivers?.length > 0 && 
+            !statusCheckedDriverIds.includes(driver.Drivers[0]?.id) &&
+            driver.status === "ACTIVE"
+    );
+
+    if (driversToCheck.length === 0) {
+        console.log("No drivers available to check status");
+        return;
     }
+
+    setCheckingAllStatus(true);
+    setCheckingStatusDriverIds(driversToCheck.map(d => d.Drivers[0].id));
+
+    try {
+        // Call checkPresence for each driver sequentially or with a delay
+        for (const driver of driversToCheck) {
+            await checkPresence(driver.Drivers[0].id, driver.id);
+        }
+
+        // After all checks are initiated, wait for the last timeout to complete
+        setTimeout(async () => {
+            await getDriversList();
+            setStatusCheckedDriverIds(prev => [
+                ...prev,
+                ...driversToCheck.map(d => d.Drivers[0].id)
+            ]);
+            setCheckingStatusDriverIds([]);
+            setCheckingAllStatus(false);
+        }, 30000); // Match the delay in checkPresence
+    } catch (error) {
+        console.error("Error checking presence:", error);
+        setCheckingStatusDriverIds([]);
+        setCheckingAllStatus(false);
+    }
+};
 
     const getDriversList = async (searchQuery = '') => {
         setLoading(true);
@@ -388,6 +435,18 @@ export function SearchDrivers(props) {
         </Popover>
     );
 
+    // Render a loading row
+    const LoadingRow = ({ colSpan }) => (
+        <tr>
+            <td colSpan={colSpan} className="py-3 px-5 text-center">
+                <div className="flex justify-center items-center">
+                    <Spinner className="h-8 w-8" />
+                    <Typography className="ml-2 text-blue-gray-600">Loading...</Typography>
+                </div>
+            </td>
+        </tr>
+    );
+
     return (
         <>
             <ConfirmBooking bookingData={props.bookingData} hideAllNewButton={true} />
@@ -401,6 +460,32 @@ export function SearchDrivers(props) {
                                     {`Loading drivers....`}
                                 </Typography>
                             </CardHeader>
+                        ) : checkingAllStatus ? (
+                            <CardBody className="overflow-x-auto overflow-y-auto px-0 pt-0 pb-2">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr>
+                                            {["Name", "Phone Number", "Current Address", "Distance", "Local Count", "Outstation Count", "Status", "Assign/ReAssign"].map((el) => (
+                                                <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                                    <Typography
+                                                        variant="small"
+                                                        className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                        onClick={() => {
+                                                            ['Local Count', 'Outstation Count', 'Distance'].includes(el) && handleSort(el === 'Local Count' ? 'localCount' : el === 'Distance' ? 'distance' : 'outstationCount')
+                                                        }}
+                                                    >
+                                                        {el}
+                                                        {['Local Count', 'Outstation Count', 'Distance'].includes(el) && <SortIcon field={el === 'Local Count' ? 'localCount' : el === 'Distance' ? 'distance' : 'outstationCount'} />}
+                                                    </Typography>
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <LoadingRow colSpan={8} />
+                                    </tbody>
+                                </table>
+                            </CardBody>
                         ) : drivers.length > 0 ? (
                             <CardBody className="overflow-x-auto overflow-y-auto px-0 pt-0 pb-2">
                                 <table className="w-full">
@@ -428,10 +513,11 @@ export function SearchDrivers(props) {
                                     <tbody>
                                         {drivers.map(
                                             ({ id, firstName, name, Shifts, curAddress, status, phoneNumber, distance, localCount, outstationCount, Drivers }, key) => {
-                                                const className = `py-3 px-5 ${key === drivers.length - 1
-                                                    ? ""
-                                                    : "border-b border-blue-gray-50"
-                                                    }`;
+                                                const className = `py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+
+                                                if (checkingStatusDriverIds.includes(Drivers?.[0]?.id)) {
+                                                    return <LoadingRow key={id} colSpan={8} />;
+                                                }
 
                                                 return (
                                                     <tr key={id}>
@@ -480,15 +566,18 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
-                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
-                                                                Drivers?.[0]?.id && (
-                                                                    <Typography
-                                                                        className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                        onClick={() => checkPresence(Drivers[0].id, id)}
-                                                                    >
-                                                                        Check Status
-                                                                    </Typography>
+                                                            {status === 'ACTIVE' && props.bookingData.requestType !== 'REQUEST_ALL' &&
+                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) && (
+                                                                    checkingStatusDriverIds.includes(Drivers?.[0]?.id) ? (
+                                                                        <Spinner className="h-4 w-4 inline ml-1" />
+                                                                    ) : (
+                                                                        <Typography
+                                                                            className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                            onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                        >
+                                                                            Check Status
+                                                                        </Typography>
+                                                                    )
                                                                 )}
                                                         </td>
                                                         <td className={className}>
@@ -523,11 +612,26 @@ export function SearchDrivers(props) {
                             {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
                         </Button>
                     </div>
-                </div >
+                </div>
             }
-            {props?.bookingData?.serviceType != 'DRIVER' &&
-                <div className="flex flex-col w-full gap-y-4">
-                    {/* <DriverSearch onSearch={getDriversList} hideAddNewButton={true} /> */}
+            {props?.bookingData?.serviceType != 'DRIVER' && (
+                <div className="flex flex-col w-full">
+                    <div className="flex justify-end mb-4">
+                        <Button
+                            color="red"
+                            size="sm"
+                            className="w-36"
+                            onClick={checkAllStatus}
+                            disabled={checkingAllStatus}
+                        >
+                            {checkingAllStatus ? (
+                                <div className="flex items-center justify-center">
+                                    <Spinner className="h-4 w-4 mr-2" />
+                                    Checking...
+                                </div>
+                            ) : "Check All Status"}
+                        </Button>
+                    </div>
                     <Card>
                         {loadingRides ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
@@ -541,6 +645,45 @@ export function SearchDrivers(props) {
                                     Loading cabs...
                                 </Typography>
                             </CardHeader>
+                        ) : checkingAllStatus ? (
+                            <CardBody className="overflow-x-auto overflow-y-auto px-0 pt-0 pb-2">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr>
+                                            {["Cab Name", "Driver Name", "Phone Number", "Current Address", "Cab Type",
+                                                ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []),
+                                                "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
+                                                    <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                                        {el === "Cab Type" ? (
+                                                            <FilterPopover
+                                                                title={el}
+                                                                options={[
+                                                                    { value: "All", label: "All" },
+                                                                    { value: "MINI", label: "Mini" },
+                                                                    { value: "Sedan", label: "Sedan" },
+                                                                    { value: "SUV", label: "Suv" },
+                                                                    { value: "MUV", label: "Muv" },
+                                                                ]}
+                                                                selectedFilters={cabTypeFilter}
+                                                                onFilterChange={handleFilterChange}
+                                                            />
+                                                        ) : (
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-[11px] font-bold uppercase text-blue-gray-400 flex items-center cursor-pointer"
+                                                            >
+                                                                {el}
+                                                            </Typography>
+                                                        )}
+                                                    </th>
+                                                ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <LoadingRow colSpan={props.bookingData?.requestType == 'REQUEST_ALL' ? 12 : 11} />
+                                    </tbody>
+                                </table>
+                            </CardBody>
                         ) : drivers.length > 0 ? (
                             <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
                                 <table className="w-full">
@@ -581,10 +724,11 @@ export function SearchDrivers(props) {
                                     <tbody>
                                         {drivers.filter(driver => cabTypeFilter.includes('All') || cabTypeFilter.includes(driver.carType)).map(
                                             ({ id, name, status, carType, Shifts, priceOffered, curAddress, outstationCount, intercityCount, travelDistance, travelDuration, driverName, tripCount, firstName, phoneNumber, Drivers, fullData }, key) => {
-                                                const className = `py-3 px-5 ${key === drivers.length - 1
-                                                    ? ""
-                                                    : "border-b border-blue-gray-50"
-                                                    }`;
+                                                const className = `py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+
+                                                if (checkingStatusDriverIds.includes(Drivers?.[0]?.id)) {
+                                                    return <LoadingRow key={id} colSpan={props.bookingData?.requestType == 'REQUEST_ALL' ? 12 : 11} />;
+                                                }
 
                                                 return (
                                                     <tr key={id}>
@@ -651,15 +795,18 @@ export function SearchDrivers(props) {
                                                                 value={status === "ACTIVE" ? "Available" : "Not Available"}
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
-                                                            {status === 'ACTIVE' &&   props.bookingData.requestType !== 'REQUEST_ALL' &&
-                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) &&
-                                                                Drivers?.[0]?.id && (
-                                                                    <Typography
-                                                                        className="text-xs font-semibold text-blue-900 underline cursor-pointer"
-                                                                        onClick={() => checkPresence(Drivers[0].id, id)}
-                                                                    >
-                                                                        Check Status
-                                                                    </Typography>
+                                                            {status === 'ACTIVE' && props.bookingData.requestType !== 'REQUEST_ALL' &&
+                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) && (
+                                                                    checkingStatusDriverIds.includes(Drivers?.[0]?.id) ? (
+                                                                        <Spinner className="h-4 w-4 inline ml-1" />
+                                                                    ) : (
+                                                                        <Typography
+                                                                            className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                            onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                        >
+                                                                            Check Status
+                                                                        </Typography>
+                                                                    )
                                                                 )}
                                                         </td>
                                                         <td className={className}>
@@ -687,7 +834,8 @@ export function SearchDrivers(props) {
                                         )}
                                     </tbody>
                                 </table>
-                            </CardBody>) : (
+                            </CardBody>
+                        ) : (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
                                     {`No ${props?.bookingData?.serviceType == "DRIVER" ? 'drivers' : 'cabs'} Near By`}
@@ -705,6 +853,7 @@ export function SearchDrivers(props) {
                         </Button>
                     </div>
                 </div >
+            )
             }
         </>
     );

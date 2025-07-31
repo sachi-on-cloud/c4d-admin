@@ -680,11 +680,26 @@ const ConfirmBooking = (props) => {
                             } */}
                             {/* need to add logic for price */}
                             {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Estimated Price:</Typography>
-                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.Package?.price : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.Package?.price : bookingDetails?.value?.estimatedPrice}</Typography>
-                                </div>
+                               <div className="flex justify-between">
+  <Typography color="gray" variant="h6">Estimated Price:</Typography>
+  <Typography>
+    ₹ {
+      bookingDetails?.serviceType === 'DRIVER'
+        ? bookingDetails?.Package?.price
+        : (bookingDetails?.packageType === 'Local' && bookingDetails?.serviceType === 'RENTAL')
+          ? (
+              bookingDetails?.carType === "Sedan"
+                ? bookingDetails?.Package?.priceSedan
+                : bookingDetails?.carType === "MUV"
+                  ? bookingDetails?.Package?.priceMVP
+                   : bookingDetails?.carType === "SUV"
+                  ? bookingDetails?.Package?.priceSuv
+                  : bookingDetails?.Package?.price 
+            )
+          : bookingDetails?.value?.estimatedPrice
+    }
+  </Typography>
+</div>
                               {bookingDetails?.offerPrice > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
