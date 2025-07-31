@@ -559,12 +559,9 @@ const handleTabChange = (value) => {
                                             )
                                             .map((data, key) => {
                                                const isSelected = data.id === selectedBookingId;
-                                                const isAssignedToMe = data.userId === userId;
-                                                // console.log(`Booking ${data.id}: isAssignedToMe=${isAssignedToMe}, userId=${userId}, booking.userId=${data.userId}`);
                                                     const className = `p-3 ${key === bookingsList.length - 1
                                                         ? "mb-4"
                                                         : "border-b border-blue-gray-50"} ${
-                                                    isAssignedToMe ? 'bg-white font-bold' :
                                                         data?.isSosCalled == true ? 'bg-red-500 text-white'
                                                         : isSelected ? 'bg-blue-50'
                                                         : "hover:bg-gray-50"
@@ -574,20 +571,14 @@ const handleTabChange = (value) => {
                                                     <tr key={data?.id} className={className}>
                                                         <td className={className}>
                                                             <div className="flex items-center">
-                                                                <div onClick={isAssignedToMe ? () => {
+                                                                <div onClick={() => {
                                                                     handleBookingSelect(data);
                                                                     setIsOpen(true);
-                                                                }
-                                                                : undefined
-                                                                }
-                                                                className={isAssignedToMe ? 'cursor-pointer' : 'cursor-not-allowed'}
-                                                                >
+                                                                }}>
                                                                     <Typography
                                                                         variant="small"
-                                                                        color={isAssignedToMe ? 'blue' : 'gray'}
-                                                                        className={`font-semibold ${
-                                                                            isAssignedToMe ? 'underline' : 'no-underline'
-                                                                        }`}
+                                                                        color="blue"
+                                                                        className="font-semibold underline cursor-pointer"
                                                                     >
                                                                         {data?.bookingNumber}
                                                                     </Typography> 
@@ -735,7 +726,7 @@ const handleTabChange = (value) => {
                                                                     fullWidth
                                                                     onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
-                                                                    disabled={!isAssignedToMe}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     Request {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                 </Button>
@@ -745,7 +736,7 @@ const handleTabChange = (value) => {
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
-                                                                    disabled={!isAssignedToMe}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                 </Button>
@@ -758,7 +749,7 @@ const handleTabChange = (value) => {
                                                                     setShowReassignModal(true);
                                                                     }}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
-                                                                    disabled={!isAssignedToMe}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                 </Button>
@@ -768,7 +759,7 @@ const handleTabChange = (value) => {
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
-                                                                    disabled={!isAssignedToMe}
+                                                                    disabled={data?.User == null}
                                                                 >
                                                                     Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                    
