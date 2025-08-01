@@ -181,7 +181,7 @@ const RidesPeakHourTableEdit = ({ initialPriceData , onUpdate }) => {
                     <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
-                                <tr>
+                                <tr className="bg-blue-600">
                                     {[
                                         "Start Time",
                                         "End Time",
@@ -193,11 +193,11 @@ const RidesPeakHourTableEdit = ({ initialPriceData , onUpdate }) => {
                                     ].map((el, index) => (
                                         <th
                                             key={index}
-                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                            className="border-b border border-blue-gray-50 py-3 px-5 text-left"
                                         >
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-black"
+                                                className="text-[11px]  font-bold uppercase text-white"
                                             >
                                                 {el}
                                             </Typography>
@@ -218,7 +218,7 @@ const RidesPeakHourTableEdit = ({ initialPriceData , onUpdate }) => {
                                         },
                                         index
                                     ) => {
-                                        const className = `py-3 px-5 ${
+                                        const className = `py-3 px-5 border ${
                                             index === priceData.length - 1
                                                 ? ""
                                                 : "border-b border-blue-gray-50"
