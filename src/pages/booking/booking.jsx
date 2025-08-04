@@ -46,8 +46,10 @@ const Booking = (props) => {
 
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
+    const [driverSuggestions, setDriverSuggestions] = useState([]);
     const [pickupLocation, setPickupLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
+    const [driverPickUpLocation, setDriverPickUpLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
     const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
@@ -86,6 +88,8 @@ const Booking = (props) => {
             carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
             pickupLat: values?.pickupLocation?.lat,
             pickupLong: values?.pickupLocation?.lng,
+            driverLat: values?.driverPickUpLocation?.lat,
+            driverLong: values?.driverPickUpLocation?.lng,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
@@ -105,6 +109,8 @@ const Booking = (props) => {
             carType: '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
+            driverLat: val?.driverPickUpLocation?.lat,
+            driverLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
         }
@@ -143,7 +149,9 @@ const Booking = (props) => {
         toDate: "",
         customerId: '',
         serviceType: '',
-        cabType: ''
+        cabType: '',
+        driverPickUpAddress: '',
+        driverPickUpLocation: null,
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -326,23 +334,37 @@ const Booking = (props) => {
         setDatePickerVisible(false);
     };
 
-    const searchLocations = async (query, isPickup) => {
+    const searchLocations = async (query, isPickup, type) => {
         if (query.length > 2) {
+            try {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, { address: query });
             if (data?.success && data?.data) {
                 if (isPickup) {
                     setPickupSuggestions(data?.data);
+                } else if (type === 'driver') {
+                    setDriverSuggestions(data?.data);
                 } else {
                     setDropSuggestions(data?.data);
                 }
+            } else {
+                setPickupSuggestions([]);
+                setDriverSuggestions([]);
+                setDropSuggestions([]);
+            }
+        } catch (error) {
+            console.error('Error searching locations:', error);
+            setPickupSuggestions([]);
+            setDriverSuggestions([]);
+            setDropSuggestions([]);
             }
         } else {
             setPickupSuggestions([]);
+            setDriverSuggestions([]);
             setDropSuggestions([]);
         }
     };
 
-    const handleSelectLocation = async (address, isPickup, setFieldValue) => {
+    const handleSelectLocation = async (address, isPickup, type, setFieldValue) => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
         if (data?.success) {
             const location = { lat: data.data.lat, lng: data.data.lng };
@@ -351,6 +373,11 @@ const Booking = (props) => {
                 setFieldValue("pickupLocation", location);
                 setPickupLocation(location);
                 setPickupSuggestions([]);
+            } else if (type === 'driver') {
+                setFieldValue("driverPickUpAddress", address);
+                setFieldValue("driverPickUpLocation", location);
+                setDriverPickUpLocation(location);
+                setDriverSuggestions([]);
             } else {
                 setFieldValue("dropAddress", address);
                 setFieldValue("dropLocation", location);
@@ -965,9 +992,9 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
                                                 <div className='grid grid-cols-2'>
-                                                    {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL') || (values.serviceType == 'RENTAL_HOURLY_PACKAGE')) && <div className="p-2 space-y-2">
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
-                                                           Customer Pickup Location <span className="text-red-500">*</span>
+                                                            Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
                                                         <Field
                                                             type="text"
@@ -986,16 +1013,46 @@ const Booking = (props) => {
                                                                     <li
                                                                         key={index}
                                                                         className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                        onClick={() => {
-                                                                            handleSelectLocation(suggestion, true, setFieldValue);
-                                                                        }}
+                                                                        onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue)}
                                                                     >
                                                                         {suggestion}
                                                                     </li>
                                                                 ))}
                                                             </ul>
                                                         )}
-                                                    </div>}
+                                                        <ErrorMessage name="pickupAddress" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Driver Starting Point <span className="text-red-500">*</span>
+                                                            </label>
+                                                            <Field
+                                                                type="text"
+                                                                name="driverPickUpAddress"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                placeholder="Enter driver pickup location"
+                                                                onChange={(e) => {
+                                                                    setFieldValue("driverPickUpAddress", e.target.value);
+                                                                    setFieldValue("driverPickUpLocation", null);
+                                                                    searchLocations(e.target.value, false,'driver');
+                                                                }}
+                                                            />
+                                                            {driverSuggestions.length > 0 && (
+                                                                <ul className="border rounded-lg bg-white mt-2">
+                                                                    {driverSuggestions.map((suggestion, index) => (
+                                                                        <li
+                                                                            key={index}
+                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
+                                                                        >
+                                                                            {suggestion}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>)}
                                                     <div className="p-2 space-y-2 space-x-3">
                                                         {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                                             <div>
@@ -1018,7 +1075,7 @@ const Booking = (props) => {
                                                                                 key={index}
                                                                                 className="p-2 cursor-pointer hover:bg-gray-100"
                                                                                 onClick={() => {
-                                                                                    handleSelectLocation(suggestion, false, setFieldValue);
+                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue);
                                                                                 }}
                                                                             >
                                                                                 {suggestion}
@@ -1097,6 +1154,14 @@ const Booking = (props) => {
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.estimatedPrice}
                                                                         </Typography>
+                                                                        {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
+                                                                        <>
+                                                                        <Typography color="gray" variant="h6">Driver With in</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount.driverWithin + ' Km'}
+                                                                        </Typography>
+                                                                        </>
+                                                                        }
                                                                         
                                                                         
                                                                         
