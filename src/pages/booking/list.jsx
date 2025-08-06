@@ -29,7 +29,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
-    const [activeTab, setActiveTab] = useState("PAST");
+    const [activeTab, setActiveTab] = useState("ALL_BOOKINGS");
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
@@ -337,6 +337,7 @@ const handleTabChange = (value) => {
         setBookingsList(sortedBookings);
     };
     const tabs = [
+        { label: 'All Bookings', value:'ALL_BOOKINGS'},
         { label: 'Past', value:'PAST'},
         { label: 'Today', value: 'TODAY' },
         { label: 'Tomorrow', value: 'TOMORROW' },
