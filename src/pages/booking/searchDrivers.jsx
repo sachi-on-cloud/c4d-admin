@@ -130,7 +130,35 @@ export function SearchDrivers(props) {
                     }
                 });
                 setDrivers(filtredOptions);
-            } else if (props.bookingData.serviceType === 'RIDES' && props.bookingData.requestType == 'REQUEST_ALL') {
+            } 
+            // AUTO service type handling
+            else if (props.bookingData.serviceType === 'AUTO') {
+                const data = {
+                    bookingId: props.bookingData.id,
+                    distance: props.bookingData.distance || 0,
+                    customerId: props.bookingData.CustomerId || null
+                };
+                
+                const response = await ApiRequestUtils.post(API_ROUTES.POST_AUTO_SEARCH, data);
+                
+                if (response?.success) {
+                    const formattedDrivers = response.data.map((item) => ({
+                        id: item.driverId,
+                        name: item.driverName || 'N/A',
+                        status: item.availability === "AVAILABLE" ? "ACTIVE" : "INACTIVE",
+                        vehicleType: 'AUTO',
+                        phoneNumber: item.phoneNumber || '',
+                        currentLocation: item.currentLocation || '',
+                        rating: item.rating || 0,
+                        Drivers: [{ id: item.driverId }],
+                        fullData: item
+                    }));
+                    setDrivers(formattedDrivers);
+                } else {
+                    setDrivers([]);
+                }
+            }
+            else if (props.bookingData.serviceType === 'RIDES' && props.bookingData.requestType == 'REQUEST_ALL') {
                 setLoadingRides(true);
                 try {
                     let data = {
@@ -236,6 +264,12 @@ export function SearchDrivers(props) {
                         type: props?.bookingData?.packageType,
                     }
                     data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
+                } else if (props.bookingData.serviceType === 'AUTO') {
+                    setLoading(false);
+                    data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
+                        latitude: props?.bookingData?.pickupLat,
+                        longitude: props?.bookingData?.pickupLong,
+                    });
                 } else {
                     setLoading(false);
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
@@ -298,7 +332,24 @@ export function SearchDrivers(props) {
     }, [props.bookingData]);
 
     const onAssignDriver = async (service, driverId, cabDriverId, fullData) => {
-        if (service == "RENTAL" && props?.bookingData?.requestType == 'REQUEST_ALL') {
+        if (service === "AUTO") {
+            try {
+                const reqBody = {
+                    bookingId: props.bookingData.id,
+                    driverId: cabDriverId,
+                    vehicleType: 'AUTO'
+                };
+                
+                const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody);
+                
+                if (data?.success) {
+                    props?.onNext();
+                }
+            } catch (error) {
+                console.error("Error assigning auto driver:", error);
+            }
+        }
+        else if (service == "RENTAL" && props?.bookingData?.requestType == 'REQUEST_ALL') {
             const reqBody = {
                 bookingId: fullData.BookingId,
                 status: 'BOOKING_ACCEPTED',
@@ -585,24 +636,88 @@ export function SearchDrivers(props) {
                     </div>
                 </div >
             }
-            {props?.bookingData?.serviceType != 'DRIVER' &&
-                <div className="flex flex-col w-full">
+            
+            {/* AUTO Service Type Section */}
+            {props?.bookingData?.serviceType === 'AUTO' &&
+                <div className="flex flex-col w-full gap-y-4">
                     <Card>
-                        {loadingRides ? (
+                        {loading ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    Requesting nearby drivers. Please wait 30 seconds...
-                                </Typography>
-                            </CardHeader>
-                        ) : loading ? (
-                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
-                                <Typography variant="h6" color="white">
-                                    Loading cabs...
+                                    Loading auto drivers...
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
-                <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
-                    {props.bookingData?.requestType !== 'REQUEST_ALL' && 
+                            <CardBody className="overflow-x-auto overflow-y-auto px-0 pt-0 pb-2">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr>
+                                            {["Driver Name", "Phone Number", "Current Location", "Rating", "Status", "Assign"].map((el) => (
+                                                <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                                    <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
+                                                        {el}
+                                                    </Typography>
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {drivers.map(({ id, name, phoneNumber, currentLocation, rating, status, Drivers }, key) => (
+                                            <tr key={id}>
+                                                <td className={`py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`}>
+                                                    {name}
+                                                </td>
+                                                <td className={`py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`}>
+                                                    {phoneNumber}
+                                                </td>
+                                                <td className={`py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`}>
+                                                    {currentLocation}
+                                                </td>
+                                                <td className={`py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`}>
+                                                    {rating}
+                                                </td>
+                                                <td className={`py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`}>
+                                                    <Chip
+                                                        variant="ghost"
+                                                        color={status === "ACTIVE" ? "green" : "blue-gray"}
+                                                        value={status === "ACTIVE" ? "Available" : "Not Available"}
+                                                    />
+                                                </td>
+                                                <td className={`py-3 px-5 ${key === drivers.length - 1 ? "" : "border-b border-blue-gray-50"}`}>
+                                                    <Button
+                                                        onClick={() => onAssignDriver('AUTO', id, Drivers[0]?.id)}
+                                                        className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                    >
+                                                        Assign Auto
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </CardBody>
+                        ) : (
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                    No auto drivers available nearby
+                                </Typography>
+                            </CardHeader>
+                        )}
+                    </Card>
+                    <div className=''>
+                        <Button
+                            fullWidth
+                            onClick={() => { props?.onNext() }}
+                            className='text-white border-2 bg-[#1A73E8] rounded-xl'
+                        >
+                            Assign Auto Later
+                        </Button>
+                    </div>
+                </div>
+            }
+
+            {props?.bookingData?.serviceType != 'DRIVER' && props?.bookingData?.serviceType != 'AUTO' &&
+                <div className="flex flex-col w-full">
                     <div className="flex justify-end mb-4">
                         <Button
                             color="red"
@@ -620,7 +735,21 @@ export function SearchDrivers(props) {
                             ) : "Check All Status"}
                         </Button>
                     </div>
-                    }
+                    <Card>
+                        {loadingRides ? (
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                    Requesting nearby drivers. Please wait 30 seconds...
+                                </Typography>
+                            </CardHeader>
+                        ) : loading ? (
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                    Loading cabs...
+                                </Typography>
+                            </CardHeader>
+                        ) : drivers.length > 0 ? (
+                            <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
                                 <table className="w-full">
                                     <thead>
                                         <tr>

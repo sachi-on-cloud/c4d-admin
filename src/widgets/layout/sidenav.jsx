@@ -22,7 +22,8 @@ import {
   BuildingStorefrontIcon,
   ChartBarIcon,
   DocumentCheckIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  MapPinIcon
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -32,9 +33,11 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
+  { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Users" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
+  
 ];
 
 export function Sidenav({ brandImg, brandName, routes }) {
@@ -190,6 +193,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
+                        {name ==="Trip Master" ? (
+                        <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
 
                       <Typography color="inherit" className="font-medium capitalize">
                         {name.toLowerCase()}
@@ -310,6 +317,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
+                      { label: "Auto List", path: "/dashboard/Vendors/account/autoview" },
+                      { label: "Parcel List", path: "/dashboard/Vendors/account/parcelView" },
+                      
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -457,6 +467,43 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   </ul>
                 )}
 
+                {name === "Trip Master" && openSubMenu === "Trip Master" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "Reports", path: "/dashboard/tripDetails/reports" },
+                      { label: "TripRecords", path: "/dashboard/tripDetails/reports" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                                }`}
+                              fullWidth
+                            >
+                              {label === "Reports"  }
+                               {label === "TripRecords" 
+                                // <img
+                                //   src="/img/pending_doc.png"
+                                //   alt="Pending Documents"
+                                //   className="h-6 w-6 rounded-full"
+                                // />
+                              }
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+            
                 {name === "Admin" && openSubMenu === "Admin" && (
                   <ul className="ml-0">
                     {[
@@ -471,6 +518,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "TAX", path: "/dashboard/user/GSTList" },
                        { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                        { label: "Testimonial", path: "/dashboard/user/testimonialView" },
+                       
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>

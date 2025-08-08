@@ -1,3 +1,8 @@
+
+
+
+
+
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -202,6 +207,37 @@ const Booking = (props) => {
         }
     }
 
+    const onAutoSubmitHandler = async (values) => {
+        const bookingData = {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            pickupAddress: {
+                name: values.pickupAddress,
+            },
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+            dropAddress: {
+                name: values.dropAddress,
+            },
+        };
+
+        try {
+            console.log('AUTO Booking Payload:', bookingData);
+            const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_AUTO_BOOKING, bookingData,values?.customerId?.id,
+       );
+            if (data?.success) {
+                setIsOpen(false);
+                setBookingData(data?.data);
+            } 
+        } catch (error) {
+            console.error('Error in onAutoSubmitHandler:', {
+                error: error.message,
+                stack: error.stack,
+            });
+            alert('An error occurred while creating the AUTO booking. Please try again.');
+        }
+    };
+
     const onSubmitHandler = async (values) => {
         const bookingData = {
             carId: values?.carSelected?.id,
@@ -212,7 +248,7 @@ const Booking = (props) => {
             // fromDate: values.fromDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType,
+            serviceType: values.serviceType || "AUTO",
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
             acType: values?.acType?.toUpperCase(),
@@ -566,14 +602,14 @@ const Booking = (props) => {
                 <div className='py-6 rounded-3xl flex justify-between'>
                     {customerData && <div className="p-2 flex w-[40%]">
                         <SearchableDropdown 
-  searchVal={setCustomerNumber} 
-  addVal={addCustomerNumber} 
-  selected={editBooking?.customerId} 
-  options={customerData} 
-  onSelect={(val) => {
-    setSelectedCustomer(val.id);
-  }} 
-/>
+                            searchVal={setCustomerNumber} 
+                            addVal={addCustomerNumber} 
+                            selected={editBooking?.customerId} 
+                            options={customerData} 
+                            onSelect={(val) => {
+                                setSelectedCustomer(val.id);
+                            }} 
+                            />
                     </div>}
                     <button
                         onClick={() => setIsOpen(true)}
@@ -634,8 +670,14 @@ const Booking = (props) => {
                                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                                         initialValues={initialValues}
                                         onSubmit={async (values, { resetForm }) => {
+                                            console.log(values)
                                             if (values.submitType == "rides") {
                                                 await onRideSubmitHandler(values);
+                                            }  
+                                           else if (values.submitType == "auto") {
+                                                await onAutoSubmitHandler(values);
+                                                console.log('submitType:', values.submitType)
+                                                // console.log('Auto Submit Data',values)
                                             } else {
                                                 await onSubmitHandler(values);
                                             }
@@ -652,15 +694,15 @@ const Booking = (props) => {
                                             <>
                                                 {customerData && <div className="p-2 flex">
                                                    <SearchableDropdown 
-    searchVal={setCustomerNumber} 
-    addVal={addCustomerNumber} 
-    selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
-    options={customerData} 
-    onSelect={(val) => {
-      setFieldValue('customerId', val);
-      setSelectedCustomer(val.id);
-    }} 
-  />
+                                                        searchVal={setCustomerNumber} 
+                                                        addVal={addCustomerNumber} 
+                                                        selected={selectedCustomer} 
+                                                        options={customerData} 
+                                                        onSelect={(val) => {
+                                                        setFieldValue('customerId', val);
+                                                        setSelectedCustomer(val.id);
+                                                        }} 
+                                                    />
 
                                                     {!editBookingView && <Button
                                                         className="ml-3 w-1/2"
@@ -676,7 +718,7 @@ const Booking = (props) => {
                                                             Service Type
                                                         </Typography>
                                                         <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
-                                                            //console.log('e.target.value', e.target.value);
+                                                            console.log('e.target.value', e.target.value);
                                                             setFieldValue("serviceType", e.target.value, false);
                                                             resetPackageValues(setFieldValue, e.target.value);
                                                             setFieldValue("serviceType", e.target.value, true);
@@ -690,6 +732,7 @@ const Booking = (props) => {
                                                             <option value="RENTAL_HOURLY_PACKAGE">Hourly Package</option>
                                                             <option value="RENTAL_DROP_TAXI">Drop Taxi</option>
                                                             <option value="RENTAL">OutStation</option>
+                                                            <option value="AUTO">Auto</option>
                                                         </Field>
                                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                                     </div>
@@ -992,7 +1035,7 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
                                                 <div className='grid grid-cols-2'>
-                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && (<div className="p-2 space-y-2">
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType =='AUTO') && (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
@@ -1024,7 +1067,7 @@ const Booking = (props) => {
                                                     </div>
                                                 )}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                                                 <Field
@@ -1231,6 +1274,11 @@ const Booking = (props) => {
                                                         Check Estimated Price
                                                     </Button>
                                                 }
+                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
 
                                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                                     fullWidth
@@ -1260,6 +1308,22 @@ const Booking = (props) => {
                                                         color="blue"
                                                         onClick={() => {
                                                             setFieldValue("submitType", "rides");
+                                                            handleSubmit();
+                                                        }}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
+                                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                                    >
+                                                        Continue
+                                                    </Button>
+                                                }
+                                                 {(values.serviceType == 'AUTO') &&
+                                                    <Button
+                                                        fullWidth
+                                                        color="blue"
+                                                        onClick={() => {
+                                                            //    handleSubmit();
+                                                            setFieldValue("submitType", "auto");
+                                                            console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}

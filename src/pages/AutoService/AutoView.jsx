@@ -20,6 +20,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+import AutoList from '@/components/AutoList';
+import AutoSearch from '@/components/AutoSearch';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -29,7 +31,7 @@ const debounce = (func, delay) => {
   };
 };
 
-export function AccountView() {
+export function AutoView() {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
@@ -60,7 +62,7 @@ export function AccountView() {
         
       
         // serviceType: selectedServiceType || undefined,
-        serviceType:"cab",
+        serviceType:"Auto",
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
@@ -298,7 +300,7 @@ export function AccountView() {
             {alert.message}
           </Alert>
         </div>)}
-      <AccountSearch onSearch={getAccounts}/>
+      <AutoSearch onSearch={getAccounts}/>
       <Card>
         {accounts.length > 0 ? (
           <>
@@ -374,6 +376,7 @@ export function AccountView() {
                               { value: "All", label: "All" },
                               { value: "Company", label: "Travels" },
                               { value: "Individual", label: "Owner Cum Driver" },
+                              
                             ]}
                             selectedFilters={serviceTypeFilter}
                             onFilterChange={(value) => handleFilterChange("type", value)}
@@ -444,7 +447,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/vendors/account/details/${id}`)}>
+                              <div onClick={() => navigate(`/dashboard/vendors/account/autoView/details/${id}`)}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -557,4 +560,4 @@ export function AccountView() {
   );
 }
 
-export default AccountView;
+export default AutoView;

@@ -1,0 +1,927 @@
+import React, { useEffect, useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { Alert, Button, Input, List, ListItem, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Spinner } from '@material-tailwind/react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
+import moment from 'moment';
+
+const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect }) => {
+    const [isFocused, setIsFocused] = useState(false);
+
+    useEffect(() => {
+        form.validateField(field.name);
+    }, []);
+
+    return (
+        <div className="relative">
+            <Input
+                type="text"
+                placeholder="Enter address"
+                {...field}
+                onChange={(e) => {
+                    form.setFieldValue(field.name, e.target.value);
+                    onSearch(e.target.value);
+                    form.setFieldTouched(field.name, true, false);
+                }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={(e) => {
+                    field.onBlur(e);
+                    setTimeout(() => setIsFocused(false), 200);
+                    form.validateField(field.name);
+                }}
+                className="pr-10"
+                disabled={disabled}
+            />
+            {suggestions.length > 0 && isFocused && (
+                <List className="w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                    {suggestions.map((suggestion, index) => (
+                        <ListItem
+                            key={index}
+                            onClick={() => {
+                                form.setFieldValue(field.name, suggestion);
+                                onSelect(suggestion);
+                                setIsFocused(false);
+                                form.validateField(field.name);
+                            }}
+                            className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <Typography variant="small">{suggestion}</Typography>
+                        </ListItem>
+                    ))}
+                </List>
+            )}
+        </div>
+    );
+};
+
+const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal }) => {
+    return (
+        <tr>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">{label}</Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography
+                    className={`text-xs font-semibold ${value ? "text-green-500" : "text-blue-500"}`}
+                >
+                    {value ? "UPLOADED" : "NO DOCUMENTS"}
+                </Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">
+                    {moment(fullDocVal?.created_at).format("DD-MM-YYYY")}
+                </Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">{fullDocVal?.User?.name}</Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <Typography className="text-xs font-semibold text-blue-gray-600">
+                    {/* {value === "UPLOADED"  ?  moment(fullDocVal?.updated_at).format("DD-MM-YYYY") : ""} */}
+                    {value === "UPLOADED" || fullDocVal?.User?.name ? moment(fullDocVal?.updated_at).format("DD-MM-YYYY") : ""}
+                </Typography>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                <div className="flex items-center gap-2">
+                    <label
+                        htmlFor={name}
+                        className="inline-block text-center text-white border border-gray-400 bg-[#1A73E8] rounded-lg px-4 py-1 cursor-pointer"
+                    >
+                        Update
+                    </label>
+                    <input
+                        type="file"
+                        accept="image/*, application/pdf"
+                        id={name}
+                        name={name}
+                        onChange={onChange}
+                        className="hidden"
+                        multiple={name !== "livePhoto" && name !== "bankStatement"}
+                    />
+                </div>
+            </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50">
+                {value && (
+                    <Typography
+                        variant="small"
+                        className="font-semibold underline cursor-pointer text-blue-900"
+                        onClick={() => {
+                            if (label === 'Live Photo' || label === 'Bank Statement') {
+                                setModalData({
+                                    image: fullDocVal?.image1
+                                })
+                            }
+                            else {
+                                setModalData({
+                                    image: fullDocVal?.image1,
+
+                                    image2: fullDocVal?.image2
+                                });
+                            }
+
+                            // console.log(image2)
+                        }}
+
+                    >
+                        View/Download
+                    </Typography>
+                )}
+            </td>
+        </tr>
+    );
+};
+
+const AutoEdit = () => {
+    const [accountVal, setAccountVal] = useState({});
+    const [imagePreview, setImagePreview] = useState(null);
+    const [alert, setAlert] = useState(null);
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [modalData, setModalData] = useState(null);
+    const [isSameAddress, setIsSameAddress] = useState(false);
+    const [thalukSearchText, setThalukSearchText] = useState("");
+    const [districtSearchText, setDistrictSearchText] = useState("");
+    const [stateSearchText, setStateSearchText] = useState("");
+    const [addressSuggestions, setAddressSuggestions] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [blockedReason, setBlockedReason] = useState(accountVal?.result?.blockedReason || '');
+    const [imagePreviews, setImagePreviews] = useState({
+        aadhaarImage: null,
+        policeClearance: null,
+        livePhoto: null,
+        drivingLicenseImage: null,
+        consentForm: null,
+        panImage: null,
+        rcImage: null,
+        bankStatementImage: null,
+        insurranceImage: null,
+    });
+
+    useEffect(() => {
+        fetchItem(id);
+    }, [id]);
+
+
+    const getDocumentByType = (value, type) => {
+        return value.find(proof => proof.type === type) || "";
+    };
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Spinner className="h-12 w-12" />
+            </div>
+        );
+    }
+
+    const fetchItem = async (itemId) => {
+        const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
+        //console.log(' data - Fetch Item :', data?.data);
+        setAccountVal(data?.data?.data);
+        setBlockedReason(data?.data?.data?.blockedReason || ''); // Initialize blockedReason from fetched data
+        setImagePreviews({
+            aadhaarImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.AADHAAR),
+            drivingLicenseImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.DRIVING_LICENSE),
+            livePhoto: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.LIVE_PHOTO),
+            bankStatementImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.BANK_STATEMENT),
+            panImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.BANK_STATEMENT),
+            rcImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.RC_COPY),
+            insurranceImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.INSURANCE),
+        });
+    };
+
+    const initialValues = {
+        name: accountVal?.name || "",
+        phoneNumber: accountVal?.phoneNumber ? accountVal?.phoneNumber.replace(/^(\+91)/, '') : "",
+        type: accountVal?.type || "",
+        email: accountVal?.email || "",
+        street: accountVal?.street || "",
+        address: accountVal?.address || "",
+        source: accountVal?.source || "",
+        thaluk: accountVal?.thaluk || "",
+        district: accountVal?.district || "",
+        state: accountVal?.state || "",
+        pincode: accountVal?.pincode || "",
+        image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : '',
+        docDates: accountVal?.Proofs,
+        status: accountVal?.status || "", // Initialize status
+        blockedReason: accountVal?.blockedReason || "", // Initialize blockedReason
+    };
+
+    const handleImageUpload = async (e, setFieldValue, label, docId) => {
+        try {
+            setLoading(true);
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+
+            if (files.length > 2) {
+                setLoading(false);
+                alert("You can upload a maximum of two documents.");
+                return;
+            }
+
+            const uploadedFiles = [];
+            const previews = {};
+
+            for (let i = 0; i < files.length; i++) {
+                if (!allowedTypes.includes(files[i].type)) {
+                    setLoading(false);
+                    setAlert({
+                        message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
+                if (files[i].size > maxSize) {
+                    setLoading(false);
+                    setAlert({
+                        message: "File size exceeds 10MB limit.",
+                        color: "red",
+                    });
+                    setTimeout(() => setAlert(null), 5000);
+                    return;
+                }
+                const file = files[i];
+                uploadedFiles.push(file);
+
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    previews[`image${i + 1}`] = reader.result;
+                    setImagePreviews((prev) => ({
+                        ...prev,
+                        [label]: {
+                            ...prev[label],
+                            ...previews,
+                        },
+                    }));
+                };
+                reader.readAsDataURL(file);
+            }
+
+            setFieldValue(label, uploadedFiles);
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR :
+                label === 'rcImage' ? KYC_PROCESS.RC_COPY :
+                    label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE :
+                        label === 'panImage' ? KYC_PROCESS.PAN : '';
+
+            const formData = new FormData();
+            formData.append('type', type);
+            formData.append('accountId', accountVal?.id);
+
+            if (files[0]) {
+                formData.append('image1', files[0]);
+                formData.append('extImage1', files[0].name.split('.').pop());
+                formData.append('fileTypeImage1', files[0].type);
+            }
+
+            if (files[1]) {
+                formData.append('image2', files[1]);
+                formData.append('extImage2', files[1].name.split('.').pop());
+                formData.append('fileTypeImage2', files[1].type);
+            }
+
+
+            let data;
+            if (!docId) {
+                data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+            } else {
+                formData.append('documentId', docId);
+                data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+                //console.log("Data Updated => ", data)
+            }
+            if (data?.success) {
+                setLoading(false);
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        image2: data?.data?.image2 || prev[label]?.image2,
+                        id: data?.data?.id,
+                    },
+                }));
+            }
+            else {
+                setLoading(false);
+                setAlert({
+                    message: data?.message || "Failed to upload document. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
+        }
+        catch (err) {
+            console.error("Error during image upload:", err);
+        }
+
+
+    };
+    const handlePhotoUpload = async (e, setFieldValue, label, docId) => {
+        try {
+            setLoading(true);
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const file = e.target.files[0];
+
+            if (!allowedTypes.includes(file.type)) {
+                setLoading(false);
+                setAlert({
+                    message: "Invalid file type. Please upload JPG, PNG, or PDF.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+
+            if (file.size > maxSize) {
+                setLoading(false);
+                setAlert({
+                    message: "File size exceeds 10MB limit.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+
+            setFieldValue(label, file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: reader.result,
+                }));
+            };
+            reader.readAsDataURL(file);
+
+            const type = label === 'livePhoto' ? KYC_PROCESS.LIVE_PHOTO : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : '';
+            const formData = new FormData();
+
+            formData.append('image1', file);
+            formData.append('extImage1', file.name.split('.')[1]);
+            formData.append('fileTypeImage1', file.type);
+            formData.append('type', type);
+            formData.append('accountId', accountVal?.id);
+
+
+            let data;
+            if (!docId) {
+                data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
+                // console.log("updated data => ",data)
+            } else {
+
+                formData.append('documentId', docId);
+                data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
+                console.log("updated data => ", data)
+            }
+            if (data?.success) {
+                setLoading(false);
+                setImagePreviews((prev) => ({
+                    ...prev,
+                    [label]: {
+                        image1: data?.data?.image1 || prev[label]?.image1,
+                        id: data?.data?.id,
+                    },
+                }));
+            }
+            else {
+                setLoading(false);
+                setAlert({
+                    message: data?.message || "Failed to upload photo. Please try again.",
+                    color: "red",
+                });
+                setTimeout(() => setAlert(null), 5000);
+            }
+        }
+        catch (err) {
+            console.error("ERROR IN handlePhotoUpload:", err);
+            setAlert({
+                message: "An error occurred while uploading the photo.",
+                color: "red",
+            });
+            setTimeout(() => setAlert(null), 5000);
+        }
+    }
+    const handleGoogleAddressSelect = (place) => {
+        if (!place || !place.formatted_address) {
+            console.error("Google Address selection is invalid", place);
+            return;
+        }
+
+        const parsedAddress = parseAddress(place.formatted_address);
+        parsedAddress.pincode = extractPincode(place.address_components);
+
+        setFieldValue("address", place.formatted_address);
+
+        if (isSameAddress) {
+            setFieldValue("street", parsedAddress.street);
+            setFieldValue("thaluk", parsedAddress.taluk);
+            setFieldValue("district", parsedAddress.district);
+            setFieldValue("state", parsedAddress.state);
+            setFieldValue("pincode", parsedAddress.pincode);
+        }
+    };
+
+    const searchLocations = async (query) => {
+        if (query.length > 2) {
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
+                address: query
+            });
+            console.log("data", data)
+            if (data?.success && data?.data) {
+                setAddressSuggestions(data?.data)
+            }
+        } else {
+            setAddressSuggestions([]);
+        }
+    };
+
+    const onSubmit = async (values, { setSubmitting, resetForm }) => {
+        console.log('onSubmit :', values)
+        try {
+            const formData = {
+                type: values?.type ? values?.type : accountVal.type,
+                name: values?.name ? values?.name : accountVal.name,
+                phoneNumber: values?.phoneNumber ? values?.phoneNumber : accountVal.phoneNumber,
+                email: values?.email ? values?.email : accountVal.email,
+                address: values?.address ? values?.address : accountVal.address,
+                street: values?.street ? values?.street : accountVal.street,
+                thaluk: values?.thaluk ? values?.thaluk : accountVal.thaluk,
+                district: values?.district ? values?.district : accountVal.district,
+                state: values?.state ? values?.state : accountVal.state,
+                pincode: values?.pincode ? values?.pincode : accountVal.pincode,
+                source: values?.source ? values?.source : accountVal.source,
+                accountId: accountVal?.id,
+                status: values?.status ? values?.status : accountVal.status,
+                blockedReason: values?.status === 'BLOCKED' ? values?.blockedReason : '', 
+            }
+            const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, formData);
+            console.log('data in driver UPDATE :', data);
+            navigate('/dashboard/vendors/account', {
+                state: {
+                    accountUpdated: true,
+                    accountName: data?.data?.name
+                }
+            });
+
+        } catch (error) {
+            console.error('Error creating driver and car:', error);
+        }
+        setSubmitting(false);
+    };
+
+    const districtOptions = DISTRICT_LIST.map(district => ({
+        id: district.value,
+        name: district.label
+    }));
+
+    const filteredDistricts = districtOptions.filter(district =>
+        district.name.toLowerCase().includes(districtSearchText.toLowerCase())
+    );
+
+    const parseAddress = (address) => {
+        if (!address || typeof address !== "string") {
+            console.error("parseAddress received an undefined or invalid address");
+            return {
+                street: "",
+                taluk: "",
+                district: "",
+                state: "",
+                country: "",
+                pincode: "",
+            };
+        }
+
+        const parts = address.split(", ").reverse();
+        return {
+            street: parts[4] || "",
+            taluk: parts[3] || "",
+            district: parts[2] || "",
+            state: parts[1] || "",
+            country: parts[0] || "",
+            pincode: "",
+        };
+    };
+
+    const thalukOptions = THALUK_LIST.map(thaluk => ({
+        id: thaluk.value,
+        name: thaluk.label
+    }));
+
+    const filteredThaluk = thalukOptions.filter(thaluk =>
+        thaluk.name.toLowerCase().includes(thalukSearchText.toLowerCase())
+    );
+
+    const stateOptions = STATE_LIST.map(state => ({
+        id: state.value,
+        name: state.label
+    }));
+
+    const filteredState = stateOptions.filter(state =>
+        state.name.toLowerCase().includes(stateSearchText.toLowerCase())
+    );
+
+    return (
+        <div className="p-4 mx-auto">
+            {alert && (
+                <div className='mb-2'>
+                    <Alert
+                        color={alert.color}
+                        className='py-3 px-6 rounded-xl'
+                    >
+                        {alert.message}
+                    </Alert>
+                </div>
+            )}
+            <h2 className="text-2xl font-bold mb-4">Update Account</h2>
+            <Formik
+                initialValues={initialValues}
+                validationSchema={ACCOUNT_EDIT_SCHEMA}
+                onSubmit={onSubmit}
+                enableReinitialize={true}
+            >
+                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
+                    <Form className="space-y-4">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className='grid grid-cols-2 gap-4'>
+                                <div>
+                                    <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
+                                    <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Type</option>
+                                        <option value="Individual">Owner cum Driver</option>
+                                        <option value="Company">Travels</option>
+                                    </Field>
+                                    <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'driverWithVehicles' ? "Full Name" : 'Company Name'}</label>
+                                    <Field type="text" name="name" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <Field type="text" name="phoneNumber" className="p-2 w-full rounded-md border-2 border-gray-300" maxLength={10} />
+                                    <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
+                                    <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select Type</option>
+                                        <option value="Mobile App">Mobile App</option>
+                                        <option value="Walk In">Walk In</option>
+                                        <option value="Call">Call</option>
+                                        <option value="Website">Website</option>
+                                    </Field>
+                                    <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+                                    <Field type="email" name="email" className="p-2 w-full rounded-md border-2  shadow-sm border-gray-300" />
+                                    <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label htmlFor="address" className="text-sm font-medium text-gray-700">Current Address</label>
+                                    <Field name="address">
+                                        {({ field, form }) => (
+                                            <LocationInput
+                                                field={field}
+                                                form={form}
+                                                suggestions={addressSuggestions}
+                                                onSearch={searchLocations}
+                                                onSelect={handleGoogleAddressSelect}
+                                            />
+                                        )}
+                                    </Field>
+                                    <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                                </div>
+                            </div>
+                            <div className='space-y-2'>
+                                <div className="flex items-center mt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="sameAddress"
+                                        checked={isSameAddress}
+                                        onChange={(e) => {
+                                            setIsSameAddress(e.target.checked);
+                                            if (e.target.checked) {
+                                                const currentAddress = parseAddress(values.address);
+                                                setFieldValue("street", currentAddress.street);
+                                                setFieldValue("thaluk", currentAddress.taluk);
+                                                setFieldValue("district", currentAddress.district);
+                                                setFieldValue("state", currentAddress.state);
+                                                setFieldValue("pincode", currentAddress.pincode);
+                                            } else {
+                                                setFieldValue("street", "");
+                                                setFieldValue("thaluk", "");
+                                                setFieldValue("district", "");
+                                                setFieldValue("state", "");
+                                                setFieldValue("pincode", "");
+                                            }
+                                        }}
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="sameAddress" className="text-sm text-gray-700">
+                                        Same as Current Address
+                                    </label>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="street" className="text-sm font-medium text-gray-700">Street Name</label>
+                                    <Field type="text" name="street" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="street" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="thaluk" className="text-sm font-medium text-gray-700">
+                                        Thaluk
+                                    </label>
+                                    <select
+                                        id="thaluk"
+                                        name="thaluk"
+                                        value={values.thaluk}
+                                        onChange={(e) => setFieldValue("thaluk", e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="" disabled>Select Thaluk</option>
+                                        {filteredThaluk.map((thaluk) => (
+                                            <option key={thaluk.id} value={thaluk.id}>
+                                                {thaluk.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage
+                                        name="thaluk"
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">
+                                        District
+                                    </label>
+                                    <select
+                                        id="district"
+                                        name="district"
+                                        value={values.district}
+                                        onChange={(e) => setFieldValue("district", e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select District</option>
+                                        {filteredDistricts.map((district) => (
+                                            <option key={district.id} value={district.id}>
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage
+                                        name="district"
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                                        State
+                                    </label>
+                                    <select
+                                        id="state"
+                                        name="state"
+                                        value={values.state}
+                                        onChange={(e) => setFieldValue("state", e.target.value)}
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select State</option>
+                                        {filteredState.map((state) => (
+                                            <option key={state.id} value={state.id}>
+                                                {state.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage
+                                        name="state"
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="pincode" className="text-sm font-medium text-gray-700">Pincode</label>
+                                    <Field type="text" name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
+                                    <Field 
+                                        as="select" 
+                                        name="status" 
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                        onChange={(e) => {
+                                            setFieldValue("status", e.target.value);
+                                            if (e.target.value !== 'BLOCKED') {
+                                                setFieldValue("blockedReason", ""); // Clear blockedReason if status is not BLOCKED
+                                            }
+                                        }}
+                                    >
+                                        <option value="">Select status</option>
+                                        <option value="ACTIVE">Active</option>
+                                        <option value="IN_ACTIVE">In_Active</option>
+                                        <option value="BLOCKED">Blocked</option>
+                                    </Field>
+                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                                    {values.status === 'BLOCKED' && (
+                                        <div className="mt-2">
+                                            <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">Block Reason</label>
+                                            <Field
+                                                type="text"
+                                                id="blockedReason"
+                                                name="blockedReason"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                            />
+                                            <ErrorMessage name="blockedReason" component="div" className="text-red-500 text-sm mt-1" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-6">
+                            <div className="flex flex-row justify-between px-2 mb-2">
+                                <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
+                                    Documents
+                                </Typography>
+                            </div>
+                            <Card>
+                                <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+                                    <table className="w-full min-w-[640px] table-auto">
+                                        <thead>
+                                            <tr>
+                                                {["Type", "KYC Status", "Created At", "Verfied By", "Verified At", "Action", "View Details"].map((el, index) => (
+                                                    <th
+                                                        key={index}
+                                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                                    >
+                                                        <Typography
+                                                            variant="small"
+                                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                        >
+                                                            {el}
+                                                        </Typography>
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {values.type === "Individual" && <>
+                                                <DocumentUpload
+                                                    label="Driving License Image"
+                                                    value={imagePreviews.drivingLicenseImage?.image1}
+                                                    name="drivingLicenseImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage", imagePreviews?.drivingLicenseImage?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.drivingLicenseImage}
+                                                />
+                                            </>}
+
+                                            <DocumentUpload
+                                                label="Aadhaar Image"
+                                                value={imagePreviews.aadhaarImage?.image1}
+                                                name="aadhaarImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage", imagePreviews?.aadhaarImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.aadhaarImage}
+                                            />
+                                            {values.type !== "Company" && values.type !== "Individual" && <>
+                                                <DocumentUpload
+                                                    label="Pan Card"
+                                                    value={imagePreviews.panImage?.image1}
+                                                    name="panImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "panImage", imagePreviews?.panImage?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.panImage}
+                                                />
+                                            </>}
+
+                                            <DocumentUpload
+                                                label="Live Photo"
+                                                value={imagePreviews.livePhoto?.image1}
+                                                name="livePhoto"
+                                                onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto", imagePreviews?.livePhoto?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.livePhoto}
+                                            />
+                                            <DocumentUpload
+                                                label="RC Copy"
+                                                value={imagePreviews?.rcImage?.image1}
+                                                name="rcImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "rcImage", imagePreviews?.rcImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.rcImage}
+                                            />
+                                            {values.type !== "Company" && values.type !== "Individual" && <>
+                                                <DocumentUpload
+                                                    label="Insurance Image"
+                                                    value={imagePreviews?.insurranceImage?.image1}
+                                                    name="insurranceImage"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage", imagePreviews?.insurranceImage?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.insurranceImage}
+                                                />
+                                                <DocumentUpload
+                                                    label="Bank Statement"
+                                                    value={imagePreviews.bankStatementImage?.image1}
+                                                    name="bankStatement"
+                                                    onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement", imagePreviews?.bankStatementImage?.id)}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.bankStatementImage}
+                                                />
+                                            </>}
+
+                                        </tbody>
+                                    </table>
+                                </CardBody>
+                            </Card>
+                        </div>
+                        <div className='flex flex-row'>
+                            <Button
+                                fullWidth
+                                onClick={() => { navigate('/dashboard/vendors/account'); }}
+                                className={`my-6 mx-2 ${ColorStyles.backButton}`}
+                            >
+                                Back
+                            </Button>
+                            <Button
+                                fullWidth
+                                color="blue"
+                                onClick={handleSubmit}
+                                disabled={!dirty || !isValid}
+                                className='my-6 mx-2'
+                            >
+                                Update
+                            </Button>
+                        </div>
+                    </Form>
+                )}
+            </Formik>
+            {modalData && (
+                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                    <DialogHeader>
+                        <div className="flex justify-between items-center w-full">
+                            <Typography variant="h6">Document Details</Typography>
+                            <button
+                                className="text-gray-600 hover:text-gray-900"
+                                onClick={() => setModalData(null)}
+                            >
+                                X
+                            </button>
+                        </div>
+                    </DialogHeader>
+                    <DialogBody divider>
+                        <div className="flex flex-col items-center space-y-3">
+                            <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
+                                {modalData.image && (
+                                    <iframe
+                                        src={modalData.image}
+                                        className="w-full rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
+                                )}
+                                {modalData.image2 && (
+                                    <iframe
+                                        src={modalData.image2}
+                                        className="rounded-lg shadow-md"
+                                        style={{ height: "45vh", width: "45%" }}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex justify-center mt-4">
+                            <a
+                                href={modalData.image}
+                                download
+                                target='_blank'
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Download Image 1
+                            </a>
+                            {modalData.image2 && (
+                                <a
+                                    href={modalData.image2}
+                                    download
+                                    target="_blank"
+                                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    Download Image 2
+                                </a>
+                            )}
+                        </div>
+                    </DialogBody>
+                </Dialog>
+            )}
+        </div>
+    );
+};
+
+export default AutoEdit;
