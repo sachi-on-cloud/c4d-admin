@@ -1023,40 +1023,6 @@ const Booking = (props) => {
                                                         <ErrorMessage name="pickupAddress" component="div" className="text-red-500 text-sm" />
                                                     </div>
                                                 )}
-                                                    <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
-                                                                <Field
-                                                                    type="text"
-                                                                    name="dropAddress"
-                                                                    className="p-2  mt-2 w-full rounded-xl border-2 border-gray-300"
-                                                                    placeholder="Enter drop location"
-                                                                    onChange={(e) => {
-                                                                        setFieldValue("dropAddress", e.target.value);
-                                                                        setFieldValue("dropLocation", null);
-                                                                        searchLocations(e.target.value, false);
-                                                                    }}
-                                                                />
-                                                                {dropSuggestions.length > 0 && (
-                                                                    <ul className="border rounded-lg bg-white mt-2">
-                                                                        {dropSuggestions.map((suggestion, index) => (
-                                                                            <li
-                                                                                key={index}
-                                                                                className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                                onClick={() => {
-                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue);
-                                                                                }}
-                                                                            >
-                                                                                {suggestion}
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                )}
-                                                            </div>
-
-                                                        )}
-                                                    </div>
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
@@ -1087,6 +1053,40 @@ const Booking = (props) => {
                                                                 </ul>
                                                             )}
                                                         </div>)}
+                                                    <div className="p-2 space-y-2 space-x-3">
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
+                                                                <Field
+                                                                    type="text"
+                                                                    name="dropAddress"
+                                                                    className="p-2  mt-2 w-full rounded-xl border-2 border-gray-300"
+                                                                    placeholder="Enter drop location (Optional)"
+                                                                    onChange={(e) => {
+                                                                        setFieldValue("dropAddress", e.target.value);
+                                                                        setFieldValue("dropLocation", null);
+                                                                        searchLocations(e.target.value, false);
+                                                                    }}
+                                                                />
+                                                                {dropSuggestions.length > 0 && (
+                                                                    <ul className="border rounded-lg bg-white mt-2">
+                                                                        {dropSuggestions.map((suggestion, index) => (
+                                                                            <li
+                                                                                key={index}
+                                                                                className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                                onClick={() => {
+                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue);
+                                                                                }}
+                                                                            >
+                                                                                {suggestion}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                )}
+                                                            </div>
+
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 {values.packageSelected &&
                                                     <Card className="my-6">
