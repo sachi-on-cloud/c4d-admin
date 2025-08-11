@@ -33,6 +33,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
+    const [tripCoordinatorFilter, setTripCoordinatorFilter] = useState(['All']);
     const [showPickedBooking, setShowPickedBooking] = useState(0);
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
     const [pagination, setPagination] = useState({
@@ -71,6 +72,7 @@ const handleTabChange = (value) => {
         // setStatusFilter(['All']); // Reset filters to avoid filtering out data
         // setServiceTypeFilter(['All']);
         // setSourceFilter(['All']);
+        setTripCoordinatorFilter(['All']);
     }
 };
 
@@ -115,6 +117,18 @@ const handleTabChange = (value) => {
             const { startDate, endDate } = value;
             setFilteredRange({ startDate, endDate });
             // console.log('Filtered Range:', { startDate, endDate });
+        }         
+        else if (filterType === 'tripCoordinator') {
+            setTripCoordinatorFilter(prev => {
+                if (value === 'All') {
+                    return ['All'];
+                } else {
+                    const newFilter = prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+                    return newFilter.length === 0 ? ['All'] : newFilter;
+                }
+            });
         }
     };
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange, customContent }) => (
@@ -157,7 +171,8 @@ const handleTabChange = (value) => {
         const filterType = {
             type: activeTab,
             status: statusFilter,
-            source: sourceFilter
+            source: sourceFilter,
+            tripCoordinator: tripCoordinatorFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
             "customerId": customerId,
@@ -230,7 +245,7 @@ const handleTabChange = (value) => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter]);
+    }, [customerId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -336,6 +351,16 @@ const handleTabChange = (value) => {
         });
         setBookingsList(sortedBookings);
     };
+    const tripCoordinatorOptions = [
+        { value: 'All', label: 'All' },
+        ...[...new Set(
+            bookingsList
+                .filter(booking => booking.User?.id && booking.User?.name)
+                .map(booking => JSON.stringify({ id: booking.User.id, name: booking.User.name })) // Stringify to ensure uniqueness
+        )]
+            .map(str => JSON.parse(str))
+            .map(user => ({ value: user.id, label: user.name })),
+    ];
     const tabs = [
         { label: 'All Bookings', value:'ALL_BOOKINGS'},
         { label: 'Past', value:'PAST'},
@@ -359,6 +384,7 @@ const handleTabChange = (value) => {
                             getBookingsList(pagination.currentPage);
                             setStatusFilter(['All']);
                             setSourceFilter(['All']);
+                            setTripCoordinatorFilter(['All']);
                         }}
                     >
                         <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
@@ -508,8 +534,14 @@ const handleTabChange = (value) => {
                                                             //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
                                                             //                 }
                                                             //             />
-                                                            //         ) 
-                                                            (
+                                                                el === "Trip Co-Ordinator" ? (
+                                                                    <FilterPopover
+                                                                        title={el}
+                                                                        options={tripCoordinatorOptions}
+                                                                        selectedFilters={tripCoordinatorFilter}
+                                                                        onFilterChange={(value) => handleFilterChange('tripCoordinator', value)}
+                                                                    />
+                                                                ) : (
                                                                 <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
                                                                     {el}
                                                                 </Typography>
@@ -556,7 +588,8 @@ const handleTabChange = (value) => {
                                             .filter(booking =>
                                                 (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
                                                 (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
-                                                (sourceFilter.includes('All') || sourceFilter.includes(booking.source))
+                                                (sourceFilter.includes('All') || sourceFilter.includes(booking.source)) &&
+                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id))
                                             )
                                             .map((data, key) => {
                                                const isSelected = data.id === selectedBookingId;

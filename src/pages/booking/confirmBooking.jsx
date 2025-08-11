@@ -575,6 +575,29 @@ const ConfirmBooking = (props) => {
                                         {bookingDetails?.Driver?.phoneNumber}
                                     </Typography>
                                 </div>
+                                {bookingDetails?.Cab?.name != '' && bookingDetails?.Cab?.name !=null && 
+                                (
+                                    <>
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Cab Name:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.Cab?.name || ''}
+                                    </Typography>
+                                </div>
+                               
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Car Type:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.Cab?.carType || ''}
+                                    </Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Car Number:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.Cab?.carNumber}
+                                    </Typography>
+                                </div>
+                                </> )}
                             </div>
                             <div className="mt-6">
                                 <Typography variant="h6" className="mt-4 mb-2">Driver Feedback</Typography>
@@ -674,7 +697,7 @@ const ConfirmBooking = (props) => {
                                     <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.value?.kilometerPriceVal > 0 &&
+                            {bookingDetails?.bookingType !== 'DROP ONLY'&& bookingDetails?.value?.kilometerPriceVal > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Per KM Rate:</Typography>
                                     <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>

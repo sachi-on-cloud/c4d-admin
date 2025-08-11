@@ -1023,36 +1023,6 @@ const Booking = (props) => {
                                                         <ErrorMessage name="pickupAddress" component="div" className="text-red-500 text-sm" />
                                                     </div>
                                                 )}
-                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
-                                                        <div className="p-2 space-y-2">
-                                                            <label className="block text-sm font-medium text-black-700">
-                                                                Driver Starting Point <span className="text-red-500">*</span>
-                                                            </label>
-                                                            <Field
-                                                                type="text"
-                                                                name="driverPickUpAddress"
-                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter driver pickup location"
-                                                                onChange={(e) => {
-                                                                    setFieldValue("driverPickUpAddress", e.target.value);
-                                                                    setFieldValue("driverPickUpLocation", null);
-                                                                    searchLocations(e.target.value, false,'driver');
-                                                                }}
-                                                            />
-                                                            {driverSuggestions.length > 0 && (
-                                                                <ul className="border rounded-lg bg-white mt-2">
-                                                                    {driverSuggestions.map((suggestion, index) => (
-                                                                        <li
-                                                                            key={index}
-                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
-                                                                        >
-                                                                            {suggestion}
-                                                                        </li>
-                                                                    ))}
-                                                                </ul>
-                                                            )}
-                                                        </div>)}
                                                     <div className="p-2 space-y-2 space-x-3">
                                                         {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                                             <div>
@@ -1087,6 +1057,36 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Driver Starting Point <span className="text-red-500">*</span>
+                                                            </label>
+                                                            <Field
+                                                                type="text"
+                                                                name="driverPickUpAddress"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                placeholder="Enter driver pickup location"
+                                                                onChange={(e) => {
+                                                                    setFieldValue("driverPickUpAddress", e.target.value);
+                                                                    setFieldValue("driverPickUpLocation", null);
+                                                                    searchLocations(e.target.value, false,'driver');
+                                                                }}
+                                                            />
+                                                            {driverSuggestions.length > 0 && (
+                                                                <ul className="border rounded-lg bg-white mt-2">
+                                                                    {driverSuggestions.map((suggestion, index) => (
+                                                                        <li
+                                                                            key={index}
+                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
+                                                                        >
+                                                                            {suggestion}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>)}
                                                 </div>
                                                 {values.packageSelected &&
                                                     <Card className="my-6">
@@ -1137,31 +1137,44 @@ const Booking = (props) => {
                                                             <div className="mt-4">
                                                                 <>
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer</Typography>}
+                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Pick up to Drop  Kilometer</Typography>}
                                                                         {values.serviceType !== 'DRIVER' && <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm))} Kms
+                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm)) 
+                                                                            // + (Number(quoteDetails.amount.driverWithin))
+                                                                            } Kms + {quoteDetails.amount.driverWithin} Kms
                                                                         </Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Per Km Rate</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                        {values.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
+                                                                            <>
+                                                                        <Typography color="gray" variant="h6">Per Km Rate</Typography>
+                                                                        <Typography>
                                                                             ₹ {quoteDetails.amount.kilometerPriceVal}
-                                                                        </Typography>}
-                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                        </Typography></>)}
+                                                                        <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount.baseKm} Kilometer</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.baseFare}
                                                                         </Typography>
-                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                                        <Typography>
-                                                                            ₹ {quoteDetails.amount.estimatedPrice}
-                                                                        </Typography>
+                                                                        
                                                                         {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
                                                                         <>
-                                                                        <Typography color="gray" variant="h6">Driver With in</Typography>
+                                                                        <Typography color="gray" variant="h6">Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount.driverWithin + ' Km'}
                                                                         </Typography>
                                                                         </>
                                                                         }
+                                                                        {quoteDetails.amount.isPrimeLocation === true && quoteDetails.amount.rideSurchargeAmount > 0 && 
+                                                                        <>
+                                                                        <Typography color="gray" variant="h6">Surcharge Applied</Typography>
+                                                                            <Typography>
+                                                                                ₹  {quoteDetails.amount.rideSurchargeAmount}
+                                                                            </Typography>
+                                                                        </>
+                                                                        }
+                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount.estimatedPrice}
+                                                                        </Typography>
                                                                         
                                                                         
                                                                         
