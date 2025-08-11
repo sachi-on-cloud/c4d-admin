@@ -26,7 +26,7 @@ const AutoDetails = ({ btnShow = false, noApprove = false }) => {
         try {
             setLoading(true);
             const response = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
-            
+
             if (response?.success) {
                 setAccountVal(response.data?.data);
             } else {
@@ -58,9 +58,9 @@ const AutoDetails = ({ btnShow = false, noApprove = false }) => {
     };
 
     if (loading) {
-        return  <div className="flex justify-center items-center py-10 mt-96">
-                      <Spinner className="h-10 w-10" />
-                    </div>
+        return <div className="flex justify-center items-center py-10 mt-96">
+            <Spinner className="h-10 w-10" />
+        </div>
     }
 
     if (error) {
@@ -88,7 +88,7 @@ const AutoDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
                                         <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                             <option value="">Auto</option>
-                                           
+
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -188,8 +188,8 @@ const AutoDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
-            {accountVal && !btnShow && <AutoList  cabsList={accountVal?.Autos} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} />}
+            {accountVal && !btnShow && <AutoList cabsList={accountVal?.Autos} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} />}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow &&
                 <div className='flex justify-center w-full'>
@@ -199,8 +199,8 @@ const AutoDetails = ({ btnShow = false, noApprove = false }) => {
                     >
                         Back
                     </Button>
-                    <Button 
-                        onClick={() => { navigate(`/dashboard/vendors/account/autoView/details/${id}/edit`) }} 
+                    <Button
+                        onClick={() => { navigate(`/dashboard/vendors/account/autoView/details/${id}/edit`) }}
                         className={`my-6 px-8 border-2 rounded-xl ${ColorStyles.editButton}`}
                     >
                         Edit
