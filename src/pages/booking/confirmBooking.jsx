@@ -612,12 +612,17 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
                         </div>} */}
-                         {(bookingDetails?.serviceType === 'DRIVER' || bookingDetails?.serviceType === 'RENTAL') && (
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Booking Type:</Typography>
-                                    <Typography>{bookingDetails?.bookingType}</Typography>
-                                </div>
-                            )}
+                        {(
+                            bookingDetails?.serviceType === 'DRIVER' || 
+                            (bookingDetails?.serviceType === 'RENTAL' && 
+                            bookingDetails?.packageType === 'Outstation' && 
+                            bookingDetails?.bookingType !== 'Hourly Package')
+                        ) && (
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Booking Type:</Typography>
+                                <Typography>{bookingDetails?.bookingType}</Typography>
+                            </div>
+                        )}
                       {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType =='Local') && 
                         <div className="flex justify-between">
                         <Typography color="gray" variant="h6">KM:</Typography>
