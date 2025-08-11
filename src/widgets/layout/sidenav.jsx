@@ -315,10 +315,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
+                      { label: "Parcel Driver", path: "/dashboard/vendors/account/parcel" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
                       { label: "Auto List", path: "/dashboard/Vendors/account/autoview" },
-                      { label: "Parcel List", path: "/dashboard/Vendors/account/parcelView" },
                       
                     ].map(({ label, path }) => (
                       <li key={label}>

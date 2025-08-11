@@ -15,20 +15,41 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
         <>
             <div className='flex flex-row justify-between px-2 mb-2 mt-4'>
                 <h2 className="text-2xl font-bold mb-4">Cabs List</h2>
-                {( !(type == 'Individual' && cabsList?.length >= 1) || (type == 'Company') )&& <div>
-                    <Button 
+                {type == 'Parcel' ? (<div>
+                    <Button
                         className={`text-white ${ColorStyles.addButtonColor}`}
-                        onClick={() => navigate('/dashboard/vendors/account/allVehicles/add',{
+                        onClick={() =>navigate('/dashboard/vendors/account/parcel/allVehicles/add', {
                             state:{
-                                ownerName: ownerName,
-                                type: type,
+                                ownerName,
+                                type: 'Parcel',
                                 accountId : id,
                             }
                         })
                     }>
-                            Add new Cab
+                        Add new Cab
                     </Button>
-                </div>}
+                </div>
+                ) : (
+                    /* Button for Individual (with cabsList < 1) or Company */
+                    (type === 'Company' || (type === 'Individual' && (!cabsList || cabsList.length < 1))) && (
+                        <div>
+                            <Button
+                                className={`text-white ${ColorStyles.addButtonColor}`}
+                                onClick={() =>
+                                    navigate('/dashboard/vendors/account/allVehicles/add', {
+                                        state: {
+                                            ownerName,
+                                            type,
+                                            accountId: id,
+                                        },
+                                    })
+                                }
+                            >
+                                Add new Cab
+                            </Button>
+                        </div>
+                    )
+                )}
             </div>
             <Card>
                 {cabsList && cabsList?.length > 0 ? (
