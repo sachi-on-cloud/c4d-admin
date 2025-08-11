@@ -90,6 +90,16 @@ import AddBanner from "./pages/bannerImage/add";
 import TestimoinalView from "./pages/testimoinal/view";
 import TestimoinalAdd from "./pages/testimoinal/add";
 import { OnlineVehiclesList } from "./pages/vendor/onlineVehiclesList";
+import AutoView from "./pages/AutoService/AutoView";
+import AutoAdd from "./pages/AutoService/autoAdd";
+import AutoDetails from "./pages/AutoService/details";
+import AutoForm from "./pages/AutoService/autoform";
+import DetailsAuto from "./pages/AutoDetails/details";
+import ParcelView from "./pages/parcel/view";
+import ParcelAdd from "./pages/parcel/add";
+import ParcelDetails from "./pages/parcel/deatils";
+import ParcelCabAdd from "./pages/cab/addParcelCab";
+import ParcelCabDetails from "./pages/cab/ParcelCabDetails";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -252,6 +262,42 @@ export const routes = [
         element: <CabAdd />,
         display: false
       },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto View",
+        path: "/vendors/account/autoView/add",
+        element: <AutoAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        
+        name: "Auto Add",
+        path: "/vendors/account/autoview",
+        element: <AutoView />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoView/details/:id",
+        element: <AutoDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoDetails/details/:id",
+        element: <DetailsAuto />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Form",
+        path: "/vendors/account/autoView/details/add",
+        element: <AutoForm />,
+        display: false
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
@@ -266,7 +312,21 @@ export const routes = [
         element: <CabEdit />,
         display: false
       },
-     
+      {
+        icon: <UserIcon {...icon} />,
+        name: "bike",
+        path: "/vendors/account/parcel/allVehicles/add",
+        element: <ParcelCabAdd />,
+        display: false
+      },
+
+       {
+        icon: <UserIcon {...icon} />,
+        name: "bike",
+        path: "/vendors/account/parcel/allVehicles/details/:id",
+        element: <ParcelCabDetails />,
+        display: false
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "GST List",
@@ -381,6 +441,27 @@ export const routes = [
         name: "Account",
         path: "/vendors/account",
         element: <AccountView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel",
+        path: "/vendors/account/parcel",
+        element: <ParcelView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel add",
+        path: "/vendors/account/parcel/add",
+        element: <ParcelAdd />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel details",
+        path: "/vendors/account/parcel/details/:id",
+        element: <ParcelDetails />,
         display: true
       },
       {
@@ -732,7 +813,7 @@ export const routes = [
         display: false
       },
       {
-        path: "/rate-card-details",
+        path: "/rate-card",
         element: <PriceList />,
         display: false
       },

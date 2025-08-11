@@ -17,6 +17,7 @@ import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 import TextBoxWithList from "@/components/BookingNotes";
+import LandMarkBookingNotes from "@/components/LandMarkNotes";
 
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
@@ -98,7 +99,8 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
-            setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, notesData: data?.notes });
+            setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, notesData: data?.notes,landmark: data?.data?.landmark });
+            console.log("LandMark details--", data?.data?.landmark)
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({
                     price: data?.data?.price,
@@ -222,6 +224,14 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         text.bookingId = props.bookingData.id
         const response = await ApiRequestUtils.post(API_ROUTES.ADD_NOTES_BOOKING, text);
+        if (response?.success) {
+            getBookingById(props.bookingData.id, props.bookingData.customerId);
+        }
+    };
+     const LandMarkNotes = async (text) => {
+        setLoading(true);
+        text.bookingId = props.bookingData.id
+        const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_LANDMARK, text);
         if (response?.success) {
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
@@ -438,6 +448,7 @@ const ConfirmBooking = (props) => {
                         className="border border-gray-300 px-2 py-1 rounded-md w-full"
                     >
                         <option value="">Select who cancelled</option>
+                        <option value="SUPPORT_CANCELLED">Cancelled By Support</option>
                         <option value="Customer">Cancelled by Customer</option>
                         <option value="Driver">Cancelled by Driver</option>
                     </select>
@@ -596,12 +607,18 @@ const ConfirmBooking = (props) => {
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Type:</Typography>
-                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
+                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides': bookingDetails.serviceType == "AUTO" ? 'Auto' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
                             </div>
                             {/* {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
                         </div>} */}
+                         {(bookingDetails?.serviceType === 'DRIVER' || bookingDetails?.serviceType === 'RENTAL') && (
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Booking Type:</Typography>
+                                    <Typography>{bookingDetails?.bookingType}</Typography>
+                                </div>
+                            )}
                       {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType =='Local') && 
                         <div className="flex justify-between">
                         <Typography color="gray" variant="h6">KM:</Typography>
@@ -626,13 +643,13 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.acType}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.serviceType != 'RIDES' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Package:</Typography>
                                     <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
@@ -647,6 +664,7 @@ const ConfirmBooking = (props) => {
                                             ${bookingDetails?.packageType === "Outstation" ? bookingDetails?.value?.travelDistance + ' Km':''}`}</Typography>
                                 </div>
                             }
+                           
                             {bookingDetails?.value?.baseFare > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Base Fare:</Typography>
@@ -679,11 +697,26 @@ const ConfirmBooking = (props) => {
                             } */}
                             {/* need to add logic for price */}
                             {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Estimated Price:</Typography>
-                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.Package?.price : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.Package?.price : bookingDetails?.value?.estimatedPrice}</Typography>
-                                </div>
+                               <div className="flex justify-between">
+  <Typography color="gray" variant="h6">Estimated Price:</Typography>
+  <Typography>
+    ₹ {
+      bookingDetails?.serviceType === 'DRIVER'
+        ? bookingDetails?.Package?.price
+        : (bookingDetails?.packageType === 'Local' && bookingDetails?.serviceType === 'RENTAL')
+          ? (
+              bookingDetails?.carType === "Sedan"
+                ? bookingDetails?.Package?.priceSedan
+                : bookingDetails?.carType === "MUV"
+                  ? bookingDetails?.Package?.priceMVP
+                   : bookingDetails?.carType === "SUV"
+                  ? bookingDetails?.Package?.priceSuv
+                  : bookingDetails?.Package?.price 
+            )
+          : bookingDetails?.value?.estimatedPrice
+    }
+  </Typography>
+</div>
                               {bookingDetails?.offerPrice > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
@@ -944,12 +977,12 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.endKM}</Typography>
                                 </div>
                                 </>}
-                                {bookingDetails?.extraHours >0 &&
+                                {bookingDetails?.extraHours >0 && (
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                     <Typography>{bookingDetails?.extraHours}</Typography>     
+                                    <Typography color="gray" variant="h6">{`${Math.floor(bookingDetails.extraHours / 60).toString().padStart(2, '0')} : ${(bookingDetails.extraHours % 60).toString().padStart(2, '0')} hrs`}</Typography>
                                 </div>
-                                }
+                                )}
                                  {/* {bookingDetails?.extraHourPrice >0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs:</Typography>
@@ -1040,6 +1073,7 @@ const ConfirmBooking = (props) => {
                 </div>
 
                 {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} /> }
+                {showDetails &&<LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
             </>
         </div>
     );

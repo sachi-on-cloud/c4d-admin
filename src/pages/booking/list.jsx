@@ -10,7 +10,12 @@ import {
     PopoverContent,
     Checkbox,
     IconButton,
-    Spinner
+    Spinner,
+    Tabs,
+    TabsHeader,
+    TabsBody,
+    Tab,
+    TabPanel,
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -24,7 +29,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
-
+    const [activeTab, setActiveTab] = useState("ALL_BOOKINGS");
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
@@ -52,6 +57,22 @@ useEffect(() => {
     console.warn('No loggedInUser found in localStorage');
   }
 }, []);
+const handleTabChange = (value) => {
+    if (typeof value !== 'string') {
+        console.warn('Unexpected value in handleTabChange:', value);
+        return;
+    }
+    if (value !== activeTab) {
+        // console.log('Tab changed to:', value);
+        setActiveTab(value);
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
+        setStatusFilter(['All']); // Reset status filter
+        setSourceFilter(['All']); // Reset source filter
+        // setStatusFilter(['All']); // Reset filters to avoid filtering out data
+        // setServiceTypeFilter(['All']);
+        // setSourceFilter(['All']);
+    }
+};
 
     const handleFilterChange = (filterType, value) => {
         if (filterType === 'status') {
@@ -93,7 +114,7 @@ useEffect(() => {
             // Expect value to be an object { startDate, endDate }
             const { startDate, endDate } = value;
             setFilteredRange({ startDate, endDate });
-            console.log('Filtered Range:', { startDate, endDate });
+            // console.log('Filtered Range:', { startDate, endDate });
         }
     };
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange, customContent }) => (
@@ -106,7 +127,7 @@ useEffect(() => {
                     <FaFilter className="text-white text-xs" />
                 </div>
             </PopoverHandler>
-            <PopoverContent className="p-2">
+            <PopoverContent className="p-2 z-10">
                 {customContent ? (
                     customContent
                 ) : (
@@ -132,12 +153,20 @@ useEffect(() => {
 
     const getBookingsList = async (page = 1) => {
         setLoading(true);
+    try {
+        const filterType = {
+            type: activeTab,
+            status: statusFilter,
+            source: sourceFilter
+        };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
             "customerId": customerId,
             'type': type ? type : '',
             'page': page,
             'limit': pagination.itemsPerPage,
+            'filterType': JSON.stringify(filterType),
         });
+        // console.log('API Response:', data);
         if (data?.success) {
             setLoading(false);
             setBookingsList(data?.data);
@@ -147,7 +176,17 @@ useEffect(() => {
                 totalPages: data?.pagination?.totalPages || 1,
                 totalItems: data?.pagination?.totalItems || 0,
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
-            })
+            });
+        } 
+        else {
+            console.error('API request failed:', data?.message);
+            setBookingsList([]);
+            setLoading(false);
+        }
+    } catch (error) {
+        console.error('Error fetching bookings:', error);
+        setBookingsList([]);
+        setLoading(false);
         }
     };
 
@@ -174,7 +213,7 @@ useEffect(() => {
                     bookingId,
                     userId,
                 });
-                console.log('UpdateOwnerShip API response:', data);
+                // console.log('UpdateOwnerShip API response:', data);
                 setLoadingStates(prev => ({ ...prev, [bookingId]: false }));
                 return data;
                 } catch (error) {
@@ -191,7 +230,7 @@ useEffect(() => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, bookingStage, type, pagination.currentPage]);
+    }, [customerId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -297,6 +336,13 @@ useEffect(() => {
         });
         setBookingsList(sortedBookings);
     };
+    const tabs = [
+        { label: 'All Bookings', value:'ALL_BOOKINGS'},
+        { label: 'Past', value:'PAST'},
+        { label: 'Today', value: 'TODAY' },
+        { label: 'Tomorrow', value: 'TOMORROW' },
+        { label: 'All Future Bookings', value: 'REMAINING' },
+    ];
 
     return (
         <div className="flex flex-col bg-white rounded-xl" >
@@ -305,32 +351,61 @@ useEffect(() => {
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
                 </Typography>
             </div>
-            {loading ?
-                <>
+            <Card>
+                <div className='absolute right-10 -top-10'>
+                    <button
+                        className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
+                        onClick={() => {
+                            getBookingsList(pagination.currentPage);
+                            setStatusFilter(['All']);
+                            setSourceFilter(['All']);
+                        }}
+                    >
+                        <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+                        <span>Refresh</span>
+                    </button>
+                </div>
+                <CardBody>
+                    <Tabs  value={activeTab} >
+                        <TabsHeader className="bg-gray-300 z-0">
+                            {tabs.map(({ label, value }) => (
+                                <Tab
+                                    key={value}
+                                    value={value}
+                                    onClick={() => {
+                                        // console.log('Tab clicked:', value);
+                                        handleTabChange(value);
+                                    }}
+                                    className='cursor-pointer'
+                                >
+                                    <Typography variant="small" className="font-bold">
+                                        {label}
+                                    </Typography>
+                                    
+                                </Tab>
+                            ))}
+                        </TabsHeader>
+                        <TabsBody>
+                            {/* <Typography variant="small" className="mt-2 text-blue-gray-600">
+                                Total Bookings: {pagination.totalItems}
+                            </Typography> */}
+                            {tabs.map(({ value }) => (
+                                <TabPanel key={value} value={value}>
+                                    {loading ? (
                     <div className="flex justify-center items-center h-screen">
                         <Spinner className="h-12 w-12" />
                     </div>
-                </>
-                :
-                <Card>
-                    <CardBody>
-                        {/* className="overflow-y-scroll overflow-x-auto max-h-screen" */}
-                        {bookingsList.length === 0 ? (
+                                    ) : bookingsList.length === 0 ? (
                             <Typography variant="h5" color='#000000'>
                                 No Bookings
+                                {/* {activeTab} Bookings ({statusFilter ? ('status'): statusFilter.join(', ')}): {bookingsList.length} */}
                             </Typography>
                         ) : (
                             <>
-                                <div className='absolute right-10 -top-10'>
-                                    <button className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2" onClick={() => getBookingsList(pagination.currentPage)}>
-                                        <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
-                                        <span>Refresh</span>
-                                    </button>
-                                </div>
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
 
                                                 <th
                                                     key={el}
@@ -499,7 +574,7 @@ useEffect(() => {
                                                             <div className="flex items-center">
                                                                 <div onClick={() => {
                                                                     handleBookingSelect(data);
-                                                                    setIsOpen(true)
+                                                                    setIsOpen(true);
                                                                 }}>
                                                                     <Typography
                                                                         variant="small"
@@ -512,10 +587,20 @@ useEffect(() => {
                                                             </div>
                                                         </td>
                                                         <td className={className}>
-                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                            <div className="flex flex-col">
+                                                                <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.Customer?.firstName ? data?.Customer?.firstName : '-'}
+                                                                </Typography>
+                                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.Customer?.phoneNumber ? data?.Customer?.phoneNumber : '-'}
+                                                                </Typography>
+                                                            </div>
+                                                            </td>
+                                                        {/* <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.Customer?.phoneNumber ? data?.Customer?.phoneNumber : '-'}
                                                             </Typography>
-                                                        </td>
+                                                        </td> */}
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.Driver?.firstName ? data?.Driver?.firstName : '-'}
@@ -593,7 +678,7 @@ useEffect(() => {
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
                                                                     data?.status === "CONFIRMED" ? "bg-green-600 text-white" : 
                                                                     data?.status === "BOOKING_ACCEPTED" ? "bg-green-600 text-white":
-                                                                    data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-200 text-black": 
+                                                                    data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-600 text-white": 
                                                                     data?.status === "ENDED" ? "bg-green-600 text-white" :
                                                                     data?.status === "STARTED" ? "bg-blue-600   text-white":
                                                                     data?.status === "INITIATED"? "bg-gray-600   text-white":
@@ -642,17 +727,27 @@ useEffect(() => {
                                                                     fullWidth
                                                                     onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
-                                                                    Request {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Request {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES"  || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
-                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Assign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
                                                             {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
@@ -663,8 +758,13 @@ useEffect(() => {
                                                                     setShowReassignModal(true);
                                                                     }}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
-                                                                    ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    ReAssign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
                                                             {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
@@ -672,8 +772,13 @@ useEffect(() => {
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
                                                                 >
-                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Assign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                    
                                                                 </Button>
                                                             }
@@ -707,9 +812,13 @@ useEffect(() => {
                                 </div>
                             </>
                         )}
+                                </TabPanel>
+                            ))}
+                        </TabsBody>
+                    </Tabs>
                     </CardBody>
                 </Card>
-            }
+            
         </div>
     );
 }

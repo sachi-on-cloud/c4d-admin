@@ -5,7 +5,7 @@ export const constants = {
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
-    url_dev: 'https://seal-well-mite.ngrok-free.app',
+    // url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou'
 };
@@ -833,6 +833,8 @@ export const API_ROUTES = {
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
     'GET_ALL_ACCOUNTS': '/register/admin/account',
+    'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
+    'GET_ALL_PARCEL': '/admin/parcel',
     'GET_DRIVERS_PACKAGE': '/get-drivers',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',
@@ -938,7 +940,16 @@ export const API_ROUTES = {
     'GET_TESTIMOINAL':'/testimonial',
     'POST_TESTIMOINAL':'/testimonial/add',
     'UPDATE_TESTIMONIAL':'/testimonial/update',
-
+    'GET_AUTO_LIST':"/admin/autos",
+    'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
+    'POST_AUTO_SEARCH':'/search/auto',
+    'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
+    'ADD_TRIP_DETAILS':'/add-trip',
+    'GET_DRIVER_TRIP_DETAILS':'/get-trips',
+    'UPDATE_LANDMARK':'/update-landmark',
+    'GET_AUTO_PACKAGE':'/get-autos',
+    'GET_TRIP_REPORTS':'/get-trips-report'
+    
 };
 
 export const KYC_PROCESS = {

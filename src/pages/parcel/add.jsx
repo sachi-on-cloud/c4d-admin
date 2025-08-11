@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-// import Select from 'react-select';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
 import { ACCOUNT_ADD_SCHEMA } from '@/utils/validations';
 import { Alert, Button, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Input, List, ListItem, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
-import Select from 'react-select'
 
 const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -57,7 +55,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect 
     );
 };
 
-const AccountAdd = (props) => {
+const ParcelAdd = (props) => {
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [thalukSearchText, setThalukSearchText] = useState("");
     const [stateSearchText, setStateSearchText] = useState("");
@@ -75,12 +73,9 @@ const AccountAdd = (props) => {
     const [isEditable, setIsEditable] = useState(true);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
-        policeClearance: null,
         livePhoto: null,
+        rc:null,
         drivingLicenseImage: null,
-        consentForm: null,
-        panImage: null,
-        bankStatementImage: null,
     });
 
     const initialValues = {
@@ -467,10 +462,9 @@ const AccountAdd = (props) => {
                     </Alert>
                 </div>
             )}
-            <h2 className="text-2xl font-bold mb-4">Add new Account</h2>
+            <h2 className="text-2xl font-bold mb-4">Add new Parcel Account</h2>
             <Formik
                 initialValues={initialValues}
-                validationSchema={ACCOUNT_ADD_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
@@ -481,9 +475,8 @@ const AccountAdd = (props) => {
                                 <div>
                                     <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
                                     <Field as="select" disabled={!isEditable} name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="">Select Type</option>
-                                        <option value="Individual">Owner cum Driver</option>
-                                        <option value="Company">Travels</option>
+                                        <option value="">Select the Service Type</option>
+                                        <option value="Parcel">Parcel</option>
                                     </Field>
                                     <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                 </div>
@@ -655,7 +648,7 @@ const AccountAdd = (props) => {
                         {!ownerAdded.value && <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/vendors/account'); }}
+                                onClick={() => { navigate('/dashboard/vendors/account/parcel'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel
@@ -704,7 +697,7 @@ const AccountAdd = (props) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                    {values.type === "Individual" && (
+                                                   
                                                     <DocumentUpload
                                                         label="Driving License Image"
                                                         value={imagePreviews.drivingLicenseImage?.image1}
@@ -714,7 +707,6 @@ const AccountAdd = (props) => {
                                                         fullDocVal={imagePreviews.drivingLicenseImage}
                                                         image2={imagePreviews.drivingLicenseImage?.image2}
                                                     />
-                                                    )}
                                                     <DocumentUpload
                                                     label="Aadhaar Image"
                                                     value={imagePreviews.aadhaarImage?.image1}
@@ -724,17 +716,7 @@ const AccountAdd = (props) => {
                                                     fullDocVal={imagePreviews.aadhaarImage}
                                                     image2={imagePreviews.aadhaarImage?.image2}
                                                     />
-                                                    {values.type !== "Company" && values.type !== "Individual" && (
-                                                    <DocumentUpload
-                                                        label="PAN Image"
-                                                        value={imagePreviews.panImage?.image1}
-                                                        name="panImage"
-                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
-                                                        setModalData={setModalData}
-                                                        fullDocVal={imagePreviews.panImage}
-                                                        image2={imagePreviews.panImage?.image2}
-                                                    />
-                                                    )}
+                                                    
                                                     <DocumentUpload
                                                     label="Live Photo"
                                                     value={imagePreviews.livePhoto?.image1}
@@ -753,26 +735,6 @@ const AccountAdd = (props) => {
                                                     fullDocVal={imagePreviews.rc}
                                                     image2={imagePreviews.rc?.image2}
                                                     />
-                                            {values.type !== "Company" && values.type !== "Individual" && (
-                                            <>
-                                                    <DocumentUpload
-                                                        label="Insurance"
-                                                        value={values.insurance}
-                                                        name="insurance"
-                                                        onChange={(e) => handleUpload(e, setFieldValue, "insurance")}
-                                                        setModalData={setModalData}
-                                                    />
-                                                    <DocumentUpload
-                                                        label="Bank Statement"
-                                                        value={imagePreviews.bankStatement?.image1}
-                                                        name="bankStatement"
-                                                        onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement")}
-                                                        setModalData={setModalData}
-                                                        fullDocVal={imagePreviews.bankStatement}
-                                                        image2={imagePreviews.bankStatement?.image2}
-                                                    />
-                                            </>
-                                            )}
                                         </tbody>
                                         </table>
                                     </CardBody>
@@ -785,7 +747,7 @@ const AccountAdd = (props) => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate('/dashboard/vendors/account')}
+                                    onClick={() => navigate('/dashboard/vendors/account/parcel')}
                                     className={`my-6 mx-2 ${ColorStyles.backButton}`}
                                 >
                                     Back
@@ -793,7 +755,7 @@ const AccountAdd = (props) => {
                                 <Button
                                     fullWidth
                                     color='black'
-                                    onClick={() => navigate(`/dashboard/vendors/account/edit/${ownerAdded.ownerId}`)}
+                                    onClick={() => navigate(`/dashboard/vendors/account/parcel/edit/${ownerAdded.ownerId}`)}
                                     className='my-6 mx-2'
                                 >
                                     Edit
@@ -864,4 +826,4 @@ const AccountAdd = (props) => {
     );
 };
 
-export default AccountAdd;
+export default ParcelAdd;

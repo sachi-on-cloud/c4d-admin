@@ -63,17 +63,17 @@ export const EDIT_USER_SCHEMA = Yup.object({
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     packageTypeSelected: Yup.string().when('serviceType', {
-        is: (val) => val !== 'Outstation' && val !== 'RIDES',
+        is: (val) => val !== 'Outstation' && val !== 'RIDES' && val !== 'AUTO',
         then: (schema) => schema.required('Package Type is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
     rideTime: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val !== 'RIDES' && val !== 'AUTO',
         then: (schema) => schema.required('Ride Time is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
     rideDate: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val !== 'RIDES' && val !== 'AUTO',
         then: (schema) => schema.required('Ride Date is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
@@ -100,16 +100,16 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
         then: () => Yup.string().required('Trip Type is required'),
         otherwise: () => Yup.string(),
     }),
-    pickupAddress: Yup.string().when('serviceType', {
-        is: 'RIDES',
-        then: () => Yup.string().required('Pickup Address is required'),
-        otherwise: () => Yup.string(),
-    }),
-    dropAddress: Yup.string().when('serviceType', {
-        is: 'RIDES',
-        then: () => Yup.string().required('Drop Address is required'),
-        otherwise: () => Yup.string(),
-    }),
+   pickupAddress: Yup.string().when('serviceType', {
+    is: (val) => ['RIDES', 'AUTO'].includes(val),
+    then: () => Yup.string().required('Pickup Address is required'),
+    otherwise: () => Yup.string(),
+}),
+dropAddress: Yup.string().when('serviceType', {
+    is: (val) => ['RIDES', 'AUTO'].includes(val),
+    then: () => Yup.string().required('Drop Address is required'),
+    otherwise: () => Yup.string(),
+}),
 });
 
 
@@ -402,7 +402,7 @@ export const CAB_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13,14}$', 'Invalid Driver\'s License').required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     // notify: Yup.string().required('Notification Recipients is required'),
@@ -435,11 +435,11 @@ export const CAB_SCHEMA = Yup.object({
 
     //wallet: Yup.string().required('Wallet is required'),
     type: Yup.string()
-        .oneOf(["RENTAL","Rides"]),
+        .oneOf(["RENTAL"], "Rides"),
 
     prices: Yup.array().of(
         Yup.object().shape({
-            kilometer: Yup.number()
+              kilometer: Yup.number()
                 .typeError("Kilometer must be a number")
                 .positive("Kilometer must be greater than zero")
                 .required("Kilometer is required")
@@ -448,6 +448,7 @@ export const CAB_SCHEMA = Yup.object({
                     then: (schema) => schema.required("Kilometer is required."),
                     otherwise: (schema) => schema.notRequired(),
                 }),
+                
 
             baseFare: Yup.number()
                 .typeError("Base Fare must be a number")
@@ -471,22 +472,21 @@ export const CAB_SCHEMA = Yup.object({
 
             minCharge: Yup.number()
                 .typeError("Mins Charge must be a number")
-                .positive("Mins Charge must be greater than zero")
+                .positive("Mins Charge  must be greater than zero")
+                .required("Mins Charge  is required")
                 .when("type", {
-                    is: (type) => type === "Rides",
-                    then: (schema) => schema.required("Mins Charge is required for Rides"),
+                    is: "Rides",
+                    then: (schema) => schema.required("Mins Charge is required."),
                     otherwise: (schema) => schema.notRequired(),
                 }),
         })
-    )
-        .test('at-least-one-price', 'At least one price must be added', function (prices) {
-            return prices.some(price =>
-                price.price || price.kilometer || price.baseFare ||
-                price.kilometerPrice || price.additionalMinCharge || price.minCharge
-            );
-        }),
-    // insuranceImg: Yup.string().optional(),
-    // image1: Yup.string().optional(),
+
+    ).test('at-least-one-price', 'At least one price must be added', function (prices) {
+        return prices.some(price =>
+            price.price || price.kilometer || price.baseFare ||
+            price.kilometerPrice || price.additionalMinCharge || price.minCharge
+        );
+    })
 });
 
 export const REASSIGN_DRIVER = Yup.object({
@@ -600,7 +600,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13,14}$', 'Invalid Driver\'s License').required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     carNumber:Yup.string().required('Car Number is requried'),
@@ -632,12 +632,12 @@ export const CAB_ADD_SCHEMA = Yup.object({
         .required('At least one package must be selected'),
 
     type: Yup.string()
-        .oneOf(["RENTAL","Rides"]),
+                .oneOf(["RENTAL"], "Rides"),
 
     prices: Yup.array().of(
         Yup.object().shape({
-
-            kilometer: Yup.number()
+            
+           kilometer: Yup.number()
                 .typeError("Kilometer must be a number")
                 .positive("Kilometer must be greater than zero")
                 .required("Kilometer is required")

@@ -22,7 +22,8 @@ import {
   BuildingStorefrontIcon,
   ChartBarIcon,
   DocumentCheckIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  MapPinIcon
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -32,9 +33,11 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
+  { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Users" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
+  
 ];
 
 export function Sidenav({ brandImg, brandName, routes }) {
@@ -70,12 +73,16 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const toggleSubMenu = (subMenu) => {
     setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
   };
+ 
   const [userPermissions, setUserPermissions] = useState(null);
+ const [userName, setUserName] = useState("");
   useEffect(() => {
     const dataFromStorage = localStorage.getItem('loggedInUser');
+    
     if (dataFromStorage) {
       const user = JSON.parse(dataFromStorage);
       setUserPermissions(user.permission || []);
+        setUserName(user?.email || "");
     }
   }, []);
 
@@ -104,14 +111,23 @@ export function Sidenav({ brandImg, brandName, routes }) {
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
           >
-             <div className="flex items-center gap-2 px-8 py-6 text-center">
+             <div className="flex items-center gap-2 px-8 pt-6   text-center">
             <img
                 src="/img/app_icon.png"
                 alt=" ROOT CABS"
                 className="h-6 w-6 rounded-full"
               />
               ROOT CABS
-             </div>
+              </div>
+                <div className="flex items-center gap-1 px-2 text-center pl-16">
+                  {/* <img
+                src="/img/profile.png"
+                alt=" ROOT CABS"
+                className="h-8 w-8 rounded-full"
+              /> */}
+               <p className="text-sm font-semibold pr-12"> {userName}</p>
+               </div>
+            
           </Typography>
         </Link>
         <IconButton
@@ -174,6 +190,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       ) : null}
 
                       {name === "Admin" ? (
+                        <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
+                        {name ==="Trip Master" ? (
                         <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
@@ -295,8 +315,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
+                      { label: "Parcel Driver", path: "/dashboard/vendors/account/parcel" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
+                      { label: "Auto List", path: "/dashboard/Vendors/account/autoview" },
+                      
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -444,6 +467,43 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   </ul>
                 )}
 
+                {name === "Trip Master" && openSubMenu === "Trip Master" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "Reports", path: "/dashboard/tripDetails/reports" },
+                      { label: "TripRecords", path: "/dashboard/tripDetails/reports" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                                }`}
+                              fullWidth
+                            >
+                              {label === "Reports"  }
+                               {label === "TripRecords" 
+                                // <img
+                                //   src="/img/pending_doc.png"
+                                //   alt="Pending Documents"
+                                //   className="h-6 w-6 rounded-full"
+                                // />
+                              }
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+            
                 {name === "Admin" && openSubMenu === "Admin" && (
                   <ul className="ml-0">
                     {[
@@ -458,6 +518,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "TAX", path: "/dashboard/user/GSTList" },
                        { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                        { label: "Testimonial", path: "/dashboard/user/testimonialView" },
+                       
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>

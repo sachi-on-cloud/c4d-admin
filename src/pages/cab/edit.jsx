@@ -438,13 +438,13 @@ const CabEdit = () => {
                             </div>
                             <div>
                                 <label htmlFor="ownerName" className="text-sm font-medium text-gray-700">Owner Name</label>
-                                <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                <Field type="text" name="ownerName"  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
                             <div>
                                 <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
-                                <Field type="text" disabled name="carNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <Field type="text"  name="carNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
                             </div>
 
@@ -473,19 +473,19 @@ const CabEdit = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="MINI" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="MINI" className="form-radio" />
                                         <span className="ml-2">Mini</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="SUV" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="SUV" className="form-radio" />
                                         <span className="ml-2">SUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="MUV" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="MUV" className="form-radio" />
                                         <span className="ml-2">MUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="Sedan" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="Sedan" className="form-radio" />
                                         <span className="ml-2">Sedan</span>
                                     </label>
                                 </div>
@@ -494,7 +494,7 @@ const CabEdit = () => {
 
                             <div>
                                 <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
-                                <Field type="text" name="vehicleType" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <Field type="text" name="vehicleType"  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="vehicleType" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
@@ -618,7 +618,7 @@ const CabEdit = () => {
                                     </div>}
                                     {values?.assignOrAddDriver === 'Add' && <div>
                                         <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={16} />
                                         <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
                                     </div>}
                                 </>

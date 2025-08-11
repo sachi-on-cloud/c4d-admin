@@ -1,3 +1,8 @@
+
+
+
+
+
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -46,8 +51,10 @@ const Booking = (props) => {
 
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
+    const [driverSuggestions, setDriverSuggestions] = useState([]);
     const [pickupLocation, setPickupLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
+    const [driverPickUpLocation, setDriverPickUpLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
     const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
@@ -86,6 +93,8 @@ const Booking = (props) => {
             carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
             pickupLat: values?.pickupLocation?.lat,
             pickupLong: values?.pickupLocation?.lng,
+            driverLat: values?.driverPickUpLocation?.lat,
+            driverLong: values?.driverPickUpLocation?.lng,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
@@ -105,6 +114,8 @@ const Booking = (props) => {
             carType: '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
+            driverLat: val?.driverPickUpLocation?.lat,
+            driverLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
         }
@@ -143,7 +154,9 @@ const Booking = (props) => {
         toDate: "",
         customerId: '',
         serviceType: '',
-        cabType: ''
+        cabType: '',
+        driverPickUpAddress: '',
+        driverPickUpLocation: null,
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -194,6 +207,37 @@ const Booking = (props) => {
         }
     }
 
+    const onAutoSubmitHandler = async (values) => {
+        const bookingData = {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            pickupAddress: {
+                name: values.pickupAddress,
+            },
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+            dropAddress: {
+                name: values.dropAddress,
+            },
+        };
+
+        try {
+            console.log('AUTO Booking Payload:', bookingData);
+            const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_AUTO_BOOKING, bookingData,values?.customerId?.id,
+       );
+            if (data?.success) {
+                setIsOpen(false);
+                setBookingData(data?.data);
+            } 
+        } catch (error) {
+            console.error('Error in onAutoSubmitHandler:', {
+                error: error.message,
+                stack: error.stack,
+            });
+            alert('An error occurred while creating the AUTO booking. Please try again.');
+        }
+    };
+
     const onSubmitHandler = async (values) => {
         const bookingData = {
             carId: values?.carSelected?.id,
@@ -204,7 +248,7 @@ const Booking = (props) => {
             // fromDate: values.fromDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType,
+            serviceType: values.serviceType || "AUTO",
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
             acType: values?.acType?.toUpperCase(),
@@ -326,23 +370,37 @@ const Booking = (props) => {
         setDatePickerVisible(false);
     };
 
-    const searchLocations = async (query, isPickup) => {
+    const searchLocations = async (query, isPickup, type) => {
         if (query.length > 2) {
+            try {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, { address: query });
             if (data?.success && data?.data) {
                 if (isPickup) {
                     setPickupSuggestions(data?.data);
+                } else if (type === 'driver') {
+                    setDriverSuggestions(data?.data);
                 } else {
                     setDropSuggestions(data?.data);
                 }
+            } else {
+                setPickupSuggestions([]);
+                setDriverSuggestions([]);
+                setDropSuggestions([]);
+            }
+        } catch (error) {
+            console.error('Error searching locations:', error);
+            setPickupSuggestions([]);
+            setDriverSuggestions([]);
+            setDropSuggestions([]);
             }
         } else {
             setPickupSuggestions([]);
+            setDriverSuggestions([]);
             setDropSuggestions([]);
         }
     };
 
-    const handleSelectLocation = async (address, isPickup, setFieldValue) => {
+    const handleSelectLocation = async (address, isPickup, type, setFieldValue) => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
         if (data?.success) {
             const location = { lat: data.data.lat, lng: data.data.lng };
@@ -351,6 +409,11 @@ const Booking = (props) => {
                 setFieldValue("pickupLocation", location);
                 setPickupLocation(location);
                 setPickupSuggestions([]);
+            } else if (type === 'driver') {
+                setFieldValue("driverPickUpAddress", address);
+                setFieldValue("driverPickUpLocation", location);
+                setDriverPickUpLocation(location);
+                setDriverSuggestions([]);
             } else {
                 setFieldValue("dropAddress", address);
                 setFieldValue("dropLocation", location);
@@ -453,8 +516,14 @@ const Booking = (props) => {
                 );
             case 'customer_cancelled':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-gray-200 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
                         Cancelled
+                    </span>
+                );
+                case 'cancelled':
+                return (
+                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                       Customer Cancelled
                     </span>
                 );
             case 'initiated':
@@ -514,6 +583,12 @@ const Booking = (props) => {
                         PAYMENT REQUESTED
                     </span>
                     );
+                      case 'support_cancelled':
+                   return(
+                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        SUPPORT CANCELLED
+                    </span>
+                    );
             default:
                 return null;
         }
@@ -524,7 +599,18 @@ const Booking = (props) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
-                <div className='py-6 rounded-3xl flex justify-end'>
+                <div className='py-6 rounded-3xl flex justify-between'>
+                    {customerData && <div className="p-2 flex w-[40%]">
+                        <SearchableDropdown 
+                            searchVal={setCustomerNumber} 
+                            addVal={addCustomerNumber} 
+                            selected={editBooking?.customerId} 
+                            options={customerData} 
+                            onSelect={(val) => {
+                                setSelectedCustomer(val.id);
+                            }} 
+                            />
+                    </div>}
                     <button
                         onClick={() => setIsOpen(true)}
                         className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
@@ -584,8 +670,14 @@ const Booking = (props) => {
                                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                                         initialValues={initialValues}
                                         onSubmit={async (values, { resetForm }) => {
+                                            console.log(values)
                                             if (values.submitType == "rides") {
                                                 await onRideSubmitHandler(values);
+                                            }  
+                                           else if (values.submitType == "auto") {
+                                                await onAutoSubmitHandler(values);
+                                                console.log('submitType:', values.submitType)
+                                                // console.log('Auto Submit Data',values)
                                             } else {
                                                 await onSubmitHandler(values);
                                             }
@@ -601,10 +693,16 @@ const Booking = (props) => {
                                         {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
                                             <>
                                                 {customerData && <div className="p-2 flex">
-                                                    <SearchableDropdown searchVal={setCustomerNumber} addVal={addCustomerNumber} selected={editBooking?.customerId} options={customerData} onSelect={(val) => {
+                                                   <SearchableDropdown 
+                                                        searchVal={setCustomerNumber} 
+                                                        addVal={addCustomerNumber} 
+                                                        selected={selectedCustomer} 
+                                                        options={customerData} 
+                                                        onSelect={(val) => {
                                                         setFieldValue('customerId', val);
-                                                        setSelectedCustomer(val.id)
-                                                    }} />
+                                                        setSelectedCustomer(val.id);
+                                                        }} 
+                                                    />
 
                                                     {!editBookingView && <Button
                                                         className="ml-3 w-1/2"
@@ -620,7 +718,7 @@ const Booking = (props) => {
                                                             Service Type
                                                         </Typography>
                                                         <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
-                                                            //console.log('e.target.value', e.target.value);
+                                                            console.log('e.target.value', e.target.value);
                                                             setFieldValue("serviceType", e.target.value, false);
                                                             resetPackageValues(setFieldValue, e.target.value);
                                                             setFieldValue("serviceType", e.target.value, true);
@@ -634,6 +732,7 @@ const Booking = (props) => {
                                                             <option value="RENTAL_HOURLY_PACKAGE">Hourly Package</option>
                                                             <option value="RENTAL_DROP_TAXI">Drop Taxi</option>
                                                             <option value="RENTAL">OutStation</option>
+                                                            <option value="AUTO">Auto</option>
                                                         </Field>
                                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                                     </div>
@@ -780,6 +879,9 @@ const Booking = (props) => {
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 value={values.rideDate ? `${values.rideDate}T${values.rideTime}` : ''}
                                                                 min={`${moment().format('YYYY-MM-DD')}T00:00`}
+                                                                 onClick={(e) => {
+                                                                if (e.target.showPicker) e.target.showPicker();
+                                                                    }}
                                                                 onChange={(e) => {
                                                                     const selectedDateTime = e.target.value;
                                                                     const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
@@ -933,9 +1035,9 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
                                                 <div className='grid grid-cols-2'>
-                                                    {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL') || (values.serviceType == 'RENTAL_HOURLY_PACKAGE')) && <div className="p-2 space-y-2">
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType =='AUTO') && (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
-                                                            Pickup Location <span className="text-red-500">*</span>
+                                                            Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
                                                         <Field
                                                             type="text"
@@ -954,25 +1056,25 @@ const Booking = (props) => {
                                                                     <li
                                                                         key={index}
                                                                         className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                        onClick={() => {
-                                                                            handleSelectLocation(suggestion, true, setFieldValue);
-                                                                        }}
+                                                                        onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue)}
                                                                     >
                                                                         {suggestion}
                                                                     </li>
                                                                 ))}
                                                             </ul>
                                                         )}
-                                                    </div>}
+                                                        <ErrorMessage name="pickupAddress" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                                                 <Field
                                                                     type="text"
                                                                     name="dropAddress"
                                                                     className="p-2  mt-2 w-full rounded-xl border-2 border-gray-300"
-                                                                    placeholder="Enter drop location (Optional)"
+                                                                    placeholder="Enter drop location"
                                                                     onChange={(e) => {
                                                                         setFieldValue("dropAddress", e.target.value);
                                                                         setFieldValue("dropLocation", null);
@@ -986,7 +1088,7 @@ const Booking = (props) => {
                                                                                 key={index}
                                                                                 className="p-2 cursor-pointer hover:bg-gray-100"
                                                                                 onClick={() => {
-                                                                                    handleSelectLocation(suggestion, false, setFieldValue);
+                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue);
                                                                                 }}
                                                                             >
                                                                                 {suggestion}
@@ -998,6 +1100,36 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Driver Starting Point <span className="text-red-500">*</span>
+                                                            </label>
+                                                            <Field
+                                                                type="text"
+                                                                name="driverPickUpAddress"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                placeholder="Enter driver pickup location"
+                                                                onChange={(e) => {
+                                                                    setFieldValue("driverPickUpAddress", e.target.value);
+                                                                    setFieldValue("driverPickUpLocation", null);
+                                                                    searchLocations(e.target.value, false,'driver');
+                                                                }}
+                                                            />
+                                                            {driverSuggestions.length > 0 && (
+                                                                <ul className="border rounded-lg bg-white mt-2">
+                                                                    {driverSuggestions.map((suggestion, index) => (
+                                                                        <li
+                                                                            key={index}
+                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
+                                                                        >
+                                                                            {suggestion}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>)}
                                                 </div>
                                                 {values.packageSelected &&
                                                     <Card className="my-6">
@@ -1014,12 +1146,25 @@ const Booking = (props) => {
                                                                 <>
                                                                     <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                                        <Typography>
-                                                                            {values.serviceType === 'DRIVER' || (values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageTypeSelected == "Local") ?
-                                                                                ("₹" + packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || "")
-                                                                                : ""
-                                                                            }
-                                                                        </Typography>
+                                                                       <Typography>
+  ₹{(() => {
+    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+    if (!selectedPackage) return "";
+
+    switch (values.carType?.toUpperCase()) {
+      case "MINI":
+        return selectedPackage.price || "";
+      case "SEDAN":
+        return selectedPackage.priceSedan || "";
+      case "SUV":
+        return selectedPackage.priceSuv || "";
+      case "MUV":
+        return selectedPackage.priceMVP || "";
+      default:
+        return "";
+    }
+  })()}
+</Typography>
                                                                     </div>
                                                                 </>
                                                             </div>
@@ -1052,6 +1197,14 @@ const Booking = (props) => {
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.estimatedPrice}
                                                                         </Typography>
+                                                                        {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
+                                                                        <>
+                                                                        <Typography color="gray" variant="h6">Driver With in</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount.driverWithin + ' Km'}
+                                                                        </Typography>
+                                                                        </>
+                                                                        }
                                                                         
                                                                         
                                                                         
@@ -1121,6 +1274,11 @@ const Booking = (props) => {
                                                         Check Estimated Price
                                                     </Button>
                                                 }
+                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
 
                                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                                     fullWidth
@@ -1150,6 +1308,22 @@ const Booking = (props) => {
                                                         color="blue"
                                                         onClick={() => {
                                                             setFieldValue("submitType", "rides");
+                                                            handleSubmit();
+                                                        }}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
+                                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                                    >
+                                                        Continue
+                                                    </Button>
+                                                }
+                                                 {(values.serviceType == 'AUTO') &&
+                                                    <Button
+                                                        fullWidth
+                                                        color="blue"
+                                                        onClick={() => {
+                                                            //    handleSubmit();
+                                                            setFieldValue("submitType", "auto");
+                                                            console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}

@@ -133,7 +133,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
     );
 };
 
-const AccountEdit = () => {
+const AutoEdit = () => {
     const [accountVal, setAccountVal] = useState({});
     const [imagePreview, setImagePreview] = useState(null);
     const [alert, setAlert] = useState(null);
@@ -179,7 +179,7 @@ const AccountEdit = () => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
         //console.log(' data - Fetch Item :', data?.data);
         setAccountVal(data?.data?.data);
-        setBlockedReason(data?.data?.data?.blockedReason || '');
+        setBlockedReason(data?.data?.data?.blockedReason || ''); // Initialize blockedReason from fetched data
         setImagePreviews({
             aadhaarImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.AADHAAR),
             drivingLicenseImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.DRIVING_LICENSE),
@@ -205,7 +205,8 @@ const AccountEdit = () => {
         pincode: accountVal?.pincode || "",
         image1: accountVal?.Proofs ? accountVal?.Proofs[0]?.image1 : '',
         docDates: accountVal?.Proofs,
-        ownerStatus:accountVal?.ownerStatus || ""
+        status: accountVal?.status || "", // Initialize status
+        blockedReason: accountVal?.blockedReason || "", // Initialize blockedReason
     };
 
     const handleImageUpload = async (e, setFieldValue, label, docId) => {
@@ -373,7 +374,7 @@ const AccountEdit = () => {
 
                 formData.append('documentId', docId);
                 data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
-                // console.log("updated data => ", data)
+                console.log("updated data => ", data)
             }
             if (data?.success) {
                 setLoading(false);
@@ -428,7 +429,7 @@ const AccountEdit = () => {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, {
                 address: query
             });
-            // console.log("data", data)
+            console.log("data", data)
             if (data?.success && data?.data) {
                 setAddressSuggestions(data?.data)
             }
@@ -438,7 +439,7 @@ const AccountEdit = () => {
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
-        // console.log('onSubmit :', values)
+        console.log('onSubmit :', values)
         try {
             const formData = {
                 type: values?.type ? values?.type : accountVal.type,
@@ -453,11 +454,11 @@ const AccountEdit = () => {
                 pincode: values?.pincode ? values?.pincode : accountVal.pincode,
                 source: values?.source ? values?.source : accountVal.source,
                 accountId: accountVal?.id,
-                ownerStatus: values?.ownerStatus ? values?.ownerStatus : accountVal.ownerStatus,
-                blockedReason: values?.ownerStatus === 'Blocked' ? values?.blockedReason : '',
+                status: values?.status ? values?.status : accountVal.status,
+                blockedReason: values?.status === 'BLOCKED' ? values?.blockedReason : '', 
             }
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, formData);
-            // console.log('data in driver UPDATE :', data);
+            console.log('data in driver UPDATE :', data);
             navigate('/dashboard/vendors/account', {
                 state: {
                     accountUpdated: true,
@@ -713,25 +714,25 @@ const AccountEdit = () => {
                                     <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
                                 <div>
-                                    <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700">Owner Status</label>
+                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
                                     <Field 
                                         as="select" 
-                                        name="ownerStatus" 
+                                        name="status" 
                                         className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                         onChange={(e) => {
-                                            setFieldValue("ownerStatus", e.target.value);
-                                            if (e.target.value !== 'Blocked') {
-                                                setFieldValue("blockedReason", "");
+                                            setFieldValue("status", e.target.value);
+                                            if (e.target.value !== 'BLOCKED') {
+                                                setFieldValue("blockedReason", ""); // Clear blockedReason if status is not BLOCKED
                                             }
                                         }}
                                     >
                                         <option value="">Select status</option>
-                                        <option value="Active">Active</option>
-                                        <option value="InActive">In_Active</option>
-                                        <option value="Blocked">Blocked</option>
+                                        <option value="ACTIVE">Active</option>
+                                        <option value="IN_ACTIVE">In_Active</option>
+                                        <option value="BLOCKED">Blocked</option>
                                     </Field>
-                                    <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
-                                    {values.ownerStatus === 'Blocked' && (
+                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                                    {values.status === 'BLOCKED' && (
                                         <div className="mt-2">
                                             <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">Block Reason</label>
                                             <Field
@@ -923,4 +924,4 @@ const AccountEdit = () => {
     );
 };
 
-export default AccountEdit;
+export default AutoEdit;
