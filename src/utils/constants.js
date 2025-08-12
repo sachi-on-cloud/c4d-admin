@@ -938,6 +938,7 @@ export const API_ROUTES = {
     'GET_TESTIMOINAL':'/testimonial',
     'POST_TESTIMOINAL':'/testimonial/add',
     'UPDATE_TESTIMONIAL':'/testimonial/update',
+    'UPDATE_LANDMARK':'/update-landmark',
 
 };
 
