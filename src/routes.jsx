@@ -99,6 +99,7 @@ import ParcelAdd from "./pages/parcel/add";
 import ParcelDetails from "./pages/parcel/deatils";
 import ParcelCabAdd from "./pages/cab/addParcelCab";
 import ParcelCabDetails from "./pages/cab/ParcelCabDetails";
+import AutoDetailsList from "./pages/AutoDetails/list";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -295,6 +296,13 @@ export const routes = [
         name: "Auto Form",
         path: "/vendors/account/autoView/details/add",
         element: <AutoForm />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Form",
+        path: "/vendors/account/autoList",
+        element: <AutoDetailsList />,
         display: false
       },
       {

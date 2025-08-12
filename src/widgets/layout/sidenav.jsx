@@ -318,7 +318,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Parcel Driver", path: "/dashboard/vendors/account/parcel" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
-                      { label: "Auto List", path: "/dashboard/Vendors/account/autoview" },
+                      { label: "Auto Owner", path: "/dashboard/Vendors/account/autoview" },
+                       { label: "Auto List", path: "/dashboard/Vendors/account/autoList" },
                       
                     ].map(({ label, path }) => (
                       <li key={label}>
