@@ -650,17 +650,19 @@ const Booking = (props) => {
                                     >
                                         {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
                                             <>
-                                                {customerData && <div className="p-2 flex">
+                                                {customerData  && !editBookingView && <div className="p-2 flex">
                                                    <SearchableDropdown 
-    searchVal={setCustomerNumber} 
-    addVal={addCustomerNumber} 
-    selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
-    options={customerData} 
-    onSelect={(val) => {
-      setFieldValue('customerId', val);
-      setSelectedCustomer(val.id);
-    }} 
-  />
+                                                        searchVal={setCustomerNumber} 
+                                                        addVal={addCustomerNumber} 
+                                                        selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
+                                                        options={customerData} 
+                                                        onSelect={(val) => {
+                                                        setFieldValue('customerId', val);
+                                                        setSelectedCustomer(val.id);
+                                                        
+                                                        }} 
+                                                        
+                                                    />
 
                                                     {!editBookingView && <Button
                                                         className="ml-3 w-1/2"

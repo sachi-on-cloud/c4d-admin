@@ -779,6 +779,7 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">Total:</Typography>
                                     <Typography className="font-bold">₹ {amount?.total}</Typography>
                                 </div>
+                                
                                  </>
 
                             }
@@ -790,6 +791,18 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Car:</Typography>
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
                         </div> */}
+                         <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Start OTP: </Typography>
+                                <Typography>
+                                    {bookingDetails?.startOtp || "Not Added"}
+                                </Typography>
+                            </div>
+                             <div className="flex justify-between ">
+                                <Typography color="gray" variant="h6">End OTP: </Typography>
+                                <Typography>
+                                    {bookingDetails?.endOtp || "Not Added"}
+                                </Typography>
+                            </div>
                         </div>
                     </CardBody>
                 </Card>
