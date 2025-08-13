@@ -939,7 +939,7 @@ export const API_ROUTES = {
     'POST_TESTIMOINAL':'/testimonial/add',
     'UPDATE_TESTIMONIAL':'/testimonial/update',
     'UPDATE_LANDMARK':'/update-landmark',
-
+    'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
 };
 
 export const KYC_PROCESS = {
@@ -978,6 +978,7 @@ export const BOOKING_STATUS = {
     IN_PROGRESS: 'IN PROGRESS',
     STARTED: 'STARTED',
     ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
+    END_OTP:'END_OTP',
     ENDED: 'ENDED',
 };
 

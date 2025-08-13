@@ -28,6 +28,7 @@ const ConfirmBooking = (props) => {
     const [customerFeedback, setCustomerFeedback] = useState();
     const [driverFeedback, setDriverFeedback] = useState();
     const [showDetails, setShowDetails] = useState(true);
+    const [finalPaymentPirces, setFinalPaymentPrices] = useState({});
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -100,6 +101,15 @@ const ConfirmBooking = (props) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         if (data?.success) {
            setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, notesData: data?.notes,landmark: data?.data?.landmark });
+            if(data?.data?.status === BOOKING_STATUS.END_OTP){
+                const finalPrice = await ApiRequestUtils.get(API_ROUTES.GET_BOOKINGDETAILS_FINAL_PAYMENT + bookingId);
+                setFinalPaymentPrices({
+                    amountAfterGST: finalPrice?.data?.gstDetails?.details?.amountAfterGst,
+                    customerWalledUsed: finalPrice?.data?.gstDetails?.details?.walletAmountUsed,
+                    driverWalletAdded: Number(finalPrice?.data?.gstDetails?.details?.walletAmountUsed) + Number(finalPrice?.data?.gstDetails?.details?.discountAmount),
+                    discountAmount: finalPrice?.data?.gstDetails?.details?.discountAmount,
+                })
+            }
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({
                     price: data?.data?.price,
@@ -791,6 +801,26 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Car:</Typography>
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
                         </div> */}
+                        {bookingDetails?.status === BOOKING_STATUS.END_OTP &&
+                            <>
+                                {finalPaymentPirces.discountAmount > 0 && <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Customer Discount Applied:</Typography>
+                                    <Typography>₹ {finalPaymentPirces.discountAmount}</Typography>
+                                </div>}
+                                {finalPaymentPirces.customerWalledUsed > 0 && <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Customer Wallet Points Used:</Typography>
+                                    <Typography>{finalPaymentPirces.customerWalledUsed}</Typography>
+                                </div>}
+                                {finalPaymentPirces.driverWalletAdded > 0 && <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Driver Wallet Points Added:</Typography>
+                                    <Typography>{finalPaymentPirces.driverWalletAdded}</Typography>
+                                </div>}
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total (Incl. Tax)</Typography>
+                                    <Typography>₹ {finalPaymentPirces.amountAfterGST}</Typography>
+                                </div>
+                            </>
+                        }
                          <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Start OTP: </Typography>
                                 <Typography>
