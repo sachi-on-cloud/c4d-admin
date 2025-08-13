@@ -810,7 +810,7 @@ const [blockedReason, setBlockedReason] = useState('');
 
                             <div>
                                 <label htmlFor="license" className="text-sm font-medium text-gray-700">License Number</label>
-                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                <Field type="text" name="license" className="p-2 w-full rounded-md border-gray-300" maxLength={16} />
                                 <ErrorMessage name="license" component="div" className="text-red-500 text-sm" />
                             </div>
 
