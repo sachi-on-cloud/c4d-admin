@@ -89,6 +89,9 @@ import AddBanner from "./pages/bannerImage/add";
 import TestimoinalView from "./pages/testimoinal/view";
 import TestimoinalAdd from "./pages/testimoinal/add";
 import { OnlineVehiclesList } from "./pages/vendor/onlineVehiclesList";
+import TripDetails from "./pages/TripDetails/tripDetails";
+import Reports from "./pages/TripDetails/reports";
+import AddTripDetails from "./pages/TripDetails/add";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -696,6 +699,27 @@ export const routes = [
         name: "testimoinal add",
         path: "/user/testimonial/add",
         element: <TestimoinalAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails list",
+        path: "/tripDetails",
+        element: <TripDetails/>,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails reports",
+        path: "/tripDetails/reports",
+        element: <Reports/>,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails reports",
+        path: "/tripDetails/add",
+        element: <AddTripDetails/>,
         display: true
       },
 

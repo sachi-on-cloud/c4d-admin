@@ -11,7 +11,7 @@ export const constants = {
 };
 
 export const getBaseUrl = () => {
-    return constants.url_sit + '/api/customer/dev';
+    return constants.url + '/api/customer/dev';
 }
 
 export const GENDER = {
@@ -940,6 +940,10 @@ export const API_ROUTES = {
     'UPDATE_TESTIMONIAL':'/testimonial/update',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
+    'GET_TRIP_REPORTS':'/get-trips-report',
+    'ADD_TRIP_DETAILS':'/add-trip',
+    'GET_DRIVER_TRIP_DETAILS':'/get-trips',
+    'GET_BOOKING_ENDED_DETAILS':'/booking-number',
 };
 
 export const KYC_PROCESS = {
