@@ -341,11 +341,17 @@ export function SearchDrivers(props) {
             const reqBody = {
                 bookingId: props?.bookingData?.id,
                 driverId: cabDriverId,
-                type: 'REQUEST_DRIVER',
-                package: props?.bookingData?.packageId,
-                from: 'WEBPORTAL',
+                status: 'BOOKING_ACCEPTED',
+                packageId: props?.bookingData?.packageId,
+                // from: 'WEBPORTAL',
+                shiftId: fullData?.Shifts[0]?.id,
+                cabId:fullData.Shifts[0].CabId,
+                offerPrice: fullData.offerPrice || null,
+                estimatedDistance: fullData.estimatedDistance || null,
+                estimatedMin: fullData.estimatedMin || null,
+                // packageId: fullData.package,
             }
-            let data = await ApiRequestUtils.post(API_ROUTES.RENTAL_REQUEST, reqBody);
+            let data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RENTAL_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
             }

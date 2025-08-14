@@ -919,6 +919,7 @@ export const API_ROUTES = {
     'DRIVER_WALLET': '/getDriverWalletTransactions',
     'CAB_WALLET': '/getCabWalletTransactions',
     'ADD_NOTES_BOOKING': '/add-notes',
+    'GET_NOTES_BOOKING':'/get-notes',
     'GET_ALL_VEHICLESLIST': '/admin/cabs',
     'PUT_OWNER_SHIP': '/update-booking-ownership',
     'DRIVER_NOTIFY': '/notify',
