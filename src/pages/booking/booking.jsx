@@ -194,6 +194,11 @@ const Booking = (props) => {
             dropAddress: {
                 name: values.dropAddress
             },
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
@@ -229,6 +234,11 @@ const Booking = (props) => {
             dropAddress: values.dropLocation ? {
                 name: values.dropAddress
             } : null,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name:values.driverPickUpAddress,
+            },
             source: 'Call',
         };
 
@@ -1063,13 +1073,13 @@ const Booking = (props) => {
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
-                                                                Driver Starting Point <span className="text-red-500">*</span>
+                                                                Driver Starting Point 
                                                             </label>
                                                             <Field
                                                                 type="text"
                                                                 name="driverPickUpAddress"
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter driver pickup location"
+                                                                placeholder="Enter driver pickup location (Optional)"
                                                                 onChange={(e) => {
                                                                     setFieldValue("driverPickUpAddress", e.target.value);
                                                                     setFieldValue("driverPickUpLocation", null);
@@ -1140,13 +1150,14 @@ const Booking = (props) => {
                                                             <div className="mt-4">
                                                                 <>
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Pick up to Drop  Kilometer</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                        {values.serviceType !== 'DRIVER' && ( <>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + <br />(Driver Km For Pickup Location)</Typography>
+                                                                        <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
                                                                             {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm)) 
                                                                             // + (Number(quoteDetails.amount.driverWithin))
                                                                             } Kms + {quoteDetails.amount.driverWithin} Kms
-                                                                        </Typography>}
+                                                                        </Typography></>)}
                                                                         {values.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
@@ -1158,14 +1169,14 @@ const Booking = (props) => {
                                                                             ₹ {quoteDetails.amount.baseFare}
                                                                         </Typography>
                                                                         
-                                                                        {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
+                                                                        {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount.driverWithin + ' Km'}
                                                                         </Typography>
                                                                         </>
-                                                                        }
+                                                                        } */}
                                                                         {quoteDetails.amount.isPrimeLocation === true && quoteDetails.amount.rideSurchargeAmount > 0 && 
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>

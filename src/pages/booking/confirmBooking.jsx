@@ -821,18 +821,6 @@ const ConfirmBooking = (props) => {
                                 </div>
                             </>
                         }
-                         <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Start OTP: </Typography>
-                                <Typography>
-                                    {bookingDetails?.startOtp || "Not Added"}
-                                </Typography>
-                            </div>
-                             <div className="flex justify-between ">
-                                <Typography color="gray" variant="h6">End OTP: </Typography>
-                                <Typography>
-                                    {bookingDetails?.endOtp || "Not Added"}
-                                </Typography>
-                            </div>
                         </div>
                     </CardBody>
                 </Card>
@@ -852,6 +840,22 @@ const ConfirmBooking = (props) => {
                                 <Typography color="gray" variant="h6">Drop-off: </Typography>
                                 <Typography>
                                     {bookingDetails?.dropAddress?.name || "Not Added"}
+                                </Typography>
+                            </div>
+                              <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
+                                <Typography>{bookingDetails?.driverStartAddress?.name || 'check'}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Start OTP: </Typography>
+                                <Typography>
+                                    {bookingDetails?.startOtp || "Not Added"}
+                                </Typography>
+                            </div>
+                             <div className="flex justify-between ">
+                                <Typography color="gray" variant="h6">End OTP: </Typography>
+                                <Typography>
+                                    {bookingDetails?.endOtp || "Not Added"}
                                 </Typography>
                             </div>
                         </div>
@@ -1141,7 +1145,7 @@ const ConfirmBooking = (props) => {
                     }
                 </div>
 
-                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} /> }
+                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData}   bookingId={bookingDetails?.id} /> }
                 {showDetails &&<LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
 
             </>
