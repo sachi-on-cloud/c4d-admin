@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Typography } from '@material-tailwind/react';
 
 const LandMarkBookingNotes = ({ addNotes, landmark }) => {
   const [text, setText] = useState('');
@@ -32,7 +33,7 @@ const LandMarkBookingNotes = ({ addNotes, landmark }) => {
   return (
     <div className="flex-1 p-4 bg-gray-100">
       <div>
-        <p className="text-gray-500 text-lg mb-2">LandMark Notes</p>
+        <Typography className="text-xl font-semibold text-blue-gray-600">LandMark Notes</Typography>
       </div>
       
       {/* Conditionally render the input area only if there's no landmark */}

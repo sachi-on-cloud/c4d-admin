@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import { UserIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
+import { Typography } from '@material-tailwind/react';
 
 const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [text, setText] = useState('');
@@ -50,13 +52,13 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
     }
 
     const newItem = {
-        notes: text.trim(),
-        bookingId: bookingId,
+      notes: text.trim(),
+      bookingId: bookingId,
     };
 
     try {
-        addNotes(newItem)
-        setText('');
+      addNotes(newItem)
+      setText('');
       // console.log('bookingId:', bookingId);
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_NOTES_BOOKING, { bookingId });
       // console.log('API response after adding note:', data);
@@ -73,9 +75,9 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
 
   return (
     <div className="flex-1 p-4 bg-gray-100">
-        <div>
-            <p className=" text-gray-500 text-lg mb-2">Notes</p>
-        </div>
+      <div>
+            <Typography className="text-xl font-semibold text-blue-gray-600">Notes</Typography>
+      </div>
       <div className="mb-4">
         <textarea
           className="border border-gray-200 rounded-lg p-3 mb-2 bg-white text-base min-h-[60px] w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -101,11 +103,12 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                 key={item?.id}
                 className="bg-white rounded-lg p-3 shadow-sm"
               >
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
                   <span className="text-sm font-medium text-gray-800">
                     {item?.User?.name || 'Unknown User'}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-500 ml-auto">
                     {moment(item?.created_at).format('DD-MM-YYYY / hh:mm A')}
                   </span>
                 </div>
@@ -115,31 +118,48 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           </ul>
         )}
       </div>
-      <div>
-        <p className="text-gray-500 text-lg mb-2">Booking Log</p>
+      <div className='py-5'>
+        <Typography className="text-xl font-semibold text-blue-gray-600">
+          Booking Status Log</Typography>
       </div>
       <div className="flex-1">
         {bookingLogs.length === 0 ? (
-          <p className="text-center text-gray-500 text-base mt-5">No booking logs yet.</p>
+          <p className="text-center text-gray-500 text-base mt-5">No activity logs yet.</p>
         ) : (
           <ul className="space-y-3">
             {bookingLogs.map((log) => (
               <li
                 key={log?.id}
-                className="bg-white rounded-lg p-3 shadow-sm"
+                className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
                   <span className="text-sm font-medium text-gray-800">
                     {log?.createdBy?.name || 'System'}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-500 ml-auto">
                     {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
                   </span>
                 </div>
-                <p className="text-base text-gray-700">
-                  Previous Status : <span className="font-medium">{log?.old_status || 'N/A'}</span> Current Status{' '}
-                  <span className="font-medium">{log?.new_status || 'N/A'}</span>
-                </p>
+                <div className="text-base text-gray-700 flex items-center gap-2">
+                  <span>
+                    Customer Trip Status changed from{' '}
+                    <span className="font-medium text-blue-600">{log?.old_status || 'N/A'}</span>{' '}
+                    to{' '}
+                    <span className="font-medium text-green-600">{log?.new_status || 'N/A'}</span>
+                  </span>
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      log?.new_status === 'Confirmed'
+                        ? 'bg-green-100 text-green-800'
+                        : log?.new_status === 'Cancelled'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {/* {log?.new_status || 'N/A'} */}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
