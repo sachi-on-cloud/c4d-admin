@@ -873,6 +873,7 @@ const Booking = (props) => {
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
                                                                 min={values.rideDate ? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
+                                                                 onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                                 onChange={(e) => {
                                                                     const selectedDateTime = e.target.value;
                                                                     const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
