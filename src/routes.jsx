@@ -99,7 +99,8 @@ import ParcelView from "./pages/parcel/view";
 import ParcelAdd from "./pages/parcel/add";
 import ParcelDetails from "./pages/parcel/deatils";
 import ParcelCabAdd from "./pages/cab/addParcelCab";
-import ParcelCabDetails from "./pages/cab/ParcelCabDetails";
+import ParcelCabDetails from "./pages/cab/parcelCabDetails";
+import AutoDetailsList from "./pages/AutoDetails/list";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -298,6 +299,13 @@ export const routes = [
         element: <AutoForm />,
         display: false
       },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Form",
+        path: "/vendors/account/autoList",
+        element: <AutoDetailsList />,
+        display: false
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
@@ -320,7 +328,7 @@ export const routes = [
         display: false
       },
 
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "bike",
         path: "/vendors/account/parcel/allVehicles/details/:id",
