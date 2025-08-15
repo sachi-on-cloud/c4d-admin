@@ -36,7 +36,7 @@ const DiscountAdd = () => {
     try {
       console.log('POST payload:', payload); 
       const res = await ApiRequestUtils.post(API_ROUTES.POST_DISCOUNT, payload);
-      console.log('API response:', res);
+      console.log('DISCOUNT RESPONSE:', res);
       navigate('/dashboard/user/discountModuleList');
     } catch (err) {
       console.error('API Error:', err.response?.data || err.message);
@@ -68,6 +68,7 @@ const DiscountAdd = () => {
                   <option value="DRIVER">DRIVER</option>
                   <option value="RIDES">RIDES</option>
                   <option value="RENTAL">RENTAL</option>
+                  <option value="AUTO">AUTO</option>
                   <option value="ALL">ALL</option>
                 </Field>
                 <ErrorMessage name="serviceType" className="text-red-500 text-sm" component="div" />

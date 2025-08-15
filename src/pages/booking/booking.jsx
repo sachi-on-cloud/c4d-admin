@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -194,6 +194,11 @@ const Booking = (props) => {
             dropAddress: {
                 name: values.dropAddress
             },
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
@@ -229,6 +234,11 @@ const Booking = (props) => {
             dropAddress: values.dropLocation ? {
                 name: values.dropAddress
             } : null,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name:values.driverPickUpAddress,
+            },
             source: 'Call',
         };
 
@@ -650,17 +660,19 @@ const Booking = (props) => {
                                     >
                                         {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
                                             <>
-                                                {customerData && <div className="p-2 flex">
+                                                {customerData  && !editBookingView && <div className="p-2 flex">
                                                    <SearchableDropdown 
-    searchVal={setCustomerNumber} 
-    addVal={addCustomerNumber} 
-    selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
-    options={customerData} 
-    onSelect={(val) => {
-      setFieldValue('customerId', val);
-      setSelectedCustomer(val.id);
-    }} 
-  />
+                                                        searchVal={setCustomerNumber} 
+                                                        addVal={addCustomerNumber} 
+                                                        selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
+                                                        options={customerData} 
+                                                        onSelect={(val) => {
+                                                        setFieldValue('customerId', val);
+                                                        setSelectedCustomer(val.id);
+                                                        
+                                                        }} 
+                                                        
+                                                    />
 
                                                     {!editBookingView && <Button
                                                         className="ml-3 w-1/2"
@@ -871,6 +883,7 @@ const Booking = (props) => {
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
                                                                 min={values.rideDate ? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
+                                                                 onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                                 onChange={(e) => {
                                                                     const selectedDateTime = e.target.value;
                                                                     const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
@@ -1060,13 +1073,13 @@ const Booking = (props) => {
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
-                                                                Driver Starting Point <span className="text-red-500">*</span>
+                                                                Driver Starting Point 
                                                             </label>
                                                             <Field
                                                                 type="text"
                                                                 name="driverPickUpAddress"
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter driver pickup location"
+                                                                placeholder="Enter driver pickup location (Optional)"
                                                                 onChange={(e) => {
                                                                     setFieldValue("driverPickUpAddress", e.target.value);
                                                                     setFieldValue("driverPickUpLocation", null);
@@ -1137,13 +1150,14 @@ const Booking = (props) => {
                                                             <div className="mt-4">
                                                                 <>
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Pick up to Drop  Kilometer</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                        {values.serviceType !== 'DRIVER' && ( <>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + <br />(Driver Km For Pickup Location)</Typography>
+                                                                        <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
                                                                             {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm)) 
                                                                             // + (Number(quoteDetails.amount.driverWithin))
                                                                             } Kms + {quoteDetails.amount.driverWithin} Kms
-                                                                        </Typography>}
+                                                                        </Typography></>)}
                                                                         {values.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
@@ -1155,14 +1169,14 @@ const Booking = (props) => {
                                                                             ₹ {quoteDetails.amount.baseFare}
                                                                         </Typography>
                                                                         
-                                                                        {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
+                                                                        {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount.driverWithin + ' Km'}
                                                                         </Typography>
                                                                         </>
-                                                                        }
+                                                                        } */}
                                                                         {quoteDetails.amount.isPrimeLocation === true && quoteDetails.amount.rideSurchargeAmount > 0 && 
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
@@ -1230,6 +1244,15 @@ const Booking = (props) => {
                                         )}
                                     </GoogleMap>
                                 )} */}
+                                {values?.serviceType !=='RIDES' && values?.serviceType !== '' &&
+                                <Card>
+                                        <div className="mt-2 border border-yellow-400 p-2 rounded-xl bg-yellow-400">
+                                                        <div className="text-gray text-xl p-5 font-bold items-justify-center text-center">
+                                                            {BOOKING_TERMS_AND_CONDITIONS || 'Terms and conditions not available'}
+                                                        </div>
+                                        </div>
+                                </Card>
+                                }
 
                                                 {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
 
