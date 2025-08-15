@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -1244,6 +1244,15 @@ const Booking = (props) => {
                                         )}
                                     </GoogleMap>
                                 )} */}
+                                {values?.serviceType !=='RIDES' && values?.serviceType !== '' &&
+                                <Card>
+                                        <div className="mt-2 border border-yellow-400 p-2 rounded-xl bg-yellow-400">
+                                                        <div className="text-gray text-xl p-5 font-bold items-justify-center text-center">
+                                                            {BOOKING_TERMS_AND_CONDITIONS || 'Terms and conditions not available'}
+                                                        </div>
+                                        </div>
+                                </Card>
+                                }
 
                                                 {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
 

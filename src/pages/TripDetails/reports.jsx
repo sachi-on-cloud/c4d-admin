@@ -30,16 +30,16 @@ const Reports = () => {
           limit: 10,
           fromDate,
           toDate,
-          vehicleId: vehicleFilter === 'All Vehicles' ? '' : vehicleFilter,
+          cabId: vehicleFilter === 'All Vehicles' ? '' : vehicleFilter,
           driverId: driverFilter === 'All Drivers' ? '' : driverFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
-        
+
         // Transform API data to match component expectations
         const transformedTrips = data.data.map(trip => ({
           date: trip.tripDate,
-          vehicle: trip.vehicle || 'Unknown', // Placeholder for missing vehicle data
-          driver: trip.driver || 'Unknown', // Placeholder for missing driver data
+          vehicle: trip.Cab?.name || 'Unknown', // Placeholder for missing vehicle data
+          driver: trip.Driver?.name || 'Unknown', // Placeholder for missing driver data
           route: `${trip.startAddress.address} - ${trip.endAddress.address}`,
           km: parseFloat(trip.totalKm),
           fuel: parseFloat(trip.fuelQuantity),
@@ -47,11 +47,11 @@ const Reports = () => {
           fare: parseFloat(trip.tripFare),
           profit: parseFloat(trip.profit),
         }));
-        
+
         setTrips(transformedTrips);
         setTotalPages(data.pagination.totalPages);
       } catch (err) {
-        setError('Failed to fetch trips');
+        setError('Failed to fetch trips: ' + err.message);
       } finally {
         setLoading(false);
       }
@@ -132,8 +132,8 @@ const Reports = () => {
               className="mt-1 block w-full border-gray-300 rounded-md"
             >
               <option>All Vehicles</option>
-              <option>Vehicle 1</option>
-              <option>Vehicle 2</option>
+              <option value="86">Vehicle 1</option>
+              <option value="83">Vehicle 2</option>
             </select>
           </div>
           <div>
@@ -144,8 +144,8 @@ const Reports = () => {
               className="mt-1 block w-full border-gray-300 rounded-md"
             >
               <option>All Drivers</option>
-              <option>Driver 1</option>
-              <option>Driver 2</option>
+              <option value="99">Driver 1</option>
+              <option value="71">Driver 2</option>
             </select>
           </div>
         </div>

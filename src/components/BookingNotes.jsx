@@ -7,6 +7,7 @@ import { Typography } from '@material-tailwind/react';
 
 const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [text, setText] = useState('');
+  const [noteType, setNoteType] = useState('')
   const [items, setItems] = useState([]);
   const [bookingLogs, setBookingLogs] = useState([]);
 
@@ -54,12 +55,13 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
     const newItem = {
       notes: text.trim(),
       bookingId: bookingId,
+      noteType: noteType,
     };
 
     try {
       addNotes(newItem)
       setText('');
-      // console.log('bookingId:', bookingId);
+      setNoteType(''); 
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_NOTES_BOOKING, { bookingId });
       // console.log('API response after adding note:', data);
       if (data?.success) {
@@ -76,9 +78,26 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   return (
     <div className="flex-1 p-4 bg-gray-100">
       <div>
-            <Typography className="text-xl font-semibold text-blue-gray-600">Notes</Typography>
+        <Typography className="text-xl font-semibold text-blue-gray-600">Notes</Typography>
       </div>
-      <div className="mb-4">
+      <div className='pt-2'>
+        <label htmlFor="noteType" className="text-sm font-medium text-gray-700">
+          Notes Type
+        </label>
+        <select
+          id="noteType"
+          value={noteType}
+          onChange={(e) => setNoteType(e.target.value)}
+          className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        >
+          <option value="">Select Note Type</option>
+          <option value="INQUIRY">Inquiry</option>
+          <option value="TRIP">Trip</option>
+          <option value="PAYMENT">Payment</option>
+          <option value="FEEDBACK">Feedback</option>
+        </select>
+      </div>
+      <div className="mb-4 pt-2">
         <textarea
           className="border border-gray-200 rounded-lg p-3 mb-2 bg-white text-base min-h-[60px] w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Enter text..."
@@ -112,6 +131,11 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                     {moment(item?.created_at).format('DD-MM-YYYY / hh:mm A')}
                   </span>
                 </div>
+                <p className="text-base text-gray-700">Note Type: 
+                  <span className='text-blue-600'>
+                      {item?.noteType || 'N/A'}
+                  </span>
+                  </p>
                 <p className="text-base text-gray-700">{item?.notes}</p>
               </li>
             ))}

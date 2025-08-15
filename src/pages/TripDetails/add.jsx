@@ -17,6 +17,8 @@ import moment from 'moment';
 const AddTripDetails = () => {
   const [formData, setFormData] = useState({
     bookingId: '',
+    cabId:'',
+    driverId:'',
     tripDate: moment().format('YYYY-MM-DD'),
     vehicleNumber: '',
     driverName: '',
@@ -191,10 +193,14 @@ const AddTripDetails = () => {
         profit: parseFloat(formData.profit),
         notes: formData.notes,
         customerId: selectedBooking.customer_id, // Include customerId from selected booking
+        cabId: selectedBooking.cabId,
+        driverId: selectedBooking.driverId,
       });
       if (response?.success) {
         setFormData({
           bookingId: '',
+          cabId:'',
+          driverId:'',
           tripDate: moment().format('YYYY-MM-DD'),
           vehicleNumber: '',
           driverName: '',
@@ -214,6 +220,7 @@ const AddTripDetails = () => {
           endLat: 0,
           endLong: 0,
         });
+        // console.log('Trip added successfully:' ,response);
         setBookings([]);
         setError('');
         navigate('/dashboard/tripDetails');
