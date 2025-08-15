@@ -844,7 +844,7 @@ const ConfirmBooking = (props) => {
                             </div>
                               <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
-                                <Typography>{bookingDetails?.driverStartAddress?.name || 'check'}</Typography>
+                                <Typography>{bookingDetails?.driverStartAddress?.name || '2Kms'}</Typography>
                             </div>
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Start OTP: </Typography>
