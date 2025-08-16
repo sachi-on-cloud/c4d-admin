@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardHeader,
@@ -11,6 +11,7 @@ import {
   Popover,
   PopoverHandler,
   PopoverContent,
+  Spinner,
 } from "@material-tailwind/react";
 import AccountSearch from "@/components/AccountSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -20,13 +21,20 @@ import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 export function AccountView() {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [allAccounts, setAllAccounts] = useState([]);
   const [alert, setAlert] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
 
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });  
@@ -34,17 +42,57 @@ export function AccountView() {
   const [serviceTypeFilter,setServiceTypeFilter] = useState(['All']) 
   const [documentTypeFilter, setDocumentTypeFilter] = useState(['All']) 
   const [availableStatusFilter,setavailableStatusFilter] = useState(['All']) 
-  const [sourceFilter,setSourceFilter] = useState(['All']) 
+  const [sourceFilter,setSourceFilter] = useState(['All'])
 
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_ACCOUNTS);
+  const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 15,
+        search: '',
+      }); 
+  // const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
+
+  const fetchAccounts = async (page = 1, searchQuery = '', showLoader = true) => {
+    if (showLoader) setLoading(true);
+    try {
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_ACCOUNTS, {
+        page,
+        limit: pagination.itemsPerPage,
+        search: searchQuery.trim(),
+      });
       if (data?.success) {
         setAccounts(data?.data);
         setAllAccounts(data?.data);
+        setPagination({
+          currentPage: page,
+          totalPages:searchQuery.trim() ? 1 : data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 10,
+          search: searchQuery.trim(),
+        });
       }
-    };
-    fetchAccounts();
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // const checkPresence = async (id)=>{
+   
+  //   try{
+  //      const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE,{driverId:id});
+  //   }
+  //   catch(error){
+
+  //   }
+  //   finally{
+  //     setStatusCheckedDriverIds(prev => [...prev, id]);
+  //   }
+  // }
+  useEffect(() => {
+    fetchAccounts(pagination.currentPage, pagination.search, true);
 
     if (location.state?.accountAdded || location.state?.accountUpdated) {
       const action = location.state.accountAdded ? 'added' : 'updated';
@@ -57,28 +105,52 @@ export function AccountView() {
       }, 5000);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate]);
+  }, [location, navigate,pagination.currentPage, pagination.search]);
 
-  const getAccounts = async (searchQuery) => {
-    if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-
-      const filteredAccounts = allAccounts.filter((account) => {
-        const name = (account.name || "").toLowerCase();
-        const phone = (account.phoneNumber || "").toLowerCase();
-
-        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
-
-        return name.startsWith(query) ||
-          phoneNumberWithoutCountryCode.startsWith(query);
-      });
-      setAccounts(filteredAccounts);
-
-    } else {
-      setAccounts(allAccounts);
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchAccounts(page, pagination.search, true);
     }
   };
 
+     const generatePageButtons = () => {
+        const buttons = [];
+        const maxVisible = 5;
+        let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+    
+        if (endPage - startPage < maxVisible - 1) {
+          startPage = Math.max(1, endPage - maxVisible + 1);
+        }
+    
+        for (let i = startPage; i <= endPage; i++) {
+          buttons.push(
+            <Button
+              key={i}
+              size="sm"
+              variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+              className={`mx-1 ${ColorStyles.bgColor} text-white`}
+              onClick={() => handlePageChange(i)}
+            >
+              {i}
+            </Button>
+          );
+        }
+        return buttons;
+      };
+
+  const getAccounts = useCallback(
+    debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1,
+        search: searchQuery,
+      }));
+      fetchAccounts(1, searchQuery, false);
+    }, 1000),
+    [pagination.itemsPerPage]
+  );
   function formatPhoneNumber(phoneNumber) {
     if(phoneNumber){if (phoneNumber.startsWith("+91")) {
       return phoneNumber;
@@ -180,9 +252,10 @@ export function AccountView() {
     }
   };
   const typeLabels = {
-  Individual: "Owner Cum Vehicle",
+  Individual: "Owner Cum Driver",
   Company: "Travels"
 };
+
 
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
       <Popover placement="bottom-start">
@@ -235,7 +308,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","Available Status","Owner Status","KYC Status"].map((el) => (
+                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -267,34 +340,36 @@ export function AccountView() {
                           selectedFilters={sourceFilter}
                           onFilterChange={(value) => handleFilterChange("source", value)}
                           />
-                      ): el === "Owner Status" ? (
-                          <FilterPopover
-                            title={el}
-                            options={[
-                              { value: "All", label: "All" },
-                              { value: "InActive", label: "InActive" },
-                              { value: "Active", label: "Active" }
-                            ]}
-                            selectedFilters={statusFilter}
-                            onFilterChange={(value) => handleFilterChange("ownerStatus", value)}
-                          />
-                        ) : el === "Available Status" ? (
-                          <FilterPopover title={el}
-                            options={[
-                              { value: "All", label: "All" },
-                              { value: "Offline", label: "Offline" },
-                              { value: "Online", label: "Online" }
-                            ]}
-                            selectedFilters={availableStatusFilter}
-                            onFilterChange={(value) => handleFilterChange("availableStatus", value)}
-                          />
-                        ) : el === "Service Type" ? (
+                      )
+                      // : el === "Subscription Status" ? (
+                      //     <FilterPopover
+                      //       title={el}
+                      //       options={[
+                      //         { value: "All", label: "All" },
+                      //         { value: "InActive", label: "InActive" },
+                      //         { value: "Active", label: "Active" }
+                      //       ]}
+                      //       selectedFilters={statusFilter}
+                      //       onFilterChange={(value) => handleFilterChange("ownerStatus", value)}
+                      //     />
+                      //   ) : el === "Available Status" ? (
+                      //     <FilterPopover title={el}
+                      //       options={[
+                      //         { value: "All", label: "All" },
+                      //         { value: "Offline", label: "Offline" },
+                      //         { value: "Online", label: "Online" }
+                      //       ]}
+                      //       selectedFilters={availableStatusFilter}
+                      //       onFilterChange={(value) => handleFilterChange("availableStatus", value)}
+                      //     />
+                      //   )
+                         : el === "Service Type" ? (
                           <FilterPopover
                             title={el}
                             options={[
                               { value: "All", label: "All" },
                               { value: "Company", label: "Travels" },
-                              { value: "Individual", label: "Owner Cum Vehicle" },
+                              { value: "Individual", label: "Owner Cum Driver" },
                             ]}
                             selectedFilters={serviceTypeFilter}
                             onFilterChange={(value) => handleFilterChange("type", value)}
@@ -334,11 +409,20 @@ export function AccountView() {
                   </tr>
                 </thead>
                 <tbody>
-                {accounts.filter(account =>
-                    (statusFilter.includes('All') || statusFilter.includes(account.ownerStatus)) && 
+                  {loading ? (
+                    <tr>
+                      <td colSpan={9} className="py-3 px-5">
+                        <div className="flex justify-center items-center">
+                          <Spinner className="h-12 w-12" />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    accounts.filter(account =>
+                    // (statusFilter.includes('All') || statusFilter.includes(account.ownerStatus)) && 
                     (sourceFilter.includes('All') || sourceFilter.includes(account.source)) &&
                     (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(account.type)) &&
-                    (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
+                    // (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
                     (documentTypeFilter.includes('All') || documentTypeFilter.includes(account.documentStatus?.status))
                   ).map(
                     ({id, created_at, name, email,phoneNumber, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
@@ -374,7 +458,7 @@ export function AccountView() {
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
-                              {phoneNumber}
+                              {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
                           <td className={className}>
@@ -392,22 +476,25 @@ export function AccountView() {
                               {source}
                             </Typography>
                           </td>
-                          <td className={className}>
+                          {/* <td className={className}>
                             <Chip
                               variant="ghost"
                               color={availableStatus == "ACTIVE" ? "green" : "black"}
                               value={availableStatus == "ACTIVE" ? "Online" : "Offline"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
-                          </td>
-                          <td className={className}>
+                          </td>*/}
+                          {/* <td className={className}>
                             <Chip
                               variant="ghost"
-                              color={ownerStatus == "ACTIVE" ? "green" : "black"}
-                              value={ownerStatus == "ACTIVE" ? "Active" : "InActive"}
+                              color={ownerStatus == "Active" ? "green" : "black"}
+                                value={ownerStatus === "Active" ? "Active" : ownerStatus === "InActive"? "InActive": "Blocked"
+                                     }
+
+
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
-                          </td>
+                          </td>  */}
                           <td className={className}>
                             <Chip
                               variant="ghost"
@@ -427,10 +514,32 @@ export function AccountView() {
                           </td> */}
                         </tr>
                       );
-                    }
+                    })
                   )}
                 </tbody>
               </table>
+
+                <div className="flex items-center justify-center mt-4">
+                                      <Button
+                                        size="sm"
+                                        variant="text"
+                                        disabled={pagination.currentPage === 1}
+                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                        className="mx-1"
+                                      >
+                                        {'<'}
+                                      </Button>
+                                      {generatePageButtons()}
+                                      <Button
+                                        size="sm"
+                                        variant="text"
+                                        disabled={pagination.currentPage === pagination.totalPages}
+                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                        className="mx-1"
+                                      >
+                                        {'>'}
+                                      </Button>
+                  </div>
             </CardBody>
           </>) : (
           <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>

@@ -6,11 +6,15 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
+import CustomerWalletLog from '@/components/CustomerWalletLog';
+import CustomerBookingNotes from '@/components/CustomerBookingNotes';
+import moment from "moment";
 
 const CustomerDetails = () => {
     const navigate = useNavigate();
     const [driverVal, setDriverVal] = useState({});
     const { id } = useParams();
+    const [notes, setNotes] = useState([]);
     const [showMore, setShowMore] = useState(false);
     useEffect(() => {
         if (id) {
@@ -20,6 +24,9 @@ const CustomerDetails = () => {
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CUSTOMER + `/${itemId}`);
         setDriverVal(data.data);
+        if (Array.isArray(data.notes)) {
+            setNotes(data.notes);
+        }
     };
     const initialValues = {
         salutation: driverVal?.salutation || '',
@@ -84,29 +91,11 @@ const CustomerDetails = () => {
                                     <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
+                            <CustomerWalletLog customerId={id} />
                             <div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowMore(!showMore)}
-                                    className="text-black-600 text-sm mb-2 p-1  border-blue-gray-100 rounded-lg shadow-sm"
-                                >
-                                    <div className='flex font-medium'>
-                                        {showMore ? (
-                                            <>
-                                                <ChevronUpIcon className="w-5 h-5 ml-0 text-black" />
-                                                View Less
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ChevronDownIcon className="w-5 h-5 ml-0 text-black" />
-                                                View More
-                                            </>
-                                        )}
-                                    </div>
-                                </button>
-                                {showMore && (
-                                    <table className="w-full border border-gray-300 text-sm">
-                                        <thead className="bg-gray-300 text-left">
+                                    <h2 className="text-2xl font-bold mb-4">Feedback Details</h2>
+                                    <table className="w-full border bg-blue-gray-50 py-3 text-sm">
+                                        <thead className=" text-left">
                                             <tr>
                                                 <th className="p-2 border">Trip ID</th>
                                                 <th className="p-2 border">End Date</th>
@@ -121,7 +110,7 @@ const CustomerDetails = () => {
                                             {driverVal?.Bookings?.length > 0 ? (
                                                 driverVal.Bookings.map((trip) => {
                                                     const rating = trip?.CustomerFeedbacks?.[0]?.rating ?? null;
-                                                    const comment = trip?.CustomerFeedbacks?.[0]?.comments ?? 'No feedback given';
+                                                    const comment = trip?.CustomerFeedbacks?.[0]?.comments ?? '-';
                                                     const driverName = trip?.Driver?.firstName ?? 'N/A';
 
                                                     return (
@@ -131,7 +120,7 @@ const CustomerDetails = () => {
                                                             <td className="p-2 border">{trip.endTime}</td>
                                                             <td className="p-2 border">{driverName}</td>
                                                             <td className="p-2 border flex">
-                                                                {rating !== null ? rating : 'No feedback given'}
+                                                                {rating !== null ? rating : '0'}
                                                                 <StarIcon className="w-5 h-5 text-yellow-500" />
                                                             </td>
                                                             <td className="p-2 border">
@@ -150,12 +139,46 @@ const CustomerDetails = () => {
                                             )}
                                         </tbody>
                                     </table>
-                                )}
 
                             </div>
                         </Form>
                     )}
                 </Formik>
+                <div className='py-3'>
+                    <CustomerBookingNotes customerId={id} />
+                <div className="mt-6">
+                <h2 className="text-xl font-bold mb-4">Existing Notes</h2>
+                <div className="flex-1">
+                    {notes.length === 0 ? (
+                    <p className="text-center text-gray-500 text-base mt-5">No notes available.</p>
+                    ) : (
+                    <ul className="space-y-3">
+                        {notes.map((note) => (
+                        <li
+                            key={note?.id}
+                            className="bg-white rounded-lg p-3 shadow-sm border"
+                        >
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                                {note.User.name || '-'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center mb-2">
+                                  <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                                {note?.noteType || 'Note'}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                                {moment(note?.created_at).format('DD-MM-YYYY / hh:mm A')}
+                                </span>
+                            </div>
+                            <p className="text-base text-gray-700">{note?.notes}</p>
+                        </li>
+                        ))}
+                    </ul>
+                    )}
+                </div>
+                </div>
+                </div> 
             </div>
 
             <div className='flex justify-center w-full'>

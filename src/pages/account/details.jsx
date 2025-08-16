@@ -57,7 +57,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
                                         <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                             <option value="">Select Type</option>
-                                            <option value="Individual">Owner Cum Vehicle</option>
+                                            <option value="Individual">Owner Cum Driver</option>
                                             <option value="Company">Travels</option>
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
@@ -78,12 +78,12 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
+                                        <label htmlFor="status" className="text-sm font-medium text-gray-700">Available Status</label>
                                         <Field type="text" name="status" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700">Owner Status</label>
+                                        <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700"> Status</label>
                                         <Field type="text" name="ownerStatus" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
                                     </div>

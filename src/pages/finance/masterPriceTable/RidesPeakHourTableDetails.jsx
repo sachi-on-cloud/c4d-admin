@@ -14,7 +14,7 @@ const RidesPeakHourTable = ({ priceData = []}) => {
                     <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
-                                <tr>
+                                <tr className="bg-blue-600 border">
                                     {[
                                         "Start Time",
                                         "End Time",
@@ -25,11 +25,11 @@ const RidesPeakHourTable = ({ priceData = []}) => {
                                     ].map((el, index) => (
                                         <th
                                             key={index}
-                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                            className="border-b border py-3 px-5 text-left"
                                         >
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-black"
+                                                className="text-[11px] font-bold uppercase text-white"
                                             >
                                                 {el}
                                             </Typography>
@@ -38,6 +38,7 @@ const RidesPeakHourTable = ({ priceData = []}) => {
                                 </tr>
                             </thead>
                             <tbody>
+                                
                                 {priceData.map(
                                     (
                                         {
@@ -50,16 +51,17 @@ const RidesPeakHourTable = ({ priceData = []}) => {
                                         },
                                         key
                                     ) => {
-                                        const className = `py-3 px-5 ${
+                                        const className = `border  py-3 px-5 ${
                                             key === priceData.length - 1
                                                 ? ""
-                                                : "border-b border-blue-gray-50"
+                                                : "border-b-4 border-gray-900"
                                         }`;
+                                        
 
                                         return (
                                             <tr key={key}>
                                                 <td className={className}>
-                                                    <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    <Typography className="text-xs  font-semibold text-blue-gray-600">
                                                         {start}
                                                     </Typography>
                                                 </td>

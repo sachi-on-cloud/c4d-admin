@@ -69,6 +69,7 @@ const CabEdit = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalData, setModalData] = useState(null);
+    const [blockedReason, setBlockedReason] = useState(cabVal?.result?.blockedReason || '');
 
     // const getAccountNames = async () => {
     //     try {
@@ -182,6 +183,8 @@ const CabEdit = () => {
         packages: cabVal?.result?.packages || [],
         prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
         cabId: cabVal?.result?.id || '',
+        status: cabVal?.result?.status || '',
+        blockedReason: cabVal?.result?.blockedReason || '',
     };
 
     const searchLocations = async (query, type) => {
@@ -329,6 +332,14 @@ const CabEdit = () => {
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         if (isSubmitting) return;
         setIsSubmitting(true);
+         if (values.status === 'BLOCKED' && !blockedReason.trim()) {
+        setAlert({
+            message: "Please enter a reason for blocking",
+            color: "red",
+        });
+        setTimeout(() => setAlert(null), 5000);
+        return;
+    }
         try {
             const cabDetails = {
                 name: values.name,
@@ -348,14 +359,20 @@ const CabEdit = () => {
                 driverLicense: values.licenseNumber,
                 packages: values.packages,
                 accountId: values.accountId,
-                driverId: values.driverId,
+                driverId: values.assignOrAddDriver == 'Add' ? '' : values.driverId,
                 cabId: values.cabId,
+                status: values?.status || '',
+                 ...(values.status === 'BLOCKED' && { blockedReason: blockedReason }),
             }
             const prices = values.prices;
             let res = { cabDetails: JSON.stringify(cabDetails), prices: JSON.stringify(prices) };
             //console.log("RESSSSS", res);
             const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_CAB, res);
             console.log('CAB DATA :', resp);
+            if (!resp?.success && resp?.code === 401) {
+                console.log("Driver Existed");
+                setAlert({ message: 'Driver with this phone number already exists', color: 'red' });
+            }
       if (!resp?.success && resp?.code === 203) {
         setAlert({ message: 'Cab already exists', color: 'red' });
         // setTimeout(() => setAlert(null), 2000);
@@ -381,7 +398,7 @@ const CabEdit = () => {
     if (alert?.message === 'Cab Updated Successfully') {
       timeoutId = setTimeout(() => {
         setAlert(null);
-        console.log('Navigating to:', `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
+        // console.log('Navigating to:', `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
         navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
       }, 5000);
     }
@@ -391,6 +408,7 @@ const CabEdit = () => {
       }
     };
   }, [alert, cabVal, navigate]);
+  
 
 
     return (
@@ -420,13 +438,13 @@ const CabEdit = () => {
                             </div>
                             <div>
                                 <label htmlFor="ownerName" className="text-sm font-medium text-gray-700">Owner Name</label>
-                                <Field type="text" name="ownerName" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                <Field type="text" name="ownerName"  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
 
                             <div>
                                 <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
-                                <Field type="text" disabled name="carNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <Field type="text"  name="carNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
                             </div>
 
@@ -455,19 +473,19 @@ const CabEdit = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="MINI" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="MINI" className="form-radio" />
                                         <span className="ml-2">Mini</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="SUV" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="SUV" className="form-radio" />
                                         <span className="ml-2">SUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="MUV" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="MUV" className="form-radio" />
                                         <span className="ml-2">MUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" disabled name="carType" value="Sedan" className="form-radio" />
+                                        <Field type="radio"  name="carType" value="Sedan" className="form-radio" />
                                         <span className="ml-2">Sedan</span>
                                     </label>
                                 </div>
@@ -476,7 +494,7 @@ const CabEdit = () => {
 
                             <div>
                                 <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
-                                <Field type="text" name="vehicleType" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <Field type="text" name="vehicleType"  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                 <ErrorMessage name="vehicleType" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
@@ -600,7 +618,7 @@ const CabEdit = () => {
                                     </div>}
                                     {values?.assignOrAddDriver === 'Add' && <div>
                                         <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={16} />
                                         <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
                                     </div>}
                                 </>
@@ -642,6 +660,28 @@ const CabEdit = () => {
                                     showCheckbox={true}
                                 />
                             </div>
+                                <div>
+                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
+                                    <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <option value="">Select status</option>
+                                        <option value="ACTIVE">Active</option>
+                                        <option value="IN_ACTIVE">In_Active</option>
+                                        <option value="BLOCKED">Blocked</option>
+                                    </Field>
+                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                                    {values.status === 'BLOCKED' && (
+                                        <div className="mt-2">
+                                            <label htmlFor="blockedReason" className="text-sm font-medium text-gray-700">Block Reason</label>
+                                            <input
+                                                type="text"
+                                                id="blockedReason"
+                                                value={blockedReason}
+                                                onChange={(e) => setBlockedReason(e.target.value)}
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm"
+                                            />
+                                        </div>
+                                )}
+                                </div>
                         </div>
 
                         {values.packages.length > 0 && (
@@ -714,3 +754,5 @@ const CabEdit = () => {
 };
 
 export default CabEdit;
+
+// modify

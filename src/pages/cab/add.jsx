@@ -54,6 +54,48 @@ const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
         </div>
     );
 };
+const updatePricesForCarType = (carType, values, setFieldValue, packageDetails) => {
+    if (values.packages.length === 0) return;
+
+    const newPrices = values.prices.map(price => {
+        const packageItem = packageDetails.find(p => p.id === price.packageId);
+        
+        if (!packageItem) return price;
+
+        if (packageItem.type === 'Rides') {
+            return {
+                ...price,
+                baseFare: carType === 'MINI' ? packageItem.baseFare : 
+                         carType === 'Sedan' ? packageItem.baseFareSedan :
+                         carType === 'SUV' ? packageItem.baseFareSuv :
+                         packageItem.baseFareMVP,
+                kilometerPrice: carType === 'MINI' ? packageItem.kilometerPrice : 
+                               carType === 'Sedan' ? packageItem.kilometerPriceSedan :
+                               carType === 'SUV' ? packageItem.kilometerPriceSuv :
+                               packageItem.kilometerPriceMVP,
+                minCharge: packageItem.minCharge
+            };
+        } else {
+            return {
+                ...price,
+                baseFare: carType === 'MINI' ? packageItem.baseFare : 
+                         carType === 'Sedan' ? packageItem.baseFareSedan :
+                         carType === 'SUV' ? packageItem.baseFareSuv :
+                         packageItem.baseFareMVP,
+                kilometerPrice: carType === 'MINI' ? packageItem.kilometerPrice : 
+                             carType === 'Sedan' ? packageItem.kilometerPriceSedan :
+                             carType === 'SUV' ? packageItem.kilometerPriceSuv :
+                             packageItem.kilometerPriceMVP,
+                additionalMinCharge: carType === 'MINI' ? packageItem.additionalMinCharge :
+                                  carType === 'Sedan' ? packageItem.additionalMinChargeSedan :
+                                  carType === 'SUV' ? packageItem.additionalMinChargeSuv :
+                                  packageItem.additionalMinChargeMVP
+            };
+        }
+    });
+
+    setFieldValue("prices", newPrices);
+};
 
 const CabAdd = () => {
     const [cabVal, setCabVal] = useState({});
@@ -70,6 +112,7 @@ const CabAdd = () => {
     const [insuranceImagePreview, setInsuranceImagePreview] = useState(null);
     const navigate = useNavigate();
     const [modalData, setModalData] = useState(null);
+    const [showCarTypeError, setShowCarTypeError] = useState(false);
     const location = useLocation();
     const { ownerName, type, accountId } = location.state;
 
@@ -362,7 +405,12 @@ const CabAdd = () => {
                 setAlert({ message: 'Cab already exists', color: 'red' });
                 // setTimeout(() => setAlert(null), 2000);
                 resetForm();
-            } 
+            }
+            if(!resp?.success && resp?.code === 401)
+                {
+                    setAlert({ message: 'Driver with this phone number already exists', color: 'red' });
+                    resetForm();
+                } 
             else if (resp?.success && resp?.code === 200) {
                 setAlert({ message: 'Cab Added Successfully', color: 'green' }, () => {
                     navigate(`/dashboard/vendors/account/details/${cabDetails?.accountId}`);
@@ -463,19 +511,35 @@ const CabAdd = () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="MINI" className="form-radio" onClick={() => setSelectedCarType("Mini")} />
+                                        <Field type="radio" name="carType" value="MINI" className="form-radio" onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("Mini");
+                                                updatePricesForCarType("MINI", values, setFieldValue, packageDetails);
+                                            }}  />
                                         <span className="ml-2">Mini</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" onClick={() => setSelectedCarType("Sedan")} />
+                                        <Field type="radio" name="carType" value="Sedan" className="form-radio" onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("Sedan");
+                                                updatePricesForCarType("Sedan", values, setFieldValue, packageDetails);
+                                            }}  />
                                         <span className="ml-2">Sedan</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="SUV" className="form-radio" onClick={() => setSelectedCarType("SUV")} />
+                                        <Field type="radio" name="carType" value="SUV" className="form-radio" onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("SUV");
+                                                updatePricesForCarType("SUV", values, setFieldValue, packageDetails);
+                                            }} />
                                         <span className="ml-2">SUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio" name="carType" value="MUV" className="form-radio" onClick={() => setSelectedCarType("MUV")} />
+                                        <Field type="radio" name="carType" value="MUV" className="form-radio"onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("MUV");
+                                                updatePricesForCarType("MUV", values, setFieldValue, packageDetails);
+                                            }} />
                                         <span className="ml-2">MUV</span>
                                     </label>
                                 </div>
@@ -614,48 +678,83 @@ const CabAdd = () => {
                                     </div>}
                                     {values?.assignOrAddDriver === 'Add' && <div>
                                         <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={16} />
                                         <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
                                     </div>}
                                 </>
                             )}
                             <div>
+                                {showCarTypeError && (
+                                    <div className="text-red-500 text-sm mt-1">
+                                        Please select a car type before choosing packages
+                                    </div>
+                                )}
                                 <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
                                 <Multiselect
                                     options={packageDetails}
                                     displayValue="period"
                                     selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
                                     onSelect={(selectedList) => {
+                                        if (!values.carType) {
+                                            setShowCarTypeError(true);
+                                            return;
+                                        }
+                                        setShowCarTypeError(false);
                                         setFieldValue("packages", selectedList.map(item => item.id));
-                                        const newPrices = selectedList.map(item => ({
-                                            packageId: item.id,
-                                            ...(item.type === 'Rides'
-                                                ? {
-                                                    baseFare: item.baseFare,
-                                                    kilometerPrice: item.kilometerPrice,
-                                                    minCharge: item.minCharge,
-                                                    type: 'Rides',
-                                                }
-                                                : {
+                                        
+                                        const newPrices = selectedList.map(item => {
+                                            const basePrice = {
+                                                packageId: item.id,
+                                                period: item.period,
+                                                type: item.type
+                                            };
+                                            
+                                            if (item.type === 'Rides') {
+                                                return {
+                                                    ...basePrice,
+                                                    baseFare: values.carType === 'MINI' ? item.baseFare : 
+                                                             values.carType === 'Sedan' ? item.baseFareSedan :
+                                                             values.carType === 'SUV' ? item.baseFareSuv :
+                                                              item.baseFareMVP,
+                                                    kilometerPrice: values.carType === 'MINI' ? item.kilometerPrice : 
+                                                                 values.carType === 'Sedan' ? item.kilometerPriceSedan :
+                                                                 values.carType === 'SUV' ? item.kilometerPriceSuv :
+                                                                 item.kilometerPriceMVP,
+                                                    minCharge: item.minCharge
+                                                };
+                                            } else {
+                                                return {
+                                                    ...basePrice,
                                                     kilometer: item.kilometer,
-                                                    baseFare: item.baseFare,
-                                                    period: item.period,
-                                                    kilometerPrice: item.kilometerPrice,
-                                                    additionalMinCharge: item.additionalMinCharge,
-                                                    type: 'RENTAL',
-                                                }
-                                            )
-                                        }));
+                                                    baseFare: values.carType === 'MINI' ? item.baseFare : 
+                                                             values.carType === 'Sedan' ? item.baseFareSedan :
+                                                             values.carType === 'SUV' ? item.baseFareSuv :
+                                                             item.baseFareMVP,
+                                                    kilometerPrice: values.carType === 'MINI' ? item.kilometerPrice : 
+                                                                 values.carType === 'Sedan' ? item.kilometerPriceSedan :
+                                                                 values.carType === 'SUV' ? item.kilometerPriceSuv:
+                                                                 item.kilometerPriceMVP,
+                                                                 
+                                                    additionalMinCharge:values.carType ==='MINI'? item.additionalMinCharge:
+                                                                        values.carType === 'Sedan' ? item.additionalMinChargeSedan :
+                                                                        values.carType === 'SUV' ? item.additionalMinChargeSuv:
+                                                                        item.additionalMinChargeMVP
+                                                };
+                                            }
+                                        });
+                                        
                                         setFieldValue("prices", newPrices);
                                     }}
                                     onRemove={(selectedList, removedItem) => {
                                         setFieldValue("packages", selectedList.map(item => item.id));
                                         setFieldValue("prices", values.prices.filter(price => price.packageId !== removedItem.id));
                                     }}
-                                    placeholder="Select options"
+                                    placeholder={!values.carType ? "Please select car type first" : "Select packages"}
                                     className="w-full rounded-md border-gray-300"
                                     showCheckbox={true}
+                                    disabled={!values.carType}
                                 />
+                               
                             </div>
                         </div>
                         {values.packages.length > 0 && (

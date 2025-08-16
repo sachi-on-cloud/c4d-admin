@@ -11,6 +11,8 @@ import PrintCabDetails from '@/components/PrintCabDetails';
 import DocumentsList from '@/components/DocumentsList';
 import CabPriceTableLog from './CabPriceTableLog';
 import SubscriptionLog from '@/components/SubscriptionLog';
+import CabDriverWalletLog from '@/components/CabDriverWallet';
+import DriverBookingNotes from '@/components/DriverBookingNotes';
 
 const CabDetails = ({ btnShow = false, noApprove = false }) => {
     //const [enablePrint, setEnablePrint] = useState(false);
@@ -60,6 +62,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
         ownerPhoneNumber: cab?.result?.ownerPhoneNumber ? cab?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
         carNumber: cab?.result?.carNumber || "",
         address: cab?.result?.curAddress || "",
+        status: cab?.result?.status || "",
         insurance: cab?.result?.insurance || "",
         driverName: cab?.result?.Drivers[0] ? cab?.result?.Drivers[0].firstName : cab?.result?.driverName ? cab?.result?.driverName : "",
         phoneNumber: cab?.result?.phoneNumber || "",
@@ -187,7 +190,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                                         </div>
                                         <div>
                                             <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                            <Field type="text" name="licenseNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
+                                            <Field type="text" name="licenseNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={16} />
                                             <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
                                         </div>
                                     </>
@@ -203,11 +206,18 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                                         disable={true}
                                     />
                                 </div>
+                                <div>
+                                    <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
+                                    <Field type="text" name="status" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
                             </div>
                         </div>
                     )}
                 </Formik>
             </div>
+            <DriverBookingNotes cabId={id} />
+            <CabDriverWalletLog cabId={id} />
             {cab && cab?.creditLog && <SubscriptionLog subscriptionlog={cab?.creditLog} />}
             {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
             {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}
@@ -233,3 +243,4 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
 };
 
 export default CabDetails;
+// modify

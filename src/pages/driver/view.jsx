@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardHeader,
@@ -10,6 +10,8 @@ import {
   PopoverHandler,
   PopoverContent,
   Checkbox,
+  Button,
+  Spinner,
 } from "@material-tailwind/react";
 import { FaFilter } from 'react-icons/fa';
 import moment from "moment";
@@ -18,6 +20,14 @@ import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 export function DriverView() {
   const [drivers, setDrivers] = useState([]);
@@ -28,6 +38,14 @@ export function DriverView() {
   const [documentTypeFilter, setDocumentTypeFilter] = useState(['All'])
   const [sourceFilter,setSourceFilter] = useState(['All'])
   const [subscriptionStatusFilter,setsubscriptionStatusFilter] = useState(['All'])
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 15,
+    search: '',
+        }); 
 
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   // const [searchQuery, setSearchQuery] = useState('');
@@ -36,40 +54,56 @@ export function DriverView() {
   const paramsPassed = location.state;
 
   const navigate = useNavigate();
-  const fetchDrivers = async () => {
-    const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_DRIVERS);
+
+  const fetchDrivers = async (page = 1, searchQuery = '', showLoader = false) => {
+    try {
+      if (showLoader) setLoading(true);
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_DRIVERS, {
+        page,
+        limit: pagination.itemsPerPage,
+        search: searchQuery.trim(),
+    });
     if (data?.success) {
       setDrivers(data?.data);
       setAllDrivers(data?.data);
+      setPagination({
+          currentPage: page,
+          totalPages: data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 15,
+          search: searchQuery.trim(),
+        });
+      } 
+    } catch (err) {
+   console.error('Error fetching drivers:', err);
+    } finally {
+      setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchDrivers();
-  }, []);
 
-  const getDrivers = async (searchQuery) => {
-    //console.log("searchQuery",searchQuery);
-    if (searchQuery && searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
+  const getDrivers = useCallback(
+    debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1,
+        search: searchQuery,
+      }));
+      fetchDrivers(1, searchQuery, true);
+    }, 1000),
+    [pagination.itemsPerPage]
+  );
 
-      const filteredDrivers = allDrivers.filter((driver) => {
-        const name = (driver.firstName || "").toLowerCase();
-        const phone = (driver.phoneNumber || "").toLowerCase();
+useEffect(() => {
+    fetchDrivers(pagination.currentPage, pagination.search, true);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
 
-        const phoneNumberWithoutCountryCode = phone.startsWith("+91") ? phone.slice(3) : phone;
 
-        return name.startsWith(query) ||
-          phoneNumberWithoutCountryCode.startsWith(query);
-      });
-      setDrivers(filteredDrivers);
-      // const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS+`?phoneNumber=${searchQuery}`);
-      // if (data?.success) {
-      //   setDrivers(data?.data);
-      // }
-    } else {
-      setDrivers(allDrivers);
+  function formatPhoneNumber(phoneNumber) {
+    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
+      return phoneNumber;
     }
-  };
+    return `+91${phoneNumber}`;}
+  }
   const updateDrivers = async (driverId, status) => {
     let driverData = {
       driverId,
@@ -78,15 +112,17 @@ export function DriverView() {
     const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVERS, driverData);
     fetchDrivers('');
   };
-  useEffect(() => {
-    getDrivers('');
-    if (paramsPassed?.driverAdded || paramsPassed?.driverUpdated) {
-      setAlert(true);
-      setTimeout(() => {
-        setAlert(false);
-      }, 2000);
-    }
-  }, [])
+
+
+  // useEffect(() => {
+  //   getDrivers('');
+  //   if (paramsPassed?.driverAdded || paramsPassed?.driverUpdated) {
+  //     setAlert(true);
+  //     setTimeout(() => {
+  //       setAlert(false);
+  //     }, 2000);
+  //   }
+  // }, [])
 
   // useEffect(() => {
   //   getDrivers(searchQuery.trim());
@@ -174,6 +210,37 @@ export function DriverView() {
       </PopoverContent>
     </Popover>
   );
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchDrivers(page,pagination.search, true)
+    }
+  };
+  const generatePageButtons = () => {
+          const buttons = [];
+          const maxVisible = 5;
+          let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+          let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+      
+          if (endPage - startPage < maxVisible - 1) {
+            startPage = Math.max(1, endPage - maxVisible + 1);
+          }
+      
+          for (let i = startPage; i <= endPage; i++) {
+            buttons.push(
+              <Button
+                key={i}
+                size="sm"
+                variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+                className={`mx-1 ${ColorStyles.bgColor} text-white`}
+                onClick={() => handlePageChange(i)}
+              >
+                {i}
+              </Button>
+            );
+          }
+          return buttons;
+  };
 
   const handleSort = (key) => {
     let direction = 'ascending';
@@ -198,6 +265,7 @@ export function DriverView() {
 
     setDrivers(sortedDrivers);
   };
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && <div className='mb-2'>
@@ -231,7 +299,7 @@ export function DriverView() {
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
                       {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th> */}
-                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "Driver Status", "KYC Status"].map((el) => (
+                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status"].map((el) => (
                       <th
                       key={el}
                       className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -260,7 +328,7 @@ export function DriverView() {
                         selectedFilters={sourceFilter}
                         onFilterChange={(value) => handleFilterChange("source", value)}
                         />
-                    ) : el === "Driver Status" ? (
+                    ) : el === "subscription Status" ? (
                       <FilterPopover title={el}
                         options={[
                           { value: "All", label: "All" },
@@ -298,8 +366,16 @@ export function DriverView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {drivers.
-                    filter(driver =>
+                  {loading ? (
+                      <tr>
+                        <td colSpan={9} className="py-3 px-5">
+                          <div className="flex justify-center items-center">
+                            <Spinner className="h-12 w-12" />
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      drivers.filter(driver =>
                       (statusFilter.includes('All') || statusFilter.includes(driver?.status)) && 
                       (sourceFilter.includes('All') || sourceFilter.includes(driver.source)) &&
                       (subscriptionStatusFilter.includes('All') || subscriptionStatusFilter.includes(driver?.subscriptionStatus)) && 
@@ -337,7 +413,7 @@ export function DriverView() {
                             </td>
                             <td className={className}>
                               <Typography className="text-xs font-semibold text-blue-gray-900">
-                                {phoneNumber}
+                                {formatPhoneNumber(phoneNumber)}
                               </Typography>
                             </td>
                             <td className={className}>
@@ -389,9 +465,32 @@ export function DriverView() {
                           </tr>
                         );
                       }
-                    )}
+                    ))}
                 </tbody>
               </table>
+
+              <div className="flex items-center justify-center mt-4">
+                                                    <Button
+                                                      size="sm"
+                                                      variant="text"
+                                                      disabled={pagination.currentPage === 1}
+                                                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                                      className="mx-1"
+                                                    >
+                                                      {'<'}
+                                                    </Button>
+                                                    {generatePageButtons()}
+                                                    <Button
+                                                      size="sm"
+                                                      variant="text"
+                                                      disabled={pagination.currentPage === pagination.totalPages}
+                                                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                                      className="mx-1"
+                                                    >
+                                                      {'>'}
+                                                    </Button>
+              </div>
+              
             </CardBody>
 
           </>) : (

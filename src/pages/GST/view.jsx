@@ -1,0 +1,121 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Card, CardHeader, CardBody, Typography, Button,
+  Spinner,
+} from '@material-tailwind/react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import { API_ROUTES } from '@/utils/constants';
+
+const GstView = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [gstList, setGstList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGstData = async () => {
+      try {
+        const res = await ApiRequestUtils.get(API_ROUTES.GET_GST);
+        let list = res?.data || [];
+
+      
+        const updated = location.state?.updatedGst;
+        if (updated) {
+          list = list.map((item) => (item.id === updated.id ? updated : item));
+        }
+
+        setGstList(list);
+      } catch (error) {
+        console.error('Failed to fetch GST list:', error);
+        setGstList([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGstData();
+  }, [location.state]);
+
+  return (
+    <div className="mb-8 flex flex-col gap-12">
+      <div className="flex items-center justify-end">
+        <button
+          onClick={() => navigate('/dashboard/user/GST/add')}
+          className="ml-4 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+        >
+          Add new
+        </button>
+      </div>
+
+      <Card>
+        <CardHeader className="mb-8 p-6 flex justify-between items-center bg-blue-600">
+          <Typography variant="h6" color="white">TAX List</Typography>
+        </CardHeader>
+
+        <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+          {loading ? (
+             <div className="flex flex-col items-center justify-center py-10">
+    <Spinner className="h-10 w-10 mb-2" />
+    
+  </div>
+          ) : (
+            <table className="w-full min-w-[1000px] table-auto">
+              <thead>
+                <tr>
+                  <th className="py-3 px-5 text-left">Service Type</th>
+                  <th className="py-3 px-5 text-left">Name</th>
+                  <th className='py-3 px-5 text-left'>Customer</th>
+                  <th className='py-3 px-5 text-left'>Driver</th>
+                  <th className="py-3 px-5 text-left">Description</th>
+                  <th className="py-3 px-5 text-left">Total TAX (%)</th>
+                  <th className="py-3 px-5 text-left">Status</th>
+                  <th className="py-3 px-5 text-left">Actions</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                {gstList.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-4">No TAX Entries Found</td>
+                  </tr>
+                ) : (
+                  gstList.map((item, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="py-3 px-5">{item.serviceType}</td>
+                      <td className="py-3 px-5">{item.name}</td>
+                      <td className='py-3 px-5'>{item.customer||'-'}</td>
+                      <td className='py-3 px-5'>{item.driver||'-'}</td>
+                      <td className="py-3 px-5">{item.description||'-'}</td>
+                      <td className="py-3 px-5">{item.config?.totalGst}%</td>
+                      <td className="py-3 px-5">
+                        {item.isActive
+                          ? <span className="text-green-600 font-semibold">Active</span>
+                          : <span className="text-red-600 font-semibold">Inactive</span>}
+                      </td>
+                      <td className="py-3 px-5">
+                        <Button
+                          onClick={() =>
+                            navigate(`/dashboard/user/GST/edit/${item.id}`, {
+                              state: { gst: item },
+                            })
+                          }
+                          size="sm"
+                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        >
+                          Edit
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
+        </CardBody>
+      </Card>
+    </div>
+  );
+};
+
+export default GstView;

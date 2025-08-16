@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
-import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
+import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody,Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { DRIVER_ADD_SCHEMA } from '@/utils/validations';
@@ -67,6 +67,7 @@ const DriverAdd = () => {
     const [stateSearchText, setStateSearchText] = useState("");
     const [owner, setOwners] = useState([]);
     const [isEditable, setIsEditable] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         policeClearance: null,
@@ -89,7 +90,6 @@ const DriverAdd = () => {
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };
-
     const orderPackages = (packages, type) => {
         return packages.sort((a, b) => {
             if (type === 'Local') {
@@ -138,6 +138,7 @@ const DriverAdd = () => {
         fatherName: driverVal?.fatherName || "",
         dateOfBirth: driverVal?.dob || "",
         age: driverVal?.age || "",
+        // driverExperience: driverVal?.driverExperience || "",
         phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         license: driverVal?.license || "",
         licenseType: driverVal?.licenseType || "",
@@ -259,6 +260,7 @@ const DriverAdd = () => {
                 fatherName: values.fatherName || "",
                 dob: values.dateOfBirth || "",
                 age: values.age || "",
+                // driverExperience: values.driverExperience || "",
                 phoneNumber: "+91" + values.phoneNumber,
                 license: values.license,
                 licenseType: values.licenseType || "",
@@ -400,10 +402,12 @@ const DriverAdd = () => {
 
     const handleImageUpload = async (e, setFieldValue, label) => {
         try {
+            setLoading(true);
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             const files = e.target.files;
             if (files.length > 2) {
+                setLoading(false);
                 alert("You can upload a maximum of two documents.");
                 return;
             }
@@ -412,7 +416,9 @@ const DriverAdd = () => {
             const previews = {};
 
             for (let i = 0; i < files.length; i++) {
-                if (!allowedTypes.includes(files[i].type)) {
+                const file = files[i];
+                if (!allowedTypes.includes(file.type)) {
+                    setLoading(false);
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                         color: "red",
@@ -420,7 +426,8 @@ const DriverAdd = () => {
                     setTimeout(() => setAlert(null), 5000);
                     return;
                 }
-                if (files[i].size > maxSize) {
+                if (file.size > maxSize) {
+                    setLoading(false);
                     setAlert({
                         message: "File size exceeds 10MB limit.",
                         color: "red",
@@ -428,7 +435,6 @@ const DriverAdd = () => {
                     setTimeout(() => setAlert(null), 5000);
                     return;
                 }
-                const file = files[i];
                 uploadedFiles.push(file);
 
                 const reader = new FileReader();
@@ -459,7 +465,6 @@ const DriverAdd = () => {
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
             console.log('DATA IN DOC INSERT :', data);
             if (data?.success) {
-                console.log(data);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -467,26 +472,29 @@ const DriverAdd = () => {
                         image2: data?.data?.image2 || prev[label]?.image2,
                         id: data?.data?.id,
                     }
-                }))
-            }
-            else {
+                }));
+            } else {
                 setAlert({
                     message: data?.message || "Failed to upload document. Please try again.",
                     color: "red",
                 });
                 setTimeout(() => setAlert(null), 5000);
             }
+            setLoading(false); 
         } catch (err) {
-            console.log("ERR - >", err)
+            console.log("ERR ->", err);
+            setLoading(false);
         }
     };
 
     const handlePhotoUpload = async (e, setFieldValue, label) => {
         try {
+            setLoading(true);
             const file = e.target.files[0];
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
             if (!allowedTypes.includes(file.type)) {
+                setLoading(false);
                 setAlert({
                     message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                     color: "red",
@@ -495,6 +503,7 @@ const DriverAdd = () => {
                 return;
             }
             if (file.size > maxSize) {
+                setLoading(false);
                 setAlert({
                     message: "File size exceeds 10MB limit.",
                     color: "red",
@@ -527,6 +536,7 @@ const DriverAdd = () => {
             console.log('DATA IN DOC INSERT :', data);
 
             if (data?.success) {
+                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
@@ -536,6 +546,7 @@ const DriverAdd = () => {
                 }))
             }
             else {
+                setLoading(false);
                 setAlert({
                     message: data?.message || "Failed to upload photo. Please try again.",
                     color: "red",
@@ -674,6 +685,13 @@ const DriverAdd = () => {
                                         <Field type="text" name="age" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                         <ErrorMessage name="age" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
+
+                                     {/* <div>
+                                        <label htmlFor="driverExperience" className="text-sm font-medium text-gray-700">Driver Experience</label>
+                                        <Field type="text" name="driverExperience" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                        <ErrorMessage name="driverExperience" component="div" className="text-red-500 text-sm my-1" />
+                                    </div> */}
+
                                     <div>
                                         <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
                                         <Field type="tel" name="phoneNumber" disabled={!isEditable} className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
@@ -739,7 +757,7 @@ const DriverAdd = () => {
                                                     className="form-radio"
                                                     disabled={!isEditable}
                                                 />
-                                                <span className="ml-2">Driver Only</span>
+                                                <span className="ml-2">Acting Driver</span>
                                             </label>
                                             <label className="inline-flex items-center">
                                                 <Field
@@ -1037,7 +1055,14 @@ const DriverAdd = () => {
                                 </Button>
                             </div>
                         }
-                        {driverAdded.value &&
+                        {driverAdded.value && (
+                            <div>
+                            {loading ? (
+                            <div className="flex justify-center items-center h-screen">
+                                <Spinner className="h-12 w-12" />
+                            </div>
+                            ) : (
+                        
                             <div className="mt-6">
                                 <div className="flex flex-row justify-between px-2 mb-2">
                                     <Typography variant="h3" className="text-2xl font-bold text-blue-gray-800">
@@ -1134,8 +1159,11 @@ const DriverAdd = () => {
                                     </CardBody>
                                 </Card>
                             </div>
-                        }
-                        {driverAdded.value &&
+                        )}
+                        </div>
+                        )}
+                        
+                        {driverAdded.value && 
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth

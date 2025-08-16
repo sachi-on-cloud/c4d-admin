@@ -4,6 +4,7 @@ export const constants = {
     // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
+    // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou'
@@ -805,6 +806,7 @@ export const API_ROUTES = {
     'UPDATE_BOOKING': '/update-booking',
     'UPDATE_RIDES_BOOKING': '/edit-rides-booking',
     'CANCEL_ADMIN_BOOKING': "/booking-cancel",
+    'CHECK_PRESENCE' : '/check-presence',
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',
@@ -836,6 +838,7 @@ export const API_ROUTES = {
     'UPDATE_USER': '/users',
     'ADD_USER': '/add-user',
     'USER_LOGIN': '/login',
+    'USER_LOGOUT': '/logout',
     'GET_USER_BY_ID': '/users/',
     'GET_USER_BY_TOKEN': '/session/users',
     'GET_PRICE': '/get-price',
@@ -899,13 +902,49 @@ export const API_ROUTES = {
     'MASTER_SUBSCRIPTION_EDIT': '/admin/plan/update',
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
+    'GET_RENTAL_CAB_DRIVERS': '/assign/rentalDriver',
     'RIDES_DRIVER_LIST': '/driver-request-list',
     'RENTAL_REQUEST': '/request-rental',
     'CONFIRM_RIDES_BOOKING': '/confirm-rides-booking',
+    'CONFIRM_RENTAL_BOOKING': '/confirm-rental-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
     'GEO_MARKINGS_DELETE': '/geo-markings',
     'GET_CAR_TYPE': '/car-type/',
+    'POST_NOTIFICATION_ADD': '/send-notification',
+    'GET_NOTIFICATION': '/get-notification',
+    'INSTANT_REWARD': '/instant-reward',
+    'GET_REWARD': '/get-instant-reward',
+    'CUSTOMER_WALLET': '/getWalletTransactions',
+    'DRIVER_WALLET': '/getDriverWalletTransactions',
+    'CAB_WALLET': '/getCabWalletTransactions',
+    'ADD_NOTES_BOOKING': '/add-notes',
+    'GET_NOTES_BOOKING':'/get-notes',
+    'GET_ALL_VEHICLESLIST': '/admin/cabs',
+    'PUT_OWNER_SHIP': '/update-booking-ownership',
+    'DRIVER_NOTIFY': '/notify',
+    'GET_DRIVER_NOTIFY':'/get-notify-contents',
+    'UPDATE_DRIVER_NOTIFY':'/update-notify',
+    'GET_VERSIONCONTROL':'/get-current-version',
+    'PUT_VERSIONCONTROL':'/update-current-version',
+    'GET_DISCOUNT':'/all-discount',
+    'POST_DISCOUNT':'/add-discount',
+    'PUT_DISCOUNT':'/update-discount',
+    'GET_GST':'/list-gst',
+    'PUT_GST':'/update-gst',
+    'POST_GST':'/add-gst',
+    'GET_BANNER':'/banner',
+    'POST_BANNER':'/banner/add',
+    'UPDATE_BANNER':'/banner/update',
+    'GET_TESTIMOINAL':'/testimonial',
+    'POST_TESTIMOINAL':'/testimonial/add',
+    'UPDATE_TESTIMONIAL':'/testimonial/update',
+    'UPDATE_LANDMARK':'/update-landmark',
+    'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
+    'GET_TRIP_REPORTS':'/get-trips-report',
+    'ADD_TRIP_DETAILS':'/add-trip',
+    'GET_DRIVER_TRIP_DETAILS':'/get-trips',
+    'GET_BOOKING_ENDED_DETAILS':'/booking-number',
 };
 
 export const KYC_PROCESS = {
@@ -944,6 +983,7 @@ export const BOOKING_STATUS = {
     IN_PROGRESS: 'IN PROGRESS',
     STARTED: 'STARTED',
     ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
+    END_OTP:'END_OTP',
     ENDED: 'ENDED',
 };
 
@@ -980,7 +1020,7 @@ export const USER = {
 export const whatsappNumber = "9999999999";
 export const whatsappMessage = "Hello, I would like to chat with you!";
 
-export const supportNumber = "+919999999999";
+export const supportNumber = "+91 860 860 6474";
 export const supportEmail = "c4dsupport@texve.com";
 export const supportMessage = `Welcome to Root Cabs.\n Please raise your query!`;
 
@@ -1009,6 +1049,7 @@ export const PERMISSION_OPTIONS = [
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
+    {name:'Trip Master',id:'Trip Master'},
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
     { name: 'Users', id: 'Users' },
@@ -1037,136 +1078,159 @@ export const CAROUSEL_DATA = [
     },
 ];
 
-export const WHATSAPP_DRIVER_ASSIGNED_TEMPLATE =
-    `${COMPANY_NAME} Booking Confirmation
+export const WHATSAPP_FARE_QUOTATION_TEMPLATE =
+    `${COMPANY_NAME} 
     Booking ID: \${bookingNumber}
 
     Hello \${customerName},
-    Your acting driver has been assigned to your booking:
+    Thank you for your interest in Root Cabs.
+    Here's the fare quotation for your upcoming trip:
 
-    Driver Details:
-    Name: \${driverName}
-    Phone Number: \${driverPhone}
+    Pickup: \${pickup}
+    Drop: \${drop}
+    Scheduled Date & Time: \${startDate} &  \${startTime}
+    Vehicle Type: \${carType}
+    Estimated Fare: ₹\${totalAmount}
+
+    Please reply with 'CONFIRM' to proceed with this booking.
+
+    For assistance, reach us at \${supportNumber}. Have a great day!
+
+    Warm regards,
+    ${COMPANY_NAME} Team`;
+
+export const  WHATSAPP_BOOKING_CONFIRMED_TEMPLATE=
+    `${COMPANY_NAME} 
+    Booking ID: \${bookingNumber}
+
+    Hello \${customerName},
+    Your ride has been successfully booked with Root Cabs. Below are the details:
 
     Trip Details:
     Pickup: \${pickup}
     Drop: \${drop}
-    Date: \${tripDate}
-    Time: \${tripTime}
-    Duration: \${duration}
-    Type: \${tripType}
-
-    Please be ready for pickup at the scheduled time. If you have any special instructions, feel free to contact our support team \${supportNumber}
-
-    Thank you,
-    ${COMPANY_NAME} Team`;
-export const WHATSAPP_RIDE_TRIP_START_TEMPLATE =
-    `${COMPANY_NAME} Trip Update
-    Booking ID: \${bookingNumber}
-
-    Hello \${customerName},
-    Your trip has started with \${driverName}.
-
-    Car Type: \${carType}
+    Date: \${startDate}
+    Time:  \${startTime}
     Start OTP: \${startOtp}
-    Start Time: \${startTime}
+    Vehicle Type: \${carType}
+    Fare: \${baseFare} \${packageRow}
+    
 
-    If you need any assistance, feel free to contact our support team \${supportNumber}. 
-    We hope you enjoy your journey!
+    Driver details will be shared shortly.
 
-    Thank you,
-    ${COMPANY_NAME} Team`;
+    For assistance,reach us at \${supportNumber}. Have a great day!
 
-export const WHATSAPP_TRIP_START_TEMPLATE =
-    `${COMPANY_NAME} Trip Update
+
+   Warm regards,
+   ${COMPANY_NAME} Team`;
+
+export const  WHATSAPP_BOOKING_ACCEPTED=
+    `${COMPANY_NAME}
     Booking ID: \${bookingNumber}
 
     Hello \${customerName},
-    Your trip has started with \${driverName}.
+    Your ride has been successfully booked with Root Cabs. Below are the details:
 
-    Car Type: \${carType}
+    Trip Details:
+    Pickup: \${pickup}
+    Drop: \${drop}
+    Time:  \${startTime}
     Start OTP: \${startOtp}
-    Start Time: \${startTime}
-    Package End Time: \${endTime}
 
-    If you need any assistance, feel free to contact our support team \${supportNumber}. 
-    We hope you enjoy your journey!
-
-    Thank you,
-    ${COMPANY_NAME} Team`;
-
-
-export const WHATSAPP_PAYMENT_REQUEST_TEMPLATE =
-    `${COMPANY_NAME} Payment Details
-    Booking ID: \${bookingNumber}
-
-    Hello \${customerName},
-    Your trip with \${driverName} has ended.
-
-    Here are the payment details:
-    Start Time: \${startTime}
-    End Time: \${endTime}
-    Base Fare: ₹\${baseFare}
-    Extra Fare: \${extraFareCalculation}
-    Total Fare: ₹\${totalAmount}
-
-    Payment Details:
-    GPay Number: \${gpayNumber}
-    Account Name: \${gpayName}
-
-    Please proceed with the payment to complete your booking.
-    If you have any questions or require assistance, please contact our support team \${supportNumber}.
-
-    Thank you for choosing ${COMPANY_NAME}!
-    Best regards,
-    ${COMPANY_NAME} Team`;
-
-export const WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE =
-    `${COMPANY_NAME} Trip Completed
-    Booking ID: \${bookingNumber}
-
-    Hello \${customerName},
-    Thank you for choosing ${COMPANY_NAME}! Your trip with \${driverName} has been successfully completed.
-
-    Trip Summary:
-    • Pickup: \${pickup}
-    • Drop: \${drop}
-    • Start Time: \${startTime}
-    • End Time: \${endTime}
-    • Total Duration: \${totalDuration}
-    • Extra Time: \${extraTime}
-    • Extra Charges: ₹\${extraCharges}
-    • Total Amount Paid: ₹\${totalAmount}
-
-    We hope you had a great journey!
+    Vehicle Type: \${carType}
+    Driver Name: \${driverName}
+    
+    For assistance,reach us at \${supportNumber}. Have a great day!
 
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-export const WHATSAPP_TRIP_COMPLETION_TEMPLATE =
-    `${COMPANY_NAME} Trip Completed
+export const WHATSAPP_TRIP_STARTED=`
+     ${COMPANY_NAME}  
+     Booking ID: \${bookingNumber}
+
+     Hello \${customerName},
+
+     Your trip has now started. Please find the journey details below:
+     Start OTP: \${startOtp}
+     Pickup:\${pickup}
+     Vehicle:\${carType}
+     Driver Name:\${driverName}
+     Start Time: \${startTime}
+
+     For assistance,reach us at \${supportNumber}.
+
+     Wish you a pleasant ride!
+
+     Warm regards,
+    ${COMPANY_NAME} Team`
+
+
+export const  WHATSAPP_TRIP_COMPLETED=`
+     ${COMPANY_NAME}  
+     Booking ID: \${bookingNumber}
+
+     Hello \${customerName},
+
+     Thank you for chossing Root Cabs! Your trip with [Fleet/\${carType}] has been successfully completed.
+
+     Trip Summary:
+     • Pickup: \${pickup}
+     • Drop: \${drop}
+     • Start Time: \${startTime}
+     • End Time: \${endTime}
+     • End OTP: \${endOtp}
+     • Package Duration:\${bookedDuration}
+     • Extra Time: \${extraTime}
+     • Extra Charges: ₹\${extraCharges}
+     • Total Amount Paid: ₹\${totalAmount}
+     
+     For assistance, reach us at \${supportNumber}. Have a great day!
+
+     We hope you had a great journey!
+
+     Warm regards,
+    ${COMPANY_NAME} Team`
+    
+    
+export const WHATSAPP_BOOKING_CANCELLED=`
+     ${COMPANY_NAME}  
+     Booking ID: \${bookingNumber}
+
+     Hello \${customerName},
+
+     Your booking has been  cancelled as requested.
+
+     Pickup: \${pickup}
+     Scheduled Date & Time: \${startDate} &  \${startTime}
+
+     We hope to serve you again soon. For rebooking, feel free to reach out us at \${supportNumber}
+
+     Warm regards,
+    ${COMPANY_NAME} Team`
+
+    export const WHATSAPP_DRIVER_REACHED=
+     `${COMPANY_NAME}
     Booking ID: \${bookingNumber}
 
     Hello \${customerName},
-    Thank you for choosing ${COMPANY_NAME}! Your trip with \${driverName} has been successfully completed.
+    Your driver has arrived at your pickup location. Please be ready to start.
 
-    Trip Summary:
-    • Pickup: \${pickup}
-    • Drop: \${drop}
-    • Start Time: \${startTime}
-    • End Time: \${endTime}
-    • End Otp: \${endOtp}
-    • Total Duration: \${totalDuration}
-    • Package Duration: \${packageDuration}
-    • Extra Time: \${extraTime}
-    • Extra Charges: ₹\${extraCharges}
-    • Total Amount Paid: ₹\${totalAmount}
+    Trip Details:
+    Pickup: \${pickup}
+    Drop: \${drop}
+    Time:  \${startTime}
+    Start OTP: \${startOtp}
 
-    We hope you had a great journey!
+    Vehicle Type: \${carType}
+    Driver Name: \${driverName}
+    
+    For assistance,reach us at \${supportNumber}. Have a great day!
 
     Warm regards,
     ${COMPANY_NAME} Team`;
 
+export const BOOKING_TERMS_AND_CONDITIONS = "Price mighty vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
 export const ColorStyles = {
     sidenavColors: "bg-[#b3ccff]",
     bgColor: "bg-[#1A73E8]",

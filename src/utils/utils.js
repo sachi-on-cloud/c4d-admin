@@ -1,6 +1,12 @@
 // import { Dimensions } from 'react';
 import moment from "moment";
-import { GPAY_NAME, GPAY_NUMBER, supportNumber, WHATSAPP_DRIVER_ASSIGNED_TEMPLATE, WHATSAPP_PAYMENT_REQUEST_TEMPLATE, WHATSAPP_TRIP_COMPLETION_TEMPLATE, WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE, WHATSAPP_TRIP_START_TEMPLATE, WHATSAPP_RIDE_TRIP_START_TEMPLATE } from "./constants";
+import {
+    GPAY_NAME, GPAY_NUMBER, supportNumber,
+    WHATSAPP_BOOKING_CONFIRMED_TEMPLATE,WHATSAPP_FARE_QUOTATION_TEMPLATE,WHATSAPP_TRIP_STARTED,WHATSAPP_TRIP_COMPLETED,WHATSAPP_BOOKING_CANCELLED,
+    WHATSAPP_DRIVER_REACHED,
+    WHATSAPP_BOOKING_ACCEPTED,
+
+} from "./constants";
 
 export const Utils = {
     formatSelectedDate: (date) => {
@@ -19,6 +25,9 @@ export const Utils = {
         //         month: "short",
         //     })}:${selectedDateString}`;
         // }
+    },
+    formatTime: (date) => {
+        return moment(date).format("DD-MM-YYYY hh:mm A");
     },
 
     formatRideTime: (time) => {
@@ -216,124 +225,185 @@ export const Utils = {
 
     generateWhatsAppMessage: (bookingDetails) => {
         let text = '';
-        if (bookingDetails?.status === "INITIATED" && (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id)) {
+
+
+
+        // Trip Fare Quotation message
+        if (bookingDetails?.status === "QUOTED") {
+            const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
+            const estimatedFare = bookingDetails.estimatedFare || totalFare.toFixed(2);
+            const vehicleType = bookingDetails?.Cab?.carType || bookingDetails?.carType || 'Not assigned';
+            const rawDateTime = bookingDetails.fromDate;
+            const isValid = moment(rawDateTime).isValid();
+
+            const startDate = isValid ? moment(rawDateTime).format("DD-MM-YYYY") : 'Not available';
+            const startTime = isValid ? moment(rawDateTime).format("hh:mm A") : 'Not available';
+
             text = encodeURIComponent(
-                WHATSAPP_DRIVER_ASSIGNED_TEMPLATE
+                WHATSAPP_FARE_QUOTATION_TEMPLATE
                     .replace('${bookingNumber}', bookingDetails.bookingNumber)
                     .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', bookingDetails.Driver?.firstName || 'Not assigned')
-                    .replace('${driverPhone}', bookingDetails.Driver?.phoneNumber || 'Not assigned')
                     .replace('${pickup}', bookingDetails.pickupAddress?.name || 'Not specified')
                     .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
-                    .replace('${tripDate}', bookingDetails.date || 'Not specified')
-                    .replace('${tripTime}', bookingDetails.time || 'Not specified')
-                    .replace('${duration}', `${bookingDetails.Package.period} ${bookingDetails.packageType === "Outstation" ? "days" : "hours"}`)
-                    .replace('${tripType}', bookingDetails.packageType)
+                    .replace('${startDate}', startDate)
+                    .replace('${startTime}', startTime)
+                    .replace('${carType}', vehicleType)
+                    .replace('${totalAmount}', estimatedFare)
+                    .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
+            );
+        }
+
+
+        // BOOKING CONFIRMED
+        if (bookingDetails?.status === "CONFIRMED") {
+
+            const rawDateTime = bookingDetails.date && bookingDetails.time
+                ? `${bookingDetails.date} ${bookingDetails.time}`
+                : bookingDetails.fromDate;
+
+            const isValid = moment(rawDateTime, ["DD-MM-YYYY hh:mm A", moment.ISO_8601], true).isValid();
+
+            const startDate = isValid ? moment(rawDateTime).format("DD-MM-YYYY") : 'Not available';
+            const startTime = isValid ? moment(rawDateTime).format("hh:mm A") : 'Not available';
+
+            const vehicleType = bookingDetails?.Cab?.carType || bookingDetails?.carType || 'Not assigned';
+
+            let packageRow = '';
+
+            if (
+                bookingDetails?.tripType === "LOCAL" &&
+                bookingDetails?.Package?.period
+            ) {
+                packageRow = `\nPackage: ${bookingDetails.Package.period} hours`;
+            }
+            text = encodeURIComponent(
+                WHATSAPP_BOOKING_CONFIRMED_TEMPLATE
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${pickup}', bookingDetails.pickupAddress?.name || 'Not specified')
+                    .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
+                    .replace('${startDate}', startDate)
+                    .replace('${startTime}', startTime)
+                     .replace('${startOtp}',bookingDetails.startOtp)
+                    .replace('${baseFare}', bookingDetails.Package.price)
+                    .replace('${carType}', vehicleType)
+                    .replace('${packageRow}', packageRow)
                     .replace('${supportNumber}', supportNumber)
             );
         }
 
-        // Trip start message
+        // Trip Started
         if (bookingDetails?.status === "STARTED") {
-            const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
-            const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
-            (bookingDetails.serviceType == "DRIVER" || bookingDetails.serviceType == "RENTAL") && bookingDetails.packageType == "Local" ?
-                text = encodeURIComponent(
-                    WHATSAPP_TRIP_START_TEMPLATE
-                        .replace('${bookingNumber}', bookingDetails.bookingNumber)
-                        .replace('${customerName}', bookingDetails.Customer.firstName)
-                        .replace('${driverName}', driverName)
-                        .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
-                        .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
-                        .replace('${endTime}', moment(endTime).format('hh:mm A'))
-                        .replace('${startOtp}', bookingDetails.startOtp)
-                        .replace('${supportNumber}', supportNumber)
-                )
-                :
-                text = encodeURIComponent(
-                    WHATSAPP_RIDE_TRIP_START_TEMPLATE
-                        .replace('${bookingNumber}', bookingDetails.bookingNumber)
-                        .replace('${customerName}', bookingDetails.Customer.firstName)
-                        .replace('${driverName}', driverName)
-                        .replace('${carType}', bookingDetails.Cab?.carType || 'Not assigned')
-                        .replace('${startTime}', moment(bookingDetails.startTime).format('hh:mm A'))
-                        .replace('${startOtp}', bookingDetails.startOtp)
-                        .replace('${supportNumber}', supportNumber)
-                );
-        }
+            const driverName = bookingDetails.Driver?.firstName || 'Not assigned';
+            const vehicleType = bookingDetails?.Cab?.carType || bookingDetails?.carType || 'Not assigned';
+            const pickup = bookingDetails.pickupAddress?.name || 'Not specified';
+            const startTime = bookingDetails.startTime ? moment(bookingDetails.startTime).format("hh:mm A") : 'Not available';
 
-
-        // Payment request message
-        if (bookingDetails?.status === "ENDED" && !bookingDetails?.paymentStatus) {
-            const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
             text = encodeURIComponent(
-                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
+                WHATSAPP_TRIP_STARTED
                     .replace('${bookingNumber}', bookingDetails.bookingNumber)
                     .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', bookingDetails.Driver?.firstName)
-                    .replace('${startTime}', Utils.formatTime(bookingDetails.startTime))
-                    .replace('${endTime}', (bookingDetails.endTime))
-                    // .replace('${baseFare}', bookingDetails.Package.price)
-                    .replace('${extraFareCalculation}', `${bookingDetails.extraHours} hrs × ₹${bookingDetails.extraHourPrice} = ₹${bookingDetails.extraPrice}`)
+                    .replace('${pickup}', pickup)
+                    .replace('${carType}', vehicleType)
+                    .replace('${driverName}', driverName)
+                    .replace('${startTime}', startTime)
+                    .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
+            );
+        }
+
+         if (bookingDetails?.status === "DRIVER_REACHED") {
+            const driverName = bookingDetails.Driver?.firstName || 'Not assigned';
+            const vehicleType = bookingDetails?.Cab?.carType || bookingDetails?.carType || 'Not assigned';
+            const pickup = bookingDetails.pickupAddress?.name || 'Not specified';
+            const startTime = bookingDetails.startTime ? moment(bookingDetails.startTime).format("hh:mm A") : 'Not available';
+            
+
+            text = encodeURIComponent(
+                WHATSAPP_DRIVER_REACHED
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${pickup}', pickup)
+                    .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
+                    .replace('${carType}', vehicleType)
+                    .replace('${driverName}', driverName)
+                    .replace('${startTime}', startTime)
+                    .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
+            );
+        }
+         if ( bookingDetails?.status === "BOOKING_ACCEPTED") {
+            const driverName = bookingDetails.Driver?.firstName || 'Not assigned';
+            const vehicleType = bookingDetails?.Cab?.carType || bookingDetails?.carType || 'Not assigned';
+            const pickup = bookingDetails.pickupAddress?.name || 'Not specified';
+            const startTime = bookingDetails.startTime ? moment(bookingDetails.startTime).format("hh:mm A") : 'Not available';
+            
+
+            text = encodeURIComponent(
+                WHATSAPP_BOOKING_ACCEPTED
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${pickup}', pickup)
+                    .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
+                    .replace('${carType}', vehicleType)
+                    .replace('${driverName}', driverName)
+                    .replace('${startTime}', startTime)
+                    .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
+            );
+        }
+
+        // Trip Compelted
+        if (bookingDetails?.status === "ENDED" && bookingDetails?.paymentStatus === "PAID") {
+
+            const carType = bookingDetails.Cab?.carType || 'Not assigned';
+            const pickup = bookingDetails.pickupAddress?.name || 'Not specified';
+            const drop = bookingDetails.endAddress?.name || bookingDetails.dropAddress?.name || 'Not specified';
+            const startTime = bookingDetails.startTime ? moment(bookingDetails.startTime).format("DD-MM-YYYY hh:mm A") : 'N/A';
+            const endTime = bookingDetails.endedTime ? moment(bookingDetails.endedTime).format("DD-MM-YYYY hh:mm A") : 'N/A';
+            const bookedDuration = bookingDetails.Package?.period || '0';
+            const extraTime = bookingDetails.extraHours || '0';
+            const extraCharges = bookingDetails.extraPrice || '0'
+            const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
+
+            text = encodeURIComponent(
+                WHATSAPP_TRIP_COMPLETED
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${carType}', carType)
+                    .replace('${pickup}', pickup)
+                    .replace('${drop}', drop)
+                    .replace('${startTime}', startTime)
+                    .replace('${endTime}', endTime)
+                    .replace('${endOtp}', bookingDetails.endOtp)
                     .replace('${totalAmount}', totalFare)
-                    .replace('${gpayNumber}', GPAY_NUMBER)
-                    .replace('${gpayName}', GPAY_NAME)
+                    .replace('${bookedDuration}', bookedDuration)
+                    .replace('${extraTime}', extraTime)
+                    .replace('${extraCharges}', extraCharges)
                     .replace('${supportNumber}', supportNumber)
             );
         }
 
-        if (bookingDetails?.status === "ENDED" && !bookingDetails?.paymentStatus) {
-            // const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
-            text = encodeURIComponent(
-                WHATSAPP_PAYMENT_REQUEST_TEMPLATE
-                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
-                    .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', bookingDetails.Driver?.firstName)
-            )
-        }
+        // BOOKING CANCELLED
+        if (bookingDetails?.status === "CUSTOMER_CANCELLED" || bookingDetails?.status === "SUPPORT_CANCELLED") {
+            const pickup = bookingDetails.pickupAddress?.name || 'Not specified';
+            const rawDateTime = bookingDetails.fromDate;
+            const isValid = moment(rawDateTime).isValid();
 
-        // Trip completion message
-        if (bookingDetails?.status === "ENDED" && bookingDetails?.paymentStatus === "PAID") {
-            const duration = Utils.calculateDuration(bookingDetails);
-            const totalFare = parseFloat(bookingDetails.Package.price) + parseFloat(bookingDetails.extraPrice);
-            const driverName = bookingDetails.Cab?.name || bookingDetails.Driver?.firstName || "";
-            const endTime = Utils.calculateEndTime(bookingDetails.startTime, bookingDetails.Package.period);
-            const endDateTimeString = bookingDetails.endDate && bookingDetails.endTime ? `${bookingDetails.endDate}T${bookingDetails.endTime}` : null;
-            const endDate = bookingDetails.endedTime ? bookingDetails.endedTime : endDateTimeString;
-            bookingDetails.serviceType != "RIDES" ?
-                text =
-                encodeURIComponent(WHATSAPP_TRIP_COMPLETION_TEMPLATE
+            const startDate = isValid ? moment(rawDateTime).format("DD-MM-YYYY") : 'Not available';
+            const startTime = isValid ? moment(rawDateTime).format("hh:mm A") : 'Not available';
+
+            text = encodeURIComponent(
+                
+                WHATSAPP_BOOKING_CANCELLED
                     .replace('${bookingNumber}', bookingDetails.bookingNumber)
                     .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', driverName)
-                    .replace('${pickup}', bookingDetails.pickupAddress?.name)
-                    .replace('${drop}', bookingDetails.endAddress?.name ? bookingDetails.endAddress?.name : 'Not Added')
-                    .replace('${startTime}', moment(bookingDetails.startTime).format('DD-MM-YYYY hh:mm A'))
-                    .replace('${endTime}', moment(endDate).format('DD-MM-YYYY hh:mm A'))
-                    .replace('${endOtp}', bookingDetails.endOtp)
-                    .replace('${totalDuration}', bookingDetails.totalHours)//isNaN(duration.total) ? "0 hours" : duration.total)
-                    .replace('${packageDuration}', `${bookingDetails.Package.period} hours`)
-                    .replace('${extraTime}', isNaN(duration.extra) ? "0 hours" : duration.extra)
-                    //.replace('${baseFare}', bookingDetails.Package.price)
-                    .replace('${extraCharges}', bookingDetails.extraPrice)
-                    .replace('${totalAmount}', bookingDetails.totalPrice)
-                    .replace('${transactionId}', bookingDetails.transactionId ? bookingDetails.transactionId : 'Processing'))
-                :
-                text =
-                encodeURIComponent(WHATSAPP_TRIP_RIDES_COMPLETION_TEMPLATE
-                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
-                    .replace('${customerName}', bookingDetails.Customer.firstName)
-                    .replace('${driverName}', driverName)
-                    .replace('${pickup}', bookingDetails.pickupAddress?.name)
-                    .replace('${drop}', bookingDetails.endAddress?.name ? bookingDetails.endAddress?.name : 'Not Added')
-                    .replace('${startTime}', moment(bookingDetails.startTime).format('DD-MM-YYYY hh:mm A'))
-                    .replace('${endTime}', moment(endDate).format('DD-MM-YYYY hh:mm A'))
-                    .replace('${totalDuration}', bookingDetails.totalHours)//isNaN(duration.total) ? "0 hours" : duration.total)
-                    .replace('${extraTime}', isNaN(duration.extra) ? "0 hours" : duration.extra)
-                    //.replace('${baseFare}', bookingDetails.Package.price)
-                    .replace('${extraCharges}', bookingDetails.extraPrice)
-                    .replace('${totalAmount}', bookingDetails.totalPrice)
-                    .replace('${transactionId}', bookingDetails.transactionId ? bookingDetails.transactionId : 'Processing'))
+                    .replace('${pickup}', pickup)
+                    .replace('${startDate}', startDate)
+                    .replace('${startTime}', startTime)
+                    .replace('${supportNumber}', supportNumber)
+            );
         }
 
         if (text === '') {

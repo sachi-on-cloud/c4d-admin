@@ -7,6 +7,8 @@ import {
 import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
+import { PriceList } from "@/pages/public/price";
+
 
 import { CustomerView } from "@/pages/customer";
 import { AccountView } from "@/pages/account";
@@ -51,7 +53,7 @@ import PayableDetails from "./pages/finance/payable/details";
 import UserEdit from "./pages/users/edit";
 import { MasterSubscriptionView } from "./pages/finance/masterSubscription/MasterSubscriptionView";
 import MasterSubscriptionAdd from "./pages/finance/masterSubscription/MasterSubscriptionAdd";
-import  MasterSubscriptionDetails  from "./pages/finance/masterSubscription/MasterSubscriptionDetails";
+import MasterSubscriptionDetails from "./pages/finance/masterSubscription/MasterSubscriptionDetails";
 import MasterSubscriptionEdit from "./pages/finance/masterSubscription/MasterSubscriptionEdit";
 import { MasterPriceView } from "./pages/finance/masterPrice/MasterPriceView";
 import { MasterPriceAdd } from "./pages/finance/masterPrice/MasterPriceAdd";
@@ -68,7 +70,29 @@ import RentalsPriceMasterAdd from "./pages/finance/masterPriceTable/RentalsMaste
 import RentalsPriceMasterDetails from "./pages/finance/masterPriceTable/RentalsMasterPriceDetails";
 import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMasterPriceEdit";
 import GeoMarkings from "./pages/geoMarkings/geoMarkings";
-
+import NotificationList from "./pages/vendor/notificationList";
+import NotificationListApp from "./pages/vendor/notificationadd";
+import InstantReward from "./pages/vendor/instantReward";
+import { VehiclesList } from "./pages/vendor/vehiclesList";
+import DriverNotificationList from "./pages/vendor/driverNotificationList";
+import DriverNotificationListAdd from "./pages/vendor/driverNotificationAdd";
+import DriverNotificationListEdit from "./pages/vendor/driverNotificationEdit";
+import VersionControlList from "./pages/versionControl/VersionControlList";
+import VersionControlEdit from "./pages/versionControl/VersionControlEdit";
+import DiscountView from "./pages/discountModule/view";
+import DiscountEdit from "./pages/discountModule/edit";
+import DiscountAdd from "./pages/discountModule/add";
+import GstView from "./pages/GST/view";
+import GstAdd from "./pages/GST/add";
+import GstEdit from "./pages/GST/edit";
+import BannerView from "./pages/bannerImage/view ";
+import AddBanner from "./pages/bannerImage/add";
+import TestimoinalView from "./pages/testimoinal/view";
+import TestimoinalAdd from "./pages/testimoinal/add";
+import { OnlineVehiclesList } from "./pages/vendor/onlineVehiclesList";
+import TripDetails from "./pages/TripDetails/tripDetails";
+import Reports from "./pages/TripDetails/reports";
+import AddTripDetails from "./pages/TripDetails/add";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -120,10 +144,59 @@ export const routes = [
         display: false
       },
       {
+         icon: <UserIcon {...icon} />,
+        name: "vehicleList",
+        path: "/vendors/vehicleList",
+        element: <VehiclesList />,
+        display: false
+      },
+       {
+         icon: <UserIcon {...icon} />,
+        name: "Online Vehicles List",
+        path: "/vendors/onlineVehiclesList",
+        element: <OnlineVehiclesList />,
+        display: false
+      },
+      {
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/vendors/account/drivers",
         element: <DriverView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "marketing",
+        path: "/vendors/notificationList",
+        element: <NotificationList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification",
+        path: "/vendors/driverNotificationList",
+        element: <DriverNotificationList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification add",
+        path: "/vendors/driverNotificationList/add",
+        element: <DriverNotificationListAdd/>,
+        display: true
+      },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "driver notification edit",
+        path: "/vendors/driverNotificationList/edit/:id",
+        element: <DriverNotificationListEdit/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "marketing add",
+        path: "/vendors/notification/add",
+        element: <NotificationListApp />,
         display: true
       },
       {
@@ -195,6 +268,42 @@ export const routes = [
         path: "/vendors/account/allVehicles/edit/:id",
         element: <CabEdit />,
         display: false
+      },
+     
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST List",
+        path: "/user/GSTList",
+        element: <GstView/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST add",
+        path: "/user/GST/add",
+        element: <GstAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "GST edit",
+        path: "/user/GST/edit/:id",
+        element: <GstEdit/>,
+        display: true
+      }, 
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Banner image view",
+        path: "/user/bannerimgView",
+        element: <BannerView/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Banner image add",
+        path: "/user/bannerimg/add",
+        element: <AddBanner/>,
+        display: true
       },
       {
         icon: <UserIcon {...icon} />,
@@ -399,14 +508,14 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
-        name : "Master Subscription Details",
+        name: "Master Subscription Details",
         path: "/finance/master-subscription/details/:id",
         element: <MasterSubscriptionDetails />,
         display: false
       },
       {
         icon: <UserIcon {...icon} />,
-        name : "Master Subscription Edit",
+        name: "Master Subscription Edit",
         path: "/finance/master-subscription/edit/:id",
         element: <MasterSubscriptionEdit />,
         display: false
@@ -427,6 +536,13 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "instant reward",
+        path: "/users/instant-reward",
+        element: <InstantReward />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Master Price Add",
         path: "/users/master-price/driver-add",
         element: <MasterPriceAdd />,
@@ -440,11 +556,11 @@ export const routes = [
         display: false
       },
       {
-        icon:<UserIcon {...icon} />,
+        icon: <UserIcon {...icon} />,
         name: "Driver Price Table Edit",
         path: "/users/master-price/driver-edit/:id",
-        element:<DriverMasterPriceTableEdit />,
-        display:false
+        element: <DriverMasterPriceTableEdit />,
+        display: false
       },
       {
         icon: <UserIcon {...icon} />,
@@ -537,6 +653,77 @@ export const routes = [
         element: <GeoMarkings />,
         display: true
       },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "version control add",
+        path: "/user/versionControlList",
+        element: <VersionControlList />,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "version control edit",
+        path: "/user/versionControl/edit",
+        element: <VersionControlEdit />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "discount module list",
+        path: "/user/discountModuleList",
+        element: <DiscountView />,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "discount module edit",
+        path: "/user/discountModule/edit/:id",
+        element: <DiscountEdit/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "discount module add",
+        path: "/user/discountModule/add",
+        element: <DiscountAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "testimoinal view",
+        path: "/user/testimonialView",
+        element: <TestimoinalView/>,
+        display: true
+      },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "testimoinal add",
+        path: "/user/testimonial/add",
+        element: <TestimoinalAdd/>,
+        display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails list",
+        path: "/tripDetails",
+        element: <TripDetails/>,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails reports",
+        path: "/tripDetails/reports",
+        element: <Reports/>,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails reports",
+        path: "/tripDetails/add",
+        element: <AddTripDetails/>,
+        display: true
+      },
+
     ],
   },
   {
@@ -566,6 +753,11 @@ export const routes = [
       {
         path: "/delete-my-account",
         element: <DeleteAccount />,
+        display: false
+      },
+      {
+        path: "/rate-card",
+        element: <PriceList />,
         display: false
       },
     ],
