@@ -6,8 +6,8 @@ const tabs = ['Daily', 'Weekly', 'Monthly'];
 
 const Reports = () => {
   const [activeTab, setActiveTab] = useState('Weekly');
-  const [fromDate, setFromDate] = useState('2025-08-04'); // Adjusted to ISO format
-  const [toDate, setToDate] = useState('2025-08-10'); // Adjusted to ISO format
+  const [fromDate, setFromDate] = useState(new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().split('T')[0]); // Adjusted to ISO format
+  const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); // Adjusted to ISO format
   const [vehicleFilter, setVehicleFilter] = useState('All Vehicles');
   const [driverFilter, setDriverFilter] = useState('All Drivers');
   const [trips, setTrips] = useState([]);
@@ -38,8 +38,8 @@ const Reports = () => {
         // Transform API data to match component expectations
         const transformedTrips = data.data.map(trip => ({
           date: trip.tripDate,
-          vehicle: trip.Cab?.name || 'Unknown', // Placeholder for missing vehicle data
-          driver: trip.Driver?.name || 'Unknown', // Placeholder for missing driver data
+          vehicle: trip.Cab?.name || 'Unknown',
+          driver: trip.Driver?.firstName || 'Unknown',
           route: `${trip.startAddress.address} - ${trip.endAddress.address}`,
           km: parseFloat(trip.totalKm),
           fuel: parseFloat(trip.fuelQuantity),
@@ -82,22 +82,21 @@ const Reports = () => {
                   onClick={() => {
                     setActiveTab(tab);
                     if (tab === 'Daily') {
-                      setFromDate('2025-08-08');
-                      setToDate('2025-08-08');
+                      setFromDate(new Date().toISOString().split('T')[0]); // Today's date
+                      setToDate(new Date().toISOString().split('T')[0]); // Today's date
                     } else if (tab === 'Weekly') {
-                      setFromDate('2025-08-04');
-                      setToDate('2025-08-10');
+                      setFromDate(new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().split('T')[0]); // 7 days ago
+                      setToDate(new Date().toISOString().split('T')[0]);
                     } else if (tab === 'Monthly') {
-                      setFromDate('2025-08-01');
-                      setToDate('2025-08-31');
+                      setFromDate(new Date(new Date().setDate(1)).toISOString().split('T')[0]); // First day of the month
+                      setToDate(new Date(new Date().setMonth(new Date().getMonth() + 1, 0)).toISOString().split('T')[0]); // Last day of the month
                     }
                     setCurrentPage(1); // Reset to first page when changing tabs
                   }}
-                  className={`pb-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
-                    activeTab === tab
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`pb-2 text-sm font-medium border-b-2 transition-colors duration-200 ${activeTab === tab
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   {tab}
                 </button>
