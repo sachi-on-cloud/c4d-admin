@@ -224,7 +224,7 @@ export function VehiclesList({ id = 0 }) {
         <div className="relative flex-grow max-w-[500px]">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Search vehicle"
             value={searchQuery}
             onChange={(e) => {setSearchQuery(e.target.value);
@@ -240,7 +240,7 @@ export function VehiclesList({ id = 0 }) {
       <Card>
         {vehicleList.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="blue" className="mb-8 p-6 flex justify-between items-center">
+            <CardHeader variant="gradient" className="mb-8 p-6 flex justify-between items-center bg-primary">
               <Typography variant="h6" color="white">Vehicles</Typography>
               <Typography variant="h6" color="white">{vehicleList.length} vehicles found</Typography>
             </CardHeader>
@@ -319,10 +319,10 @@ export function VehiclesList({ id = 0 }) {
                       </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <div
-                          className="underline cursor-pointer text-blue-600"
+                          className="underline cursor-pointer text-primary-600"
                           onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
                         >
-                          <Typography className="text-xs font-semibold text-blue-600">{name}</Typography>
+                          <Typography className="text-xs font-semibold text-primary-600">{name}</Typography>
                         </div>
                       </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -352,7 +352,7 @@ export function VehiclesList({ id = 0 }) {
                           className="py-0.5 px-2 text-[11px] font-medium w-fit"
                         />
                          {Drivers[0]?.status === "ACTIVE" && statusCheckedDriverIds.indexOf(Drivers[0]?.id)==-1 &&  <Typography
-                          className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                          className="text-xs font-semibold text-primary-900 underline cursor-pointer"
                           onClick={()=>checkPresence(Drivers[0]?.id)}
                         >
                           Check Status
@@ -394,7 +394,7 @@ export function VehiclesList({ id = 0 }) {
             </CardBody>
           </>
         ) : (
-          <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
+          <CardHeader variant="gradient" className="mb-8 p-6 bg-primary">
             <Typography variant="h6" color="white">No Vehicles Available</Typography>
           </CardHeader>
         )}

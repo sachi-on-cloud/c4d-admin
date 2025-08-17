@@ -265,7 +265,7 @@ export function CustomerView() {
                             <Button
                               as='a'
                               onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
-                              className="text-xs font-semibold bg-[#1A73E8] text-white"
+                              className="text-xs font-semibold bg-primary text-white"
                             >
                               Edit
                             </Button>
@@ -299,7 +299,7 @@ export function CustomerView() {
                     </div>
             </CardBody>
           </>) : (
-          <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
+          <CardHeader variant="gradient"  className={`mb-8 p-6 bg-primary`}>
             <Typography variant="h6" color="white">
               No Customers
             </Typography>

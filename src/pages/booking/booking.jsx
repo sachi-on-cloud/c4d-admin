@@ -478,7 +478,7 @@ const Booking = (props) => {
         switch (statusLower) {
             case 'started':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         On Trip
                     </span>
                 );
@@ -496,7 +496,7 @@ const Booking = (props) => {
                 );
                 case 'cancelled':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                        Customer Cancelled
                     </span>
                 );
@@ -541,7 +541,7 @@ const Booking = (props) => {
                     );
                 case 'driver_on_the_way':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         DRIVER ON THE WAY
                     </span>
                     );
@@ -559,7 +559,7 @@ const Booking = (props) => {
                     );
                       case 'support_cancelled':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         SUPPORT CANCELLED
                     </span>
                     );
@@ -606,7 +606,7 @@ const Booking = (props) => {
                         setQuoteDetails();
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex-1 bg-[#f5f5f5] rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
+                            <div className="flex-1 bg-surface-muted rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
                                 {/* max-h-screen overflow-y-auto shadow p-4 */}
 
                                 <div className='rounded-2xl justify-end items-end space-x-12 flex'>
@@ -627,7 +627,7 @@ const Booking = (props) => {
                                     </button>
                                 </div>
                                 {!showQuickCreateCustomer && !editBookingView && <div className='text-2xl font-bold mb-8'>
-                                    <Typography variant="h5" color='#000000'>
+                                    <Typography variant="h5" className='text-gray-900'>
                                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
                                         <div className="flex items-center">
                                             {bookingView ? (
@@ -781,7 +781,7 @@ const Booking = (props) => {
                                                                                 type="radio"
                                                                                 name="carType"
                                                                                 value={carType}
-                                                                                className="h-4 w-4 text-blue-600"
+                                                                                className="h-4 w-4 text-primary-600"
                                                                             />
                                                                             <span className="text-black-700">{carType}</span>
                                                                         </label>
@@ -800,7 +800,7 @@ const Booking = (props) => {
                                                                                     type="radio"
                                                                                     name="transmissionType"
                                                                                     value={transType}
-                                                                                    className="h-4 w-4 text-blue-600"
+                                                                                    className="h-4 w-4 text-primary-600"
                                                                                 />
                                                                                 <span className="text-black-700">{transType}</span>
                                                                             </label>
@@ -907,7 +907,7 @@ const Booking = (props) => {
                                                             <Typography variant="h6" className="mb-2">
                                                                 Choose a package
                                                             </Typography>
-                                                            <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
+                                                            <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50" value={values.packageSelected}
                                                                 onChange={(e) => {
                                                                     setFieldValue('packageSelected', e.target.value);
                                                                     if (values.packageTypeSelected === 'Outstation' && values.fromDate && values.toDate) {

@@ -278,7 +278,7 @@ useEffect(() => {
             <>
            
             <div className='pb-4'>
-                <Typography variant="h5" color='#000000'>
+                <Typography variant="h5" className='text-gray-900'>
                     Edit Booking - {bookingData?.bookingNumber}
                 </Typography>
             </div>
@@ -382,7 +382,7 @@ useEffect(() => {
                                                     type="radio"
                                                     name="carType"
                                                     value={carType}
-                                                    className="h-4 w-4 text-blue-600"
+                                                    className="h-4 w-4 text-primary-600"
                                                 />
                                                 <span className="text-black-700">{carType}</span>
                                             </label>
@@ -401,7 +401,7 @@ useEffect(() => {
                                                     type="radio"
                                                     name="transmissionType"
                                                     value={transType}
-                                                    className="h-4 w-4 text-blue-600"
+                                                    className="h-4 w-4 text-primary-600"
                                                 />
                                                 <span className="text-black-700">{transType}</span>
                                             </label>
@@ -483,7 +483,7 @@ useEffect(() => {
                                     <Typography variant="h6" className="mb-2">
                                         Choose a package
                                     </Typography>
-                                    <Field as="select" name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
+                                    <Field as="select" name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50" value={values.packageSelected}
                                         onChange={(e) => {
                                             setFieldValue('packageSelected', e.target.value);
                                             if (values.packageTypeSelected === 'Outstation' && values.fromDate && values.toDate) {
@@ -648,7 +648,7 @@ useEffect(() => {
                                 </Card>
                             }
                             {values.packageTypeSelected == 'Outstation' && 
-                            <Button fullWidth className='my-6 mx-2 bg-[#1A73E8]' onClick={() => getQuoteOutstationDetails(values)}>
+                            <Button fullWidth className='my-6 mx-2 bg-primary' onClick={() => getQuoteOutstationDetails(values)}>
                                 Check Estimated Price
                             </Button>
                             }

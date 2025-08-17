@@ -84,7 +84,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                   value={newDriver.salutation}
                   onChange={handleInputChange}
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 >
                   <option value="">Select salutation</option>
                   <option value="Mr">Mr</option>
@@ -102,7 +102,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                   onChange={handleInputChange}
                   placeholder="Enter first name"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
               </div>
               <div className="mb-4">
@@ -117,7 +117,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                   pattern="[0-9]{10}"
                   maxLength={10}
                   title="Please enter a valid 10-digit phone number"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50  px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50  px-4 py-2"
                 />
               </div>
               <div className="mb-4">
@@ -128,7 +128,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                   value={newDriver.license}
                   onChange={handleInputChange}
                   placeholder="Enter license number"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
               </div>
               <div className="mb-4">
@@ -139,7 +139,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                   value={newCar.nickName}
                   onChange={handleCarChange}
                   placeholder="Enter first name"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
               </div>
               <div className="space-y-3">
@@ -153,7 +153,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                       value="Sedan"
                       checked={newCar.carType === 'Sedan'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="carTypeSeda n" className="ml-2 text-base font-medium text-gray-700">
                       Sedan
@@ -167,7 +167,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                       value="SUV"
                       checked={newCar.carType === 'SUV'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="carTypeSUV" className="ml-2 text-base font-medium text-gray-700">
                       SUV
@@ -181,7 +181,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                       value="Hatchback"
                       checked={newCar.carType === 'Hatchback'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="carTypeHatchback" className="ml-2 text-base font-medium text-gray-700">
                       Hatchback
@@ -200,7 +200,7 @@ const DriverAddModal = ({ openModal, closeModal }) => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                 >
                   Create User
                 </button>

@@ -372,14 +372,14 @@ const handleTabChange = (value) => {
     return (
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3'>
-                <Typography variant="h5" color='#000000'>
+                <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
                 </Typography>
             </div>
             <Card>
                 <div className='absolute right-10 -top-10'>
                     <button
-                        className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
+                        className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
                         onClick={() => {
                             getBookingsList(pagination.currentPage);
                             setStatusFilter(['All']);
@@ -422,7 +422,7 @@ const handleTabChange = (value) => {
                         <Spinner className="h-12 w-12" />
                     </div>
                                     ) : bookingsList.length === 0 ? (
-                            <Typography variant="h5" color='#000000'>
+                            <Typography variant="h5" className='text-gray-900'>
                                 No Bookings
                                 {/* {activeTab} Bookings ({statusFilter ? ('status'): statusFilter.join(', ')}): {bookingsList.length} */}
                             </Typography>
@@ -597,7 +597,7 @@ const handleTabChange = (value) => {
                                                         ? "mb-4"
                                                         : "border-b border-blue-gray-50"} ${
                                                         data?.isSosCalled == true ? 'bg-red-500 text-white'
-                                                        : isSelected ? 'bg-blue-50'
+                                                        : isSelected ? 'bg-primary-50'
                                                         : "hover:bg-gray-50"
                                                     } transition-colors duration-200`;
 
@@ -713,13 +713,13 @@ const handleTabChange = (value) => {
                                                                     data?.status === "BOOKING_ACCEPTED" ? "bg-green-600 text-white":
                                                                     data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-600 text-white": 
                                                                     data?.status === "ENDED" ? "bg-green-600 text-white" :
-                                                                    data?.status === "STARTED" ? "bg-blue-600   text-white":
+                                                                    data?.status === "STARTED" ? "bg-primary   text-white":
                                                                     data?.status === "INITIATED"? "bg-gray-600   text-white":
                                                                     data?.status === "END_OTP" ? "bg-gray-600   text-white":
-                                                                    data?.status ===  "DRIVER_ON_THE_WAY" ? "bg-blue-600   text-white":
+                                                                    data?.status ===  "DRIVER_ON_THE_WAY" ? "bg-primary   text-white":
                                                                     data?.status === "DRIVER_REACHED" ? "bg-yellow-600  text-white":
                                                                     data?.status === "PAYMENT_REQUESTED" ? "bg-green-600  text-white":
-                                                                    "bg-blue-600  text-white"
+                                                                    "bg-primary  text-white"
                                                                     
                                                                 }`}
                                                             />

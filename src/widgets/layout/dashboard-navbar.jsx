@@ -47,7 +47,7 @@ export function DashboardNavbar() {
               <Typography
                 variant="small"
                 color="blue-gray"
-                className="font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100"
+                className="font-normal opacity-50 transition-all hover:text-primary-500 hover:opacity-100"
               >
                 {layout}
               </Typography>

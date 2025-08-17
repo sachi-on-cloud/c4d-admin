@@ -43,14 +43,14 @@ const DiscountView = () => {
       <div className="flex items-center justify-end">
         <button
           onClick={() => navigate('/dashboard/user/discountModule/add')}
-          className="ml-4 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+          className="ml-4 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-700"
         >
           Add new
         </button>
       </div>
 
       <Card>
-        <CardHeader className="mb-8 p-6 flex justify-between items-center bg-blue-600">
+  <CardHeader className="mb-8 p-6 flex justify-between items-center bg-primary">
           <Typography variant="h6" color="white">Discount List</Typography>
         </CardHeader>
 
@@ -96,7 +96,7 @@ const DiscountView = () => {
                             })
                           }
                           size="sm"
-                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                          className="bg-primary-500 text-white px-3 py-1 rounded hover:bg-primary-600"
                         >
                           Edit
                         </Button>
