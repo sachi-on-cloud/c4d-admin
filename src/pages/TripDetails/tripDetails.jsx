@@ -134,7 +134,7 @@ const TripDetails = () => {
                   <td className="p-2">{trip.Driver?.firstName || 'N/A'}</td>
                   <td className="p-2">
                     {trip.startAddress && trip.endAddress
-                      ? `${trip.startAddress.address || trip.startAddress || 'N/A'} to ${
+                      ? `Pickup Address : ${trip.startAddress.address || trip.startAddress || 'N/A'} Drop Address :  ${
                           trip.endAddress.address || trip.endAddress || 'N/A'
                         }`
                       : 'N/A'}
