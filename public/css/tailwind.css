@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	html { @apply antialiased; }
+	body { @apply bg-surface-soft text-gray-800; }
+}
+
+@layer components {
+	.card { @apply bg-white shadow-card rounded-xl border border-blue-gray-100; }
+	.card-header { @apply px-4 py-3 border-b border-blue-gray-100 font-semibold; }
+	.card-body { @apply p-4; }
+	.btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium; }
+	.btn-primary { @apply btn bg-brand text-white hover:bg-brand-700; }
+	.btn-outline { @apply btn border border-gray-300 hover:bg-gray-50; }
+	.input { @apply w-full rounded-lg border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand-200 px-3 py-2; }
+	.chip { @apply inline-flex items-center rounded-full px-3 py-1 text-sm bg-gray-100; }
+}
+
+/* Tables */
+@layer components {
+	.table-container { @apply overflow-x-auto rounded-xl border border-blue-gray-100 bg-white shadow-card; }
+	.table { @apply min-w-full divide-y divide-blue-gray-100; }
+	.thead { @apply bg-surface-soft; }
+	.th { @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600; }
+	.tr { @apply even:bg-surface-soft; }
+	.td { @apply px-4 py-3 align-top text-sm text-blue-gray-700; }
+}

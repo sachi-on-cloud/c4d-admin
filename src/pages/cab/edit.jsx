@@ -584,7 +584,7 @@ const CabEdit = () => {
                                                 <option value="">Select Driver</option>
                                                 {accountRelatedDrivers.map((option) => (
                                                     <option key={option.id} value={option.id}>
-                                                        {option.firstName}
+                                                        {option.firstName} ({option.phoneNumber})
                                                     </option>
                                                 ))}
                                             </Field>
