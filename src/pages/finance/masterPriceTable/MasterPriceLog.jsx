@@ -89,7 +89,7 @@ const MasterPriceLog = ({ id }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {documentslogs.map(({ id, created_at, oldData, newData, UserId }, key) => {
+                                {documentslogs.map(({ id, created_at, oldData, newData, UserId,User }, key) => {
                                     const className = `py-3 px-5 ${key === documentslogs.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     const updatedFields = Object.keys(oldData || {});
 
@@ -122,7 +122,7 @@ const MasterPriceLog = ({ id }) => {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {UserId}
+                                                    {User?.name || UserId}
                                                 </Typography>
                                             </td>
                                         </tr>

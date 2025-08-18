@@ -85,33 +85,33 @@ export function SearchDrivers(props) {
             setCheckingAllStatus(false);
         }
     };
-    const AnimatedProgress = ({ duration = 30000 }) => {
-  const [progress, setProgress] = useState(0);
+//     const AnimatedProgress = ({ duration = 30000 }) => {
+//   const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    let startTime = null;
-    let animationFrameId = null;
+//   useEffect(() => {
+//     let startTime = null;
+//     let animationFrameId = null;
 
-    const animate = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const newProgress = Math.min((elapsed / duration) * 100, 100);
-      setProgress(newProgress);
+//     const animate = (timestamp) => {
+//       if (!startTime) startTime = timestamp;
+//       const elapsed = timestamp - startTime;
+//       const newProgress = Math.min((elapsed / duration) * 100, 100);
+//       setProgress(newProgress);
 
-      if (elapsed < duration) {
-        animationFrameId = requestAnimationFrame(animate);
-      }
-    };
+//       if (elapsed < duration) {
+//         animationFrameId = requestAnimationFrame(animate);
+//       }
+//     };
 
-    animationFrameId = requestAnimationFrame(animate);
+//     animationFrameId = requestAnimationFrame(animate);
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [duration]);
+//     return () => {
+//       cancelAnimationFrame(animationFrameId);
+//     };
+//   }, [duration]);
 
-  return <Progress value={progress} size="sm" color="blue" className="w-16 inline-block ml-1" />;
-};
+//   return <Progress value={progress} size="sm" color="blue" className="w-16 inline-block ml-1" />;
+// };
 
 
     const getDriversList = async (searchQuery = '') => {
@@ -237,6 +237,7 @@ export function SearchDrivers(props) {
                     }
                     data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
                 } else {
+                    setLoading(false);
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
@@ -340,11 +341,17 @@ export function SearchDrivers(props) {
             const reqBody = {
                 bookingId: props?.bookingData?.id,
                 driverId: cabDriverId,
-                type: 'REQUEST_DRIVER',
-                package: props?.bookingData?.packageId,
-                from: 'WEBPORTAL',
+                status: 'BOOKING_ACCEPTED',
+                packageId: props?.bookingData?.packageId,
+                // from: 'WEBPORTAL',
+                shiftId: fullData?.Shifts[0]?.id,
+                cabId:fullData.Shifts[0].CabId,
+                offerPrice: fullData.offerPrice || null,
+                estimatedDistance: fullData.estimatedDistance || null,
+                estimatedMin: fullData.estimatedMin || null,
+                // packageId: fullData.package,
             }
-            let data = await ApiRequestUtils.post(API_ROUTES.RENTAL_REQUEST, reqBody);
+            let data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RENTAL_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
             }
@@ -537,7 +544,9 @@ export function SearchDrivers(props) {
                                                             {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) && (
                                                                     checkingStatusDriverIds.includes(Drivers?.[0]?.id) ? (
-                                                                       <AnimatedProgress duration={30000} />
+                                                                       <div className='flex justify-center items-center'>
+                                                                                <Spinner className="h-4 w-4" />
+                                                                        </div>
                                                                     ) : (
                                                                         <Typography
                                                                             className="text-xs font-semibold text-blue-900 underline cursor-pointer"
@@ -584,6 +593,22 @@ export function SearchDrivers(props) {
             }
             {props?.bookingData?.serviceType != 'DRIVER' &&
                 <div className="flex flex-col w-full">
+                    <Card>
+                        {loadingRides ? (
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                    Requesting nearby drivers. Please wait 30 seconds...
+                                </Typography>
+                            </CardHeader>
+                        ) : loading ? (
+                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
+                                <Typography variant="h6" color="white">
+                                    Loading cabs...
+                                </Typography>
+                            </CardHeader>
+                        ) : drivers.length > 0 ? (
+                <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
+                    {props.bookingData?.requestType !== 'REQUEST_ALL' && 
                     <div className="flex justify-end mb-4">
                         <Button
                             color="red"
@@ -601,21 +626,7 @@ export function SearchDrivers(props) {
                             ) : "Check All Status"}
                         </Button>
                     </div>
-                    <Card>
-                        {loadingRides ? (
-                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
-                                <Typography variant="h6" color="white">
-                                    Requesting nearby drivers. Please wait 30 seconds...
-                                </Typography>
-                            </CardHeader>
-                        ) : loading ? (
-                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
-                                <Typography variant="h6" color="white">
-                                    Loading cabs...
-                                </Typography>
-                            </CardHeader>
-                        ) : drivers.length > 0 ? (
-                            <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
+                    }
                                 <table className="w-full">
                                     <thead>
                                         <tr>
@@ -721,7 +732,9 @@ export function SearchDrivers(props) {
                                                             {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
                                                                 !statusCheckedDriverIds.includes(Drivers?.[0]?.id) && (
                                                                     checkingStatusDriverIds.includes(Drivers?.[0]?.id) ? (
-                                                                        <AnimatedProgress duration={30000} />
+                                                                        <div className='flex justify-center items-center'>
+                                                                                <Spinner className="h-4 w-4" />
+                                                                        </div>
                                                                     ) : (
                                                                         <Typography
                                                                             className="text-xs font-semibold text-blue-900 underline cursor-pointer"

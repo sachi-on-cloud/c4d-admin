@@ -32,6 +32,7 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
+    { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Users" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
@@ -97,8 +98,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
   return (
     <aside
       className={`${sidenavTypes[sidenavType]} 
-  ${openSidenav ? "translate-x-0" : "translate-x-0"} 
-  fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] max-w-[308px] 
+  ${openSidenav ? "translate-x-0" : "-translate-x-full"} 
+  lg:translate-x-0 fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] lg:w-[18rem] max-w-[308px]
   rounded-xl transition-transform duration-300 
   border border-blue-gray-100`}
     >
@@ -132,7 +133,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
           color="white"
           size="sm"
           ripple={false}
-          className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none xl:hidden"
+          className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none lg:hidden"
           onClick={() => setOpenSidenav(dispatch, false)}
         >
           <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
@@ -175,6 +176,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
+                       {name === "Trip Master" ? (
+                        <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
+
 
                       {name === "Finance" ? (
                         <ChartBarIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
@@ -362,6 +368,43 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     ))}
                   </ul>
                 )}
+                {name === "Trip Master" && openSubMenu === "Trip Master" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "Details", path: "/dashboard/tripDetails" },
+                      { label: "Reports", path: "/dashboard/tripDetails/reports" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                                }`}
+                              fullWidth
+                            >
+                              {label === "Details"  }
+                               {label === "Reports" 
+                                // <img
+                                //   src="/img/pending_doc.png"
+                                //   alt="Pending Documents"
+                                //   className="h-6 w-6 rounded-full"
+                                // />
+                              }
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+            
                 {name === "Finance" && openSubMenu === "Finance" && (
                   <ul className="ml-0">
                     {[

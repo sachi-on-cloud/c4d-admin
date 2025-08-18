@@ -6,6 +6,7 @@ import moment from 'moment';
 import { GoogleMap, Marker} from '@react-google-maps/api';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import SearchableDropdown from '@/components/SearchableDropdown';
 
 const EditBooking = (props) => {
     const [loading,setLoading]=useState(true);
@@ -19,6 +20,36 @@ const EditBooking = (props) => {
     const [dropLocation, setDropLocation] = useState(null);
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
+    const [customerData, setCustomerData] = useState([]);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [customerNumber, setCustomerNumber] = useState('');
+
+    const fetchData = async () => {
+    try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_CUSTOMERS, {
+            forSearch: true
+        });
+        setCustomerData(response.data);
+    } catch (error) {
+        console.error('Error fetching customer data:', error);
+    }
+};
+useEffect(() => {
+    fetchData();
+    if (props.bookingData) {
+        getBookingDetailsById(props.bookingData.id, props.bookingData.customerId);
+    }
+}, [props.bookingData]);
+
+useEffect(() => {
+    if (bookingData?.customerId) {
+        setSelectedCustomer(bookingData.customerId);
+        const customer = customerData.find(c => c.id === bookingData.customerId);
+        if (customer) {
+            setCustomerNumber(customer.phoneNumber || '');
+        }
+    }
+}, [bookingData, customerData]);
 
     useEffect(() => {
         if (props.bookingData) {
@@ -245,6 +276,7 @@ const EditBooking = (props) => {
             </div>
         ) : (
             <>
+           
             <div className='pb-4'>
                 <Typography variant="h5" color='#000000'>
                     Edit Booking - {bookingData?.bookingNumber}
@@ -257,7 +289,21 @@ const EditBooking = (props) => {
             >
                 {({ handleSubmit, setFieldValue, values, dirty, isValid }) => {
                     return(
-                    <>
+                    <> {customerData && (
+    <div className="p-2 flex mb-4 pointer-events-none">
+        <SearchableDropdown
+            searchVal={setCustomerNumber}
+            addVal={customerNumber}
+            selected={selectedCustomer}
+            options={customerData}
+            onSelect={(val) => {
+                setFieldValue('customerId', val);
+                setSelectedCustomer(val.id);
+            }}
+          
+        />
+    </div>
+)}
                         {bookingData?.serviceType !== "RIDES" && <>
                             <div className="flex-1 mb-4">
                                 <div>
@@ -327,9 +373,9 @@ const EditBooking = (props) => {
                                         </Button>
                                     </div>
                                 </div>
-                                <div>
+                                <div className='grid grid-cols-1 mt-2 space-x-3'>
                                     <label className="text-sm font-medium text-black-700">Car Type</label>
-                                    <div className="grid grid-cols-4 mt-2">
+                                    <div className="flex gap-4">
                                         {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
                                             <label key={carType} className="flex items-center space-x-2">
                                                 <Field
@@ -348,7 +394,7 @@ const EditBooking = (props) => {
                                 
                                 {(values?.serviceType !== 'RENTAL') && (<div>
                                     <label className="text-sm font-medium text-black-700">Transmission Type</label>
-                                    <div className="grid grid-cols-2 mt-2">
+                                    <div className="grid grid-cols-8 mt-2">
                                         {['Manual', 'Automatic'].map((transType) => (
                                             <label key={transType} className="flex items-center space-x-2">
                                                 <Field
@@ -387,6 +433,7 @@ const EditBooking = (props) => {
                                             </div>
                                         </div>
                                     )}
+                                     <div className="flex gap-4 mb-2">
                             <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">
                                     Pickup Date & Time
@@ -430,6 +477,7 @@ const EditBooking = (props) => {
                                     }}
                                 />
                             </div>}
+                            </div>
                             {values.packageTypeSelected =='Local' && <div className="flex-1 mb-4">
                                 <div>
                                     <Typography variant="h6" className="mb-2">
@@ -473,7 +521,8 @@ const EditBooking = (props) => {
                                     <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>}
-                            <div className="p-2 space-y-2">
+                             <div className="flex  gap-2 ">
+                            <div className="flex-1 p-2 space-y-2">
                                 <label className="block text-sm font-medium text-black-700">
                                     Pickup Location <span className="text-red-500">*</span>
                                 </label>
@@ -504,7 +553,7 @@ const EditBooking = (props) => {
                                     </ul>
                                 )}
                             </div>
-                            {(values.tripType !== 'Drop Only' || values.packageTypeSelected === 'Outstation') && !(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Local') && ( <div className="p-2 space-y-2">
+                            {(values.tripType !== 'Drop Only' || values.packageTypeSelected === 'Outstation') && !(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Local') && ( <div className="flex-1 p-2 space-y-2">
                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                 <Field
                                     type="text"
@@ -533,6 +582,7 @@ const EditBooking = (props) => {
                                     </ul>
                                 )}
                             </div>)}
+                            </div>
                             {values.packageSelected && values.packageTypeSelected =='Local' && <Card className="my-6">
                                 <div className="border rounded-xl bg-gray-200 p-4">
                                     <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -602,11 +652,11 @@ const EditBooking = (props) => {
                                 Check Estimated Price
                             </Button>
                             }
-                            <>
+                           <div className="flex justify-center my-6 gap-4">
                                 <Button
                                     color="gray"
                                     onClick={onBackPressHandler}
-                                    className='my-6 mx-2'
+                                    className='my-6 mx-2 '
                                 >
                                     Back
                                 </Button>
@@ -621,11 +671,12 @@ const EditBooking = (props) => {
                                 >
                                     Confirm Booking
                                 </Button>
-                            </>
+                            </div>
                         </>}
                         {bookingData?.serviceType == "RIDES" && 
                             <>
-                                <div className="p-2 space-y-2">
+                             <div className="flex  gap-2 ">
+                                <div className="flex-1 p-2 space-y-2">
                                     <label className="block text-sm font-medium text-black-700">
                                         Pickup Location <span className="text-red-500">*</span>
                                     </label>
@@ -656,7 +707,7 @@ const EditBooking = (props) => {
                                         </ul>
                                     )}
                                 </div>
-                                <div className="p-2 space-y-2">
+                                <div className="flex-1 p-2 space-y-2">
                                     <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                     <Field
                                         type="text"
@@ -685,7 +736,8 @@ const EditBooking = (props) => {
                                         </ul>
                                     )}
                                 </div>
-                                <>
+                                 </div>
+                                <div className="flex justify-center my-6 gap-4">
                                     <Button
                                         color="gray"
                                         onClick={onBackPressHandler}
@@ -704,7 +756,7 @@ const EditBooking = (props) => {
                                     >
                                         Confirm Booking
                                     </Button>
-                                </>
+                                </div>
                             </>
                         }
                     </>

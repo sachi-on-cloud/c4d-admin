@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -46,8 +46,10 @@ const Booking = (props) => {
 
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
+    const [driverSuggestions, setDriverSuggestions] = useState([]);
     const [pickupLocation, setPickupLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
+    const [driverPickUpLocation, setDriverPickUpLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
     const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
@@ -86,6 +88,8 @@ const Booking = (props) => {
             carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
             pickupLat: values?.pickupLocation?.lat,
             pickupLong: values?.pickupLocation?.lng,
+            driverLat: values?.driverPickUpLocation?.lat,
+            driverLong: values?.driverPickUpLocation?.lng,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
@@ -105,6 +109,8 @@ const Booking = (props) => {
             carType: '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
+            driverLat: val?.driverPickUpLocation?.lat,
+            driverLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
         }
@@ -143,7 +149,9 @@ const Booking = (props) => {
         toDate: "",
         customerId: '',
         serviceType: '',
-        cabType: ''
+        cabType: '',
+        driverPickUpAddress: '',
+        driverPickUpLocation: null,
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -186,6 +194,11 @@ const Booking = (props) => {
             dropAddress: {
                 name: values.dropAddress
             },
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
@@ -221,6 +234,11 @@ const Booking = (props) => {
             dropAddress: values.dropLocation ? {
                 name: values.dropAddress
             } : null,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name:values.driverPickUpAddress,
+            },
             source: 'Call',
         };
 
@@ -326,23 +344,37 @@ const Booking = (props) => {
         setDatePickerVisible(false);
     };
 
-    const searchLocations = async (query, isPickup) => {
+    const searchLocations = async (query, isPickup, type) => {
         if (query.length > 2) {
+            try {
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, { address: query });
             if (data?.success && data?.data) {
                 if (isPickup) {
                     setPickupSuggestions(data?.data);
+                } else if (type === 'driver') {
+                    setDriverSuggestions(data?.data);
                 } else {
                     setDropSuggestions(data?.data);
                 }
+            } else {
+                setPickupSuggestions([]);
+                setDriverSuggestions([]);
+                setDropSuggestions([]);
+            }
+        } catch (error) {
+            console.error('Error searching locations:', error);
+            setPickupSuggestions([]);
+            setDriverSuggestions([]);
+            setDropSuggestions([]);
             }
         } else {
             setPickupSuggestions([]);
+            setDriverSuggestions([]);
             setDropSuggestions([]);
         }
     };
 
-    const handleSelectLocation = async (address, isPickup, setFieldValue) => {
+    const handleSelectLocation = async (address, isPickup, type, setFieldValue) => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
         if (data?.success) {
             const location = { lat: data.data.lat, lng: data.data.lng };
@@ -351,6 +383,11 @@ const Booking = (props) => {
                 setFieldValue("pickupLocation", location);
                 setPickupLocation(location);
                 setPickupSuggestions([]);
+            } else if (type === 'driver') {
+                setFieldValue("driverPickUpAddress", address);
+                setFieldValue("driverPickUpLocation", location);
+                setDriverPickUpLocation(location);
+                setDriverSuggestions([]);
             } else {
                 setFieldValue("dropAddress", address);
                 setFieldValue("dropLocation", location);
@@ -623,17 +660,19 @@ const Booking = (props) => {
                                     >
                                         {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
                                             <>
-                                                {customerData && <div className="p-2 flex">
+                                                {customerData  && !editBookingView && <div className="p-2 flex">
                                                    <SearchableDropdown 
-    searchVal={setCustomerNumber} 
-    addVal={addCustomerNumber} 
-    selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
-    options={customerData} 
-    onSelect={(val) => {
-      setFieldValue('customerId', val);
-      setSelectedCustomer(val.id);
-    }} 
-  />
+                                                        searchVal={setCustomerNumber} 
+                                                        addVal={addCustomerNumber} 
+                                                        selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
+                                                        options={customerData} 
+                                                        onSelect={(val) => {
+                                                        setFieldValue('customerId', val);
+                                                        setSelectedCustomer(val.id);
+                                                        
+                                                        }} 
+                                                        
+                                                    />
 
                                                     {!editBookingView && <Button
                                                         className="ml-3 w-1/2"
@@ -844,6 +883,7 @@ const Booking = (props) => {
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
                                                                 min={values.rideDate ? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
+                                                                 onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                                 onChange={(e) => {
                                                                     const selectedDateTime = e.target.value;
                                                                     const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
@@ -965,9 +1005,9 @@ const Booking = (props) => {
                                     </div>
                                 )} */}
                                                 <div className='grid grid-cols-2'>
-                                                    {((values.tripType) || (values.serviceType == 'RIDES') || (values.serviceType == 'RENTAL') || (values.serviceType == 'RENTAL_HOURLY_PACKAGE')) && <div className="p-2 space-y-2">
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
-                                                           Customer Pickup Location <span className="text-red-500">*</span>
+                                                            Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
                                                         <Field
                                                             type="text"
@@ -986,16 +1026,16 @@ const Booking = (props) => {
                                                                     <li
                                                                         key={index}
                                                                         className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                        onClick={() => {
-                                                                            handleSelectLocation(suggestion, true, setFieldValue);
-                                                                        }}
+                                                                        onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue)}
                                                                     >
                                                                         {suggestion}
                                                                     </li>
                                                                 ))}
                                                             </ul>
                                                         )}
-                                                    </div>}
+                                                        <ErrorMessage name="pickupAddress" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
                                                     <div className="p-2 space-y-2 space-x-3">
                                                         {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                                             <div>
@@ -1018,7 +1058,7 @@ const Booking = (props) => {
                                                                                 key={index}
                                                                                 className="p-2 cursor-pointer hover:bg-gray-100"
                                                                                 onClick={() => {
-                                                                                    handleSelectLocation(suggestion, false, setFieldValue);
+                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue);
                                                                                 }}
                                                                             >
                                                                                 {suggestion}
@@ -1030,6 +1070,36 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Driver Starting Point 
+                                                            </label>
+                                                            <Field
+                                                                type="text"
+                                                                name="driverPickUpAddress"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                placeholder="Enter driver pickup location (Optional)"
+                                                                onChange={(e) => {
+                                                                    setFieldValue("driverPickUpAddress", e.target.value);
+                                                                    setFieldValue("driverPickUpLocation", null);
+                                                                    searchLocations(e.target.value, false,'driver');
+                                                                }}
+                                                            />
+                                                            {driverSuggestions.length > 0 && (
+                                                                <ul className="border rounded-lg bg-white mt-2">
+                                                                    {driverSuggestions.map((suggestion, index) => (
+                                                                        <li
+                                                                            key={index}
+                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
+                                                                        >
+                                                                            {suggestion}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>)}
                                                 </div>
                                                 {values.packageSelected &&
                                                     <Card className="my-6">
@@ -1080,19 +1150,41 @@ const Booking = (props) => {
                                                             <div className="mt-4">
                                                                 <>
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                        {values.serviceType !== 'DRIVER' && ( <>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                        <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm))} Kms
-                                                                        </Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Per Km Rate</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm)) 
+                                                                            // + (Number(quoteDetails.amount.driverWithin))
+                                                                            } Kms + {quoteDetails.amount.driverWithin} Kms
+                                                                        </Typography></>)}
+                                                                        {values.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
+                                                                            <>
+                                                                        <Typography color="gray" variant="h6">Per Km Rate</Typography>
+                                                                        <Typography>
                                                                             ₹ {quoteDetails.amount.kilometerPriceVal}
-                                                                        </Typography>}
-                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                        </Typography></>)}
+                                                                        <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount.baseKm} Kilometer</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.baseFare}
                                                                         </Typography>
+                                                                        
+                                                                        {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
+                                                                        <>
+                                                                        <Typography color="gray" variant="h6">Driver Km For Pickup Location</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount.driverWithin + ' Km'}
+                                                                        </Typography>
+                                                                        </>
+                                                                        } */}
+                                                                        {quoteDetails.amount.isPrimeLocation === true && quoteDetails.amount.rideSurchargeAmount > 0 && 
+                                                                        <>
+                                                                        <Typography color="gray" variant="h6">Surcharge Applied</Typography>
+                                                                            <Typography>
+                                                                                ₹  {quoteDetails.amount.rideSurchargeAmount}
+                                                                            </Typography>
+                                                                        </>
+                                                                        }
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.estimatedPrice}
@@ -1152,8 +1244,113 @@ const Booking = (props) => {
                                         )}
                                     </GoogleMap>
                                 )} */}
+                                                {values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageSelected && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.additionalMinCharge :
+                                                                            values.carType === 'Sedan' ? selectedPackage.additionalMinChargeSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.additionalMinChargeSuv :
+                                                                                    selectedPackage.additionalMinChargeMVP
+                                                                    ) : '';
+                                                                })()} will be charged for every 15 minutes beyond {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ''} hours.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
+                                                                            values.carType === 'Sedan' ? selectedPackage.extraKilometerPriceSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
+                                                                                    selectedPackage.extraKilometerPriceMVP
+                                                                    ) : '';
+                                                                })()} will be charged per extra kilometer.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A night charge of ₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''} applies if the trip extends past {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                            </Typography>
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
 
-                                                {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
+                                                )}
+                                                {values.serviceType == 'RENTAL_DROP_TAXI' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className="text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                 {values.serviceType == 'RENTAL' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>   
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
                                                 {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
