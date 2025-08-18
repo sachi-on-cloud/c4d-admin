@@ -5,6 +5,64 @@
 @layer base {
 	html { @apply antialiased; }
 	body { @apply bg-surface-soft text-gray-800; }
+
+	/* Default (Vibrant) */
+		:root, .theme-vibrant {
+		--color-primary-50: 244 247 255;
+		--color-primary-100: 233 239 255;
+		--color-primary-200: 207 224 255;
+		--color-primary-300: 169 197 255;
+		--color-primary-400: 122 164 245;
+		--color-primary-500: 77 127 229;
+		--color-primary-600: 31 70 166;
+		--color-primary-700: 24 57 132;
+		--color-primary-800: 18 44 102;
+		--color-primary-900: 12 30 71;
+		--color-accent: 255 210 30;
+		--color-secondary: 55 64 140;
+		--color-surface: 255 255 255;
+		/* Crisp cool grey */
+		--color-surface-soft: 246 248 252; /* #F6F8FC */
+		--color-surface-muted: 238 242 247; /* #EEF2F7 */
+	}
+
+	/* Work (subdued) */
+	.theme-work {
+		--color-primary-50: 243 246 255;
+		--color-primary-100: 228 235 255;
+		--color-primary-200: 202 214 252;
+		--color-primary-300: 170 189 248;
+		--color-primary-400: 132 159 236;
+		--color-primary-500: 85 121 211;
+		--color-primary-600: 44 62 148;
+		--color-primary-700: 39 54 124;
+		--color-primary-800: 33 45 102;
+		--color-primary-900: 25 35 79;
+		--color-accent: 45 186 140;
+		--color-secondary: 59 73 115;
+		--color-surface: 255 255 255;
+		--color-surface-soft: 247 250 252;
+		--color-surface-muted: 241 245 249;
+	}
+
+	/* Dark */
+	.theme-dark {
+		--color-primary-50: 232 240 255;
+		--color-primary-100: 209 225 255;
+		--color-primary-200: 168 199 255;
+		--color-primary-300: 130 170 255;
+		--color-primary-400: 102 141 255;
+		--color-primary-500: 76 111 255;
+		--color-primary-600: 76 111 255;
+		--color-primary-700: 62 88 204;
+		--color-primary-800: 46 64 153;
+		--color-primary-900: 31 44 107;
+		--color-accent: 255 217 90;
+		--color-secondary: 55 64 140;
+		--color-surface: 11 18 32;
+		--color-surface-soft: 15 23 42;
+		--color-surface-muted: 17 24 39;
+	}
 }
 
 @layer components {
@@ -26,4 +84,81 @@
 	.th { @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600; }
 	.tr { @apply even:bg-surface-soft; }
 	.td { @apply px-4 py-3 align-top text-sm text-blue-gray-700; }
+}
+
+/* High-contrast, accessible search inputs across the app */
+@layer components {
+	/* Base: light themes */
+		/* Use :is() to increase selector weight slightly without duplication */
+		:is(input[type="search"],
+				input[placeholder*="Search" i],
+				[role="search"] input[type="text"],
+				.search input,
+				.searchbar input) {
+			background-color: rgb(var(--color-surface)) !important;
+			color: rgb(17 24 39) !important; /* gray-900 */
+			border-radius: 0.75rem !important; /* rounded-xl */
+			border: 1px solid rgb(209 213 219) !important; /* gray-300 */
+			box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important; /* shadow-sm */
+			transition: border-color 150ms, box-shadow 150ms, background-color 150ms;
+			padding: 0.625rem 0.875rem !important; /* better target size */
+			font-size: 1rem !important;
+			line-height: 1.5rem !important;
+			caret-color: rgb(var(--color-primary-500));
+		}
+
+		:is(input[type="search"],
+				input[placeholder*="Search" i],
+				[role="search"] input[type="text"],
+				.search input,
+				.searchbar input):hover { border-color: rgb(156 163 175) !important; } /* gray-400 */
+
+			:is(input[type="search"],
+					input[placeholder*="Search" i],
+					[role="search"] input[type="text"],
+					.search input,
+					.searchbar input):focus {
+		outline: none;
+			border-color: rgb(var(--color-primary-500)) !important;
+				box-shadow: 0 0 0 4px rgb(var(--color-primary-500) / 0.14), 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+	}
+
+	/* Placeholder improvements */
+	input[type="search"]::placeholder,
+	input[placeholder*="Search" i]::placeholder,
+	[role="search"] input[type="text"]::placeholder,
+	.search input::placeholder,
+	.searchbar input::placeholder { color: rgb(107 114 128); } /* gray-500 */
+
+	/* Dark theme adjustments */
+		.dark :is(input[type="search"],
+							input[placeholder*="Search" i],
+							[role="search"] input[type="text"],
+							.search input,
+							.searchbar input) {
+			background-color: rgb(31 41 55) !important; /* slate-800 */
+			color: rgb(243 244 246) !important; /* gray-100 */
+			border: 1px solid rgb(71 85 105) !important; /* slate-600 */
+		}
+
+		.dark :is(input[type="search"],
+							input[placeholder*="Search" i],
+							[role="search"] input[type="text"],
+							.search input,
+							.searchbar input):hover { border-color: rgb(100 116 139) !important; } /* slate-500 */
+
+		.dark :is(input[type="search"],
+							input[placeholder*="Search" i],
+							[role="search"] input[type="text"],
+							.search input,
+							.searchbar input)::placeholder { color: rgb(156 163 175); } /* gray-400 */
+
+			.dark :is(input[type="search"],
+								input[placeholder*="Search" i],
+								[role="search"] input[type="text"],
+								.search input,
+								.searchbar input):focus {
+				border-color: rgb(var(--color-primary-500)) !important;
+				box-shadow: 0 0 0 4px rgb(var(--color-primary-400) / 0.30), 0 1px 2px 0 rgb(0 0 0 / 0.10) !important;
+			}
 }

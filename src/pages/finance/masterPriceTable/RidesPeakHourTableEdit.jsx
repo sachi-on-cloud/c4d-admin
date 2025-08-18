@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { themeColors } from '@/theme/colors';
+import getThemeColors from '@/theme/colors';
 import {
     Button,
     Card,
@@ -154,8 +154,8 @@ const RidesPeakHourTableEdit = ({ initialPriceData , onUpdate }) => {
             text: "Do you want to delete this peak hour entry?",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: themeColors.danger,
-            cancelButtonColor: themeColors.info,
+            confirmButtonColor: getThemeColors().danger,
+            cancelButtonColor: getThemeColors().info,
             confirmButtonText: "Yes, delete it!",
             cancelButtonText: "No, cancel"
         }).then((result) => {

@@ -23,10 +23,10 @@ export function Dashboard() {
   }, [location.pathname]);
 
   return (
-    <div className="h-screen bg-gray-50">
+    <div className="h-screen bg-surface-soft">
       <div className="grid h-full grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)]">
         {/* Sidebar column (desktop persistent, mobile off-canvas handled in component) */}
-        <aside className={`hidden lg:block ${miniSidenav ? 'w-[4.5rem]' : 'w-72'} h-full bg-blue-gray-100`}></aside>
+        <aside className={`hidden lg:block ${miniSidenav ? 'w-[4.5rem]' : 'w-72'} h-full bg-surface-soft`}></aside>
 
         {/* Main column */}
         <div className="relative flex min-w-0 flex-col">
@@ -64,7 +64,7 @@ export function Dashboard() {
           <Topnav sidenavColor={sidenavColor} sidenavType={sidenavType} />
 
           {/* Content area */}
-          <div className="flex-1 min-w-0 px-4 lg:px-7 pt-4 overflow-y-auto bg-blue-gray-100">
+          <div className="flex-1 min-w-0 px-4 lg:px-7 pt-4 overflow-y-auto bg-surface-soft">
             <Routes>
               {routes.map(
                 ({ layout, pages }) =>

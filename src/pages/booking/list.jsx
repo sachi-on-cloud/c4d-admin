@@ -393,7 +393,7 @@ const handleTabChange = (value) => {
                 </div>
                 <CardBody>
                     <Tabs  value={activeTab} >
-                        <TabsHeader className="bg-gray-300 z-0">
+                        <TabsHeader className="bg-surface-muted rounded-xl z-0">
                             {tabs.map(({ label, value }) => (
                                 <Tab
                                     key={value}
@@ -428,15 +428,23 @@ const handleTabChange = (value) => {
                             </Typography>
                         ) : (
                             <>
-                                <table className="w-full table-auto">
-                                    <thead>
+                                {/* Table start */}
+                                <div className="table-container">
+                                <table className="table">
+                                    <thead className="thead">
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
-
-                                                <th
-                                                    key={el}
-                                                    className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}
-                                                >
+                                            {[
+                                                "Booking ID",
+                                                "Customer Name",
+                                                "Driver Name",
+                                                "Source",
+                                                "Booking Date",
+                                                "Created Date",
+                                                "Status",
+                                                "Trip Co-Ordinator",
+                                                "Assign Captain",
+                                            ].map((el) => (
+                                                <th key={el} className="th">
                                                     {el === "Service Type" && type === "" ? (
                                                         <FilterPopover
                                                             title={el}
@@ -444,27 +452,20 @@ const handleTabChange = (value) => {
                                                                 { value: 'All', label: 'All' },
                                                                 { value: 'DRIVER', label: 'Acting Driver' },
                                                                 { value: 'CAR_WASH', label: 'Car Wash' },
-                                                                { value: 'CAB', label: 'Cab' }
+                                                                { value: 'CAB', label: 'Cab' },
                                                             ]}
                                                             selectedFilters={serviceTypeFilter}
                                                             onFilterChange={(value) => handleFilterChange('serviceType', value)}
                                                         />
                                                     ) : el === "Created Date" ? (
-                                                        <th
-                                                            onClick={() => handleSort('created_at')}
-                                                            className="border-blue-gray-50 py-3 text-left cursor-pointer flex items-center"
-                                                        >
-                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                                Created Date
-                                                            </Typography>
-                                                            {sortConfig.key === 'created_at' && (
-                                                                sortConfig.direction === 'ascending' ? (
-                                                                    <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                                ) : (
-                                                                    <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                                )
-                                                            )}
-                                                        </th>
+                                                        <div onClick={() => handleSort('created_at')} className="cursor-pointer flex items-center">
+                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-gray-600">Created Date</Typography>
+                                                            {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? (
+                                                                <ChevronUpIcon className="w-5 h-5 mx-1 text-gray-600" />
+                                                            ) : (
+                                                                <ChevronDownIcon className="w-5 h-5 ml-1 text-gray-600" />
+                                                            ))}
+                                                        </div>
                                                     ) : el === "Status" ? (
                                                         <FilterPopover
                                                             title={el}
@@ -493,59 +494,27 @@ const handleTabChange = (value) => {
                                                             selectedFilters={sourceFilter}
                                                             onFilterChange={(value) => handleFilterChange('source', value)}
                                                         />
-                                                    )
-                                                        : el === "Customer Name" ? (
-                                                            <div
-                                                                onClick={() => handleSort('firstName')}
-                                                                className="cursor-pointer flex items-center"
-                                                            >
-                                                                <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                                    Customer Name
-                                                                </Typography>
-                                                                {nameSortConfig.key === 'firstName' && (
-                                                                    nameSortConfig.direction === 'ascending' ? (
-                                                                        <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                                    ) : (
-                                                                        <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                        ) : el === 'Driver Name' ? (
-                                                            <div
-                                                                onClick={() => handleSort('firstName')}
-                                                                className="cursor-pointer flex items-center"
-                                                            >
-                                                                <Typography variant="small" className="text-[11px] font-bold uppercase text-white">
-                                                                    Driver Name
-                                                                </Typography>
-                                                                {nameSortConfig.key === 'firstName' && (
-                                                                    nameSortConfig.direction === 'ascending' ? (
-                                                                        <ChevronUpIcon className="w-5 h-5 mx-1 text-white" />
-                                                                    ) : (
-                                                                        <ChevronDownIcon className="w-5 h-5 ml-1 text-white" />
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                        ) :
-                                                            // el === "Booking Date" ? (
-                                                            //             <FilterPopover
-                                                            //                 title={el}
-                                                            //                 customContent={
-                                                            //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
-                                                            //                 }
-                                                            //             />
-                                                                el === "Trip Co-Ordinator" ? (
-                                                                    <FilterPopover
-                                                                        title={el}
-                                                                        options={tripCoordinatorOptions}
-                                                                        selectedFilters={tripCoordinatorFilter}
-                                                                        onFilterChange={(value) => handleFilterChange('tripCoordinator', value)}
-                                                                    />
-                                                                ) : (
-                                                                <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
-                                                                    {el}
-                                                                </Typography>
-                                                            )}
+                                                    ) : el === "Customer Name" ? (
+                                                        <div onClick={() => handleSort('firstName')} className="cursor-pointer flex items-center">
+                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-gray-600">Customer Name</Typography>
+                                                            {nameSortConfig.key === 'firstName' && (nameSortConfig.direction === 'ascending' ? (
+                                                                <ChevronUpIcon className="w-5 h-5 mx-1 text-gray-600" />
+                                                            ) : (
+                                                                <ChevronDownIcon className="w-5 h-5 ml-1 text-gray-600" />
+                                                            ))}
+                                                        </div>
+                                                    ) : el === 'Driver Name' ? (
+                                                        <div onClick={() => handleSort('firstName')} className="cursor-pointer flex items-center">
+                                                            <Typography variant="small" className="text-[11px] font-bold uppercase text-gray-600">Driver Name</Typography>
+                                                            {nameSortConfig.key === 'firstName' && (nameSortConfig.direction === 'ascending' ? (
+                                                                <ChevronUpIcon className="w-5 h-5 mx-1 text-gray-600" />
+                                                            ) : (
+                                                                <ChevronDownIcon className="w-5 h-5 ml-1 text-gray-600" />
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <Typography variant="medium" className="text-[11px] font-bold uppercase text-gray-600">{el}</Typography>
+                                                    )}
                                                 </th>
                                             ))}
                                         </tr>
@@ -806,6 +775,8 @@ const handleTabChange = (value) => {
                                             )}
                   </tbody>
                                 </table>
+                                </div>
+                                {/* Table end */}
                                 <div className="flex items-center justify-center mt-4">
                                     <Button
                                         size="sm"

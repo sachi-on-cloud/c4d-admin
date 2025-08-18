@@ -1,4 +1,5 @@
-import { themeColors } from "@/theme/colors";
+import { getThemeColors } from "@/theme/colors";
+const themeColors = getThemeColors();
 export const chartsConfig = {
   chart: {
     toolbar: {

@@ -1,5 +1,6 @@
 import { chartsConfig } from "@/configs";
-import { themeColors } from "@/theme/colors";
+import getThemeColors from "@/theme/colors";
+const themeColors = getThemeColors();
 
 const websiteViewsChart = {
   type: "bar",

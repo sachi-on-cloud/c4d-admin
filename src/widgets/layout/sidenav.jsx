@@ -75,6 +75,15 @@ export function Sidenav({ brandImg, brandName, routes }) {
  
   const [userPermissions, setUserPermissions] = useState(null);
  const [userName, setUserName] = useState("");
+  const [theme, setTheme] = useState(() => localStorage.getItem('app-theme') || 'theme-vibrant');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('theme-vibrant', 'theme-work', 'theme-dark');
+    root.classList.add(theme);
+    if (theme === 'theme-dark') root.classList.add('dark'); else root.classList.remove('dark');
+    localStorage.setItem('app-theme', theme);
+  }, [theme]);
   useEffect(() => {
     const dataFromStorage = localStorage.getItem('loggedInUser');
     
@@ -103,7 +112,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
   ${openSidenav ? "translate-x-0" : "-translate-x-full"} 
   lg:translate-x-0 fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] ${miniSidenav ? 'w-[4.5rem]' : 'w-[90vw] lg:w-[18rem] max-w-[308px]'}
   rounded-xl transition-transform duration-300 
-  border border-blue-gray-100`}
+  border border-blue-gray-100 bg-surface`}
     >
       <div className={`relative`}>
         <Link to="/" className={`py-5 ${miniSidenav ? 'px-0' : 'px-6'} text-center`}>
@@ -157,7 +166,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
           <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
         </IconButton>
       </div>
-      <div className={`m-1 h-[calc(100vh-150px)] overflow-y-auto ${miniSidenav ? 'px-0' : ''}`}>
+  <div className={`m-1 h-[calc(100vh-150px)] overflow-y-auto ${miniSidenav ? 'px-0' : ''}`}>
         <ul className="flex flex-col gap-1">
           {menuItems
             .filter(item => userPermissions.includes(item.permission))
@@ -644,6 +653,17 @@ export function Sidenav({ brandImg, brandName, routes }) {
             ))}
         </ul>
       </div>
+      {/* Theme picker */}
+      {/* <div className={`absolute bottom-16 w-full ${miniSidenav ? '' : 'px-3'}`}>
+        <div className={`flex items-center ${miniSidenav ? 'justify-center gap-2' : 'justify-between gap-3'} `}>
+          {!miniSidenav && <Typography className="text-xs text-blue-gray-500">Theme</Typography>}
+          <div className={`flex ${miniSidenav ? 'gap-2' : 'gap-3'}`}>
+            <button aria-label="Vibrant theme" className={`h-6 w-6 rounded-full ring-2 ${theme==='theme-vibrant' ? 'ring-primary-500' : 'ring-blue-gray-200'} bg-primary-600`} onClick={() => setTheme('theme-vibrant')} />
+            <button aria-label="Work theme" className={`h-6 w-6 rounded-full ring-2 ${theme==='theme-work' ? 'ring-primary-500' : 'ring-blue-gray-200'} bg-primary-700`} onClick={() => setTheme('theme-work')} />
+            <button aria-label="Dark theme" className={`h-6 w-6 rounded-full ring-2 ${theme==='theme-dark' ? 'ring-primary-500' : 'ring-blue-gray-200'} bg-gray-900`} onClick={() => setTheme('theme-dark')} />
+          </div>
+        </div>
+      </div> */}
       <Link
         to="/auth/sign-in"
         className={`absolute bottom-4 ${miniSidenav ? 'left-1/2 -translate-x-1/2' : 'ml-3'} `}

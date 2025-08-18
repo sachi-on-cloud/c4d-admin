@@ -1,27 +1,40 @@
 // Centralized color tokens for JS (configs, charts, inline styles)
-// These mirror Tailwind tokens where possible.
-export const themeColors = {
-  // Brand palette
-  primary: "#1A73E8",
-  primaryLight: "#b3ccff",
-  primary900: "#133f7f",
-  secondary: "#37408C",
+// Read current theme colors from CSS variables so runtime theme switching applies.
 
-  // Semantic
-  success: "#388e3c",
-  info: "#0288d1",
-  danger: "#d33",
+function cssVarRGB(name, fallback = "31 70 166") { // primary-600 vibrant
+  if (typeof window === "undefined") return fallback;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
+}
 
-  // Surfaces and text
-  white: "#ffffff",
-  surfaceMuted: "#f5f5f5",
-  surfaceHeader: "#f2f2f2",
-  textMuted: "#37474f",
-  gridBorder: "#dddddd",
+function rgbToHex(rgb) {
+  const [r, g, b] = rgb.split(/\s+/).map((n) => parseInt(n, 10));
+  const toHex = (n) => n.toString(16).padStart(2, "0");
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
 
-  // Map drawing
-  mapFill: "#82CFFD",
-  mapStroke: "#0077BE",
-};
+export function getThemeColors() {
+  const p600 = cssVarRGB("--color-primary-600");
+  const p300 = cssVarRGB("--color-primary-300");
+  const p900 = cssVarRGB("--color-primary-900");
+  const surface = cssVarRGB("--color-surface", "255 255 255");
 
-export default themeColors;
+  return {
+    primary: rgbToHex(p600),
+    primaryLight: rgbToHex(p300),
+    primary900: rgbToHex(p900),
+    secondary: "#37408C",
+    success: "#16A34A",
+    info: "#0EA5E9",
+    danger: "#DC2626",
+    white: rgbToHex(surface),
+    surfaceMuted: "#f5f5f5",
+    surfaceHeader: "#f2f2f2",
+    textMuted: "#37474f",
+    gridBorder: "#dddddd",
+    mapFill: "#82CFFD",
+    mapStroke: "#0077BE",
+  };
+}
+
+export default getThemeColors;

@@ -8,7 +8,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import ConfirmBooking from "@/pages/booking/confirmBooking";
-import { themeColors } from "@/theme/colors";
+import getThemeColors from "@/theme/colors";
 
 const ReceiptDetails = () => {
     const [receipt, setReceipt] = useState({});
@@ -66,7 +66,7 @@ const ReceiptDetails = () => {
         html2canvas(input, {
             scale: 2,
             useCORS: true,
-            backgroundColor: themeColors.white,
+            backgroundColor: getThemeColors().white,
         }).then((canvas) => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
