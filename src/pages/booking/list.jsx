@@ -25,7 +25,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
-export function BookingsList({ customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false }) {
+export function BookingsList({ customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -164,6 +164,12 @@ const handleTabChange = (value) => {
 
     const location = useLocation();
     const paramsPassed = location.state;
+
+    useEffect(() => {
+        if (activeTab && onTypeChange) {
+            onTypeChange(activeTab);
+        }
+    }, [activeTab ,onTypeChange]);
 
     const getBookingsList = async (page = 1) => {
         setLoading(true);

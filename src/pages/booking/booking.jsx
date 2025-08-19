@@ -21,6 +21,14 @@ import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import EditBooking from './editBooking';
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 
 // Format date to YYYY-MM-DD for input's min attribute
 const currentDate = () => {
@@ -44,7 +52,7 @@ const Booking = (props) => {
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
     const [searchBookingId, setSearchBookingId] = useState('');
-
+    const [searchResults, setSearchResults] = useState([]);
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
     const [driverSuggestions, setDriverSuggestions] = useState([]);
@@ -55,6 +63,7 @@ const Booking = (props) => {
     const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
+    const [bookingType, setBookingType] = useState(props.typeProp || '');
 
     const [editBookingView, setEditBookingView] = useState(false);
 
@@ -79,6 +88,34 @@ const Booking = (props) => {
             setPackageTypeSelectedData(data?.data);
         }
     }, []);
+    const handleTypeChange = (type) => {
+        setBookingType(type);
+    };
+    const searchBookings = useCallback(
+        debounce(async (search) => {
+            if (search.length < 3) {
+                setSearchResults([]);
+                return;
+            }
+
+            try {
+                console.log("BOOKINGTYPE", bookingType);
+                const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_BOOKINGS_BY_NUMBER, {
+                    search,
+                    type: bookingType || 'ALL_BOOKINGS',
+                });
+                if (data?.success && data?.data) {
+                    setSearchResults(data.data);
+                } else {
+                    setSearchResults([]);
+                }
+            } catch (error) {
+                console.error('Error searching bookings:', error);
+                setSearchResults([]);
+            }
+        }, 300),
+        [bookingType]
+    );
 
     const getQuoteOutstationDetails = async (values) => {
         const quoteData = {
@@ -576,7 +613,43 @@ const Booking = (props) => {
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
                 <div className='py-6 rounded-3xl flex justify-between'>
-                    {customerData && <div className="p-2 flex w-[40%]">
+                    {customerData && (
+                        <div className="p-2 flex w-[40%] flex-col relative">
+                            <input
+                                type="text"
+                                className="w-full p-2 border rounded"
+                                placeholder="Search by customer number or booking ID"
+                                value={searchBookingId}
+                                onChange={(e) => {
+                                    setSearchBookingId(e.target.value);
+                                    searchBookings(e.target.value);
+                                }}
+                            />
+                            {searchResults.length > 0 && (
+                                <ul className="absolute top-full left-0 w-full border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto z-10">
+                                    {searchResults.map((result, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                            onClick={() => {
+                                                if (result?.type == 'booking') {
+                                                    setSelectedCustomer(0);
+                                                    setSearchBookingId(result?.bookingNumber);
+                                                } else {
+                                                    setSearchBookingId("");
+                                                    setSelectedCustomer(result?.id);
+                                                }
+                                                setSearchResults([]);
+                                            }}
+                                        >
+                                            {result?.type == 'booking' ? result?.bookingNumber : result?.firstName + result?.phoneNumber}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    )}
+                    {/* {customerData && <div className="p-2 flex w-[40%]">
                         <SearchableDropdown
                             searchVal={setCustomerNumber}
                             addVal={addCustomerNumber}
@@ -587,7 +660,7 @@ const Booking = (props) => {
                             }}
                             setSearchBookingId={(value) => {setSearchBookingId(value)}}
                         />
-                    </div>}
+                    </div>} */}
                     <button
                         onClick={() => setIsOpen(true)}
                         className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
@@ -596,7 +669,7 @@ const Booking = (props) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} />
+                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
             </div>
             <div>
                 {isOpen && (
