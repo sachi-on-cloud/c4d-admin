@@ -945,6 +945,7 @@ export const API_ROUTES = {
     'ADD_TRIP_DETAILS':'/add-trip',
     'GET_DRIVER_TRIP_DETAILS':'/get-trips',
     'GET_BOOKING_ENDED_DETAILS':'/booking-number',
+    'SEARCH_BOOKINGS_BY_NUMBER':'/admin/customer/search',
 };
 
 export const KYC_PROCESS = {
