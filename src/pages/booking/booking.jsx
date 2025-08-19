@@ -43,6 +43,7 @@ const Booking = (props) => {
     const [editBooking, setEditBooking] = useState();
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
+    const [searchBookingId, setSearchBookingId] = useState('');
 
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
@@ -273,6 +274,7 @@ const Booking = (props) => {
         setBookingView(false);
         setEditBooking();
         setSelectedCustomer(0);
+        setSearchBookingId('');
     };
 
     const onEditBooking = async (data) => {
@@ -575,15 +577,16 @@ const Booking = (props) => {
             <div className='w-full'>
                 <div className='py-6 rounded-3xl flex justify-between'>
                     {customerData && <div className="p-2 flex w-[40%]">
-                        <SearchableDropdown 
-  searchVal={setCustomerNumber} 
-  addVal={addCustomerNumber} 
-  selected={editBooking?.customerId} 
-  options={customerData} 
-  onSelect={(val) => {
-    setSelectedCustomer(val.id);
-  }} 
-/>
+                        <SearchableDropdown
+                            searchVal={setCustomerNumber}
+                            addVal={addCustomerNumber}
+                            selected={editBooking?.customerId} 
+                            options={customerData} 
+                            onSelect={(val) => {
+                                setSelectedCustomer(val.id);
+                            }}
+                            setSearchBookingId={(value) => {setSearchBookingId(value)}}
+                        />
                     </div>}
                     <button
                         onClick={() => setIsOpen(true)}
@@ -593,17 +596,18 @@ const Booking = (props) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} />
+                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} />
             </div>
             <div>
                 {isOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
                         setIsOpen(false)
                         onConfirmBooking()
-                        setSelectedCustomer();
+                        setSelectedCustomer(0);
                         setEditBookingView();
                         setEditBooking();
                         setQuoteDetails();
+                        setSearchBookingId('')
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
                             <div className="flex-1 bg-[#f5f5f5] rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
@@ -615,10 +619,11 @@ const Booking = (props) => {
                                             () => {
                                                 setIsOpen(false);
                                                 onConfirmBooking();
-                                                setSelectedCustomer();
+                                                setSelectedCustomer(0);
                                                 setEditBookingView();
                                                 setEditBooking();
                                                 setQuoteDetails();
+                                                setSearchBookingId('');
                                             }
                                         }
                                         className="px-0 py-0 bg-black-500"
@@ -654,6 +659,8 @@ const Booking = (props) => {
                                             setRange({});
                                             setLoading(false);
                                             setQuoteDetails();
+                                            setSelectedCustomer(0);
+                                            setSearchBookingId('');
                                         }}
                                         validationSchema={BOOKING_DETAILS_SCHEMA}
                                         enableReinitialize={true}
@@ -667,11 +674,9 @@ const Booking = (props) => {
                                                         selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
                                                         options={customerData} 
                                                         onSelect={(val) => {
-                                                        setFieldValue('customerId', val);
-                                                        setSelectedCustomer(val.id);
-                                                        
-                                                        }} 
-                                                        
+                                                            setFieldValue('customerId', val);
+                                                            setSelectedCustomer(val.id);
+                                                        }}
                                                     />
 
                                                     {!editBookingView && <Button
