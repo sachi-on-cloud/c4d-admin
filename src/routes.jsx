@@ -100,6 +100,7 @@ import ParcelDetails from "./pages/parcel/deatils";
 import ParcelCabAdd from "./pages/cab/addParcelCab";
 import ParcelCabDetails from "./pages/cab/parcelCabDetails";
 import AutoDetailsList from "./pages/AutoDetails/list";
+import EditAuto from "./pages/AutoDetails/edit";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -289,6 +290,13 @@ export const routes = [
         name: "Auto details",
         path: "/vendors/account/autoDetails/details/:id",
         element: <DetailsAuto />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoDetails/details/edit/:id",
+        element: <EditAuto />,
         display: false
       },
       {

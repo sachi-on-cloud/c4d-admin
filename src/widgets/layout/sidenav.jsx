@@ -341,6 +341,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
+                               {label === "Parcel Driver" && (
+                                <img
+                                  src="/img/Parcel_driver.png"
+                                  alt="Acting Driver"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
                                 {label === "Vehicles" && (
                                 <img
                                   src="/img/vehicles.png"
@@ -351,6 +358,20 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                  {label === "Online Vehicles List" && (
                                 <img
                                   src="/img/vehicleslist.png"
+                                  alt="Online Vehicles List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label ===  "Auto Owner" && (
+                                <img
+                                  src="/img/auto_owners.png"
+                                  alt="Online Vehicles List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Auto List" && (
+                                <img
+                                  src="/img/auto.png"
                                   alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />

@@ -53,14 +53,14 @@ const DetailsAuto = ({ btnShow = false, noApprove = false }) => {
         }
     }, [id]);
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_AUTO_BY_ID+ `${itemId}`);
         setCab(data?.data);
     };
     const initialValues = {
         name: cab?.result?.name || "",
         ownerName: cab?.result?.Account ? cab?.result?.Account?.name : "",
         ownerPhoneNumber: cab?.result?.ownerPhoneNumber ? cab?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
-        carNumber: cab?.result?.carNumber || "",
+        carNumber: cab?.result?.autoNumber || "",
         address: cab?.result?.curAddress || "",
         status: cab?.result?.status || "",
         insurance: cab?.result?.insurance || "",
@@ -125,11 +125,7 @@ const DetailsAuto = ({ btnShow = false, noApprove = false }) => {
                                     <Field type="text" name="seater" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                     <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div>
-                                    <label htmlFor="luggage" className="text-sm font-medium text-gray-700">Luggage</label>
-                                    <Field type="text" name="luggage" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                    <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
-                                </div>
+                              
                                 <div>
                                     <label htmlFor="modelYear" className="text-sm font-medium text-gray-700">Year of Model</label>
                                     <Field type="text" name="modelYear" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
@@ -164,7 +160,7 @@ const DetailsAuto = ({ btnShow = false, noApprove = false }) => {
                     Back
                 </Button>
                 <Button
-                    onClick={() => navigate(`/dashboard/vendors/account/allVehicles/edit/${id}`)}
+                    onClick={() => navigate(`/dashboard/vendors/account/autoDetails/details/edit/${id}`)}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Edit

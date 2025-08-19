@@ -944,11 +944,11 @@ export const API_ROUTES = {
     'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
     'POST_AUTO_SEARCH':'/search/auto',
     'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
-    'ADD_TRIP_DETAILS':'/add-trip',
-    'GET_DRIVER_TRIP_DETAILS':'/get-trips',
+    
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_AUTO_PACKAGE':'/get-autos',
-    'GET_TRIP_REPORTS':'/get-trips-report'
+    'GET_AUTO_BY_ID':'/auto/',
+    'UPDATE_AUTO_DETAILS':'/update/admin/auto',
     
 };
 
