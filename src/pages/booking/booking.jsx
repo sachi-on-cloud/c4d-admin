@@ -1151,7 +1151,7 @@ const Booking = (props) => {
                                                                 <>
                                                                     <div className="grid grid-cols-2 justify-between">
                                                                         {values.serviceType !== 'DRIVER' && ( <>
-                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + <br />(Driver Km For Pickup Location)</Typography>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
                                                                             {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm)) 
@@ -1244,17 +1244,113 @@ const Booking = (props) => {
                                         )}
                                     </GoogleMap>
                                 )} */}
-                                {values?.serviceType !=='RIDES' && values?.serviceType !== '' &&
-                                <Card>
-                                        <div className="mt-2 border border-yellow-400 p-2 rounded-xl bg-yellow-400">
-                                                        <div className="text-gray text-xl p-5 font-bold items-justify-center text-center">
-                                                            {BOOKING_TERMS_AND_CONDITIONS || 'Terms and conditions not available'}
+                                                {values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageSelected && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.additionalMinCharge :
+                                                                            values.carType === 'Sedan' ? selectedPackage.additionalMinChargeSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.additionalMinChargeSuv :
+                                                                                    selectedPackage.additionalMinChargeMVP
+                                                                    ) : '';
+                                                                })()} will be charged for every 15 minutes beyond {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ''} hours.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
+                                                                            values.carType === 'Sedan' ? selectedPackage.extraKilometerPriceSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
+                                                                                    selectedPackage.extraKilometerPriceMVP
+                                                                    ) : '';
+                                                                })()} will be charged per extra kilometer.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A night charge of ₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''} applies if the trip extends past {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                            </Typography>
                                                         </div>
-                                        </div>
-                                </Card>
-                                }
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
 
-                                                {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
+                                                )}
+                                                {values.serviceType == 'RENTAL_DROP_TAXI' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className="text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                 {values.serviceType == 'RENTAL' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>   
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
                                                 {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
