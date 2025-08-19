@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) => {
+const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect, setSearchBookingId }) => {
     const [searchText, setSearchText] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState();
@@ -33,6 +33,9 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchText(value);
+        if(value.startsWith('C4D') && value.length > 3){
+            setSearchBookingId(value);
+        }
         onSelect("");
         setSelectedValue(null);
         const isNumeric = /^\d+$/.test(value);
@@ -60,6 +63,7 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect }) 
     const handleClear = (e) => {
         e.stopPropagation();
         setSearchText('');
+        setSearchBookingId('')
         setSelectedValue(null);
         onSelect(options);
         setIsOpen(false);

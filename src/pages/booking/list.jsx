@@ -25,7 +25,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false }) {
+export function BookingsList({ customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -180,6 +180,7 @@ const handleTabChange = (value) => {
             'page': page,
             'limit': pagination.itemsPerPage,
             'filterType': JSON.stringify(filterType),
+            'bookingNumber': searchBookingId,
         });
         // console.log('API Response:', data);
         if (data?.success) {
@@ -245,7 +246,7 @@ const handleTabChange = (value) => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter]);
+    }, [customerId, searchBookingId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
