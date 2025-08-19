@@ -10,6 +10,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [noteType, setNoteType] = useState('')
   const [items, setItems] = useState([]);
   const [bookingLogs, setBookingLogs] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(''); 
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -47,8 +48,14 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   }, [bookingId, notesData]);
 
   const handleAddItem = async () => {
+    setErrorMessage(''); 
+    if (!noteType) {
+      setErrorMessage('Please select a note type first');
+      return;
+    }
+
     if (!text.trim()) {
-      alert('Please enter some text');
+      setErrorMessage('Please enter some text');
       return;
     }
 
@@ -82,7 +89,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
       </div>
       <div className='pt-2'>
         <label htmlFor="noteType" className="text-sm font-medium text-gray-700">
-          Notes Type
+         Please select a Notes Type
         </label>
         <select
           id="noteType"
@@ -91,7 +98,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
         >
           <option value="">Select Note Type</option>
-          <option value="INQUIRY">Inquiry</option>
+          <option value="INQUIRY">Enquiry</option>
           <option value="TRIP">Trip</option>
           <option value="PAYMENT">Payment</option>
           <option value="FEEDBACK">Feedback</option>
@@ -104,6 +111,9 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
+        {errorMessage && (
+          <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+        )}
         <button
           onClick={handleAddItem}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

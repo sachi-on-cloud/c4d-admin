@@ -1144,9 +1144,9 @@ const ConfirmBooking = (props) => {
                         </Card>
                     }
                 </div>
-
+                 {showDetails &&<LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
                 {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData}   bookingId={bookingDetails?.id} /> }
-                {showDetails &&<LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
+               
 
             </>
         </div>
