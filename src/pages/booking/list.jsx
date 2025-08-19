@@ -393,7 +393,7 @@ const handleTabChange = (value) => {
                 </div>
                 <CardBody>
                     <Tabs  value={activeTab} >
-                        <TabsHeader className="bg-surface-muted rounded-xl z-0">
+                        <TabsHeader className="bg-primary-600 rounded-2xl p-1 z-0 flex items-center gap-1 shadow-sm">
                             {tabs.map(({ label, value }) => (
                                 <Tab
                                     key={value}
@@ -402,9 +402,12 @@ const handleTabChange = (value) => {
                                         // console.log('Tab clicked:', value);
                                         handleTabChange(value);
                                     }}
-                                    className='cursor-pointer'
+                                    className='cursor-pointer rounded-xl px-6 py-3 text-base font-semibold transition-colors
+                                               data-[selected=true]:bg-white data-[selected=true]:text-gray-900
+                                               data-[selected=true]:shadow-md data-[selected=true]:ring-1 data-[selected=true]:ring-gray-200
+                                               data-[selected=false]:text-white/90 hover:data-[selected=false]:text-white'
                                 >
-                                    <Typography variant="small" className="font-bold">
+                                    <Typography variant="small" className="font-semibold">
                                         {label}
                                     </Typography>
                                     
