@@ -38,14 +38,14 @@ function Table({ data, columns }) {
   });
 
   return (
-    <div className="table-container">
-      <table className="table">
+    <>
+      <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="thead">
+            <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="th">
-                  <div className="py-2">{flexRender(
+                <th key={header.id}>
+                  <div className="border-b border-blue-gray-50 py-3 px-5 text-left">{flexRender(
                     header.column.columnDef.header,
                     header.getContext()
                   )}</div>
@@ -63,49 +63,49 @@ function Table({ data, columns }) {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="tr">
+          {table.getRowModel().rows.map((row, index) => {
+             const className = `p-3 ${index === table.getRowModel().rows.length - 1
+                ? "mb-4"
+                : "border-b border-blue-gray-50"
+                }`;
+            return <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="td">
-                  <span className="text-sm font-medium text-blue-gray-700">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </span>
+                <td key={cell.id} className={className}>
+                   <span className="text-xs font-semibold text-blue-gray-600">
+                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </span> 
                 </td>
               ))}
             </tr>
-          ))}
+})}
         </tbody>
       </table>
-      <div className="flex items-center gap-2 p-3 border-t border-blue-gray-100 justify-between flex-wrap">
+      <div>
         <button
-          className="btn btn-outline text-sm"
           onClick={() => table.setPageIndex(0)}
           disabled={!table.getCanPreviousPage()}
         >
           {'<<'}
         </button>
         <button
-          className="btn btn-outline text-sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
           {'<'}
         </button>
         <button
-          className="btn btn-outline text-sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
           {'>'}
         </button>
         <button
-          className="btn btn-outline text-sm"
           onClick={() => table.setPageIndex(table.getPageCount() - 1)}
           disabled={!table.getCanNextPage()}
         >
           {'>>'}
         </button>
-        <span className="text-sm text-blue-gray-600">
+        <span>
           Page{' '}
           <strong>
             {table.getState().pagination.pageIndex + 1} of{' '}
@@ -113,7 +113,7 @@ function Table({ data, columns }) {
           </strong>
         </span>
       </div>
-    </div>
+    </>
   );
 }
 
