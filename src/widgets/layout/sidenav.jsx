@@ -98,8 +98,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
   return (
     <aside
       className={`${sidenavTypes[sidenavType]} 
-  ${openSidenav ? "translate-x-0" : "translate-x-0"} 
-  fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] max-w-[308px] 
+  ${openSidenav ? "translate-x-0" : "-translate-x-full"} 
+  lg:translate-x-0 fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] lg:w-[18rem] max-w-[308px]
   rounded-xl transition-transform duration-300 
   border border-blue-gray-100`}
     >
@@ -133,7 +133,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
           color="white"
           size="sm"
           ripple={false}
-          className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none xl:hidden"
+          className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none lg:hidden"
           onClick={() => setOpenSidenav(dispatch, false)}
         >
           <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
