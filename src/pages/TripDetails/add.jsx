@@ -8,6 +8,7 @@ import {
   Input,
   Select,
   Option,
+  
 } from '@material-tailwind/react';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
@@ -31,7 +32,6 @@ const AddTripDetails = () => {
     fuelQuantity: '',
     fuelCost: '',
     tripFare: '',
-    profit: '0.00',
     notes: '',
     startLat: 0,
     startLong: 0,
@@ -40,8 +40,11 @@ const AddTripDetails = () => {
   });
 
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
 
   // Fetch all bookings when the component mounts
@@ -53,6 +56,7 @@ const AddTripDetails = () => {
         if (data?.success) {
           const bookingsData = data?.data || [];
           setBookings(bookingsData);
+          setFilteredBookings([]);
           if (bookingsData.length === 0) {
             setError('No bookings found');
           }
@@ -68,7 +72,30 @@ const AddTripDetails = () => {
     };
 
     fetchBookings();
-  }, []); // Empty dependency array to run once on mount
+  }, []);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim().length >= 4) {
+      const filtered = bookings.filter((booking) =>
+        booking.id.toString().toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredBookings(filtered);
+      setShowDropdown(true);
+      if (filtered.length === 0) {
+        setError('No bookings found for the given search');
+      } else {
+        setError('');
+      }
+    } else {
+      setFilteredBookings([]);
+      setShowDropdown(false);
+      setError('');
+    }
+  };
 
   // Handle booking selection and auto-fill form
   const handleBookingSelect = (bookingId) => {
@@ -89,6 +116,8 @@ const AddTripDetails = () => {
         totalKm: selectedBooking.totalDistanceKilometer || '0.0',
       }));
       setError('');
+      setShowDropdown(false); // Hide dropdown after selection
+      setSearchQuery(''); // Clear search query
     } else {
       setError('Selected booking not found');
       setFormData((prev) => ({
@@ -118,13 +147,6 @@ const AddTripDetails = () => {
         newData.totalKm = (end - start).toFixed(1);
       }
 
-      // Calculate profit/loss
-      if (name === 'tripFare' || name === 'fuelCost') {
-        const fare = parseFloat(newData.tripFare) || 0;
-        const cost = parseFloat(newData.fuelCost) || 0;
-        newData.profit = (fare - cost).toFixed(2);
-      }
-
       return newData;
     });
   };
@@ -149,12 +171,10 @@ const AddTripDetails = () => {
       'endKm',
       'totalKm',
       'fuelType',
-      'fuelQuantity',
-      'fuelCost',
+      
       'tripFare',
     ];
 
-    // Validate required fields
     for (const field of requiredFields) {
       if (!formData[field]) {
         setError(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
@@ -162,7 +182,6 @@ const AddTripDetails = () => {
       }
     }
 
-    // Validate bookingId
     const selectedBooking = bookings.find(
       (booking) => booking.id.toString() === formData.bookingId
     );
@@ -173,10 +192,10 @@ const AddTripDetails = () => {
 
     try {
       setLoading(true);
-     const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, {
+      const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, {
         bookingId: formData.bookingId,
         tripDate: formData.tripDate,
-         latitude: formData.startLat,
+        latitude: formData.startLat,
         startLat: formData.startLat,
         startLong: formData.startLong,
         startAddress: { address: formData.startAddress },
@@ -187,20 +206,18 @@ const AddTripDetails = () => {
         endKm: parseFloat(formData.endKm),
         totalKm: parseFloat(formData.totalKm),
         fuelType: formData.fuelType,
-        fuelQuantity: parseFloat(formData.fuelQuantity),
-        fuelCost: parseFloat(formData.fuelCost),
+        fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : 0,
         tripFare: parseFloat(formData.tripFare),
-        profit: parseFloat(formData.profit),
         notes: formData.notes,
-        customerId: selectedBooking.customer_id, // Include customerId from selected booking
+        customerId: selectedBooking.customer_id,
         cabId: selectedBooking.cabId,
         driverId: selectedBooking.driverId,
       });
       if (response?.success) {
         setFormData({
           bookingId: '',
-          cabId:'',
-          driverId:'',
+          cabId: '',
+          driverId: '',
           tripDate: moment().format('YYYY-MM-DD'),
           vehicleNumber: '',
           driverName: '',
@@ -210,19 +227,19 @@ const AddTripDetails = () => {
           endKm: '',
           totalKm: '0.0',
           fuelType: 'CNG',
-          fuelQuantity: '',
           fuelCost: '',
           tripFare: '',
-          profit: '0.00',
           notes: '',
           startLat: 0,
           startLong: 0,
           endLat: 0,
           endLong: 0,
         });
-        // console.log('Trip added successfully:' ,response);
         setBookings([]);
+        setFilteredBookings([]);
+        setSearchQuery('');
         setError('');
+        setShowDropdown(false);
         navigate('/dashboard/tripDetails');
       } else {
         setError('Failed to add trip. Please try again.');
@@ -256,23 +273,44 @@ const AddTripDetails = () => {
             Add Trip Details
           </Typography>
           <hr className="my-2" />
+          <div className="mb-4 relative">
+            <Typography color="gray" variant="h6" className="mb-1">
+              Search Booking ID
+            </Typography>
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Enter at least 4 characters to search Booking ID"
+              className="w-full"
+            />
+            {showDropdown && filteredBookings.length > 0 && (
+              <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto">
+                {filteredBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleBookingSelect(booking.id.toString())}
+                  >
+                    {booking.id}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Booking ID *
               </Typography>
-              <Select
+              <Input
+                type="text"
                 name="bookingId"
                 value={formData.bookingId}
-                onChange={(value) => handleSelectChange('bookingId', value)}
-              >
-                <Option value="">Select Booking ID</Option>
-                {bookings.map((booking) => (
-                  <Option key={booking.id} value={booking.id.toString()}>
-                    {booking.id}
-                  </Option>
-                ))}
-              </Select>
+                readOnly
+                disabled
+                placeholder="Selected Booking ID"
+              />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
@@ -282,7 +320,8 @@ const AddTripDetails = () => {
                 type="date"
                 name="tripDate"
                 value={formData.tripDate}
-                onChange={handleInputChange}
+                readOnly
+                disabled
               />
             </div>
             <div>
@@ -292,10 +331,10 @@ const AddTripDetails = () => {
               <Input
                 name="vehicleNumber"
                 value={formData.vehicleNumber}
-               
-              >
-               
-              </Input>
+                onChange={handleInputChange}
+                placeholder="Enter Vehicle Number"
+                disabled
+              />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
@@ -307,6 +346,7 @@ const AddTripDetails = () => {
                 value={formData.driverName}
                 onChange={handleInputChange}
                 placeholder="Enter Driver Name"
+                disabled
               />
             </div>
             <div>
@@ -317,7 +357,8 @@ const AddTripDetails = () => {
                 type="text"
                 name="startAddress"
                 value={formData.startAddress}
-                onChange={handleInputChange}
+                readOnly
+                disabled
                 placeholder="Trip Start Point"
               />
             </div>
@@ -329,7 +370,8 @@ const AddTripDetails = () => {
                 type="text"
                 name="endAddress"
                 value={formData.endAddress}
-                onChange={handleInputChange}
+                readOnly
+                disabled
                 placeholder="Trip End Point"
               />
             </div>
@@ -341,7 +383,8 @@ const AddTripDetails = () => {
                 type="number"
                 name="startKm"
                 value={formData.startKm}
-                onChange={handleInputChange}
+                readOnly
+                disabled
                 placeholder="Opening KM"
               />
             </div>
@@ -353,7 +396,8 @@ const AddTripDetails = () => {
                 type="number"
                 name="endKm"
                 value={formData.endKm}
-                onChange={handleInputChange}
+                readOnly
+                disabled
                 placeholder="Closing KM"
               />
             </div>
@@ -378,25 +422,16 @@ const AddTripDetails = () => {
                 onChange={(value) => handleSelectChange('fuelType', value)}
               >
                 <Option value="CNG">CNG</Option>
-                <Option value="Petrol">Petrol</Option>
-                <Option value="Diesel">Diesel</Option>
+                <Option value='PETROL'>Petrol</Option>
+                <Option value='DIESEL'>Diesel</Option>
+                 <Option value='GAS'>Gas</Option>
+                  <Option value='ELECTRIC'>Electric</Option>
+                   <Option value='NONE'>None</Option>
               </Select>
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Fuel Quantity *
-              </Typography>
-              <Input
-                type="number"
-                name="fuelQuantity"
-                value={formData.fuelQuantity}
-                onChange={handleInputChange}
-                placeholder="Fuel Quantity"
-              />
-            </div>
-            <div>
-              <Typography color="gray" variant="h6" className="mb-1">
-                Fuel Cost (₹) *
+                Fuel Cost (₹)
               </Typography>
               <Input
                 type="number"
@@ -416,17 +451,6 @@ const AddTripDetails = () => {
                 value={formData.tripFare}
                 onChange={handleInputChange}
                 placeholder="Trip Fare"
-              />
-            </div>
-            <div>
-              <Typography color="gray" variant="h6" className="mb-1">
-                Profit/Loss (Auto)
-              </Typography>
-              <Input
-                type="number"
-                value={formData.profit}
-                readOnly
-                disabled
               />
             </div>
             <div className="col-span-2">
