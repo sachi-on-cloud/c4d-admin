@@ -237,6 +237,7 @@ const Booking = (props) => {
             driverStartAddress: {
                 name: values.driverPickUpAddress,
             },
+            source: 'Call',
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
