@@ -96,20 +96,22 @@ const Reports = ({ accountId }) => {
           driverId: driverFilter === 'All Drivers' ? '' : driverFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
+        console.log("datas.....",data)
 
         // Transform API data to match component expectations
         const transformedTrips = data.data.map(trip => {
+          console.log("Mapping trip:", trip);
           const km = parseFloat(trip.totalKm) || 0;
           const endKm = parseFloat(trip.endKm) || 0;
           const startKm = parseFloat(trip.startKm) || 0;
           const calculatedKm = km + (endKm - startKm);
           return {
           date: trip.tripDate,
-          vehicle: trip.Cab?.name || 'Unknown',
+          vehicle: trip.Cab?.carNumber || 'Unknown',
           driver: trip.Driver?.firstName || 'Unknown',
           route: `pickup Address: \n${trip.startAddress.address}\nDrop Address: \n${trip.endAddress.address}`,
           totalKm: isNaN(calculatedKm) ? 0 : calculatedKm,
-          fuel: parseFloat(trip.fuelQuantity),
+          // fuel: parseFloat(trip.fuelQuantity),
           cost: parseFloat(trip.fuelCost),
           fare: parseFloat(trip.tripFare),
           profit: parseFloat(trip.profit),
@@ -148,10 +150,10 @@ const Reports = ({ accountId }) => {
       trip.driver || '-',
       trip.route || '-',
       isNaN(trip.totalKm) ? '0.000' : trip.totalKm.toFixed(2),
-      isNaN(trip.fuel) ? '0.0' : trip.fuel.toFixed(1),
+      // isNaN(trip.fuel) ? '0.0' : trip.fuel.toFixed(1),
       isNaN(trip.cost) ? '0.00' : trip.cost.toFixed(2),
       isNaN(trip.fare) ? '0.00' : trip.fare.toFixed(2),
-      isNaN(trip.profit) ? '0.00' : trip.profit.toFixed(2),
+      // isNaN(trip.profit) ? '0.00' : trip.profit.toFixed(2),
     ]);
 
     try {
@@ -223,10 +225,10 @@ const Reports = ({ accountId }) => {
   const summary = {
     totalTrips: trips.length,
     totalKm: trips.reduce((sum, trip) => sum + (trip.totalKm || 0), 0),
-    fuelUsed: trips.reduce((sum, trip) => sum + (trip.fuel || 0), 0),
+    // fuelUsed: trips.reduce((sum, trip) => sum + (trip.fuel || 0), 0),
     fuelCost: trips.reduce((sum, trip) => sum + (trip.cost || 0), 0),
     totalFare: trips.reduce((sum, trip) => sum + (trip.fare || 0), 0),
-    profitLoss: trips.reduce((sum, trip) => sum + (trip.profit || 0), 0),
+    // profitLoss: trips.reduce((sum, trip) => sum + (trip.profit || 0), 0),
   };
 
   return (
@@ -283,7 +285,7 @@ const Reports = ({ accountId }) => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Vehicle Name</label>
+            <label className="block text-sm font-medium text-gray-700">Vehicle Number</label>
             {loadingVehicles ? (
               <div className="text-gray-500">Loading vehicles...</div>
             ) : vehiclesError ? (
@@ -330,10 +332,10 @@ const Reports = ({ accountId }) => {
         <div className="grid grid-cols-6 gap-4 mb-6">
           <div className="p-2 border border-gray-200 text-center">Trips: {summary.totalTrips}</div>
           <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm.toFixed(1)}</div>
-          <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed.toFixed(1)}</div>
+          {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed.toFixed(1)}</div> */}
           <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost.toFixed(2)}</div>
           <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare.toFixed(2)}</div>
-          <div className="p-2 border border-gray-200 text-center">Profit/Loss: ₹ {summary.profitLoss.toFixed(2)}</div>
+          {/* <div className="p-2 border border-gray-200 text-center">Profit/Loss: ₹ {summary.profitLoss.toFixed(2)}</div> */}
         </div>
         <div className="weekly-report">
           <h3 className="text-lg font-semibold mb-4 text-center bg-blue-900 text-white p-2 rounded" style={{ width: '100%' }}>
@@ -348,14 +350,14 @@ const Reports = ({ accountId }) => {
                 <thead>
                   <tr className="bg-blue-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
-                    <th className="border border-gray-200 p-2">Vehicle Name</th>
+                    <th className="border border-gray-200 p-2">Vehicle Number</th>
                     <th className="border border-gray-200 p-2">Driver</th>
                     <th className="border border-gray-200 p-2">Route</th>
                     <th className="border border-gray-200 p-2">KM</th>
-                    <th className="border border-gray-200 p-2">Fuel</th>
+                    {/* <th className="border border-gray-200 p-2">Fuel</th> */}
                     <th className="border border-gray-200 p-2">Cost</th>
                     <th className="border border-gray-200 p-2">Fare</th>
-                    <th className="border border-gray-200 p-2">Profit</th>
+                    {/* <th className="border border-gray-200 p-2">Profit</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -380,10 +382,10 @@ const Reports = ({ accountId }) => {
                         ))}
                       </td>
                         <td className="border border-gray-200 p-2">{trip.totalKm.toFixed(1)}</td>
-                        <td className="border border-gray-200 p-2">{trip.fuel.toFixed(1)}</td>
+                        {/* <td className="border border-gray-200 p-2">{trip.fuel.toFixed(1)}</td> */}
                         <td className="border border-gray-200 p-2">₹ {trip.cost.toFixed(2)}</td>
                         <td className="border border-gray-200 p-2">₹ {trip.fare.toFixed(2)}</td>
-                        <td className="border border-gray-200 p-2">₹ {trip.profit.toFixed(2)}</td>
+                        {/* <td className="border border-gray-200 p-2">₹ {trip.profit.toFixed(2)}</td> */}
                       </tr>
                     ))
                   )}

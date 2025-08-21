@@ -78,10 +78,10 @@ const TripDetails = () => {
             <div>Today’s KM</div>
             <div className="text-2xl font-bold">{summary.totalKm.toFixed(1)}</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md w-48">
+          {/* <div className="bg-white p-4 rounded-lg shadow-md w-48">
             <div>Fuel Used</div>
             <div className="text-2xl font-bold">{summary.fuelUsed.toFixed(1)}</div>
-          </div>
+          </div> */}
           <div className="bg-white p-4 rounded-lg shadow-md w-48">
             <div>Fuel Cost</div>
             <div className="text-2xl font-bold text-red-500">₹{summary.fuelCost.toFixed(2)}</div>
@@ -90,10 +90,10 @@ const TripDetails = () => {
             <div>Total Fare</div>
             <div className="text-2xl font-bold">₹{summary.totalFare.toFixed(2)}</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md w-48">
+          {/* <div className="bg-white p-4 rounded-lg shadow-md w-48">
             <div>Profit/Loss</div>
             <div className="text-2xl font-bold text-green-500">₹{summary.profit.toFixed(2)}</div>
-          </div>
+          </div> */}
         </div>
         <div className="mt-5 ml-auto">
           <button
@@ -112,12 +112,12 @@ const TripDetails = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="p-2 text-left">Date</th>
-              <th className="p-2 text-left">Vehicle Name</th>
+              <th className="p-2 text-left">Vehicle Number</th>
               <th className="p-2 text-left">Driver</th>
               <th className="p-2 text-left">Route</th>
               <th className="p-2 text-left">KM</th>
               <th className="p-2 text-left">Fare</th>
-              <th className="p-2 text-left">Profit</th>
+              {/* <th className="p-2 text-left">Profit</th> */}
               {/* <th className="p-2 text-left">Actions</th> */}
             </tr>
           </thead>
@@ -130,7 +130,7 @@ const TripDetails = () => {
               trips.map((trip, index) => (
                 <tr key={index}>
                   <td className="p-2">{trip.tripDate || 'N/A'}</td>
-                  <td className="p-2">{trip.Cab?.name || 'N/A'}</td>
+                  <td className="p-2">{trip.Cab?.carNumber|| 'N/A'}</td>
                   <td className="p-2">{trip.Driver?.firstName || 'N/A'}</td>
                   <td className="p-2">
                     {trip.startAddress && trip.endAddress
@@ -141,9 +141,9 @@ const TripDetails = () => {
                   </td>
                   <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || 'N/A'}</td>
                   <td className="p-2">₹{parseFloat(trip.tripFare) || 'N/A'}</td>
-                  <td className="p-2" style={{ color: parseFloat(trip.profit) >= 0 ? 'green' : 'red' }}>
-                    ₹{parseFloat(trip.profit) || 'N/A'}
-                  </td>
+                  {/* <td className="p-2" style={{ color: parseFloat(trip.profit) >= 0 ? 'green' : 'red' }}> */}
+                    {/* ₹{parseFloat(trip.profit) || 'N/A'} */}
+                  {/* </td> */}
                   {/* <td className="p-2">
                     <button className="text-blue-500 hover:underline">View</button>
                   </td> */}

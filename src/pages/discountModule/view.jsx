@@ -37,6 +37,15 @@ const DiscountView = () => {
 
     fetchDiscounts();
   }, [location.state]);
+  const serviceTypeLabels = {
+  ALL:"All Services",
+  DRIVER: "Driver",
+  RIDES: "Rides",
+  RENTAL_HOURLY_PACKAGE:"Hourly Package",
+  RENTAL_DROP_TAXI:"Drop Taxi",
+  RENTAL:"Outstation",
+  AUTO:"Auto",
+};
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -79,7 +88,7 @@ const DiscountView = () => {
                 ) : (
                   discounts.map((item, index) => (
                     <tr key={index} className="border-b">
-                      <td className="py-3 px-5">{item.serviceType}</td>
+                      <td className="py-3 px-5">{serviceTypeLabels[item.serviceType] || item.serviceType}</td>
                       <td className="py-3 px-5">{item.percentage}%</td>
                       <td className="py-3 px-5">{moment(item.startDate).format('DD-MM-YYYY ')}</td>
                       <td className="py-3 px-5">{moment(item.endDate).format('DD-MM-YYYY ')}</td>

@@ -158,7 +158,7 @@ export function CustomerView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number","Rating", ""].map((el) => (
+                    {["Name", "Phone Number","Rating", ""].map((el) => ( // ,"Source"
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer"
@@ -204,7 +204,7 @@ export function CustomerView() {
                     </tr>
                   ) : (
                     customers.map(
-                    ({ id, firstName, lastName, phoneNumber, rating,email }, key) => {
+                    ({ id, firstName, lastName, phoneNumber, rating,email }, key) => {  //,source
                       const className = `py-3 px-5 ${key === customers.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -234,6 +234,11 @@ export function CustomerView() {
                               {formatPhoneNumber(phoneNumber)}
                             </Typography>
                           </td>
+                          {/* <td className={className}>
+                           <Typography className="text-xs font-semibold text-black"> 
+                              {source}
+                            </Typography>
+                          </td> */}
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-black">
                               <div className='flex'>

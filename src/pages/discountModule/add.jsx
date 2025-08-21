@@ -67,7 +67,9 @@ const DiscountAdd = () => {
                   <option value="">Select Service Type</option>
                   <option value="DRIVER">DRIVER</option>
                   <option value="RIDES">RIDES</option>
-                  <option value="RENTAL">RENTAL</option>
+                  <option value="RENTAL_HOURLY_PACKAGE">HOURLY PACKAGE</option>
+                  <option value="RENTAL_DROP_TAXI">DROP TAXI</option>
+                  <option value="RENTAL">OUTSTATION</option>
                   <option value="AUTO">AUTO</option>
                   <option value="ALL">ALL</option>
                 </Field>
