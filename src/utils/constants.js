@@ -949,6 +949,10 @@ export const API_ROUTES = {
     'GET_AUTO_PACKAGE':'/get-autos',
     'GET_AUTO_BY_ID':'/auto/',
     'UPDATE_AUTO_DETAILS':'/update/admin/auto',
+    'AUTO_PACKAGE_LIST':'/auto-package-list',
+    'PARCEL_PACKAGE_LIST':'/parcel-package-list',
+    'AUTO_PRICE_EDIT':'/update-auto-package',
+    'PARCEL_PRICE_EDIT':'/update-parcel-package',
     
 };
 

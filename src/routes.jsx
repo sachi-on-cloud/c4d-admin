@@ -101,6 +101,8 @@ import ParcelCabAdd from "./pages/cab/addParcelCab";
 import ParcelCabDetails from "./pages/cab/parcelCabDetails";
 import AutoDetailsList from "./pages/AutoDetails/list";
 import EditAuto from "./pages/AutoDetails/edit";
+import AutoMasterPriceEdit from "./pages/finance/masterPriceTable/AutoMasterPriceTableEdit";
+import ParcelMasterPriceEdit from "./pages/finance/masterPriceTable/ParcelMasterPriceTableEdit";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -674,6 +676,20 @@ export const routes = [
         name: "Rentals Master Price Edit",
         path: "/users/master-price/rentals-edit/:id",
         element: <RentalsMasterPriceEdit />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel Master Price Edit",
+        path: "/users/master-price/parcel-edit/:id",
+        element: <ParcelMasterPriceEdit />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Master Price Edit",
+        path: "/users/master-price/auto-edit/:id",
+        element: <AutoMasterPriceEdit />,
         display: false
       },
       {
