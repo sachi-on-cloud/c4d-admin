@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import { Button } from '@material-tailwind/react';
 
 const TripDetails = () => {
   const navigate = useNavigate();
@@ -19,10 +20,8 @@ const TripDetails = () => {
   const fetchTrips = async () => {
     try {
       const response = await ApiRequestUtils.get(API_ROUTES.GET_DRIVER_TRIP_DETAILS);
-      // console.log('Trip API response:', response);
       const tripData = response?.data;
 
-      // Assuming tripData is an array of trips
       if (!Array.isArray(tripData)) {
         setError('Unexpected data format from server.');
         setTrips([]);
@@ -37,7 +36,6 @@ const TripDetails = () => {
       }
       setTrips(tripData);
 
-      // Calculate summary statistics
       const summaryData = tripData.reduce(
         (acc, trip) => ({
           totalKm: acc.totalKm + ((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)),
@@ -78,10 +76,6 @@ const TripDetails = () => {
             <div>Today’s KM</div>
             <div className="text-2xl font-bold">{summary.totalKm.toFixed(1)}</div>
           </div>
-          {/* <div className="bg-white p-4 rounded-lg shadow-md w-48">
-            <div>Fuel Used</div>
-            <div className="text-2xl font-bold">{summary.fuelUsed.toFixed(1)}</div>
-          </div> */}
           <div className="bg-white p-4 rounded-lg shadow-md w-48">
             <div>Fuel Cost</div>
             <div className="text-2xl font-bold text-red-500">₹{summary.fuelCost.toFixed(2)}</div>
@@ -90,10 +84,6 @@ const TripDetails = () => {
             <div>Total Fare</div>
             <div className="text-2xl font-bold">₹{summary.totalFare.toFixed(2)}</div>
           </div>
-          {/* <div className="bg-white p-4 rounded-lg shadow-md w-48">
-            <div>Profit/Loss</div>
-            <div className="text-2xl font-bold text-green-500">₹{summary.profit.toFixed(2)}</div>
-          </div> */}
         </div>
         <div className="mt-5 ml-auto">
           <button
@@ -113,39 +103,36 @@ const TripDetails = () => {
             <tr className="bg-gray-100">
               <th className="p-2 text-left">Date</th>
               <th className="p-2 text-left">Vehicle Number</th>
-              <th className="p-2 text-left">Driver</th>
-              <th className="p-2 text-left">Route</th>
+              <th className="p-2 text-left">Driver Name</th>
+              <th className="p-2 text-left">Start Point</th>
+              <th className="p-2 text-left">End Point</th>
               <th className="p-2 text-left">KM</th>
               <th className="p-2 text-left">Fare</th>
-              {/* <th className="p-2 text-left">Profit</th> */}
               {/* <th className="p-2 text-left">Actions</th> */}
             </tr>
           </thead>
           <tbody>
             {trips.length === 0 && !error ? (
               <tr>
-                <td colSpan="7" className="p-2 text-center">No trips available</td>
+                <td colSpan="8" className="p-2 text-center">No trips available</td>
               </tr>
             ) : (
               trips.map((trip, index) => (
                 <tr key={index}>
                   <td className="p-2">{trip.tripDate || 'N/A'}</td>
-                  <td className="p-2">{trip.Cab?.carNumber|| 'N/A'}</td>
+                  <td onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)} className="p-2 text-blue-500 font-semibold underline cursor-pointer">{trip.Cab?.carNumber || 'N/A'}</td>
                   <td className="p-2">{trip.Driver?.firstName || 'N/A'}</td>
-                  <td className="p-2">
-                    {trip.startAddress && trip.endAddress
-                      ? `Pickup Address : ${trip.startAddress.address || trip.startAddress || 'N/A'} Drop Address :  ${
-                          trip.endAddress.address || trip.endAddress || 'N/A'
-                        }`
-                      : 'N/A'}
-                  </td>
+                  <td className="p-2">{trip.startAddress?.address || trip.startAddress || 'N/A'}</td>
+                  <td className="p-2">{trip.endAddress?.address || trip.endAddress || 'N/A'}</td>
                   <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || 'N/A'}</td>
                   <td className="p-2">₹{parseFloat(trip.tripFare) || 'N/A'}</td>
-                  {/* <td className="p-2" style={{ color: parseFloat(trip.profit) >= 0 ? 'green' : 'red' }}> */}
-                    {/* ₹{parseFloat(trip.profit) || 'N/A'} */}
-                  {/* </td> */}
                   {/* <td className="p-2">
-                    <button className="text-blue-500 hover:underline">View</button>
+                    <Button
+                      onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)}
+                      className="text-xs font-semibold text-white bg-[#1A73E8]"
+                    >
+                      View
+                    </Button>
                   </td> */}
                 </tr>
               ))

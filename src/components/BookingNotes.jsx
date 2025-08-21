@@ -98,7 +98,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
         >
           <option value="">Select Note Type</option>
-          <option value="INQUIRY">Enquiry</option>
+          <option value="ENQUIRY">Enquiry</option>
           <option value="TRIP">Trip</option>
           <option value="PAYMENT">Payment</option>
           <option value="FEEDBACK">Feedback</option>

@@ -7,8 +7,8 @@ const tabs = ['Daily', 'Weekly', 'Monthly'];
 
 const Reports = ({ accountId }) => {
   const [activeTab, setActiveTab] = useState('Weekly');
-  const [fromDate, setFromDate] = useState(new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().split('T')[0]); // Adjusted to ISO format
-  const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); // Adjusted to ISO format
+  const [fromDate, setFromDate] = useState(new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().split('T')[0]);
+  const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
   const [vehicleFilter, setVehicleFilter] = useState('All Vehicles');
   const [driverFilter, setDriverFilter] = useState('All Drivers');
   const [trips, setTrips] = useState([]);
@@ -35,7 +35,6 @@ const Reports = ({ accountId }) => {
     checkXlsx();
   }, []);
 
-
   useEffect(() => {
     const fetchVehiclesAndDrivers = async () => {
       setLoadingVehicles(true);
@@ -45,9 +44,7 @@ const Reports = ({ accountId }) => {
 
       try {
         const vehicleData = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_CABS, { accountId });
-        // console.log('Vehicle Data:', vehicleData); 
         const vehiclesList = vehicleData.data || [];
-        // console.log('Vehicles List:', vehiclesList); 
         if (vehiclesList.length === 0) {
           console.warn('No vehicles from GET_ACCOUNT_CABS, falling back to trips data');
         }
@@ -61,9 +58,7 @@ const Reports = ({ accountId }) => {
 
       try {
         const driverData = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS + accountId);
-        // console.log('Driver Data:', driverData); 
         const driversList = driverData.data || [];
-        // console.log('Drivers List:', driversList); 
         if (driversList.length === 0) {
           console.warn('No drivers from GET_ACCOUNT_RELATED_DRIVERS, falling back to trips data');
         }
@@ -81,7 +76,6 @@ const Reports = ({ accountId }) => {
     }
   }, [accountId]);
 
-  // Fetch trips
   useEffect(() => {
     const fetchTrips = async () => {
       setLoading(true);
@@ -96,9 +90,7 @@ const Reports = ({ accountId }) => {
           driverId: driverFilter === 'All Drivers' ? '' : driverFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
-        console.log("datas.....",data)
 
-        // Transform API data to match component expectations
         const transformedTrips = data.data.map(trip => {
           console.log("Mapping trip:", trip);
           const km = parseFloat(trip.totalKm) || 0;
@@ -106,27 +98,25 @@ const Reports = ({ accountId }) => {
           const startKm = parseFloat(trip.startKm) || 0;
           const calculatedKm = km + (endKm - startKm);
           return {
-          date: trip.tripDate,
-          vehicle: trip.Cab?.carNumber || 'Unknown',
-          driver: trip.Driver?.firstName || 'Unknown',
-          route: `pickup Address: \n${trip.startAddress.address}\nDrop Address: \n${trip.endAddress.address}`,
-          totalKm: isNaN(calculatedKm) ? 0 : calculatedKm,
-          // fuel: parseFloat(trip.fuelQuantity),
-          cost: parseFloat(trip.fuelCost),
-          fare: parseFloat(trip.tripFare),
-          profit: parseFloat(trip.profit),
+            date: trip.tripDate,
+            vehicle: trip.Cab?.carNumber || 'Unknown',
+            driver: trip.Driver?.firstName || 'Unknown',
+            startPoint: trip.startAddress?.address || trip.startAddress || 'Unknown',
+            endPoint: trip.endAddress?.address || trip.endAddress || 'Unknown',
+            totalKm: isNaN(calculatedKm) ? 0 : calculatedKm,
+            toll: parseFloat(trip.toll) || 0,
+            permit: parseFloat(trip.permit) || 0,
+            cost: parseFloat(trip.fuelCost) || 0,
+            fare: parseFloat(trip.tripFare) || 0,
           };
         });
 
-        
         const uniqueVehicles = Array.from(new Map(data.data.map(trip => [trip.Cab.id, trip.Cab])).values());
         const uniqueDrivers = Array.from(new Map(data.data.map(trip => [trip.Driver.id, trip.Driver])).values());
         if (vehicles.length === 0 && uniqueVehicles.length > 0) {
-          // console.log('Using vehicles from trips:', uniqueVehicles);
           setVehicles(uniqueVehicles);
         }
         if (drivers.length === 0 && uniqueDrivers.length > 0) {
-          // console.log('Using drivers from trips:', uniqueDrivers);
           setDrivers(uniqueDrivers);
         }
 
@@ -142,25 +132,25 @@ const Reports = ({ accountId }) => {
     fetchTrips();
   }, [fromDate, toDate, vehicleFilter, driverFilter, activeTab, currentPage]);
 
-  // Handle CSV/XLSX export
   const handleExportCSV = () => {
     const data = trips.map(trip => [
       trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-',
       trip.vehicle || '-',
       trip.driver || '-',
-      trip.route || '-',
+      trip.startPoint || '-',
+      trip.endPoint || '-',
       isNaN(trip.totalKm) ? '0.000' : trip.totalKm.toFixed(2),
-      // isNaN(trip.fuel) ? '0.0' : trip.fuel.toFixed(1),
+      isNaN(trip.toll) ? '0.00' : trip.toll.toFixed(2),
+      isNaN(trip.permit) ? '0.00' : trip.permit.toFixed(2),
       isNaN(trip.cost) ? '0.00' : trip.cost.toFixed(2),
       isNaN(trip.fare) ? '0.00' : trip.fare.toFixed(2),
-      // isNaN(trip.profit) ? '0.00' : trip.profit.toFixed(2),
     ]);
 
     try {
       if (isXlsxLoaded && window.XLSX && typeof window.XLSX.utils.aoa_to_sheet === 'function') {
         const worksheetData = [
           ['Root Cabs Report - ' + fromDate + ' to ' + toDate],
-          ['Date', 'Vehicle', 'Driver', 'Route', 'KM', 'Fuel', 'Cost', 'Fare', 'Profit'],
+          ['Date', 'Vehicle', 'Driver', 'Start Point', 'End Point', 'KM', 'Toll', 'Permit', 'Cost', 'Fare'],
           ...data,
         ];
         const worksheet = window.XLSX.utils.aoa_to_sheet(worksheetData);
@@ -171,10 +161,10 @@ const Reports = ({ accountId }) => {
             font: { color: { rgb: 'FFFFFF' }, bold: true },
             alignment: { horizontal: 'center' },
           };
-          worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }];
+          worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 9 } }];
         }
 
-        const headers = ['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2'];
+        const headers = ['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2', 'J2'];
         headers.forEach(cell => {
           if (worksheet[cell]) {
             worksheet[cell].s = {
@@ -203,7 +193,7 @@ const Reports = ({ accountId }) => {
         const filename = `Report_${fromDate}_to_${toDate}.xlsx`;
         window.XLSX.write_file(workbook, filename, { bookType: 'xlsx', type: 'binary' });
       } else {
-        const headers = ['Date', 'Vehicle', 'Driver', 'Route', 'KM', 'Fuel', 'Cost', 'Fare', 'Profit'];
+        const headers = ['Date', 'Vehicle', 'Driver', 'Start Point', 'End Point', 'KM', 'Toll', 'Permit', 'Cost', 'Fare'];
         const escapeCsvValue = (value) => `"${String(value).replace(/"/g, '""')}"`;
         const rows = data.map(row => headers.map((header, index) => escapeCsvValue(row[index])).join(','));
         const csv = [headers.join(','), ...rows].join('\n');
@@ -221,14 +211,13 @@ const Reports = ({ accountId }) => {
     }
   };
 
-  // Calculate summary from trips
   const summary = {
     totalTrips: trips.length,
     totalKm: trips.reduce((sum, trip) => sum + (trip.totalKm || 0), 0),
-    // fuelUsed: trips.reduce((sum, trip) => sum + (trip.fuel || 0), 0),
+    toll: trips.reduce((sum, trip) => sum + (trip.toll || 0), 0),
+    permit: trips.reduce((sum, trip) => sum + (trip.permit || 0), 0),
     fuelCost: trips.reduce((sum, trip) => sum + (trip.cost || 0), 0),
     totalFare: trips.reduce((sum, trip) => sum + (trip.fare || 0), 0),
-    // profitLoss: trips.reduce((sum, trip) => sum + (trip.profit || 0), 0),
   };
 
   return (
@@ -243,16 +232,16 @@ const Reports = ({ accountId }) => {
                   onClick={() => {
                     setActiveTab(tab);
                     if (tab === 'Daily') {
-                      setFromDate(new Date().toISOString().split('T')[0]); // Today's date
-                      setToDate(new Date().toISOString().split('T')[0]); // Today's date
+                      setFromDate(new Date().toISOString().split('T')[0]);
+                      setToDate(new Date().toISOString().split('T')[0]);
                     } else if (tab === 'Weekly') {
-                      setFromDate(new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().split('T')[0]); // 7 days ago
+                      setFromDate(new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().split('T')[0]);
                       setToDate(new Date().toISOString().split('T')[0]);
                     } else if (tab === 'Monthly') {
-                      setFromDate(new Date(new Date().setDate(1)).toISOString().split('T')[0]); // First day of the month
-                      setToDate(new Date(new Date().setMonth(new Date().getMonth() + 1, 0)).toISOString().split('T')[0]); // Last day of the month
+                      setFromDate(new Date(new Date().setDate(1)).toISOString().split('T')[0]);
+                      setToDate(new Date(new Date().setMonth(new Date().getMonth() + 1, 0)).toISOString().split('T')[0]);
                     }
-                    setCurrentPage(1); // Reset to first page when changing tabs
+                    setCurrentPage(1);
                   }}
                   className={`pb-2 text-sm font-medium border-b-2 transition-colors duration-200 ${activeTab === tab
                     ? 'border-blue-600 text-blue-600'
@@ -299,8 +288,7 @@ const Reports = ({ accountId }) => {
                 <option value="All Vehicles">All Vehicles</option>
                 {vehicles.map((vehicle) => (
                   <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.name} 
-                    {/* (ID: {vehicle.id}) */}
+                    {vehicle.name}
                   </option>
                 ))}
               </select>
@@ -321,8 +309,7 @@ const Reports = ({ accountId }) => {
                 <option value="All Drivers">All Drivers</option>
                 {drivers.map((driver) => (
                   <option key={driver.id} value={driver.id}>
-                    {driver.firstName} 
-                    {/*(ID: {driver.id}) */}
+                    {driver.firstName}
                   </option>
                 ))}
               </select>
@@ -332,10 +319,10 @@ const Reports = ({ accountId }) => {
         <div className="grid grid-cols-6 gap-4 mb-6">
           <div className="p-2 border border-gray-200 text-center">Trips: {summary.totalTrips}</div>
           <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm.toFixed(1)}</div>
-          {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed.toFixed(1)}</div> */}
+          {/* <div className="p-2 border border-gray-200 text-center">Toll: ₹ {summary.toll.toFixed(2)}</div> */}
+          {/* <div className="p-2 border border-gray-200 text-center">Permit: ₹ {summary.permit.toFixed(2)}</div> */}
           <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost.toFixed(2)}</div>
           <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare.toFixed(2)}</div>
-          {/* <div className="p-2 border border-gray-200 text-center">Profit/Loss: ₹ {summary.profitLoss.toFixed(2)}</div> */}
         </div>
         <div className="weekly-report">
           <h3 className="text-lg font-semibold mb-4 text-center bg-blue-900 text-white p-2 rounded" style={{ width: '100%' }}>
@@ -352,18 +339,19 @@ const Reports = ({ accountId }) => {
                     <th className="border border-gray-200 p-2">Date</th>
                     <th className="border border-gray-200 p-2">Vehicle Number</th>
                     <th className="border border-gray-200 p-2">Driver</th>
-                    <th className="border border-gray-200 p-2">Route</th>
+                    <th className="border border-gray-200 p-2">Start Point</th>
+                    <th className="border border-gray-200 p-2">End Point</th>
                     <th className="border border-gray-200 p-2">KM</th>
-                    {/* <th className="border border-gray-200 p-2">Fuel</th> */}
+                    <th className="border border-gray-200 p-2">Toll</th>
+                    <th className="border border-gray-200 p-2">Permit</th>
                     <th className="border border-gray-200 p-2">Cost</th>
                     <th className="border border-gray-200 p-2">Fare</th>
-                    {/* <th className="border border-gray-200 p-2">Profit</th> */}
                   </tr>
                 </thead>
                 <tbody>
                   {trips.length === 0 ? (
                     <tr>
-                      <td colSpan="9" className="border border-gray-200 p-2 text-center text-gray-500">
+                      <td colSpan="10" className="border border-gray-200 p-2 text-center text-gray-500">
                         No trips found for the selected criteria
                       </td>
                     </tr>
@@ -373,25 +361,18 @@ const Reports = ({ accountId }) => {
                         <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.vehicle || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.driver || '-'}</td>
-                        <td className="border border-gray-200 p-2">
-                        {trip.route.split('\n').map((line, index) => (
-                          <span key={index}>
-                            {line}
-                            {index < trip.route.split('\n').length - 1 && <br />}
-                          </span>
-                        ))}
-                      </td>
-                        <td className="border border-gray-200 p-2">{trip.totalKm.toFixed(1)}</td>
-                        {/* <td className="border border-gray-200 p-2">{trip.fuel.toFixed(1)}</td> */}
-                        <td className="border border-gray-200 p-2">₹ {trip.cost.toFixed(2)}</td>
-                        <td className="border border-gray-200 p-2">₹ {trip.fare.toFixed(2)}</td>
-                        {/* <td className="border border-gray-200 p-2">₹ {trip.profit.toFixed(2)}</td> */}
+                        <td className="border border-gray-200 p-2">{trip.startPoint || '-'}</td>
+                        <td className="border border-gray-200 p-2">{trip.endPoint || '-'}</td>
+                        <td className="border border-gray-200 p-2">{isNaN(trip.totalKm) ? '0.0' : trip.totalKm.toFixed(1)}</td>
+                        <td className="border border-gray-200 p-2"> {isNaN(trip.toll) ? '0.00' : trip.toll.toFixed(2)}</td>
+                        <td className="border border-gray-200 p-2">{isNaN(trip.permit) ? '0.00' : trip.permit.toFixed(2)}</td>
+                        <td className="border border-gray-200 p-2">{isNaN(trip.cost) ? '0.00' : trip.cost.toFixed(2)}</td>
+                        <td className="border border-gray-200 p-2">{isNaN(trip.fare) ? '0.00' : trip.fare.toFixed(2)}</td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
-              {/* Pagination Controls */}
               <div className="mt-4 flex justify-between">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
