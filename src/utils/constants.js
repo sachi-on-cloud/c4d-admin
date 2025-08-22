@@ -948,6 +948,7 @@ export const API_ROUTES = {
     'SEARCH_BOOKINGS_BY_NUMBER':'/admin/customer/search',
     'GET_TRIP_BY_ID':'/trip/',
     'UPDATE_TRIP_DETAILS':'/update-trip',
+    'BANNER_POSITION_UPDATE': '/banner/position/update',
 };
 
 export const KYC_PROCESS = {

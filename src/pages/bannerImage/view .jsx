@@ -7,6 +7,7 @@ import {
   Button,
   Spinner,
   Switch,
+  Input,
 } from '@material-tailwind/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
@@ -19,6 +20,8 @@ const BannerView = () => {
   const [bannerList, setBannerList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingBannerId, setUpdatingBannerId] = useState(null);
+  const [editingPositionId, setEditingPositionId] = useState(null);
+  const [positionValues, setPositionValues] = useState([]);
 
   useEffect(() => {
   const fetchBanners = async () => {
@@ -78,6 +81,35 @@ const BannerView = () => {
     }
   };
 
+  const handlePositionChange = (bannerId, value) => {
+    setPositionValues(prev => ({
+      ...prev,
+      [bannerId]: value
+    }));
+  };
+
+  const positionUpdate = async (bannerId) => {
+    try {
+      setLoading(true);
+      const newPosition = positionValues[bannerId];
+      const result = await ApiRequestUtils.update(API_ROUTES.BANNER_POSITION_UPDATE, {
+        bannerId: bannerId,
+        position: newPosition
+      });
+      
+      setBannerList((prevList) =>
+        prevList.map((item) =>
+          item.id === bannerId ? { ...item, position: newPosition } : item
+        )
+      );
+      setEditingPositionId(null); 
+    } catch (err) {
+      console.error('Failed to update banner position:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="flex items-center justify-end">
@@ -109,13 +141,14 @@ const BannerView = () => {
                   <th className="py-3 px-5 text-left">From Date</th>
                   <th className="py-3 px-5 text-left">To Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
-                  
+                  <th className="py-3 px-5 text-left">Position</th>
+                  <th className="py-3 px-5 text-left"></th>
                 </tr>
               </thead>
               <tbody>
                 {bannerList.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-4">
+                    <td colSpan="8" className="text-center py-4">
                       No Banner Records Found
                     </td>
                   </tr>
@@ -145,6 +178,32 @@ const BannerView = () => {
                           disabled={updatingBannerId === item.id}
                           label={item.status ? 'Active' : 'Inactive'}
                         />
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="flex items-center">
+                          <Input
+                            type="number"
+                            className="border border-gray-300 rounded-xl"
+                            value={item.id === editingPositionId ? (positionValues[item.id] ?? item.position) : item.position}
+                            onChange={(e) => handlePositionChange(item.id, e.target.value)}
+                            disabled={editingPositionId !== item.id}
+                          />
+                          <Button
+                            size="sm"
+                            color="blue"
+                            variant="gradient"
+                            className="ml-2"
+                            onClick={() => {
+                              if (editingPositionId === item.id) {
+                                positionUpdate(item.id);
+                              } else {
+                                setEditingPositionId(item.id);
+                              }
+                            }}
+                          >
+                            {editingPositionId === item.id ? 'Update' : 'Edit'}
+                          </Button>
+                        </div>
                       </td>
                      
                     </tr>
