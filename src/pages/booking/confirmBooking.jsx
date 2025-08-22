@@ -771,12 +771,12 @@ const ConfirmBooking = (props) => {
                                 {bookingDetails?.discount?.percentage > 0 && (
                                 <>
                                     <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Discount Fare</Typography>
+                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
                                     <Typography>{bookingDetails?.discount?.percentage} %</Typography>
                                     </div>
                                     <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
-                                    <Typography>
+                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                    <Typography className='font-roboto-medium text-lg text-gray-900'>
                                         {/* ₹ {(bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice * bookingDetails?.discount?.percentage / 100)} */}
                                         ₹ { (bookingDetails.value?.estimatedPrice) - (bookingDetails.value?.estimatedPrice * bookingDetails.discount?.percentage/100) }
                                     </Typography>
