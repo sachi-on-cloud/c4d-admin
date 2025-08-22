@@ -782,6 +782,8 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
     isActive: Yup.boolean().required('Status is required'),
+    description: Yup.string().required('Description is required'),
+    title: Yup.string().required('Title is required'),
   });
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
@@ -791,6 +793,8 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
     isActive: Yup.boolean().required('Status is required'),
+    description: Yup.string().required('Description is required'),
+    title: Yup.string().required('Title is required'),
   });
 
    export const GST_EDIT_SCHEMA = Yup.object().shape({

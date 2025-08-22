@@ -52,6 +52,7 @@ const Booking = (props) => {
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
     const [searchBookingId, setSearchBookingId] = useState('');
+    const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
@@ -64,6 +65,7 @@ const Booking = (props) => {
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
     const [bookingType, setBookingType] = useState(props.typeProp || '');
+    const [discountDetails, setDiscountDetails] = useState(null);
 
     const [editBookingView, setEditBookingView] = useState(false);
 
@@ -132,14 +134,23 @@ const Booking = (props) => {
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
         };
+        if (values?.serviceType === 'RENTAL_DROP_TAXI') {
+            quoteData.serviceFor = 'RENTAL_DROP_TAXI';
+        }
+        else if (values?.serviceType === 'RENTAL') {
+            quoteData.serviceFor = 'RENTAL';
+        }
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
-        //console.log("QOYTEE DATA", data);
+        // console.log("QOYTEE DATA", data);
         if (data.success) {
             setQuoteDetails(data?.data);
+            setDiscountDetails(data?.data);
         }
+        // console.log("QUOTE DETAILS", quoteDetails);
     };
 
     const getQuoteRides = async (val) => {
+        // console.log("GET QUOTE RIDES", val);
         const quoteDate = {
             serviceType: val.serviceType,
             bookingType: "",
@@ -152,9 +163,12 @@ const Booking = (props) => {
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
         }
+
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
+        // console.log("QUOTE DATA", data);
         if (data?.success) {
             setQuoteDetails(data?.data)
+            setDiscountDetails(data?.data);
         }
     }
 
@@ -620,12 +634,28 @@ const Booking = (props) => {
                                 type="text"
                                 className="w-full p-2 border rounded"
                                 placeholder="Search by customer number or booking ID"
-                                value={searchBookingId}
+                                value={searchText}
                                 onChange={(e) => {
-                                    setSearchBookingId(e.target.value);
+                                    setSearchText(e.target.value);
                                     searchBookings(e.target.value);
                                 }}
                             />
+                            {(searchText || searchBookingId) && (
+                                <button
+                                    type="button"
+                                    // className="bg-white text-gray-500 hover:text-gray-700"
+                                    aria-label="Clear search"
+                                    onClick={() => { setSearchText(''); 
+                                                    searchBookings('');
+                                                    setSearchBookingId(''); 
+                                                    setSelectedCustomer(0);
+                                                    setSearchResults([]); 
+                                                }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                >
+                                    X
+                                </button>
+                            )}
                             {searchResults.length > 0 && (
                                 <ul className="absolute top-full left-0 w-full border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto z-10">
                                     {searchResults.map((result, index) => (
@@ -636,14 +666,17 @@ const Booking = (props) => {
                                                 if (result?.type == 'booking') {
                                                     setSelectedCustomer(0);
                                                     setSearchBookingId(result?.bookingNumber);
+                                                    setSearchText(result?.bookingNumber);
                                                 } else {
-                                                    setSearchBookingId("");
+                                                    const label = [result?.firstName, result?.phoneNumber].filter(Boolean).join(' - ');
+                                                    setSearchText(label.trim());
                                                     setSelectedCustomer(result?.id);
+                                                    setSearchBookingId('');
                                                 }
                                                 setSearchResults([]);
                                             }}
                                         >
-                                            {result?.type == 'booking' ? result?.bookingNumber : result?.firstName + result?.phoneNumber}
+                                            {result?.type == 'booking' ? result?.bookingNumber : [result?.firstName, result?.phoneNumber].filter(Boolean).join(' - ')}
                                         </li>
                                     ))}
                                 </ul>
@@ -1268,6 +1301,19 @@ const Booking = (props) => {
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.estimatedPrice}
                                                                         </Typography>
+                                                                        {quoteDetails.discount.percentage > 0 && <>
+                                                                        
+                                                                          <Typography color="gray" variant="h6">Discount Fare</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.discount?.percentage} %
+                                                                            </Typography>
+                                                                            <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                                <Typography>
+                                                                                    {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
+                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - (quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                            </Typography>
+
+                                                                        </>}
                                                                         
                                                                         
                                                                         

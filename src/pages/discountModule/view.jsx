@@ -73,6 +73,8 @@ const DiscountView = () => {
               <thead>
                 <tr>
                   <th className="py-3 px-5 text-left">Service Type</th>
+                  <th className="py-3 px-5 text-left">Title</th>
+                  <th className="py-3 px-5 text-left">Description</th>
                   <th className="py-3 px-5 text-left">Percentage</th>
                   <th className="py-3 px-5 text-left">Start Date</th>
                   <th className="py-3 px-5 text-left">End Date</th>
@@ -89,6 +91,8 @@ const DiscountView = () => {
                   discounts.map((item, index) => (
                     <tr key={index} className="border-b">
                       <td className="py-3 px-5">{serviceTypeLabels[item.serviceType] || item.serviceType}</td>
+                      <td className="py-3 px-5">{item.title || '-'}</td>
+                      <td className="py-3 px-5">{item.description || '-'}</td>
                       <td className="py-3 px-5">{item.percentage}%</td>
                       <td className="py-3 px-5">{moment(item.startDate).format('DD-MM-YYYY ')}</td>
                       <td className="py-3 px-5">{moment(item.endDate).format('DD-MM-YYYY ')}</td>

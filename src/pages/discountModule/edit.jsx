@@ -32,6 +32,8 @@ const DiscountEdit = () => {
             startDate: formatDateOnly(discountFromState.startDate),
             endDate: formatDateOnly(discountFromState.endDate),
             serviceType: discountFromState.serviceType || '',
+            title: discountFromState.title || '',
+            description: discountFromState.description || '',
             isActive: discountFromState.isActive ? 'true' : 'false',
           });
         } else {
@@ -44,6 +46,8 @@ const DiscountEdit = () => {
             endDate: formatDateOnly(data.endDate),
             serviceType: data.serviceType || '',
             isActive: data.isActive ? 'true' : 'false',
+            title: data.title || '',
+            description: data.description || '',
           });
         }
       } catch (err) {
@@ -72,6 +76,8 @@ const DiscountEdit = () => {
         endDate: values.endDate,
         
         isActive: values.isActive === 'true',
+        title: values.title,
+        description: values.description,
       };
       
 
@@ -142,6 +148,11 @@ const DiscountEdit = () => {
                 </Field>
                 <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
               </div>
+              <div>
+                <label htmlFor="title" className="text-sm font-medium text-gray-700">Title</label>
+                <Field type="text" name="title" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
+              </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Discount Percentage (%)</label>
@@ -171,6 +182,11 @@ const DiscountEdit = () => {
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 />
                 <ErrorMessage name="endDate" component="div" className="text-red-500 text-sm" />
+              </div>
+              <div>
+              <label htmlFor="description" className="text-sm font-medium text-gray-700">Description</label>
+              <Field as="textarea" name="description" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" rows="4" />
+              <ErrorMessage name="description" component="div" className="text-red-500 text-sm my-1" />
               </div>
 
               <div>
