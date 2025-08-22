@@ -1303,12 +1303,12 @@ const Booking = (props) => {
                                                                         </Typography>
                                                                         {quoteDetails.discount.percentage > 0 && <>
                                                                         
-                                                                          <Typography color="gray" variant="h6">Discount Fare</Typography>
+                                                                          <Typography color="gray" variant="h6">Discount Applied</Typography>
                                                                                 <Typography>
                                                                                     {quoteDetails.discount?.percentage} %
                                                                             </Typography>
-                                                                            <Typography color="gray" variant="h6">Discount Applied</Typography>
-                                                                                <Typography>
+                                                                            <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                                     {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
                                                                                     ₹ { (quoteDetails.amount?.estimatedPrice) - (quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
                                                                             </Typography>
