@@ -140,6 +140,9 @@ const Booking = (props) => {
         else if (values?.serviceType === 'RENTAL') {
             quoteData.serviceFor = 'RENTAL';
         }
+        else if(values?.serviceType === 'DRIVER') {
+            quoteData.serviceFor = 'DRIVER';
+        }
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
         // console.log("QOYTEE DATA", data);
         if (data.success) {
@@ -152,10 +155,13 @@ const Booking = (props) => {
     const getQuoteRides = async (val) => {
         // console.log("GET QUOTE RIDES", val);
         const quoteDate = {
-            serviceType: val.serviceType,
-            bookingType: "",
+            serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType,
+            bookingType: '',
+            serviceFor:'RENTAL_HOURLY_PACKAGE',
+            packageType:'Local',
             fromDate: moment(`${val?.rideDate} ${val?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: '',
+            carType: val.carType || '',
+            period: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(val.packageSelected))?.period || '' : '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
             driverLat: val?.driverPickUpLocation?.lat,
@@ -163,7 +169,6 @@ const Booking = (props) => {
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
         }
-
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
         // console.log("QUOTE DATA", data);
         if (data?.success) {
@@ -1213,7 +1218,7 @@ const Booking = (props) => {
                                                             )}
                                                         </div>)}
                                                 </div>
-                                                {values.packageSelected &&
+                                                {values.serviceType === "DRIVER" && values.packageSelected &&
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
                                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -1261,6 +1266,49 @@ const Booking = (props) => {
                                                             <hr className="my-2 border border-black" />
                                                             <div className="mt-4">
                                                                 <>
+                                                                    {values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? (
+                                                                        <div className="space-y-3">
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Package Period:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.packageDetails?.period || ''} hours
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.carType || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Package Price:</Typography>
+                                                                                <Typography>
+                                                                                    ₹ {quoteDetails.amount?.packageDetails?.price || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                            {quoteDetails.discount?.percentage > 0 && (
+                                                                                <>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                                                                        <Typography>
+                                                                                            {quoteDetails.discount?.percentage} %
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
+                                                                                        <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                            ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)}
+                                                                                            {/* {(() => {
+                                                                                                const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
+                                                                                                const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;
+                                                                                                return packagePrice - (packagePrice * discountPercentage / 100);
+                                                                                            })()} */}
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : (
                                                                     <div className="grid grid-cols-2 justify-between">
                                                                         {values.serviceType !== 'DRIVER' && ( <>
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
@@ -1330,6 +1378,7 @@ const Booking = (props) => {
                                                                             ₹ {quoteDetails.amount.driverCharge}
                                                                         </Typography> */}
                                                                     </div>
+                                                                    )}
                                                                 </>
                                                             </div>
                                                         </div>
@@ -1484,6 +1533,12 @@ const Booking = (props) => {
                                                 }
 
                                                 {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+
+                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
                                                         Check Estimated Price
                                                     </Button>

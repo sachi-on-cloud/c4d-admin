@@ -418,7 +418,7 @@ const handleTabChange = (value) => {
                                 </Tab>
                             ))}
                         </TabsHeader>
-                        <TabsBody>
+                        <TabsBody  className='overflow-x-scroll px-0 pt-0 pb-2'>
                             {/* <Typography variant="small" className="mt-2 text-blue-gray-600">
                                 Total Bookings: {pagination.totalItems}
                             </Typography> */}
