@@ -95,7 +95,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           id="noteType"
           value={noteType}
           onChange={(e) => setNoteType(e.target.value)}
-          className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
         >
           <option value="">Select Note Type</option>
           <option value="ENQUIRY">Enquiry</option>
@@ -106,7 +106,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
       </div>
       <div className="mb-4 pt-2">
         <textarea
-          className="border border-gray-200 rounded-lg p-3 mb-2 bg-white text-base min-h-[60px] w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="border border-gray-200 rounded-lg p-3 mb-2 bg-white text-base min-h-[60px] w-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           placeholder="Enter text..."
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -116,7 +116,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         )}
         <button
           onClick={handleAddItem}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           Add Note
         </button>
@@ -142,7 +142,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                   </span>
                 </div>
                 <p className="text-base text-gray-700">Note Type: 
-                  <span className='text-blue-600'>
+                  <span className='text-primary-600'>
                       {item?.noteType || 'N/A'}
                   </span>
                   </p>
@@ -178,7 +178,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                 <div className="text-base text-gray-700 flex items-center gap-2">
                   <span>
                     Customer Trip Status changed from{' '}
-                    <span className="font-medium text-blue-600">{log?.old_status || 'N/A'}</span>{' '}
+                    <span className="font-medium text-primary-600">{log?.old_status || 'N/A'}</span>{' '}
                     to{' '}
                     <span className="font-medium text-green-600">{log?.new_status || 'N/A'}</span>
                   </span>

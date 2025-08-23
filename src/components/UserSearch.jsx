@@ -55,7 +55,7 @@ const UserSearch = ({onSearch}) => {
         <div className="relative flex-grow max-w-[500px]">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder="Search User"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -65,7 +65,7 @@ const UserSearch = ({onSearch}) => {
         </div>
         <button 
           onClick={() => navigate(`/dashboard/users/add`)}
-          className={`ml-4 px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+          className={`ml-4 px-4 py-2 rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
             ColorStyles.addButtonColor
           }`}
         >
@@ -88,7 +88,7 @@ const UserSearch = ({onSearch}) => {
                     onChange={handleInputChange}
                     placeholder="Enter name"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
                 </div>
                 <div className="mb-4">
@@ -103,7 +103,7 @@ const UserSearch = ({onSearch}) => {
                     pattern="[0-9]{10}"
                     maxLength={10}
                     title="Please enter a valid 10-digit phone number"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50  px-4 py-2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50  px-4 py-2"
                 />
                 </div>
                 <div className="mb-4">
@@ -115,7 +115,7 @@ const UserSearch = ({onSearch}) => {
                     onChange={handleInputChange}
                     placeholder="Enter email"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
                 </div>
                 <div className="mb-4">
@@ -127,7 +127,7 @@ const UserSearch = ({onSearch}) => {
                     onChange={handleInputChange}
                     placeholder="Enter password"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
                 </div>
                 
@@ -141,7 +141,7 @@ const UserSearch = ({onSearch}) => {
                 </button>
                 <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                 >
                     Create User
                 </button>

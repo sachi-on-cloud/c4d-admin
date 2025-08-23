@@ -244,7 +244,7 @@ const Reports = ({ accountId }) => {
                     setCurrentPage(1);
                   }}
                   className={`pb-2 text-sm font-medium border-b-2 transition-colors duration-200 ${activeTab === tab
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                 >
@@ -325,7 +325,7 @@ const Reports = ({ accountId }) => {
           <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare.toFixed(2)}</div>
         </div>
         <div className="weekly-report">
-          <h3 className="text-lg font-semibold mb-4 text-center bg-blue-900 text-white p-2 rounded" style={{ width: '100%' }}>
+          <h3 className="text-lg font-semibold mb-4 text-center bg-primary-900 text-white p-2 rounded" style={{ width: '100%' }}>
             Root Cabs Report - {fromDate} to {toDate}</h3>
           {loading ? (
             <div className="text-center text-gray-500">Loading...</div>
@@ -335,7 +335,7 @@ const Reports = ({ accountId }) => {
             <>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-blue-900 text-white text-center">
+                  <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
                     <th className="border border-gray-200 p-2">Vehicle Number</th>
                     <th className="border border-gray-200 p-2">Driver</th>
@@ -377,7 +377,7 @@ const Reports = ({ accountId }) => {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300"
+                  className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-300"
                 >
                   Previous
                 </button>
@@ -387,7 +387,7 @@ const Reports = ({ accountId }) => {
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300"
+                  className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-300"
                 >
                   Next
                 </button>

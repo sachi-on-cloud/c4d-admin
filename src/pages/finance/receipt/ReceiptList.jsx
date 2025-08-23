@@ -167,7 +167,7 @@ export function ReceiptList() {
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             placeholder="Search Receipt Number"
                             value={searchQuery}
                             onChange={(e) => {
@@ -237,8 +237,7 @@ export function ReceiptList() {
                                                     <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                         <Typography
                                                             variant="small"
-                                                            color="blue"
-                                                            className="font-semibold underline cursor-pointer"
+                                                            className="text-primary-600 font-semibold underline cursor-pointer"
                                                             onClick={() => navigate(`/dashboard/finance/receipt/details/${receipt?.receiptNumber}`)}
                                                         >
                                                             {receipt?.receiptNumber}

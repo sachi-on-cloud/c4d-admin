@@ -137,7 +137,7 @@ export function OnlineVehiclesList({ id = 0 }) {
           <>
             <CardHeader
               variant="gradient"
-              className="mb-8 p-6 flex justify-between items-center bg-blue-600"
+              className="mb-8 p-6 flex justify-between items-center bg-primary"
             >
               <Typography variant="h6" color="white">
                 Online Vehicles List
@@ -229,7 +229,7 @@ export function OnlineVehiclesList({ id = 0 }) {
                             vehicle.Drivers[0]?.status === 'ACTIVE' &&
                             !statusCheckedDriverIds.includes(vehicle.Drivers[0]?.id) && (
                               <Typography
-                                className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                className="text-xs font-semibold text-primary-900 underline cursor-pointer"
                                 onClick={() => checkPresence(vehicle.Drivers[0]?.id, vehicle.id)}
                               >
                                 Check Status

@@ -69,7 +69,7 @@ const TripDetails = () => {
 
   return (
     <div className="p-5 font-sans">
-      <h2 className="text-2xl text-blue-400">Trip Master</h2>
+  <h2 className="text-2xl text-primary-400">Trip Master</h2>
       <div className="flex">
         <div className="mt-5 flex flex-wrap gap-5">
           <div className="bg-white p-4 rounded-lg shadow-md w-48">
@@ -88,7 +88,7 @@ const TripDetails = () => {
         <div className="mt-5 ml-auto">
           <button
             onClick={() => navigate('/dashboard/tripDetails/add')}
-            className="bg-blue-400 text-white px-4 py-2 rounded-lg cursor-pointer"
+            className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-lg cursor-pointer"
           >
             + Add New Trip
           </button>
@@ -127,12 +127,7 @@ const TripDetails = () => {
                   <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || 'N/A'}</td>
                   <td className="p-2">₹{parseFloat(trip.tripFare) || 'N/A'}</td>
                   {/* <td className="p-2">
-                    <Button
-                      onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)}
-                      className="text-xs font-semibold text-white bg-[#1A73E8]"
-                    >
-                      View
-                    </Button>
+                    <button className="text-primary-500 hover:underline">View</button>
                   </td> */}
                 </tr>
               ))

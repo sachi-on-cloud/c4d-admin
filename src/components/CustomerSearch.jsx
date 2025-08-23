@@ -80,7 +80,7 @@ const CustomerSearch = ({ onSearch }) => {
         <div className="relative flex-grow max-w-[500px]">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-gray-200 focus:border-transparent"
+            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-transparent"
             placeholder="Search Customer"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -108,7 +108,7 @@ const CustomerSearch = ({ onSearch }) => {
                   value={newUser.salutation}
                   onChange={handleInputChange}
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 >
                   <option value="">Select salutation</option>
                   <option value="Mr">Mr</option>
@@ -126,7 +126,7 @@ const CustomerSearch = ({ onSearch }) => {
                   onChange={handleInputChange}
                   placeholder="Enter first name"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
               </div>
               <div className="mb-4">
@@ -141,7 +141,7 @@ const CustomerSearch = ({ onSearch }) => {
                   pattern="[0-9]{10}"
                   maxLength={10}
                   title="Please enter a valid 10-digit phone number"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50  px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50  px-4 py-2"
                 />
               </div>
               <div className="mb-4">
@@ -152,7 +152,7 @@ const CustomerSearch = ({ onSearch }) => {
                   value={newCar.carNumber}
                   onChange={handleCarChange}
                   placeholder="Enter car number"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2 uppercase"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2 uppercase"
                 />
               </div>
               <div className="mb-4">
@@ -163,7 +163,7 @@ const CustomerSearch = ({ onSearch }) => {
                   value={newCar.nickName}
                   onChange={handleCarChange}
                   placeholder="Enter first name"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 px-4 py-2"
                 />
               </div>
               <div className="space-y-3">
@@ -177,7 +177,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="Sedan"
                       checked={newCar.carType === 'Sedan'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="carTypeSeda n" className="ml-2 text-base font-medium text-gray-700">
                       Sedan
@@ -191,7 +191,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="SUV"
                       checked={newCar.carType === 'SUV'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="carTypeSUV" className="ml-2 text-base font-medium text-gray-700">
                       SUV
@@ -205,7 +205,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="Hatchback"
                       checked={newCar.carType === 'Hatchback'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="carTypeHatchback" className="ml-2 text-base font-medium text-gray-700">
                       Hatchback
@@ -224,7 +224,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="Petrol"
                       checked={newCar.fuelType === 'Petrol'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="fuelTypePetrol" className="ml-2 text-base font-medium text-gray-700">
                       Petrol
@@ -238,7 +238,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="Diesel"
                       checked={newCar.fuelType === 'Diesel'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="fuelTypeDiesel" className="ml-2 text-base font-medium text-gray-700">
                       Diesel
@@ -252,7 +252,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="Electric"
                       checked={newCar.fuelType === 'Electric'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="fuelTypeElectric" className="ml-2 text-base font-medium text-gray-700">
                       Electric
@@ -271,7 +271,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="Automatic"
                       checked={newCar.transmissionType === 'Automatic'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="transmissionTypeAutomatic" className="ml-2 text-base font-medium text-gray-700">
                       Automatic
@@ -285,7 +285,7 @@ const CustomerSearch = ({ onSearch }) => {
                       value="Manual"
                       checked={newCar.transmissionType === 'Manual'}
                       onChange={handleCarChange}
-                      className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500"
+                      className="form-radio h-4 w-4 text-primary-600 focus:ring-primary-500"
                     />
                     <label htmlFor="transmissionTypeManual" className="ml-2 text-base font-medium text-gray-700">
                       Manual
@@ -303,7 +303,7 @@ const CustomerSearch = ({ onSearch }) => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                 >
                   Create User
                 </button>

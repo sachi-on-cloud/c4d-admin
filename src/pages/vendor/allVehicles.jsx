@@ -97,7 +97,7 @@ export function AllVehicles() {
       <Card>
         {cabs.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="blue" className="mb-8 p-6 flex-1 justify-between items-center bg-[#1A73E8]">
+            <CardHeader variant="gradient" color="blue" className="mb-8 p-6 flex-1 justify-between items-center bg-primary">
               <Typography variant="h6" color="white">
                 All Vehicles List
               </Typography>
@@ -196,7 +196,7 @@ export function AllVehicles() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/vendors/account/allVehicles/edit/${id}`)}
-                                className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                className="text-xs font-semibold text-white bg-primary"
                               >
                                 Edit
                               </Button>
@@ -205,7 +205,7 @@ export function AllVehicles() {
                               <Button
                                 as="a"
                                 onClick={() => { updateCabs(id, status) }}
-                                className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                className="text-xs font-semibold text-white bg-primary"
                               >
                                 {status == "ACTIVE" ? "Mark Offline" : "Mark Online"}
                               </Button>
@@ -214,7 +214,7 @@ export function AllVehicles() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
-                                className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                className="text-xs font-semibold text-white bg-primary"
                               >
                                 RE ASSIGN
                               </Button>
@@ -229,7 +229,7 @@ export function AllVehicles() {
             </CardBody>
 
           </>) : (
-          <CardHeader variant="gradient" color="blue" className="mb-8 p-6 bg-[#1A73E8]">
+          <CardHeader variant="gradient" color="blue" className="mb-8 p-6 bg-primary">
             <Typography variant="h6" color="white">
               No Vehicles Added
             </Typography>
