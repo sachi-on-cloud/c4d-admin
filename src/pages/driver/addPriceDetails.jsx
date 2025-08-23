@@ -98,7 +98,7 @@ const AddPriceDetails = () => {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="packageId" className="text-sm font-medium text-gray-700">Packages</label>
-                                <Field as="select" name="packageId" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" name="packageId" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="">Select Packages</option>
                                     {updatedPackage.map((val, index) => (
                                         !addedPackage.includes(val.id) &&
@@ -149,7 +149,7 @@ const AddPriceDetails = () => {
 
                         <Button
                             fullWidth
-                            color='#000000'
+                            color='gray'
                             onClick={handleSubmit}
                             disabled={!dirty || !isValid}
                             className='my-6 mx-2'

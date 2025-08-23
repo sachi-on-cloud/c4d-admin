@@ -12,7 +12,7 @@ export function PriceList() {
       <Card>
         <CardHeader
           variant="gradient"
-          className="mt-8 p-6 w-full justify-between items-center bg-blue-500"
+          className="mt-8 p-6 w-full justify-between items-center bg-primary-500"
         >
           <Typography variant="h6" color="white">
             Tariff pack Rental
@@ -22,18 +22,18 @@ export function PriceList() {
           <table className="w-full  min-w-[640px] table-auto border-collapse">
   <thead>
     <tr>
-      <th colSpan="10" className="border px-4 border-black py-2 bg-blue-200 text-center">Mini</th>
+  <th colSpan="10" className="border px-4 border-black py-2 bg-primary-200 text-center">Mini</th>
       <th colSpan="8" className="border px-4 border-black py-2 bg-gray-300 text-center">Sedan</th>
       <th colSpan="8" className="border px-4 border-black py-2 bg-yellow-300 text-center">Suv</th>
       <th colSpan="8" className="border px-4 border-black py-2 bg-green-300 text-center">Muv</th>
     </tr>
     <tr>
       <th className="border px-4 border-black py-2 bg-red-100">Hours</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">KM</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">Ac</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">Drop</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Same Day</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Next Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">KM</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Ac</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Drop</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Same Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Next Day</th>
       
       <th className="border px-4 border-black py-2 bg-orange-100">Non Ac</th>
       <th className="border px-4 border-black py-2 bg-orange-100">Drop</th>
@@ -42,10 +42,10 @@ export function PriceList() {
        
 
        
-      <th className="border px-4 border-black py-2 bg-blue-100">Ac</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">Drop</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Same Day</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Next Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Ac</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Drop</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Same Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Next Day</th>
       
       <th className="border px-4 border-black py-2 bg-orange-100">Non Ac</th>
       <th className="border px-4 border-black py-2 bg-orange-100">Drop</th>
@@ -53,10 +53,10 @@ export function PriceList() {
       <th className="border px-4 border-black py-2 bg-orange-100">RT Next Day</th>
 
        {/* Suv  AC Sub-headers */}
-      <th className="border px-4 border-black py-2 bg-blue-100">Ac</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">Drop</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Same Day</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Next Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Ac</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Drop</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Same Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Next Day</th>
       {/* Suv NON AC Sub-headers */}
       <th className="border px-4 border-black py-2 bg-orange-100">Non Ac</th>
       <th className="border px-4 border-black py-2 bg-orange-100">Drop</th>
@@ -64,10 +64,10 @@ export function PriceList() {
       <th className="border px-4 border-black py-2 bg-orange-100">RT Next Day</th>
 
        {/* Muv  AC Sub-headers */}
-      <th className="border px-4 border-black py-2 bg-blue-100">Ac</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">Drop</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Same Day</th>
-      <th className="border px-4 border-black py-2 bg-blue-100">RT Next Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Ac</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">Drop</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Same Day</th>
+  <th className="border px-4 border-black py-2 bg-primary-100">RT Next Day</th>
       {/* Muv NON AC Sub-headers */}
       <th className="border px-4 border-black py-2 bg-orange-100">Non Ac</th>
       <th className="border px-4 border-black py-2 bg-orange-100">Drop</th>

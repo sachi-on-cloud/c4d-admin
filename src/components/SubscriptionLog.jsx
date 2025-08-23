@@ -54,7 +54,7 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                     key={i}
                     size="sm"
                     variant={i === pagination.currentPage ? "filled" : "outlined"}
-                    className="mx-1 bg-blue-500 text-white"
+                    className="mx-1 bg-primary text-white"
                     onClick={() => handlePageChange(i)}
                 >
                     {i}
@@ -114,7 +114,7 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-600 cursor-pointer underline"
+                                                <Typography className="text-xs font-semibold text-primary-600 cursor-pointer underline"
                                                 onClick={() => navigate(`/dashboard/finance/receipt/details/${Receipt?.receiptNumber}`)} 
                                                 >
                                                     {Receipt?.receiptNumber}

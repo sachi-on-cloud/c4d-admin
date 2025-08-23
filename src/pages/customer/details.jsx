@@ -58,7 +58,7 @@ const CustomerDetails = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                    <Field as="select" disabled name="salutation" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" disabled name="salutation" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select salutation</option>
                                         <option value="Mr">Mr</option>
                                         <option value="Mrs">Mrs</option>
@@ -81,7 +81,7 @@ const CustomerDetails = () => {
 
                                 <div>
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
-                                    <Field as="select" disabled name="source" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" disabled name="source" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select Source</option>
                                         <option value="Walk In">Walk In</option>
                                         <option value="Mobile App">Mobile App</option>
@@ -159,12 +159,12 @@ const CustomerDetails = () => {
                             className="bg-white rounded-lg p-3 shadow-sm border"
                         >
                             <div className="flex justify-between items-center mb-2">
-                                <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                                <span className="inline-block px-2 py-0.5 text-xs text-white bg-primary rounded">
                                 {note.User.name || '-'}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center mb-2">
-                                  <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                                  <span className="inline-block px-2 py-0.5 text-xs text-white bg-primary rounded">
                                 {note?.noteType || 'Note'}
                             </span>
                             <span className="text-sm text-gray-500">

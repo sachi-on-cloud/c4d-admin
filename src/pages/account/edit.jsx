@@ -64,7 +64,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography
-                    className={`text-xs font-semibold ${value ? "text-green-500" : "text-blue-500"}`}
+                    className={`text-xs font-semibold ${value ? "text-green-500" : "text-primary-500"}`}
                 >
                     {value ? "UPLOADED" : "NO DOCUMENTS"}
                 </Typography>
@@ -87,7 +87,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                 <div className="flex items-center gap-2">
                     <label
                         htmlFor={name}
-                        className="inline-block text-center text-white border border-gray-400 bg-[#1A73E8] rounded-lg px-4 py-1 cursor-pointer"
+                        className="inline-block text-center text-white border border-gray-400 bg-primary rounded-lg px-4 py-1 cursor-pointer"
                     >
                         Update
                     </label>
@@ -106,7 +106,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                 {value && (
                     <Typography
                         variant="small"
-                        className="font-semibold underline cursor-pointer text-blue-900"
+                        className="font-semibold underline cursor-pointer text-primary-900"
                         onClick={() => {
                             if (label === 'Live Photo' || label === 'Bank Statement') {
                                 setModalData({
@@ -547,7 +547,7 @@ const AccountEdit = () => {
                             <div className='grid grid-cols-2 gap-4'>
                                 <div>
                                     <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
-                                    <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select Type</option>
                                         <option value="Individual">Owner cum Driver</option>
                                         <option value="Company">Travels</option>
@@ -566,7 +566,7 @@ const AccountEdit = () => {
                                 </div>
                                 <div>
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
-                                    <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select Type</option>
                                         <option value="Mobile App">Mobile App</option>
                                         <option value="Walk In">Walk In</option>
@@ -644,7 +644,7 @@ const AccountEdit = () => {
                                         name="thaluk"
                                         value={values.thaluk}
                                         onChange={(e) => setFieldValue("thaluk", e.target.value)}
-                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                     >
                                         <option value="" disabled>Select Thaluk</option>
                                         {filteredThaluk.map((thaluk) => (
@@ -668,7 +668,7 @@ const AccountEdit = () => {
                                         name="district"
                                         value={values.district}
                                         onChange={(e) => setFieldValue("district", e.target.value)}
-                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                     >
                                         <option value="">Select District</option>
                                         {filteredDistricts.map((district) => (
@@ -692,7 +692,7 @@ const AccountEdit = () => {
                                         name="state"
                                         value={values.state}
                                         onChange={(e) => setFieldValue("state", e.target.value)}
-                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                     >
                                         <option value="">Select State</option>
                                         {filteredState.map((state) => (
@@ -717,7 +717,7 @@ const AccountEdit = () => {
                                     <Field 
                                         as="select" 
                                         name="ownerStatus" 
-                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
                                         onChange={(e) => {
                                             setFieldValue("ownerStatus", e.target.value);
                                             if (e.target.value !== 'Blocked') {
@@ -901,7 +901,7 @@ const AccountEdit = () => {
                                 href={modalData.image}
                                 download
                                 target='_blank'
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                             >
                                 Download Image 1
                             </a>
@@ -910,7 +910,7 @@ const AccountEdit = () => {
                                     href={modalData.image2}
                                     download
                                     target="_blank"
-                                    className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                                 >
                                     Download Image 2
                                 </a>

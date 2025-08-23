@@ -71,7 +71,7 @@ const DriverBookingNotes = ({ cabId }) => {
               <Field
                 as="select"
                 name="noteType"
-                className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
               >
                 <option value="">Select Note Type</option>
                 <option value="GENERAL">General</option>
@@ -91,7 +91,7 @@ const DriverBookingNotes = ({ cabId }) => {
                   as="textarea"
                   name="notes"
                   rows="4"
-                  className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="p-2 w-full rounded-md border bg-white border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
                   placeholder="Enter your note here..."
                 />
                 <ErrorMessage name="notes" component="div" className="text-red-500 text-sm mt-1" />
@@ -124,12 +124,12 @@ const DriverBookingNotes = ({ cabId }) => {
                   className="bg-white rounded-lg p-3 shadow-sm border"
                 >
                   <div className="flex justify-between items-center mb-2">
-                     <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                     <span className="inline-block px-2 py-0.5 text-xs text-white bg-primary rounded">
                       {note.User.name || '-'}
                     </span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="inline-block px-2 py-0.5 text-xs text-white bg-blue-600 rounded">
+                    <span className="inline-block px-2 py-0.5 text-xs text-white bg-primary rounded">
                       {note?.noteType || 'Note'}
                     </span>
                     <span className="text-sm text-gray-500">

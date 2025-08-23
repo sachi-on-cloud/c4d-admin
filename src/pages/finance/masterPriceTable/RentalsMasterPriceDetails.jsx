@@ -174,7 +174,7 @@ const RentalsPriceMasterDetails = () => {
     <table className="w-full border-spacing-y-2  border-collapse text-sm text-center">
       <thead>
          {initialValues?.type === 'Outstation' && (
-        <tr className="bg-blue-600 text-white">
+  <tr className="bg-primary text-white">
   <th  colSpan={1}></th>
   <th  colSpan={2}></th>
 
@@ -183,7 +183,7 @@ const RentalsPriceMasterDetails = () => {
    <th  colSpan={2}className='border text-lg'>Round Trip Non AC</th>
   <th  colSpan={2}className=' border text-lg'>Round Trip AC</th>
 </tr>)}
-        <tr className="bg-blue-600 text-white">
+  <tr className="bg-primary text-white">
           <th className="border p-2">Car Type</th>
           <th className="border p-2">Base Fare</th>
           <th className="border p-2">Additional Min Charge</th>

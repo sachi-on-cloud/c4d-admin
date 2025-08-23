@@ -124,7 +124,7 @@ const SearchableDropdown = ({ searchVal, addVal, selected, options, onSelect, se
                     ) : (
                         <>
                             <div className="p-2 text-gray-500">No options found</div>
-                            {/* <div className="p-2 text-blue-700" onClick={() => {
+                            {/* <div className="p-2 text-primary-700" onClick={() => {
                                 navigate('/dashboard/customers/add');
                             }}>+ Add new customer</div> */}
                         </>

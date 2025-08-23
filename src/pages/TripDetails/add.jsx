@@ -17,8 +17,10 @@ import moment from 'moment';
 const AddTripDetails = () => {
   const [formData, setFormData] = useState({
     bookingId: '',
-    cabId:'',
-    driverId:'',
+    bookingNumber: '',
+    cabId: '',
+    driverId: '',
+    customerId: '',
     tripDate: moment().format('YYYY-MM-DD'),
     vehicleNumber: '',
     driverName: '',
@@ -31,28 +33,42 @@ const AddTripDetails = () => {
     fuelQuantity: '',
     fuelCost: '',
     tripFare: '',
-    profit: '0.00',
     notes: '',
     startLat: 0,
     startLong: 0,
     endLat: 0,
     endLong: 0,
+    toll:"",
+    permit:"",
   });
 
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch all bookings when the component mounts
+  // Fetch bookings when user types 4+ characters
   useEffect(() => {
     const fetchBookings = async () => {
+      if (searchQuery.trim().length < 4) {
+        setBookings([]);
+        setFilteredBookings([]);
+        setShowDropdown(false);
+        return;
+      }
+
       setLoading(true);
       try {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_BOOKING_ENDED_DETAILS);
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKING_ENDED_DETAILS, {
+          searchKey: searchQuery,
+        });
         if (data?.success) {
           const bookingsData = data?.data || [];
           setBookings(bookingsData);
+          setFilteredBookings(bookingsData);
           if (bookingsData.length === 0) {
             setError('No bookings found');
           }
@@ -61,85 +77,80 @@ const AddTripDetails = () => {
         }
       } catch (err) {
         setError('Failed to fetch bookings');
-        console.error(err);
+        console.error('Error fetching bookings:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchBookings();
-  }, []); // Empty dependency array to run once on mount
+  }, [searchQuery]);
 
-  // Handle booking selection and auto-fill form
-  const handleBookingSelect = (bookingId) => {
-    const selectedBooking = bookings.find(
-      (booking) => booking.id.toString() === bookingId
-    );
-    if (selectedBooking) {
-      setFormData((prev) => ({
-        ...prev,
-        bookingId: selectedBooking.id.toString(),
-        startAddress: selectedBooking.pickupAddress?.name || '',
-        endAddress: selectedBooking.dropAddress?.name || '',
-        driverName: selectedBooking.Driver?.firstName || '',
-        vehicleNumber: selectedBooking.Cab?.carNumber ||'',
-        tripDate: moment(selectedBooking.startTime).format('YYYY-MM-DD') || prev.tripDate,
-        startKm: selectedBooking.startKM?.toString() || '', // Corrected to use startKM
-        endKm: selectedBooking.endKM?.toString() || '', // Corrected to use endKM
-        totalKm: selectedBooking.totalDistanceKilometer || '0.0',
-      }));
+  // Search box handler
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim().length >= 4) {
+      setShowDropdown(true);
       setError('');
     } else {
-      setError('Selected booking not found');
-      setFormData((prev) => ({
-        ...prev,
-        bookingId: '',
-        startAddress: '',
-        endAddress: '',
-        driverName: '',
-        vehicleNumber: '',
-        tripDate: moment().format('YYYY-MM-DD'),
-        startKm: '',
-        endKm: '',
-        totalKm: '0.0',
-      }));
+      setFilteredBookings([]);
+      setShowDropdown(false);
+      setError('');
     }
   };
 
+  // Booking selection from dropdown
+  const handleBookingSelect = (booking) => {
+    if (booking) {
+      setFormData((prev) => ({
+        ...prev,
+        bookingId: booking.id,
+        bookingNumber: booking.bookingNumber || '',
+        startAddress: booking.pickupAddress?.name || '',
+        endAddress: booking.dropAddress?.name || '',
+        driverName: booking.Driver?.firstName || '',
+        vehicleNumber: booking.Cab?.carNumber || '',
+        tripDate: moment(booking.startTime).format('YYYY-MM-DD'),
+        startKm: booking.startKM?.toString() || '',
+        endKm: booking.endKM?.toString() || '',
+        totalKm: booking.totalDistanceKilometer || '0.0',
+        cabId: booking.cabId,
+        driverId: booking.driverId,
+        customerId: booking.customer_id,
+      }));
+      setError('');
+      setShowDropdown(false);
+      setSearchQuery('');
+    }
+  };
+
+  // Input change handler
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
-
-      // Calculate total KM only if startKm or endKm changes
       if (name === 'startKm' || name === 'endKm') {
         const start = parseFloat(newData.startKm) || 0;
         const end = parseFloat(newData.endKm) || 0;
         newData.totalKm = (end - start).toFixed(1);
       }
-
-      // Calculate profit/loss
-      if (name === 'tripFare' || name === 'fuelCost') {
-        const fare = parseFloat(newData.tripFare) || 0;
-        const cost = parseFloat(newData.fuelCost) || 0;
-        newData.profit = (fare - cost).toFixed(2);
-      }
-
       return newData;
     });
   };
 
+  // Select dropdown change
   const handleSelectChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === 'bookingId') {
-      handleBookingSelect(value);
-    }
   };
 
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     const requiredFields = [
       'bookingId',
+      'bookingNumber',
       'tripDate',
       'vehicleNumber',
       'driverName',
@@ -149,12 +160,9 @@ const AddTripDetails = () => {
       'endKm',
       'totalKm',
       'fuelType',
-      'fuelQuantity',
-      'fuelCost',
       'tripFare',
     ];
 
-    // Validate required fields
     for (const field of requiredFields) {
       if (!formData[field]) {
         setError(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
@@ -162,21 +170,12 @@ const AddTripDetails = () => {
       }
     }
 
-    // Validate bookingId
-    const selectedBooking = bookings.find(
-      (booking) => booking.id.toString() === formData.bookingId
-    );
-    if (!selectedBooking) {
-      setError('Invalid Booking ID');
-      return;
-    }
-
     try {
       setLoading(true);
-     const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, {
+      const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, {
         bookingId: formData.bookingId,
         tripDate: formData.tripDate,
-         latitude: formData.startLat,
+        latitude: formData.startLat,
         startLat: formData.startLat,
         startLong: formData.startLong,
         startAddress: { address: formData.startAddress },
@@ -187,20 +186,23 @@ const AddTripDetails = () => {
         endKm: parseFloat(formData.endKm),
         totalKm: parseFloat(formData.totalKm),
         fuelType: formData.fuelType,
-        fuelQuantity: parseFloat(formData.fuelQuantity),
-        fuelCost: parseFloat(formData.fuelCost),
+        fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : 0,
         tripFare: parseFloat(formData.tripFare),
-        profit: parseFloat(formData.profit),
         notes: formData.notes,
-        customerId: selectedBooking.customer_id, // Include customerId from selected booking
-        cabId: selectedBooking.cabId,
-        driverId: selectedBooking.driverId,
+        customerId: formData.customerId,
+        cabId: formData.cabId,
+        driverId: formData.driverId,
+         toll: formData.toll ? parseFloat(formData.toll) : 0,       
+        permit: formData.permit ? parseFloat(formData.permit) : 0, 
       });
+
       if (response?.success) {
         setFormData({
           bookingId: '',
-          cabId:'',
-          driverId:'',
+          bookingNumber: '',
+          cabId: '',
+          driverId: '',
+          customerId: '',
           tripDate: moment().format('YYYY-MM-DD'),
           vehicleNumber: '',
           driverName: '',
@@ -213,23 +215,24 @@ const AddTripDetails = () => {
           fuelQuantity: '',
           fuelCost: '',
           tripFare: '',
-          profit: '0.00',
           notes: '',
           startLat: 0,
           startLong: 0,
           endLat: 0,
           endLong: 0,
         });
-        // console.log('Trip added successfully:' ,response);
         setBookings([]);
+        setFilteredBookings([]);
+        setSearchQuery('');
         setError('');
+        setShowDropdown(false);
         navigate('/dashboard/tripDetails');
       } else {
         setError('Failed to add trip. Please try again.');
       }
     } catch (err) {
+      console.error('Submission error:', err);
       setError('Failed to add trip. Please try again.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -256,117 +259,86 @@ const AddTripDetails = () => {
             Add Trip Details
           </Typography>
           <hr className="my-2" />
+          <div className="mb-4 relative">
+            <Typography color="gray" variant="h6" className="mb-1">
+              Search Booking Number
+            </Typography>
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Enter at least 4 characters to search Booking Number"
+              className="w-full"
+            />
+            {showDropdown && filteredBookings.length > 0 && (
+              <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto">
+                {filteredBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleBookingSelect(booking)} // ✅ Pass full booking
+                  >
+                    {booking.bookingNumber}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Booking ID *
+                Booking Number *
               </Typography>
-              <Select
-                name="bookingId"
-                value={formData.bookingId}
-                onChange={(value) => handleSelectChange('bookingId', value)}
-              >
-                <Option value="">Select Booking ID</Option>
-                {bookings.map((booking) => (
-                  <Option key={booking.id} value={booking.id.toString()}>
-                    {booking.id}
-                  </Option>
-                ))}
-              </Select>
+              <Input type="text" name="bookingNumber" value={formData.bookingNumber} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Trip Date *
               </Typography>
-              <Input
-                type="date"
-                name="tripDate"
-                value={formData.tripDate}
-                onChange={handleInputChange}
-              />
+              <Input type="date" name="tripDate" value={formData.tripDate} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Vehicle Number *
               </Typography>
-              <Input
-                name="vehicleNumber"
-                value={formData.vehicleNumber}
-               
-              >
-               
-              </Input>
+              <Input name="vehicleNumber" value={formData.vehicleNumber} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Driver Name *
               </Typography>
-              <Input
-                type="text"
-                name="driverName"
-                value={formData.driverName}
-                onChange={handleInputChange}
-                placeholder="Enter Driver Name"
-              />
+              <Input type="text" name="driverName" value={formData.driverName} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Trip Start Point *
               </Typography>
-              <Input
-                type="text"
-                name="startAddress"
-                value={formData.startAddress}
-                onChange={handleInputChange}
-                placeholder="Trip Start Point"
-              />
+              <Input type="text" name="startAddress" value={formData.startAddress} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Trip End Point *
               </Typography>
-              <Input
-                type="text"
-                name="endAddress"
-                value={formData.endAddress}
-                onChange={handleInputChange}
-                placeholder="Trip End Point"
-              />
+              <Input type="text" name="endAddress" value={formData.endAddress} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Opening KM *
               </Typography>
-              <Input
-                type="number"
-                name="startKm"
-                value={formData.startKm}
-                onChange={handleInputChange}
-                placeholder="Opening KM"
-              />
+              <Input type="number" name="startKm" value={formData.startKm} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Closing KM *
               </Typography>
-              <Input
-                type="number"
-                name="endKm"
-                value={formData.endKm}
-                onChange={handleInputChange}
-                placeholder="Closing KM"
-              />
+              <Input type="number" name="endKm" value={formData.endKm} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Total KM (Auto)
               </Typography>
-              <Input
-                type="number"
-                value={formData.totalKm}
-                readOnly
-                disabled
-              />
+              <Input type="number" value={formData.totalKm} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
@@ -378,56 +350,48 @@ const AddTripDetails = () => {
                 onChange={(value) => handleSelectChange('fuelType', value)}
               >
                 <Option value="CNG">CNG</Option>
-                <Option value="Petrol">Petrol</Option>
-                <Option value="Diesel">Diesel</Option>
+                <Option value="PETROL">Petrol</Option>
+                <Option value="DIESEL">Diesel</Option>
+                <Option value="GAS">Gas</Option>
+                <Option value="ELECTRIC">Electric</Option>
+                <Option value="NONE">None</Option>
               </Select>
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Fuel Quantity *
+                Fuel Cost (₹)
+              </Typography>
+              <Input type="number" name="fuelCost" value={formData.fuelCost} onChange={handleInputChange} />
+            </div>
+            <div>
+              <Typography color="gray" variant="h6" className="mb-1">
+                Toll (₹)
               </Typography>
               <Input
                 type="number"
-                name="fuelQuantity"
-                value={formData.fuelQuantity}
+                name="toll"
+                value={formData.toll}
                 onChange={handleInputChange}
-                placeholder="Fuel Quantity"
+                placeholder="Enter Toll Cost"
               />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Fuel Cost (₹) *
+                Permit (₹)
               </Typography>
               <Input
                 type="number"
-                name="fuelCost"
-                value={formData.fuelCost}
+                name="permit"
+                value={formData.permit}
                 onChange={handleInputChange}
-                placeholder="Fuel Cost"
+                placeholder="Enter Permit Cost"
               />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Trip Fare (₹) *
               </Typography>
-              <Input
-                type="number"
-                name="tripFare"
-                value={formData.tripFare}
-                onChange={handleInputChange}
-                placeholder="Trip Fare"
-              />
-            </div>
-            <div>
-              <Typography color="gray" variant="h6" className="mb-1">
-                Profit/Loss (Auto)
-              </Typography>
-              <Input
-                type="number"
-                value={formData.profit}
-                readOnly
-                disabled
-              />
+              <Input type="number" name="tripFare" value={formData.tripFare} onChange={handleInputChange} />
             </div>
             <div className="col-span-2">
               <Typography color="gray" variant="h6" className="mb-1">
@@ -442,18 +406,10 @@ const AddTripDetails = () => {
               />
             </div>
             <div className="col-span-2 flex justify-end gap-4 mt-4">
-              <Button
-                color="gray"
-                variant="outlined"
-                onClick={() => navigate('/dashboard/tripDetails')}
-              >
+              <Button color="gray" variant="outlined" onClick={() => navigate('/dashboard/tripDetails')}>
                 Cancel
               </Button>
-              <Button
-                color="blue"
-                onClick={handleSubmit}
-                disabled={loading}
-              >
+              <Button color="blue" onClick={handleSubmit} disabled={loading}>
                 Save Trip
               </Button>
             </div>

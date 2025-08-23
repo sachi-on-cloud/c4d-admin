@@ -93,6 +93,8 @@ import { OnlineVehiclesList } from "./pages/vendor/onlineVehiclesList";
 import TripDetails from "./pages/TripDetails/tripDetails";
 import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
+import TripDetailsEdit from "./pages/TripDetails/edit";
+import DetailsTrip from "./pages/TripDetails/details";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -721,6 +723,20 @@ export const routes = [
         name: "tripdetails reports",
         path: "/tripDetails/add",
         element: <AddTripDetails/>,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails reports",
+        path: "/tripDetails/details/edit/:id",
+        element: <TripDetailsEdit/>,
+        display: true
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "tripdetails reports",
+        path: "/tripDetails/details/:id",
+        element: <DetailsTrip/>,
         display: true
       },
 

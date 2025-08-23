@@ -10,6 +10,19 @@ module.exports = withMT({
         sans: ["Roboto", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Arial", "sans-serif"],
       },
       colors: {
+        primary: {
+          DEFAULT: "#1A73E8",
+          50: "#e8f1fe",
+          100: "#d1e3fd",
+          200: "#b3ccff",
+          300: "#89b1fb",
+          400: "#5b95f6",
+          500: "#3b82f6",
+          600: "#1A73E8",
+          700: "#185ec0",
+          800: "#164e9f",
+          900: "#133f7f",
+        },
         brand: {
           DEFAULT: "#2563eb", // blue-600
           50: "#eff6ff",
@@ -26,9 +39,13 @@ module.exports = withMT({
         accent: {
           DEFAULT: "#22c55e", // green-500
         },
+        secondary: {
+          DEFAULT: "#37408C",
+        },
         surface: {
           DEFAULT: "#ffffff",
           soft: "#f8fafc", // slate-50
+          muted: "#f5f5f5", // neutral-100
         },
       },
       boxShadow: {

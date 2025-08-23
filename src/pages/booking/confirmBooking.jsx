@@ -90,6 +90,7 @@ const ConfirmBooking = (props) => {
             }
         }
         const data = await ApiRequestUtils.update(API_ROUTES.ADMIN_BOOKING_STATUS, reqBody, bookingDetails?.customerId);
+        // console.log("CONFIRM BOOKING", data);
         if (data?.success) {
             //navigate("/dashboard/booking");
             props.onConfirm()
@@ -99,8 +100,9 @@ const ConfirmBooking = (props) => {
     const getBookingById = async (bookingId, customerId) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
+        // console.log("BOOKING DATA", data);
         if (data?.success) {
-           setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, notesData: data?.notes,landmark: data?.data?.landmark });
+           setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark });
             if(data?.data?.status === BOOKING_STATUS.END_OTP){
                 const finalPrice = await ApiRequestUtils.get(API_ROUTES.GET_BOOKINGDETAILS_FINAL_PAYMENT + bookingId);
                 setFinalPaymentPrices({
@@ -158,6 +160,7 @@ const ConfirmBooking = (props) => {
                 bookingType: bookingDetails?.serviceType,
                 kilometer: kms ? kms : 0
             });
+            // console.log("PRICE DATA", data);
             if (data?.success) {
                 setAmount(data?.data);
                 handleChange('enable', true);
@@ -765,6 +768,21 @@ const ConfirmBooking = (props) => {
                                     {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
                                 </div>}
+                                {bookingDetails?.discount?.percentage > 0 && (
+                                <>
+                                    <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                    <Typography>{bookingDetails?.discount?.percentage} %</Typography>
+                                    </div>
+                                    <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                    <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                        {/* ₹ {(bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice * bookingDetails?.discount?.percentage / 100)} */}
+                                        ₹ { (bookingDetails.value?.estimatedPrice) - (bookingDetails.value?.estimatedPrice * bookingDetails.discount?.percentage/100) }
+                                    </Typography>
+                                    </div>
+                                </>
+                                )}
 
                                 </>
                             }

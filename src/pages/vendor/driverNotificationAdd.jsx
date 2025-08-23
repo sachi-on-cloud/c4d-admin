@@ -107,7 +107,7 @@ const DriverNotificationListAdd = () => {
                 <Field
                   as="select"
                   name="type"
-                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
                   disabled
                 >
                   <option value="DRIVER">Driver App</option>

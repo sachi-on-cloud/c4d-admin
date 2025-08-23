@@ -1,3 +1,4 @@
+import { themeColors } from "@/theme/colors";
 export const chartsConfig = {
   chart: {
     toolbar: {
@@ -19,7 +20,7 @@ export const chartsConfig = {
     },
     labels: {
       style: {
-        colors: "#37474f",
+  colors: themeColors.textMuted,
         fontSize: "13px",
         fontFamily: "inherit",
         fontWeight: 300,
@@ -29,7 +30,7 @@ export const chartsConfig = {
   yaxis: {
     labels: {
       style: {
-        colors: "#37474f",
+  colors: themeColors.textMuted,
         fontSize: "13px",
         fontFamily: "inherit",
         fontWeight: 300,
@@ -38,7 +39,7 @@ export const chartsConfig = {
   },
   grid: {
     show: true,
-    borderColor: "#dddddd",
+  borderColor: themeColors.gridBorder,
     strokeDashArray: 5,
     xaxis: {
       lines: {

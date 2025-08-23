@@ -350,7 +350,7 @@ const DriverAdd = () => {
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography
-                        className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}
+                        className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-primary-500'}`}
                     >
                         {value ? "UPLOADED" : "NO DOCUMENTS"}
                     </Typography>
@@ -378,7 +378,7 @@ const DriverAdd = () => {
                     {value && (
                         <Typography
                             variant="small"
-                            className="font-semibold underline cursor-pointer text-blue-900"
+                            className="font-semibold underline cursor-pointer text-primary-900"
                             onClick={() => {
                                 if (label === 'Live Photo') {
                                     setModalData({
@@ -640,7 +640,7 @@ const DriverAdd = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                                        <Field as="select" name="salutation" disabled={!isEditable} className={`p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${!isEditable ? "bg-gray-100" : ""}`}>
+                                        <Field as="select" name="salutation" disabled={!isEditable} className={`p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 ${!isEditable ? "bg-gray-100" : ""}`}>
                                             <option value="">Select salutation</option>
                                             <option value="Mr">Mr</option>
                                             <option value="Mrs">Mrs</option>
@@ -737,7 +737,7 @@ const DriverAdd = () => {
                                     </div>
                                     <div>
                                         <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
-                                        <Field as="select" name="source" disabled={!isEditable} className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <Field as="select" name="source" disabled={!isEditable} className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                             <option value="">Select Source</option>
                                             <option value="Walk In">Walk In</option>
                                             <option value="Mobile App">Mobile App</option>
@@ -854,7 +854,7 @@ const DriverAdd = () => {
                                                 name="thaluk"
                                                 value={values.thaluk}
                                                 onChange={(e) => setFieldValue("thaluk", e.target.value)}
-                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                                 disabled={!isEditable}
                                             >
                                                 <option value="" disabled>Select Thaluk</option>
@@ -879,7 +879,7 @@ const DriverAdd = () => {
                                                 name="district"
                                                 value={values.district}
                                                 onChange={(e) => setFieldValue("district", e.target.value)}
-                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                                 disabled={!isEditable}
                                             >
                                                 <option value="" disabled>Select District</option>
@@ -904,7 +904,7 @@ const DriverAdd = () => {
                                                 name="state"
                                                 value={values.state}
                                                 onChange={(e) => setFieldValue("state", e.target.value)}
-                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                                className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                                 disabled={!isEditable}
                                             >
                                                 <option value="" disabled>Select State</option>
@@ -1266,7 +1266,7 @@ const DriverAdd = () => {
                                     href={modalData.image}
                                     download
                                     target="_blank"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                                 >
                                     Download Image 1
                                 </a>
@@ -1275,7 +1275,7 @@ const DriverAdd = () => {
                                         href={modalData.image2}
                                         download
                                         target="_blank"
-                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                        className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                                     >
                                         Download Image 2
                                     </a>

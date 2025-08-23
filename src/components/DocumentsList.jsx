@@ -41,7 +41,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
             case "pending":
-                return "text-blue-500";
+                return "text-primary-500";
             case "approved":
                 return "text-green-500";
             case "declined":
@@ -142,7 +142,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                                         </td>
                                                         <td className={className}>
                                                             <Typography
-                                                                className={`text-xs font-semibold ${status === 'PENDING' ? 'text-blue-500' :
+                                                                className={`text-xs font-semibold ${status === 'PENDING' ? 'text-primary-500' :
                                                                     status === 'APPROVED' ? 'text-green-500' :
                                                                         status === 'DECLINED' ? 'text-red-500' : ''
                                                                     }`}
@@ -156,7 +156,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                                                 <div>
                                                                     <Typography
                                                                         variant="small"
-                                                                        className="font-semibold underline cursor-pointer text-blue-900"
+                                                                        className="font-semibold underline cursor-pointer text-primary-900"
                                                                         onClick={() => {
                                                                             setDeclineReason("");
                                                                             setIsDeclining("");
@@ -267,7 +267,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                     href={modalData.image}
                                     download
                                     target="_blank"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                                 >
                                     Download Image 1
                                 </a>
@@ -276,7 +276,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                         href={modalData.image2}
                                         download
                                         target="_blank"
-                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                        className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                                     >
                                         Download Image 2
                                     </a>
@@ -348,7 +348,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                             handleStatusChange(modalData.id, "DECLINED", declineReason);
                                             setIsDeclining(false);
                                         }}
-                                        className="bg-blue-400 text-white px-4 py-2"
+                                        className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2"
                                         disabled={!declineReason.trim()}
                                     >
                                         Send

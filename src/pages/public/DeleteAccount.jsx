@@ -113,7 +113,7 @@ export function DeleteAccount() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#37408C] to-blue-900">
+  <div className="min-h-screen bg-gradient-to-br from-secondary to-primary-900">
       {/* Header */}
       <div className="w-full bg-white shadow-md">
         <div className="container mx-auto px-4 py-2">
@@ -127,7 +127,7 @@ export function DeleteAccount() {
           <CardHeader
             variant="filled"
             color="blue"
-            className="mb-4 grid h-20 place-items-center bg-[#37408C]"
+            className="mb-4 grid h-20 place-items-center bg-secondary"
           >
             <Typography variant="h3" color="white">
               Delete Account
@@ -167,7 +167,7 @@ export function DeleteAccount() {
                   disabled={loading}
                 />
                 <Button
-                  className="bg-[#37408C]"
+                  className="bg-secondary"
                   onClick={handleMobileVerification}
                   disabled={loading || phoneNumber.length !== 10}
                   fullWidth
@@ -190,7 +190,7 @@ export function DeleteAccount() {
                   disabled={loading}
                 />
                 <Button
-                  className="bg-[#37408C]"
+                  className="bg-secondary"
                   onClick={handleVerifyOTP}
                   disabled={loading || otp.length !== 4}
                   fullWidth
