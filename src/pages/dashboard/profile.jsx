@@ -108,8 +108,8 @@ export function Profile() {
                 location: "USA",
                 social: (
                   <div className="flex items-center gap-4">
-                    <i className="fa-brands fa-facebook text-blue-700" />
-                    <i className="fa-brands fa-twitter text-blue-400" />
+                    <i className="fa-brands fa-facebook text-primary-700" />
+                    <i className="fa-brands fa-twitter text-primary-400" />
                     <i className="fa-brands fa-instagram text-purple-500" />
                   </div>
                 ),

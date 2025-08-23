@@ -1236,12 +1236,12 @@ export const WHATSAPP_BOOKING_CANCELLED=`
 
 export const BOOKING_TERMS_AND_CONDITIONS = "Price mighty vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
 export const ColorStyles = {
-    sidenavColors: "bg-[#b3ccff]",
-    bgColor: "bg-[#1A73E8]",
+    sidenavColors: "bg-primary-200",
+    bgColor: "bg-primary",
     PopoverHandlerText: "text-black",
-    bgStatusColor: " bg-[#1A73E8] text-white",
-    addButtonColor: "bg-[#1A73E8] text-white",
-    continueButtonColor: " bg-[#1A73E8] text-white",
+    bgStatusColor: " bg-primary text-white",
+    addButtonColor: "bg-primary text-white",
+    continueButtonColor: " bg-primary text-white",
     backButton: " text-black border-gray-400 border-2 rounded-xl bg-white",
-    editButton: "bg-[#1A73E8] text-white",
+    editButton: "bg-primary text-white",
 }; 

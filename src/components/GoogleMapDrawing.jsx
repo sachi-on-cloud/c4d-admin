@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { themeColors } from '@/theme/colors';
 import { useLoadScript, GoogleMap, DrawingManager, Polygon } from '@react-google-maps/api';
 
 // Keep libraries array static outside component
@@ -34,10 +35,10 @@ const drawingManagerOptions = {
     drawingModes: ['polygon']
   },
   polygonOptions: {
-    fillColor: '#82CFFD',
+    fillColor: themeColors.mapFill,
     fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#0077BE',
+    strokeColor: themeColors.mapStroke,
     clickable: true,
     editable: true,
     draggable: true,

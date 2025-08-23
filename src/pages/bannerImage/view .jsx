@@ -115,14 +115,14 @@ const BannerView = () => {
       <div className="flex items-center justify-end">
         <button
           onClick={() => navigate('/dashboard/user/bannerimg/add')}
-          className="ml-4 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+          className="ml-4 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-700"
         >
           Add New
         </button>
       </div>
 
       <Card>
-        <CardHeader className="mb-8 p-6 flex justify-between items-center bg-blue-600">
+        <CardHeader className="mb-8 p-6 flex justify-between items-center bg-primary">
           <Typography variant="h6" color="white">Banner List</Typography>
         </CardHeader>
 
@@ -132,7 +132,7 @@ const BannerView = () => {
               <Spinner className="h-10 w-10" />
             </div>
           ) : (
-            <table className="w-full min-w-[1000px] table-auto">
+            <table className="w-full min-w-[640px] table-auto">
               <thead>
                 <tr>
                   <th className="py-3 px-5 text-left">Image</th>
@@ -183,7 +183,7 @@ const BannerView = () => {
                         <div className="flex items-center">
                           <Input
                             type="number"
-                            className="border border-gray-300 rounded-xl"
+                            className="border border-gray-300 rounded-xl w-24"
                             value={item.id === editingPositionId ? (positionValues[item.id] ?? item.position) : item.position}
                             onChange={(e) => handlePositionChange(item.id, e.target.value)}
                             disabled={editingPositionId !== item.id}

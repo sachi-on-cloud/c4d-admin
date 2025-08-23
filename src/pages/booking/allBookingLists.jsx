@@ -227,7 +227,7 @@ const Booking = (props) => {
         switch (statusLower) {
           case 'started':
             return (
-              <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+              <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                 On Trip
               </span>
             );

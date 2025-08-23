@@ -17,7 +17,7 @@ const AccountSearch = ({ onSearch}) => {
         <div className="relative flex-grow max-w-[500px]">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder="Search Account"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -27,7 +27,7 @@ const AccountSearch = ({ onSearch}) => {
         </div>
         <button 
           onClick={() => navigate(`/dashboard/vendors/account/add`)}
-          className={`ml-4 px-4 py-2  rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+          className={`ml-4 px-4 py-2  rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
             ColorStyles.addButtonColor
           }`}
         >

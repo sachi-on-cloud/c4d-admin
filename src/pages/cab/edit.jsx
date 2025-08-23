@@ -514,7 +514,7 @@ const CabEdit = () => {
                             </div>
                             <div>
                                 <label htmlFor="assignedTo" className="text-sm font-medium text-gray-700">Assigned To</label>
-                                <Field as="select" disabled={cabVal?.result?.Account?.type == 'Individual'} name="assignedTo" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" disabled={cabVal?.result?.Account?.type == 'Individual'} name="assignedTo" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="">Select Type</option>
                                     <option value="Driver">Driver</option>
                                     <option value="Owner">Owner</option>
@@ -662,7 +662,7 @@ const CabEdit = () => {
                             </div>
                                 <div>
                                     <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
-                                    <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" name="status" className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select status</option>
                                         <option value="ACTIVE">Active</option>
                                         <option value="IN_ACTIVE">In_Active</option>
@@ -741,7 +741,7 @@ const CabEdit = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 // disabled={isSubmitting || !isValid}
-                                className='my-6 mx-2 bg-[#1A73E8]'
+                                className='my-6 mx-2 bg-primary'
                             >
                                 Update
                             </Button>

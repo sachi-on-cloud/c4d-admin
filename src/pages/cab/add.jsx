@@ -547,7 +547,7 @@ const CabAdd = () => {
                             </div>
                             <div>
                                 <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
-                                <Field as="select" name="vehicleType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" name="vehicleType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="">Select Type</option>
                                     {carType
                                         .filter((type) => type.carType == selectedCarType)
@@ -576,7 +576,7 @@ const CabAdd = () => {
                             </div>
                             <div>
                                 <label htmlFor="assignedTo" className="text-sm font-medium text-gray-700">Assigned To</label>
-                                <Field as="select" disabled={type == 'Individual'} name="assignedTo" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" disabled={type == 'Individual'} name="assignedTo" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="">Select Type</option>
                                     <option value="Driver">Driver</option>
                                     <option value="Owner">Owner</option>

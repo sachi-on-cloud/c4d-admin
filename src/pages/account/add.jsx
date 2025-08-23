@@ -157,7 +157,7 @@ const AccountAdd = (props) => {
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography
-                        className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-blue-500'}`}
+                        className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-primary-500'}`}
                     >
                         {value ? "UPLOADED" : "NO DOCUMENTS"}
                     </Typography>
@@ -185,7 +185,7 @@ const AccountAdd = (props) => {
                     {value && (
                         <Typography
                             variant="small"
-                            className="font-semibold underline cursor-pointer text-blue-900"
+                            className="font-semibold underline cursor-pointer text-primary-900"
                             onClick={() => {
                                 if (label === 'Live Photo' || label === 'Bank Statement') {
                                     setModalData({
@@ -480,7 +480,7 @@ const AccountAdd = (props) => {
                             <div className='grid grid-cols-2 gap-4'>
                                 <div>
                                     <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
-                                    <Field as="select" disabled={!isEditable} name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" disabled={!isEditable} name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select Type</option>
                                         <option value="Individual">Owner cum Driver</option>
                                         <option value="Company">Travels</option>
@@ -499,7 +499,7 @@ const AccountAdd = (props) => {
                                 </div>
                                 <div>
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Source</label>
-                                    <Field as="select" disabled={!isEditable} name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <Field as="select" disabled={!isEditable} name="source" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select Type</option>
                                         <option value="Mobile App">Mobile App</option>
                                         <option value="Walk In">Walk In</option>
@@ -580,7 +580,7 @@ const AccountAdd = (props) => {
                                         value={values.thaluk}
                                         onChange={(e) => setFieldValue("thaluk", e.target.value)}
                                         disabled={!isEditable}
-                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                     >
                                         <option value="" disabled>Select Thaluk</option>
                                         {filteredThaluk.map((thaluk) => (
@@ -605,7 +605,7 @@ const AccountAdd = (props) => {
                                         value={values.district}
                                         disabled={!isEditable}
                                         onChange={(e) => setFieldValue("district", e.target.value)}
-                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                     >
                                         <option value="" disabled>Select District</option>
                                         {filteredDistricts.map((district) => (
@@ -630,7 +630,7 @@ const AccountAdd = (props) => {
                                         value={values.state}
                                         disabled={!isEditable}
                                         onChange={(e) => setFieldValue("state", e.target.value)}
-                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                        className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                     >
                                         <option value="" disabled>Select State</option>
                                         {filteredState.map((state) => (
@@ -841,7 +841,7 @@ const AccountAdd = (props) => {
                                     href={modalData.image1}
                                     download
                                     target="_blank"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                                 >
                                     Download Image 1
                                 </a>
@@ -850,7 +850,7 @@ const AccountAdd = (props) => {
                                         href={modalData.image2}
                                         download
                                         target="_blank"
-                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                        className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
                                     >
                                         Download Image 2
                                     </a>

@@ -349,7 +349,7 @@ const ReassignDriver = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || !isValid}
-                                className='my-6 mx-2 bg-[#1A73E8]'
+                                className='my-6 mx-2 bg-primary'
                             >
                                 Update
                             </Button>

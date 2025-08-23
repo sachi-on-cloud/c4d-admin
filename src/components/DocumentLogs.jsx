@@ -64,7 +64,7 @@ const DocumentLogs = ({ documentlogs }) => {
                                             <td className={className}>
                                                 <Typography
                                                     className={`text-xs font-semibold ${status === "PENDING"
-                                                            ? "text-blue-500"
+                                                            ? "text-primary-500"
                                                             : status === "APPROVED"
                                                                 ? "text-green-500"
                                                                 : status === "DECLINED"
