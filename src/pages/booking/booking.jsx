@@ -1266,7 +1266,7 @@ const Booking = (props) => {
                                                             <hr className="my-2 border border-black" />
                                                             <div className="mt-4">
                                                                 <>
-                                                                    {values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? (
+                                                                    {values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? (
                                                                         <div className="space-y-3">
                                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Package Period:</Typography>
@@ -1310,23 +1310,23 @@ const Booking = (props) => {
                                                                         </div>
                                                                     ) : (
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        {values.serviceType !== 'DRIVER' && ( <>
+                                                                        {values?.serviceType !== 'DRIVER' && ( <>
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm)) 
+                                                                            {Math.round(quoteDetails.amount?.estimatedDistance) + (Number(quoteDetails.amount?.baseKm)) 
                                                                             // + (Number(quoteDetails.amount.driverWithin))
-                                                                            } Kms + {quoteDetails.amount.driverWithin} Kms
+                                                                            } Kms + {quoteDetails.amount?.driverWithin} Kms
                                                                         </Typography></>)}
-                                                                        {values.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
+                                                                        {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount.kilometerPriceVal}
+                                                                            ₹ {quoteDetails.amount?.kilometerPriceVal}
                                                                         </Typography></>)}
-                                                                        <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount.baseKm} Kilometer</Typography>
+                                                                        <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount.baseFare}
+                                                                            ₹ {quoteDetails.amount?.baseFare}
                                                                         </Typography>
                                                                         
                                                                         {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
@@ -1337,19 +1337,19 @@ const Booking = (props) => {
                                                                         </Typography>
                                                                         </>
                                                                         } */}
-                                                                        {quoteDetails.amount.isPrimeLocation === true && quoteDetails.amount.rideSurchargeAmount > 0 && 
+                                                                        {quoteDetails.amount?.isPrimeLocation === true && quoteDetails.amount?.rideSurchargeAmount > 0 && 
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                                             <Typography>
-                                                                                ₹  {quoteDetails.amount.rideSurchargeAmount}
+                                                                                ₹  {quoteDetails.amount?.rideSurchargeAmount}
                                                                             </Typography>
                                                                         </>
                                                                         }
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount.estimatedPrice}
+                                                                            ₹ {quoteDetails.amount?.estimatedPrice}
                                                                         </Typography>
-                                                                        {quoteDetails.discount.percentage > 0 && <>
+                                                                        {quoteDetails.discount?.percentage > 0 && <>
                                                                         
                                                                           <Typography color="gray" variant="h6">Discount Applied</Typography>
                                                                                 <Typography>
