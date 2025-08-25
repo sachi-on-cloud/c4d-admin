@@ -295,7 +295,7 @@ const EditAuto = () => {
             <h2 className="text-2xl font-bold mb-4">Update Auto</h2>
             <Formik
                 initialValues={initialValues}
-                validationSchema={CAB_SCHEMA}
+                // validationSchema={CAB_SCHEMA}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >

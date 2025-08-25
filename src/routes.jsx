@@ -103,6 +103,7 @@ import AutoDetailsList from "./pages/AutoDetails/list";
 import EditAuto from "./pages/AutoDetails/edit";
 import AutoMasterPriceEdit from "./pages/finance/masterPriceTable/AutoMasterPriceTableEdit";
 import ParcelMasterPriceEdit from "./pages/finance/masterPriceTable/ParcelMasterPriceTableEdit";
+import AutoEdit from "./pages/AutoService/edit";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -313,6 +314,13 @@ export const routes = [
         name: "Auto Form",
         path: "/vendors/account/autoList",
         element: <AutoDetailsList />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Edit",
+        path: "/vendors/account/autoView/details/edit/:id",
+        element: <AutoEdit />,
         display: false
       },
       {
