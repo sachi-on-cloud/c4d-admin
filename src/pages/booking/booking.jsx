@@ -209,6 +209,7 @@ const Booking = (props) => {
         cabType: '',
         driverPickUpAddress: '',
         driverPickUpLocation: null,
+        // luggage:'',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -298,6 +299,7 @@ const Booking = (props) => {
                 name:values.driverPickUpAddress,
             },
             source: 'Call',
+            // luggage: values.luggage
         };
 
         if (values.toDate && values.toTime) {
@@ -722,10 +724,7 @@ const Booking = (props) => {
                         setSearchBookingId('')
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex-1 bg-surface-muted rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
-                                {/* max-h-screen overflow-y-auto shadow p-4 */}
-
-                                <div className='rounded-2xl justify-end items-end space-x-12 flex'>
+                                <div className='justify-end items-end  absolute -right-6'>
                                     <button
                                         onClick={
                                             () => {
@@ -738,11 +737,14 @@ const Booking = (props) => {
                                                 setSearchBookingId('');
                                             }
                                         }
-                                        className="px-0 py-0 bg-black-500"
+                                        className="rounded-3xl  p-2 bg-surface-muted"
                                     >
                                         X
                                     </button>
                                 </div>
+                            <div className="flex-1 bg-surface-muted rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
+                                {/* max-h-screen overflow-y-auto shadow p-4 */}
+
                                 {!showQuickCreateCustomer && !editBookingView && <div className='text-2xl font-bold mb-8'>
                                     <Typography variant="h5" className='text-gray-900'>
                                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
@@ -1187,6 +1189,23 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
+                                                    {/* {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Luggage
+                                                            </label>
+                                                            <Field
+                                                                type="number"
+                                                                name="luggage"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                placeholder="Enter the Luggage Count (Optional)"
+                                                                onChange={(e) => {
+                                                                    setFieldValue("luggage", e.target.value);
+                                                                }}
+                                                            />
+                                                            <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
+                                                        </div>
+                                                    )} */}
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
@@ -1337,6 +1356,10 @@ const Booking = (props) => {
                                                                         </Typography>
                                                                         </>
                                                                         } */}
+                                                                        <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.carType || ''}
+                                                                        </Typography>   
                                                                         {quoteDetails.amount?.isPrimeLocation === true && quoteDetails.amount?.rideSurchargeAmount > 0 && 
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
