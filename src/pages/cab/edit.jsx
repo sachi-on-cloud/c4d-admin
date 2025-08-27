@@ -494,7 +494,7 @@ const CabEdit = () => {
 
                             <div>
                                 <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
-                                <Field type="text" name="vehicleType"  className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
+                                <Field type="text" name="vehicleType"  className="p-2 w-full rounded-md border-gray-300" maxLength={20} />
                                 <ErrorMessage name="vehicleType" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>

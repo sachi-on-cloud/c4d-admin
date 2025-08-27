@@ -119,7 +119,7 @@ const TripDetails = () => {
             ) : (
               trips.map((trip, index) => (
                 <tr key={index}>
-                  <td className="p-2">{trip.tripDate || 'N/A'}</td>
+                  <td className="p-2 whitespace-nowrap">{trip.tripDate || 'N/A'}</td>
                   <td onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)} className="p-2 text-blue-500 font-semibold underline cursor-pointer">{trip.Cab?.carNumber || 'N/A'}</td>
                   <td className="p-2">{trip.Driver?.firstName || 'N/A'}</td>
                   <td className="p-2">{trip.startAddress?.address || trip.startAddress || 'N/A'}</td>
