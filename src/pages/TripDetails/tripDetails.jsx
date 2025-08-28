@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Button } from '@material-tailwind/react';
 
 const TripDetails = () => {
   const navigate = useNavigate();
@@ -34,9 +33,16 @@ const TripDetails = () => {
         });
         return;
       }
-      setTrips(tripData);
 
-      const summaryData = tripData.reduce(
+      
+      const sortedTrips = [...tripData].sort((a, b) => {
+  const dateA = new Date(a.tripDate);
+  const dateB = new Date(b.tripDate);
+  return dateB - dateA; 
+});
+      setTrips(sortedTrips);
+
+      const summaryData = sortedTrips.reduce(
         (acc, trip) => ({
           totalKm: acc.totalKm + ((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)),
           fuelUsed: acc.fuelUsed + (parseFloat(trip.fuelQuantity) || 0),
@@ -102,6 +108,7 @@ const TripDetails = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="p-2 text-left">Date</th>
+              <th className="p-2 text-left">Booking Id</th>
               <th className="p-2 text-left">Vehicle Number</th>
               <th className="p-2 text-left">Driver Name</th>
               <th className="p-2 text-left">Start Point</th>
@@ -120,7 +127,13 @@ const TripDetails = () => {
               trips.map((trip, index) => (
                 <tr key={index}>
                   <td className="p-2 whitespace-nowrap">{trip.tripDate || 'N/A'}</td>
-                  <td onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)} className="p-2 text-blue-500 font-semibold underline cursor-pointer">{trip.Cab?.carNumber || 'N/A'}</td>
+                  <td
+                    onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)}
+                    className="p-2 text-blue-500 font-semibold underline cursor-pointer"
+                  >
+                    {trip.BookingId || 'N/A'}
+                  </td>
+                  <td className="p-2">{trip.Cab?.carNumber || 'N/A'}</td>
                   <td className="p-2">{trip.Driver?.firstName || 'N/A'}</td>
                   <td className="p-2">{trip.startAddress?.address || trip.startAddress || 'N/A'}</td>
                   <td className="p-2">{trip.endAddress?.address || trip.endAddress || 'N/A'}</td>

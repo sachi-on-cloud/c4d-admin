@@ -99,6 +99,7 @@ const Reports = ({ accountId }) => {
           const calculatedKm = km + (endKm - startKm);
           return {
             date: trip.tripDate,
+            bookingId:trip.bookingId,
             vehicle: trip.Cab?.carNumber || 'Unknown',
             driver: trip.Driver?.firstName || 'Unknown',
             startPoint: trip.startAddress?.address || trip.startAddress || 'Unknown',
@@ -135,6 +136,7 @@ const Reports = ({ accountId }) => {
   const handleExportCSV = () => {
     const data = trips.map(trip => [
       trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-',
+      trip.bookingId || '-',
       trip.vehicle || '-',
       trip.driver || '-',
       trip.startPoint || '-',
@@ -337,6 +339,7 @@ const Reports = ({ accountId }) => {
                 <thead>
                   <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
+                     <th className="border border-gray-200 p-2">BookingId</th>
                     <th className="border border-gray-200 p-2">Vehicle Number</th>
                     <th className="border border-gray-200 p-2">Driver</th>
                     <th className="border border-gray-200 p-2">Start Point</th>
@@ -351,7 +354,7 @@ const Reports = ({ accountId }) => {
                 <tbody>
                   {trips.length === 0 ? (
                     <tr>
-                      <td colSpan="10" className="border border-gray-200 p-2 text-center text-gray-500">
+                      <td colSpan="11" className="border border-gray-200 p-2 text-center text-gray-500">
                         No trips found for the selected criteria
                       </td>
                     </tr>
@@ -359,6 +362,7 @@ const Reports = ({ accountId }) => {
                     trips.map((trip, index) => (
                       <tr key={index}>
                         <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-'}</td>
+                        <td className="border border-gray-200 p-2">{trip.bookingId || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.vehicle || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.driver || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.startPoint || '-'}</td>
