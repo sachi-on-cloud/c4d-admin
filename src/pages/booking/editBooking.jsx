@@ -444,6 +444,9 @@ useEffect(() => {
                                     className="p-2 w-full rounded-xl border-2 border-gray-300"
                                     value={values.rideDate ? `${values.rideDate}T${values.rideTime}` : ''}
                                     min={`${moment().format('YYYY-MM-DD')}T00:00`}
+                                    onClick={(e) => {
+                                                    if (e.target.showPicker) e.target.showPicker();
+                                                        }}
                                     onChange={(e) => {
                                         const selectedDateTime = e.target.value;
                                         const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
@@ -597,9 +600,25 @@ useEffect(() => {
                                         <>
                                             <div className="flex justify-between">
                                                 <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                <Typography>
-                                                    ₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.price || ""}
-                                                </Typography>
+                                                 <Typography>
+                                                    ₹{(() => {
+                                                        const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                        if (!selectedPackage) return "";
+
+                                                        switch (values.carType?.toUpperCase()) {
+                                                        case "MINI":
+                                                            return selectedPackage.price || "";
+                                                        case "SEDAN":
+                                                            return selectedPackage.priceSedan || "";
+                                                        case "SUV":
+                                                            return selectedPackage.priceSuv || "";
+                                                        case "MUV":
+                                                            return selectedPackage.priceMVP || "";
+                                                        default:
+                                                            return "";
+                                                        }
+                                                    })()}
+                                                    </Typography>
                                             </div>
                                         </>
                                     </div>

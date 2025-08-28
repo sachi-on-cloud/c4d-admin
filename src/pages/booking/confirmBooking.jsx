@@ -1028,6 +1028,10 @@ const ConfirmBooking = (props) => {
                                         <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
                                     </div>
                                 }
+                                 <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">TAX:</Typography>
+                                        <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.gstAmount}</Typography>
+                                    </div>
                                 {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
                                     <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Discount Applied:</Typography>

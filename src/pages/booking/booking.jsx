@@ -209,7 +209,7 @@ const Booking = (props) => {
         cabType: '',
         driverPickUpAddress: '',
         driverPickUpLocation: null,
-        // luggage:'',
+        luggage:'',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -299,7 +299,7 @@ const Booking = (props) => {
                 name:values.driverPickUpAddress,
             },
             source: 'Call',
-            // luggage: values.luggage
+            luggage: values.luggage
         };
 
         if (values.toDate && values.toTime) {
@@ -1189,7 +1189,7 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
-                                                    {/* {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
                                                                 Luggage
@@ -1205,7 +1205,7 @@ const Booking = (props) => {
                                                             />
                                                             <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
                                                         </div>
-                                                    )} */}
+                                                    )}
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
