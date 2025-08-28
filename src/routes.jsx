@@ -104,6 +104,7 @@ import EditAuto from "./pages/AutoDetails/edit";
 import AutoMasterPriceEdit from "./pages/finance/masterPriceTable/AutoMasterPriceTableEdit";
 import ParcelMasterPriceEdit from "./pages/finance/masterPriceTable/ParcelMasterPriceTableEdit";
 import AutoEdit from "./pages/AutoService/edit";
+import ParcelCabEdit from "./pages/cab/parcelCabEdit";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -350,6 +351,13 @@ export const routes = [
         name: "bike",
         path: "/vendors/account/parcel/allVehicles/details/:id",
         element: <ParcelCabDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "bike",
+        path: "/vendors/account/parcel/allVehicles/details/edit/:id",
+        element: <ParcelCabEdit />,
         display: false
       },
       {
