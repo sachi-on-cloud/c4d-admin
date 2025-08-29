@@ -25,7 +25,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
-export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false }) {
+export function BookingsList({ customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -33,6 +33,7 @@ export function BookingsList({ customerId = 0, bookingStage, onAssignDriver, onS
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
+    const [tripCoordinatorFilter, setTripCoordinatorFilter] = useState(['All']);
     const [showPickedBooking, setShowPickedBooking] = useState(0);
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
     const [pagination, setPagination] = useState({
@@ -71,6 +72,7 @@ const handleTabChange = (value) => {
         // setStatusFilter(['All']); // Reset filters to avoid filtering out data
         // setServiceTypeFilter(['All']);
         // setSourceFilter(['All']);
+        setTripCoordinatorFilter(['All']);
     }
 };
 
@@ -115,6 +117,18 @@ const handleTabChange = (value) => {
             const { startDate, endDate } = value;
             setFilteredRange({ startDate, endDate });
             // console.log('Filtered Range:', { startDate, endDate });
+        }         
+        else if (filterType === 'tripCoordinator') {
+            setTripCoordinatorFilter(prev => {
+                if (value === 'All') {
+                    return ['All'];
+                } else {
+                    const newFilter = prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+                    return newFilter.length === 0 ? ['All'] : newFilter;
+                }
+            });
         }
     };
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange, customContent }) => (
@@ -151,13 +165,20 @@ const handleTabChange = (value) => {
     const location = useLocation();
     const paramsPassed = location.state;
 
+    useEffect(() => {
+        if (activeTab && onTypeChange) {
+            onTypeChange(activeTab);
+        }
+    }, [activeTab ,onTypeChange]);
+
     const getBookingsList = async (page = 1) => {
         setLoading(true);
     try {
         const filterType = {
             type: activeTab,
             status: statusFilter,
-            source: sourceFilter
+            source: sourceFilter,
+            tripCoordinator: tripCoordinatorFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
             "customerId": customerId,
@@ -165,6 +186,7 @@ const handleTabChange = (value) => {
             'page': page,
             'limit': pagination.itemsPerPage,
             'filterType': JSON.stringify(filterType),
+            'bookingNumber': searchBookingId,
         });
         // console.log('API Response:', data);
         if (data?.success) {
@@ -230,7 +252,7 @@ const handleTabChange = (value) => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter]);
+    }, [customerId, searchBookingId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -336,6 +358,16 @@ const handleTabChange = (value) => {
         });
         setBookingsList(sortedBookings);
     };
+    const tripCoordinatorOptions = [
+        { value: 'All', label: 'All' },
+        ...[...new Set(
+            bookingsList
+                .filter(booking => booking.User?.id && booking.User?.name)
+                .map(booking => JSON.stringify({ id: booking.User.id, name: booking.User.name })) // Stringify to ensure uniqueness
+        )]
+            .map(str => JSON.parse(str))
+            .map(user => ({ value: user.id, label: user.name })),
+    ];
     const tabs = [
         { label: 'All Bookings', value:'ALL_BOOKINGS'},
         { label: 'Past', value:'PAST'},
@@ -347,18 +379,19 @@ const handleTabChange = (value) => {
     return (
         <div className="flex flex-col bg-white rounded-xl" >
             <div className='px-3 py-3'>
-                <Typography variant="h5" color='#000000'>
+                <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
                 </Typography>
             </div>
             <Card>
                 <div className='absolute right-10 -top-10'>
                     <button
-                        className="bg-blue-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
+                        className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
                         onClick={() => {
                             getBookingsList(pagination.currentPage);
                             setStatusFilter(['All']);
                             setSourceFilter(['All']);
+                            setTripCoordinatorFilter(['All']);
                         }}
                     >
                         <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
@@ -385,7 +418,7 @@ const handleTabChange = (value) => {
                                 </Tab>
                             ))}
                         </TabsHeader>
-                        <TabsBody>
+                        <TabsBody  className='overflow-x-scroll px-0 pt-0 pb-2'>
                             {/* <Typography variant="small" className="mt-2 text-blue-gray-600">
                                 Total Bookings: {pagination.totalItems}
                             </Typography> */}
@@ -396,7 +429,7 @@ const handleTabChange = (value) => {
                         <Spinner className="h-12 w-12" />
                     </div>
                                     ) : bookingsList.length === 0 ? (
-                            <Typography variant="h5" color='#000000'>
+                            <Typography variant="h5" className='text-gray-900'>
                                 No Bookings
                                 {/* {activeTab} Bookings ({statusFilter ? ('status'): statusFilter.join(', ')}): {bookingsList.length} */}
                             </Typography>
@@ -508,8 +541,14 @@ const handleTabChange = (value) => {
                                                             //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
                                                             //                 }
                                                             //             />
-                                                            //         ) 
-                                                            (
+                                                                el === "Trip Co-Ordinator" ? (
+                                                                    <FilterPopover
+                                                                        title={el}
+                                                                        options={tripCoordinatorOptions}
+                                                                        selectedFilters={tripCoordinatorFilter}
+                                                                        onFilterChange={(value) => handleFilterChange('tripCoordinator', value)}
+                                                                    />
+                                                                ) : (
                                                                 <Typography variant="medium" className="text-[11px] font-bold uppercase text-white">
                                                                     {el}
                                                                 </Typography>
@@ -556,7 +595,8 @@ const handleTabChange = (value) => {
                                             .filter(booking =>
                                                 (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
                                                 (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
-                                                (sourceFilter.includes('All') || sourceFilter.includes(booking.source))
+                                                (sourceFilter.includes('All') || sourceFilter.includes(booking.source)) &&
+                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id))
                                             )
                                             .map((data, key) => {
                                                const isSelected = data.id === selectedBookingId;
@@ -564,7 +604,7 @@ const handleTabChange = (value) => {
                                                         ? "mb-4"
                                                         : "border-b border-blue-gray-50"} ${
                                                         data?.isSosCalled == true ? 'bg-red-500 text-white'
-                                                        : isSelected ? 'bg-blue-50'
+                                                        : isSelected ? 'bg-primary-50'
                                                         : "hover:bg-gray-50"
                                                     } transition-colors duration-200`;
 
@@ -680,13 +720,13 @@ const handleTabChange = (value) => {
                                                                     data?.status === "BOOKING_ACCEPTED" ? "bg-green-600 text-white":
                                                                     data?.status === "CUSTOMER_CANCELLED" ? "bg-gray-600 text-white": 
                                                                     data?.status === "ENDED" ? "bg-green-600 text-white" :
-                                                                    data?.status === "STARTED" ? "bg-blue-600   text-white":
+                                                                    data?.status === "STARTED" ? "bg-primary   text-white":
                                                                     data?.status === "INITIATED"? "bg-gray-600   text-white":
                                                                     data?.status === "END_OTP" ? "bg-gray-600   text-white":
-                                                                    data?.status ===  "DRIVER_ON_THE_WAY" ? "bg-blue-600   text-white":
+                                                                    data?.status ===  "DRIVER_ON_THE_WAY" ? "bg-primary   text-white":
                                                                     data?.status === "DRIVER_REACHED" ? "bg-yellow-600  text-white":
                                                                     data?.status === "PAYMENT_REQUESTED" ? "bg-green-600  text-white":
-                                                                    "bg-blue-600  text-white"
+                                                                    "bg-primary  text-white"
                                                                     
                                                                 }`}
                                                             />

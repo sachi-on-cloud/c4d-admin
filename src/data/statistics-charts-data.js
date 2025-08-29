@@ -1,4 +1,5 @@
 import { chartsConfig } from "@/configs";
+import { themeColors } from "@/theme/colors";
 
 const websiteViewsChart = {
   type: "bar",
@@ -11,7 +12,7 @@ const websiteViewsChart = {
   ],
   options: {
     ...chartsConfig,
-    colors: "#388e3c",
+  colors: themeColors.success,
     plotOptions: {
       bar: {
         columnWidth: "16%",
@@ -36,7 +37,7 @@ const dailySalesChart = {
   ],
   options: {
     ...chartsConfig,
-    colors: ["#0288d1"],
+  colors: [themeColors.info],
     stroke: {
       lineCap: "round",
     },
@@ -71,7 +72,7 @@ const completedTaskChart = {
   ],
   options: {
     ...chartsConfig,
-    colors: ["#388e3c"],
+  colors: [themeColors.success],
     stroke: {
       lineCap: "round",
     },

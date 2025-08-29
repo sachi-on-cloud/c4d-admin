@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -20,6 +20,15 @@ import SelectLocation from './selectLocation';
 import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import EditBooking from './editBooking';
+import DistanceExceedModal from '@/components/DistanceExceedModal';
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 
 // Format date to YYYY-MM-DD for input's min attribute
@@ -43,7 +52,9 @@ const Booking = (props) => {
     const [editBooking, setEditBooking] = useState();
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
-
+    const [searchBookingId, setSearchBookingId] = useState('');
+    const [searchText, setSearchText] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
     const [driverSuggestions, setDriverSuggestions] = useState([]);
@@ -54,8 +65,14 @@ const Booking = (props) => {
     const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
+    const [bookingType, setBookingType] = useState(props.typeProp || '');
+    const [discountDetails, setDiscountDetails] = useState(null);
 
     const [editBookingView, setEditBookingView] = useState(false);
+    const [distanceExceedModal, setDistanceExceedModal] = useState(false);
+    const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const [formikActions, setFormikActions] = useState({});
 
     const fetchData = async () => {
         try {
@@ -78,6 +95,34 @@ const Booking = (props) => {
             setPackageTypeSelectedData(data?.data);
         }
     }, []);
+    const handleTypeChange = (type) => {
+        setBookingType(type);
+    };
+    const searchBookings = useCallback(
+        debounce(async (search) => {
+            if (search.length < 3) {
+                setSearchResults([]);
+                return;
+            }
+
+            try {
+                console.log("BOOKINGTYPE", bookingType);
+                const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_BOOKINGS_BY_NUMBER, {
+                    search,
+                    type: bookingType || 'ALL_BOOKINGS',
+                });
+                if (data?.success && data?.data) {
+                    setSearchResults(data.data);
+                } else {
+                    setSearchResults([]);
+                }
+            } catch (error) {
+                console.error('Error searching bookings:', error);
+                setSearchResults([]);
+            }
+        }, 300),
+        [bookingType]
+    );
 
     const getQuoteOutstationDetails = async (values) => {
         const quoteData = {
@@ -94,19 +139,34 @@ const Booking = (props) => {
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
         };
+        if (values?.serviceType === 'RENTAL_DROP_TAXI') {
+            quoteData.serviceFor = 'RENTAL_DROP_TAXI';
+        }
+        else if (values?.serviceType === 'RENTAL') {
+            quoteData.serviceFor = 'RENTAL';
+        }
+        else if(values?.serviceType === 'DRIVER') {
+            quoteData.serviceFor = 'DRIVER';
+        }
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
-        //console.log("QOYTEE DATA", data);
+        // console.log("QOYTEE DATA", data);
         if (data.success) {
             setQuoteDetails(data?.data);
+            setDiscountDetails(data?.data);
         }
+        // console.log("QUOTE DETAILS", quoteDetails);
     };
 
     const getQuoteRides = async (val) => {
+        // console.log("GET QUOTE RIDES", val);
         const quoteDate = {
-            serviceType: val.serviceType,
-            bookingType: "",
+            serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType,
+            bookingType: '',
+            serviceFor:'RENTAL_HOURLY_PACKAGE',
+            packageType:'Local',
             fromDate: moment(`${val?.rideDate} ${val?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: '',
+            carType: val.carType || '',
+            period: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(val.packageSelected))?.period || '' : '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
             driverLat: val?.driverPickUpLocation?.lat,
@@ -115,8 +175,10 @@ const Booking = (props) => {
             dropLong: val?.dropLocation?.lng,
         }
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
+        // console.log("QUOTE DATA", data);
         if (data?.success) {
             setQuoteDetails(data?.data)
+            setDiscountDetails(data?.data);
         }
     }
 
@@ -152,6 +214,7 @@ const Booking = (props) => {
         cabType: '',
         driverPickUpAddress: '',
         driverPickUpLocation: null,
+        luggage:'',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -182,7 +245,51 @@ const Booking = (props) => {
         daysText = days == 1 ? '1 Day' : days == 1 ? '2 Days and 1 Night' : `${days} Days and ${days - 1} Nights`;
     }
 
-    const onRideSubmitHandler = async (values) => {
+    const calculateDistance = async (values) => {
+        let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+            serviceType: "RIDES",
+        });
+        if (calculateDistance?.success) {
+            return calculateDistance?.data?.showAlert;
+        }
+        return false;
+    };
+
+    const calcluateCityLimit = async (values) => {
+        let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.CITY_LIMIT_CHECKING, {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+        });
+        if (calculateDistance?.success) {
+            return calculateDistance?.cityLimit;
+        }
+        return false;
+    };
+
+    const onRideSubmitHandler = async (values, formikBag) => {
+        if (isButtonDisabled) return;
+        setIsButtonDisabled(true);
+
+        try {
+            let checkDistance = await calculateDistance(values);
+            let checkCityLimit = await calcluateCityLimit(values);
+
+            if (!checkDistance) {
+                setDistanceExceedModal(true);
+                setIsButtonDisabled(false);
+                return;
+            } else if (!checkCityLimit) {
+                setCityLimitExceedModal(true);
+                setIsButtonDisabled(false);
+                return;
+            }
+
         const bookingData = {
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
@@ -194,13 +301,33 @@ const Booking = (props) => {
             dropAddress: {
                 name: values.dropAddress
             },
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
+            source: 'Call',
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
             setIsOpen(false);
             setBookingData(data?.data);
+            navigate('/dashboard/booking');
+            formikBag.resetForm();
+            setSelectedCustomer(0);
+            setSearchBookingId('');
+        } else {
+            console.log("Error in creating new booking");
+            formikBag.setErrors({ submit: 'Failed to create booking. Please try again.' });
         }
+    } catch (err) {
+        console.log("ERROR IN RIDES BOOKING", err);
+        formikBag.setErrors({ submit: 'An error occurred. Please try again.' });
+    } finally {
+        setIsButtonDisabled(false);
+        formikBag.setSubmitting(false); // Ensure form is not stuck in submitting state
     }
+};
 
     const onSubmitHandler = async (values) => {
         const bookingData = {
@@ -229,7 +356,13 @@ const Booking = (props) => {
             dropAddress: values.dropLocation ? {
                 name: values.dropAddress
             } : null,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name:values.driverPickUpAddress,
+            },
             source: 'Call',
+            luggage: values.luggage
         };
 
         if (values.toDate && values.toTime) {
@@ -263,6 +396,7 @@ const Booking = (props) => {
         setBookingView(false);
         setEditBooking();
         setSelectedCustomer(0);
+        setSearchBookingId('');
     };
 
     const onEditBooking = async (data) => {
@@ -468,7 +602,7 @@ const Booking = (props) => {
         switch (statusLower) {
             case 'started':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         On Trip
                     </span>
                 );
@@ -486,7 +620,7 @@ const Booking = (props) => {
                 );
                 case 'cancelled':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                        Customer Cancelled
                     </span>
                 );
@@ -531,7 +665,7 @@ const Booking = (props) => {
                     );
                 case 'driver_on_the_way':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         DRIVER ON THE WAY
                     </span>
                     );
@@ -549,7 +683,7 @@ const Booking = (props) => {
                     );
                       case 'support_cancelled':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         SUPPORT CANCELLED
                     </span>
                     );
@@ -564,17 +698,73 @@ const Booking = (props) => {
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
                 <div className='py-6 rounded-3xl flex justify-between'>
-                    {customerData && <div className="p-2 flex w-[40%]">
-                        <SearchableDropdown 
-  searchVal={setCustomerNumber} 
-  addVal={addCustomerNumber} 
-  selected={editBooking?.customerId} 
-  options={customerData} 
-  onSelect={(val) => {
-    setSelectedCustomer(val.id);
-  }} 
-/>
-                    </div>}
+                    {customerData && (
+                        <div className="p-2 flex w-[40%] flex-col relative">
+                            <input
+                                type="text"
+                                className="w-full p-2 border rounded"
+                                placeholder="Search by customer number or booking ID"
+                                value={searchText}
+                                onChange={(e) => {
+                                    setSearchText(e.target.value);
+                                    searchBookings(e.target.value);
+                                }}
+                            />
+                            {(searchText || searchBookingId) && (
+                                <button
+                                    type="button"
+                                    // className="bg-white text-gray-500 hover:text-gray-700"
+                                    aria-label="Clear search"
+                                    onClick={() => { setSearchText(''); 
+                                                    searchBookings('');
+                                                    setSearchBookingId(''); 
+                                                    setSelectedCustomer(0);
+                                                    setSearchResults([]); 
+                                                }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                >
+                                    X
+                                </button>
+                            )}
+                            {searchResults.length > 0 && (
+                                <ul className="absolute top-full left-0 w-full border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto z-10">
+                                    {searchResults.map((result, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                            onClick={() => {
+                                                if (result?.type == 'booking') {
+                                                    setSelectedCustomer(0);
+                                                    setSearchBookingId(result?.bookingNumber);
+                                                    setSearchText(result?.bookingNumber);
+                                                } else {
+                                                    const label = [result?.firstName, result?.phoneNumber].filter(Boolean).join(' - ');
+                                                    setSearchText(label.trim());
+                                                    setSelectedCustomer(result?.id);
+                                                    setSearchBookingId('');
+                                                }
+                                                setSearchResults([]);
+                                            }}
+                                        >
+                                            {result?.type == 'booking' ? result?.bookingNumber : [result?.firstName, result?.phoneNumber].filter(Boolean).join(' - ')}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    )}
+                    {/* {customerData && <div className="p-2 flex w-[40%]">
+                        <SearchableDropdown
+                            searchVal={setCustomerNumber}
+                            addVal={addCustomerNumber}
+                            selected={editBooking?.customerId} 
+                            options={customerData} 
+                            onSelect={(val) => {
+                                setSelectedCustomer(val.id);
+                            }}
+                            setSearchBookingId={(value) => {setSearchBookingId(value)}}
+                        />
+                    </div>} */}
                     <button
                         onClick={() => setIsOpen(true)}
                         className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
@@ -583,41 +773,43 @@ const Booking = (props) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} />
+                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
             </div>
             <div>
                 {isOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
                         setIsOpen(false)
                         onConfirmBooking()
-                        setSelectedCustomer();
+                        setSelectedCustomer(0);
                         setEditBookingView();
                         setEditBooking();
                         setQuoteDetails();
+                        setSearchBookingId('')
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex-1 bg-[#f5f5f5] rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
-                                {/* max-h-screen overflow-y-auto shadow p-4 */}
-
-                                <div className='rounded-2xl justify-end items-end space-x-12 flex'>
+                                <div className='justify-end items-end  absolute -right-6'>
                                     <button
                                         onClick={
                                             () => {
                                                 setIsOpen(false);
                                                 onConfirmBooking();
-                                                setSelectedCustomer();
+                                                setSelectedCustomer(0);
                                                 setEditBookingView();
                                                 setEditBooking();
                                                 setQuoteDetails();
+                                                setSearchBookingId('');
                                             }
                                         }
-                                        className="px-0 py-0 bg-black-500"
+                                        className="rounded-3xl  p-2 bg-surface-muted"
                                     >
                                         X
                                     </button>
                                 </div>
+                            <div className="flex-1 bg-surface-muted rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
+                                {/* max-h-screen overflow-y-auto shadow p-4 */}
+
                                 {!showQuickCreateCustomer && !editBookingView && <div className='text-2xl font-bold mb-8'>
-                                    <Typography variant="h5" color='#000000'>
+                                    <Typography variant="h5" className='text-gray-900'>
                                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
                                         <div className="flex items-center">
                                             {bookingView ? (
@@ -633,34 +825,36 @@ const Booking = (props) => {
                                 {!showQuickCreateCustomer && !bookingView && <>
                                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                                         initialValues={initialValues}
-                                        onSubmit={async (values, { resetForm }) => {
-                                            if (values.submitType == "rides") {
-                                                await onRideSubmitHandler(values);
+                                        onSubmit={async (values, formikBag) => {
+                                            setFormikActions(formikBag); // Store Formik actions for modals
+                                            if (values.submitType === "rides") {
+                                                await onRideSubmitHandler(values, formikBag);
                                             } else {
                                                 await onSubmitHandler(values);
                                             }
                                             setLoading(true);
-                                            resetForm();
                                             setRange({});
                                             setLoading(false);
                                             setQuoteDetails();
+                                            setSelectedCustomer(0);
+                                            setSearchBookingId('');
                                         }}
                                         validationSchema={BOOKING_DETAILS_SCHEMA}
                                         enableReinitialize={true}
                                     >
                                         {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
                                             <>
-                                                {customerData && <div className="p-2 flex">
+                                                {customerData  && !editBookingView && <div className="p-2 flex">
                                                    <SearchableDropdown 
-    searchVal={setCustomerNumber} 
-    addVal={addCustomerNumber} 
-    selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
-    options={customerData} 
-    onSelect={(val) => {
-      setFieldValue('customerId', val);
-      setSelectedCustomer(val.id);
-    }} 
-  />
+                                                        searchVal={setCustomerNumber} 
+                                                        addVal={addCustomerNumber} 
+                                                        selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
+                                                        options={customerData} 
+                                                        onSelect={(val) => {
+                                                            setFieldValue('customerId', val);
+                                                            setSelectedCustomer(val.id);
+                                                        }}
+                                                    />
 
                                                     {!editBookingView && <Button
                                                         className="ml-3 w-1/2"
@@ -769,7 +963,7 @@ const Booking = (props) => {
                                                                                 type="radio"
                                                                                 name="carType"
                                                                                 value={carType}
-                                                                                className="h-4 w-4 text-blue-600"
+                                                                                className="h-4 w-4 text-primary-600"
                                                                             />
                                                                             <span className="text-black-700">{carType}</span>
                                                                         </label>
@@ -788,7 +982,7 @@ const Booking = (props) => {
                                                                                     type="radio"
                                                                                     name="transmissionType"
                                                                                     value={transType}
-                                                                                    className="h-4 w-4 text-blue-600"
+                                                                                    className="h-4 w-4 text-primary-600"
                                                                                 />
                                                                                 <span className="text-black-700">{transType}</span>
                                                                             </label>
@@ -871,6 +1065,7 @@ const Booking = (props) => {
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
                                                                 min={values.rideDate ? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
+                                                                 onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                                 onChange={(e) => {
                                                                     const selectedDateTime = e.target.value;
                                                                     const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
@@ -894,7 +1089,7 @@ const Booking = (props) => {
                                                             <Typography variant="h6" className="mb-2">
                                                                 Choose a package
                                                             </Typography>
-                                                            <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
+                                                            <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50" value={values.packageSelected}
                                                                 onChange={(e) => {
                                                                     setFieldValue('packageSelected', e.target.value);
                                                                     if (values.packageTypeSelected === 'Outstation' && values.fromDate && values.toDate) {
@@ -1023,36 +1218,6 @@ const Booking = (props) => {
                                                         <ErrorMessage name="pickupAddress" component="div" className="text-red-500 text-sm" />
                                                     </div>
                                                 )}
-                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
-                                                        <div className="p-2 space-y-2">
-                                                            <label className="block text-sm font-medium text-black-700">
-                                                                Driver Starting Point <span className="text-red-500">*</span>
-                                                            </label>
-                                                            <Field
-                                                                type="text"
-                                                                name="driverPickUpAddress"
-                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter driver pickup location"
-                                                                onChange={(e) => {
-                                                                    setFieldValue("driverPickUpAddress", e.target.value);
-                                                                    setFieldValue("driverPickUpLocation", null);
-                                                                    searchLocations(e.target.value, false,'driver');
-                                                                }}
-                                                            />
-                                                            {driverSuggestions.length > 0 && (
-                                                                <ul className="border rounded-lg bg-white mt-2">
-                                                                    {driverSuggestions.map((suggestion, index) => (
-                                                                        <li
-                                                                            key={index}
-                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
-                                                                        >
-                                                                            {suggestion}
-                                                                        </li>
-                                                                    ))}
-                                                                </ul>
-                                                            )}
-                                                        </div>)}
                                                     <div className="p-2 space-y-2 space-x-3">
                                                         {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                                             <div>
@@ -1087,8 +1252,55 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Luggage
+                                                            </label>
+                                                            <Field
+                                                                type="number"
+                                                                name="luggage"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                placeholder="Enter the Luggage Count (Optional)"
+                                                                onChange={(e) => {
+                                                                    setFieldValue("luggage", e.target.value);
+                                                                }}
+                                                            />
+                                                            <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
+                                                        </div>
+                                                    )}
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Driver Starting Point 
+                                                            </label>
+                                                            <Field
+                                                                type="text"
+                                                                name="driverPickUpAddress"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                placeholder="Enter driver pickup location (Optional)"
+                                                                onChange={(e) => {
+                                                                    setFieldValue("driverPickUpAddress", e.target.value);
+                                                                    setFieldValue("driverPickUpLocation", null);
+                                                                    searchLocations(e.target.value, false,'driver');
+                                                                }}
+                                                            />
+                                                            {driverSuggestions.length > 0 && (
+                                                                <ul className="border rounded-lg bg-white mt-2">
+                                                                    {driverSuggestions.map((suggestion, index) => (
+                                                                        <li
+                                                                            key={index}
+                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
+                                                                        >
+                                                                            {suggestion}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>)}
                                                 </div>
-                                                {values.packageSelected &&
+                                                {values.serviceType === "DRIVER" && values.packageSelected &&
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
                                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -1136,32 +1348,106 @@ const Booking = (props) => {
                                                             <hr className="my-2 border border-black" />
                                                             <div className="mt-4">
                                                                 <>
+                                                                    {values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? (
+                                                                        <div className="space-y-3">
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Package Period:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.packageDetails?.period || ''} hours
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.carType || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Package Price:</Typography>
+                                                                                <Typography>
+                                                                                    ₹ {quoteDetails.amount?.packageDetails?.price || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                            {quoteDetails.discount?.percentage > 0 && (
+                                                                                <>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                                                                        <Typography>
+                                                                                            {quoteDetails.discount?.percentage} %
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
+                                                                                        <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                            ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)}
+                                                                                            {/* {(() => {
+                                                                                                const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
+                                                                                                const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;
+                                                                                                return packagePrice - (packagePrice * discountPercentage / 100);
+                                                                                            })()} */}
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : (
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                        {values?.serviceType !== 'DRIVER' && ( <>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                        <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm))} Kms
-                                                                        </Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Per Km Rate</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
-                                                                            ₹ {quoteDetails.amount.kilometerPriceVal}
-                                                                        </Typography>}
-                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                            {Math.round(quoteDetails.amount?.estimatedDistance) + (Number(quoteDetails.amount?.baseKm)) 
+                                                                            // + (Number(quoteDetails.amount.driverWithin))
+                                                                            } Kms + {quoteDetails.amount?.driverWithin} Kms
+                                                                        </Typography></>)}
+                                                                        {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
+                                                                            <>
+                                                                        <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount.baseFare}
-                                                                        </Typography>
-                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                            ₹ {quoteDetails.amount?.kilometerPriceVal}
+                                                                        </Typography></>)}
+                                                                        <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount.estimatedPrice}
+                                                                            ₹ {quoteDetails.amount?.baseFare}
                                                                         </Typography>
-                                                                        {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
+                                                                        
+                                                                        {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
                                                                         <>
-                                                                        <Typography color="gray" variant="h6">Driver With in</Typography>
+                                                                        <Typography color="gray" variant="h6">Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount.driverWithin + ' Km'}
                                                                         </Typography>
                                                                         </>
+                                                                        } */}
+                                                                        <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.carType || ''}
+                                                                        </Typography>   
+                                                                        {quoteDetails.amount?.isPrimeLocation === true && quoteDetails.amount?.rideSurchargeAmount > 0 && 
+                                                                        <>
+                                                                        <Typography color="gray" variant="h6">Surcharge Applied</Typography>
+                                                                            <Typography>
+                                                                                ₹  {quoteDetails.amount?.rideSurchargeAmount}
+                                                                            </Typography>
+                                                                        </>
                                                                         }
+                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount?.estimatedPrice}
+                                                                        </Typography>
+                                                                        {quoteDetails.discount?.percentage > 0 && <>
+                                                                        
+                                                                          <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.discount?.percentage} %
+                                                                            </Typography>
+                                                                            <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                    {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
+                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - (quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                            </Typography>
+
+                                                                        </>}
                                                                         
                                                                         
                                                                         
@@ -1178,6 +1464,7 @@ const Booking = (props) => {
                                                                             ₹ {quoteDetails.amount.driverCharge}
                                                                         </Typography> */}
                                                                     </div>
+                                                                    )}
                                                                 </>
                                                             </div>
                                                         </div>
@@ -1217,8 +1504,113 @@ const Booking = (props) => {
                                         )}
                                     </GoogleMap>
                                 )} */}
+                                                {values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageSelected && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.additionalMinCharge :
+                                                                            values.carType === 'Sedan' ? selectedPackage.additionalMinChargeSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.additionalMinChargeSuv :
+                                                                                    selectedPackage.additionalMinChargeMVP
+                                                                    ) : '';
+                                                                })()} will be charged for every 15 minutes beyond {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ''} hours.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
+                                                                            values.carType === 'Sedan' ? selectedPackage.extraKilometerPriceSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
+                                                                                    selectedPackage.extraKilometerPriceMVP
+                                                                    ) : '';
+                                                                })()} will be charged per extra kilometer.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A night charge of ₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''} applies if the trip extends past {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                            </Typography>
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
 
-                                                {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
+                                                )}
+                                                {values.serviceType == 'RENTAL_DROP_TAXI' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className="text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                 {values.serviceType == 'RENTAL' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>   
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
                                                 {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
@@ -1227,6 +1619,12 @@ const Booking = (props) => {
                                                 }
 
                                                 {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+
+                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
                                                         Check Estimated Price
                                                     </Button>
@@ -1262,7 +1660,7 @@ const Booking = (props) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -1357,6 +1755,8 @@ const Booking = (props) => {
                         </div>
                     </div>
                 )}
+                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
+                <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
             </div>
         </div>
     );

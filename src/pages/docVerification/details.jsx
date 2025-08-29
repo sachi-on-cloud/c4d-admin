@@ -58,7 +58,7 @@ const DocumentsDetails = () => {
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return "text-blue-500";
+  return "text-primary-500";
       case "approved":
         return "text-green-500";
       case "declined":
@@ -110,7 +110,7 @@ const DocumentsDetails = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="salutation" className="text-sm font-medium text-gray-700">Salutation</label>
-                      <Field as="select" disabled name="salutation" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                      <Field as="select" disabled name="salutation" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                         <option value="">Select salutation</option>
                         <option value="Mr">Mr</option>
                         <option value="Mrs">Mrs</option>

@@ -402,7 +402,7 @@ export const CAB_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13,14}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     // notify: Yup.string().required('Notification Recipients is required'),
@@ -531,7 +531,7 @@ export const REASSIGN_DRIVER = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
 })
@@ -600,7 +600,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13,14}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     carNumber:Yup.string().required('Car Number is requried'),
@@ -782,6 +782,8 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
     isActive: Yup.boolean().required('Status is required'),
+    description: Yup.string().required('Description is required'),
+    title: Yup.string().required('Title is required'),
   });
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
@@ -791,6 +793,8 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
     isActive: Yup.boolean().required('Status is required'),
+    description: Yup.string().required('Description is required'),
+    title: Yup.string().required('Title is required'),
   });
 
    export const GST_EDIT_SCHEMA = Yup.object().shape({

@@ -16,7 +16,7 @@ const DriverSearch = ({ onSearch, hideAddNewButton=false }) => {
         <div className="relative flex-grow max-w-[500px]">
           <input
             type="text"
-            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder="Search Driver"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -27,7 +27,7 @@ const DriverSearch = ({ onSearch, hideAddNewButton=false }) => {
         {!hideAddNewButton && ( 
         <button 
           onClick={() => navigate(`/dashboard/vendors/account/drivers/add`)}
-          className={`ml-4 px-4 py-2 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+          className={`ml-4 px-4 py-2 rounded-xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
             ColorStyles.addButtonColor
           }`}
         >

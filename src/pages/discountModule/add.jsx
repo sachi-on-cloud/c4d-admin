@@ -11,6 +11,8 @@ const DiscountAdd = () => {
 
   const initialValues = {
     serviceType: '',
+    title: '',
+    description: '',
     percentage: '',
     startDate: '',
     endDate: '',
@@ -30,13 +32,16 @@ const DiscountAdd = () => {
   endDate: values.endDate
     ? new Date(values.endDate).toISOString().split('T')[0]
     : undefined,
-  isActive: values.isActive
+  isActive: values.isActive,
+  title: values.title,
+  description: values.description,
+
 };
 
     try {
       console.log('POST payload:', payload); 
       const res = await ApiRequestUtils.post(API_ROUTES.POST_DISCOUNT, payload);
-      console.log('API response:', res);
+      console.log('DISCOUNT RESPONSE:', res);
       navigate('/dashboard/user/discountModuleList');
     } catch (err) {
       console.error('API Error:', err.response?.data || err.message);
@@ -67,12 +72,19 @@ const DiscountAdd = () => {
                   <option value="">Select Service Type</option>
                   <option value="DRIVER">DRIVER</option>
                   <option value="RIDES">RIDES</option>
-                  <option value="RENTAL">RENTAL</option>
+                  <option value="RENTAL_HOURLY_PACKAGE">HOURLY PACKAGE</option>
+                  <option value="RENTAL_DROP_TAXI">DROP TAXI</option>
+                  <option value="RENTAL">OUTSTATION</option>
+                  <option value="AUTO">AUTO</option>
                   <option value="ALL">ALL</option>
                 </Field>
                 <ErrorMessage name="serviceType" className="text-red-500 text-sm" component="div" />
               </div>
-
+              <div>
+                <label htmlFor="title" className="text-sm font-medium text-gray-700">Title</label>
+                <Field type="text" name="title" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                <ErrorMessage name="title" className="text-red-500 text-sm" component="div" />
+              </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Discount Percentage (%)</label>
                 <Field
@@ -101,6 +113,11 @@ const DiscountAdd = () => {
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 />
                 <ErrorMessage name="endDate" className="text-red-500 text-sm" component="div" />
+              </div>
+               <div>
+                <label htmlFor="description" className="text-sm font-medium text-gray-700">Description</label>
+                <Field as="textarea" name="description" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" rows="4" />
+                <ErrorMessage name="description" component="div" className="text-red-500 text-sm my-1" />
               </div>
 
               <div>

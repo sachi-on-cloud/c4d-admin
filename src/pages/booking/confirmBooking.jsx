@@ -17,6 +17,7 @@ import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 import TextBoxWithList from "@/components/BookingNotes";
+import LandMarkBookingNotes from "@/components/LandMarkNotes";
 
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
@@ -27,6 +28,7 @@ const ConfirmBooking = (props) => {
     const [customerFeedback, setCustomerFeedback] = useState();
     const [driverFeedback, setDriverFeedback] = useState();
     const [showDetails, setShowDetails] = useState(true);
+    const [finalPaymentPirces, setFinalPaymentPrices] = useState({});
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -88,6 +90,7 @@ const ConfirmBooking = (props) => {
             }
         }
         const data = await ApiRequestUtils.update(API_ROUTES.ADMIN_BOOKING_STATUS, reqBody, bookingDetails?.customerId);
+        // console.log("CONFIRM BOOKING", data);
         if (data?.success) {
             //navigate("/dashboard/booking");
             props.onConfirm()
@@ -97,8 +100,18 @@ const ConfirmBooking = (props) => {
     const getBookingById = async (bookingId, customerId) => {
         setLoading(true);
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
+        // console.log("BOOKING DATA", data);
         if (data?.success) {
-            setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, notesData: data?.notes });
+           setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark });
+            if(data?.data?.status === BOOKING_STATUS.END_OTP){
+                const finalPrice = await ApiRequestUtils.get(API_ROUTES.GET_BOOKINGDETAILS_FINAL_PAYMENT + bookingId);
+                setFinalPaymentPrices({
+                    amountAfterGST: finalPrice?.data?.gstDetails?.details?.amountAfterGst,
+                    customerWalledUsed: finalPrice?.data?.gstDetails?.details?.walletAmountUsed,
+                    driverWalletAdded: Number(finalPrice?.data?.gstDetails?.details?.walletAmountUsed) + Number(finalPrice?.data?.gstDetails?.details?.discountAmount),
+                    discountAmount: finalPrice?.data?.gstDetails?.details?.discountAmount,
+                })
+            }
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({
                     price: data?.data?.price,
@@ -147,6 +160,7 @@ const ConfirmBooking = (props) => {
                 bookingType: bookingDetails?.serviceType,
                 kilometer: kms ? kms : 0
             });
+            // console.log("PRICE DATA", data);
             if (data?.success) {
                 setAmount(data?.data);
                 handleChange('enable', true);
@@ -222,6 +236,14 @@ const ConfirmBooking = (props) => {
         setLoading(true);
         text.bookingId = props.bookingData.id
         const response = await ApiRequestUtils.post(API_ROUTES.ADD_NOTES_BOOKING, text);
+        if (response?.success) {
+            getBookingById(props.bookingData.id, props.bookingData.customerId);
+        }
+    };
+     const LandMarkNotes = async (text) => {
+        setLoading(true);
+        text.bookingId = props.bookingData.id
+        const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_LANDMARK, text);
         if (response?.success) {
             getBookingById(props.bookingData.id, props.bookingData.customerId);
         }
@@ -566,6 +588,29 @@ const ConfirmBooking = (props) => {
                                         {bookingDetails?.Driver?.phoneNumber}
                                     </Typography>
                                 </div>
+                                {bookingDetails?.Cab?.name != '' && bookingDetails?.Cab?.name !=null && 
+                                (
+                                    <>
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Cab Name:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.Cab?.name || ''}
+                                    </Typography>
+                                </div>
+                               
+                                 <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Car Type:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.Cab?.carType || ''}
+                                    </Typography>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Car Number:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.Cab?.carNumber}
+                                    </Typography>
+                                </div>
+                                </> )}
                             </div>
                             <div className="mt-6">
                                 <Typography variant="h6" className="mt-4 mb-2">Driver Feedback</Typography>
@@ -603,6 +648,17 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
                         </div>} */}
+                        {(
+                            bookingDetails?.serviceType === 'DRIVER' || 
+                            (bookingDetails?.serviceType === 'RENTAL' && 
+                            bookingDetails?.packageType === 'Outstation' && 
+                            bookingDetails?.bookingType !== 'Hourly Package')
+                        ) && (
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Booking Type:</Typography>
+                                <Typography>{bookingDetails?.bookingType}</Typography>
+                            </div>
+                        )}
                       {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType =='Local') && 
                         <div className="flex justify-between">
                         <Typography color="gray" variant="h6">KM:</Typography>
@@ -654,7 +710,7 @@ const ConfirmBooking = (props) => {
                                     <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.value?.kilometerPriceVal > 0 &&
+                            {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.bookingType !== 'DROP ONLY') && bookingDetails?.value?.kilometerPriceVal > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Per KM Rate:</Typography>
                                     <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>
@@ -712,6 +768,21 @@ const ConfirmBooking = (props) => {
                                     {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
                                 </div>}
+                                {bookingDetails?.discount?.percentage > 0 && (
+                                <>
+                                    <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                    <Typography>{bookingDetails?.discount?.percentage} %</Typography>
+                                    </div>
+                                    <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                    <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                        {/* ₹ {(bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice * bookingDetails?.discount?.percentage / 100)} */}
+                                        ₹ {(bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? (bookingDetails.Package?.price) - (bookingDetails.Package?.price * bookingDetails?.discount?.percentage / 100) : (bookingDetails.value?.estimatedPrice) - (bookingDetails.value?.estimatedPrice * bookingDetails.discount?.percentage / 100)}
+                                    </Typography>
+                                    </div>
+                                </>
+                                )}
 
                                 </>
                             }
@@ -736,6 +807,7 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">Total:</Typography>
                                     <Typography className="font-bold">₹ {amount?.total}</Typography>
                                 </div>
+                                
                                  </>
 
                             }
@@ -747,6 +819,26 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Car:</Typography>
                             <Typography>{bookingDetails?.Car?.nickName}</Typography>
                         </div> */}
+                        {bookingDetails?.status === BOOKING_STATUS.END_OTP &&
+                            <>
+                                {finalPaymentPirces.discountAmount > 0 && <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Customer Discount Applied:</Typography>
+                                    <Typography>₹ {finalPaymentPirces.discountAmount}</Typography>
+                                </div>}
+                                {finalPaymentPirces.customerWalledUsed > 0 && <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Customer Wallet Points Used:</Typography>
+                                    <Typography>{finalPaymentPirces.customerWalledUsed}</Typography>
+                                </div>}
+                                {finalPaymentPirces.driverWalletAdded > 0 && <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Driver Wallet Points Added:</Typography>
+                                    <Typography>{finalPaymentPirces.driverWalletAdded}</Typography>
+                                </div>}
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total (Incl. Tax)</Typography>
+                                    <Typography>₹ {finalPaymentPirces.amountAfterGST}</Typography>
+                                </div>
+                            </>
+                        }
                         </div>
                     </CardBody>
                 </Card>
@@ -768,6 +860,23 @@ const ConfirmBooking = (props) => {
                                     {bookingDetails?.dropAddress?.name || "Not Added"}
                                 </Typography>
                             </div>
+                              <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
+                                <Typography>{bookingDetails?.driverStartAddress?.name || '2Kms'}</Typography>
+                            </div>
+                            {bookingDetails?.status !== "QUOTED" &&  <>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Start OTP: </Typography>
+                                <Typography>
+                                    {bookingDetails?.startOtp || "Not Added"}
+                                </Typography>
+                            </div>
+                             <div className="flex justify-between ">
+                                <Typography color="gray" variant="h6">End OTP: </Typography>
+                                <Typography>
+                                    {bookingDetails?.endOtp || "Not Added"}
+                                </Typography>
+                            </div></>}
                         </div>
                     </CardBody>
                 </Card>
@@ -919,6 +1028,10 @@ const ConfirmBooking = (props) => {
                                         <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
                                     </div>
                                 }
+                                 <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">TAX:</Typography>
+                                        <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.gstAmount}</Typography>
+                                    </div>
                                 {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
                                     <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Discount Applied:</Typography>
@@ -1054,8 +1167,10 @@ const ConfirmBooking = (props) => {
                         </Card>
                     }
                 </div>
+                 {showDetails &&<LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
+                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData}   bookingId={bookingDetails?.id} /> }
+               
 
-                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} /> }
             </>
         </div>
     );

@@ -57,10 +57,10 @@ const MasterSubscriptionDetails = () => {
                      
                     return (
                         <Form>
-                            <div className="p-4 bg-blue-gray-100 grid grid-cols-2 gap-4">
+                <div className="p-4 bg-blue-gray-100 grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="source" className="text-sm font-medium text-gray-700">Service Type</label>
-                                    <Field as="select" name="serviceType" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <Field as="select" name="serviceType" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select Service Type</option>
                                         <option value="ACTING DRIVER">Driver</option>
                                         <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
@@ -74,7 +74,7 @@ const MasterSubscriptionDetails = () => {
                                 </div>
                                 <div>
                                     <label htmlFor="type" className="text-sm font-medium text-gray-700">Type</label>
-                                    <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="">Select Type</option>
                                         <option value="FREE">Free</option>
                                         <option value="PAID">Paid</option>

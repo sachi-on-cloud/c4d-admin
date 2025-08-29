@@ -764,7 +764,7 @@ export function MasterPriceView() {
                     </div>
                     <button
                         onClick={onHandleAddNew}
-                        className={`ml-4 px-4 py-2 rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                        className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
                             ColorStyles.addButtonColor
                         }`}
                     >

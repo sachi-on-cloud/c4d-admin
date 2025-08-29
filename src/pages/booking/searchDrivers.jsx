@@ -341,11 +341,17 @@ export function SearchDrivers(props) {
             const reqBody = {
                 bookingId: props?.bookingData?.id,
                 driverId: cabDriverId,
-                type: 'REQUEST_DRIVER',
-                package: props?.bookingData?.packageId,
-                from: 'WEBPORTAL',
+                status: 'BOOKING_ACCEPTED',
+                packageId: props?.bookingData?.packageId,
+                // from: 'WEBPORTAL',
+                shiftId: fullData?.Shifts[0]?.id,
+                cabId:fullData.Shifts[0].CabId,
+                offerPrice: fullData.offerPrice || null,
+                estimatedDistance: fullData.estimatedDistance || null,
+                estimatedMin: fullData.estimatedMin || null,
+                // packageId: fullData.package,
             }
-            let data = await ApiRequestUtils.post(API_ROUTES.RENTAL_REQUEST, reqBody);
+            let data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RENTAL_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
             }
@@ -543,7 +549,7 @@ export function SearchDrivers(props) {
                                                                         </div>
                                                                     ) : (
                                                                         <Typography
-                                                                            className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                            className="text-xs font-semibold text-primary-900 underline cursor-pointer"
                                                                             onClick={() => checkPresence(Drivers[0].id, id)}
                                                                         >
                                                                             Check Status
@@ -555,7 +561,7 @@ export function SearchDrivers(props) {
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
-                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                                className="text-xs font-semibold text-white bg-primary"
                                                             >
                                                                 {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
                                                             </Button>}
@@ -578,7 +584,7 @@ export function SearchDrivers(props) {
                         <Button
                             fullWidth
                             onClick={() => { props?.onNext() }}
-                            className='text-white border-2 bg-[#1A73E8] rounded-xl'
+                            className='text-white border-2 bg-primary rounded-xl'
                         >
                             {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
                         </Button>
@@ -731,7 +737,7 @@ export function SearchDrivers(props) {
                                                                         </div>
                                                                     ) : (
                                                                         <Typography
-                                                                            className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                                                            className="text-xs font-semibold text-primary-900 underline cursor-pointer"
                                                                             onClick={() => checkPresence(Drivers[0].id, id)}
                                                                         >
                                                                             Check Status
@@ -753,7 +759,7 @@ export function SearchDrivers(props) {
                                                             <Button
                                                                 as="a"
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id, fullData) }}
-                                                                className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                                className="text-xs font-semibold text-white bg-primary"
                                                             >
                                                                 Assign Cab
                                                             </Button>
@@ -776,7 +782,7 @@ export function SearchDrivers(props) {
                         <Button
                             fullWidth
                             onClick={() => { props?.onNext() }}
-                            className='text-white border-2 bg-[#1A73E8] rounded-xl'
+                            className='text-white border-2 bg-primary rounded-xl'
                         >
                             {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
                         </Button>
