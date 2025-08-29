@@ -312,7 +312,7 @@ const Booking = (props) => {
         if (data?.success) {
             setIsOpen(false);
             setBookingData(data?.data);
-            navigate('/dashboard/confirm-booking', { state: { bookingId: data?.data?.id } });
+            navigate('/dashboard/booking');
             formikBag.resetForm();
             setSelectedCustomer(0);
             setSearchBookingId('');
@@ -1660,7 +1660,7 @@ const Booking = (props) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -1755,7 +1755,7 @@ const Booking = (props) => {
                         </div>
                     </div>
                 )}
-                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Try Drop Taxi or Outstation service for a smoother ride!" />
+                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
                 <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
             </div>
         </div>
