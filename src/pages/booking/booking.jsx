@@ -20,6 +20,7 @@ import SelectLocation from './selectLocation';
 import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import EditBooking from './editBooking';
+import DistanceExceedModal from '@/components/DistanceExceedModal';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -68,6 +69,10 @@ const Booking = (props) => {
     const [discountDetails, setDiscountDetails] = useState(null);
 
     const [editBookingView, setEditBookingView] = useState(false);
+    const [distanceExceedModal, setDistanceExceedModal] = useState(false);
+    const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const [formikActions, setFormikActions] = useState({});
 
     const fetchData = async () => {
         try {
@@ -240,7 +245,51 @@ const Booking = (props) => {
         daysText = days == 1 ? '1 Day' : days == 1 ? '2 Days and 1 Night' : `${days} Days and ${days - 1} Nights`;
     }
 
-    const onRideSubmitHandler = async (values) => {
+    const calculateDistance = async (values) => {
+        let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+            serviceType: "RIDES",
+        });
+        if (calculateDistance?.success) {
+            return calculateDistance?.data?.showAlert;
+        }
+        return false;
+    };
+
+    const calcluateCityLimit = async (values) => {
+        let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.CITY_LIMIT_CHECKING, {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+        });
+        if (calculateDistance?.success) {
+            return calculateDistance?.cityLimit;
+        }
+        return false;
+    };
+
+    const onRideSubmitHandler = async (values, formikBag) => {
+        if (isButtonDisabled) return;
+        setIsButtonDisabled(true);
+
+        try {
+            let checkDistance = await calculateDistance(values);
+            let checkCityLimit = await calcluateCityLimit(values);
+
+            if (!checkDistance) {
+                setDistanceExceedModal(true);
+                setIsButtonDisabled(false);
+                return;
+            } else if (!checkCityLimit) {
+                setCityLimitExceedModal(true);
+                setIsButtonDisabled(false);
+                return;
+            }
+
         const bookingData = {
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
@@ -263,8 +312,22 @@ const Booking = (props) => {
         if (data?.success) {
             setIsOpen(false);
             setBookingData(data?.data);
+            navigate('/dashboard/confirm-booking', { state: { bookingId: data?.data?.id } });
+            formikBag.resetForm();
+            setSelectedCustomer(0);
+            setSearchBookingId('');
+        } else {
+            console.log("Error in creating new booking");
+            formikBag.setErrors({ submit: 'Failed to create booking. Please try again.' });
         }
+    } catch (err) {
+        console.log("ERROR IN RIDES BOOKING", err);
+        formikBag.setErrors({ submit: 'An error occurred. Please try again.' });
+    } finally {
+        setIsButtonDisabled(false);
+        formikBag.setSubmitting(false); // Ensure form is not stuck in submitting state
     }
+};
 
     const onSubmitHandler = async (values) => {
         const bookingData = {
@@ -762,14 +825,14 @@ const Booking = (props) => {
                                 {!showQuickCreateCustomer && !bookingView && <>
                                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                                         initialValues={initialValues}
-                                        onSubmit={async (values, { resetForm }) => {
-                                            if (values.submitType == "rides") {
-                                                await onRideSubmitHandler(values);
+                                        onSubmit={async (values, formikBag) => {
+                                            setFormikActions(formikBag); // Store Formik actions for modals
+                                            if (values.submitType === "rides") {
+                                                await onRideSubmitHandler(values, formikBag);
                                             } else {
                                                 await onSubmitHandler(values);
                                             }
                                             setLoading(true);
-                                            resetForm();
                                             setRange({});
                                             setLoading(false);
                                             setQuoteDetails();
@@ -1692,6 +1755,8 @@ const Booking = (props) => {
                         </div>
                     </div>
                 )}
+                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Try Drop Taxi or Outstation service for a smoother ride!" />
+                <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
             </div>
         </div>
     );
