@@ -763,6 +763,7 @@ export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
     nightCharge: Yup.number().required('Night Charge is required'),
     cancelCharge: Yup.number().required('Cancel Charge is required'),
     status: Yup.string().required('Status is required'),
+    zone: Yup.string().required('Zone is required'),
     // extraPrice: Yup.number().required('Extra Price is required'),
     // nightHoursFrom:Yup.time().required('Night Hours From Start 22:00 PM.'),
     // nightHoursFrom:Yup.time().required('Night Hours To End 06:00 AM.')

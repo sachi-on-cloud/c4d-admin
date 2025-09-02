@@ -644,6 +644,18 @@ const ConfirmBooking = (props) => {
                                 <Typography color="gray" variant="h6">Service Type:</Typography>
                                 <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
                             </div>
+                            {bookingDetails?.source !== "Mobile App" &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Service Area:</Typography>
+                                <Typography>{bookingDetails.zone}</Typography>
+                            </div>
+                            }
+                            {bookingDetails?.luggage > 0 &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Service Area:</Typography>
+                                <Typography>{bookingDetails.zone}</Typography>
+                            </div>
+                            }
                             {/* {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
@@ -737,11 +749,17 @@ const ConfirmBooking = (props) => {
                             {/* need to add logic for price */}
                             {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
                                <div className="flex justify-between">
-  <Typography color="gray" variant="h6">Estimated Price:</Typography>
-  <Typography>
-    ₹ {
-      bookingDetails?.serviceType === 'DRIVER'
-        ? bookingDetails?.Package?.price
+                                    <Typography color="gray" variant="h6">Estimated Price:</Typography>
+                                    <Typography>
+                                        ₹ {
+                                            bookingDetails?.serviceType === 'DRIVER' && bookingDetails?.packageType === 'Local'
+                                                ? bookingDetails?.carType === "Sedan"
+                                                    ? bookingDetails?.Package?.priceSedan
+                                                    : bookingDetails?.carType === "MUV"
+                                                        ? bookingDetails?.Package?.priceMVP
+                                                        : bookingDetails?.carType === "SUV"
+                                                            ? bookingDetails?.Package?.priceSuv
+                                                            : bookingDetails?.Package?.price
         : (bookingDetails?.packageType === 'Local' && bookingDetails?.serviceType === 'RENTAL')
           ? (
               bookingDetails?.carType === "Sedan"

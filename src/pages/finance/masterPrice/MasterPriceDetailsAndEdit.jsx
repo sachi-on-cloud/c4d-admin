@@ -28,6 +28,7 @@ export function MasterPriceDetailsAndEdit() {
         if (data?.success) {
             setInitialValues({
                 serviceType: data?.data?.serviceType || '',
+                zone: data?.data?.zone || '',
                 type: data?.data?.type || '',
                 period: data?.data?.period || '',
                 priceMVP: data.data.priceMVP || '',
@@ -76,6 +77,7 @@ export function MasterPriceDetailsAndEdit() {
                 status: values.status === 'Active' ? 1 : 0,
                 dropPriceAbove:values.dropPriceAbove,
                 kilometer:values.kilometer || '',
+                zone: values.zone,
             };
             if (values.type === 'Outstation') {
                 masterpriceList['baseFare'] = values.baseFare;
@@ -110,6 +112,16 @@ export function MasterPriceDetailsAndEdit() {
                 {({ handleSubmit, values, setFieldValue, errors, isValid, dirty }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Field
+                                    type="text"
+                                    name="zone"
+                                    disabled
+                                    className="p-2 w-full rounded-md border-gray-300 bg-gray-200"
+                                />
+                                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Service Type</label>
                                 <Field type="string" name="serviceType" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
