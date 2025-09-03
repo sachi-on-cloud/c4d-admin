@@ -157,8 +157,25 @@ const Booking = (props) => {
         // console.log("QUOTE DETAILS", quoteDetails);
     };
 
-    const getQuoteRides = async (val) => {
-        // console.log("GET QUOTE RIDES", val);
+    const getQuoteRides = async (val, setFieldValue) => {
+    // Validation checks for distance and city limit
+    let checkDistance = await calculateDistance(val);
+    let checkCityLimit = await calcluateCityLimit(val);
+
+    if (!checkDistance) {
+        setDistanceExceedModal(true);
+        setFieldValue?.('pickupAddress', '');
+        setFieldValue?.('dropAddress', '');
+        setIsButtonDisabled(false);
+        return;
+    } else if (!checkCityLimit) {
+        setCityLimitExceedModal(true);
+        setFieldValue?.('pickupAddress', '');
+        setFieldValue?.('dropAddress', '');
+        setIsButtonDisabled(false);
+        return;
+    }
+
         const quoteDate = {
             serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType,
             bookingType: '',
@@ -1619,13 +1636,13 @@ const Booking = (props) => {
                                                 }
 
                                                 {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation &&
-                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
 
                                                 {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected &&
-                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
