@@ -158,9 +158,18 @@ const Booking = (props) => {
     };
 
     const getQuoteRides = async (val, setFieldValue) => {
-    // Validation checks for distance and city limit
-    let checkDistance = await calculateDistance(val);
-    let checkCityLimit = await calcluateCityLimit(val);
+        // Validation checks for distance and city limit
+        let checkDistance = true;
+        let checkCityLimit = true; // Default to true to skip city limit check unless needed
+
+         if (val.serviceType === 'RIDES') {
+            checkDistance = await calculateDistance(val);
+             checkCityLimit = await calcluateCityLimit(val);
+        }
+        // Only check city limit for RENTAL_HOURLY_PACKAGE
+        // if (val.serviceType === 'RENTAL_HOURLY_PACKAGE') {
+        //     checkCityLimit = await calcluateCityLimit(val);
+        // }
 
     if (!checkDistance) {
         setDistanceExceedModal(true);
