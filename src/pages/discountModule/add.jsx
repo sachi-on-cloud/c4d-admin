@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Field, ErrorMessage, Form } from 'formik';
 import { Button } from '@material-tailwind/react';
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { useNavigate } from 'react-router-dom';
 import { DISCOUNT_ADD_SCHEMA } from '@/utils/validations';
+import Select from 'react-select';
 
 const DiscountAdd = () => {
   const navigate = useNavigate();
+  const [serviceAreas, setServiceAreas] = useState([]);
 
   const initialValues = {
     serviceType: '',
@@ -16,8 +18,32 @@ const DiscountAdd = () => {
     percentage: '',
     startDate: '',
     endDate: '',
-    isActive: 'true', 
+    isActive: 'true',
+    serviceArea: [],
   };
+
+  useEffect(() => {
+    const fetchGeoData = async () => {
+      try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST,{
+          type: 'Service Area',
+        });
+        console.log('GEO MARKINGS RESPONSE:', response);
+        setServiceAreas(response?.data);
+      } catch (error) {
+        console.error('Error fetching GEO_MARKINGS_LIST:', error);
+      }
+    };
+    fetchGeoData();
+  }, []);
+
+  const ZONE_OPTIONS = [
+    { value: 'All', label: 'All' },
+    ...serviceAreas.map((area) => ({
+      value: area.name,
+      label: area.name,
+    })),
+  ];
 
   const handleSubmit = async (values, { setSubmitting }) => {
    const payload = {
@@ -35,7 +61,7 @@ const DiscountAdd = () => {
   isActive: values.isActive,
   title: values.title,
   description: values.description,
-
+  serviceArea: values.serviceArea.includes['All'] ? ['All'] : values.serviceArea,
 };
 
     try {
@@ -59,7 +85,7 @@ const DiscountAdd = () => {
         validationSchema={DISCOUNT_ADD_SCHEMA}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -131,6 +157,28 @@ const DiscountAdd = () => {
                   <option value="false">Inactive</option>
                 </Field>
                 <ErrorMessage name="isActive" className="text-red-500 text-sm" component="div" />
+              </div>
+              <div>
+                <label htmlFor="serviceArea" className="text-sm font-medium text-gray-700">Select service Area</label>
+                <Select
+                  name="serviceArea"
+                  options={ZONE_OPTIONS}
+                  isMulti
+                  value={values.serviceArea.map((val) => ({ value: val, label: val }))}
+                  onChange={(selectedOptions) => {
+                    const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+                    if (selectedValues.includes['All'] && selectedValues.length > 1) {
+                      setFieldValue('serviceArea', ['All']); 
+                    } else if (selectedValues.includes('All')) {
+                      setFieldValue('serviceArea', ['All']); 
+                    } else {
+                      setFieldValue('serviceArea', selectedValues); 
+                    }
+                  }}
+                  placeholder="Select service Area"
+                  className="mt-1"
+                />
+                <ErrorMessage name="serviceArea" className="text-red-500 text-sm mt-1" component="div" />
               </div>
             </div>
 

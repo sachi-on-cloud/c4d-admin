@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Field, ErrorMessage, Form } from 'formik';
 import { Button } from '@material-tailwind/react';
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Select from 'react-select';
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object({
@@ -11,7 +12,14 @@ const validationSchema = Yup.object({
   message: Yup.string().required('Message is required'),
   type: Yup.string().required('Type is required'),
   app: Yup.string().required('App is required'),
-  city: Yup.string().required('city is required')
+  city: Yup.string()
+    .required('City is required')
+    .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+      if (value && value.includes('All')) {
+        return value === 'All';
+      }
+      return true;
+    }),
 });
 
 const NotificationListApp = () => {
@@ -23,6 +31,7 @@ const NotificationListApp = () => {
     city:'',
   };
 
+  const [serviceAreas, setServiceAreas] = useState([]);
   const navigate = useNavigate();
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -41,6 +50,29 @@ const NotificationListApp = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchGeoData = async () => {
+      try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+          type: 'Service Area',
+        });
+        console.log('GEO MARKINGS RESPONSE:', response);
+        setServiceAreas(response?.data || []);
+      } catch (error) {
+        console.error('Error fetching GEO_MARKINGS_LIST:', error);
+      }
+    };
+    fetchGeoData();
+  }, []);
+
+  const ZONE_OPTIONS = [
+    { value: 'All', label: 'All' },
+    ...serviceAreas.map((area) => ({
+      value: area.name,
+      label: area.name,
+    })),
+  ];
+
   return (
     <div className="p-4 mx-auto">
       <h2 className="text-2xl font-bold mb-4">Add New</h2>
@@ -49,7 +81,7 @@ const NotificationListApp = () => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-1 gap-4">
               <div className="grid grid-cols-2 gap-4">
@@ -80,9 +112,24 @@ const NotificationListApp = () => {
                       </Field>
                   <ErrorMessage name="app" component="div" className="text-red-500 text-sm my-1" />
                 </div>
-                 <div>
-                  <label htmlFor="app" className="text-sm font-medium text-gray-700">City</label>
-                  <Field type="text" name="city" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                <div>
+                  <label htmlFor="city" className="text-sm font-medium text-gray-700">Select City</label>
+                  <Select name="city" options={ZONE_OPTIONS} isMulti
+                    value={ values.city ? values.city.split(',').map((val) => ({
+                            value: val,
+                            label: val,
+                          })) : [] }
+                    onChange={(selectedOptions) => {
+                      const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+                      if (selectedValues.includes('All')) {
+                        setFieldValue('city', 'All');
+                      } else {
+                        setFieldValue('city', selectedValues.join(','));
+                      }
+                    }}
+                    placeholder="Select City"
+                    className="mt-1"
+                  />
                   <ErrorMessage name="city" component="div" className="text-red-500 text-sm my-1" />
                 </div>
                 <div>
