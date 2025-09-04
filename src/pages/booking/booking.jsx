@@ -30,7 +30,20 @@ const debounce = (func, delay) => {
   };
 };
 
-
+const useLuggageAndSeaterLogic = (carType, setFieldValue) => {
+    useEffect(() => {
+        if (carType === 'Mini' || carType === 'Sedan') {
+            setFieldValue('luggage', 1);
+            setFieldValue('seaterCapacity', '5');
+        } else if (carType === 'SUV' || carType === 'MUV') {
+            setFieldValue('luggage', 2);
+            setFieldValue('seaterCapacity', '7');
+        } else {
+            setFieldValue('luggage', '');
+            setFieldValue('seaterCapacity', '');
+        }
+    }, [carType, setFieldValue]);
+};
 // Format date to YYYY-MM-DD for input's min attribute
 const currentDate = () => {
     return (new Date()).toISOString().split('T')[0];
@@ -241,6 +254,7 @@ const Booking = (props) => {
         driverPickUpAddress: '',
         driverPickUpLocation: null,
         luggage:'',
+        seaterCapacity:'',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -388,7 +402,8 @@ const Booking = (props) => {
                 name:values.driverPickUpAddress,
             },
             source: 'Call',
-            luggage: values.luggage
+            luggage: values.luggage,
+            seaterCapacity:values.seaterCapacity
         };
 
         if (values.toDate && values.toTime) {
@@ -868,8 +883,14 @@ const Booking = (props) => {
                                         validationSchema={BOOKING_DETAILS_SCHEMA}
                                         enableReinitialize={true}
                                     >
-                                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
-                                            <>
+                                       {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => {
+                                                
+                                                    useLuggageAndSeaterLogic(values.carType, setFieldValue);
+
+                                                    return (
+                                                        <Form>
+
+
                                                 {customerData  && !editBookingView && <div className="p-2 flex">
                                                    <SearchableDropdown 
                                                         searchVal={setCustomerNumber} 
@@ -990,6 +1011,9 @@ const Booking = (props) => {
                                                                                 name="carType"
                                                                                 value={carType}
                                                                                 className="h-4 w-4 text-primary-600"
+                                                                                onChange={(e) => {
+                                                                                    setFieldValue('carType', e.target.value);
+                                                                                }}
                                                                             />
                                                                             <span className="text-black-700">{carType}</span>
                                                                         </label>
@@ -1278,23 +1302,39 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
-                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI') && (
-                                                        <div className="p-2 space-y-2">
-                                                            <label className="block text-sm font-medium text-black-700">
-                                                                Luggage
-                                                            </label>
-                                                            <Field
-                                                                type="number"
-                                                                name="luggage"
-                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter the Luggage Count (Optional)"
-                                                                onChange={(e) => {
-                                                                    setFieldValue("luggage", e.target.value);
-                                                                }}
-                                                            />
-                                                            <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
-                                                        </div>
-                                                    )}
+                                                   {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (
+                                                                    <div className="p-2 space-y-2">
+                                                                        <label className="block text-sm font-medium text-black-700">
+                                                                            Luggage
+                                                                        </label>
+                                                                        <Field
+                                                                            type="number"
+                                                                            name="luggage"
+                                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                            placeholder="Luggage Count (Auto-filled)"
+                                                                            disabled={true}
+                                                                            value={values.luggage}
+                                                                        />
+                                                                        <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
+                                                                    </div>
+                                                                )}
+                                                                {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (
+                                                                    <div className="p-2 space-y-2">
+                                                                        <label className="block text-sm font-medium text-black-700">
+                                                                            Seater Capacity
+                                                                        </label>
+                                                                        <Field
+                                                                            type="text"
+                                                                            name="seaterCapacity"
+                                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                            placeholder="Seater Capacity (Auto-filled)"
+                                                                            disabled={true}
+                                                                            value={values.seaterCapacity}
+                                                                        />
+                                                                       
+                                                                        <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
+                                                                    </div>
+                                                                )}
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
@@ -1760,9 +1800,11 @@ const Booking = (props) => {
                                                         </Button>
                                                     }
                                                 </div>
-                                            </>
-                                        )}
-                                    </Formik>}
+                                           </Form>
+                                                    );
+                                                }}
+                                            </Formik>
+                                        }
                                     {bookingStage === 2 && bookingData && (
                                         <SearchDrivers bookingData={bookingData} onNext={() => {
                                             setBookingStage(0);
