@@ -239,7 +239,7 @@ useEffect(() => {
             zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',
         };
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
-            quoteData.serviceFor = 'RENTAL_DROP_TAXI';
+            quoteData.serviceFor = 'RENTAL';
         }
         else if (values?.serviceType === 'RENTAL') {
             quoteData.serviceFor = 'RENTAL';
@@ -283,8 +283,7 @@ useEffect(() => {
         setIsButtonDisabled(false);
         return;
     }
-
-    const getQuoteRides = async (val) => {
+    
     const serviceTypeMap = {
       'RENTAL_DROP_TAXI': 'RENTAL',
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
@@ -1531,9 +1530,9 @@ useEffect(() => {
                                                                                 case "MINI":
                                                                                     return selectedPackage.price || "";
                                                                                 case "SEDAN":
-                                                                                    return selectedPackage.priceSedan || "";
+                                                                                    return selectedPackage.price || "";
                                                                                 case "SUV":
-                                                                                    return selectedPackage.priceSuv || "";
+                                                                                    return selectedPackage.price || "";
                                                                                 case "MUV":
                                                                                     return selectedPackage.priceMVP || "";
                                                                                 default:
