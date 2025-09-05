@@ -403,7 +403,8 @@ const Booking = (props) => {
             },
             source: 'Call',
             luggage: values.luggage,
-            seaterCapacity:values.seaterCapacity
+            seaterCapacity:values.seaterCapacity,
+            period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
         };
 
         if (values.toDate && values.toTime) {
@@ -1485,10 +1486,14 @@ const Booking = (props) => {
                                                                         </Typography>
                                                                         </>
                                                                         } */}
+                                                                        {values?.serviceType !== "RIDES" && (
+                                                                            <>
                                                                         <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount?.carType || ''}
                                                                         </Typography>   
+                                                                        </>)}
+                                                                        
                                                                         {quoteDetails.amount?.isPrimeLocation === true && quoteDetails.amount?.rideSurchargeAmount > 0 && 
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>

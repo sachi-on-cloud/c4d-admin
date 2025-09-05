@@ -784,6 +784,15 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     isActive: Yup.boolean().required('Status is required'),
     description: Yup.string().required('Description is required'),
     title: Yup.string().required('Title is required'),
+    serviceArea: Yup.array()
+          .min(1, 'At least one city must be selected')
+          .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+              if (value.includes('All')) {
+                  return value.length === 1;
+              }
+              return true;
+          })
+          .required('City is required'),
   });
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
@@ -795,6 +804,15 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     isActive: Yup.boolean().required('Status is required'),
     description: Yup.string().required('Description is required'),
     title: Yup.string().required('Title is required'),
+    serviceArea: Yup.array()
+        .min(1, 'At least one city must be selected')
+        .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+            if (value.includes('All')) {
+                return value.length === 1;
+            }
+            return true;
+        })
+        .required('City is required'),
   });
 
    export const GST_EDIT_SCHEMA = Yup.object().shape({

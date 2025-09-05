@@ -43,12 +43,19 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
         itemsPerPage: 15,
     });
     const [nameSortConfig, setNameSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
-    const [filteredRange, setFilteredRange] = useState({});
+    const [filteredRange, setFilteredRange] = useState({
+        startDate: moment().format('YYYY-MM-DD'), 
+        endDate: moment().format('YYYY-MM-DD'), 
+    });
     const [loading, setLoading] = useState(true);
     const [loadingStates, setLoadingStates] = useState({});
     const [userId, setUserId] = useState(null);  
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [selectedBookingForReassign, setSelectedBookingForReassign] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
+    const [showSingleInput, setShowSingleInput] = useState(false);
+    const [showRangeInput, setShowRangeInput] = useState(true);
+    const [counts, setCounts] = useState({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" }); 
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
   if (storedUser) {
@@ -111,12 +118,6 @@ const handleTabChange = (value) => {
                     return newFilter.length === 0 ? ['All'] : newFilter;
                 }
             })
-        }
-        else if (filterType === 'range') {
-            // Expect value to be an object { startDate, endDate }
-            const { startDate, endDate } = value;
-            setFilteredRange({ startDate, endDate });
-            // console.log('Filtered Range:', { startDate, endDate });
         }         
         else if (filterType === 'tripCoordinator') {
             setTripCoordinatorFilter(prev => {
@@ -180,34 +181,50 @@ const handleTabChange = (value) => {
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
         };
-        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
+        const queryParams = {
             "customerId": customerId,
             'type': type ? type : '',
             'page': page,
             'limit': pagination.itemsPerPage,
             'filterType': JSON.stringify(filterType),
             'bookingNumber': searchBookingId,
-        });
+        };
         // console.log('API Response:', data);
+        if (showSingleInput && selectedDate) {
+            queryParams.startDate = selectedDate;
+            queryParams.endDate = selectedDate;
+        } else if (showRangeInput && filteredRange.startDate && filteredRange.endDate) {
+            queryParams.startDate = filteredRange.startDate;
+            queryParams.endDate = filteredRange.endDate;
+        }
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, queryParams);
         if (data?.success) {
-            setLoading(false);
+            if (data?.data?.length > 0) {
             setBookingsList(data?.data);
-            setSelectedBookingId(null);
             setPagination({
                 currentPage: data?.pagination?.currentPage || 1,
                 totalPages: data?.pagination?.totalPages || 1,
                 totalItems: data?.pagination?.totalItems || 0,
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
+                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+                setSelectedBookingId(null);
+            } 
+            else {
+                setBookingsList([]);
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+            }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
-            setLoading(false);
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
+        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+    } finally {
         setLoading(false);
         }
     };
@@ -245,7 +262,6 @@ const handleTabChange = (value) => {
             };
   
     useEffect(() => {
-        setLoading(true);
         getBookingsList(pagination.currentPage);
         // const intervalId = setInterval(() => {
         //     getBookingsList(pagination.currentPage);
@@ -318,13 +334,9 @@ const handleTabChange = (value) => {
         setIsOpen(true)
     }
 
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-
-        return `${day}-${month}-${year}`;
+    const formatDate = (date) => {
+        const d = new Date(date);
+        return d.toISOString().split('T')[0];
     }
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -376,8 +388,136 @@ const handleTabChange = (value) => {
         { label: 'All Future Bookings', value: 'REMAINING' },
     ];
 
+    const handleOptionSelect = (option) => {
+        const today = new Date();
+        let date;
+
+        switch (option) {
+            case 'Today':
+                date = today;
+                setSelectedDate(formatDate(date));
+                setFilteredRange({ startDate: formatDate(date), endDate: formatDate(date) });
+                setShowSingleInput(false);
+                setShowRangeInput(true);
+                break;
+            case 'Tomorrow':
+                date = new Date(today);
+                date.setDate(today.getDate() + 1);
+                setSelectedDate(formatDate(date));
+                setFilteredRange({ startDate: formatDate(date), endDate: formatDate(date) });
+                setShowSingleInput(false);
+                setShowRangeInput(true);
+                break;
+            case 'Last 7 Days':
+                setFilteredRange({
+                    startDate: formatDate(new Date(today.setDate(today.getDate() - 7))),
+                    endDate: formatDate(new Date()),
+                });
+                setSelectedDate('');
+                setShowSingleInput(false);
+                setShowRangeInput(true);
+                break;
+            case 'Custom Date':
+                setFilteredRange({ startDate: '', endDate: '' });
+                setSelectedDate('');
+                setShowSingleInput(false);
+                setShowRangeInput(true);
+                break;
+            default:
+                date = today;
+                setSelectedDate(formatDate(date));
+                setFilteredRange({ startDate: formatDate(date), endDate: formatDate(date) });
+                setShowSingleInput(false);
+                setShowRangeInput(true);
+        }
+        getBookingsList(pagination.currentPage);
+    };
+
+    const handleStartDateChange = (e) => {
+        setFilteredRange((prev) => ({ ...prev, startDate: e.target.value }));
+        getBookingsList(pagination.currentPage);
+    };
+
+    const handleEndDateChange = (e) => {
+        setFilteredRange((prev) => ({ ...prev, endDate: e.target.value }));
+        getBookingsList(pagination.currentPage);
+    };
+
+    const handleRefresh = () => {
+        setStatusFilter(['All']);
+        setSourceFilter(['All']);
+        setTripCoordinatorFilter(['All']);
+        setSelectedDate('');
+        setFilteredRange({ startDate: '', endDate: '' });
+        setShowSingleInput(false);
+        setShowRangeInput(false);
+        getBookingsList(1);
+    };
+
     return (
         <div className="flex flex-col bg-white rounded-xl" >
+            <div className="px-4 py-4 bg-primary flex flex-col sm:flex-row items-center justify-between rounded-xl">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-0">
+                    {['totalBookingCount', 'confirmedCount', 'quotedCount', 'endedCount'].map((status, index) => (
+                        <div key={index} className="flex flex-col items-center">
+                            <div className="flex items-center justify-center w-20 h-20 rounded-lg bg-white">
+                                <Typography variant="h4" className={`font-bold ${index === 0 ? 'text-primary' : index === 1 ? 'text-primary' : index === 2 ? 'text-primary' : 'text-primary'}`}>
+                                    {counts[status]}
+                                </Typography>
+                            </div>
+                            <Typography variant="h5" className={`text-gray-600 text-sm mt-1 ${index === 0 ? 'text-white' : index === 1 ? 'text-white' : index === 2 ? 'text-white' : 'text-white'}`}>
+                                {status === 'totalBookingCount' ? 'Total' : status === 'confirmedCount' ? 'Confirmed' : status === 'quotedCount' ? 'Quoted' : 'Ended'}
+                            </Typography>
+                        </div>
+                    ))}
+                </div>
+                <div className="flex flex-col items-center">
+                    <ul className="flex flex-row space-x-2 mb-2 text-xl font-semibold">
+                        <li
+                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
+                            onClick={() => handleOptionSelect('Today')}
+                        >
+                            Today
+                        </li>
+                        <li
+                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
+                            onClick={() => handleOptionSelect('Tomorrow')}
+                        >
+                            Tomorrow
+                        </li>
+                        <li
+                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
+                            onClick={() => handleOptionSelect('Last 7 Days')}
+                        >
+                            Last 7 Days
+                        </li>
+                        <li
+                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
+                            onClick={() => handleOptionSelect('Custom Date')}
+                        >
+                            Custom Date
+                        </li>
+                    </ul>
+                    <div className="flex gap-2"> {/* Always show date inputs */}
+                        <input
+                            type="date"
+                            value={filteredRange.startDate}
+                            onChange={handleStartDateChange}
+                            onFocus={(e) => e.target.showPicker()}
+                            className="w-40 px-2 py-1 border rounded-md text-sm"
+                            placeholder="Start Date"
+                        />
+                        <input
+                            type="date"
+                            value={filteredRange.endDate}
+                            onChange={handleEndDateChange}
+                            onFocus={(e) => e.target.showPicker()}
+                            className="w-40 px-2 py-1 border rounded-md text-sm"
+                            placeholder="End Date"
+                        />
+                    </div>
+                </div>
+            </div>
             <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
@@ -387,12 +527,7 @@ const handleTabChange = (value) => {
                 <div className='absolute right-10 -top-10'>
                     <button
                         className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
-                        onClick={() => {
-                            getBookingsList(pagination.currentPage);
-                            setStatusFilter(['All']);
-                            setSourceFilter(['All']);
-                            setTripCoordinatorFilter(['All']);
-                        }}
+                        onClick={handleRefresh}
                     >
                         <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
                         <span>Refresh</span>
