@@ -86,6 +86,40 @@ const Booking = (props) => {
     const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [formikActions, setFormikActions] = useState({});
+    const [serviceAreas, setServiceAreas] = useState([]);
+    const [services, setServices] = useState([]);
+    const [selectedAreaId, setSelectedAreaId] = useState(null);
+    const [currentServiceType, setCurrentServiceType] = useState('');
+    const [currentPackageType, setCurrentPackageType] = useState('');
+
+
+  const fetchGeoData = async () => {
+    try {
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+      const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+      setServiceAreas(filteredAreas);
+    //   console.log('Available service areas:', filteredAreas);
+    } catch (error) {
+      console.error('Error fetching GEO_MARKINGS_LIST:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGeoData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedAreaId) {
+      const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
+      const newServices = selectedArea ? selectedArea.services : [];
+      setServices(newServices);
+    //   console.log('Services for selected area:', newServices);
+      setCurrentServiceType('');
+    } else {
+      setServices([]);
+      setCurrentServiceType('');
+    }
+  }, [selectedAreaId, serviceAreas]);
 
     const fetchData = async () => {
         try {
@@ -102,12 +136,58 @@ const Booking = (props) => {
     const location = useLocation();
     const params = location.state;
 
-    const getPackageListDetails = useCallback(async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
-        if (data?.success) {
-            setPackageTypeSelectedData(data?.data);
-        }
-    }, []);
+    const getPackageListDetails = useCallback(async (serviceType, zone) => {
+  try {
+    // console.log('Fetching packages with:', { serviceType, zone });
+    const serviceTypeMap = {
+      'RENTAL_DROP_TAXI': 'RENTAL',
+      'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+    };
+    const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
+    // console.log('Mapped serviceType:', mappedServiceType);
+
+    if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
+      console.error('Invalid serviceType:', mappedServiceType);
+      setPackageTypeSelectedData([]);
+      return;
+    }
+
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ZONE_PACKAGE_LIST, {
+      serviceType: mappedServiceType,
+      zone: zone || '',
+    });
+
+    // console.log('Raw API response:', JSON.stringify(data, null, 2));
+
+    if (data?.success && Array.isArray(data?.data)) {
+      setPackageTypeSelectedData(data.data);
+    //   console.log('Package list fetched:', data.data);
+    } else {
+      console.error('Failed to fetch package list or data is not an array:', data?.message || 'No message provided');
+      setPackageTypeSelectedData([]);
+    }
+  } catch (error) {
+    console.error('Error fetching package list:', error.message || error);
+    setPackageTypeSelectedData([]);
+  }
+}, []);
+
+useEffect(() => {
+//   console.log('useEffect for package list:', { selectedAreaId, currentServiceType, currentPackageType });
+  if (!selectedAreaId || !currentServiceType) {
+    // console.log('Skipping getPackageListDetails: missing selectedAreaId or currentServiceType');
+    setPackageTypeSelectedData([]);
+    return;
+  }
+  const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
+  const zone = selectedArea ? selectedArea.name : '';
+//   console.log('Calling getPackageListDetails with:', { serviceType: currentServiceType, zone });
+  getPackageListDetails(currentServiceType, zone);
+
+  if (params?.bookingDetails?.packageType === 'Outstation' && params?.bookingDetails?.fromDate && params?.bookingDetails?.toDate) {
+    setRange({ startDate: params?.bookingDetails?.fromDate, endDate: params?.bookingDetails?.toDate });
+  }
+}, [selectedAreaId, currentServiceType, currentPackageType, getPackageListDetails, params, serviceAreas]);
     const handleTypeChange = (type) => {
         setBookingType(type);
     };
@@ -119,7 +199,7 @@ const Booking = (props) => {
             }
 
             try {
-                console.log("BOOKINGTYPE", bookingType);
+                // console.log("BOOKINGTYPE", bookingType);
                 const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_BOOKINGS_BY_NUMBER, {
                     search,
                     type: bookingType || 'ALL_BOOKINGS',
@@ -138,8 +218,13 @@ const Booking = (props) => {
     );
 
     const getQuoteOutstationDetails = async (values) => {
+        const serviceTypeMap = {
+          'RENTAL_DROP_TAXI': 'RENTAL',
+          'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+        };
+        const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
-            serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType,
+            serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
             bookingType: values?.tripType?.toUpperCase(),
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -151,6 +236,7 @@ const Booking = (props) => {
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
+            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',
         };
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
             quoteData.serviceFor = 'RENTAL_DROP_TAXI';
@@ -198,8 +284,14 @@ const Booking = (props) => {
         return;
     }
 
+    const getQuoteRides = async (val) => {
+    const serviceTypeMap = {
+      'RENTAL_DROP_TAXI': 'RENTAL',
+      'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+    };
+    const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
         const quoteDate = {
-            serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType,
+            serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType || mappedServiceType,
             bookingType: '',
             serviceFor: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : val.serviceType,
             packageType:'Local',
@@ -212,6 +304,7 @@ const Booking = (props) => {
             driverLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
+            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',
         }
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
         // console.log("QUOTE DATA", data);
@@ -347,6 +440,8 @@ const Booking = (props) => {
                 name: values.driverPickUpAddress,
             },
             source: 'Call',
+            serviceType:values.serviceType,
+            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',  
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
@@ -370,6 +465,10 @@ const Booking = (props) => {
 };
 
     const onSubmitHandler = async (values) => {
+    const serviceTypeMap = {
+      'RENTAL_DROP_TAXI': 'RENTAL',
+      'RENTAL_HOURLY_PACKAGE': 'RENTAL'};
+    const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
         const bookingData = {
             carId: values?.carSelected?.id,
             packageId: values?.packageSelected === "0" ? 0 : Number(values?.packageSelected),
@@ -405,6 +504,8 @@ const Booking = (props) => {
             luggage: values.luggage,
             seaterCapacity:values.seaterCapacity,
             period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
+            serviceType: values.serviceType || mappedServiceType,
+            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',
         };
 
         if (values.toDate && values.toTime) {
@@ -736,6 +837,17 @@ const Booking = (props) => {
 
     // modal data
     const [isOpen, setIsOpen] = useState(false);
+
+    const serviceDisplayNames = {
+        DRIVER: "Acting Driver",
+        RIDES: "Rides",
+        RENTAL_DROP_TAXI: "Drop Taxi",
+        RENTAL_HOURLY_PACKAGE: "Hourly Package",
+        RENTAL: "Outstation",
+        AUTO: "Auto",
+        PARCEL: "Parcel",
+    };
+
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
@@ -912,30 +1024,58 @@ const Booking = (props) => {
                                                         Add New
                                                     </Button>}
                                                 </div>}
-                                                {!editBookingView && <div className="flex-1 mb-4">
+                                                {!editBookingView && ( <div className="flex-1 mb-4">
+                                                        <div>
+                                                            <Typography variant="h6" className="mb-2">
+                                                                Service Area
+                                                            </Typography>
+                                                            <Field
+                                                                as="select" name="serviceTypeArea" className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                onChange={(e) => {
+                                                                    const selectedValue = e.target.value;
+                                                                    // console.log('Selected area value:', selectedValue);
+                                                                    setFieldValue('serviceTypeArea', selectedValue, false);
+                                                                    setSelectedAreaId(selectedValue);
+                                                                    resetPackageValues(setFieldValue, '');
+                                                                    setFieldValue('serviceTypeArea', selectedValue, true);
+                                                                }}
+                                                            >
+                                                                <option value="" label="Select a service area" />
+                                                                {serviceAreas.map((area) => (
+                                                                    <option key={area.id} value={area.id}>
+                                                                        {area.name}
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
+                                                            <ErrorMessage name="serviceTypeArea" component="div" className="text-red-500 text-sm" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {!editBookingView && ( <div className="flex-1 mb-4">
                                                     <div>
                                                         <Typography variant="h6" className="mb-2">
                                                             Service Type
                                                         </Typography>
                                                         <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
-                                                            //console.log('e.target.value', e.target.value);
-                                                            setFieldValue("serviceType", e.target.value, false);
-                                                            resetPackageValues(setFieldValue, e.target.value);
-                                                            setFieldValue("serviceType", e.target.value, true);
-                                                            // if (e.target.value === 'CAR_WASH')
-                                                            //     setFieldValue("packageTypeSelected", "CarWash");
-
-                                                        }}>
-                                                            <option value="">Service Type</option>
-                                                            <option value="DRIVER">Acting Driver</option>
-                                                            <option value="RIDES">Local Rides</option>
-                                                            <option value="RENTAL_HOURLY_PACKAGE">Hourly Package</option>
-                                                            <option value="RENTAL_DROP_TAXI">Drop Taxi</option>
-                                                            <option value="RENTAL">OutStation</option>
+                                                                    const selectedValue = e.target.value;
+                                                                    // console.log('Selected service value:', selectedValue);
+                                                                    setFieldValue('serviceType', selectedValue, false);
+                                                                    setCurrentServiceType(selectedValue);
+                                                                    resetPackageValues(setFieldValue, selectedValue);
+                                                                    setFieldValue('serviceType', selectedValue, true);
+                                                                }}
+                                                                disabled={!selectedAreaId}
+                                                        >
+                                                            <option value="" label="Service Type" />
+                                                            {services.map((service) => (
+                                                                <option key={service} value={service}>
+                                                                    {serviceDisplayNames[service] || service}
+                                                                </option>
+                                                            ))}
                                                         </Field>
                                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                                     </div>
-                                                </div>}
+                                                </div>)}
                                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI')) && (
                                                     <div className='space-y-3 my-3'>
                                                         <div className={`grid grid-cols-2 gap-4 ${values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'hidden' : ''}`}>
@@ -1383,24 +1523,24 @@ const Booking = (props) => {
                                                                     <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                        <Typography>
-  ₹{(() => {
-    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-    if (!selectedPackage) return "";
+                                                                            ₹{(() => {
+                                                                                const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                                if (!selectedPackage) return "";
 
-    switch (values.carType?.toUpperCase()) {
-      case "MINI":
-        return selectedPackage.price || "";
-      case "SEDAN":
-        return selectedPackage.priceSedan || "";
-      case "SUV":
-        return selectedPackage.priceSuv || "";
-      case "MUV":
-        return selectedPackage.priceMVP || "";
-      default:
-        return "";
-    }
-  })()}
-</Typography>
+                                                                                switch (values.carType?.toUpperCase()) {
+                                                                                case "MINI":
+                                                                                    return selectedPackage.price || "";
+                                                                                case "SEDAN":
+                                                                                    return selectedPackage.priceSedan || "";
+                                                                                case "SUV":
+                                                                                    return selectedPackage.priceSuv || "";
+                                                                                case "MUV":
+                                                                                    return selectedPackage.priceMVP || "";
+                                                                                default:
+                                                                                    return "";
+                                                                                }
+                                                                            })()}
+                                                                            </Typography>
                                                                     </div>
                                                                 </>
                                                             </div>
@@ -1432,7 +1572,17 @@ const Booking = (props) => {
                                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Package Price:</Typography>
                                                                                 <Typography>
-                                                                                    ₹ {quoteDetails.amount?.packageDetails?.price || ''}
+                                                                                    ₹{(() => {
+                                                                                        const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                                        if (!selectedPackage) return "";
+                                                                                        switch (quoteDetails.amount?.carType?.toUpperCase()) {
+                                                                                            case "MINI": return selectedPackage.price || "";
+                                                                                            case "SEDAN": return selectedPackage.priceSedan || "";
+                                                                                            case "SUV": return selectedPackage.priceSuv || "";
+                                                                                            case "MUV": return selectedPackage.priceMVP || "";
+                                                                                            default: return "";
+                                                                                        }
+                                                                                    })()}
                                                                                 </Typography>
                                                                             </div>
                                                                             {quoteDetails.discount?.percentage > 0 && (

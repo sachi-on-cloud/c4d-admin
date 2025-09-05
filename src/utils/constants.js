@@ -797,6 +797,7 @@ export const API_ROUTES = {
     'GET_ALL_CARS': '/cars',
     'GET_SPECIFIC_CAR': '/car',
     'PACKAGES_LIST': '/package-list',
+    'ZONE_PACKAGE_LIST': '/zone-packages',
     'GET_PACKAGES_LIST': '/get-package-list/',
     'PACKAGE_CABS_LIST': '/package-list/cabs',
     'ADD_NEW_BOOKING': '/add-booking',
