@@ -13,7 +13,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -68,25 +68,25 @@ export function CustomerView() {
     }
   };
 
-  const handleExportExcel = async () => {
-    try {
-      setLoading(true);
-      const response = await ApiRequestUtils.get(API_ROUTES.EXPORT_EXCEL_CUSTOMER_DETAILS);
-      const blob = new Blob([response], { 
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-      });
-      saveAs(blob, 'customers.xlsx');
-    } catch (error) {
-      console.error('Export error:', error.message);
-      setAlert({
-        message: `Failed to export customers to Excel. ${error.message || 'Please check server status.'}`,
-        color: 'red'
-      });
-      setTimeout(() => setAlert(null), 5000);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleExportExcel = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await ApiRequestUtils.get(API_ROUTES.EXPORT_EXCEL_CUSTOMER_DETAILS);
+  //     const blob = new Blob([response], { 
+  //       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+  //     });
+  //     saveAs(blob, 'customers.xlsx');
+  //   } catch (error) {
+  //     console.error('Export error:', error.message);
+  //     setAlert({
+  //       message: `Failed to export customers to Excel. ${error.message || 'Please check server status.'}`,
+  //       color: 'red'
+  //     });
+  //     setTimeout(() => setAlert(null), 5000);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const getCustomers = useCallback(
     debounce((searchQuery) => {
@@ -175,14 +175,14 @@ export function CustomerView() {
                 <Typography variant="h6" color="white">
                   Customers List
                 </Typography>
-                <Button
+                {/* <Button
                   size="sm"
                   className={`${ColorStyles.bgColor} text-white`}
                   onClick={handleExportExcel}
                   disabled={loading}
                 >
                   {loading ? 'Exporting...' : 'Export to Excel'}
-                </Button>
+                </Button> */}
               </div>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
