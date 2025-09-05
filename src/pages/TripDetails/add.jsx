@@ -320,7 +320,7 @@ const AddTripDetails = () => {
               <Typography color="gray" variant="h6" className="mb-1">
                 Trip End Point *
               </Typography>
-              <Input type="text" name="endAddress" value={formData.endAddress} readOnly disabled />
+              <Input type="text" name="endAddress" value={formData.endAddress}  onChange={handleInputChange} />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">

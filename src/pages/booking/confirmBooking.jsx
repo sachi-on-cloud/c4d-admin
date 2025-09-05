@@ -688,6 +688,21 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
                                 </div>
+                                
+                            }
+                            {bookingDetails?.serviceType != 'RIDES' &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Luggage:</Typography>
+                                    <Typography>{bookingDetails.luggage || 'Mini'}</Typography>
+                                </div>
+                                
+                            }
+                            {bookingDetails?.serviceType != 'RIDES' &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">SeaterCapacity:</Typography>
+                                    <Typography>{bookingDetails.seaterCapacity || 'Mini'}</Typography>
+                                </div>
+                                
                             }
                             {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' &&
                                 <div className="flex justify-between">

@@ -24,6 +24,16 @@ const Reports = ({ accountId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [isXlsxLoaded, setIsXlsxLoaded] = useState(false);
 
+  
+  const [summary, setSummary] = useState({
+    totalTrips: 0,
+    totalKm: 0,
+    fuelUsed: 0,
+    fuelCost: 0,
+    totalFare: 0,
+    profitLoss: 0,
+  });
+
   useEffect(() => {
     const checkXlsx = (attempts = 5, delay = 500) => {
       if (window.XLSX && typeof window.XLSX.utils.aoa_to_sheet === 'function') {
@@ -91,6 +101,12 @@ const Reports = ({ accountId }) => {
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
 
+        
+        if (data.summary) {
+          setSummary(data.summary);
+        }
+
+        
         const transformedTrips = data.data.map(trip => {
           console.log("Mapping trip:", trip);
           const km = parseFloat(trip.totalKm) || 0;
@@ -213,15 +229,6 @@ const Reports = ({ accountId }) => {
     }
   };
 
-  const summary = {
-    totalTrips: trips.length,
-    totalKm: trips.reduce((sum, trip) => sum + (trip.totalKm || 0), 0),
-    toll: trips.reduce((sum, trip) => sum + (trip.toll || 0), 0),
-    permit: trips.reduce((sum, trip) => sum + (trip.permit || 0), 0),
-    fuelCost: trips.reduce((sum, trip) => sum + (trip.cost || 0), 0),
-    totalFare: trips.reduce((sum, trip) => sum + (trip.fare || 0), 0),
-  };
-
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow">
@@ -320,11 +327,11 @@ const Reports = ({ accountId }) => {
         </div>
         <div className="grid grid-cols-6 gap-4 mb-6">
           <div className="p-2 border border-gray-200 text-center">Trips: {summary.totalTrips}</div>
-          <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm.toFixed(1)}</div>
-          {/* <div className="p-2 border border-gray-200 text-center">Toll: ₹ {summary.toll.toFixed(2)}</div> */}
-          {/* <div className="p-2 border border-gray-200 text-center">Permit: ₹ {summary.permit.toFixed(2)}</div> */}
-          <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost.toFixed(2)}</div>
-          <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare.toFixed(2)}</div>
+          <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm}</div>
+          {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed}</div> */}
+          <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost}</div>
+          <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare}</div>
+          {/* <div className="p-2 border border-gray-200 text-center">Profit/Loss: ₹ {summary.profitLoss}</div> */}
         </div>
         <div className="weekly-report">
           <h3 className="text-lg font-semibold mb-4 text-center bg-primary-900 text-white p-2 rounded" style={{ width: '100%' }}>
