@@ -145,13 +145,8 @@ const EditAuto = () => {
     const initialValues = {
         name: cabVal?.result?.name || '',
         ownerName: cabVal?.result?.Account ? cabVal?.result?.Account?.name : '',
-        assignedTo: cabVal?.result?.assigned === 'Individual' ? 'Owner' : 'Driver',
         carNumber: cabVal?.result?.autoNumber || '',
         address: cabVal?.result?.curAddress || '',
-        insurance: cabVal?.result?.insurance || '',
-        withDriver: cabVal?.result?.withDriver || '',
-        assignOrAddDriver: 'Assign',
-        driverId: cabVal?.result?.Drivers[0] ? cabVal?.result?.Drivers[0].id : '',
         accountId: cabVal?.result?.Account?.id || '',
         driverName: '',
         phoneNumber: '',
@@ -162,8 +157,6 @@ const EditAuto = () => {
         seater: cabVal?.result?.seater || '',
         luggage: cabVal?.result?.luggage || '',
         modelYear: cabVal?.result?.modelYear || '',
-        packages: cabVal?.result?.packages || [],
-        prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
         autoId: cabVal?.result?.id || '',
         status: cabVal?.result?.status || '',
         blockedReason: cabVal?.result?.blockedReason || '',
@@ -266,7 +259,7 @@ const EditAuto = () => {
         if (alert?.message === 'Auto Updated Successfully') {
             timeoutId = setTimeout(() => {
                 setAlert(null);
-                navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
+                navigate(`/dashboard/vendors/account/autoView/details/${cabVal?.result?.Account?.id}`);
             }, 5000);
         }
         return () => {
@@ -431,7 +424,7 @@ const EditAuto = () => {
                         <div className="flex flex-row">
                             <Button
                                 fullWidth
-                                onClick={() => navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`)}
+                                onClick={() => navigate(`/dashboard/vendors/account/autoView/details/${cabVal?.result?.Account?.id}`)}
                                 className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl"
                             >
                                 Cancel
