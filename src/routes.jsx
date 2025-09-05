@@ -94,17 +94,11 @@ import AutoAdd from "./pages/AutoService/autoAdd";
 import AutoDetails from "./pages/AutoService/details";
 import AutoForm from "./pages/AutoService/autoform";
 import DetailsAuto from "./pages/AutoDetails/details";
-import ParcelView from "./pages/parcel/view";
-import ParcelAdd from "./pages/parcel/add";
-import ParcelDetails from "./pages/parcel/deatils";
-import ParcelCabAdd from "./pages/cab/addParcelCab";
-import ParcelCabDetails from "./pages/cab/parcelCabDetails";
 import AutoDetailsList from "./pages/AutoDetails/list";
 import EditAuto from "./pages/AutoDetails/edit";
 import AutoMasterPriceEdit from "./pages/finance/masterPriceTable/AutoMasterPriceTableEdit";
-import ParcelMasterPriceEdit from "./pages/finance/masterPriceTable/ParcelMasterPriceTableEdit";
 import AutoEdit from "./pages/AutoService/edit";
-import ParcelCabEdit from "./pages/cab/parcelCabEdit";
+
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -338,28 +332,7 @@ export const routes = [
         element: <CabEdit />,
         display: false
       },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/add",
-        element: <ParcelCabAdd />,
-        display: false
-      },
-
-      {
-        icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/details/:id",
-        element: <ParcelCabDetails />,
-        display: false
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/details/edit/:id",
-        element: <ParcelCabEdit />,
-        display: false
-      },
+      
       {
         icon: <UserIcon {...icon} />,
         name: "GST List",
@@ -476,27 +449,7 @@ export const routes = [
         element: <AccountView />,
         display: true
       },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel",
-        path: "/vendors/account/parcel",
-        element: <ParcelView />,
-        display: true
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel add",
-        path: "/vendors/account/parcel/add",
-        element: <ParcelAdd />,
-        display: true
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel details",
-        path: "/vendors/account/parcel/details/:id",
-        element: <ParcelDetails />,
-        display: true
-      },
+     
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -692,13 +645,6 @@ export const routes = [
         name: "Rentals Master Price Edit",
         path: "/users/master-price/rentals-edit/:id",
         element: <RentalsMasterPriceEdit />,
-        display: false
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel Master Price Edit",
-        path: "/users/master-price/parcel-edit/:id",
-        element: <ParcelMasterPriceEdit />,
         display: false
       },
       {

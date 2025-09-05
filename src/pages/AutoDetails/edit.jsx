@@ -164,7 +164,7 @@ const EditAuto = () => {
         modelYear: cabVal?.result?.modelYear || '',
         packages: cabVal?.result?.packages || [],
         prices: cabVal?.price ? cabVal?.price.filter((el) => cabVal?.result?.packages.includes(el.packageId)) : [],
-        cabId: cabVal?.result?.id || '',
+        autoId: cabVal?.result?.id || '',
         status: cabVal?.result?.status || '',
         blockedReason: cabVal?.result?.blockedReason || '',
     };
@@ -213,51 +213,44 @@ const EditAuto = () => {
         }
 
         try {
-            const cabDetails = {
-                name: values.name,
-                carNumber: values.carNumber,
-                curAddress: values.address,
-                insurance: values.insurance,
-                carType: values.carType,
-                vehicleType: values.vehicleType,
-                seater: values.seater,
-                luggage: values.luggage,
-                modelYear: values.modelYear,
-                assigned: values.assignedTo,
-                withDriver: values.withDriver,
-                driverName: values.driverName,
-                phoneNumber: values.phoneNumber,
-                driverAddress: values.driverAddress,
-                driverLicense: values.licenseNumber,
-                packages: values.packages,
-                accountId: values.accountId,
-                driverId: values.assignOrAddDriver === 'Add' ? '' : values.driverId,
-                cabId: values.cabId,
-                status: values.status || '',
-                ...(values.status === 'BLOCKED' && { blockedReason: blockedReason }),
-            };
+            const autoDetails = {
+                
+      accountId: values.accountId,
+      name: values.name,
+      company: values.ownerName,
+      autoNumber: values.autoNumber,
+      curAddress: values.address,
+      insurance: values.insurance,
+      vehicleType: values.autoType,
+      seater: values.seater,
+      modelYear: values.modelYear,
+      curLatitude: '',
+      curLongitude: '',
+      autoId:values.autoId,
+    };
+            
 
-            const res = {
-                cabDetails: JSON.stringify(cabDetails),
-                prices: JSON.stringify(values.prices),
-            };
+            // const res = {
+            //     autoDetails: JSON.stringify(autoDetails),
+               
+            // };
 
-            console.log('Submitting cab details:', res); // Debugging log
+            console.log('Submitting cab details:', autoDetails); // Debugging log
 
-            const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_AUTO_DETAILS, res);
+            const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_AUTO_DETAILS, autoDetails);
             console.log('API Response:', resp); // Debugging log
 
             if (!resp?.success && resp?.code === 401) {
                 setAlert({ message: 'Driver with this phone number already exists', color: 'red' });
             } else if (!resp?.success && resp?.code === 203) {
-                setAlert({ message: 'Cab already exists', color: 'red' });
+                setAlert({ message: 'Auto already exists', color: 'red' });
                 resetForm();
             } else if (resp?.success && resp?.code === 200) {
-                setAlert({ message: 'Cab Updated Successfully', color: 'green' });
+                setAlert({ message: 'Auto Updated Successfully', color: 'green' });
             }
         } catch (error) {
             console.error('Error updating cab:', error);
-            setAlert({ message: 'Failed to update cab. Please try again.', color: 'red' });
+            setAlert({ message: 'Failed to update Auto. Please try again.', color: 'red' });
         } finally {
             setIsSubmitting(false);
             setSubmitting(false);
@@ -270,7 +263,7 @@ const EditAuto = () => {
 
     useEffect(() => {
         let timeoutId;
-        if (alert?.message === 'Cab Updated Successfully') {
+        if (alert?.message === 'Auto Updated Successfully') {
             timeoutId = setTimeout(() => {
                 setAlert(null);
                 navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
@@ -301,6 +294,9 @@ const EditAuto = () => {
             >
                 {({ values, errors, isValid, handleSubmit }) => (
                     <Form className="space-y-4" onSubmit={handleSubmit}>
+                        {/* Hidden autoId field (Fix for API error) */}
+                        <Field type="hidden" name="autoId" />
+
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="name" className="text-sm font-medium text-gray-700">
