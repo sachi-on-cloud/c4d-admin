@@ -23,7 +23,8 @@ import {
   BuildingStorefrontIcon,
   ChartBarIcon,
   DocumentCheckIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  MegaphoneIcon
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -36,6 +37,7 @@ const menuItems = [
     { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Users" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
+    { name: "Marketing", path:"/dashboard/vendors/whatsappNotificationList", permission: "Users" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
 ];
 
@@ -206,6 +208,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
                       {name === "Document Verification" ? (
                         <DocumentCheckIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
+                      {name === "Marketing" ? (
+                        <MegaphoneIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
 
@@ -526,14 +532,63 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   </ul>
                 )}
 
+                {name === "Marketing" && openSubMenu === "Marketing" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "Whatsapp", path: "/dashboard/vendors/whatsappNotificationList" },
+                      { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
+                      { label: "Drivers App Notifi", path: "/dashboard/vendors/driverNotificationList" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                                }`}
+                              fullWidth
+                            >
+                              {label === "Whatsapp" && (
+                                <img
+                                  src="/img/whatsapp.png"
+                                  alt="Whatsapp"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              {label === "All Push Notification" && (
+                                <img
+                                  src="/img/push_notification.png"
+                                  alt="All Push Notification"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              {label === "Drivers App Notifi" && (
+                                <img
+                                  src="/img/driver_app_notification.png"
+                                  alt="Drivers App Notification"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
                 {name === "Admin" && openSubMenu === "Admin" && (
                   <ul className="ml-0">
                     {[
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
-                      { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
-                      { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                        { label: "Version Control", path: "/dashboard/user/versionControlList" },
                       { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
@@ -568,20 +623,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/reward.png"
                                   alt="Instant Reward"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                               {label === "All Push Notification" && (
-                                <img
-                                  src="/img/push_notification.png"
-                                  alt="All Push Notification"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                                {label === "Drivers App Notification" && (
-                                <img
-                                  src="/img/driver_app_notification.png"
-                                  alt="Drivers App Notification"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}

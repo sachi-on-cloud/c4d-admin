@@ -94,6 +94,9 @@ import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
+import WhatsappNotificationAdd from "./pages/vendor/whatsappNotificationAdd";
+import WhatsappNotificationList from "./pages/vendor/whatsappNotificationList";
+import WhatsappNotificationEdit from "./pages/vendor/whatsappNotificationEdit";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -737,6 +740,27 @@ export const routes = [
         path: "/tripDetails/details/:id",
         element: <DetailsTrip/>,
         display: true
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name:"whatsapp Notification List",
+        path:"/vendors/whatsappNotificationList",
+        element:<WhatsappNotificationList />,
+        display:false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name:"whatsapp Notification Add",
+        path:"/vendors/whatsappNotificationAdd",
+        element:<WhatsappNotificationAdd />,
+        display:false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name:"whatsapp Notification Edit",
+        path:"/vendors/whatsappNotificationEdit/:id",
+        element:<WhatsappNotificationEdit />,
+        display:false
       },
 
     ],
