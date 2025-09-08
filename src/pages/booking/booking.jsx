@@ -226,6 +226,7 @@ useEffect(() => {
         const quoteData = {
             serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
             bookingType: values?.tripType?.toUpperCase(),
+            packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
