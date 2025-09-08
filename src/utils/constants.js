@@ -952,6 +952,7 @@ export const API_ROUTES = {
     'BANNER_POSITION_UPDATE': '/banner/position/update',
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
+    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
 
 };
 
