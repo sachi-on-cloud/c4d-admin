@@ -1046,7 +1046,7 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification', 'Users'],
+    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification','Marketing', 'Users'],
     'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
     'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
     'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
@@ -1060,6 +1060,7 @@ export const PERMISSION_OPTIONS = [
     {name:'Trip Master',id:'Trip Master'},
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
+    { name: 'Marketing', id: 'Marketing' },
     { name: 'Users', id: 'Users' },
 ];
 

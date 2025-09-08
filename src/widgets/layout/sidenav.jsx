@@ -37,7 +37,7 @@ const menuItems = [
     { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Users" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
-  { name: "Marketing", path:"/dashboard/vendors/notificationList", permission: "Users" },
+  { name: "Marketing", path:"/dashboard/vendors/notificationList", permission: "Marketing" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
 ];
 
