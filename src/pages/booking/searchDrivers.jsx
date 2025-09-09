@@ -371,14 +371,15 @@ export function SearchDrivers(props) {
             }
         } else if (service == "RIDES") {
             const reqBody = {
-                bookingId: props?.bookingData.id,
+                bookingId: props?.bookingData?.id,
                 status: 'BOOKING_ACCEPTED',
                 driverId: cabDriverId,
-                shiftId: fullData.Shifts[0].id,
+                shiftId: fullData?.Shift?.id || fullData?.Shifts?.[0]?.id,
                 cabId: driverId,
-                offerPrice: fullData.offerPrice || 0,
-                estimatedDistance: fullData.travelDistance,
-                estimatedMin: fullData.travelDuration,
+                offerPrice: fullData?.offerPrice || 0,
+                estimatedDistance: fullData?.travelDistance,
+                estimatedMin: fullData?.travelDuration,
+                zone: fullData?.Booking?.zone || props?.bookingData?.zone,
             };
             const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RIDES_BOOKING, reqBody);
             if (data?.success) {
