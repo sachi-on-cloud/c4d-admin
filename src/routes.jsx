@@ -107,7 +107,8 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
-        display: false
+        display: false,
+        permission: "Home",
       },
       {
         icon: <HomeModernIcon {...icon} />,
@@ -115,630 +116,717 @@ export const routes = [
         path: "/booking",
         element: <Booking />,
         display: true,
+        permission: "Home",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "customers",
         path: "/customers",
         element: <CustomerView />,
-        display: true
+        display: true,
+        permission: "Customers",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "customers",
         path: "/customers/add",
         element: <CustomerAdd />,
-        display: false
+        display: false,
+        permission: "Customers",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "customers",
         path: "/customers/edit/:id",
         element: <CustomerAdd />,
-        display: false
+        display: false,
+        permission: "Customers",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "customers",
         path: "/customers/details/:id",
         element: <CustomerDetails />,
-        display: false
+        display: false,
+        permission: "Customers",
       },
       {
-         icon: <UserIcon {...icon} />,
+        icon: <UserIcon {...icon} />,
         name: "vehicleList",
         path: "/vendors/vehicleList",
         element: <VehiclesList />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
-       {
-         icon: <UserIcon {...icon} />,
+      {
+        icon: <UserIcon {...icon} />,
         name: "Online Vehicles List",
         path: "/vendors/onlineVehiclesList",
         element: <OnlineVehiclesList />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/vendors/account/drivers",
         element: <DriverView />,
-        display: true
+        display: true,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "marketing",
         path: "/vendors/notificationList",
         element: <NotificationList />,
-        display: true
+        display: true,
+        permission: "Marketing",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "driver notification",
         path: "/vendors/driverNotificationList",
         element: <DriverNotificationList />,
-        display: true
+        display: true,
+        permission: "Marketing",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "driver notification add",
         path: "/vendors/driverNotificationList/add",
-        element: <DriverNotificationListAdd/>,
-        display: true
+        element: <DriverNotificationListAdd />,
+        display: true,
+        permission: "Marketing",
       },
-        {
+      {
         icon: <UserIcon {...icon} />,
         name: "driver notification edit",
         path: "/vendors/driverNotificationList/edit/:id",
-        element: <DriverNotificationListEdit/>,
-        display: true
+        element: <DriverNotificationListEdit />,
+        display: true,
+        permission: "Marketing",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "marketing add",
         path: "/vendors/notification/add",
         element: <NotificationListApp />,
-        display: true
+        display: true,
+        permission: "Marketing",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/vendors/account/drivers/add",
         element: <DriverAdd />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/vendors/account/drivers/details/:id",
         element: <DriverDetails />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
         path: "/vendors/account/details/:id",
         element: <AccountDetails />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/vendors/account/drivers/edit/:id",
         element: <DriverEdit />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "vehicles",
         path: "/vendors/account/allVehicles",
         element: <AllVehicles />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
         path: "/vendors/account/edit/:id",
         element: <AccountEdit />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cabs",
         path: "/cab",
         element: <CabView />,
-        display: true
+        display: true,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
         path: "/vendors/account/allVehicles/add",
         element: <CabAdd />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
         path: "/vendors/account/allVehicles/details/:id",
         element: <CabDetails />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
         path: "/vendors/account/allVehicles/edit/:id",
         element: <CabEdit />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
-     
       {
         icon: <UserIcon {...icon} />,
         name: "GST List",
         path: "/user/GSTList",
-        element: <GstView/>,
-        display: true
+        element: <GstView />,
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "GST add",
         path: "/user/GST/add",
-        element: <GstAdd/>,
-        display: true
+        element: <GstAdd />,
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "GST edit",
         path: "/user/GST/edit/:id",
-        element: <GstEdit/>,
-        display: true
-      }, 
+        element: <GstEdit />,
+        display: true,
+        permission: "Users",
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "Banner image view",
         path: "/user/bannerimgView",
-        element: <BannerView/>,
-        display: true
+        element: <BannerView />,
+        display: true,
+        permission: "Marketing",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Banner image add",
         path: "/user/bannerimg/add",
-        element: <AddBanner/>,
-        display: true
+        element: <AddBanner />,
+        display: true,
+        permission: "Marketing",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
         path: "/drivers/addprice",
         element: <AddPriceDetails />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Admin User",
         path: "/users",
         element: <UserView />,
-        display: true
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "users",
         path: "/users/add",
         element: <UserAdd />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "users",
         path: "/users/edit/:id",
         element: <UserEdit />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "users",
         path: "/users/details/:id",
         element: <UserDetails />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
         path: "/vendors/account/add",
         element: <AccountAdd />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "accounts",
         path: "/admin/account/:accountId",
         element: <AccountEdit />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         name: "SelectLocation",
         path: "/select-location",
         element: <SelectLocation />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         name: "ConfirmBooking",
         path: "/confirm-booking",
         element: <ConfirmBooking />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         name: "SearchDriver",
         path: "/search-drivers",
         element: <SearchDrivers />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Commission",
         path: "/commission",
         element: <Commission />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Account",
         path: "/vendors/account",
         element: <AccountView />,
-        display: true
+        display: true,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
         path: "/doc-verification",
         element: <DocumentVerificationView />,
-        display: true
+        display: true,
+        permission: "Document verification",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Mobile user registration",
         path: "/online-registration",
         element: <OnlineRegistrationView />,
-        display: true
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "subscription",
         path: "/subscription",
         element: <SubscriptionView />,
-        display: true
+        display: true,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "subscription",
         path: "/subscription/add",
         element: <SubscriptionAdd />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Documents details",
         path: "/doc-verification/documents-details/:id",
         element: <DocumentsDetails />,
-        display: false
+        display: false,
+        permission: "Document verification",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "All bookings List",
         path: "/booking/list",
         element: <AllBookingsLists type={''} />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Rides bookings",
         path: "/booking/list/rides",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RIDES} />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals bookings",
         path: "/booking/list/rentals",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RENTAL} />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Cab bookings",
         path: "/booking/list/cabBooking",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAB_BOOKING} />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
-
       {
         icon: <UserIcon {...icon} />,
         name: "Car Wash Bookings",
         path: "/booking/list/carWash",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.CAR_WASH} />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Acting Driver Bookings",
         path: "/booking/list/actingDriver",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.DRIVER} />,
-        display: false
+        display: false,
+        permission: "All bookings",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
         path: "/doc-verification/pending",
         element: <PendingDocList />,
-        display: false
+        display: false,
+        permission: "Document verification",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Documents details",
         path: "/doc-verification/pending/documents-details/:id",
         element: <DocumentsDetails />,
-        display: false
+        display: false,
+        permission: "Document verification",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Cab Subscription",
         path: "/finance/cab-subscription",
         element: <CabSubscriptionView />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Add Subscription",
         path: "/finance/cab-subscription/add",
         element: <CabSubscriptionAdd />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt",
         path: "/finance/master-subscription",
         element: <MasterSubscriptionView />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Subscription Add",
         path: "/finance/master-subscription/add",
         element: <MasterSubscriptionAdd />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Subscription Details",
         path: "/finance/master-subscription/details/:id",
         element: <MasterSubscriptionDetails />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Subscription Edit",
         path: "/finance/master-subscription/edit/:id",
         element: <MasterSubscriptionEdit />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Rides Price Table Add",
         path: "/users/master-price/rides-add",
         element: <MasterPriceTableAdd />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price View",
         path: "/users/master-price",
         element: <MasterPriceView />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "instant reward",
         path: "/users/instant-reward",
         element: <InstantReward />,
-        display: true
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Add",
         path: "/users/master-price/driver-add",
         element: <MasterPriceAdd />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Details & Edit",
         path: "/users/master-price/details/:id",
         element: <MasterPriceDetailsAndEdit />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Driver Price Table Edit",
         path: "/users/master-price/driver-edit/:id",
         element: <DriverMasterPriceTableEdit />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Add",
         path: "/users/master-price/rentals-add",
         element: <RentalsPriceMasterAdd />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Details",
         path: "/users/master-price/rentals-details/:id",
         element: <RentalsPriceMasterDetails />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Edit",
         path: "/users/master-price/rentals-edit/:id",
         element: <RentalsMasterPriceEdit />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Assign Driver",
         path: "/vendors/account/allVehicles/assignDriver/:id",
         element: <ReassignDriver />,
-        display: false
+        display: false,
+        permission: "Vendors",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Payable",
         path: "/finance/payable",
         element: <PayableView />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Payable Details",
         path: "/finance/payable/details/:id",
         element: <PayableDetails />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt",
         path: "/finance/receipt",
         element: <ReceiptList />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt Details",
         path: "/finance/receipt/details/:receiptNumber",
         element: <ReceiptDetails />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt",
         path: "/finance/invoice",
         element: <InvoiceList />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Receipt Details",
         path: "/finance/invoice/details/:invoiceNumber",
         element: <InvoiceDetails />,
-        display: false
+        display: false,
+        permission: "Finance",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Table Rides Details",
         path: "/users/master-price/rides-details/:id",
         element: <MasterPriceTableDetails />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "Master Table Rides Edit",
         path: "/users/master-price/rides-edit/:id",
         element: <MasterPriceTableEdit />,
-        display: false
+        display: false,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "geo-markings",
         path: "/admin/geo-markings",
         element: <GeoMarkings />,
-        display: true
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "version control add",
         path: "/user/versionControlList",
         element: <VersionControlList />,
-        display: true
+        display: true,
+        permission: "Users",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "version control edit",
         path: "/user/versionControl/edit",
         element: <VersionControlEdit />,
-        display: true
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "discount module list",
         path: "/user/discountModuleList",
         element: <DiscountView />,
-        display: true
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "discount module edit",
         path: "/user/discountModule/edit/:id",
-        element: <DiscountEdit/>,
-        display: true
+        element: <DiscountEdit />,
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "discount module add",
         path: "/user/discountModule/add",
-        element: <DiscountAdd/>,
-        display: true
+        element: <DiscountAdd />,
+        display: true,
+        permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "testimoinal view",
         path: "/user/testimonialView",
-        element: <TestimoinalView/>,
-        display: true
+        element: <TestimoinalView />,
+        display: true,
+        permission: "Marketing",
       },
-        {
+      {
         icon: <UserIcon {...icon} />,
         name: "testimoinal add",
         path: "/user/testimonial/add",
-        element: <TestimoinalAdd/>,
-        display: true
+        element: <TestimoinalAdd />,
+        display: true,
+        permission: "Marketing",
       },
       {
         icon: <UserIcon {...icon} />,
         name: "tripdetails list",
         path: "/tripDetails",
-        element: <TripDetails/>,
-        display: true
+        element: <TripDetails />,
+        display: true,
+        permission: "Trip Master",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "tripdetails reports",
         path: "/tripDetails/reports",
-        element: <Reports/>,
-        display: true
+        element: <Reports />,
+        display: true,
+        permission: "Trip Master",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "tripdetails reports",
         path: "/tripDetails/add",
-        element: <AddTripDetails/>,
-        display: true
+        element: <AddTripDetails />,
+        display: true,
+        permission: "Trip Master",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "tripdetails reports",
         path: "/tripDetails/details/edit/:id",
-        element: <TripDetailsEdit/>,
-        display: true
+        element: <TripDetailsEdit />,
+        display: true,
+        permission: "Trip Master",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "tripdetails reports",
         path: "/tripDetails/details/:id",
-        element: <DetailsTrip/>,
-        display: true
+        element: <DetailsTrip />,
+        display: true,
+        permission: "Trip Master",
       },
-
     ],
   },
   {

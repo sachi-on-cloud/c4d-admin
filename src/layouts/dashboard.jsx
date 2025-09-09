@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Routes, Route, useLocation, Navigate} from "react-router-dom";
 import { Bars3Icon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from "@heroicons/react/24/solid";
 import { IconButton, Button, Tooltip } from "@material-tailwind/react";
 import {
@@ -11,16 +11,50 @@ import {
 } from "@/widgets/layout";
 import routes from "@/routes";
 import { useMaterialTailwindController, setOpenConfigurator, setOpenSidenav, setMiniSidenav } from "@/context";
+import { ApiRequestUtils } from "@/utils/apiRequestUtils";
+import { API_ROUTES } from "@/utils/constants";
+import ProtectedRoute from "../../src/pages/auth/ProtectedRoute";
 
 export function Dashboard() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavType, sidenavColor, openSidenav, miniSidenav } = controller;
   const location = useLocation();
+  const [permissions, setPermissions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getPermissions = async () => {
+    try{
+      const user = localStorage.getItem('loggedInUser');
+      const userId = JSON.parse(user)?.id;
+      const perm = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + userId);
+      if(perm?.success){
+        setPermissions(perm?.data?.permission);
+      } else {
+        console.error("Failed to fetch permissions:", perm?.message);
+      }
+    }catch(err){
+      console.log("ERROR IN GET PERMISIIONS", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(()=> {
+    getPermissions();
+  },[])
 
   // Auto-close drawer on route change (mobile)
   React.useEffect(() => {
     setOpenSidenav(dispatch, false);
   }, [location.pathname]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!localStorage.getItem("token")) {
+    return <Navigate to="/auth/sign-in" replace />;
+  }
 
   return (
     <div className="h-screen bg-gray-50">
@@ -69,10 +103,23 @@ export function Dashboard() {
               {routes.map(
                 ({ layout, pages }) =>
                   layout === "dashboard" &&
-                  pages.map(({ path, element }) => (
-                    <Route exact path={path} element={element} />
+                  pages.map(({ path, element, permission }) => (
+                    <Route
+                      key={path}
+                      exact
+                      path={path}
+                      element={
+                        <ProtectedRoute
+                          element={element}
+                          permission={permission}
+                          permissions={permissions}
+                        />
+                      }
+                    />
                   ))
               )}
+              <Route path="/unauthorized" element={<UnauthorizedPage />} />
+              <Route path="*" element={<Navigate to="/home" replace />} />
             </Routes>
             <div className="text-blue-gray-600">
               <Footer />
@@ -82,6 +129,10 @@ export function Dashboard() {
       </div>
     </div>
   );
+}
+
+function UnauthorizedPage() {
+  return <h1>403 - Unauthorized: You do not have permission to access this page.</h1>;
 }
 
 export default Dashboard;

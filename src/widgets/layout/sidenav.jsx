@@ -34,7 +34,7 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
-  { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Users" },
+  { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Trip Master" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Marketing", path:"/dashboard/vendors/notificationList", permission: "Marketing" },
