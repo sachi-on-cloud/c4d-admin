@@ -778,7 +778,7 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                     <Typography className='font-roboto-medium text-lg text-gray-900'>
                                         {/* ₹ {(bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice * bookingDetails?.discount?.percentage / 100)} */}
-                                        ₹ {(bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? (bookingDetails.Package?.price) - (bookingDetails.Package?.price * bookingDetails?.discount?.percentage / 100) : (bookingDetails.value?.estimatedPrice) - (bookingDetails.value?.estimatedPrice * bookingDetails.discount?.percentage / 100)}
+                                        ₹ {(bookingDetails?.packageType == 'Local' && (bookingDetails?.serviceType == 'RENTAL'|| bookingDetails?.serviceType === 'DRIVER')) ? (bookingDetails.Package?.price) - (bookingDetails.Package?.price * bookingDetails?.discount?.percentage / 100) : (bookingDetails.value?.estimatedPrice) - (bookingDetails.value?.estimatedPrice * bookingDetails.discount?.percentage / 100)}
                                     </Typography>
                                     </div>
                                 </>

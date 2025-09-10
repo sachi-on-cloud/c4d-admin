@@ -161,7 +161,7 @@ const Booking = (props) => {
             packageType:'Local',
             fromDate: moment(`${val?.rideDate} ${val?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             carType: val.carType || '',
-            period: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(val.packageSelected))?.period || '' : '',
+            period: val.serviceType === 'RENTAL_HOURLY_PACKAGE' || val?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(val.packageSelected))?.period || '' : '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
             driverLat: val?.driverPickUpLocation?.lat,
