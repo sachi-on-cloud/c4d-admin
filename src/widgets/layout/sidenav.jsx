@@ -34,7 +34,7 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
-    { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Users" },
+  { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Trip Master" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Marketing", path:"/dashboard/vendors/notificationList", permission: "Marketing" },
@@ -77,14 +77,31 @@ export function Sidenav({ brandImg, brandName, routes }) {
  
   const [userPermissions, setUserPermissions] = useState(null);
  const [userName, setUserName] = useState("");
-  useEffect(() => {
-    const dataFromStorage = localStorage.getItem('loggedInUser');
-    
-    if (dataFromStorage) {
-      const user = JSON.parse(dataFromStorage);
-      setUserPermissions(user.permission || []);
-        setUserName(user?.email || "");
+
+  const getPermissions = async () => {
+    try{
+      const user = localStorage.getItem('loggedInUser');
+      const userId = JSON.parse(user);
+      const perm = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + userId?.id);
+      if(perm?.success){
+        setUserName(perm?.data?.email || "");
+        setUserPermissions(perm?.data?.permission);
+      }
+    }catch(err){
+      console.log("ERROR IN GET PERMISIIONS", err);
     }
+  };
+   
+   
+  useEffect(() => {
+    getPermissions();
+    // const dataFromStorage = localStorage.getItem('loggedInUser');
+    
+    // if (dataFromStorage) {
+    //   const user = JSON.parse(dataFromStorage);
+    //   setUserPermissions(user.permission || []);
+    //     setUserName(user?.email || "");
+    // }
   }, []);
 
   if (userPermissions === null) {

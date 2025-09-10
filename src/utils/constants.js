@@ -5,9 +5,10 @@ export const constants = {
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
-    url_dev: 'https://seal-well-mite.ngrok-free.app',
+    // url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
-    url_sit: 'https://sit.api.c4d.smartapis.cyou'
+    url_sit: 'https://sit.api.c4d.smartapis.cyou',
+    url_uat: 'https://uat.api.c4d.smartapis.cyou'
 };
 
 export const getBaseUrl = () => {
@@ -1047,7 +1048,7 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification','Marketing', 'Users'],
+    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
     'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
     'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
     'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
@@ -1058,7 +1059,7 @@ export const PERMISSION_OPTIONS = [
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
-    {name:'Trip Master',id:'Trip Master'},
+    { name:'Trip Master',id:'Trip Master'},
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
     { name: 'Marketing', id: 'Marketing' },
