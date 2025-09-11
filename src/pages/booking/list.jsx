@@ -17,7 +17,7 @@ import {
     Tab,
     TabPanel,
 } from "@material-tailwind/react";
-import { FaArrowRight, FaFilter } from 'react-icons/fa';
+import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -43,19 +43,16 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
         itemsPerPage: 15,
     });
     const [nameSortConfig, setNameSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
-    const [filteredRange, setFilteredRange] = useState({
-        startDate: moment().format('YYYY-MM-DD'), 
-        endDate: moment().format('YYYY-MM-DD'), 
-    });
     const [loading, setLoading] = useState(true);
     const [loadingStates, setLoadingStates] = useState({});
     const [userId, setUserId] = useState(null);  
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [selectedBookingForReassign, setSelectedBookingForReassign] = useState(null);
-    const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
-    const [showSingleInput, setShowSingleInput] = useState(false);
-    const [showRangeInput, setShowRangeInput] = useState(true);
-    const [counts, setCounts] = useState({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" }); 
+    const [counts, setCounts] = useState({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+    const [dateFilter, setDateFilter] = useState('Today');
+    const [customDateFrom, setCustomDateFrom] = useState('');
+    const [customDateTo, setCustomDateTo] = useState('');
+    const [isManualDateFilter, setIsManualDateFilter] = useState(false);
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
   if (storedUser) {
@@ -181,6 +178,27 @@ const handleTabChange = (value) => {
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
         };
+        
+        // Calculate startDate and endDate based on dateFilter
+        let startDate = '';
+        let endDate = '';
+        
+        if (dateFilter === 'Today') {
+            const today = moment().format('YYYY-MM-DD');
+            startDate = today;
+            endDate = today;
+        } else if (dateFilter === 'Tomorrow') {
+            const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
+            startDate = tomorrow;
+            endDate = tomorrow;
+        } else if (dateFilter === 'Last 7 days') {
+            startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
+            endDate = moment().format('YYYY-MM-DD');
+        } else if (dateFilter === 'Custom date') {
+            startDate = customDateFrom;
+            endDate = customDateTo;
+        }
+        
         const queryParams = {
             "customerId": customerId,
             'type': type ? type : '',
@@ -189,13 +207,13 @@ const handleTabChange = (value) => {
             'filterType': JSON.stringify(filterType),
             'bookingNumber': searchBookingId,
         };
-        // console.log('API Response:', data);
-        if (showSingleInput && selectedDate) {
-            queryParams.startDate = selectedDate;
-            queryParams.endDate = selectedDate;
-        } else if (showRangeInput && filteredRange.startDate && filteredRange.endDate) {
-            queryParams.startDate = filteredRange.startDate;
-            queryParams.endDate = filteredRange.endDate;
+        
+        // Add date parameters if they exist
+        if (startDate) {
+            queryParams.startDate = startDate;
+        }
+        if (endDate) {
+            queryParams.endDate = endDate;
         }
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, queryParams);
         if (data?.success) {
@@ -262,13 +280,19 @@ const handleTabChange = (value) => {
             };
   
     useEffect(() => {
+        // Skip automatic API call if we're in the middle of a manual date filter operation
+        if (isManualDateFilter) {
+            setIsManualDateFilter(false);
+            return;
+        }
+        
         getBookingsList(pagination.currentPage);
         // const intervalId = setInterval(() => {
         //     getBookingsList(pagination.currentPage);
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, searchBookingId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter]);
+    }, [customerId, searchBookingId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter, dateFilter, customDateFrom, customDateTo]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -388,134 +412,262 @@ const handleTabChange = (value) => {
         { label: 'All Future Bookings', value: 'REMAINING' },
     ];
 
-    const handleOptionSelect = (option) => {
-        const today = new Date();
-        let date;
-
-        switch (option) {
-            case 'Today':
-                date = today;
-                setSelectedDate(formatDate(date));
-                setFilteredRange({ startDate: formatDate(date), endDate: formatDate(date) });
-                setShowSingleInput(false);
-                setShowRangeInput(true);
-                break;
-            case 'Tomorrow':
-                date = new Date(today);
-                date.setDate(today.getDate() + 1);
-                setSelectedDate(formatDate(date));
-                setFilteredRange({ startDate: formatDate(date), endDate: formatDate(date) });
-                setShowSingleInput(false);
-                setShowRangeInput(true);
-                break;
-            case 'Last 7 Days':
-                setFilteredRange({
-                    startDate: formatDate(new Date(today.setDate(today.getDate() - 7))),
-                    endDate: formatDate(new Date()),
-                });
-                setSelectedDate('');
-                setShowSingleInput(false);
-                setShowRangeInput(true);
-                break;
-            case 'Custom Date':
-                setFilteredRange({ startDate: '', endDate: '' });
-                setSelectedDate('');
-                setShowSingleInput(false);
-                setShowRangeInput(true);
-                break;
-            default:
-                date = today;
-                setSelectedDate(formatDate(date));
-                setFilteredRange({ startDate: formatDate(date), endDate: formatDate(date) });
-                setShowSingleInput(false);
-                setShowRangeInput(true);
-        }
-        getBookingsList(pagination.currentPage);
-    };
-
-    const handleStartDateChange = (e) => {
-        setFilteredRange((prev) => ({ ...prev, startDate: e.target.value }));
-        getBookingsList(pagination.currentPage);
-    };
-
-    const handleEndDateChange = (e) => {
-        setFilteredRange((prev) => ({ ...prev, endDate: e.target.value }));
-        getBookingsList(pagination.currentPage);
-    };
-
     const handleRefresh = () => {
+        // Set manual filter flag to prevent useEffect conflicts
+        setIsManualDateFilter(true);
+        
+        // Reset all filters to their default state
         setStatusFilter(['All']);
         setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
-        setSelectedDate('');
-        setFilteredRange({ startDate: '', endDate: '' });
-        setShowSingleInput(false);
-        setShowRangeInput(false);
-        getBookingsList(1);
+        setDateFilter('Today'); // Reset to Today as default
+        setCustomDateFrom('');
+        setCustomDateTo('');
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
+        
+        // Force API call with Today's date
+        const today = moment().format('YYYY-MM-DD');
+        triggerFilteredAPICall(today, today, 1);
     };
 
+    // Date filtering implementation
+    const handleDateFilter = () => {
+        console.log('Date filter applied:', {
+            filter: dateFilter,
+            customFrom: customDateFrom,
+            customTo: customDateTo
+        });
+        
+        // Set manual filter flag to prevent useEffect conflicts
+        setIsManualDateFilter(true);
+        
+        // Reset pagination when applying date filter
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
+        
+        // Calculate dates based on current filter
+        let startDate = '';
+        let endDate = '';
+        
+        if (dateFilter === 'Today') {
+            const today = moment().format('YYYY-MM-DD');
+            startDate = today;
+            endDate = today;
+        } else if (dateFilter === 'Tomorrow') {
+            const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
+            startDate = tomorrow;
+            endDate = tomorrow;
+        } else if (dateFilter === 'Last 7 days') {
+            startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
+            endDate = moment().format('YYYY-MM-DD');
+        } else if (dateFilter === 'Custom date') {
+            startDate = customDateFrom;
+            endDate = customDateTo;
+        }
+        
+        // Use the direct API call function to avoid state timing issues
+        triggerFilteredAPICall(startDate, endDate, 1);
+    };
+
+    // Function to trigger API call with specific dates (bypasses state timing issues)
+    const triggerFilteredAPICall = async (startDate, endDate, page = 1) => {
+        setLoading(true);
+        
+        // Clear existing data to show loading state
+        setBookingsList([]);
+        
+        try {
+            const filterType = {
+                type: activeTab,
+                status: statusFilter,
+                source: sourceFilter,
+                tripCoordinator: tripCoordinatorFilter,
+            };
+            
+            const queryParams = {
+                "customerId": customerId,
+                'type': type ? type : '',
+                'page': page,
+                'limit': pagination.itemsPerPage,
+                'filterType': JSON.stringify(filterType),
+                'bookingNumber': searchBookingId,
+            };
+            
+            // Add date parameters
+            if (startDate) {
+                queryParams.startDate = startDate;
+            }
+            if (endDate) {
+                queryParams.endDate = endDate;
+            }
+            
+            console.log('Triggering API call with dates:', { startDate, endDate, queryParams });
+            
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, queryParams);
+            if (data?.success) {
+                if (data?.data?.length > 0) {
+                    setBookingsList(data?.data);
+                    setPagination({
+                        currentPage: data?.pagination?.currentPage || 1,
+                        totalPages: data?.pagination?.totalPages || 1,
+                        totalItems: data?.pagination?.totalItems || 0,
+                        itemsPerPage: data?.pagination?.itemsPerPage || 20,
+                    });
+                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                    setSelectedBookingId(null);
+                } else {
+                    setBookingsList([]);
+                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                }
+            } else {
+                console.error('API request failed:', data?.message);
+                setBookingsList([]);
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+            }
+        } catch (error) {
+            console.error('Error fetching bookings:', error);
+            setBookingsList([]);
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
-        <div className="flex flex-col bg-white rounded-xl" >
-            <div className="px-4 py-4 bg-primary flex flex-col sm:flex-row items-center justify-between rounded-xl">
-                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-0">
-                    {['totalBookingCount', 'confirmedCount', 'quotedCount', 'endedCount'].map((status, index) => (
-                        <div key={index} className="flex flex-col items-center">
-                            <div className="flex items-center justify-center w-20 h-20 rounded-lg bg-white">
-                                <Typography variant="h4" className={`font-bold ${index === 0 ? 'text-primary' : index === 1 ? 'text-primary' : index === 2 ? 'text-primary' : 'text-primary'}`}>
-                                    {counts[status]}
-                                </Typography>
-                            </div>
-                            <Typography variant="h5" className={`text-gray-600 text-sm mt-1 ${index === 0 ? 'text-white' : index === 1 ? 'text-white' : index === 2 ? 'text-white' : 'text-white'}`}>
-                                {status === 'totalBookingCount' ? 'Total' : status === 'confirmedCount' ? 'Confirmed' : status === 'quotedCount' ? 'Quoted' : 'Ended'}
-                            </Typography>
-                        </div>
-                    ))}
-                </div>
-                <div className="flex flex-col items-center">
-                    <ul className="flex flex-row space-x-2 mb-2 text-xl font-semibold">
-                        <li
-                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
-                            onClick={() => handleOptionSelect('Today')}
-                        >
-                            Today
-                        </li>
-                        <li
-                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
-                            onClick={() => handleOptionSelect('Tomorrow')}
-                        >
-                            Tomorrow
-                        </li>
-                        <li
-                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
-                            onClick={() => handleOptionSelect('Last 7 Days')}
-                        >
-                            Last 7 Days
-                        </li>
-                        <li
-                            className="px-2 py-1 bg-white text-primary rounded cursor-pointer text-sm hover:underline"
-                            onClick={() => handleOptionSelect('Custom Date')}
-                        >
-                            Custom Date
-                        </li>
-                    </ul>
-                    <div className="flex gap-2"> {/* Always show date inputs */}
-                        <input
-                            type="date"
-                            value={filteredRange.startDate}
-                            onChange={handleStartDateChange}
-                            onFocus={(e) => e.target.showPicker()}
-                            className="w-40 px-2 py-1 border rounded-md text-sm"
-                            placeholder="Start Date"
-                        />
-                        <input
-                            type="date"
-                            value={filteredRange.endDate}
-                            onChange={handleEndDateChange}
-                            onFocus={(e) => e.target.showPicker()}
-                            className="w-40 px-2 py-1 border rounded-md text-sm"
-                            placeholder="End Date"
-                        />
+        <div className="flex flex-col bg-white rounded-xl shadow-lg" >
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <FaCalendarAlt className="text-primary w-5 h-5" />
+                        <Typography variant="h6" className="text-gray-800 font-semibold">
+                            Date Filter
+                        </Typography>
                     </div>
+                    
+                    {/* Date Filter Options */}
+                    <div className="flex flex-wrap gap-3">
+                        {['Today', 'Tomorrow', 'Last 7 days', 'Custom date'].map((option) => (
+                            <label key={option} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="dateFilter"
+                                    value={option}
+                                    checked={dateFilter === option}
+                                    onChange={(e) => {
+                                        const selectedFilter = e.target.value;
+                                        setDateFilter(selectedFilter);
+                                        
+                                        // Auto-trigger API call for non-custom date options
+                                        if (selectedFilter !== 'Custom date') {
+                                            // Set manual filter flag to prevent useEffect conflicts
+                                            setIsManualDateFilter(true);
+                                            
+                                            // Reset pagination and trigger API with the new filter value directly
+                                            setPagination((prev) => ({ ...prev, currentPage: 1 }));
+                                            
+                                            // Manually calculate dates and call API immediately
+                                            let startDate = '';
+                                            let endDate = '';
+                                            
+                                            if (selectedFilter === 'Today') {
+                                                const today = moment().format('YYYY-MM-DD');
+                                                startDate = today;
+                                                endDate = today;
+                                            } else if (selectedFilter === 'Tomorrow') {
+                                                const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
+                                                startDate = tomorrow;
+                                                endDate = tomorrow;
+                                            } else if (selectedFilter === 'Last 7 days') {
+                                                startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
+                                                endDate = moment().format('YYYY-MM-DD');
+                                            }
+                                            
+                                            // Call API immediately with calculated dates
+                                            triggerFilteredAPICall(startDate, endDate);
+                                        }
+                                    }}
+                                    className="text-primary"
+                                />
+                                <Typography variant="small" className="text-gray-700">
+                                    {option}
+                                </Typography>
+                            </label>
+                        ))}
+                    </div>
+
+                    {/* Custom Date Inputs */}
+                    {dateFilter === 'Custom date' && (
+                        <div className="flex items-center gap-3 ml-4">
+                            <div className="flex items-center gap-2">
+                                <Typography variant="small" className="text-gray-600">
+                                    From:
+                                </Typography>
+                                <input
+                                    type="date"
+                                    value={customDateFrom}
+                                    onChange={(e) => setCustomDateFrom(e.target.value)}
+                                    className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                                    max={customDateTo || undefined}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Typography variant="small" className="text-gray-600">
+                                    To:
+                                </Typography>
+                                <input
+                                    type="date"
+                                    value={customDateTo}
+                                    onChange={(e) => setCustomDateTo(e.target.value)}
+                                    className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                                    min={customDateFrom || undefined}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Search Button */}
+                    <Button
+                        size="sm"
+                        className="bg-primary text-white hover:bg-primary-600 flex items-center gap-2"
+                        onClick={handleDateFilter}
+                        disabled={dateFilter === 'Custom date' && (!customDateFrom || !customDateTo)}
+                    >
+                        <FaFilter className="w-4 h-4" />
+                        Search
+                    </Button>
+                </div>
+            </div>
+
+            {/* Status Cards Section */}
+            <div className="px-6 py-6 bg-gradient-to-r from-white to-white">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                    {[
+                        { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-500' },
+                        { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-green-500' },
+                        { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-500' },
+                        { key: 'endedCount', label: 'Completed', icon: FaTimesCircle, color: 'bg-purple-500' },
+                        { key: 'supportCount', label: 'Support', icon: FaClipboardList, color: 'bg-blue-500' },
+                    ].map((item, index) => {
+                        const IconComponent = item.icon;                        
+                        
+                        return (
+                            <div key={index} className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <Typography variant="h3" className="font-bold text-gray-800">
+                                            {counts[item.key]}
+                                        </Typography>
+                                        <Typography variant="small" className="text-gray-600 font-medium">
+                                            {item.label}
+                                        </Typography>
+                                    </div>
+                                    <div className={`p-3 rounded-full ${item.color}`}>
+                                        <IconComponent className="w-6 h-6 text-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
             <div className='px-3 py-3'>

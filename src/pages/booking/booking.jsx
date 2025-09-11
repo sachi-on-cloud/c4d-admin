@@ -84,6 +84,7 @@ const Booking = (props) => {
     const [editBookingView, setEditBookingView] = useState(false);
     const [distanceExceedModal, setDistanceExceedModal] = useState(false);
     const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
+    const [zoneErrorModal, setZoneErrorModal] = useState({ show: false, text: '', title: '' });
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [formikActions, setFormikActions] = useState({});
     const [serviceAreas, setServiceAreas] = useState([]);
@@ -91,6 +92,7 @@ const Booking = (props) => {
     const [selectedAreaId, setSelectedAreaId] = useState(null);
     const [currentServiceType, setCurrentServiceType] = useState('');
     const [currentPackageType, setCurrentPackageType] = useState('');
+    const [dropTaxiDistanceExceedModal, setDropTaxiDistanceExceedModal] = useState(false);
 
 
   const fetchGeoData = async () => {
@@ -218,6 +220,16 @@ useEffect(() => {
     );
 
     const getQuoteOutstationDetails = async (values) => {
+        const zoneData = await zoneCheckUpFun(values);
+        console.log("frist",zoneData)
+        let actualZone = '';
+        if (zoneData.success && zoneData.serviceArea) {
+            actualZone = zoneData.serviceArea.name;
+            console.log('Outstation Zone', actualZone);
+        } else {
+            console.error('Error getting zone for outstation');
+            return;
+        }
         const serviceTypeMap = {
           'RENTAL_DROP_TAXI': 'RENTAL',
           'RENTAL_HOURLY_PACKAGE': 'RENTAL',
@@ -237,7 +249,7 @@ useEffect(() => {
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
-            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',
+            zone: actualZone,
         };
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
             quoteData.serviceFor = 'RENTAL';
@@ -257,22 +269,39 @@ useEffect(() => {
         // console.log("QUOTE DETAILS", quoteDetails);
     };
 
-    const getQuoteRides = async (val, setFieldValue) => {
-        // Validation checks for distance and city limit
-        let checkDistance = true;
-        let checkCityLimit = true; // Default to true to skip city limit check unless needed
+  const zoneCheckUpFun = async (val) => {
+    const serviceTypeMap = {
+        'RIDES':'RIDES',
+        'RENTAL_DROP_TAXI': 'RENTAL',
+        'RENTAL_HOURLY_PACKAGE':'RENTAL',
+        // 'DRIVER':'ACTING DRIVER'
+    };
+    const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
 
-         if (val.serviceType === 'RIDES') {
-            checkDistance = await calculateDistance(val);
-             checkCityLimit = await calcluateCityLimit(val);
-        }
-        // Only check city limit for RENTAL_HOURLY_PACKAGE
-        // if (val.serviceType === 'RENTAL_HOURLY_PACKAGE') {
-        //     checkCityLimit = await calcluateCityLimit(val);
-        // }
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ZONE_PACKAGE_LIST, {
+        serviceType: mappedServiceType,
+        lat: val.pickupLocation.lat,
+        long: val.pickupLocation.lng,
+    });
+    return data;
+};
+    const getQuoteRides = async (val, setFieldValue) => {
+    let checkDistance = true;
+    let checkCityLimit = true;
+
+    if (val.serviceType === 'RIDES') {
+        checkDistance = await calculateDistance(val);
+        checkCityLimit = await calcluateCityLimit(val);
+    } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
+        checkDistance = await calculateDistance(val); // Check distance for DropTaxi
+    }
 
     if (!checkDistance) {
-        setDistanceExceedModal(true);
+        if (val.serviceType === 'RIDES') {
+            setDistanceExceedModal(true);
+        } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
+            setDropTaxiDistanceExceedModal(true); 
+        }
         setFieldValue?.('pickupAddress', '');
         setFieldValue?.('dropAddress', '');
         setIsButtonDisabled(false);
@@ -290,6 +319,22 @@ useEffect(() => {
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
     };
     const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
+
+    let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+    
+    const zoneData = await zoneCheckUpFun(val);
+     console.log("secondZone",zoneData)
+    if (!zoneData.success || !zoneData.serviceArea) {
+        setZoneErrorModal({ show: true, text: zoneData.error || 'Service not available in this area.', title: zoneData.title || 'Oops!' });
+        setFieldValue?.('pickupAddress', '');
+        setIsButtonDisabled(false);
+        return;
+        
+    }
+   
+    actualZone = zoneData.serviceArea.name;
+    console.log('Zone changed to', actualZone);
+
         const quoteDate = {
             serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType || mappedServiceType,
             bookingType: '',
@@ -304,8 +349,8 @@ useEffect(() => {
             driverLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
-            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',
-        }
+            zone: actualZone,
+        };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
         // console.log("QUOTE DATA", data);
         if (data?.success) {
@@ -379,18 +424,25 @@ useEffect(() => {
     }
 
     const calculateDistance = async (values) => {
-        let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
-            pickupLat: values.pickupLocation.lat,
-            pickupLong: values.pickupLocation.lng,
-            dropLat: values.dropLocation?.lat,
-            dropLong: values.dropLocation?.lng,
-            serviceType: "RIDES",
-        });
-        if (calculateDistance?.success) {
-            return calculateDistance?.data?.showAlert;
+    let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
+        pickupLat: values.pickupLocation.lat,
+        pickupLong: values.pickupLocation.lng,
+        dropLat: values.dropLocation?.lat,
+        dropLong: values.dropLocation?.lng,
+        serviceType: values.serviceType === 'RENTAL_DROP_TAXI' ? "RENTAL" : values.serviceType,
+    });
+
+    if (calculateDistance?.success) {
+        if (values.serviceType === "RIDES") {
+            return calculateDistance?.data?.showAlert; // Existing logic for RIDES
+        } else if (values.serviceType ==='RENTAL_DROP_TAXI') {
+            // Check if distance exceeds 300 km for DropTaxi
+            const distance = calculateDistance?.data?.estimatedDistance || 0;
+            return distance <= 300; // Return false if distance > 300 km
         }
-        return false;
-    };
+    }
+    return false;
+};
 
     const calcluateCityLimit = async (values) => {
         let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.CITY_LIMIT_CHECKING, {
@@ -410,8 +462,22 @@ useEffect(() => {
         setIsButtonDisabled(true);
 
         try {
+            let zoneCheckUp = await zoneCheckUpFun(values);
             let checkDistance = await calculateDistance(values);
             let checkCityLimit = await calcluateCityLimit(values);
+
+            let actualZone = '';
+            if (values.serviceType === 'RIDES') {
+                if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
+                    setZoneErrorModal({ show: true, text: zoneCheckUp.error || 'Service not available in this area.', title: zoneCheckUp.title || 'Oops!' });
+                    setIsButtonDisabled(false);
+                    return;
+                }
+                actualZone = zoneCheckUp.serviceArea.name;
+                console.log("third Zone",actualZone)
+            } else {
+                actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+            }
 
             if (!checkDistance) {
                 setDistanceExceedModal(true);
@@ -441,7 +507,7 @@ useEffect(() => {
             },
             source: 'Call',
             serviceType:values.serviceType,
-            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',  
+            zone: actualZone,  
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
@@ -464,11 +530,30 @@ useEffect(() => {
     }
 };
 
-    const onSubmitHandler = async (values) => {
+   const onSubmitHandler = async (values) => {
     const serviceTypeMap = {
-      'RENTAL_DROP_TAXI': 'RENTAL',
-      'RENTAL_HOURLY_PACKAGE': 'RENTAL'};
+        'RENTAL_DROP_TAXI': 'RENTAL',
+        'RENTAL_HOURLY_PACKAGE': 'RENTAL'
+    };
     const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
+
+    // Check distance for DropTaxi
+    if (values.serviceType === 'RENTAL_HOURLY_PACKAGE') {
+        const checkDistance = await calculateDistance(values);
+        if (!checkDistance) {
+            setDropTaxiDistanceExceedModal(true); // Show the DropTaxi distance exceed modal
+            setIsButtonDisabled(false);
+            return;
+        }
+    }
+
+    const zoneData = await zoneCheckUpFun(values);
+    let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+    if (zoneData.success && zoneData.serviceArea) {
+        actualZone = zoneData.serviceArea.name;
+        console.log('Zone for booking', actualZone);
+    }
+
         const bookingData = {
             carId: values?.carSelected?.id,
             packageId: values?.packageSelected === "0" ? 0 : Number(values?.packageSelected),
@@ -505,7 +590,7 @@ useEffect(() => {
             seaterCapacity:values.seaterCapacity,
             period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
             serviceType: values.serviceType || mappedServiceType,
-            zone: serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '',
+            zone: actualZone,
         };
 
         if (values.toDate && values.toTime) {
@@ -641,28 +726,51 @@ useEffect(() => {
         }
     };
 
-    const handleSelectLocation = async (address, isPickup, type, setFieldValue) => {
-        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
-        if (data?.success) {
-            const location = { lat: data.data.lat, lng: data.data.lng };
-            if (isPickup) {
-                setFieldValue("pickupAddress", address);
-                setFieldValue("pickupLocation", location);
-                setPickupLocation(location);
-                setPickupSuggestions([]);
-            } else if (type === 'driver') {
-                setFieldValue("driverPickUpAddress", address);
-                setFieldValue("driverPickUpLocation", location);
-                setDriverPickUpLocation(location);
-                setDriverSuggestions([]);
+   const handleSelectLocation = async (address, isPickup, type, setFieldValue, values) => {
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
+    if (data?.success) {
+        const location = { lat: data.data.lat, lng: data.data.lng };
+        if (isPickup) {
+            setFieldValue("pickupAddress", address);
+            setFieldValue("pickupLocation", location);
+            setPickupLocation(location);
+            setPickupSuggestions([]);
+
+            // Check zone for pickup location
+            const zoneData = await zoneCheckUpFun({ 
+                serviceType: values.serviceType || currentServiceType,
+                pickupLocation: location 
+            });
+            if (zoneData.success && zoneData.serviceArea) {
+                const newArea = serviceAreas.find(area => area.name === zoneData.serviceArea.name);
+                if (newArea && newArea.id !== parseInt(selectedAreaId)) {
+                    setSelectedAreaId(newArea.id);
+                    setFieldValue("serviceTypeArea", newArea.id);
+                    getPackageListDetails(currentServiceType, newArea.name);
+                }
             } else {
-                setFieldValue("dropAddress", address);
-                setFieldValue("dropLocation", location);
-                setDropLocation(location);
-                setDropSuggestions([]);
+                setZoneErrorModal({ 
+                    show: true, 
+                    text: zoneData.error || 'Service not available in this area.', 
+                    title: zoneData.title || 'Oops!' 
+                });
+                setFieldValue("pickupAddress", "");
+                setFieldValue("pickupLocation", null);
+                setPickupLocation(null);
             }
+        } else if (type === 'driver') {
+            setFieldValue("driverPickUpAddress", address);
+            setFieldValue("driverPickUpLocation", location);
+            setDriverPickUpLocation(location);
+            setDriverSuggestions([]);
+        } else {
+            setFieldValue("dropAddress", address);
+            setFieldValue("dropLocation", location);
+            setDropLocation(location);
+            setDropSuggestions([]);
         }
-    };
+    }
+};
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -999,6 +1107,27 @@ useEffect(() => {
                                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => {
                                                 
                                                     useLuggageAndSeaterLogic(values.carType, setFieldValue);
+                                        useEffect(() => {
+                                        if (values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation?.lat && values.pickupLocation?.lng) {
+                                            zoneCheckUpFun(values).then(zoneData => {
+                                            if (zoneData.success && zoneData.serviceArea) {
+                                                const newZone = zoneData.serviceArea.name;
+                                                const selectedArea = serviceAreas.find(area => area.name === newZone);
+                                                
+                                                // Only fetch package list and reset packageSelected if the zone has changed
+                                                if (selectedArea && selectedArea.id !== parseInt(selectedAreaId)) {
+                                                setSelectedAreaId(selectedArea.id);
+                                                setFieldValue('serviceTypeArea', selectedArea.id);
+                                                getPackageListDetails(values.serviceType, newZone);
+                                                setFieldValue('packageSelected', ''); // Reset only if zone changes
+                                                }
+                                            } else {
+                                                setPackageTypeSelectedData([]);
+                                                setFieldValue('packageSelected', '');
+                                            }
+                                            });
+                                        }
+                                        }, [values.serviceType, values.pickupLocation?.lat, values.pickupLocation?.lng, selectedAreaId, serviceAreas, getPackageListDetails, setFieldValue]);
 
                                                     return (
                                                         <Form>
@@ -1029,24 +1158,34 @@ useEffect(() => {
                                                             <Typography variant="h6" className="mb-2">
                                                                 Service Area
                                                             </Typography>
-                                                            <Field
-                                                                as="select" name="serviceTypeArea" className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                           <Field
+                                                                as="select"
+                                                                name="serviceTypeArea"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 onChange={(e) => {
                                                                     const selectedValue = e.target.value;
                                                                     // console.log('Selected area value:', selectedValue);
                                                                     setFieldValue('serviceTypeArea', selectedValue, false);
                                                                     setSelectedAreaId(selectedValue);
-                                                                    resetPackageValues(setFieldValue, '');
+
+                                                                    // Fetch new packages for the current serviceType without resetting fields
+                                                                    if (values.serviceType) {
+                                                                    const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedValue));
+                                                                    const zone = selectedArea ? selectedArea.name : '';
+                                                                    getPackageListDetails(values.serviceType, zone);
+                                                                    }
+
                                                                     setFieldValue('serviceTypeArea', selectedValue, true);
                                                                 }}
-                                                            >
+                                                                >
                                                                 <option value="" label="Select a service area" />
                                                                 {serviceAreas.map((area) => (
                                                                     <option key={area.id} value={area.id}>
-                                                                        {area.name}
+                                                                    {area.name}
                                                                     </option>
                                                                 ))}
                                                             </Field>
+                                                            
                                                             <ErrorMessage name="serviceTypeArea" component="div" className="text-red-500 text-sm" />
                                                         </div>
                                                     </div>
@@ -1399,7 +1538,7 @@ useEffect(() => {
                                                                     <li
                                                                         key={index}
                                                                         className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                        onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue)}
+                                                                        onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue,values)}
                                                                     >
                                                                         {suggestion}
                                                                     </li>
@@ -1978,8 +2117,10 @@ useEffect(() => {
                         </div>
                     </div>
                 )}
+                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content="You can choose Outstation within 300km only for the DropTaxi service."/>
                 <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
                 <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
+                {/* <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); formikActions.setFieldValue?.('pickupAddress', ''); }} title={zoneErrorModal.title} content={zoneErrorModal.text} /> */}
             </div>
         </div>
     );
