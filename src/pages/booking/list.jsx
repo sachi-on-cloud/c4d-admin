@@ -229,23 +229,23 @@ const handleTabChange = (value) => {
                 totalItems: data?.pagination?.totalItems || 0,
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
-                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
                 setSelectedBookingId(null);
             } 
             else {
                 setBookingsList([]);
-                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
             }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
-            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
-        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
     } finally {
         setLoading(false);
         }
@@ -520,21 +520,21 @@ const handleTabChange = (value) => {
                         totalItems: data?.pagination?.totalItems || 0,
                         itemsPerPage: data?.pagination?.itemsPerPage || 20,
                     });
-                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
                     setSelectedBookingId(null);
                 } else {
                     setBookingsList([]);
-                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
                 }
             } else {
                 console.error('API request failed:', data?.message);
                 setBookingsList([]);
-                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
             }
         } catch (error) {
             console.error('Error fetching bookings:', error);
             setBookingsList([]);
-            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
         } finally {
             setLoading(false);
         }
@@ -652,32 +652,32 @@ const handleTabChange = (value) => {
             </div>
 
             {/* Status Cards Section */}
-            <div className="px-6 py-6 bg-gradient-to-r from-white to-white">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div className="w-full px-4 py-4">
+                <div className="flex justify-around">
                     {[
                         { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-500' },
                         { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-500' },
-                        { key: 'confirmedCount', label: 'Confirmed Bookings', icon: FaCheckCircle, color: 'bg-red-500' },
-                        { key: 'endedCount', label: 'End Bookings', icon: FaCheckCircle, color: 'bg-green-500' },
-                        { key: 'supportCount', label: 'Support cancel', icon: FaClipboardList, color: 'bg-blue-500' },
+                        { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-red-500' },
+                        { key: 'endedCount', label: 'Ended', icon: FaCheckCircle, color: 'bg-green-500' },
+                        { key: 'supportCount', label: 'Support Cancelled', icon: FaClipboardList, color: 'bg-blue-500' },
                     ].map((item, index) => {
                         const IconComponent = item.icon;                        
                         
                         return (
-                            <div key={index} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                            <div key={index} className="bg-white p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                                 <div>
                                     <Typography variant="small" className="text-gray-600 font-medium">
                                         {item.label}
                                     </Typography>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <div className='p-4'>
+                                <div className="flex flex-row items-center justify-between space-x-3">
+                                    <div className='w-1/2 p-3'>
                                         <Typography variant="h3" className="font-bold text-gray-800">
                                             {counts[item.key]}
                                         </Typography>
                                     </div>
-                                    <div className={`p-3 rounded-full ${item.color}`}>
-                                        <IconComponent className="w-6 h-6 text-white" />
+                                    <div className={`flex justify-center items-center w-1/2 p-3 rounded-full ${item.color}`}>
+                                        <IconComponent className="w-6 h-6 text-white"/>
                                     </div>
                                 </div>
                             </div>

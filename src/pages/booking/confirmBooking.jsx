@@ -646,7 +646,7 @@ const ConfirmBooking = (props) => {
                             </div>
                             {bookingDetails?.source !== "Mobile App" &&
                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">sourceType:</Typography>
+                                <Typography color="gray" variant="h6">Source Type:</Typography>
                                 <Typography>{bookingDetails?.sourceType}</Typography>
                             </div>
                             }
@@ -717,7 +717,7 @@ const ConfirmBooking = (props) => {
                             }
                             {bookingDetails?.serviceType != 'RIDES' &&
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">SeaterCapacity:</Typography>
+                                    <Typography color="gray" variant="h6">Seater Capacity:</Typography>
                                     <Typography>{bookingDetails.seaterCapacity || '0'}</Typography>
                                 </div>
                                 

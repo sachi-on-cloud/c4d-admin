@@ -2,6 +2,8 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
+import { Button } from '@material-tailwind/react';
+import { ColorStyles } from '@/utils/constants'; // Assuming ColorStyles is available, as in TripDetails
 
 const tabs = ['Daily', 'Weekly', 'Monthly'];
 
@@ -116,6 +118,7 @@ const Reports = ({ accountId }) => {
           return {
             date: trip.tripDate,
             bookingId:trip.bookingId,
+            tripType:trip.tripType,
             vehicle: trip.Cab?.carNumber || 'Unknown',
             driver: trip.Driver?.firstName || 'Unknown',
             startPoint: trip.startAddress?.address || trip.startAddress || 'Unknown',
@@ -149,10 +152,43 @@ const Reports = ({ accountId }) => {
     fetchTrips();
   }, [fromDate, toDate, vehicleFilter, driverFilter, activeTab, currentPage]);
 
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === currentPage ? 'filled' : 'outlined'}
+          className={`mx-1 ${ColorStyles.bgColor} ${i === currentPage ? 'text-white' : 'text-white'}`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
+  };
+
   const handleExportCSV = () => {
     const data = trips.map(trip => [
       trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-',
       trip.bookingId || '-',
+      trip.tripType || '-',
       trip.vehicle || '-',
       trip.driver || '-',
       trip.startPoint || '-',
@@ -346,7 +382,8 @@ const Reports = ({ accountId }) => {
                 <thead>
                   <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
-                     <th className="border border-gray-200 p-2">BookingId</th>
+                    <th className="border border-gray-200 p-2">BookingId</th>
+                    <th className="border border-gray-200 p-2">Trip Type</th>
                     <th className="border border-gray-200 p-2">Vehicle Number</th>
                     <th className="border border-gray-200 p-2">Driver</th>
                     <th className="border border-gray-200 p-2">Start Point</th>
@@ -370,6 +407,7 @@ const Reports = ({ accountId }) => {
                       <tr key={index}>
                         <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.bookingId || '-'}</td>
+                        <td className="border border-gray-200 p-2">{trip.tripType || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.vehicle || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.driver || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.startPoint || '-'}</td>
@@ -384,25 +422,29 @@ const Reports = ({ accountId }) => {
                   )}
                 </tbody>
               </table>
-              <div className="mt-4 flex justify-between">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-300"
-                >
-                  Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-300"
-                >
-                  Next
-                </button>
-              </div>
+              {trips.length > 0 && (
+                <div className="flex items-center justify-center mt-4">
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="mx-1 text-gray-700"
+                  >
+                    {'<'}
+                  </Button>
+                  {generatePageButtons()}
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="mx-1 text-gray-700"
+                  >
+                    {'>'}
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </div>

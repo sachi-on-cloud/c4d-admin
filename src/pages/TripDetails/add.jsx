@@ -38,8 +38,9 @@ const AddTripDetails = () => {
     startLong: 0,
     endLat: 0,
     endLong: 0,
-    toll:"",
-    permit:"",
+    toll: '',
+    permit: '',
+    tripType: 'Internal', // Added new field with default value
   });
 
   const [bookings, setBookings] = useState([]);
@@ -119,6 +120,7 @@ const AddTripDetails = () => {
         cabId: booking.cabId,
         driverId: booking.driverId,
         customerId: booking.customer_id,
+        tripType: 'Internal', // Reset tripType on booking selection
       }));
       setError('');
       setShowDropdown(false);
@@ -161,6 +163,7 @@ const AddTripDetails = () => {
       'totalKm',
       'fuelType',
       'tripFare',
+      'tripType', // Added tripType to required fields
     ];
 
     for (const field of requiredFields) {
@@ -192,8 +195,9 @@ const AddTripDetails = () => {
         customerId: formData.customerId,
         cabId: formData.cabId,
         driverId: formData.driverId,
-         toll: formData.toll ? parseFloat(formData.toll) : 0,       
-        permit: formData.permit ? parseFloat(formData.permit) : 0, 
+        toll: formData.toll ? parseFloat(formData.toll) : 0,
+        permit: formData.permit ? parseFloat(formData.permit) : 0,
+        tripType: formData.tripType, // Added tripType to API payload
       });
 
       if (response?.success) {
@@ -220,6 +224,9 @@ const AddTripDetails = () => {
           startLong: 0,
           endLat: 0,
           endLong: 0,
+          toll: '',
+          permit: '',
+          tripType: 'Internal', // Reset tripType
         });
         setBookings([]);
         setFilteredBookings([]);
@@ -276,7 +283,7 @@ const AddTripDetails = () => {
                   <div
                     key={booking.id}
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleBookingSelect(booking)} // ✅ Pass full booking
+                    onClick={() => handleBookingSelect(booking)}
                   >
                     {booking.bookingNumber}
                   </div>
@@ -320,7 +327,7 @@ const AddTripDetails = () => {
               <Typography color="gray" variant="h6" className="mb-1">
                 Trip End Point *
               </Typography>
-              <Input type="text" name="endAddress" value={formData.endAddress}  onChange={handleInputChange} />
+              <Input type="text" name="endAddress" value={formData.endAddress} onChange={handleInputChange} />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
@@ -386,6 +393,19 @@ const AddTripDetails = () => {
                 onChange={handleInputChange}
                 placeholder="Enter Permit Cost"
               />
+            </div>
+            <div>
+              <Typography color="gray" variant="h6" className="mb-1">
+                Trip Type *
+              </Typography>
+              <Select
+                name="tripType"
+                value={formData.tripType}
+                onChange={(value) => handleSelectChange('tripType', value)}
+              >
+                <Option value="Internal">Internal</Option>
+                <Option value="External">External</Option>
+              </Select>
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
