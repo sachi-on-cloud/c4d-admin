@@ -31,12 +31,14 @@ const CustomerAdd = (props) => {
         fuelType: '',
         transmissionType: '',
         source: customerVal?.source || '',
+        // sourceType: customerVal?.sourceType || 'App', // New field with default value
     };
 
     const validationSchema = Yup.object({
         salutation: Yup.string().required('Salutation is required'),
         firstName: Yup.string().required('Name is required'),
         source: Yup.string().required('source is required'),
+        // sourceType: Yup.string().required('Source type is required'), // New validation
         ...(isEditMode
             ? {}
             : {
@@ -55,6 +57,7 @@ const CustomerAdd = (props) => {
                 salutation: values.salutation,
                 firstName: values.firstName,
                 source: values.source,
+                // sourceType: values.sourceType, // Include new field
             };
             let data;
             if (isEditMode) {
@@ -69,6 +72,7 @@ const CustomerAdd = (props) => {
                 });
             } else {
                 customerData['phoneNumber'] = "+91" + values.phoneNumber;
+                // customerData['sourceType'] = values.sourceType; // Ensure sourceType is included for new customers
                 data = await ApiRequestUtils.post(API_ROUTES.REGISTER_CUSTOMER, customerData);
 
                 if (!data?.success && data?.code === 203) {
@@ -185,6 +189,21 @@ const CustomerAdd = (props) => {
                                 </Field>
                                 <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                             </div>
+                             {/* <div>
+                                <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
+                                <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                    <option value="">Select Source Type</option>
+                                    <option value="Facebook">Facebook</option>
+                                    <option value="Instagram">Instagram</option>
+                                    <option value="Influencer Reels">Influencer Reels</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Google">Google</option>
+                                    <option value="YouTube">YouTube</option>
+                                    <option value="Justdial">Justdial</option>
+                                    <option value="Paper Notice">Paper Notice</option>
+                                    <option value="On Field">YouTube</option>		
+                                </Field>
+                            </div> */}
                         </div>
 
                         <div className='flex flex-row'>

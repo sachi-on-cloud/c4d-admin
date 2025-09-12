@@ -33,6 +33,7 @@ const CustomerDetails = () => {
         firstName: driverVal?.firstName || '',
         phoneNumber: driverVal?.phoneNumber ? driverVal?.phoneNumber.replace(/^(\+91)/, '') : "",
         source: driverVal?.source || '',
+        // sourceType: driverVal?.sourceType || '',
 
         tripId: driverVal?.Bookings?.id || '',
         tripDate: driverVal?.Bookings?.endDate || '',
@@ -90,6 +91,18 @@ const CustomerDetails = () => {
                                     </Field>
                                     <ErrorMessage name="source" component="div" className="text-red-500 text-sm" />
                                 </div>
+
+                                {/* <div>
+                                    <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type</label>
+                                    <Field as="select" disabled name="sourceType" className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                        <option value="">Select Source Type</option>
+                                        <option value="App">App</option>
+                                        <option value="Website">Website</option>
+                                        <option value="Phone">Phone</option>
+                                        <option value="Walk-in">Walk-in</option>
+                                    </Field>
+                                    <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                </div> */}
                             </div>
                             <CustomerWalletLog customerId={id} />
                             <div>

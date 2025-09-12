@@ -49,7 +49,7 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [selectedBookingForReassign, setSelectedBookingForReassign] = useState(null);
     const [counts, setCounts] = useState({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
-    const [dateFilter, setDateFilter] = useState('Today');
+    const [dateFilter, setDateFilter] = useState('All');
     const [customDateFrom, setCustomDateFrom] = useState('');
     const [customDateTo, setCustomDateTo] = useState('');
     const [isManualDateFilter, setIsManualDateFilter] = useState(false);
@@ -182,8 +182,12 @@ const handleTabChange = (value) => {
         // Calculate startDate and endDate based on dateFilter
         let startDate = '';
         let endDate = '';
-        
-        if (dateFilter === 'Today') {
+        if (dateFilter === 'All') {
+            const all = moment().format('YYY-MM-DD');
+            startDate = "";
+            endDate = "";
+        }
+        else if (dateFilter === 'Today') {
             const today = moment().format('YYYY-MM-DD');
             startDate = today;
             endDate = today;
@@ -420,7 +424,7 @@ const handleTabChange = (value) => {
         setStatusFilter(['All']);
         setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
-        setDateFilter('Today'); // Reset to Today as default
+        setDateFilter('All'); // Reset to All as default
         setCustomDateFrom('');
         setCustomDateTo('');
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
@@ -447,8 +451,12 @@ const handleTabChange = (value) => {
         // Calculate dates based on current filter
         let startDate = '';
         let endDate = '';
-        
-        if (dateFilter === 'Today') {
+        if (dateFilter === 'All') {
+            const all = moment().format('YYYY-MM-DD');
+            startDate = '';
+            endDate = '';
+        }
+        else if (dateFilter === 'Today') {
             const today = moment().format('YYYY-MM-DD');
             startDate = today;
             endDate = today;
@@ -546,7 +554,7 @@ const handleTabChange = (value) => {
                     
                     {/* Date Filter Options */}
                     <div className="flex flex-wrap gap-3">
-                        {['Today', 'Tomorrow', 'Last 7 days', 'Custom date'].map((option) => (
+                        {['All','Today', 'Tomorrow', 'Last 7 days', 'Custom date'].map((option) => (
                             <label key={option} className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="radio"
@@ -568,8 +576,13 @@ const handleTabChange = (value) => {
                                             // Manually calculate dates and call API immediately
                                             let startDate = '';
                                             let endDate = '';
-                                            
-                                            if (selectedFilter === 'Today') {
+
+                                            if (selectedFilter === 'All') {
+                                                const all = moment().format('YYYY-MM-DD');
+                                                startDate = '';
+                                                endDate = '';
+                                            }
+                                            else if (selectedFilter === 'Today') {
                                                 const today = moment().format('YYYY-MM-DD');
                                                 startDate = today;
                                                 endDate = today;
@@ -643,22 +656,24 @@ const handleTabChange = (value) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                     {[
                         { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-500' },
-                        { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-green-500' },
                         { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-500' },
-                        { key: 'endedCount', label: 'Completed', icon: FaTimesCircle, color: 'bg-purple-500' },
-                        { key: 'supportCount', label: 'Support', icon: FaClipboardList, color: 'bg-blue-500' },
+                        { key: 'confirmedCount', label: 'Confirmed Bookings', icon: FaCheckCircle, color: 'bg-red-500' },
+                        { key: 'endedCount', label: 'End Bookings', icon: FaCheckCircle, color: 'bg-green-500' },
+                        { key: 'supportCount', label: 'Support cancel', icon: FaClipboardList, color: 'bg-blue-500' },
                     ].map((item, index) => {
                         const IconComponent = item.icon;                        
                         
                         return (
-                            <div key={index} className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
+                            <div key={index} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                                <div>
+                                    <Typography variant="small" className="text-gray-600 font-medium">
+                                        {item.label}
+                                    </Typography>
+                                </div>
                                 <div className="flex items-center justify-between">
-                                    <div>
+                                    <div className='p-4'>
                                         <Typography variant="h3" className="font-bold text-gray-800">
                                             {counts[item.key]}
-                                        </Typography>
-                                        <Typography variant="small" className="text-gray-600 font-medium">
-                                            {item.label}
                                         </Typography>
                                     </div>
                                     <div className={`p-3 rounded-full ${item.color}`}>
@@ -725,7 +740,7 @@ const handleTabChange = (value) => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
@@ -938,6 +953,11 @@ const handleTabChange = (value) => {
                                                                 {data?.source ? data?.source : '-'}
                                                             </Typography>
                                                         </td>
+                                                        {/* <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.sourceType ? data?.sourceType : '-'}
+                                                            </Typography>
+                                                        </td> */}
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {/* {formatDate(data?.fromDate) HH:mm:ss.SSSZ} */}

@@ -221,11 +221,11 @@ useEffect(() => {
 
     const getQuoteOutstationDetails = async (values) => {
         const zoneData = await zoneCheckUpFun(values);
-        console.log("frist",zoneData)
+        // console.log("frist",zoneData)
         let actualZone = '';
         if (zoneData.success && zoneData.serviceArea) {
             actualZone = zoneData.serviceArea.name;
-            console.log('Outstation Zone', actualZone);
+            // console.log('Outstation Zone', actualZone);
         } else {
             console.error('Error getting zone for outstation');
             return;
@@ -323,7 +323,7 @@ useEffect(() => {
     let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
     
     const zoneData = await zoneCheckUpFun(val);
-     console.log("secondZone",zoneData)
+    //  console.log("secondZone",zoneData)
     if (!zoneData.success || !zoneData.serviceArea) {
         setZoneErrorModal({ show: true, text: zoneData.error || 'Service not available in this area.', title: zoneData.title || 'Oops!' });
         setFieldValue?.('pickupAddress', '');
@@ -333,7 +333,7 @@ useEffect(() => {
     }
    
     actualZone = zoneData.serviceArea.name;
-    console.log('Zone changed to', actualZone);
+    // console.log('Zone changed to', actualZone);
 
         const quoteDate = {
             serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType || mappedServiceType,
@@ -393,6 +393,7 @@ useEffect(() => {
         driverPickUpLocation: null,
         luggage:'',
         seaterCapacity:'',
+        sourceType: '',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -441,7 +442,7 @@ useEffect(() => {
             return distance <= 300; // Return false if distance > 300 km
         }
     }
-    return false;
+    return true;
 };
 
     const calcluateCityLimit = async (values) => {
@@ -474,7 +475,7 @@ useEffect(() => {
                     return;
                 }
                 actualZone = zoneCheckUp.serviceArea.name;
-                console.log("third Zone",actualZone)
+                // console.log("third Zone",actualZone)
             } else {
                 actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
             }
@@ -506,6 +507,7 @@ useEffect(() => {
                 name: values.driverPickUpAddress,
             },
             source: 'Call',
+            sourceType: values.sourceType,
             serviceType:values.serviceType,
             zone: actualZone,  
         }
@@ -537,8 +539,8 @@ useEffect(() => {
     };
     const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
 
-    // Check distance for DropTaxi
-    if (values.serviceType === 'RENTAL_HOURLY_PACKAGE') {
+    // Check distance only for DropTaxi
+    if (values.serviceType === 'RENTAL_DROP_TAXI') {
         const checkDistance = await calculateDistance(values);
         if (!checkDistance) {
             setDropTaxiDistanceExceedModal(true); // Show the DropTaxi distance exceed modal
@@ -551,7 +553,7 @@ useEffect(() => {
     let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
     if (zoneData.success && zoneData.serviceArea) {
         actualZone = zoneData.serviceArea.name;
-        console.log('Zone for booking', actualZone);
+        // console.log('Zone for booking', actualZone);
     }
 
         const bookingData = {
@@ -586,9 +588,10 @@ useEffect(() => {
                 name:values.driverPickUpAddress,
             },
             source: 'Call',
+            sourceType: values.sourceType,
             luggage: values.luggage,
             seaterCapacity:values.seaterCapacity,
-            period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
+            period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
             serviceType: values.serviceType || mappedServiceType,
             zone: actualZone,
         };
@@ -1347,6 +1350,27 @@ useEffect(() => {
                                                         </div>
                                                     </div>
                                                 )}
+                                                
+                                                {/* Source Type Field for all services */}
+                                                {values.serviceType && (
+                                                    <div className="space-y-2 mb-4">
+                                                        <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
+                                                        <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                                            <option value="">Select Source Type</option>
+                                                            <option value="Facebook">Facebook</option>
+                                                            <option value="Instagram">Instagram</option>
+                                                            <option value="Influencer Reels">Influencer Reels</option>
+                                                            <option value="WhatsApp">WhatsApp</option>
+                                                            <option value="Google">Google</option>
+                                                            <option value="YouTube">YouTube</option>
+                                                            <option value="Justdial">Justdial</option>
+                                                            <option value="Paper Notice">Paper Notice</option>
+                                                            <option value="On Field">On Field</option>
+                                                        </Field>
+                                                        <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
+                                                
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
                                                     {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (
                                                         <div className="flex-1 mb-2">
@@ -1516,8 +1540,9 @@ useEffect(() => {
                                         )}
                                     </div>
                                 )} */}
-                                                <div className='grid grid-cols-2'>
-                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && (<div className="p-2 space-y-2">
+                                                <div className='grid grid-cols-1'>
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && 
+                                                    (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
@@ -1570,7 +1595,7 @@ useEffect(() => {
                                                                                 key={index}
                                                                                 className="p-2 cursor-pointer hover:bg-gray-100"
                                                                                 onClick={() => {
-                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue);
+                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue,values);
                                                                                 }}
                                                                             >
                                                                                 {suggestion}
@@ -1637,7 +1662,7 @@ useEffect(() => {
                                                                         <li
                                                                             key={index}
                                                                             className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue,values)}
                                                                         >
                                                                             {suggestion}
                                                                         </li>
@@ -1775,7 +1800,7 @@ useEffect(() => {
                                                                         </Typography>
                                                                         </>
                                                                         } */}
-                                                                        {values?.serviceType !== "RIDES" && (
+                                                                        {(values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                         <Typography>
