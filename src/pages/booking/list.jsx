@@ -652,39 +652,39 @@ const handleTabChange = (value) => {
             </div>
 
             {/* Status Cards Section */}
-            <div className="w-full px-4 py-4">
-                <div className="flex justify-around">
+            <div className="w-full px-4 py-6 md:px-6 lg:px-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
                     {[
-                        { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-500' },
-                        { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-500' },
-                        { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-red-500' },
-                        { key: 'endedCount', label: 'Ended', icon: FaCheckCircle, color: 'bg-green-500' },
-                        { key: 'supportCount', label: 'Support Cancelled', icon: FaClipboardList, color: 'bg-blue-500' },
+                    { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
+                    { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
+                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
+                    { key: 'endedCount', label: 'Ended', icon: FaCheckCircle, color: 'bg-green-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
+                    { key: 'supportCount', label: 'Support Cancelled', icon: FaClipboardList, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
                     ].map((item, index) => {
-                        const IconComponent = item.icon;                        
-                        
-                        return (
-                            <div key={index} className="bg-white p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                                <div>
-                                    <Typography variant="small" className="text-gray-600 font-medium">
-                                        {item.label}
-                                    </Typography>
-                                </div>
-                                <div className="flex flex-row items-center justify-between space-x-3">
-                                    <div className='w-1/2 p-3'>
-                                        <Typography variant="h3" className="font-bold text-gray-800">
-                                            {counts[item.key]}
-                                        </Typography>
-                                    </div>
-                                    <div className={`flex justify-center items-center w-1/2 p-3 rounded-full ${item.color}`}>
-                                        <IconComponent className="w-6 h-6 text-white"/>
-                                    </div>
-                                </div>
+                    const IconComponent = item.icon;
+                    return (
+                        <div
+                        key={index}
+                        className={`p-4 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center ${item.bgColor}`}
+                        >
+                        <Typography variant="small" className="text-white font-medium mb-2">
+                            {item.label}
+                        </Typography>
+                        <div className="flex flex-row items-center justify-between w-full space-x-4">
+                            <div className="w-1/2">
+                            <Typography variant="h3" className="font-bold text-white text-xl md:text-2xl">
+                                {counts[item.key]}
+                            </Typography>
                             </div>
-                        );
+                            <div className={`flex justify-center items-center w-12 h-12 md:w-14 md:h-14 rounded-full ${item.color}`}>
+                            <IconComponent className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                            </div>
+                        </div>
+                        </div>
+                    );
                     })}
                 </div>
-            </div>
+                </div>
             <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
