@@ -229,23 +229,23 @@ const handleTabChange = (value) => {
                 totalItems: data?.pagination?.totalItems || 0,
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
-                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
                 setSelectedBookingId(null);
             } 
             else {
                 setBookingsList([]);
-                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
             }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
-            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
-        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0" });
+        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
     } finally {
         setLoading(false);
         }
@@ -520,21 +520,21 @@ const handleTabChange = (value) => {
                         totalItems: data?.pagination?.totalItems || 0,
                         itemsPerPage: data?.pagination?.itemsPerPage || 20,
                     });
-                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
                     setSelectedBookingId(null);
                 } else {
                     setBookingsList([]);
-                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
                 }
             } else {
                 console.error('API request failed:', data?.message);
                 setBookingsList([]);
-                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
             }
         } catch (error) {
             console.error('Error fetching bookings:', error);
             setBookingsList([]);
-            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0",supportCount:"0" });
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
         } finally {
             setLoading(false);
         }
