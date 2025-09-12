@@ -273,15 +273,17 @@ const TripDetailsEdit = () => {
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Trip Type
                 </Typography>
-                <Input
-                  type="text"
+                <Select
                   name="tripType"
                   value={formData.tripType}
-                  onChange={handleInputChange}
+                  onChange={(value) => handleSelectChange('tripType', value)}
                   className="w-full bg-white border-gray-300 rounded-md"
-                  placeholder="Enter trip type"
-                />
+                >
+                  <Option value="Internal">Internal</Option>
+                  <Option value="External">External</Option>
+                </Select>
               </div>
+              
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Trip Start Point

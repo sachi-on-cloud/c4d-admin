@@ -137,7 +137,7 @@ const TripDetails = () => {
           key={i}
           size="sm"
           variant={i === pagination.currentPage ? 'filled' : 'outlined'}
-          className={`mx-1 ${ColorStyles.bgColor} ${i === pagination.currentPage ? 'text-white' : 'text-gray-700'}`}
+          className={`mx-1 ${ColorStyles.bgColor} ${i === pagination.currentPage ? 'text-white' : 'text-white'}`}
           onClick={() => handlePageChange(i)}
         >
           {i}
