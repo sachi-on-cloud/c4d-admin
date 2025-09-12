@@ -116,6 +116,7 @@ const Reports = ({ accountId }) => {
           return {
             date: trip.tripDate,
             bookingId:trip.bookingId,
+            tripType:trip.tripType,
             vehicle: trip.Cab?.carNumber || 'Unknown',
             driver: trip.Driver?.firstName || 'Unknown',
             startPoint: trip.startAddress?.address || trip.startAddress || 'Unknown',
@@ -153,6 +154,7 @@ const Reports = ({ accountId }) => {
     const data = trips.map(trip => [
       trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-',
       trip.bookingId || '-',
+      trip.tripType || '-',
       trip.vehicle || '-',
       trip.driver || '-',
       trip.startPoint || '-',
@@ -346,7 +348,8 @@ const Reports = ({ accountId }) => {
                 <thead>
                   <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
-                     <th className="border border-gray-200 p-2">BookingId</th>
+                    <th className="border border-gray-200 p-2">BookingId</th>
+                    <th className="border border-gray-200 p-2">Trip Type</th>
                     <th className="border border-gray-200 p-2">Vehicle Number</th>
                     <th className="border border-gray-200 p-2">Driver</th>
                     <th className="border border-gray-200 p-2">Start Point</th>
@@ -370,6 +373,7 @@ const Reports = ({ accountId }) => {
                       <tr key={index}>
                         <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.bookingId || '-'}</td>
+                        <td className="border border-gray-200 p-2">{trip.tripType || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.vehicle || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.driver || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.startPoint || '-'}</td>

@@ -23,6 +23,7 @@ const TripDetailsEdit = () => {
     vehicleNumber: '',
     driverName: '',
     bookingId: '',
+    tripType: '',
     startAddress: '',
     endAddress: '',
     startKm: '',
@@ -31,8 +32,8 @@ const TripDetailsEdit = () => {
     fuelType: 'CNG',
     fuelCost: '',
     tripFare: '',
-    toll: '', // Changed from tollCost to toll
-    permit: '', // Changed from permitCost to permit
+    toll: '',
+    permit: '',
     notes: '',
     latitude: '',
   });
@@ -44,7 +45,7 @@ const TripDetailsEdit = () => {
       setLoading(true);
       try {
         const response = await ApiRequestUtils.get(`${API_ROUTES.GET_TRIP_BY_ID}${id}`);
-        console.log('Fetch trip response:', response); // Debug log
+        console.log('Fetch trip response:', response);
         if (response?.success && response?.data) {
           const trip = response.data;
           setFormData({
@@ -53,7 +54,8 @@ const TripDetailsEdit = () => {
             vehicleNumber: trip.Cab?.carNumber || '',
             driverName: trip.Driver?.firstName || '',
             bookingId: trip.bookingId || '',
-            bookingNumber:trip.Booking?.bookingNumber||"",
+            bookingNumber: trip.Booking?.bookingNumber || '',
+            tripType: trip.tripType || '',
             startAddress: trip.startAddress?.address || trip.startAddress || '',
             endAddress: trip.endAddress?.address || trip.endAddress || '',
             startKm: trip.startKm?.toString() || '',
@@ -62,8 +64,8 @@ const TripDetailsEdit = () => {
             fuelType: trip.fuelType || 'CNG',
             fuelCost: trip.fuelCost?.toString() || '',
             tripFare: trip.tripFare?.toString() || '',
-            toll: trip.toll?.toString() || '', // Changed from tollCost to toll
-            permit: trip.permit?.toString() || '', // Changed from permitCost to permit
+            toll: trip.toll?.toString() || '',
+            permit: trip.permit?.toString() || '',
             notes: trip.notes || '',
             latitude: trip.startLat?.toString() || '',
           });
@@ -107,6 +109,7 @@ const TripDetailsEdit = () => {
       'vehicleNumber',
       'driverName',
       'bookingId',
+      'tripType',
       'startAddress',
       'endAddress',
       'startKm',
@@ -122,7 +125,6 @@ const TripDetailsEdit = () => {
       }
     }
 
-    // Allow totalKm to be 0 or '0.0' without triggering validation error
     if (!formData.totalKm) {
       setError('Total KM cannot be empty');
       return;
@@ -134,7 +136,8 @@ const TripDetailsEdit = () => {
       vehicleNumber: formData.vehicleNumber,
       driverName: formData.driverName,
       bookingId: formData.bookingId,
-      bookingNumber:formData.bookingNumber,
+      bookingNumber: formData.bookingNumber,
+      tripType: formData.tripType,
       startAddress: { address: formData.startAddress },
       endAddress: { address: formData.endAddress },
       startKm: parseFloat(formData.startKm),
@@ -143,17 +146,17 @@ const TripDetailsEdit = () => {
       fuelType: formData.fuelType,
       fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : 0,
       tripFare: parseFloat(formData.tripFare),
-      toll: formData.toll ? parseFloat(formData.toll) : 0, // Changed from tollCost to toll
-      permit: formData.permit ? parseFloat(formData.permit) : 0, // Changed from permitCost to permit
+      toll: formData.toll ? parseFloat(formData.toll) : 0,
+      permit: formData.permit ? parseFloat(formData.permit) : 0,
       notes: formData.notes || '',
       latitude: formData.latitude ? parseFloat(formData.latitude) : 0,
     };
 
     try {
       setLoading(true);
-      console.log('Sending update request with payload:', payload); // Debug log
+      // console.log('Sending update request with payload:', payload);
       const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_TRIP_DETAILS, payload);
-      console.log('Update trip response:', response); // Debug log
+      // console.log('Update trip response:', response);
       if (response?.success) {
         navigate('/dashboard/tripDetails');
       } else {
@@ -266,7 +269,19 @@ const TripDetailsEdit = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              
+              <div>
+                <Typography color="gray" className="text-sm font-medium mb-2">
+                  Trip Type
+                </Typography>
+                <Input
+                  type="text"
+                  name="tripType"
+                  value={formData.tripType}
+                  onChange={handleInputChange}
+                  className="w-full bg-white border-gray-300 rounded-md"
+                  placeholder="Enter trip type"
+                />
+              </div>
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Trip Start Point
@@ -281,6 +296,8 @@ const TripDetailsEdit = () => {
                   readOnly
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Trip End Point
@@ -295,9 +312,6 @@ const TripDetailsEdit = () => {
                   readOnly
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Opening KM
@@ -310,6 +324,8 @@ const TripDetailsEdit = () => {
                   className="w-full bg-white border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Closing KM
@@ -322,9 +338,6 @@ const TripDetailsEdit = () => {
                   className="w-full bg-white border-gray-300 rounded-md"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Total KM
@@ -338,6 +351,8 @@ const TripDetailsEdit = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Fuel Type
@@ -356,9 +371,6 @@ const TripDetailsEdit = () => {
                   <Option value="NONE">None</Option>
                 </Select>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Fuel Cost
@@ -371,13 +383,28 @@ const TripDetailsEdit = () => {
                   className="w-full bg-white border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Typography color="gray" className="text-sm font-medium mb-2">
+                  Trip Fare
+                </Typography>
+                <Input
+                  type="number"
+                  name="tripFare"
+                  value={formData.tripFare}
+                  onChange={handleInputChange}
+                  className="w-full bg-white border-gray-300 rounded-md"
+                  placeholder="Enter trip fare"
+                />
+              </div>
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Toll Cost
                 </Typography>
                 <Input
                   type="number"
-                  name="toll" // Changed from tollCost to toll
+                  name="toll"
                   value={formData.toll}
                   onChange={handleInputChange}
                   className="w-full bg-white border-gray-300 rounded-md"
@@ -386,47 +413,33 @@ const TripDetailsEdit = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              
               <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
                   Permit Cost
                 </Typography>
                 <Input
                   type="number"
-                  name="permit" // Changed from permitCost to permit
+                  name="permit"
                   value={formData.permit}
                   onChange={handleInputChange}
                   className="w-full bg-white border-gray-300 rounded-md"
                   placeholder="Enter permit cost"
                 />
               </div>
-               <div>
+              
+            </div>
+            <div>
                 <Typography color="gray" className="text-sm font-medium mb-2">
-                  TripFare
+                  Notes
                 </Typography>
-                <Input
-                  type="number"
-                  name="tripFare" // Changed from permitCost to permit
-                  value={formData.tripFare}
+                <Textarea
+                  name="notes"
+                  value={formData.notes}
                   onChange={handleInputChange}
-                  className="w-full bg-white border-gray-300 rounded-md"
-                  placeholder="Enter permit cost"
+                  className="w-full bg-white border-gray-300 rounded-md p-2"
+                  rows={3}
                 />
               </div>
-            </div>
-            
-            <div>
-              <Typography color="gray" className="text-sm font-medium mb-2">
-                Notes
-              </Typography>
-              <Textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                className="w-full bg-white border-gray-300 rounded-md p-2"
-                rows={3}
-              />
-            </div>
             <div className="flex justify-end gap-4 mt-6">
               <Button
                 color="gray"
