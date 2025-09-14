@@ -2,6 +2,8 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
+import { Button } from '@material-tailwind/react';
+import { ColorStyles } from '@/utils/constants'; // Assuming ColorStyles is available, as in TripDetails
 
 const tabs = ['Daily', 'Weekly', 'Monthly'];
 
@@ -23,6 +25,16 @@ const Reports = ({ accountId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isXlsxLoaded, setIsXlsxLoaded] = useState(false);
+
+  
+  const [summary, setSummary] = useState({
+    totalTrips: 0,
+    totalKm: 0,
+    fuelUsed: 0,
+    fuelCost: 0,
+    totalFare: 0,
+    profitLoss: 0,
+  });
 
   useEffect(() => {
     const checkXlsx = (attempts = 5, delay = 500) => {
@@ -91,6 +103,12 @@ const Reports = ({ accountId }) => {
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
 
+        
+        if (data.summary) {
+          setSummary(data.summary);
+        }
+
+        
         const transformedTrips = data.data.map(trip => {
           console.log("Mapping trip:", trip);
           const km = parseFloat(trip.totalKm) || 0;
@@ -99,6 +117,8 @@ const Reports = ({ accountId }) => {
           const calculatedKm = km + (endKm - startKm);
           return {
             date: trip.tripDate,
+            bookingId:trip.bookingId,
+            tripType:trip.tripType,
             vehicle: trip.Cab?.carNumber || 'Unknown',
             driver: trip.Driver?.firstName || 'Unknown',
             startPoint: trip.startAddress?.address || trip.startAddress || 'Unknown',
@@ -132,9 +152,43 @@ const Reports = ({ accountId }) => {
     fetchTrips();
   }, [fromDate, toDate, vehicleFilter, driverFilter, activeTab, currentPage]);
 
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === currentPage ? 'filled' : 'outlined'}
+          className={`mx-1 ${ColorStyles.bgColor} ${i === currentPage ? 'text-white' : 'text-white'}`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
+  };
+
   const handleExportCSV = () => {
     const data = trips.map(trip => [
       trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-',
+      trip.bookingId || '-',
+      trip.tripType || '-',
       trip.vehicle || '-',
       trip.driver || '-',
       trip.startPoint || '-',
@@ -209,15 +263,6 @@ const Reports = ({ accountId }) => {
     } catch (err) {
       console.error('Export error:', err);
     }
-  };
-
-  const summary = {
-    totalTrips: trips.length,
-    totalKm: trips.reduce((sum, trip) => sum + (trip.totalKm || 0), 0),
-    toll: trips.reduce((sum, trip) => sum + (trip.toll || 0), 0),
-    permit: trips.reduce((sum, trip) => sum + (trip.permit || 0), 0),
-    fuelCost: trips.reduce((sum, trip) => sum + (trip.cost || 0), 0),
-    totalFare: trips.reduce((sum, trip) => sum + (trip.fare || 0), 0),
   };
 
   return (
@@ -318,11 +363,11 @@ const Reports = ({ accountId }) => {
         </div>
         <div className="grid grid-cols-6 gap-4 mb-6">
           <div className="p-2 border border-gray-200 text-center">Trips: {summary.totalTrips}</div>
-          <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm.toFixed(1)}</div>
-          {/* <div className="p-2 border border-gray-200 text-center">Toll: ₹ {summary.toll.toFixed(2)}</div> */}
-          {/* <div className="p-2 border border-gray-200 text-center">Permit: ₹ {summary.permit.toFixed(2)}</div> */}
-          <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost.toFixed(2)}</div>
-          <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare.toFixed(2)}</div>
+          <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm}</div>
+          {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed}</div> */}
+          <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost}</div>
+          <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare}</div>
+          {/* <div className="p-2 border border-gray-200 text-center">Profit/Loss: ₹ {summary.profitLoss}</div> */}
         </div>
         <div className="weekly-report">
           <h3 className="text-lg font-semibold mb-4 text-center bg-primary-900 text-white p-2 rounded" style={{ width: '100%' }}>
@@ -337,6 +382,8 @@ const Reports = ({ accountId }) => {
                 <thead>
                   <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
+                    <th className="border border-gray-200 p-2">BookingId</th>
+                    <th className="border border-gray-200 p-2">Trip Type</th>
                     <th className="border border-gray-200 p-2">Vehicle Number</th>
                     <th className="border border-gray-200 p-2">Driver</th>
                     <th className="border border-gray-200 p-2">Start Point</th>
@@ -351,7 +398,7 @@ const Reports = ({ accountId }) => {
                 <tbody>
                   {trips.length === 0 ? (
                     <tr>
-                      <td colSpan="10" className="border border-gray-200 p-2 text-center text-gray-500">
+                      <td colSpan="11" className="border border-gray-200 p-2 text-center text-gray-500">
                         No trips found for the selected criteria
                       </td>
                     </tr>
@@ -359,6 +406,8 @@ const Reports = ({ accountId }) => {
                     trips.map((trip, index) => (
                       <tr key={index}>
                         <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-'}</td>
+                        <td className="border border-gray-200 p-2">{trip.bookingId || '-'}</td>
+                        <td className="border border-gray-200 p-2">{trip.tripType || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.vehicle || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.driver || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.startPoint || '-'}</td>
@@ -373,25 +422,29 @@ const Reports = ({ accountId }) => {
                   )}
                 </tbody>
               </table>
-              <div className="mt-4 flex justify-between">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-300"
-                >
-                  Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-300"
-                >
-                  Next
-                </button>
-              </div>
+              {trips.length > 0 && (
+                <div className="flex items-center justify-center mt-4">
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="mx-1 text-gray-700"
+                  >
+                    {'<'}
+                  </Button>
+                  {generatePageButtons()}
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="mx-1 text-gray-700"
+                  >
+                    {'>'}
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </div>

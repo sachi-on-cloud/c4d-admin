@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Alert, Button } from '@material-tailwind/react';
@@ -33,11 +33,33 @@ const PRICE_SCHEMA = Yup.object().shape({
     cancellationMins: Yup.number().required('Cancellation Mins is required'),
     cancellationCharge: Yup.number().required('Cancellation Charge is required'),
     status: Yup.string().required('Status is required'),
+    zone: Yup.string().required('Zone is required'),
 });
 
 const PriceAdd = () => {
-    const [alert, setAlert] = useState(false);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const navigate = useNavigate();
+
+    // Fetch service areas
+    const fetchGeoData = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+            const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+            setServiceAreas(filteredAreas);
+        } catch (error) {
+            console.error('Error fetching GEO_MARKINGS_LIST:', error);           
+        } 
+    };
+
+    useEffect(() => {
+        fetchGeoData();
+    }, []);
+
+    // Map service areas to react-select options
+    const ZONE_OPTIONS = serviceAreas.map((area) => ({
+        value: area.name,
+        label: area.name,
+    }));
 
     const initialValues = {
         baseFare: '',
@@ -58,6 +80,7 @@ const PriceAdd = () => {
         cancellationMins: '',
         cancellationCharge: '',
         status: 'ACTIVE',
+        zone: '',
     };
 
     const onSubmit = async (values, { setSubmitting }) => {
@@ -85,6 +108,7 @@ const PriceAdd = () => {
                 'serviceType': 'RIDES',
                 'period': 'Rides',
                 'status': values.status == "ACTIVE" ? 1 : 0,
+                'zone': values.zone,
             }
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_RIDES_PRICE_TABLE, reqBody);
             if (data?.success) {
@@ -92,25 +116,35 @@ const PriceAdd = () => {
             }
         } catch (error) {
             console.error('Error saving price details:', error);
-            setAlert({ message: 'Error saving data', color: 'red' });
+            // setAlert({ message: 'Error saving data', color: 'red' });
         }
         setSubmitting(false);
     };
 
     return (
         <div className="p-4 mx-auto">
-            {alert && (
+            {/* {alert && (
                 <div className='mb-2'>
                     <Alert color={alert.color} className='py-3 px-6 rounded-xl'>
                         {alert.message}
                     </Alert>
                 </div>
-            )}
+            )} */}
             <h2 className="text-2xl font-bold mb-4">Add Pricing Details</h2>
             <Formik initialValues={initialValues} validationSchema={PRICE_SCHEMA} onSubmit={onSubmit} enableReinitialize>
                 {({ handleSubmit, setFieldValue, isValid, dirty }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Select
+                                    options={ZONE_OPTIONS}
+                                    onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
+                                    placeholder="Select Zone"
+                                    className="w-full"
+                                />
+                                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
                                 <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

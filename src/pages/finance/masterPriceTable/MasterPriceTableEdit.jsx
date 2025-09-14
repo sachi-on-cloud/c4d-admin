@@ -41,10 +41,12 @@ const PRICE_SCHEMA = Yup.object().shape({
     cancellationMins: Yup.number().required('Cancellation Mins is required'),
     cancellationCharge: Yup.number().required('Cancellation Charge is required'),
     status: Yup.string().required('Status is required'),
+    zone: Yup.string().required('Zone is required'), // Added zone validation
 });
 
 const PriceEdit = () => {
     const [initialValues, setInitialValues] = useState(null);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const { id } = useParams();
     const navigate = useNavigate();
     const [peakHours, setPeakHours] = useState([]);
@@ -77,6 +79,7 @@ const PriceEdit = () => {
                     cancellationMins: Utils.convertTimeFormatToMinutes(data.data.cancelMins),
                     cancellationCharge: data.data.cancelCharge,
                     status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
+                    zone: data.data.zone || '',
                 });
                 setPeakHours(data.data.peakHours || []);
                 initialPeakHoursRef.current = data.data.peakHours;
@@ -118,6 +121,7 @@ const PriceEdit = () => {
                 status: values.status == 'ACTIVE' ? 1 : 0,
                 serviceType:'RIDES',
                 peakHours: peakHours,
+                zone: values.zone,
             };
             const response = await ApiRequestUtils.update(API_ROUTES.RIDES_PRICE_EDIT, reqBody);
             if (response?.success) {
@@ -135,6 +139,16 @@ const PriceEdit = () => {
                 {({ handleSubmit, setFieldValue, isValid, dirty, values }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Field
+                                    type="text"
+                                    name="zone"
+                                    disabled
+                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-200"
+                                />
+                                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
                                 <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

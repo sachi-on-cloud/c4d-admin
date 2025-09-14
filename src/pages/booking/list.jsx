@@ -17,7 +17,7 @@ import {
     Tab,
     TabPanel,
 } from "@material-tailwind/react";
-import { FaArrowRight, FaFilter } from 'react-icons/fa';
+import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -43,12 +43,16 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
         itemsPerPage: 15,
     });
     const [nameSortConfig, setNameSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
-    const [filteredRange, setFilteredRange] = useState({});
     const [loading, setLoading] = useState(true);
     const [loadingStates, setLoadingStates] = useState({});
     const [userId, setUserId] = useState(null);  
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [selectedBookingForReassign, setSelectedBookingForReassign] = useState(null);
+    const [counts, setCounts] = useState({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+    const [dateFilter, setDateFilter] = useState('All');
+    const [customDateFrom, setCustomDateFrom] = useState('');
+    const [customDateTo, setCustomDateTo] = useState('');
+    const [isManualDateFilter, setIsManualDateFilter] = useState(false);
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
   if (storedUser) {
@@ -111,12 +115,6 @@ const handleTabChange = (value) => {
                     return newFilter.length === 0 ? ['All'] : newFilter;
                 }
             })
-        }
-        else if (filterType === 'range') {
-            // Expect value to be an object { startDate, endDate }
-            const { startDate, endDate } = value;
-            setFilteredRange({ startDate, endDate });
-            // console.log('Filtered Range:', { startDate, endDate });
         }         
         else if (filterType === 'tripCoordinator') {
             setTripCoordinatorFilter(prev => {
@@ -180,34 +178,75 @@ const handleTabChange = (value) => {
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
         };
-        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, {
+        
+        // Calculate startDate and endDate based on dateFilter
+        let startDate = '';
+        let endDate = '';
+        if (dateFilter === 'All') {
+            const all = moment().format('YYY-MM-DD');
+            startDate = "";
+            endDate = "";
+        }
+        else if (dateFilter === 'Today') {
+            const today = moment().format('YYYY-MM-DD');
+            startDate = today;
+            endDate = today;
+        } else if (dateFilter === 'Tomorrow') {
+            const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
+            startDate = tomorrow;
+            endDate = tomorrow;
+        } else if (dateFilter === 'Last 7 days') {
+            startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
+            endDate = moment().format('YYYY-MM-DD');
+        } else if (dateFilter === 'Custom date') {
+            startDate = customDateFrom;
+            endDate = customDateTo;
+        }
+        
+        const queryParams = {
             "customerId": customerId,
             'type': type ? type : '',
             'page': page,
             'limit': pagination.itemsPerPage,
             'filterType': JSON.stringify(filterType),
             'bookingNumber': searchBookingId,
-        });
-        // console.log('API Response:', data);
+        };
+        
+        // Add date parameters if they exist
+        if (startDate) {
+            queryParams.startDate = startDate;
+        }
+        if (endDate) {
+            queryParams.endDate = endDate;
+        }
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, queryParams);
         if (data?.success) {
-            setLoading(false);
+            if (data?.data?.length > 0) {
             setBookingsList(data?.data);
-            setSelectedBookingId(null);
             setPagination({
                 currentPage: data?.pagination?.currentPage || 1,
                 totalPages: data?.pagination?.totalPages || 1,
                 totalItems: data?.pagination?.totalItems || 0,
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
+                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+                setSelectedBookingId(null);
+            } 
+            else {
+                setBookingsList([]);
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+            }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
-            setLoading(false);
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
+        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+    } finally {
         setLoading(false);
         }
     };
@@ -245,14 +284,19 @@ const handleTabChange = (value) => {
             };
   
     useEffect(() => {
-        setLoading(true);
+        // Skip automatic API call if we're in the middle of a manual date filter operation
+        if (isManualDateFilter) {
+            setIsManualDateFilter(false);
+            return;
+        }
+        
         getBookingsList(pagination.currentPage);
         // const intervalId = setInterval(() => {
         //     getBookingsList(pagination.currentPage);
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, searchBookingId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter]);
+    }, [customerId, searchBookingId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter, dateFilter, customDateFrom, customDateTo]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -318,13 +362,9 @@ const handleTabChange = (value) => {
         setIsOpen(true)
     }
 
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-
-        return `${day}-${month}-${year}`;
+    const formatDate = (date) => {
+        const d = new Date(date);
+        return d.toISOString().split('T')[0];
     }
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -376,8 +416,275 @@ const handleTabChange = (value) => {
         { label: 'All Future Bookings', value: 'REMAINING' },
     ];
 
+    const handleRefresh = () => {
+        // Set manual filter flag to prevent useEffect conflicts
+        setIsManualDateFilter(true);
+        
+        // Reset all filters to their default state
+        setStatusFilter(['All']);
+        setSourceFilter(['All']);
+        setTripCoordinatorFilter(['All']);
+        setDateFilter('All'); // Reset to All as default
+        setCustomDateFrom('');
+        setCustomDateTo('');
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
+        
+        // Force API call with Today's date
+        const today = moment().format('YYYY-MM-DD');
+        triggerFilteredAPICall(today, today, 1);
+    };
+
+    // Date filtering implementation
+    const handleDateFilter = () => {
+        console.log('Date filter applied:', {
+            filter: dateFilter,
+            customFrom: customDateFrom,
+            customTo: customDateTo
+        });
+        
+        // Set manual filter flag to prevent useEffect conflicts
+        setIsManualDateFilter(true);
+        
+        // Reset pagination when applying date filter
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
+        
+        // Calculate dates based on current filter
+        let startDate = '';
+        let endDate = '';
+        if (dateFilter === 'All') {
+            const all = moment().format('YYYY-MM-DD');
+            startDate = '';
+            endDate = '';
+        }
+        else if (dateFilter === 'Today') {
+            const today = moment().format('YYYY-MM-DD');
+            startDate = today;
+            endDate = today;
+        } else if (dateFilter === 'Tomorrow') {
+            const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
+            startDate = tomorrow;
+            endDate = tomorrow;
+        } else if (dateFilter === 'Last 7 days') {
+            startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
+            endDate = moment().format('YYYY-MM-DD');
+        } else if (dateFilter === 'Custom date') {
+            startDate = customDateFrom;
+            endDate = customDateTo;
+        }
+        
+        // Use the direct API call function to avoid state timing issues
+        triggerFilteredAPICall(startDate, endDate, 1);
+    };
+
+    // Function to trigger API call with specific dates (bypasses state timing issues)
+    const triggerFilteredAPICall = async (startDate, endDate, page = 1) => {
+        setLoading(true);
+        
+        // Clear existing data to show loading state
+        setBookingsList([]);
+        
+        try {
+            const filterType = {
+                type: activeTab,
+                status: statusFilter,
+                source: sourceFilter,
+                tripCoordinator: tripCoordinatorFilter,
+            };
+            
+            const queryParams = {
+                "customerId": customerId,
+                'type': type ? type : '',
+                'page': page,
+                'limit': pagination.itemsPerPage,
+                'filterType': JSON.stringify(filterType),
+                'bookingNumber': searchBookingId,
+            };
+            
+            // Add date parameters
+            if (startDate) {
+                queryParams.startDate = startDate;
+            }
+            if (endDate) {
+                queryParams.endDate = endDate;
+            }
+            
+            console.log('Triggering API call with dates:', { startDate, endDate, queryParams });
+            
+            const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, queryParams);
+            if (data?.success) {
+                if (data?.data?.length > 0) {
+                    setBookingsList(data?.data);
+                    setPagination({
+                        currentPage: data?.pagination?.currentPage || 1,
+                        totalPages: data?.pagination?.totalPages || 1,
+                        totalItems: data?.pagination?.totalItems || 0,
+                        itemsPerPage: data?.pagination?.itemsPerPage || 20,
+                    });
+                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+                    setSelectedBookingId(null);
+                } else {
+                    setBookingsList([]);
+                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+                }
+            } else {
+                console.error('API request failed:', data?.message);
+                setBookingsList([]);
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+            }
+        } catch (error) {
+            console.error('Error fetching bookings:', error);
+            setBookingsList([]);
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
-        <div className="flex flex-col bg-white rounded-xl" >
+        <div className="flex flex-col bg-white rounded-xl shadow-lg" >
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <FaCalendarAlt className="text-primary w-5 h-5" />
+                        <Typography variant="h6" className="text-gray-800 font-semibold">
+                            Date Filter
+                        </Typography>
+                    </div>
+                    
+                    {/* Date Filter Options */}
+                    <div className="flex flex-wrap gap-3">
+                        {['All','Today', 'Tomorrow', 'Last 7 days', 'Custom date'].map((option) => (
+                            <label key={option} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="dateFilter"
+                                    value={option}
+                                    checked={dateFilter === option}
+                                    onChange={(e) => {
+                                        const selectedFilter = e.target.value;
+                                        setDateFilter(selectedFilter);
+                                        
+                                        // Auto-trigger API call for non-custom date options
+                                        if (selectedFilter !== 'Custom date') {
+                                            // Set manual filter flag to prevent useEffect conflicts
+                                            setIsManualDateFilter(true);
+                                            
+                                            // Reset pagination and trigger API with the new filter value directly
+                                            setPagination((prev) => ({ ...prev, currentPage: 1 }));
+                                            
+                                            // Manually calculate dates and call API immediately
+                                            let startDate = '';
+                                            let endDate = '';
+
+                                            if (selectedFilter === 'All') {
+                                                const all = moment().format('YYYY-MM-DD');
+                                                startDate = '';
+                                                endDate = '';
+                                            }
+                                            else if (selectedFilter === 'Today') {
+                                                const today = moment().format('YYYY-MM-DD');
+                                                startDate = today;
+                                                endDate = today;
+                                            } else if (selectedFilter === 'Tomorrow') {
+                                                const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
+                                                startDate = tomorrow;
+                                                endDate = tomorrow;
+                                            } else if (selectedFilter === 'Last 7 days') {
+                                                startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
+                                                endDate = moment().format('YYYY-MM-DD');
+                                            }
+                                            
+                                            // Call API immediately with calculated dates
+                                            triggerFilteredAPICall(startDate, endDate);
+                                        }
+                                    }}
+                                    className="text-primary"
+                                />
+                                <Typography variant="small" className="text-gray-700">
+                                    {option}
+                                </Typography>
+                            </label>
+                        ))}
+                    </div>
+
+                    {/* Custom Date Inputs */}
+                    {dateFilter === 'Custom date' && (
+                        <div className="flex items-center gap-3 ml-4">
+                            <div className="flex items-center gap-2">
+                                <Typography variant="small" className="text-gray-600">
+                                    From:
+                                </Typography>
+                                <input
+                                    type="date"
+                                    value={customDateFrom}
+                                    onChange={(e) => setCustomDateFrom(e.target.value)}
+                                    className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                                    max={customDateTo || undefined}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Typography variant="small" className="text-gray-600">
+                                    To:
+                                </Typography>
+                                <input
+                                    type="date"
+                                    value={customDateTo}
+                                    onChange={(e) => setCustomDateTo(e.target.value)}
+                                    className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                                    min={customDateFrom || undefined}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Search Button */}
+                    <Button
+                        size="sm"
+                        className="bg-primary text-white hover:bg-primary-600 flex items-center gap-2"
+                        onClick={handleDateFilter}
+                        disabled={dateFilter === 'Custom date' && (!customDateFrom || !customDateTo)}
+                    >
+                        <FaFilter className="w-4 h-4" />
+                        Search
+                    </Button>
+                </div>
+            </div>
+
+            {/* Status Cards Section */}
+            <div className="w-full px-4 py-6 md:px-6 lg:px-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                    {[
+                    { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
+                    { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
+                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
+                    { key: 'endedCount', label: 'Ended', icon: FaCheckCircle, color: 'bg-green-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
+                    { key: 'supportCount', label: 'Support Cancelled', icon: FaClipboardList, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
+                    ].map((item, index) => {
+                    const IconComponent = item.icon;
+                    return (
+                        <div
+                        key={index}
+                        className={`p-4 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center ${item.bgColor}`}
+                        >
+                        <Typography variant="small" className="text-white font-medium mb-2">
+                            {item.label}
+                        </Typography>
+                        <div className="flex flex-row items-center justify-between w-full space-x-4">
+                            <div className="w-1/2">
+                            <Typography variant="h3" className="font-bold text-white text-xl md:text-2xl">
+                                {counts[item.key]}
+                            </Typography>
+                            </div>
+                            <div className={`flex justify-center items-center w-12 h-12 md:w-14 md:h-14 rounded-full ${item.color}`}>
+                            <IconComponent className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                            </div>
+                        </div>
+                        </div>
+                    );
+                    })}
+                </div>
+                </div>
             <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
@@ -387,12 +694,7 @@ const handleTabChange = (value) => {
                 <div className='absolute right-10 -top-10'>
                     <button
                         className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
-                        onClick={() => {
-                            getBookingsList(pagination.currentPage);
-                            setStatusFilter(['All']);
-                            setSourceFilter(['All']);
-                            setTripCoordinatorFilter(['All']);
-                        }}
+                        onClick={handleRefresh}
                     >
                         <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
                         <span>Refresh</span>
@@ -438,7 +740,7 @@ const handleTabChange = (value) => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
@@ -651,6 +953,11 @@ const handleTabChange = (value) => {
                                                                 {data?.source ? data?.source : '-'}
                                                             </Typography>
                                                         </td>
+                                                        {/* <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.sourceType ? data?.sourceType : '-'}
+                                                            </Typography>
+                                                        </td> */}
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {/* {formatDate(data?.fromDate) HH:mm:ss.SSSZ} */}

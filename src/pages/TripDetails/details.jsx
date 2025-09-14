@@ -122,6 +122,16 @@ const DetailsTrip = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
+                  Trip Type
+                </Typography>
+                <Input
+                  value={trip.tripType || 'N/A'}
+                  readOnly
+                  className="w-full bg-gray-100 border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <Typography color="gray" variant="h6" className="mb-1">
                   Trip Start Point
                 </Typography>
                 <Input
@@ -130,6 +140,8 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Trip End Point
@@ -140,8 +152,6 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Opening KM
@@ -152,6 +162,8 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Closing KM
@@ -166,8 +178,6 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Total KM
@@ -178,6 +188,8 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Fuel Type
@@ -188,8 +200,6 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Fuel Cost
@@ -200,6 +210,8 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Trip Fare
@@ -210,8 +222,6 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Toll Cost
@@ -226,6 +236,8 @@ const DetailsTrip = () => {
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Typography color="gray" variant="h6" className="mb-1">
                   Permit Cost
@@ -234,14 +246,15 @@ const DetailsTrip = () => {
                     value={
                       trip.permit
                         ? `${parseFloat(trip.permit).toFixed(2)}`
-                        : ' 0'
+                        : '0'
                     }
                     readOnly
                     className="w-full bg-gray-100 border-gray-300 rounded-md"
                   />
-              </div>
             </div>
-            <div>
+           
+            </div>
+             <div>
               <Typography color="gray" variant="h6" className="mb-1">
                 Notes
               </Typography>

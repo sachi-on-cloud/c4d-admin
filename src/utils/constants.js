@@ -5,9 +5,10 @@ export const constants = {
     // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
-    url_dev: 'https://seal-well-mite.ngrok-free.app',
+    // url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
-    url_sit: 'https://sit.api.c4d.smartapis.cyou'
+    url_sit: 'https://sit.api.c4d.smartapis.cyou',
+    url_uat: 'https://uat.api.c4d.smartapis.cyou'
 };
 
 export const getBaseUrl = () => {
@@ -797,6 +798,7 @@ export const API_ROUTES = {
     'GET_ALL_CARS': '/cars',
     'GET_SPECIFIC_CAR': '/car',
     'PACKAGES_LIST': '/package-list',
+    'ZONE_PACKAGE_LIST': '/zone-packages',
     'GET_PACKAGES_LIST': '/get-package-list/',
     'PACKAGE_CABS_LIST': '/package-list/cabs',
     'ADD_NEW_BOOKING': '/add-booking',
@@ -949,6 +951,9 @@ export const API_ROUTES = {
     'GET_TRIP_BY_ID':'/trip/',
     'UPDATE_TRIP_DETAILS':'/update-trip',
     'BANNER_POSITION_UPDATE': '/banner/position/update',
+    'DISTANCE_CHECKING': '/get-distance',
+    'CITY_LIMIT_CHECKING':'/check-location',
+    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
 };
 
 export const KYC_PROCESS = {
@@ -1042,7 +1047,7 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification', 'Users'],
+    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
     'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
     'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
     'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
@@ -1053,9 +1058,10 @@ export const PERMISSION_OPTIONS = [
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
-    {name:'Trip Master',id:'Trip Master'},
+    { name:'Trip Master',id:'Trip Master'},
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
+    { name: 'Marketing', id: 'Marketing' },
     { name: 'Users', id: 'Users' },
 ];
 

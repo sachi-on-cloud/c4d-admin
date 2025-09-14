@@ -763,6 +763,7 @@ export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
     nightCharge: Yup.number().required('Night Charge is required'),
     cancelCharge: Yup.number().required('Cancel Charge is required'),
     status: Yup.string().required('Status is required'),
+    zone: Yup.string().required('Zone is required'),
     // extraPrice: Yup.number().required('Extra Price is required'),
     // nightHoursFrom:Yup.time().required('Night Hours From Start 22:00 PM.'),
     // nightHoursFrom:Yup.time().required('Night Hours To End 06:00 AM.')
@@ -784,6 +785,15 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     isActive: Yup.boolean().required('Status is required'),
     description: Yup.string().required('Description is required'),
     title: Yup.string().required('Title is required'),
+    serviceArea: Yup.array()
+          .min(1, 'At least one city must be selected')
+          .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+              if (value.includes('All')) {
+                  return value.length === 1;
+              }
+              return true;
+          })
+          .required('City is required'),
   });
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
@@ -795,6 +805,15 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     isActive: Yup.boolean().required('Status is required'),
     description: Yup.string().required('Description is required'),
     title: Yup.string().required('Title is required'),
+    serviceArea: Yup.array()
+        .min(1, 'At least one city must be selected')
+        .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+            if (value.includes('All')) {
+                return value.length === 1;
+            }
+            return true;
+        })
+        .required('City is required'),
   });
 
    export const GST_EDIT_SCHEMA = Yup.object().shape({

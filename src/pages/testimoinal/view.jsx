@@ -6,6 +6,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import moment from "moment";
 
 const TestimonialView = () => {
   const navigate = useNavigate();
@@ -92,6 +93,7 @@ const TestimonialView = () => {
                   <th className="py-3 px-5 text-left">Rating</th>
                   <th className="py-3 px-5 text-left">Message</th>
                   <th className="py-3 px-5 text-left">Status</th>
+                  <th className='py-3 px-5 text-left'>Created Date</th>
                 
                 </tr>
               </thead>
@@ -117,6 +119,7 @@ const TestimonialView = () => {
                              label={item.status ? 'Active' : 'Inactive'}/>
                                               
                       </td>                   
+                      <td className="py-3 px-5">{moment(item.created_at).format("DD-MM-YYYY")}</td>              
                      
                     </tr>
                   ))

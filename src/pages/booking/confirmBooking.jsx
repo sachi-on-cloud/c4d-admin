@@ -644,6 +644,24 @@ const ConfirmBooking = (props) => {
                                 <Typography color="gray" variant="h6">Service Type:</Typography>
                                 <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
                             </div>
+                            {bookingDetails?.source !== "Mobile App" &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Source Type:</Typography>
+                                <Typography>{bookingDetails?.sourceType}</Typography>
+                            </div>
+                            }
+                            {bookingDetails?.source !== "Mobile App" &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Service Area:</Typography>
+                                <Typography>{bookingDetails?.zone}</Typography>
+                            </div>
+                            }
+                            {/* {bookingDetails?.zone > 0 &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Service Area:</Typography>
+                                <Typography>{bookingDetails.zone}</Typography>
+                            </div>
+                            } */}
                             {/* {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
@@ -688,6 +706,21 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
                                 </div>
+                                
+                            }
+                            {bookingDetails?.serviceType != 'RIDES' &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Luggage:</Typography>
+                                    <Typography>{bookingDetails.luggage || '0'}</Typography>
+                                </div>
+                                
+                            }
+                            {bookingDetails?.serviceType != 'RIDES' &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Seater Capacity:</Typography>
+                                    <Typography>{bookingDetails.seaterCapacity || '0'}</Typography>
+                                </div>
+                                
                             }
                             {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' &&
                                 <div className="flex justify-between">
@@ -737,11 +770,17 @@ const ConfirmBooking = (props) => {
                             {/* need to add logic for price */}
                             {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
                                <div className="flex justify-between">
-  <Typography color="gray" variant="h6">Estimated Price:</Typography>
-  <Typography>
-    ₹ {
-      bookingDetails?.serviceType === 'DRIVER'
-        ? bookingDetails?.Package?.price
+                                    <Typography color="gray" variant="h6">Estimated Price:</Typography>
+                                    <Typography>
+                                        ₹ {
+                                            bookingDetails?.serviceType === 'DRIVER' && bookingDetails?.packageType === 'Local'
+                                                ? bookingDetails?.carType === "Sedan"
+                                                    ? bookingDetails?.Package?.price
+                                                    : bookingDetails?.carType === "MUV"
+                                                        ? bookingDetails?.Package?.priceMVP
+                                                        : bookingDetails?.carType === "SUV"
+                                                            ? bookingDetails?.Package?.price
+                                                            : bookingDetails?.Package?.price
         : (bookingDetails?.packageType === 'Local' && bookingDetails?.serviceType === 'RENTAL')
           ? (
               bookingDetails?.carType === "Sedan"
@@ -776,9 +815,32 @@ const ConfirmBooking = (props) => {
                                     </div>
                                     <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
-                                    <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                        {/* ₹ {(bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice) - (bookingDetails?.value?.estimatedPrice * bookingDetails?.discount?.percentage / 100)} */}
-                                        ₹ {(bookingDetails?.packageType == 'Local' && (bookingDetails?.serviceType == 'RENTAL'|| bookingDetails?.serviceType === 'DRIVER')) ? (bookingDetails.Package?.price) - (bookingDetails.Package?.price * bookingDetails?.discount?.percentage / 100) : (bookingDetails.value?.estimatedPrice) - (bookingDetails.value?.estimatedPrice * bookingDetails.discount?.percentage / 100)}
+                                    <Typography className="font-roboto-medium text-lg text-gray-900">
+                                        ₹ {(() => {
+                                        let basePrice;
+                                        const discountPercentage = bookingDetails?.discount?.percentage || 0;
+
+                                        if (bookingDetails?.packageType === 'Local') {
+                                            if (bookingDetails?.serviceType === 'RENTAL') {
+                                            const carType = bookingDetails?.carType?.toUpperCase();
+                                            basePrice = carType === 'MINI' ? bookingDetails?.Package?.price :
+                                                        carType === 'SUV' ? bookingDetails?.Package?.priceSuv :
+                                                        carType === 'MUV' ? bookingDetails?.Package?.priceMVP :
+                                                        carType === 'SEDAN' ? bookingDetails?.Package?.priceSedan : 
+                                                        'N/A';
+                                            } else if (bookingDetails?.serviceType === 'DRIVER') {
+                                            basePrice = bookingDetails?.carType?.toUpperCase() === 'MUV'
+                                                ? bookingDetails?.Package?.priceMVP
+                                                : bookingDetails?.Package?.price;
+                                            }
+                                        } else {
+                                            basePrice = bookingDetails?.value?.estimatedPrice;
+                                        }
+
+                                        return basePrice && basePrice !== 'N/A'
+                                            ? (basePrice - (basePrice * discountPercentage / 100)).toFixed(2)
+                                            : 'N/A';
+                                        })()}
                                     </Typography>
                                     </div>
                                 </>
@@ -1028,6 +1090,10 @@ const ConfirmBooking = (props) => {
                                         <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
                                     </div>
                                 }
+                                 <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">TAX:</Typography>
+                                        <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.gstAmount}</Typography>
+                                    </div>
                                 {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
                                     <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Discount Applied:</Typography>

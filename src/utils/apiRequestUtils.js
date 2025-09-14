@@ -163,5 +163,27 @@ export const ApiRequestUtils = {
             return data;
         }
     },
+    fetchExcelDownload: async (apiRoute, custID = 0) => {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No authentication token found');
+
+        const headers = {
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'token': token,
+        };
+
+        if (custID !== 0) {
+            headers['custID'] = custID;
+        }
+
+        const response = await axios.get(getBaseUrl() + apiRoute, {
+            headers,
+            responseType: 'blob',
+        });
+
+        return response;
+    }
+
+
 };
 

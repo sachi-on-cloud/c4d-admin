@@ -12,8 +12,8 @@ const AddBanner = () => {
   const [error, setError] = useState(null);
 
   const initialValues = {
-    // fromDate: '',
-    // toDate: '',
+    fromDate: '',
+    toDate: '',
     redirectUrl: '',
     status: true,
     type: '',
@@ -29,6 +29,8 @@ const AddBanner = () => {
       .test('fileType', 'Only JPEG or PNG files are allowed', (value) =>
         value ? ['image/jpeg', 'image/png','image/gif'].includes(value.type) : false
       ),
+      fromDate: Yup.string().required('Start Date is required'),
+      toDate: Yup.string().required('End Date is required'),
   });
 
   const handleImageUpload = (file, setFieldValue) => {
@@ -47,8 +49,8 @@ const AddBanner = () => {
       // console.log('Sending image:', values.image?.name, values.image?.type);
 
       const formData = new FormData();
-      // formData.append('fromDate', values.fromDate);
-      // formData.append('toDate', values.toDate);
+      formData.append('fromDate', values.fromDate);
+      formData.append('toDate', values.toDate);
       formData.append('redirectUrl', values.redirectUrl.trim());
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
@@ -84,7 +86,7 @@ const AddBanner = () => {
         {({ isSubmitting, values,setFieldValue }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {values.type == "BANNER" &&  <>
+
               <div>
                 <label className="text-sm font-medium text-gray-700">From Date</label>
                 <Field name="fromDate" type="date" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
@@ -95,7 +97,7 @@ const AddBanner = () => {
                 <label className="text-sm font-medium text-gray-700">To Date</label>
                 <Field name="toDate" type="date" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
                 <ErrorMessage name="toDate" component="div" className="text-red-500 text-sm" />
-              </div> </>}
+              </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Redirect URL</label>

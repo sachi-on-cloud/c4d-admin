@@ -79,6 +79,7 @@ const DiscountView = () => {
                   <th className="py-3 px-5 text-left">Start Date</th>
                   <th className="py-3 px-5 text-left">End Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
+                  <th className="py-3 px-5 text-left">City</th>
                   <th className="py-3 px-5 text-left">Actions</th>
                 </tr>
               </thead>
@@ -100,6 +101,15 @@ const DiscountView = () => {
                         {item.isActive
                           ? <span className="text-green-600 font-semibold">Active</span>
                           : <span className="text-red-600 font-semibold">Inactive</span>}
+                      </td>
+                      <td className="py-3 px-5">
+                        {item.serviceArea && item.serviceArea.length > 0 ? (
+                          item.serviceArea.map((area, index) => (
+                            <span key={index} className="mr-2">{area}</span>
+                          ))
+                        ) : (
+                          '-'
+                        )}
                       </td>
                       <td className="py-3 px-5">
                         <Button
