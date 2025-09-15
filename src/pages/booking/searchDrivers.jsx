@@ -422,7 +422,7 @@ export function SearchDrivers(props) {
                 reqBody.cabId = driverId;
                 reqBody.driverId = cabDriverId;
             } else {
-                reqBody.driverId = driverId;
+                reqBody.driverId = cabDriverId;
             }
             const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
             if (data?.success) {

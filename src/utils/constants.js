@@ -835,8 +835,6 @@ export const API_ROUTES = {
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
     'GET_ALL_ACCOUNTS': '/register/admin/account',
-    'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
-    'GET_ALL_PARCEL': '/admin/parcel',
     'GET_DRIVERS_PACKAGE': '/get-drivers',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',
@@ -953,9 +951,9 @@ export const API_ROUTES = {
     'GET_AUTO_BY_ID':'/auto/',
     'UPDATE_AUTO_DETAILS':'/update/admin/auto',
     'AUTO_PACKAGE_LIST':'/auto-package-list',
-    'PARCEL_PACKAGE_LIST':'/parcel-package-list',
     'AUTO_PRICE_EDIT':'/update-auto-package',
-    'PARCEL_PRICE_EDIT':'/update-parcel-package',
+    
+    
     
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
