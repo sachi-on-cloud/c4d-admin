@@ -7,6 +7,7 @@ import {
   Button,
   Spinner,
   Switch,
+  Input,
 } from '@material-tailwind/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
@@ -19,6 +20,8 @@ const BannerView = () => {
   const [bannerList, setBannerList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingBannerId, setUpdatingBannerId] = useState(null);
+  const [editingPositionId, setEditingPositionId] = useState(null);
+  const [positionValues, setPositionValues] = useState([]);
 
   useEffect(() => {
   const fetchBanners = async () => {
@@ -78,19 +81,48 @@ const BannerView = () => {
     }
   };
 
+  const handlePositionChange = (bannerId, value) => {
+    setPositionValues(prev => ({
+      ...prev,
+      [bannerId]: value
+    }));
+  };
+
+  const positionUpdate = async (bannerId) => {
+    try {
+      setLoading(true);
+      const newPosition = positionValues[bannerId];
+      const result = await ApiRequestUtils.update(API_ROUTES.BANNER_POSITION_UPDATE, {
+        bannerId: bannerId,
+        position: newPosition
+      });
+      
+      setBannerList((prevList) =>
+        prevList.map((item) =>
+          item.id === bannerId ? { ...item, position: newPosition } : item
+        )
+      );
+      setEditingPositionId(null); 
+    } catch (err) {
+      console.error('Failed to update banner position:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="flex items-center justify-end">
         <button
           onClick={() => navigate('/dashboard/user/bannerimg/add')}
-          className="ml-4 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+          className="ml-4 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-700"
         >
           Add New
         </button>
       </div>
 
       <Card>
-        <CardHeader className="mb-8 p-6 flex justify-between items-center bg-blue-600">
+        <CardHeader className="mb-8 p-6 flex justify-between items-center bg-primary">
           <Typography variant="h6" color="white">Banner List</Typography>
         </CardHeader>
 
@@ -100,7 +132,7 @@ const BannerView = () => {
               <Spinner className="h-10 w-10" />
             </div>
           ) : (
-            <table className="w-full min-w-[1000px] table-auto">
+            <table className="w-full min-w-[640px] table-auto">
               <thead>
                 <tr>
                   <th className="py-3 px-5 text-left">Image</th>
@@ -109,13 +141,14 @@ const BannerView = () => {
                   <th className="py-3 px-5 text-left">From Date</th>
                   <th className="py-3 px-5 text-left">To Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
-                  
+                  <th className="py-3 px-5 text-left">Position</th>
+                  <th className="py-3 px-5 text-left"></th>
                 </tr>
               </thead>
               <tbody>
                 {bannerList.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-4">
+                    <td colSpan="8" className="text-center py-4">
                       No Banner Records Found
                     </td>
                   </tr>
@@ -145,6 +178,32 @@ const BannerView = () => {
                           disabled={updatingBannerId === item.id}
                           label={item.status ? 'Active' : 'Inactive'}
                         />
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="flex items-center">
+                          <Input
+                            type="number"
+                            className="border border-gray-300 rounded-xl w-24"
+                            value={item.id === editingPositionId ? (positionValues[item.id] ?? item.position) : item.position}
+                            onChange={(e) => handlePositionChange(item.id, e.target.value)}
+                            disabled={editingPositionId !== item.id}
+                          />
+                          <Button
+                            size="sm"
+                            color="blue"
+                            variant="gradient"
+                            className="ml-2"
+                            onClick={() => {
+                              if (editingPositionId === item.id) {
+                                positionUpdate(item.id);
+                              } else {
+                                setEditingPositionId(item.id);
+                              }
+                            }}
+                          >
+                            {editingPositionId === item.id ? 'Update' : 'Edit'}
+                          </Button>
+                        </div>
                       </td>
                      
                     </tr>

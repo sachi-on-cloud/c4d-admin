@@ -13,6 +13,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
+import { saveAs } from 'file-saver';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -66,6 +67,29 @@ export function CustomerView() {
       setLoading(false);
     }
   };
+
+  const handleExportExcel = async () => {
+    try {
+      setLoading(true);
+      const response = await ApiRequestUtils.fetchExcelDownload(API_ROUTES.EXPORT_EXCEL_CUSTOMER_DETAILS);
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      let filename = 'customers.xlsx';
+      if (response.headers['content-disposition']) {
+        const match = response.headers['content-disposition'].match(/filename="(.+)"/);
+        if (match && match[1]) filename = match[1];
+      }
+
+      saveAs(blob, filename);
+    } catch (err) {
+      console.error('Export error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const getCustomers = useCallback(
     debounce((searchQuery) => {
@@ -150,9 +174,19 @@ export function CustomerView() {
         {customers.length > 0 ? (
           <>
             <CardHeader variant="gradient" className={`mb-8 p-6 rounded-xl ${ColorStyles.bgColor}`}>
-              <Typography variant="h6" color="white">
-                Customers List
-              </Typography>
+              <div className="flex justify-between items-center">
+                <Typography variant="h6" color="white">
+                  Customers List
+                </Typography>
+                <Button
+                  size="sm"
+                  className='bg-red-500 text-white'
+                  onClick={handleExportExcel}
+                  disabled={loading}
+                >
+                  {loading ? 'Exporting...' : 'Export to Excel'}
+                </Button>
+              </div>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
@@ -204,7 +238,7 @@ export function CustomerView() {
                     </tr>
                   ) : (
                     customers.map(
-                    ({ id, firstName, lastName, phoneNumber, rating,email }, key) => {
+                    ({ id, firstName, lastName, phoneNumber, rating }, key) => {
                       const className = `py-3 px-5 ${key === customers.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"

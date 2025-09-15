@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { DISCOUNT_EDIT_SCHEMA } from '@/utils/validations';
+import Select from 'react-select';
 
 const DiscountEdit = () => {
   const { id } = useParams();
@@ -13,12 +14,36 @@ const DiscountEdit = () => {
   const location = useLocation();
 
   const [initialValues, setInitialValues] = useState(null);
+  const [serviceAreas, setServiceAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
 
   const formatDateOnly = (isoString) => {
     return isoString ? isoString.slice(0, 10) : '';
   };
+
+  useEffect(() => {
+    const fetchGeoData = async () => {
+      try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST,{
+          type: 'Service Area',
+        });
+        // console.log('GEO MARKINGS RESPONSE:', response);
+        setServiceAreas(response.data);
+      } catch (error) {
+        console.error('Error fetching GEO_MARKINGS_LIST:', error);
+      }
+    };
+    fetchGeoData();
+  }, []);
+
+  const ZONE_OPTIONS = [
+    { value: 'All', label: 'All' },
+    ...serviceAreas.map((area) => ({
+      value: area.name,
+      label: area.name,
+    })),
+  ];
 
   useEffect(() => {
     const discountFromState = location.state?.discount;
@@ -32,7 +57,10 @@ const DiscountEdit = () => {
             startDate: formatDateOnly(discountFromState.startDate),
             endDate: formatDateOnly(discountFromState.endDate),
             serviceType: discountFromState.serviceType || '',
+            title: discountFromState.title || '',
+            description: discountFromState.description || '',
             isActive: discountFromState.isActive ? 'true' : 'false',
+            serviceArea: discountFromState.serviceArea ? (discountFromState.serviceArea === 'All' ? ['All'] : Array.isArray(discountFromState.serviceArea) ? discountFromState.serviceArea : [discountFromState.serviceArea]) : [],
           });
         } else {
           const res = await ApiRequestUtils.get(`${API_ROUTES.GET_DISCOUNT}/${id}`);
@@ -44,6 +72,9 @@ const DiscountEdit = () => {
             endDate: formatDateOnly(data.endDate),
             serviceType: data.serviceType || '',
             isActive: data.isActive ? 'true' : 'false',
+            title: data.title || '',
+            description: data.description || '',
+            serviceArea: data.serviceArea ? (data.serviceArea === 'All' ? ['All'] : Array.isArray(data.serviceArea) ? data.serviceArea : [data.serviceArea]) : [],
           });
         }
       } catch (err) {
@@ -72,6 +103,9 @@ const DiscountEdit = () => {
         endDate: values.endDate,
         
         isActive: values.isActive === 'true',
+        title: values.title,
+        description: values.description,
+        serviceArea: values.serviceArea.includes['All'] ? ['All'] : values.serviceArea,
       };
       
 
@@ -119,7 +153,7 @@ const DiscountEdit = () => {
         validationSchema={DISCOUNT_EDIT_SCHEMA}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting, isValid }) => (
+        {({ isSubmitting, isValid, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Field type="hidden" name="discountId" />
@@ -131,13 +165,21 @@ const DiscountEdit = () => {
                   name="serviceType"
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 >
-                  <option value="">Select</option>
+                  <option value="">Select Service Type</option>
                   <option value="DRIVER">DRIVER</option>
                   <option value="RIDES">RIDES</option>
-                  <option value="RENTAL">RENTAL</option>
+                  <option value="RENTAL_HOURLY_PACKAGE">HOURLY PACKAGE</option>
+                  <option value="RENTAL_DROP_TAXI">DROP TAXI</option>
+                  <option value="RENTAL">OUTSTATION</option>
+                  <option value="AUTO">AUTO</option>
                   <option value="ALL">ALL</option>
                 </Field>
                 <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
+              </div>
+              <div>
+                <label htmlFor="title" className="text-sm font-medium text-gray-700">Title</label>
+                <Field type="text" name="title" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
               </div>
 
               <div>
@@ -169,6 +211,11 @@ const DiscountEdit = () => {
                 />
                 <ErrorMessage name="endDate" component="div" className="text-red-500 text-sm" />
               </div>
+              <div>
+              <label htmlFor="description" className="text-sm font-medium text-gray-700">Description</label>
+              <Field as="textarea" name="description" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" rows="4" />
+              <ErrorMessage name="description" component="div" className="text-red-500 text-sm my-1" />
+              </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Status</label>
@@ -181,6 +228,28 @@ const DiscountEdit = () => {
                   <option value="false">Inactive</option>
                 </Field>
                 <ErrorMessage name="isActive" component="div" className="text-red-500 text-sm" />
+              </div>
+              <div>
+                <label htmlFor="serviceArea" className="text-sm font-medium text-gray-700">Select Service Area</label>
+                <Select
+                  name="serviceArea"
+                  options={ZONE_OPTIONS}
+                  isMulti
+                  value={values.serviceArea.map((val) => ({ value: val, label: val }))}
+                  onChange={(selectedOptions) => {
+                    const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+                    if (selectedValues.includes('All') && selectedValues.length > 1) {
+                      setFieldValue('serviceArea', ['All']); // Only keep 'All' if selected with other cities
+                    } else if (selectedValues.includes('All')) {
+                      setFieldValue('serviceArea', ['All']); // Keep only 'All'
+                    } else {
+                      setFieldValue('serviceArea', selectedValues); // Allow multiple serviceArea selections
+                    }
+                  }}
+                  placeholder="Select Service Area"
+                  className="mt-1"
+                />
+                <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-sm mt-1" />
               </div>
             </div>
 

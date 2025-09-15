@@ -196,7 +196,7 @@ export function UserView() {
                               <Button
                                 as="a"
                                 onClick={() => navigate(`/dashboard/users/edit/${id}`)}
-                                className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                className="text-xs font-semibold text-white bg-primary"
                               >
                                 Edit
                               </Button>

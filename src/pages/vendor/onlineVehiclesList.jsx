@@ -66,10 +66,12 @@ export function OnlineVehiclesList({ id = 0 }) {
   const fetchCabList = async () => {
     setLoading(true);
     try {
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE);
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
+            isToday:'true'
+      });
       if (data?.success) {
         const updatedVehicleList = (data.data || []).map((item) => {
-          console.log(`Vehicle ${item.id}: Shift availability = ${item.Shifts?.[0]?.availability}`);
+          // console.log(`Vehicle ${item.id}: Shift availability = ${item.Shifts?.[0]?.availability}`);
           return {
             ...item,
             Drivers: item.Drivers?.length > 0
@@ -82,7 +84,7 @@ export function OnlineVehiclesList({ id = 0 }) {
         });
         setVehicleList(updatedVehicleList);
         setStatusCheckedDriverIds([]);
-        console.log('Fetched vehicle list:', updatedVehicleList);
+        // console.log('Fetched vehicle list:', updatedVehicleList);
       } else {
         console.error('API request failed:', data?.message);
       }
@@ -137,7 +139,7 @@ export function OnlineVehiclesList({ id = 0 }) {
           <>
             <CardHeader
               variant="gradient"
-              className="mb-8 p-6 flex justify-between items-center bg-blue-600"
+              className="mb-8 p-6 flex justify-between items-center bg-primary"
             >
               <Typography variant="h6" color="white">
                 Online Vehicles List
@@ -163,6 +165,7 @@ export function OnlineVehiclesList({ id = 0 }) {
                       'Driver Name',
                       'Cab Name',
                       'Phone Number',
+                      'Current Address',
                       'Last Location Updated',
                       'Available Status',
                       
@@ -199,10 +202,16 @@ export function OnlineVehiclesList({ id = 0 }) {
                           {vehicle.Drivers?.[0]?.phoneNumber || '-'}
                         </Typography>
                       </td>
+                      <td className="py-3 px-5 border-b border-blue-gray-50">
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {/* {vehicle.Shifts?.[0]?.curAddress || '-'} */
+                          vehicle.Shifts?.[0]?.curAddress?.name}
+                        </Typography>
+                      </td>
                     <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                    {vehicle.Drivers?.[0]?.Tracks?.[0]?.updated_at
-                    ? moment(vehicle.Drivers[0].Tracks[0].updated_at).format('DD-MM-YYYY HH:mm')
+                    {vehicle.Shifts?.[0]?.updated_at
+                    ? moment(vehicle.Shifts[0]?.updated_at).format('DD-MM-YYYY HH:mm')
                     : '-'}
                     </Typography>
                     </td>
@@ -229,7 +238,7 @@ export function OnlineVehiclesList({ id = 0 }) {
                             vehicle.Drivers[0]?.status === 'ACTIVE' &&
                             !statusCheckedDriverIds.includes(vehicle.Drivers[0]?.id) && (
                               <Typography
-                                className="text-xs font-semibold text-blue-900 underline cursor-pointer"
+                                className="text-xs font-semibold text-primary-900 underline cursor-pointer"
                                 onClick={() => checkPresence(vehicle.Drivers[0]?.id, vehicle.id)}
                               >
                                 Check Status

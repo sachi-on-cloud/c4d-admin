@@ -45,7 +45,7 @@ const DateRangeFilter = ({ onFilterChange }) => {
         <select
           value={filterOption}
           onChange={(e) => handleFilterChange(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <option value="Today">Today</option>
           <option value="This Week">This Week</option>
@@ -63,7 +63,7 @@ const DateRangeFilter = ({ onFilterChange }) => {
             startDate={startDate}
             endDate={endDate}
             onChange={handleDateRangeChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
             dateFormat="MMMM d, yyyy"
           />
         </div>

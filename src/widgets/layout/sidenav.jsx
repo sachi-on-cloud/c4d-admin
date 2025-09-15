@@ -6,9 +6,10 @@ import {
   Button,
   IconButton,
   Typography,
-  Spinner
+  Spinner,
+  Tooltip,
 } from "@material-tailwind/react";
-import { useMaterialTailwindController, setOpenSidenav } from "@/context";
+import { useMaterialTailwindController, setOpenSidenav, setMiniSidenav } from "@/context";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth";
 import {
@@ -23,7 +24,7 @@ import {
   ChartBarIcon,
   DocumentCheckIcon,
   UserGroupIcon,
-  MapPinIcon
+  MegaphoneIcon,
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -33,8 +34,10 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
+  { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Trip Master" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
+  { name: "Marketing", path:"/dashboard/vendors/notificationList", permission: "Marketing" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
   
 ];
@@ -42,7 +45,7 @@ const menuItems = [
 export function Sidenav({ brandImg, brandName, routes }) {
   //const [loading, setLoading] = useState(false);
   const [controller, dispatch] = useMaterialTailwindController();
-  const { sidenavColor, sidenavType, openSidenav } = controller;
+  const { sidenavColor, sidenavType, openSidenav, miniSidenav } = controller;
   const sidenavTypes = {
     dark: "bg-gradient-to-br from-gray-800 to-gray-900",
     white: "bg-white shadow-sm",
@@ -75,14 +78,31 @@ export function Sidenav({ brandImg, brandName, routes }) {
  
   const [userPermissions, setUserPermissions] = useState(null);
  const [userName, setUserName] = useState("");
-  useEffect(() => {
-    const dataFromStorage = localStorage.getItem('loggedInUser');
-    
-    if (dataFromStorage) {
-      const user = JSON.parse(dataFromStorage);
-      setUserPermissions(user.permission || []);
-        setUserName(user?.email || "");
+
+  const getPermissions = async () => {
+    try{
+      const user = localStorage.getItem('loggedInUser');
+      const userId = JSON.parse(user);
+      const perm = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + userId?.id);
+      if(perm?.success){
+        setUserName(perm?.data?.email || "");
+        setUserPermissions(perm?.data?.permission);
+      }
+    }catch(err){
+      console.log("ERROR IN GET PERMISIIONS", err);
     }
+  };
+   
+   
+  useEffect(() => {
+    getPermissions();
+    // const dataFromStorage = localStorage.getItem('loggedInUser');
+    
+    // if (dataFromStorage) {
+    //   const user = JSON.parse(dataFromStorage);
+    //   setUserPermissions(user.permission || []);
+    //     setUserName(user?.email || "");
+    // }
   }, []);
 
   if (userPermissions === null) {
@@ -98,49 +118,66 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
   return (
     <aside
+      id="app-sidenav"
       className={`${sidenavTypes[sidenavType]} 
-  ${openSidenav ? "translate-x-0" : "translate-x-0"} 
-  fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] w-[90vw] max-w-[308px] 
+  ${openSidenav ? "translate-x-0" : "-translate-x-full"} 
+  lg:translate-x-0 fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] ${miniSidenav ? 'w-[4.5rem]' : 'w-[90vw] lg:w-[18rem] max-w-[308px]'}
   rounded-xl transition-transform duration-300 
   border border-blue-gray-100`}
     >
       <div className={`relative`}>
-        <Link to="/" className="py-6 px-8 text-center">
+        <Link to="/" className={`py-5 ${miniSidenav ? 'px-0' : 'px-6'} text-center`}>
           <Typography
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
           >
-             <div className="flex items-center gap-2 px-8 pt-6   text-center">
-            <img
-                src="/img/app_icon.png"
-                alt=" ROOT CABS"
-                className="h-6 w-6 rounded-full"
-              />
-              ROOT CABS
+            {miniSidenav ? (
+              <div className="flex items-center justify-center pt-4">
+                <img src="/img/app_icon.png" alt="ROOT CABS" className="h-8 w-8 rounded-full ring-2 ring-primary-200" />
               </div>
-                <div className="flex items-center gap-1 px-2 text-center pl-16">
-                  {/* <img
-                src="/img/profile.png"
-                alt=" ROOT CABS"
-                className="h-8 w-8 rounded-full"
-              /> */}
-               <p className="text-sm font-semibold pr-12"> {userName}</p>
-               </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 px-4 pt-2">
+                  <img src="/img/app_icon.png" alt="ROOT CABS" className="h-8 w-8 rounded-full ring-2 ring-primary-200" />
+                  <div className="flex flex-col items-start">
+                    <span className="text-base font-semibold tracking-wide">ROOT CABS</span>
+                    <span className="text-xs text-blue-gray-500">{userName}</span>
+                  </div>
+                </div>
+              </>
+            )}
             
           </Typography>
         </Link>
+        {/* Collapse toggle (desktop) */}
+        <div className="absolute -right-3 top-6 hidden lg:block">
+          <IconButton
+            size="sm"
+            variant="text"
+            color="blue-gray"
+            className="rounded-full bg-white shadow-sm border border-blue-gray-100"
+            onClick={() => setMiniSidenav(dispatch, !miniSidenav)}
+            aria-label={miniSidenav ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {miniSidenav ? (
+              <span className="inline-block rotate-180 text-lg">›</span>
+            ) : (
+              <span className="inline-block text-lg">›</span>
+            )}
+          </IconButton>
+        </div>
         <IconButton
           variant="text"
           color="white"
           size="sm"
           ripple={false}
-          className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none xl:hidden"
+          className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none lg:hidden"
           onClick={() => setOpenSidenav(dispatch, false)}
         >
           <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
         </IconButton>
       </div>
-      <div className="m-1 h-[calc(100vh-150px)] overflow-y-auto">
+      <div className={`m-1 h-[calc(100vh-150px)] overflow-y-auto ${miniSidenav ? 'px-0' : ''}`}>
         <ul className="flex flex-col gap-1">
           {menuItems
             .filter(item => userPermissions.includes(item.permission))
@@ -150,15 +187,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   {({ isActive }) => (
                     <Button
                       variant="text"
-                      className={`flex items-center gap-3 px-3 capitalize  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                        }`}
+                      className={`group flex items-center gap-3 ${miniSidenav ? 'justify-center px-0' : 'px-3'} capitalize rounded-xl 
+                        ${isActive ? 'bg-primary-100 text-black' : 'hover:bg-primary-50'} `}
                       fullWidth
                       onClick={() => toggleSubMenu(name)}
                     >
                       {name === "Home" ? (
                         <HomeIcon
-                          className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                          className={`h-6 w-6 text-black`}
                         />
                       ) : null}
 
@@ -177,6 +213,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
+                       {name === "Trip Master" ? (
+                        <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
+
 
                       {name === "Finance" ? (
                         <ChartBarIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
@@ -187,6 +228,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         <DocumentCheckIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
+                      {name === "Marketing" ? (
+                        <MegaphoneIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
 
                       {name === "Admin" ? (
                         <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
@@ -194,22 +239,31 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       ) : null}
                         
 
-                      <Typography color="inherit" className="font-medium capitalize">
-                        {name.toLowerCase()}
-                      </Typography>
+                      {!miniSidenav && (
+                        <Typography color="inherit" className="font-medium capitalize">
+                          {name.toLowerCase()}
+                        </Typography>
+                      )}
+                      {miniSidenav && (
+                        <Tooltip content={name} placement="right">
+                          <span className="sr-only">{name}</span>
+                        </Tooltip>
+                      )}
 
-                      {name !== "Home" && (<div className="ml-auto">
-                        {isActive ? (
-                          <ChevronUpIcon className="w-5 h-5" />
-                        ) : (
-                          <ChevronDownIcon className="w-5 h-5" />
-                        )}
-                      </div>)}
+                      {!miniSidenav && name !== "Home" && (
+                        <div className="ml-auto">
+                          {isActive ? (
+                            <ChevronUpIcon className="w-5 h-5" />
+                          ) : (
+                            <ChevronDownIcon className="w-5 h-5" />
+                          )}
+                        </div>
+                      )}
                     </Button>
                   )}
                 </NavLink>
 
-                {name === "All Bookings" && openSubMenu === "All Bookings" && (
+                {!miniSidenav && name === "All Bookings" && openSubMenu === "All Bookings" && (
                   <ul className="ml-0">
                     {[
                       { label: "All", path: "/dashboard/booking/list" },
@@ -222,7 +276,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
                                 }`}
                               fullWidth
                             >
@@ -268,7 +322,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   </ul>
                 )}
 
-                {name === "Customers" && openSubMenu === "Customers" && (
+                {!miniSidenav && name === "Customers" && openSubMenu === "Customers" && (
                   <ul className="ml-0">
                     {[
                       { label: "All", path: "/dashboard/customers" },
@@ -278,7 +332,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
                                 }`}
                               fullWidth
                             >
@@ -306,7 +360,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   </ul>
                 )}
 
-                {name === "Vendors" && openSubMenu === "Vendors" && (
+                {!miniSidenav && name === "Vendors" && openSubMenu === "Vendors" && (
                   <ul className="ml-0">
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
@@ -323,7 +377,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
                                 }`}
                               fullWidth
                             >
@@ -390,6 +444,43 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     ))}
                   </ul>
                 )}
+                {!miniSidenav && name === "Trip Master" && openSubMenu === "Trip Master" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "Details", path: "/dashboard/tripDetails" },
+                      { label: "Reports", path: "/dashboard/tripDetails/reports" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
+                                }`}
+                              fullWidth
+                            >
+                              {label === "Details"  }
+                               {label === "Reports" 
+                                // <img
+                                //   src="/img/pending_doc.png"
+                                //   alt="Pending Documents"
+                                //   className="h-6 w-6 rounded-full"
+                                // />
+                              }
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+            
                 {name === "Finance" && openSubMenu === "Finance" && (
                   <ul className="ml-0">
                     {[
@@ -403,7 +494,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
@@ -453,7 +544,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
@@ -484,29 +575,83 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     ))}
                   </ul>
                 )}
-            
-                {name === "Admin" && openSubMenu === "Admin" && (
+
+                {name === "Marketing" && openSubMenu === "Marketing" && (
                   <ul className="ml-0">
                     {[
-                      { label: "Users", path: "/dashboard/users" },
-                      { label: "Master Price Table", path: "/dashboard/users/master-price" },
-                      { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
                       { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
                       { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
-                      { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
-                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
-                      { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
-                      { label: "TAX", path: "/dashboard/user/GSTList" },
-                       { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
-                       { label: "Testimonial", path: "/dashboard/user/testimonialView" },
-                       
+                      { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
+                      { label: "Testimonial", path: "/dashboard/user/testimonialView" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-blue-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                                }`}
+                              fullWidth
+                            >
+                              {label === "All Push Notification" && (
+                                <img
+                                  src="/img/push_notification.png"
+                                  alt="All Push Notification"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                {label === "Drivers App Notification" && (
+                                <img
+                                  src="/img/driver_app_notification.png"
+                                  alt="Drivers App Notification"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              {label === "Banner Image" && (
+                                <img
+                                  src="/img/banner_img.png"
+                                  alt="Banner Image"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              {label === "Testimonial" && (
+                                <img
+                                  src="/img/testimonial.png"
+                                  alt="Testimonials Image"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {name === "Admin" && openSubMenu === "Admin" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "Users", path: "/dashboard/users" },
+                      { label: "Master Price Table", path: "/dashboard/users/master-price" },
+                      { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
+                      { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
+                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
+                      { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
+                      { label: "TAX", path: "/dashboard/user/GSTList" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                                 }`}
                               fullWidth
                             >
@@ -531,20 +676,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "All Push Notification" && (
-                                <img
-                                  src="/img/push_notification.png"
-                                  alt="All Push Notification"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                                {label === "Drivers App Notification" && (
-                                <img
-                                  src="/img/driver_app_notification.png"
-                                  alt="Drivers App Notification"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
+                                                      
                                {label === "GeoMarkings" && (
                                 <img
                                   src="/img/geo_marking.png"
@@ -573,20 +705,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                                {label === "Banner Image" && (
-                                <img
-                                  src="/img/banner_img.png"
-                                  alt="Banner Image"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                              {label === "Testimonial" && (
-                                <img
-                                  src="/img/testimonial.png"
-                                  alt="Testimonials Image"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
                               <Typography
                                 color="inherit"
                                 className="font-medium px-3 capitalize"
@@ -606,24 +724,27 @@ export function Sidenav({ brandImg, brandName, routes }) {
       </div>
       <Link
         to="/auth/sign-in"
-        className="flex items-center bg-red-900 text-white gap-2 p-3 rounded-lg absolute bottom-4 ml-3 hover:bg-gray-900"
+        className={`absolute bottom-4 ${miniSidenav ? 'left-1/2 -translate-x-1/2' : 'ml-3'} `}
         onClick={handleSignOut}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-4 h-4"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-          />
-        </svg>
-        Sign Out
+        {miniSidenav ? (
+          <Tooltip content="Sign out" placement="right">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white shadow-md">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                <path fillRule="evenodd" d="M3.75 4.5A2.25 2.25 0 016 2.25h6A2.25 2.25 0 0114.25 4.5v3a.75.75 0 01-1.5 0v-3a.75.75 0 00-.75-.75H6a.75.75 0 00-.75.75v15a.75.75 0 00.75.75h6a.75.75 0 00.75-.75v-3a.75.75 0 011.5 0v3A2.25 2.25 0 0112 21.75H6A2.25 2.25 0 013.75 19.5v-15z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M16.28 8.22a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h8.5l-1.72-1.72a.75.75 0 010-1.06z" clipRule="evenodd" />
+              </svg>
+            </span>
+          </Tooltip>
+        ) : (
+          <div className="flex items-center gap-2 rounded-lg bg-red-50 text-red-700 px-3 py-2 hover:bg-red-100 border border-red-200">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path fillRule="evenodd" d="M3.75 4.5A2.25 2.25 0 016 2.25h6A2.25 2.25 0 0114.25 4.5v3a.75.75 0 01-1.5 0v-3a.75.75 0 00-.75-.75H6a.75.75 0 00-.75.75v15a.75.75 0 00.75.75h6a.75.75 0 00.75-.75v-3a.75.75 0 011.5 0v3A2.25 2.25 0 0112 21.75H6A2.25 2.25 0 013.75 19.5v-15z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M16.28 8.22a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h8.5l-1.72-1.72a.75.75 0 010-1.06z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm font-medium">Sign out</span>
+          </div>
+        )}
       </Link>
     </aside>
   );

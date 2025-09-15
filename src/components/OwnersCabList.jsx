@@ -93,7 +93,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                     <tr key={id}>
                                                         <td className={className}>
                                                             <Typography 
-                                                                className="font-semibold underline cursor-pointer text-blue-900"
+                                                                className="font-semibold underline cursor-pointer text-primary-900"
                                                                 onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
                                                             >
                                                                 {name}
@@ -126,7 +126,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                                     <Button
                                                                         as="a"
                                                                         onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
-                                                                        className="text-xs font-semibold text-white bg-[#1A73E8]"
+                                                                        className="text-xs font-semibold text-white bg-primary"
                                                                     >
                                                                         RE ASSIGN
                                                                     </Button>

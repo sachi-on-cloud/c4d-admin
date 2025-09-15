@@ -35,7 +35,7 @@ const VersionControlList = () => {
       <Card>
         <CardHeader
           variant="gradient"
-          className="mb-8 p-6 flex justify-between items-center bg-blue-600"
+              className="mb-8 p-6 flex justify-between items-center bg-primary"
         >
           <Typography variant="h6" color="white">
             Version Control List
@@ -75,7 +75,7 @@ const VersionControlList = () => {
                             state: item,
                           })
                         }
-                        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+                           className="bg-primary-500 text-white px-4 py-1 rounded hover:bg-primary-600"
                       >
                         EDIT
                       </button>

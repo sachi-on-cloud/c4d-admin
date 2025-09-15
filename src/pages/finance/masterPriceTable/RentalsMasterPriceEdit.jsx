@@ -17,6 +17,7 @@ const STATUS_OPTIONS = [
 
 const PRICE_SCHEMA = Yup.object().shape({
     // carType: Yup.string().required('Cab Type is required'),
+    zone: Yup.string().required('Zone is required'),
     type: Yup.string().required('Trip Type is required'),
     period: Yup.string().required('Package Type is required'),
     baseFare: Yup.number().required('Base Fare is required'),
@@ -45,6 +46,7 @@ const RentalsMasterPriceEdit = () => {
             if (data?.success) {
                 setInitialValues({
                     // carType: data?.data?.carType || '',
+                    zone: data?.data?.zone || '',
                     type: data?.data?.type || '',
                     period: data?.data?.period || '',
                     baseFare: data?.data?.baseFare || 0,
@@ -125,6 +127,7 @@ const RentalsMasterPriceEdit = () => {
             const reqBody = {
                 packageId: Number(id),
                 // carType: String(values.carType),
+                zone: String(values.zone),
                 type: String(values.type),
                 period: Number(values.period),
                 kilometer: Number(values.kilometer),
@@ -211,6 +214,11 @@ const RentalsMasterPriceEdit = () => {
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Field type="text" name="zone" className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-200" disabled />
+                                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
                                 <label className="text-sm font-medium text-gray-700">Trip Type</label>
                                 <Field type="string" name="type" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
@@ -296,7 +304,7 @@ const RentalsMasterPriceEdit = () => {
   <table className="w-full border border-collapse text-sm text-center">
     <thead>
          {values?.type === 'Outstation' && (
-         <tr className="bg-blue-600  text-white">
+         <tr className="bg-primary  text-white">
   <th  colSpan={1}></th>
   <th  colSpan={2}></th>
 
@@ -305,7 +313,7 @@ const RentalsMasterPriceEdit = () => {
    <th  colSpan={2}className='border text-lg'>Round Trip Non AC</th>
   <th  colSpan={2}className='border text-lg'>Round Trip AC</th>
 </tr>)}
-      <tr className="bg-blue-600 text-white">
+  <tr className="bg-primary text-white">
         <th className="border p-2">Car Type</th>
         <th className="border p-2">Base Fare</th>
         <th className="border p-2">Additional Min Charge</th>

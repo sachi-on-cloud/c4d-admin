@@ -184,7 +184,7 @@ const SubscriptionAdd = () => {
                     <Field
                       as="select"
                       name="owner"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       onChange={(e) => {
                         const selectedOwner = e.target.value;
                         setFieldValue("owner", selectedOwner)
@@ -216,7 +216,7 @@ const SubscriptionAdd = () => {
                     <Field
                       as="select"
                       name="cab"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       disabled={!values.owner}
                     >
                       <option value="" disabled>
@@ -248,7 +248,7 @@ const SubscriptionAdd = () => {
                     <Field
                       as="select"
                       name="driver"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     >
                       <option value="" disabled>
                         Choose Driver
@@ -315,7 +315,7 @@ const SubscriptionAdd = () => {
                 <button
                   type='submit'
                   onClick={handleSubmit}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+                  className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 focus:outline-none"
                 >
                   Submit
                 </button>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Typography } from '@material-tailwind/react';
 
 const LandMarkBookingNotes = ({ addNotes, landmark }) => {
   const [text, setText] = useState('');
@@ -32,21 +33,21 @@ const LandMarkBookingNotes = ({ addNotes, landmark }) => {
   return (
     <div className="flex-1 p-4 bg-gray-100">
       <div>
-        <p className="text-gray-500 text-lg mb-2">LandMark Notes</p>
+        <Typography className="text-xl font-semibold text-blue-gray-600">LandMark Notes</Typography>
       </div>
       
       {/* Conditionally render the input area only if there's no landmark */}
       {!hasLandmark && (
         <div className="mb-4">
-          <textarea
-            className="border border-gray-200 rounded-lg p-3 mb-2 bg-white text-base min-h-[60px] w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter text..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
+        <textarea
+          className="border border-gray-200 rounded-lg p-3 mb-2 bg-white text-base min-h-[60px] w-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          placeholder="Enter text..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
           <button
             onClick={handleAddItem}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           >
             Add LandMark
           </button>

@@ -65,7 +65,7 @@ export function DriverNotificationList() {
       <div className="flex items-center justify-end">
         <button
           onClick={() => navigate('/dashboard/vendors/driverNotificationList/add')}
-          className={`ml-4 px-4 py-2 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${ColorStyles.addButtonColor}`}
+          className={`ml-4 px-4 py-2 rounded-xl hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${ColorStyles.addButtonColor}`}
         >
           Add new
         </button>
@@ -127,7 +127,7 @@ export function DriverNotificationList() {
                       <Button
                         as='a'
                         onClick={() => navigate(`/dashboard/vendors/driverNotificationList/edit/${item.id}`)}
-                        className="text-xs font-semibold bg-[#1A73E8] text-white"
+                        className="text-xs font-semibold bg-primary text-white"
                       >
                         Edit
                       </Button>
