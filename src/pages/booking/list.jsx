@@ -430,17 +430,17 @@ const handleTabChange = (value) => {
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
         
         // Force API call with Today's date
-        const today = moment().format('YYYY-MM-DD');
-        triggerFilteredAPICall(today, today, 1);
+        // const today = moment().format('YYYY-MM-DD');
+        triggerFilteredAPICall('', '', 1);
     };
 
     // Date filtering implementation
     const handleDateFilter = () => {
-        console.log('Date filter applied:', {
-            filter: dateFilter,
-            customFrom: customDateFrom,
-            customTo: customDateTo
-        });
+        // console.log('Date filter applied:', {
+        //     filter: dateFilter,
+        //     customFrom: customDateFrom,
+        //     customTo: customDateTo
+        // });
         
         // Set manual filter flag to prevent useEffect conflicts
         setIsManualDateFilter(true);
@@ -508,7 +508,7 @@ const handleTabChange = (value) => {
                 queryParams.endDate = endDate;
             }
             
-            console.log('Triggering API call with dates:', { startDate, endDate, queryParams });
+            // console.log('Triggering API call with dates:', { startDate, endDate, queryParams });
             
             const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BOOKINGS, queryParams);
             if (data?.success) {
