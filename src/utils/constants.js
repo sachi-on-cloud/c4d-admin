@@ -945,16 +945,20 @@ export const API_ROUTES = {
     'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
     'POST_AUTO_SEARCH':'/search/auto',
     'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
-    
+    'ADD_NEW_PARCEL_BOOKING':'/add-parcel-booking',
+    'UPDATE_PARCEL_BOOKING':'/edit-parcel-booking',
+    'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
+    'GET_ALL_PARCEL': '/admin/parcel',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_AUTO_PACKAGE':'/get-autos',
     'GET_AUTO_BY_ID':'/auto/',
     'UPDATE_AUTO_DETAILS':'/update/admin/auto',
     'AUTO_PACKAGE_LIST':'/auto-package-list',
     'AUTO_PRICE_EDIT':'/update-auto-package',
-    
-    
-    
+    'PARCEL_PACKAGE_LIST':'/parcel-package-list',
+    'PARCEL_PRICE_EDIT':'/update-parcel-package',
+    'ADD_SHOP_ADDRESS':'/shop/add',
+    'SHOP_SEARCH_ADDRESS':'/shops/search',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
     'GET_TRIP_REPORTS':'/get-trips-report',
