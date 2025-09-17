@@ -94,6 +94,7 @@ import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
+import CustomerFilterView from "./pages/customerFilter/view";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -331,6 +332,14 @@ export const routes = [
         name: "Banner image add",
         path: "/user/bannerimg/add",
         element: <AddBanner />,
+        display: true,
+        permission: "Marketing",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Banner image add",
+        path: "/user/customerFilterView",
+        element: <CustomerFilterView/>,
         display: true,
         permission: "Marketing",
       },
