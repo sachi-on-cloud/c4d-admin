@@ -142,6 +142,7 @@ const BannerView = () => {
                   <th className="py-3 px-5 text-left">To Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
                   <th className="py-3 px-5 text-left">Position</th>
+                  <th className="py-3 px-5 text-left">Zone</th>
                   <th className="py-3 px-5 text-left"></th>
                 </tr>
               </thead>
@@ -204,6 +205,9 @@ const BannerView = () => {
                             {editingPositionId === item.id ? 'Update' : 'Edit'}
                           </Button>
                         </div>
+                      </td>
+                       <td className="py-3 px-5">
+                        {item.zone}
                       </td>
                      
                     </tr>
