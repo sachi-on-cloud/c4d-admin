@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
+import Select from 'react-select'; // Assuming react-select is used
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 
@@ -10,6 +11,7 @@ const AddBanner = () => {
   const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
+  const [serviceAreas, setServiceAreas] = useState([]);
 
   const initialValues = {
     fromDate: '',
@@ -18,9 +20,34 @@ const AddBanner = () => {
     status: true,
     type: '',
     image: null,
+    zone: '',
   };
 
-  // ✅ Yup Validation Schema
+  const fetchGeoData = async () => {
+  try {
+    const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+      type: 'Service Area',
+    });
+    const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+    setServiceAreas(filteredAreas || []); // Ensure serviceAreas is always an array
+  } catch (error) {
+    console.error('Error fetching GEO_MARKINGS_LIST:', error);
+    setError('Failed to fetch service areas. Please try again.');
+  }
+};
+
+  useEffect(() => {
+    fetchGeoData();
+  }, []);
+
+  const ZONE_OPTIONS = [
+    { value: 'All', label: 'All' },
+    ...serviceAreas.map((area) => ({
+      value: area.name,
+      label: area.name,
+    })),
+  ];
+
   const validationSchema = Yup.object().shape({
     // status: Yup.boolean().required('Status is required'),
     type: Yup.string().required('Type is required'),
@@ -31,6 +58,7 @@ const AddBanner = () => {
       ),
       fromDate: Yup.string().required('Start Date is required'),
       toDate: Yup.string().required('End Date is required'),
+      zone: Yup.string().required('Zone is required')
   });
 
   const handleImageUpload = (file, setFieldValue) => {
@@ -54,6 +82,7 @@ const AddBanner = () => {
       formData.append('redirectUrl', values.redirectUrl.trim());
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
+      formData.append('zone', values.zone);
       formData.append('image', values.image, values.image.name);
       formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
@@ -129,7 +158,23 @@ const AddBanner = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700">Image</label>
+                <label htmlFor="zone" className="text-sm font-medium text-gray-700">
+                  Zone
+                </label>
+                <Select
+                  options={ZONE_OPTIONS}
+                  onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
+                  placeholder="Select Zone"
+                  className="w-full"
+                  name="zone"
+                />
+                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+              </div>
+
+              <div>
+                <label htmlFor="image" className="text-sm font-medium text-gray-700">
+                  Image
+                </label>
                 {imagePreview && (
                   <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover mb-2 border" />
                 )}
