@@ -863,7 +863,7 @@ useEffect(() => {
             case 'ended':
                 return (
                     <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
-                        Completed
+                        ENDED
                     </span>
                 );
             case 'customer_cancelled':
