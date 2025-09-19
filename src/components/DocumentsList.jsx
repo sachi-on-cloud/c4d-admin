@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import Swal from "sweetalert2";
 
-const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList }) => {
+const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcelsList }) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
@@ -23,6 +23,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList }) => {
     const [declineReason, setDeclineReason] = useState("");
     const [cabs, setCabs] = useState(cabsList);
     const [autos, setAutos] = useState(autoList);
+    const [parcels, setParcels] = useState(parcelsList);
 
     const fetchData = async () => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
@@ -310,7 +311,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList }) => {
                                 <div className="flex space-x-5">
                                     <Button
                                         onClick={() => {
-                                            if (type !== 'driver' && (modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? (cabs.length > 0 || autos.length > 0) : true) {
+                                            if (type !== 'driver' && (modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? (cabs.length > 0 || autos.length > 0 || parcels.length > 0) : true) {
                                                 handleStatusChange(modalData.id, "APPROVED", "")
                                             } else {
                                                 setModalData(null);

@@ -367,6 +367,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
+                       {label:  "Parcel Owner", path:"/dashboard/vendors/account/parcel/list" },
+                       { label: "Parcel Driver", path: "/dashboard/vendors/account/parcel" },
                       { label: "Auto Owner", path: "/dashboard/Vendors/account/autoview" },
                        { label: "Auto List", path: "/dashboard/Vendors/account/autoList" },
                       
@@ -405,6 +407,21 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/vehicleslist.png"
                                   alt="Online Vehicles List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Parcel Owner" && (
+                                 <img
+                                  src="/img/parcel_list.png"
+                                  alt="Parcel Driver"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                                
+                              )}
+                               {label === "Parcel Driver" && (
+                               <img
+                                  src="/img/Parcel_driver.png"
+                                  alt="Parcel Owner"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}

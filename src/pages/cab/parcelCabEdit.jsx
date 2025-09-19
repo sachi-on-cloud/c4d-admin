@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
-import { Button, Card, Alert, CardBody, Typography, Input, List, ListItem } from '@material-tailwind/react';
+import { Button, Alert, Input, List, ListItem, Typography } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Multiselect from 'multiselect-react-dropdown';
-import moment from 'moment';
 
 const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -56,60 +54,12 @@ const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
 const ParcelCabEdit = () => {
     const [parcelCabVal, setParcelCabVal] = useState({});
     const [alert, setAlert] = useState(null);
-    const [packageDetails, setPackageDetails] = useState([]);
     const [ownerAddressSuggestions, setOwnerAddressSuggestions] = useState([]);
-    const [driverAddressSuggestions, setDriverAddressSuggestions] = useState([]);
-    const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
     const { id } = useParams();
-    const isEditMode = !!id;
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [blockedReason, setBlockedReason] = useState(parcelCabVal?.result?.blockedReason || '');
-
-    const getAccountRelatedDrivers = async (accountId) => {
-        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS, {
-            accountId: accountId,
-        });
-
-        if (data?.success && data?.data.length > 0) {
-            setAccountRelatedDrivers(data?.data);
-        }
-    };
-
-    function getNameById(id, obj) {
-        for (const key in obj) {
-            if (obj[key].id === id) {
-                return obj[key].period;
-            }
-        }
-        return null;
-    }
-
-    const orderPackages = (packages, type) => {
-        return packages.sort((a, b) => {
-            if (type === 'Parcel') {
-                const weightA = parseFloat(a.period);
-                const weightB = parseFloat(b.period);
-                return weightA - weightB;
-            }
-            return 0;
-        });
-    };
-
-    const getPackageListDetails = async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.PARCEL_PACKAGE_LIST); // Assume a parcel package list endpoint
-        if (data?.success) {
-            const packageData = data?.data.map((option) => ({
-                ...option,
-                period: `${option.period} kg`, // Assuming parcel packages are based on weight
-            }));
-            const parcelPackages = orderPackages(packageData.filter((val) => val.type === 'Parcel'), 'Parcel');
-            setPackageDetails([...parcelPackages]);
-        }
-    };
 
     useEffect(() => {
-        getPackageListDetails();
         fetchItem(id);
     }, [id]);
 
@@ -118,43 +68,26 @@ const ParcelCabEdit = () => {
             const data = await ApiRequestUtils.get(API_ROUTES.GET_PARCEL_CAB_BY_ID + `${itemId}`);
             if (data?.data) {
                 setParcelCabVal(data.data);
-                getAccountRelatedDrivers(data?.data?.result?.Account?.id);
             } else {
                 console.error('No parcel cab data received');
-                navigate('/dashboard/vendors/account/allParcelVehicles');
+                navigate('/dashboard/vendors/account/parcel');
             }
         } catch (error) {
             console.error('Error fetching parcel cab:', error);
-            navigate('/dashboard/vendors/account/allParcelVehicles');
+            navigate('/dashboard/vendors/account/parcel');
         }
     };
 
     const initialValues = {
+        accountId: parcelCabVal?.result?.Account?.id || '',
         name: parcelCabVal?.result?.name || '',
         ownerName: parcelCabVal?.result?.Account ? parcelCabVal?.result?.Account?.name : '',
-        assignedTo: parcelCabVal?.result?.assigned === 'Individual' ? 'Owner' : 'Driver',
         vehicleNumber: parcelCabVal?.result?.vehicleNumber || '',
         address: parcelCabVal?.result?.curAddress || '',
         insurance: parcelCabVal?.result?.insurance || '',
-        withDriver: parcelCabVal?.result?.withDriver || '',
-        assignOrAddDriver: 'Assign',
-        driverId: parcelCabVal?.result?.Drivers[0] ? parcelCabVal?.result?.Drivers[0].id : '',
-        accountId: parcelCabVal?.result?.Account?.id || '',
-        driverName: '',
-        phoneNumber: '',
-        driverAddress: '',
-        licenseNumber: '',
-        vehicleType: parcelCabVal?.result?.vehicleType || '',
-        weightCapacity: parcelCabVal?.result?.weightCapacity || '',
-        dimensions: parcelCabVal?.result?.dimensions || '',
+        autoType: parcelCabVal?.result?.vehicleType || '',
+        seater: parcelCabVal?.result?.seater || '3',
         modelYear: parcelCabVal?.result?.modelYear || '',
-        packages: parcelCabVal?.result?.packages || [],
-        prices: parcelCabVal?.price
-            ? parcelCabVal?.price.filter((el) => parcelCabVal?.result?.packages.includes(el.packageId))
-            : [],
-        cabId: parcelCabVal?.result?.id || '',
-        status: parcelCabVal?.result?.status || '',
-        blockedReason: parcelCabVal?.result?.blockedReason || '',
     };
 
     const searchLocations = async (query, type) => {
@@ -163,131 +96,46 @@ const ParcelCabEdit = () => {
                 address: query,
             });
             if (data?.success && data?.data) {
-                if (type === 'owner') {
-                    setOwnerAddressSuggestions(data?.data);
-                    setDriverAddressSuggestions([]);
-                } else {
-                    setDriverAddressSuggestions(data?.data);
-                    setOwnerAddressSuggestions([]);
-                }
+                setOwnerAddressSuggestions(data?.data);
             }
         } else {
-            if (type === 'owner') {
-                setOwnerAddressSuggestions([]);
-            } else {
-                setDriverAddressSuggestions([]);
-            }
+            setOwnerAddressSuggestions([]);
         }
-    };
-
-    const renderPriceTable = (title, prices, values) => {
-        if (prices.length === 0) return null;
-
-        const sortedPrices = [...prices].sort((a, b) => {
-            const packageA = packageDetails.find((p) => p.id === a.packageId);
-            const packageB = packageDetails.find((p) => p.id === b.packageId);
-            const weightA = parseFloat(packageA.period);
-            const weightB = parseFloat(packageB.period);
-            return weightA - weightB;
-        });
-
-        return (
-            <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4">{title}</h3>
-                <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                        <table className="w-full min-w-[640px] table-auto">
-                            <thead>
-                                <tr>
-                                    {['Package', 'Base Fare', 'Per Kilometer Rate', 'Additional Charge'].map((el) => (
-                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
-                                            <Typography variant="h6" className="text-[12px] font-bold uppercase text-black">
-                                                {el}
-                                            </Typography>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sortedPrices.map((priceItem) => (
-                                    <tr key={priceItem.packageId}>
-                                        <td className="py-3 px-5 border-b border-blue-gray-50">
-                                            <Typography variant="small" color="blue-gray" className="font-semibold">
-                                                {getNameById(priceItem.packageId, packageDetails)}
-                                            </Typography>
-                                        </td>
-                                        {['baseFare', 'kilometerPrice', 'additionalCharge'].map((field) => (
-                                            <td key={field} className="py-3 px-5 border-b border-blue-gray-50">
-                                                <Field
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
-                                                    type="number"
-                                                    className="w-full p-1 text-xs border rounded"
-                                                />
-                                                <ErrorMessage
-                                                    name={`prices[${values.prices.indexOf(priceItem)}].${field}`}
-                                                    component="div"
-                                                    className="text-red-500 text-xs"
-                                                />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </CardBody>
-                </Card>
-            </div>
-        );
     };
 
     const onSubmit = async (values, { setSubmitting, resetForm }) => {
         if (isSubmitting) return;
         setIsSubmitting(true);
-        if (values.status === 'BLOCKED' && !blockedReason.trim()) {
-            setAlert({
-                message: 'Please enter a reason for blocking',
-                color: 'red',
-            });
-            setTimeout(() => setAlert(null), 5000);
-            return;
-        }
+        
         try {
-            const parcelCabDetails = {
+            const payload = {
+                accountId: values.accountId,
                 name: values.name,
+                company: values.ownerName,
                 vehicleNumber: values.vehicleNumber,
                 curAddress: values.address,
                 insurance: values.insurance,
-                vehicleType: values.vehicleType,
-                weightCapacity: values.weightCapacity,
-                dimensions: values.dimensions,
+                vehicleType: values.autoType,
+                seater: values.seater,
                 modelYear: values.modelYear,
-                assigned: values.assignedTo,
-                withDriver: values.withDriver,
-                driverName: values.driverName,
-                phoneNumber: values.phoneNumber,
-                driverAddress: values.driverAddress,
-                driverLicense: values.licenseNumber,
-                packages: values.packages,
-                accountId: values.accountId,
-                driverId: values.assignOrAddDriver === 'Add' ? '' : values.driverId,
-                cabId: values.cabId,
-                status: values?.status || '',
-                ...(values.status === 'BLOCKED' && { blockedReason: blockedReason }),
+                curLatitude: '',
+                curLongitude: '',
+                parcelId: parcelCabVal?.result?.id,
             };
-            const prices = values.prices;
-            let res = { parcelCabDetails: JSON.stringify(parcelCabDetails), prices: JSON.stringify(prices) };
-            const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_PARCEL_CAB, res);
-            if (!resp?.success && resp?.code === 401) {
-                setAlert({ message: 'Driver with this phone number already exists', color: 'red' });
-            }
-            if (!resp?.success && resp?.code === 203) {
-                setAlert({ message: 'Parcel cab already exists', color: 'red' });
-                resetForm();
-            } else if (resp?.success && resp?.code === 200) {
+            
+            const resp = await ApiRequestUtils.update(API_ROUTES.UPDATE_PARCEL_CAB, payload);
+            
+            if (resp?.success) {
                 setAlert({ message: 'Parcel Cab Updated Successfully', color: 'green' });
+                setTimeout(() => {
+                    navigate(`/dashboard/vendors/account/parcel/details/${values.accountId}`);
+                }, 2000);
+            } else {
+                setAlert({ message: resp?.message || 'Failed to update parcel cab', color: 'red' });
             }
         } catch (error) {
             console.error('Error updating parcel cab:', error);
+            setAlert({ message: 'Something went wrong!', color: 'red' });
         } finally {
             setIsSubmitting(false);
             setSubmitting(false);
@@ -298,21 +146,6 @@ const ParcelCabEdit = () => {
         return new Date().toISOString().split('T')[0];
     };
 
-    useEffect(() => {
-        let timeoutId;
-        if (alert?.message === 'Parcel Cab Updated Successfully') {
-            timeoutId = setTimeout(() => {
-                setAlert(null);
-                navigate(`/dashboard/vendors/account/details/${parcelCabVal?.result?.Account?.id}`);
-            }, 5000);
-        }
-        return () => {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
-        };
-    }, [alert, parcelCabVal, navigate]);
-
     return (
         <div className="p-4 mx-auto">
             {alert && (
@@ -322,7 +155,7 @@ const ParcelCabEdit = () => {
                     </Alert>
                 </div>
             )}
-            <h2 className="text-2xl font-bold mb-4">Update Parcel Cab</h2>
+            <h2 className="text-2xl font-bold mb-4">Update Parcel Bike</h2>
             <Formik
                 initialValues={initialValues}
                 // validationSchema={PARCEL_CAB_SCHEMA}
@@ -332,6 +165,7 @@ const ParcelCabEdit = () => {
                 {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
+                            {/* Vehicle Name */}
                             <div>
                                 <label htmlFor="name" className="text-sm font-medium text-gray-700">
                                     Vehicle Name
@@ -356,7 +190,7 @@ const ParcelCabEdit = () => {
                             </div>
                             <div>
                                 <label htmlFor="vehicleNumber" className="text-sm font-medium text-gray-700">
-                                    Vehicle Number
+                                    Bike Number
                                 </label>
                                 <Field
                                     type="text"
@@ -395,55 +229,43 @@ const ParcelCabEdit = () => {
                                 />
                                 <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
                             </div>
-                           
-                           
-                           
                             <div>
-                                <label htmlFor="status" className="text-sm font-medium text-gray-700">
-                                    Vehicle Status
-                                </label>
-                                <Field
-                                    as="select"
-                                    name="status"
-                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                >
-                                    <option value="">Select status</option>
-                                    <option value="ACTIVE">Active</option>
-                                    <option value="IN_ACTIVE">In_Active</option>
-                                    <option value="BLOCKED">Blocked</option>
-                                </Field>
-                                <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
-                                {values.status === 'BLOCKED' && (
-                                    <div className="mt-2">
-                                        <label
-                                            htmlFor="blockedReason"
-                                            className="text-sm font-medium text-gray-700"
-                                        >
-                                            Block Reason
+                                <label className="text-sm font-medium text-gray-700">Bike Type</label>
+                                <div className="space-x-4 mt-1">
+                                    {['PETROL', 'EV'].map((type) => (
+                                        <label key={type} className="inline-flex items-center">
+                                            <Field
+                                                type="radio"
+                                                name="autoType"
+                                                value={type}
+                                                className="mr-2"
+                                                onChange={handleChange}
+                                            />
+                                            <span>{type}</span>
                                         </label>
-                                        <input
-                                            type="text"
-                                            id="blockedReason"
-                                            value={blockedReason}
-                                            onChange={(e) => setBlockedReason(e.target.value)}
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm"
-                                        />
-                                    </div>
-                                )}
+                                    ))}
+                                </div>
+                                <ErrorMessage name="autoType" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="seater" className="text-sm font-medium text-gray-700">
+                                    Seater
+                                </label>
+                                <Field name="seater" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="modelYear" className="text-sm font-medium text-gray-700">
+                                    Year of Model
+                                </label>
+                                <Field name="modelYear" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
+                                <ErrorMessage name="modelYear" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
-                        {values.packages.length > 0 && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-4">Price Details</h2>
-                                {renderPriceTable('PARCEL', values.prices, values, packageDetails)}
-                            </div>
-                        )}
                         <div className="flex flex-row">
                             <Button
                                 fullWidth
-                                onClick={() =>
-                                    navigate(`/dashboard/vendors/account/details/${parcelCabVal?.result?.Account?.id}`)
-                                }
+                                onClick={() => navigate('/dashboard/vendors/account/parcel/list')}
                                 className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl"
                             >
                                 Cancel

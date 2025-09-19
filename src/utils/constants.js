@@ -957,6 +957,8 @@ export const API_ROUTES = {
     'AUTO_PRICE_EDIT':'/update-auto-package',
     'PARCEL_PACKAGE_LIST':'/parcel-package-list',
     'PARCEL_PRICE_EDIT':'/update-parcel-package',
+    'GET_PARCEL_CAB_BY_ID':'/parcel/', 
+    'UPDATE_PARCEL_CAB':'/update/admin/parcel',
     'ADD_SHOP_ADDRESS':'/shop/add',
     'SHOP_SEARCH_ADDRESS':'/shops/search',
     'UPDATE_LANDMARK':'/update-landmark',

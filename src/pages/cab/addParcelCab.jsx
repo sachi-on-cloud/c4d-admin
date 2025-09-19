@@ -67,7 +67,7 @@ const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
 const ParcelCabAdd = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { ownerName = '', accountId = '' } = location?.state || {}; // Get ownerName and accountId from state
+  const { ownerName = '', accountId = '' } = location?.state || {}; 
 
   const [ownerAddressSuggestions, setOwnerAddressSuggestions] = useState([]);
 
@@ -96,13 +96,13 @@ const ParcelCabAdd = () => {
 
   return (
     <div className="p-4 mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Add Parcel New Bike</h2>
+      <h2 className="text-2xl font-bold mb-4">Add New Vehicle</h2>
 
       <Formik
         initialValues={{
           accountId: accountId,
           name: '',
-          ownerName: ownerName, // Set default ownerName from location.state
+          ownerName: ownerName, 
           vehicleNumber: '',
           address: '',
           insurance: '',
@@ -131,7 +131,7 @@ const ParcelCabAdd = () => {
             const res = await ApiRequestUtils.post(API_ROUTES.CREATE_PARCEL_ADMIN, payload);
 
             if (res?.success) {
-              // Navigate back to AutoDetails with refreshed data
+              
               navigate(`/dashboard/vendors/account/parcel/details/${accountId}`, {
                 state: { refresh: true }
               });

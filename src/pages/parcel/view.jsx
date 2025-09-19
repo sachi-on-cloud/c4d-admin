@@ -13,18 +13,21 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import ParcelSearch from '@/components/ParcelSearch';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 export function ParcelView({ type, ownerName, id }) {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
+  const [allAccounts, setAllAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchParcelAccounts = async () => {
     setLoading(true);
     try {
-      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_PARCEL); // Updated to GET_ALL_PARCEL
+      const data = await ApiRequestUtils.get(API_ROUTES.GET_ALL_PARCEL);
       if (data?.success) {
         setAccounts(data?.data);
+        setAllAccounts(data?.data);
       }
     } catch (error) {
       console.error('Error fetching parcel accounts:', error);
@@ -32,6 +35,7 @@ export function ParcelView({ type, ownerName, id }) {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchParcelAccounts();
@@ -52,7 +56,7 @@ export function ParcelView({ type, ownerName, id }) {
               className={`mb-8 p-6 flex justify-between items-center rounded-xl ${ColorStyles.bgColor}`}
             >
               <Typography variant="h6" color="white">
-                Parcel List
+                Bike details List
               </Typography>
               {type === 'Parcel' && (
                 <div>
@@ -68,7 +72,7 @@ export function ParcelView({ type, ownerName, id }) {
                       })
                     }
                   >
-                    Add new Cab
+                    Add new Bike
                   </Button>
                 </div>
               )}
@@ -77,15 +81,8 @@ export function ParcelView({ type, ownerName, id }) {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {[
-                      'Created Date',
-                      'Account Name',
-                      'Vehicle Type',
-                      'Phone Number',
-                      'Vehicle Number',
-                      'Status',
-                    ].map((el) => (
-                      <th key={el} className="border-b border-gray-300 pb-2">
+                    {["Name","company","vehicleType","vehicleNumber"].map((el) => (
+                      <th key={el} className="border-b border-gray-300 text-center">
                         <Typography
                           variant="small"
                           className="text-[11px] font-bold uppercase text-black"
@@ -101,28 +98,20 @@ export function ParcelView({ type, ownerName, id }) {
                     (
                       {
                         id,
-                        created_at,
                         name,
+                        company,
                         vehicleType,
-                        phoneNumber,
-                        vehicleNumber,
-                        status,
-                        Drivers,
+                        vehicleNumber
                       },
                       key
                     ) => {
-                      const className = `py-3 px-5 ${
+                      const className = `py-3 text-center ${
                         key === accounts.length - 1 ? '' : 'border-b border-blue-gray-50'
                       }`;
                       return (
                         <tr key={id}>
                           <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-900">
-                              {moment(created_at).format('YYYY-MM-DD')}
-                            </Typography>
-                          </td>
-                          <td className={className}>
-                            <div className="flex items-center gap-4">
+                            
                               <Typography
                                 variant="small"
                                 color="blue"
@@ -133,22 +122,24 @@ export function ParcelView({ type, ownerName, id }) {
                               >
                                 {name}
                               </Typography>
-                            </div>
+                            
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {company}
+                              </Typography>
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
                               {vehicleType}
                               </Typography>
                           </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-900">{Drivers[0]?.phoneNumber}</Typography>
+                           <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {vehicleNumber}
+                              </Typography>
                           </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-900">{vehicleNumber}</Typography>
-                          </td>
-                          <td className={className}>
-                            <Typography className="text-xs font-semibold text-blue-gray-900">{Drivers[0]?.status}</Typography>
-                          </td>
+                          
                         </tr>
                       );
                     }

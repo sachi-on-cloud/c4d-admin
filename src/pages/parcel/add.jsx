@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
-import { ACCOUNT_ADD_SCHEMA } from '@/utils/validations';
 import { Alert, Button, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Input, List, ListItem, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -182,17 +181,11 @@ const ParcelAdd = (props) => {
                             variant="small"
                             className="font-semibold underline cursor-pointer text-blue-900"
                             onClick={() => {
-                                if (label === 'Live Photo' || label === 'Bank Statement') {
-                                    setModalData({
-                                        image1: fullDocVal?.image1
-                                    });
-                                }
-                                else {
-                                    setModalData({
-                                        image1: fullDocVal?.image1,
-                                        image2: fullDocVal?.image2,
-                                    });
-                                }
+                                setModalData({
+                                    image: fullDocVal?.image1,
+                                    image2: fullDocVal?.image2,
+                                    type: label
+                                });
                             }}
                         >
                             View/Download
@@ -240,163 +233,131 @@ const ParcelAdd = (props) => {
         try {
             setLoading(true);
             const files = e.target.files;
-            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-            const maxSize = 10 * 1024 * 1024; // 10MB
-            if (files.length > 2) {
+            if (!files || files.length === 0) {
                 setLoading(false);
-                alert("You can upload a maximum of two documents.");
                 return;
             }
 
-            const uploadedFiles = [];
-            const previews = {};
-
-            for (let i = 0; i < files.length; i++) {
-                if (!allowedTypes.includes(files[i].type)) {
-                    setLoading(false);
-                    setAlert({
-                        message: "Invalid file type. Please upload JPG, PNG, or PDF.",
-                        color: "red",
-                    });
-                    setTimeout(() => setAlert(null), 5000);
-                    return;
-                }
-                if (files[i].size > maxSize) {
-                    setLoading(false);
-                    setAlert({
-                        message: "File size exceeds 10MB limit.",
-                        color: "red",
-                    });
-                    setTimeout(() => setAlert(null), 5000);
-                    return;
-                }
-                const file = files[i];
-                uploadedFiles.push(file);
-
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    previews[label] = reader.result;
-                    setImagePreviews((prev) => ({ ...prev, ...previews }));
-                };
-                reader.readAsDataURL(file);
-
-                setFieldValue(label, uploadedFiles);
+            // Determine document type based on label
+            let type;
+            switch (label) {
+                case 'aadhaarImage':
+                    type = KYC_PROCESS.AADHAAR;
+                    break;
+                case 'rc':
+                    type = KYC_PROCESS.RC_COPY;
+                    break;
+                case 'drivingLicenseImage':
+                    type = KYC_PROCESS.DRIVING_LICENSE;
+                    break;
+                case 'panImage':
+                    type = KYC_PROCESS.PAN;
+                    break;
+                default:
+                    type = '';
             }
 
-
-
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rc' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
             const formData = new FormData();
-
-            formData.append('image1', files[0]);
-            formData.append('extImage1', files[0].name.split('.')[1]);
-            formData.append('fileTypeImage1', files[0].type);
-            formData.append('image2', files[1]);
-            formData.append('extImage2', files[1].name.split('.')[1]);
-            formData.append('fileTypeImage2', files[1].type);
             formData.append('type', type);
             formData.append('accountId', ownerAdded?.ownerId);
+            
+            // Handle single or multiple files
+            const isSingleFile = label === "livePhoto" || label === "bankStatement";
+            
+            if (files[0]) {
+                formData.append('image1', files[0]);
+                formData.append('extImage1', files[0].name.split('.').pop());
+                formData.append('fileTypeImage1', files[0].type);
+            }
+            
+            if (files[1] && !isSingleFile) {
+                formData.append('image2', files[1]);
+                formData.append('extImage2', files[1].name.split('.').pop());
+                formData.append('fileTypeImage2', files[1].type);
+            }
 
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
 
-            console.log('DATA IN DOC INSERT :', data);
-
+            console.log('Document upload response:', data);
+            
             if (data?.success) {
-                // console.log(data);
-                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
-                        image1: data?.data?.image1 || prev[label]?.image1,
-                        image2: data?.data?.image2 || prev[label]?.image2,
+                        image1: data?.data?.image1,
+                        image2: data?.data?.image2,
                         id: data?.data?.id,
-                    }
-                }))
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                        User: data?.data?.User || null
+                    },
+                }));
+                setAlert({ message: "Document uploaded successfully", color: "green" });
+            } else {
+                setAlert({ message: data?.message || "Failed to upload document", color: "red" });
             }
-            else {
-                setLoading(false);
-                setAlert({
-                    message: data?.message || "Failed to upload document. Please try again.",
-                    color: "red",
-                });
-                setTimeout(() => setAlert(null), 5000);
-            }
-        }
-        catch (err) {
-            console.log("ERR - >", err);
+        } catch (err) {
+            console.error("Error during image upload:", err);
+            setAlert({ message: "Upload error occurred: " + (err.message || "Unknown error"), color: "red" });
+        } finally {
+            setLoading(false);
+            setTimeout(() => setAlert(null), 5000);
         }
     };
     const handlePhotoUpload = async (e, setFieldValue, label) => {
         try {
             setLoading(true);
-            const file = e.target.files[0];
-            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-            const maxSize = 10 * 1024 * 1024; // 10MB
-
-            if (!allowedTypes.includes(file.type)) {
+            const files = e.target.files;
+            if (!files || files.length === 0) {
                 setLoading(false);
-                setAlert({
-                    message: "Invalid file type. Please upload JPG, PNG, or PDF.",
-                    color: "red",
-                });
-                setTimeout(() => setAlert(null), 5000);
-                return;
-            }
-            if (file.size > maxSize) {
-                setLoading(false);
-                setAlert({
-                    message: "File size exceeds 10MB limit.",
-                    color: "red",
-                });
-                setTimeout(() => setAlert(null), 5000);
                 return;
             }
 
-            setFieldValue(label, file);
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviews((prev) => ({
-                    ...prev,
-                    [label]: reader.result,
-                }));
-            };
-            reader.readAsDataURL(file);
-
-            const type = label === 'livePhoto' ? KYC_PROCESS.LIVE_PHOTO : label === 'bankStatement' ? KYC_PROCESS.BANK_STATEMENT : '';
+            // Determine document type based on label
+            let type;
+            switch (label) {
+                case 'livePhoto':
+                    type = KYC_PROCESS.LIVE_PHOTO;
+                    break;
+                case 'bankStatement':
+                    type = KYC_PROCESS.BANK_STATEMENT;
+                    break;
+                default:
+                    type = '';
+            }
 
             const formData = new FormData();
-
-            formData.append('image1', file);
-            formData.append('extImage1', file.name.split('.').pop());
-            formData.append('fileTypeImage1', file.type);
             formData.append('type', type);
             formData.append('accountId', ownerAdded?.ownerId);
+            
+            // Handle single file (live photo and bank statement are single files)
+            if (files[0]) {
+                formData.append('image1', files[0]);
+                formData.append('extImage1', files[0].name.split('.').pop());
+                formData.append('fileTypeImage1', files[0].type);
+            }
 
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
 
-            console.log('DATA IN DOC INSERT :', data);
-
-
+            console.log('Document upload response:', data);
+            
             if (data?.success) {
-                setLoading(false);
                 setImagePreviews((prev) => ({
                     ...prev,
                     [label]: {
-                        image1: data?.data?.image1 || prev[label]?.image1,
+                        image1: data?.data?.image1,
                         id: data?.data?.id,
-                    }
-                }))
-            }
-            else {
-                setLoading(false);
-                setAlert({
-                    message: data?.message || "Failed to upload photo. Please try again.",
-                    color: "red",
-                });
-                setTimeout(() => setAlert(null), 5000);
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                        User: data?.data?.User || null
+                    },
+                }));
+                setAlert({ message: "Document uploaded successfully", color: "green" });
+            } else {
+                setAlert({ message: data?.message || "Failed to upload document", color: "red" });
             }
         } catch (err) {
+            console.error("Error during image upload:", err);
             setAlert({
                 message: "An error occurred while uploading the photo.",
                 color: "red",
@@ -648,7 +609,7 @@ const ParcelAdd = (props) => {
                         {!ownerAdded.value && <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/vendors/account/parcel'); }}
+                                onClick={() => { navigate('/dashboard/vendors/account/parcel/list'); }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel
@@ -747,7 +708,7 @@ const ParcelAdd = (props) => {
                             <div className='flex flex-row'>
                                 <Button
                                     fullWidth
-                                    onClick={() => navigate('/dashboard/vendors/account/parcel')}
+                                    onClick={() => navigate('/dashboard/vendors/account/parcel/list')}
                                     className={`my-6 mx-2 ${ColorStyles.backButton}`}
                                 >
                                     Back
@@ -781,38 +742,107 @@ const ParcelAdd = (props) => {
                     <DialogBody divider>
                         <div className="flex flex-col items-center space-y-3">
                             <div className={`flex ${modalData.image2 ? "flex-row space-x-6" : "flex-col"} justify-center`}>
-                                {modalData.image1 && (
-                                    <iframe
-                                        src={modalData.image1}
-                                        className="w-full rounded-lg shadow-md"
-                                        style={{ height: "45vh", width: "45%" }}
-                                    />
+                                {modalData.image && (
+                                    modalData.image.toLowerCase().endsWith(".pdf") ? (
+                                        <iframe
+                                            src={modalData.image}
+                                            title="Document PDF"
+                                            className="w-full rounded-lg shadow-md"
+                                            style={{ height: "45vh" }}
+                                            onError={() => {
+                                                console.error('Failed to load PDF:', modalData.image);
+                                            }}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={modalData.image}
+                                            alt="Document"
+                                            className="rounded-lg shadow-md"
+                                            style={{ width: "45%", height: "45vh", objectFit: "contain" }}
+                                            onError={(e) => {
+                                                console.error('Failed to load image:', modalData.image);
+                                                e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+PC9zdmc+';
+                                            }}
+                                        />
+                                    )
                                 )}
                                 {modalData.image2 && (
-                                    <iframe
-                                        src={modalData.image2}
-                                        className="rounded-lg shadow-md"
-                                        style={{ height: "45vh", width: "45%" }}
-                                    />
+                                    modalData.image2.toLowerCase().endsWith(".pdf") ? (
+                                        <iframe
+                                            src={modalData.image2}
+                                            title="Document PDF 2"
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%" }}
+                                            onError={() => {
+                                                console.error('Failed to load PDF 2:', modalData.image2);
+                                            }}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={modalData.image2}
+                                            alt="Document 2"
+                                            className="rounded-lg shadow-md"
+                                            style={{ height: "45vh", width: "45%", objectFit: "contain" }}
+                                            onError={(e) => {
+                                                console.error('Failed to load image 2:', modalData.image2);
+                                                e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+PC9zdmc+';
+                                            }}
+                                        />
+                                    )
                                 )}
                             </div>
 
-
                             <div className="flex justify-center mt-4">
-                                <a
-                                    href={modalData.image1}
-                                    download
-                                    target="_blank"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                >
-                                    Download Image 1
-                                </a>
+                                {modalData.image && (
+                                    <a
+                                        href={modalData.image}
+                                        download={`document-${modalData.type || 'image'}-1`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mr-2"
+                                        onClick={(e) => {
+                                            // Fallback: if download fails, open in new tab
+                                            if (!modalData.image || modalData.image === '') {
+                                                e.preventDefault();
+                                                alert('Document URL not available');
+                                                return;
+                                            }
+                                            // Try to trigger download
+                                            const link = document.createElement('a');
+                                            link.href = modalData.image;
+                                            link.download = `document-${modalData.type || 'image'}-1`;
+                                            link.target = '_blank';
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }}
+                                    >
+                                        Download Image 1
+                                    </a>
+                                )}
                                 {modalData.image2 && (
                                     <a
                                         href={modalData.image2}
-                                        download
+                                        download={`document-${modalData.type || 'image'}-2`}
                                         target="_blank"
-                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                        rel="noopener noreferrer"
+                                        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                        onClick={(e) => {
+                                            // Fallback: if download fails, open in new tab
+                                            if (!modalData.image2 || modalData.image2 === '') {
+                                                e.preventDefault();
+                                                alert('Document URL not available');
+                                                return;
+                                            }
+                                            // Try to trigger download
+                                            const link = document.createElement('a');
+                                            link.href = modalData.image2;
+                                            link.download = `document-${modalData.type || 'image'}-2`;
+                                            link.target = '_blank';
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }}
                                     >
                                         Download Image 2
                                     </a>

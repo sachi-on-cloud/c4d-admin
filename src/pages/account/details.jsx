@@ -59,6 +59,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             <option value="">Select Type</option>
                                             <option value="Individual">Owner Cum Driver</option>
                                             <option value="Company">Travels</option>
+                                            <option value="Parcel">Parcel</option>
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -234,7 +235,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                 </Formik>
             </div>
             {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} />}
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels}/>}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow &&

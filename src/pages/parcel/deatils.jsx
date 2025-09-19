@@ -5,7 +5,7 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
-import OwnersCabList from '@/components/OwnersCabList';
+import ParcelCabList from '@/components/ParcelCabList';
 import DocumentLogs from '@/components/DocumentLogs';
 
 const ParcelDetails = ({ btnShow = false, noApprove = false }) => {
@@ -61,7 +61,7 @@ const ParcelDetails = ({ btnShow = false, noApprove = false }) => {
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'Individual' ? "Full Name" : 'Company Name'}</label>
+                                        <label htmlFor="name" className="text-sm font-medium text-gray-700">Company Name</label>
                                         <Field type="text" name="name" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                         <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
@@ -156,14 +156,14 @@ const ParcelDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
-            {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
+            {accountVal && !btnShow && <ParcelCabList parcelsList={accountVal?.Parcels || accountVal?.ParcelVehicles} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
             {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} />}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow &&
                 <div className='flex justify-center w-full'>
                     <Button
-                        onClick={() => { navigate('/dashboard/vendors/account'); }}
+                        onClick={() => { navigate('/dashboard/vendors/account/parcel/list'); }}
                         className={`my-6 px-8 ${ColorStyles.backButton}`}
                     >
                         Back

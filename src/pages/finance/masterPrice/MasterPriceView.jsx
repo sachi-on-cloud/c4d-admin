@@ -57,20 +57,23 @@ export function MasterPriceView() {
                 setRidesData(data?.data);
             }
             else if(selectedServiceType === 'AUTO') {
-                const data = await ApiRequestUtils.get(API_ROUTES.AUTO_PACKAGE_LIST);
-                 if (data?.success) {
-                        const filteredData = zone
-                            ? data?.data.filter(item => item.zone === zone)
-                            : data?.data;
-                setAutoLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "AUTO"));
+                const data = await ApiRequestUtils.get(API_ROUTES.AUTO_PACKAGE_LIST,{
+                    type : "Service area",
+                });
+                 if (data?.success) {                     
+                     setAutoLocalPackageList(data?.data);
                  }
+                 console.log("DADADADAD",data)
             }
+
              else if(selectedServiceType === 'PARCEL') {
-                const filteredData = zone
-                ? data?.data.filter(item => item.zone === zone)
-                : data?.data;
-                const data = await ApiRequestUtils.get(API_ROUTES.PARCEL_PACKAGE_LIST);
-                setParcelLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "PARCEL"));
+                const data = await ApiRequestUtils.get(API_ROUTES.PARCEL_PACKAGE_LIST,{
+                    type : "Service area",
+                });
+                    if(data?.success) {
+                        setParcelLocalPackageList(data?.data);
+                    }
+                    console.log("DADADADAD",data)
             } 
            
             else if (selectedServiceType === 'RENTAL') {
