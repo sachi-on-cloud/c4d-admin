@@ -59,7 +59,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             <option value="">Select Type</option>
                                             <option value="Individual">Owner Cum Driver</option>
                                             <option value="Company">Travels</option>
-                                            <option value="Parcel">Parcel</option>
+                                            <option value="Parcel">Bike</option>
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>

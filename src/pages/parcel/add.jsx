@@ -423,7 +423,7 @@ const ParcelAdd = (props) => {
                     </Alert>
                 </div>
             )}
-            <h2 className="text-2xl font-bold mb-4">Add new Parcel Account</h2>
+            <h2 className="text-2xl font-bold mb-4">Add new Vehicles Account</h2>
             <Formik
                 initialValues={initialValues}
                 onSubmit={onSubmit}
@@ -437,7 +437,7 @@ const ParcelAdd = (props) => {
                                     <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
                                     <Field as="select" disabled={!isEditable} name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                         <option value="">Select the Service Type</option>
-                                        <option value="Parcel">Parcel</option>
+                                        <option value="Parcel">Bike</option>
                                     </Field>
                                     <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                 </div>

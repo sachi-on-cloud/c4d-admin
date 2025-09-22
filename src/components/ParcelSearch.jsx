@@ -20,7 +20,7 @@ const ParcelSearch = ({ onSearch = () => {} }) => {
           <input
             type="text"
             className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Search Parcel Account"
+            placeholder="Search  Account"
             value={searchQuery}
             onChange={handleSearchChange}
           />

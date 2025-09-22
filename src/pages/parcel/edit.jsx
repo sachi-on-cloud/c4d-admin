@@ -326,7 +326,7 @@ const ParcelEdit = () => {
                     </Alert>
                 </div>
             )}
-            <h2 className="text-2xl font-bold mb-4">Update Parcel Account</h2>
+            <h2 className="text-2xl font-bold mb-4">Update Vehicle Account</h2>
             <Formik
                 initialValues={initialValues}
                 validationSchema={ACCOUNT_EDIT_SCHEMA}
@@ -340,7 +340,7 @@ const ParcelEdit = () => {
                                 <div>
                                     <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
                                     <Field as="select" name="type" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm">
-                                        <option value="Parcel">Parcel</option>
+                                        <option value="Parcel">Bike</option>
                                     </Field>
                                 </div>
                                 <div>

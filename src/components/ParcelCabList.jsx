@@ -111,7 +111,7 @@ const ParcelCabList = ({parcelsList, ownerName, type, id}) => {
                             </table>
                         </CardBody>
                     </>) : (
-                    <h2 className="text-lg font-medium p-4">No Parcel Vehicles</h2>
+                    <h2 className="text-lg font-medium p-4">No Vehicles</h2>
                 )
                 }
             </Card>

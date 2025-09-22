@@ -110,58 +110,7 @@ dropAddress: Yup.string().when('serviceType', {
     then: () => Yup.string().required('Drop Address is required'),
     otherwise: () => Yup.string(),
 }),
-// Parcel booking validation fields
-// receiverName: Yup.string().when('serviceType', {
-//     is: 'PARCEL',
-//     then: (schema) => schema.required('Receiver Name is required')
-//         .min(2, 'Receiver name must be at least 2 characters'),
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// receiverPhone: Yup.string().when('serviceType', {
-//     is: 'PARCEL',
-//     then: (schema) => schema.required('Receiver Phone is required')
-//         .matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit mobile number'),
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// receiverAddress: Yup.string().when('serviceType', {
-//     is: 'PARCEL',
-//     then: (schema) => schema.required('Receiver Address is required')
-//         .min(5, 'Receiver address must be at least 5 characters'),
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// parcelCategory: Yup.string().when('serviceType', {
-//     is: 'PARCEL',
-//     then: (schema) => schema.required('Parcel Category is required'),
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// parcelCategoryOther: Yup.string().when(['serviceType', 'parcelCategory'], {
-//     is: (serviceType, parcelCategory) => serviceType === 'PARCEL' && parcelCategory === 'Others',
-//     then: (schema) => schema.required('Please specify the parcel category')
-//         .min(2, 'Category specification must be at least 2 characters'),
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// deliveryInstructionType: Yup.string().when('serviceType', {
-//     is: 'PARCEL',
-//     then: (schema) => schema.required('Delivery Instructions are required'),
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// specialInstructions: Yup.string().when(['serviceType', 'deliveryInstructionType'], {
-//     is: (serviceType, deliveryInstructionType) => serviceType === 'PARCEL' && deliveryInstructionType === 'Others',
-//     then: (schema) => schema.required('Please specify the delivery instructions')
-//         .min(5, 'Special instructions must be at least 5 characters'),
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// shopContactName: Yup.string().when('serviceType', {
-//     is: 'PARCEL',
-//     then: (schema) => schema.notRequired(), // Optional field
-//     otherwise: (schema) => schema.notRequired(),
-// }),
-// shopContactPhone: Yup.string().when('serviceType', {
-//     is: 'PARCEL',
-//     then: (schema) => schema.matches(/^[6-9][0-9]{9}$/, 'Must be a valid 10-digit mobile number')
-//         .notRequired(), // Optional but must be valid if provided
-//     otherwise: (schema) => schema.notRequired(),
-// }),
+
 });
 
 
