@@ -14,7 +14,7 @@ export function ShopList() {
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
-    itemsPerPage: 10,
+    itemsPerPage: 15,
     search: '',
   });
 
@@ -123,7 +123,7 @@ export function ShopList() {
               <table className="w-full table-fixed">
                 <thead>
                   <tr>
-                    {["Date","Shop Name","Shop Type", "Phone Number", "Shop Address", "Zone", "Booking Count"].map((el) => (
+                    {["Date","Shop Name","Shop Type", "Phone Number", "Shop Address", "Zone"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -185,11 +185,6 @@ export function ShopList() {
                             <td className={className} >
                               <Typography className="text-xs font-semibold text-black">
                                 {shopZone}
-                              </Typography>
-                            </td>
-                            <td className={className} >
-                              <Typography className="text-xs font-semibold text-black">
-                                {bookingCount ?? '0'}
                               </Typography>
                             </td>
                           </tr>

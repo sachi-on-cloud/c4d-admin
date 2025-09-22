@@ -31,9 +31,9 @@ const ShopDetails = () => {
       const data = await ApiRequestUtils.get(`${API_ROUTES.GET_SHOP_BY_ID}/${itemId}`);
       if (data?.success) {
         const shopData = data.data;
-        console.log("licenseDocument", shopData.licenseDocument);
-        console.log("gstDocument", shopData.gstDocument);
-        console.log("shopLogo", shopData.shopLogo);
+        // console.log("licenseDocument", shopData.licenseDocument);
+        // console.log("gstDocument", shopData.gstDocument);
+        // console.log("shopLogo", shopData.shopLogo);
         setShopVal(shopData);
         // Map API response keys to imagePreviews
         setImagePreviews({
@@ -65,7 +65,7 @@ const ShopDetails = () => {
   };
 
   const DocumentView = ({ label, name, value, setModalData, fullDocVal }) => {
-    console.log("full Data", fullDocVal?.image1);
+    // console.log("full Data", fullDocVal?.image1);
     return (
       <tr>
         <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -124,7 +124,6 @@ const ShopDetails = () => {
                     <option value="Restaurant">Restaurant</option>
                     <option value="Grocery">Grocery</option>
                     <option value="Pharmacy">Pharmacy</option>
-                    <option value="Others">Others</option>
                   </Field>
                 </div>
                 <div className="col-span-2">
@@ -184,7 +183,7 @@ const ShopDetails = () => {
                     className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm"
                   />
                 </div>
-                <div>
+                {/* <div>
                   <label htmlFor="bookingCount" className="text-sm font-medium text-gray-700">Booking Count</label>
                   <Field
                     type="number"
@@ -192,7 +191,7 @@ const ShopDetails = () => {
                     name="bookingCount"
                     className="p-2 w-full rounded-md border bg-gray-200 border-gray-300 shadow-sm"
                   />
-                </div>
+                </div> */}
               </div>
 
               <div className="mt-6">

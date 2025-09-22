@@ -215,10 +215,9 @@ const ShopAdd = () => {
 
             const data = await ApiRequestUtils.updateDocs(`${API_ROUTES.SHOP_DOCUMENTS_UPDATED}${shopAdded.shopId}`, formData);
 
-            console.log('API response for document upload:', data); // Debug API response
+            // console.log('API response for document upload:', data);
 
             if (data?.success) {
-                // Handle both `image1` and `licenseDocument` fields
                 const documentUrl = data.data?.licenseDocument || data.data?.image1;
                 if (!documentUrl) {
                     setUploadError('Upload failed: No valid document URL returned from server.');
@@ -281,7 +280,7 @@ const ShopAdd = () => {
             };
 
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_SHOP, shopData);
-            console.log('Shop creation response:', data); // Debug shop creation
+            // console.log('Shop creation response:', data);
             if (data?.success) {
                 setShopAdded({
                     shopId: data?.data?.id,
@@ -337,7 +336,6 @@ const ShopAdd = () => {
                                     <option value="Restaurant">Restaurant</option>
                                     <option value="Grocery">Grocery</option>
                                     <option value="Pharmacy">Pharmacy</option>
-                                    <option value="Others">Others</option>
                                 </Field>
                                 <ErrorMessage name="shopType" component="div" className="text-red-500 text-sm" />
                             </div>
@@ -466,7 +464,7 @@ const ShopAdd = () => {
                                 )}
                             </div>
                         )}
-    
+
                         <div className="flex flex-row">
                             <Button
                                 fullWidth
