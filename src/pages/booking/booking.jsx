@@ -1758,9 +1758,22 @@ useEffect(() => {
                                                                                         </Typography>
                                                                                     </div>
                                                                                     <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Kilometer :</Typography>
+                                                                                        <Typography>{quoteDetails?.amount?.packageDetails?.kilometer} Kms</Typography>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
                                                                                         <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
                                                                                         <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                                            ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)}
+                                                                                            {/* ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)} */}
+                                                                                            ₹ {(() => {
+                                                                                                const carType = quoteDetails?.amount?.carType?.toUpperCase();
+                                                                                                const pkg = quoteDetails?.amount?.packageDetails;
+                                                                                                const price = carType === 'MINI' ? Number(pkg?.price) :
+                                                                                                            carType === 'MUV' ? Number(pkg?.priceMVP) :
+                                                                                                            carType === 'SUV' ? Number(pkg?.priceSuv) :
+                                                                                                            carType === 'SEDAN' ? Number(pkg?.priceSedan) : 0;
+                                                                                                return price ? (price - (price * (Number(quoteDetails?.discount?.percentage) || 0) / 100)).toFixed(2) : 'N/A';
+                                                                                            })()}
                                                                                             {/* {(() => {
                                                                                                 const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
                                                                                                 const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;
