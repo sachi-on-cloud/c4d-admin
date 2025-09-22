@@ -827,7 +827,7 @@ const ConfirmBooking = (props) => {
                                                         carType === 'SUV' ? bookingDetails?.Package?.priceSuv :
                                                         carType === 'MUV' ? bookingDetails?.Package?.priceMVP :
                                                         carType === 'SEDAN' ? bookingDetails?.Package?.priceSedan : 
-                                                        'N/A';
+                                                        bookingDetails?.Package?.price;
                                             } else if (bookingDetails?.serviceType === 'DRIVER') {
                                             basePrice = bookingDetails?.carType?.toUpperCase() === 'MUV'
                                                 ? bookingDetails?.Package?.priceMVP
