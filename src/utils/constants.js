@@ -973,7 +973,12 @@ export const API_ROUTES = {
     'BANNER_POSITION_UPDATE': '/banner/position/update',
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
-    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
+    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export',
+    'GET_ALL_SHOPS': '/shops',
+    'GET_SHOP_BY_ID': '/shop',
+    'ADD_SHOP': '/shop/add',
+    'UPDATE_SHOP': '/shop/update',
+    'SHOP_DOCUMENTS_UPDATED': '/shop/documents/'
 };
 
 export const KYC_PROCESS = {

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Dialog,
   DialogHeader,
@@ -47,6 +47,31 @@ const ShopAddModal = ({
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [localZoneOptions, setLocalZoneOptions] = useState([]);
+
+  // Fetch zones from geo markings
+  const fetchZonesFromGeoMarkings = useCallback(async () => {
+    try {
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+      if (response?.success && response?.data) {
+        // Filter for zones only
+        const zones = response.data.filter(item => item.type === 'Service Area');
+        const zoneOptions = zones.map(zone => ({
+          value: zone.name,
+          label: zone.name
+        }));
+        setLocalZoneOptions(zoneOptions);
+      }
+    } catch (error) {
+      console.error('Error fetching zones from geo markings:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchZonesFromGeoMarkings();
+    }
+  }, [isOpen, fetchZonesFromGeoMarkings]);
 
   const initialValues = {
     shopName: '',
@@ -202,7 +227,7 @@ const ShopAddModal = ({
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="">Select Zone</option>
-                        {zoneOptions.map((zone, index) => {
+                        {(localZoneOptions.length > 0 ? localZoneOptions : zoneOptions).map((zone, index) => {
                           const zoneValue = typeof zone === 'string' ? zone : (zone.value || zone.name);
                           const zoneLabel = typeof zone === 'string' ? zone : (zone.label || zone.name || zone.value);
                           return (
@@ -239,11 +264,11 @@ const ShopAddModal = ({
                     )}
                   </Field>
                   {addressSuggestions.length > 0 && (
-                    <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto shadow-lg">
+                    <ul className="border rounded-lg bg-white mt-2">
                       {addressSuggestions.map((suggestion, index) => (
                         <li
                           key={index}
-                          className="p-2 cursor-pointer hover:bg-blue-50 transition-colors"
+                          className="p-2 cursor-pointer hover:bg-gray-100"
                           onClick={() => handleAddressSelect(suggestion, setFieldValue)}
                         >
                           {suggestion}

@@ -1,8 +1,3 @@
-
-
-
-
-
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -2156,7 +2151,7 @@ useEffect(() => {
                                                                                     </div>
                                                                                     
                                                                                     {/* Shop List */}
-                                                                                    <div className="max-h-48 overflow-y-auto">
+                                                                                    {/* <div className="max-h-48 overflow-y-auto">
                                                                                         {filteredShops.length > 0 ? (
                                                                                             <div className="grid grid-cols-1 gap-2">
                                                                                                 {filteredShops.map((shop) => (
@@ -2195,7 +2190,7 @@ useEffect(() => {
                                                                                                 <div className="text-sm">Try adjusting your search criteria</div>
                                                                                             </div>
                                                                                         )}
-                                                                                    </div>
+                                                                                    </div> */}
                                                                                 </div>
                                                                                 
                                                                                 {/* Manual Shop Entry or Selected Shop Details */}
@@ -2282,7 +2277,7 @@ useEffect(() => {
                                                                                             />
                                                                                             <ErrorMessage name="shopContactPhone" component="div" className="text-red-500 text-sm mt-1" />
                                                                                         </div>
-                                                                                        {selectedShop && (
+                                                                                        {/* {selectedShop && (
                                                                                             <div className="p-3 bg-green-50 rounded-lg">
                                                                                                 <div className="text-sm font-medium text-green-800 mb-1">Selected Shop</div>
                                                                                                 <div className="text-sm text-green-700">{selectedShop.shopName}</div>
@@ -2290,7 +2285,7 @@ useEffect(() => {
                                                                                                     Zones: {selectedShop.availableZones?.join(', ')}
                                                                                                 </div>
                                                                                             </div>
-                                                                                        )}
+                                                                                        )} */}
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
