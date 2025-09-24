@@ -18,6 +18,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 import TextBoxWithList from "@/components/BookingNotes";
 import LandMarkBookingNotes from "@/components/LandMarkNotes";
+import Swal from "sweetalert2";
 
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
@@ -35,6 +36,7 @@ const ConfirmBooking = (props) => {
         permitCost: "",
         fuelCost: "",
         tripFare: "",
+        notes: "",
     });
 
     const [paymentDetails, setPaymentDetails] = useState({
@@ -1077,8 +1079,10 @@ const ConfirmBooking = (props) => {
                                     </div>}
                                     {amount.extraKMs > 0 &&
                                         <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">{`Extra KM's Fare: (${amount.extraKMs} x ${amount.extraKMPrice})`}</Typography>
-                                            <Typography>₹ {amount?.extraKMs * amount?.extraKMPrice}</Typography>
+<Typography color="gray" variant="h6">         {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
+                                            <Typography>
+    ₹ {(amount?.extraKMs * amount?.extraKMPrice).toFixed(2)}
+  </Typography>
                                         </div>
                                     }
                                     {amount.extraNightCharge > 0 &&
@@ -1146,11 +1150,19 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">End KM:</Typography>
                                     <Typography>{bookingDetails?.endKM}</Typography>
                                 </div>
-                                </>}
-                                {bookingDetails?.extraHours >0 && (
+
+                                    <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total KM:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.endKM && bookingDetails?.startKM ? (bookingDetails.endKM - bookingDetails.startKM).toFixed(2): "0.00"}
+                                    </Typography>
+                                    </div>
+                                </>
+                                }
+                            {bookingDetails?.extraHours >0 && (
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                    <Typography color="gray" variant="h6">{`${Math.floor(bookingDetails.extraHours / 60).toString().padStart(2, '0')} : ${(bookingDetails.extraHours % 60).toString().padStart(2, '0')} hrs`}</Typography>
+                                    <Typography color="gray" variant="h6">{`${Math.floor(bookingDetails.extraHours / 60).toString().padStart(2, '0')} : ${Math.round(bookingDetails.extraHours % 60).toString().padStart(2, '0')} mins`}</Typography>
                                 </div>
                                 )}
                                  {/* {bookingDetails?.extraHourPrice >0 &&
@@ -1168,7 +1180,7 @@ const ConfirmBooking = (props) => {
                                  {bookingDetails?.extraKMs > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra KMs:</Typography>
-                                     <Typography>{bookingDetails?.extraKMs}</Typography>     
+                                     <Typography> {Number(bookingDetails?.extraKMs).toFixed(2)}</Typography>     
                                 </div>
                                 }
                                  {bookingDetails?.extraKMPrice > 0 &&
@@ -1253,6 +1265,7 @@ const ConfirmBooking = (props) => {
                 <div className="grid grid-cols-6 gap-x-4">
                     <Typography color="gray" variant="h6">Trip Type:</Typography>
                     <Select
+                        label="Select Trip Type"
                         value={additionalPaymentDetails.tripType || ""}
                         onChange={(value) => handleAdditionalChange("tripType", value)}
                         disabled={bookingDetails?.status !== 'ENDED'}
@@ -1302,6 +1315,20 @@ const ConfirmBooking = (props) => {
                         value={additionalPaymentDetails.tripFare || ""}
                         onChange={(e) => handleAdditionalChange("tripFare", e.target.value)}
                         placeholder="Enter Trip Fare"
+                        disabled={bookingDetails?.status !== 'ENDED'}
+                    />
+                </div>
+                {/* Notes */}
+                <div className="col-span-2">
+                    <Typography color="gray" variant="h6" className="mb-1">
+                        Notes
+                    </Typography>
+                    <textarea
+                        name="notes"
+                        value={additionalPaymentDetails.notes || ""}
+                        onChange={(e) => handleAdditionalChange("notes", e.target.value)}
+                        placeholder="Enter notes..."
+                        className="p-2 w-full border rounded-md h-20"
                         disabled={bookingDetails?.status !== 'ENDED'}
                     />
                 </div>
@@ -1359,7 +1386,7 @@ const ConfirmBooking = (props) => {
             'endAddress',
             'startKm',
             'endKm',
-            'totalKm',
+            // 'totalKm',
             'fuelType',
             'tripFare',
             'tripType',
@@ -1371,9 +1398,15 @@ const ConfirmBooking = (props) => {
             (typeof tripDetails[field] === 'object' && !tripDetails[field]?.address)
         );
 
-        if (missingFields.length > 0) {
-            console.error("Missing required fields:", missingFields);
-            alert(`Please provide the following required fields: ${missingFields.join(', ')}`);
+                                    if (missingFields.length > 0) {
+                                        console.error("Missing required fields:", missingFields);
+                                        Swal.fire({
+                                            position: "center",
+                                            icon: "error",
+                                            title: `Please provide the following required fields: ${missingFields.join(', ')}`,
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        });
             setLoading(false);
             return;
         }
@@ -1386,16 +1419,34 @@ const ConfirmBooking = (props) => {
             console.log("API Response:", response);
 
             if (response?.success) {
-                alert("Trip details added successfully");
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Trip details added successfully",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
                 if (props.onConfirm) props.onConfirm();
                 props.setIsOpen(false);
             } else {
                 console.error("API Error:", response?.message || "Unknown error");
-                alert(`Failed to add trip details: ${response?.message || "Unknown error"}`);
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: `Failed to add trip details: ${response?.message || "Unknown error"}`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             }
         } catch (err) {
             console.error("Submission error:", err);
-            alert("Failed to add trip details. Please try again.");
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Failed to add trip details. Please try again.",
+                showConfirmButton: false,
+                timer: 1500
+            });
         } finally {
             setLoading(false);
         }

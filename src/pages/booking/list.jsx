@@ -619,22 +619,27 @@ const handleTabChange = (value) => {
                     <Tabs  value={activeTab} >
                         <TabsHeader className="bg-gray-300 z-0">
                     <div className="flex w-full items-center">
-                        <div className="flex">
+                        <div className="flex w-full">
                             {tabs.map(({ label, value }) => (
                                 <Tab
                                     key={value}
                                     value={value}
                                     onClick={() => handleTabChange(value)}
-                                    className='cursor-pointer w-60'
+                                    className='cursor-pointer flex-1 text-center'
                                 >
+                    <div className="flex items-center">
                                     <Typography variant="small" className="font-bold">
                                         {label}
                                     </Typography>
-                                        </Tab>
-                                    ))}
-                                </div>
-                                {activeTab === 'CUSTOM_DATE' && (
-                                    <div className="flex items-center gap-3 ml-4">
+                        {value === 'CUSTOM_DATE' && (
+                            <Popover placement="bottom-start">
+                                <PopoverHandler>
+                                    <div className="flex items-center cursor-pointer ml-2">
+                                        <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                                    </div>
+                                </PopoverHandler>
+                                <PopoverContent className="p-4 z-10 bg-white shadow-lg rounded-lg">
+                                    <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-2">
                                             <Typography variant="small" className="text-gray-600">
                                                 From:
@@ -643,6 +648,7 @@ const handleTabChange = (value) => {
                                                 type="date"
                                                 value={customDateFrom}
                                                 onChange={(e) => setCustomDateFrom(e.target.value)}
+                                                onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                 className="px-3 py-1 border border-gray-300 rounded-md text-sm"
                                                 // max={customDateTo || undefined}
                                             />
@@ -655,7 +661,8 @@ const handleTabChange = (value) => {
                                                 type="date"
                                                 value={customDateTo}
                                                 onChange={(e) => setCustomDateTo(e.target.value)}
-                                                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                                                onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                                                className="px-3 py-1 ml-4 border border-gray-300 rounded-md text-sm"
                                                 // min={customDateFrom || undefined}
                                             />
                                         </div>
@@ -669,7 +676,13 @@ const handleTabChange = (value) => {
                                             Apply
                                         </Button> */}
                                     </div>
+                                </PopoverContent>
+                            </Popover>
                                 )}
+                    </div>
+                </Tab>
+            ))}
+        </div>
                             </div>
                         </TabsHeader>
                         <TabsBody className='overflow-x-scroll px-0 pt-0 pb-2'>
@@ -736,7 +749,8 @@ const handleTabChange = (value) => {
                                                                 { value: 'STARTED', label: 'Started' },
                                                                 { value: 'ENDED', label: 'Ended' },
                                                                 { value: 'CUSTOMER_CANCELLED', label: 'Customer Cancelled' },
-                                                                    { value: 'SUPPORT_CANCELLED', label: 'Support Cancelled' },
+                                                                { value: 'SUPPORT_CANCELLED', label: 'Support Cancelled' },
+                                                                { value: 'COMPLETED', label: 'Completed' },
                                                             ]}
                                                             selectedFilters={statusFilter}
                                                             onFilterChange={(value) => handleFilterChange('status', value)}
@@ -971,7 +985,7 @@ const handleTabChange = (value) => {
                                                             <Chip
                                                                 variant="ghost"
                                                                 // color={"blue"}
-                                                                value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
+                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status}
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
                                                                     data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
