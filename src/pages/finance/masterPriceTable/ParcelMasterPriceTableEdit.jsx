@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import ParcelPeakHourTableEdit from './ParcelPeakHourTableEdit';
+import ParcelPricingTableEdit from './ParcelPricingTableEdit';
 import Select from 'react-select';
 
 
@@ -24,6 +26,11 @@ const ParcelMasterPriceEdit = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [peakParcelHours, setPeakParcelHours] = useState([]);
+    const [parcelPrice, setParcelPrice] = useState([]);
+    const initialParcelPeakRef = useRef([]);
+    const initialParcelPriceData = useRef([]);
+
 
     useEffect(() => {
         if (id) fetchPriceDetails(id);
@@ -40,10 +47,22 @@ const ParcelMasterPriceEdit = () => {
                     extraKmPrice: data?.data?.extraKmPrice || 0,
                     // status: data?.data?.status == 'ACTIVE' ? 1 : 0,
                 });
+                setPeakParcelHours(data.data.peakHours || []);
+                setParcelPrice(data.data.parcelPricing || []);
+
+                initialParcelPeakRef.current = data.data.peakHours;
+                initialParcelPriceData.current = data.data.parcelPricing;
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
         }
+    };
+
+    const hasParcelChanged = () => {
+        return JSON.stringify(peakParcelHours) !== JSON.stringify(initialParcelPeakRef.current);
+    };
+     const hasParcelPriceChanged = () => {
+        return JSON.stringify(parcelPrice) !== JSON.stringify(initialParcelPriceData.current);
     };
 
     const onSubmit = async (values) => {
@@ -53,6 +72,8 @@ const ParcelMasterPriceEdit = () => {
                 baseFare: Number(values.baseFare),
                 kilometerPrice: Number(values.kilometerPrice),
                 extraKmPrice: Number(values.extraKmPrice),
+                peakHours: peakParcelHours,
+                parcelPricing: parcelPrice,
             };
 
             const response = await ApiRequestUtils.post(API_ROUTES.PARCEL_PRICE_EDIT, reqBody);
@@ -106,11 +127,13 @@ const ParcelMasterPriceEdit = () => {
                                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                             </div> */}
                         </div>
+                         <ParcelPeakHourTableEdit initialParcelPeakRef={peakParcelHours} onUpdated={(data)=> setPeakParcelHours(data)}/>
+                         <ParcelPricingTableEdit initialParcelPriceData={parcelPrice} onUpdated={(data)=> setParcelPrice(data)}/>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="blue" type="submit" disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="blue" type="submit" disabled={!(dirty || hasParcelChanged() || hasParcelPriceChanged) || !isValid}  className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>
