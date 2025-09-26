@@ -8,6 +8,7 @@ import { API_ROUTES } from '@/utils/constants';
 import ParcelPeakHourTableEdit from './ParcelPeakHourTableEdit';
 import ParcelPricingTableEdit from './ParcelPricingTableEdit';
 import Select from 'react-select';
+import MasterPriceLog from "../masterPriceTable/MasterPriceLog";
 
 
 const STATUS_OPTIONS = [
@@ -140,6 +141,7 @@ const ParcelMasterPriceEdit = () => {
                     </Form>
                 )}
             </Formik>
+            <MasterPriceLog id={id} />
         </div>
     );
 };

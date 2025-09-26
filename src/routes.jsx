@@ -747,7 +747,7 @@ export const routes = [
         path: "/users/master-price/auto-edit/:id",
         element: <AutoMasterPriceEdit />,
         display: true,
-        permission:"User"
+        permission:"Users"
       },
       {
         icon: <UserIcon {...icon} />,
@@ -996,7 +996,7 @@ export const routes = [
         path: "/users/master-price/parcel-edit/:id",
         element: <ParcelMasterPriceEdit />,
         display: true,
-        permission:"User"
+        permission:"Users"
       },
       {
         icon: <UserIcon {...icon} />,

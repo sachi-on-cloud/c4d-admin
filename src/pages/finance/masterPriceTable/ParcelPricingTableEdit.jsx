@@ -20,10 +20,10 @@ const ParcelPricingTableEdit = ({ initialParcelPriceData, onUpdated }) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(null);
     const [formData, setFormData] = useState({
-        pickupFreeKm: "",
-        weightCharge: "",
-        weightFreeKg: "",
-        serviceCharge: "",
+        pickupFreeKm: 0,
+        weightCharge: 0,
+        weightFreeKg: 0,
+        serviceCharge: 0,
         parcelType: "",
     });
 
@@ -44,10 +44,10 @@ const ParcelPricingTableEdit = ({ initialParcelPriceData, onUpdated }) => {
             setIsEditMode(true);
             setSelectedIndex(index);
             setFormData({
-                pickupFreeKm: entry.pickupFreeKm || "",
-                weightCharge: entry.weightCharge || "",
-                weightFreeKg: entry.weightFreeKg || "",
-                serviceCharge: entry.serviceCharge || "",
+                pickupFreeKm: entry.pickupFreeKm || 0,
+                weightCharge: entry.weightCharge || 0,
+                weightFreeKg: entry.weightFreeKg || 0,
+                serviceCharge: entry.serviceCharge || 0,
                 parcelType: entry.parcelType || "",
                 
             });
@@ -55,10 +55,10 @@ const ParcelPricingTableEdit = ({ initialParcelPriceData, onUpdated }) => {
             setIsEditMode(false);
             setSelectedIndex(null);
             setFormData({
-                pickupFreeKm: "",
-                weightCharge: "",
-                weightFreeKg: "",
-                serviceCharge: "",
+                pickupFreeKm: 0,
+                weightCharge: 0,
+                weightFreeKg: 0,
+                serviceCharge: 0,
                 parcelType: "",
             });
         }
@@ -189,11 +189,11 @@ const ParcelPricingTableEdit = ({ initialParcelPriceData, onUpdated }) => {
                                                         {weightFreeKg || 0}
                                                     </Typography>
                                                 </td>
-                                                {<td className={className}>
+                                                <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
                                                         {serviceCharge || 0}
                                                     </Typography>
-                                                </td>}
+                                                </td>
                                                  <td className={className}>
                                                     <Typography className="text-xs font-semibold text-blue-gray-600">
                                                         {parcelType || '-'}

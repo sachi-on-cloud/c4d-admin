@@ -60,8 +60,11 @@ export function MasterPriceView() {
                 const data = await ApiRequestUtils.get(API_ROUTES.AUTO_PACKAGE_LIST,{
                     type : "Service area",
                 });
-                 if (data?.success) {                     
-                     setAutoLocalPackageList(data?.data);
+                 if (data?.success) {
+                        const filteredData = zones
+                            ? data?.data.filter(item => item.zone === zone)
+                            : data?.data;                     
+                     setAutoLocalPackageList(filteredData.filter(item => item.type === "Auto" && item.serviceType === "AUTO"));
                  }
                  console.log("DADADADAD",data)
             }
@@ -71,19 +74,23 @@ export function MasterPriceView() {
                     type : "Service area",
                 });
                     if(data?.success) {
-                        setParcelLocalPackageList(data?.data);
+                        const filteredData = zone
+                            ? data?.data.filter(item => item.zone === zone)
+                            : data?.data;
+                        setParcelLocalPackageList(filteredData.filter(item => item.type === "Parcel" && item.serviceType === "PARCEL"));
                     }
                     console.log("DADADADAD",data)
             } 
            
+            // else if (selectedServiceType === 'RENTAL') {
+            //         if (data?.success) {
+            //             const filteredData = zone
+            //                 ? data?.data.filter(item => item.zone === zone)
+            //                 : data?.data;
+            //         setRidesData(filteredData);
+            //         }
+            // } 
             else if (selectedServiceType === 'RENTAL') {
-                    if (data?.success) {
-                        const filteredData = zone
-                            ? data?.data.filter(item => item.zone === zone)
-                            : data?.data;
-                    setRidesData(filteredData);
-                    }
-            } else if (selectedServiceType === 'RENTAL') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
                 if(data?.success) {
                         const filteredData = zone

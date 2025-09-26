@@ -46,7 +46,13 @@ const MasterPriceLog = ({ id }) => {
         "sur_charge_percentage": "Surcharge Percentage",
         "extra_km_price": "Additional KM Rate",
         "toll_charge": "Toll Charge",
-        "driver_charge": "Driver Charge"
+        "driver_charge": "Driver Charge",
+        "parcelType": "Parcel Type",
+        "parcel_pricing": "Parcel Pricing",
+        "pickupFreeKm": "Pickup Free Km",
+        "weightCharge": "Weight Charge",
+        "weightFreeKg": "Weight Free Kg",
+        "serviceCharge": "Service Charge",
     };
 
     const formatPeakHours = (peakHours) => {
@@ -63,6 +69,77 @@ const MasterPriceLog = ({ id }) => {
                 return `${start}-${end} (Mini: ${kilometerPrice || "-"}, MUV: ${kilometerPriceMVP || "-"}, SUV: ${kilometerPriceSuv || "-"}, Sedan: ${kilometerPriceSedan || "-"})`;
             })
             .join(", ");
+    };
+
+    const formatParcelPrice = (parcelPricing) => {
+        if (parcelPricing === 0) {
+            return 0;
+        }
+
+        if (typeof parcelPricing === "string") {
+            try {
+                parcelPricing = JSON.parse(parcelPricing);
+            } catch (parseError) {
+                return parcelPricing;
+            }
+        }
+
+        let parcelArray = Array.isArray(parcelPricing)
+            ? parcelPricing
+            : parcelPricing && typeof parcelPricing === "object"
+                ? [parcelPricing]
+                : [];
+
+        if (parcelArray.length === 1 && Array.isArray(parcelArray[0])) {
+            parcelArray = parcelArray[0];
+        }
+
+        if (!parcelArray || parcelArray.length === 0) {
+            return "-";
+        }
+
+        const formatted = parcelArray
+            .filter((parcel) => parcel && typeof parcel === "object")
+            .map((parcel) => {
+                const { parcelType, pickupFreeKm, weightCharge, weightFreeKg, serviceCharge } = parcel;
+                return `Parcel Type: ${parcelType || "-"}, Pickup Free Km: ${pickupFreeKm || "-"}, Weight Charge: ${weightCharge || "-"}, Weight Free Kg: ${weightFreeKg || "-"}, Service Charge: ${serviceCharge || "-"}`;
+            });
+
+        if (formatted.length === 0) {
+            return "-";
+        }
+
+        return formatted.join(" | ");
+    };
+
+    const formatValue = (field, value) => {
+        if (value === null || value === undefined || value === "") {
+            return "-";
+        }
+
+        const normalizedField = typeof field === "string" ? field.toLowerCase() : field;
+
+        if (normalizedField === "peak_hours") {
+            return formatPeakHours(value);
+        }
+
+        if (normalizedField === "parcelpricing" || normalizedField === "parcel_pricing") {
+            return formatParcelPrice(value);
+        }
+
+        if (Array.isArray(value)) {
+            return value.length ? value.join(", ") : "-";
+        }
+
+        if (typeof value === "object") {
+            try {
+                return JSON.stringify(value);
+            } catch (stringifyError) {
+                return "[object]";
+            }
+        }
+
+        return value;
     };
 
     return (
@@ -91,10 +168,17 @@ const MasterPriceLog = ({ id }) => {
                             <tbody>
                                 {documentslogs.map(({ id, created_at, oldData, newData, UserId,User }, key) => {
                                     const className = `py-3 px-5 ${key === documentslogs.length - 1 ? "" : "border-b border-blue-gray-50"}`;
-                                    const updatedFields = Object.keys(oldData || {});
+                                    const updatedFields = Array.from(new Set([
+                                        ...Object.keys(oldData || {}),
+                                        ...Object.keys(newData || {}),
+                                    ]));
+                                    const fieldsToRender = updatedFields.length ? updatedFields : ["-"];
 
-                                    return updatedFields.map((field, fieldIndex) => (
-                                        <tr key={`${id}-${fieldIndex}`}>
+                                    return fieldsToRender.map((field, fieldIndex) => {
+                                        const isPlaceholder = field === "-";
+
+                                        return (
+                                        <tr key={`${id}-${field}-${fieldIndex}`}>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {id}
@@ -107,17 +191,17 @@ const MasterPriceLog = ({ id }) => {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {fieldMappings[field] ? fieldMappings[field] : field}
+                                                    {isPlaceholder ? "-" : fieldMappings[field] ? fieldMappings[field] : field}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {field!= "peak_hours" ? oldData[field] ? oldData[field] : '-' : formatPeakHours(oldData[field])}
+                                                    {isPlaceholder ? "-" : formatValue(field, oldData?.[field])}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {field!= "peak_hours" ? newData[field] ? newData[field] : '-' : formatPeakHours(oldData[field])}
+                                                    {isPlaceholder ? "-" : formatValue(field, newData?.[field])}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -126,7 +210,8 @@ const MasterPriceLog = ({ id }) => {
                                                 </Typography>
                                             </td>
                                         </tr>
-                                    ));
+                                        );
+                                    });
                                 })}
                             </tbody>
                         </table>
