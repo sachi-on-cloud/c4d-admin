@@ -549,6 +549,46 @@ const ConfirmBooking = (props) => {
 
                     </CardBody>
                 </Card>
+            {(bookingDetails?.serviceType === 'PARCEL') && (
+                <Card className="mb-2">
+                    <CardBody>
+                        <div className="flex justify-between mb-2">
+                            <Typography variant="h5">Parcel Details </Typography>
+                        </div>
+                        <hr className="my-2" />
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Sender Name:</Typography>
+                                <Typography>{bookingDetails?.deliveryDetails?.senderName}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Phone Number:</Typography>
+                                <Typography>
+                                    {bookingDetails?.deliveryDetails?.senderPhone}
+                                </Typography>
+                            </div>
+                            {bookingDetails?.serviceType == "PARCEL" &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Order Type:</Typography>
+                                <Typography>{bookingDetails?.orderType}</Typography>
+                            </div>
+                            }
+                             <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Receiver Name:</Typography>
+                                <Typography>
+                                    {bookingDetails?.deliveryDetails?.receiverName}
+                                </Typography>
+                            </div>
+                             <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Receiver Phone:</Typography>
+                                <Typography>
+                                    {bookingDetails?.deliveryDetails?.receiverPhone}
+                                </Typography>
+                            </div>
+                        </div>                
+                    </CardBody>
+                </Card>
+                )}
 
                 {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED" || bookingDetails?.status == "CUSTOMER_CANCELLED") &&
                     <Card className="mb-2">
@@ -642,8 +682,21 @@ const ConfirmBooking = (props) => {
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Type:</Typography>
-                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides': bookingDetails.serviceType == "AUTO" ? 'Auto' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
+                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : 
+                                            bookingDetails.serviceType == "RIDES" ? 'Rides': 
+                                            bookingDetails.serviceType == "AUTO" ? 'Auto' : 
+                                            bookingDetails?.packageType == "Local" ? 'Hourly Package' : 
+                                            bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 
+                                            bookingDetails?.serviceType == 'PARCEL'? 'Parcel' : 'Outstation'}</Typography>
                             </div>
+                            {bookingDetails?.serviceType == "PARCEL" &&
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Delivery Type:</Typography>
+                                <Typography>
+                                    {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Deliver" : "Shop Pickup"}
+                                </Typography>
+                            </div>
+                            }
                             {bookingDetails?.source !== "Mobile App" &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Source Type:</Typography>
@@ -701,28 +754,28 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.acType}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'AUTO' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'AUTO' && bookingDetails?.serviceType != 'PARCEL' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Luggage:</Typography>
                                     <Typography>{bookingDetails.luggage || '0'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Seater Capacity:</Typography>
                                     <Typography>{bookingDetails.seaterCapacity || '0'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' && bookingDetails?.serviceType != 'PARCEL' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Package:</Typography>
                                     <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}

@@ -42,14 +42,12 @@ const EditBooking = (props) => {
     
     // Shop functionality state variables
     const [shopSuggestions, setShopSuggestions] = useState([]);
-    const [shopAddressList, setShopAddressList] = useState([]);
     const [shopData, setShopData] = useState([]);
     const [filteredShops, setFilteredShops] = useState([]);
     const [shopSearchText, setShopSearchText] = useState('');
     const [selectedShop, setSelectedShop] = useState(null);
-    const [zoneOptions, setZoneOptions] = useState([]);
-    const [selectedZoneFilter, setSelectedZoneFilter] = useState('');
-    const [showShopAddModal, setShowShopAddModal] = useState(false);
+    const parcelCategories = ['Food', 'Medicines', 'Electronics', 'Documents', 'Groceries', 'Clothes', 'Others'];
+    const deliveryInstructionTypes = ['Leave at door step', 'Hand over to receiver', 'Leave with security', 'Others'];
 
     const fetchData = async () => {
     try {
@@ -74,11 +72,35 @@ const EditBooking = (props) => {
             setServiceAreaLoading(false);
         }
     };
+
+    const fetchShopsData = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SHOP_SEARCH_ADDRESS, {
+                query: ''
+            });
+            if (response?.success && response?.data) {
+                const shopsWithZones = response.data.map(shop => ({
+                    ...shop,
+                    shopId: shop.shopId || shop.id,
+                    shopName: shop.shopName,
+                    shopLocation: shop.shopAddress?.name || shop.shopLocation,
+                    shopAddress: shop.shopAddress,
+                    zone: shop.shopZone || '',
+                    shopContactPhone: shop.shopContactPhone || '',
+                    availableZones: shop.availableZones || []
+                }));
+                setShopData(shopsWithZones);
+                setFilteredShops(shopsWithZones);
+            }
+        } catch (error) {
+            console.error('Error fetching shops data:', error);
+        }
+    };
+
     useEffect(() => {
         fetchData();
         fetchGeoData();
         fetchShopsData(); // Add shop data fetching
-        fetchZonesFromGeoMarkings(); // Add zone fetching from geo markings
         if (props.bookingData) {
             getBookingDetailsById(props.bookingData.id, props.bookingData.customerId);
         }
@@ -137,7 +159,7 @@ useEffect(() => {
             };
             const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
 
-            if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
+            if (!['DRIVER', 'RENTAL', 'RIDES', 'PARCEL'].includes(mappedServiceType)) {
                 console.error('Invalid serviceType:', mappedServiceType);
                 setPackageTypeSelectedData([]);
                 return;
@@ -235,26 +257,26 @@ useEffect(() => {
             lat: bookingData.driverStartLat,
             lng: bookingData.driverStartLong
         } : null,
-        luggage: '',
-        seaterCapacity: '',
-        sourceType: bookingData?.sourceType || '',
-        // Shop-related fields
-        shopId: bookingData?.shopId || '',
-        shopName: bookingData?.shopName || '',
-        shopLocation: bookingData?.shopLocation || '',
-        availableZones: bookingData?.availableZones || [],
-        deliveryType: bookingData?.deliveryType || 'pickup',
-        // Parcel receiver fields
-        receiverName: bookingData?.receiverName || '',
-        receiverPhone: bookingData?.receiverPhone || '',
-        receiverAddress: bookingData?.receiverAddress || '',
+        luggage: bookingData?.luggage || '',
+        seaterCapacity: bookingData?.seaterCapacity || '',
+        sourceType: bookingData?.sourceType || 'Justdial',
+        shopSearch: '',
+        shopId: bookingData?.shopId ? String(bookingData.shopId) : '',
+        shopName: bookingData?.Shop?.shopName || '',
+        shopLocation: bookingData?.Shop?.shopAddress?.name || '',
+        shopLandmark: bookingData?.Shop?.shopLandmark || '',
+        shopAddress: bookingData?.Shop?.shopAddress?.name || '',
+        shopContactName: bookingData?.deliveryDetails?.shopContactName || '',
+        shopContactPhone: bookingData?.deliveryDetails?.shopContactPhone || '',
+        shopComments: bookingData?.deliveryDetails?.shopComments || '',
+        deliveryType: bookingData?.deliveryType || 'SHOP_PICKUP',
+        receiverName: bookingData?.deliveryDetails?.receiverName || '',
+        receiverPhone: bookingData?.deliveryDetails?.receiverPhone || '',
+        receiverAddress: bookingData?.deliveryDetails?.receiverAddress || '',
         parcelCategory: bookingData?.orderType || '',
         parcelCategoryOther: bookingData?.orderTypeOther || '',
-        deliveryInstructionType: bookingData?.deliveryInstructions || '',
-        specialInstructions: bookingData?.deliveryInstructionsOther || '',
-        shopContactName: bookingData?.shopContactName || '',
-        shopContactPhone: bookingData?.shopContactPhone || '',
-        shopComments: bookingData?.shopComments || ''
+        deliveryInstructionType: bookingData?.deliveryDetails?.deliveryInstructions || '',
+        specialInstructions: bookingData?.deliveryDetails?.deliveryInstructionsOther || '',
     };
 
 
@@ -268,10 +290,12 @@ useEffect(() => {
             checkCityLimit = await calcluateCityLimit(values);
         } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
             checkDistance = await calculateDistance(values);
+        } else if (values.serviceType === 'PARCEL') {
+            checkDistance = await calculateDistance(values);
         }
 
         if (!checkDistance) {
-            if (values.serviceType === 'RIDES') {
+            if (values.serviceType === 'RIDES' || values.serviceType === 'PARCEL') {
                 setDistanceExceedModal(true);
             } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
                 setDropTaxiDistanceExceedModal(true);
@@ -291,6 +315,7 @@ useEffect(() => {
         const serviceTypeMap = {
             'RENTAL_DROP_TAXI': 'RENTAL',
             'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+            'PARCEL': 'PARCEL'
         };
         const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
 
@@ -362,6 +387,16 @@ useEffect(() => {
                     lng: bookingData.driverStartLong
                 });
             }
+            if (bookingData?.Shop) {
+                setSelectedShop({
+                    shopId: bookingData.shopId,
+                    shopName: bookingData.Shop.shopName,
+                    shopLocation: bookingData.Shop.shopAddress?.name,
+                    zone: bookingData.Shop.shopZone || '',
+                    shopContactPhone: bookingData?.deliveryDetails?.shopContactPhone || '',
+                    availableZones: bookingData.Shop.shopZone ? [bookingData.Shop.shopZone] : []
+                });
+            }
         }
     }, [bookingData, serviceAreas]);
 
@@ -370,6 +405,7 @@ useEffect(() => {
             'RIDES': 'RIDES',
             'RENTAL_DROP_TAXI': 'RENTAL',
             'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+            'PARCEL': 'PARCEL'
         };
         const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
 
@@ -391,7 +427,7 @@ useEffect(() => {
         });
 
         if (calculateDistance?.success) {
-            if (values.serviceType === "RIDES") {
+            if (values.serviceType === "RIDES" || values.serviceType === "PARCEL") {
                 return calculateDistance?.data?.showAlert;
             } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
                 const distance = calculateDistance?.data?.estimatedDistance || 0;
@@ -422,8 +458,9 @@ useEffect(() => {
                     setPickupSuggestions(data?.data);
                 } else if (type === 'driver') {
                     setDriverSuggestions(data?.data);
-                }
-                else {
+                } else if (type === 'shop') {
+                    setShopSuggestions(data?.data);
+                } else {
                     setDropSuggestions(data?.data);
                 }
             }
@@ -431,6 +468,7 @@ useEffect(() => {
             setPickupSuggestions([]);
             setDriverSuggestions([]);
             setDropSuggestions([]);
+            setShopSuggestions([]);
         }
     };
 
@@ -474,6 +512,10 @@ useEffect(() => {
                 setFieldValue("driverPickUpLocation", location);
                 setDriverPickUpLocation(location);
                 setDriverSuggestions([]);
+            } else if (type === 'shop') {
+                setFieldValue("shopAddress", address);
+                setFieldValue("shopLocation", location);
+                setShopSuggestions([]);
             }
             else {
                 setFieldValue("dropAddress", address);
@@ -484,40 +526,9 @@ useEffect(() => {
         }
     };
 
-    // Shop functionality functions
-    const fetchShopsData = async () => {
-        try {
-            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SHOP_SEARCH_ADDRESS, {
-                query: ''
-            });
-            if (response?.success && response?.data) {
-                const shopsWithZones = response.data.map(shop => ({
-                    ...shop,
-                    availableZones: shop.availableZones || []
-                }));
-                setShopData(shopsWithZones);
-                setFilteredShops(shopsWithZones);
-            }
-        } catch (error) {
-            console.error('Error fetching shops data:', error);
-        }
-    };
-
-    // Fetch zones from geo markings for proper zone filtering
-    const fetchZonesFromGeoMarkings = async () => {
-        try {
-            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
-            const zones = response.data.filter((area) => area.type === 'Zone');
-            const zoneNames = zones.map(zone => zone.name);
-            setZoneOptions(zoneNames.map(zone => ({ value: zone, label: zone })));
-        } catch (error) {
-            console.error('Error fetching zones from geo markings:', error);
-        }
-    };
-
-    const handleShopSearch = useCallback((searchText) => {
+    const handleShopSearch = useCallback((searchText, setFieldValue) => {
         setShopSearchText(searchText);
-        
+        setFieldValue('shopSearch', searchText);
         if (!searchText.trim()) {
             setFilteredShops(shopData);
             return;
@@ -535,105 +546,39 @@ useEffect(() => {
         setFilteredShops(filtered);
     }, [shopData]);
 
-    const handleZoneFilter = useCallback((selectedZone) => {
-        setSelectedZoneFilter(selectedZone);
-        
-        let filtered = shopData;
-        
-        // Apply search text filter
-        if (shopSearchText.trim()) {
-            filtered = filtered.filter(shop => {
-                const matchesName = shop.shopName?.toLowerCase().includes(shopSearchText.toLowerCase());
-                const matchesLocation = shop.shopLocation?.toLowerCase().includes(shopSearchText.toLowerCase());
-                const matchesZone = shop.availableZones?.some(zone => 
-                    zone.toLowerCase().includes(shopSearchText.toLowerCase())
-                );
-                return matchesName || matchesLocation || matchesZone;
-            });
-        }
-        
-        // Apply zone filter
-        if (selectedZone) {
-            filtered = filtered.filter(shop => 
-                shop.availableZones?.includes(selectedZone)
-            );
-        }
-        
-        setFilteredShops(filtered);
-    }, [shopData, shopSearchText]);
-
-    const handleShopSelection = (shop) => {
+    const handleShopSelection = (shop, setFieldValue) => {
         setSelectedShop(shop);
         setShopSearchText('');
         setFilteredShops([]);
-    };
-    
-    const handleShopAdded = (newShop) => {
-        // Add the new shop to the shop data
-        const updatedShopData = [...shopData, newShop];
-        setShopData(updatedShopData);
-        setFilteredShops(updatedShopData);
-        
-        // Refresh the shops data from server to ensure consistency
-        fetchShopsData();
-        
-        console.log('New shop added:', newShop);
-    };
-    
-    const getCurrentZone = () => {
-        const selectedArea = serviceAreas.find(area => area.id === parseInt(selectedAreaId));
-        return selectedArea ? selectedArea.name : '';
+        setFieldValue('shopSearch', '');
+        setFieldValue('shopId', shop.shopId || '');
+        setFieldValue('shopName', shop.shopName || '');
+        setFieldValue('shopLocation', shop.shopLocation || '');
+        setFieldValue('shopAddress', shop.shopAddress?.name || shop.shopLocation || '');
+        setFieldValue('shopContactPhone', shop.shopContactPhone || '');
+        setFieldValue('zone', shop.zone || '');
     };
 
-    // const handlePickupMarkerDragEnd = useCallback((event) => {
-    //     const newLat = event.latLng.lat();
-    //     const newLng = event.latLng.lng();
-    //     setPickupLocation({ lat: newLat, lng: newLng });
-
-    //     // Fetch the address using Geocoding API
-    //     const geocoder = new window.google.maps.Geocoder();
-    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-    //         if (status === 'OK' && results[0]) {
-    //             setPickupAddress(results[0].formatted_address);
-    //             setFieldValue("pickupAddress", results[0].formatted_address);
-    //         } else {
-    //             setPickupAddress('Address not found');
-    //         }
-    //     });
-    // }, []);
-
-    // const handleDropMarkerDragEnd = useCallback((event) => {
-    //     const newLat = event.latLng.lat();
-    //     const newLng = event.latLng.lng();
-    //     setDropLocation({ lat: newLat, lng: newLng });
-
-    //     // Fetch the address using Geocoding API
-    //     const geocoder = new window.google.maps.Geocoder();
-    //     geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results, status) => {
-    //         if (status === 'OK' && results[0]) {
-    //             setFieldValue("dropAddress", results[0].formatted_address);
-    //             setDropAddress(results[0].formatted_address);
-    //         } else {
-    //             setDropAddress('Address not found');
-    //         }
-    //     });
-    // }, []);
+    const handleDeselectShop = (setFieldValue) => {
+        setSelectedShop(null);
+        setShopSearchText('');
+        setFilteredShops(shopData);
+        setFieldValue('shopSearch', '');
+        setFieldValue('shopId', '');
+        setFieldValue('shopName', '');
+        setFieldValue('shopLocation', '');
+        setFieldValue('shopAddress', '');
+        setFieldValue('shopLandmark', '');
+        setFieldValue('shopContactName', '');
+        setFieldValue('shopContactPhone', '');
+        setFieldValue('shopComments', '');
+        setFieldValue('zone', '');
+    };
 
     const onBackPressHandler = async () => {
         props.editCancel()
     };
 
-    function convertTimeFormat(time) {
-        let [hours, minutes, seconds] = time.split(':');
-        hours = parseInt(hours);
-
-        const period = hours >= 12 ? 'p.m.' : 'a.m.';
-        hours = hours % 12 || 12;
-
-        return `${hours}:${minutes} ${period}`;
-    }
-
-    // Luggage and seater capacity logic based on car type
     const useLuggageAndSeaterLogic = (carType, setFieldValue) => {
         useEffect(() => {
             if (carType === 'Mini' || carType === 'Sedan') {
@@ -741,18 +686,17 @@ useEffect(() => {
                 },
                 // Shop data for parcel bookings (direct fields, not nested)
                 shopId: selectedShop?.shopId || values?.shopId || bookingData?.shopId,
-                shopContactName: values?.shopContactName || bookingData?.shopContactName || '',
-                shopContactPhone: values?.shopContactPhone || bookingData?.shopContactPhone || '',
-                shopComments: values?.shopComments || bookingData?.shopComments || '',
-                deliveryType: values?.deliveryType || bookingData?.deliveryType || 'pickup',
-                // Receiver information (mandatory fields)
-                receiverName: values?.receiverName || bookingData?.receiverName,
-                receiverPhone: values?.receiverPhone || bookingData?.receiverPhone,
-                receiverAddress: values?.receiverAddress || bookingData?.receiverAddress,
+                shopContactName: values?.shopContactName || bookingData?.deliveryDetails?.shopContactName || '',
+                shopContactPhone: values?.shopContactPhone || bookingData?.deliveryDetails?.shopContactPhone || '',
+                shopComments: values?.shopComments || bookingData?.deliveryDetails?.shopComments || '',
+                deliveryType: values?.deliveryType || bookingData?.deliveryType || 'SHOP_PICKUP',
+                receiverName: values?.receiverName || bookingData?.deliveryDetails?.receiverName,
+                receiverPhone: values?.receiverPhone || bookingData?.deliveryDetails?.receiverPhone,
+                receiverAddress: values?.receiverAddress || bookingData?.deliveryDetails?.receiverAddress,
                 orderType: values?.parcelCategory || bookingData?.orderType || '',
                 orderTypeOther: values?.parcelCategoryOther || bookingData?.orderTypeOther || '',
-                deliveryInstructions: values?.deliveryInstructionType || bookingData?.deliveryInstructions || '',
-                deliveryInstructionsOther: values?.specialInstructions || bookingData?.deliveryInstructionsOther || ''
+                deliveryInstructions: values?.deliveryInstructionType || bookingData?.deliveryDetails?.deliveryInstructions || '',
+                deliveryInstructionsOther: values?.specialInstructions || bookingData?.deliveryDetails?.deliveryInstructionsOther || ''
             }
             editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_PARCEL_BOOKING, data);
         }
@@ -1333,6 +1277,11 @@ useEffect(() => {
                                     Check Estimated Price
                                 </Button>
                             }
+                            {bookingData?.serviceType === 'PARCEL' && (
+                                        <Button fullWidth className='my-6 mx-2 bg-primary' onClick={() => getQuoteRides(values, setFieldValue)}>
+                                            Check Estimated Price
+                                        </Button>
+                            )}
 
 
                 {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Outstation' &&
@@ -1397,14 +1346,13 @@ useEffect(() => {
                                 </div>
                                 <div className="flex-1 p-2 space-y-2">
                                     <label className="block text-sm font-medium text-black-700">
-                                        Drop Location (Delivery Address) <span className="text-red-500">*</span>
+                                        Drop Location<span className="text-red-500">*</span>
                                     </label>
-                                    <p className="text-xs text-gray-500 mb-2">Where the parcel will be delivered</p>
                                     <Field
                                         type="text"
                                         name="dropAddress"
                                         className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                        placeholder="Enter delivery address (Optional)"
+                                        placeholder="Enter the Drop address (Optional)"
                                         onChange={(e) => {
                                             setFieldValue("dropAddress", e.target.value);
                                             setFieldValue("dropLocation", null);
@@ -1485,7 +1433,7 @@ useEffect(() => {
                                                     Check Estimated Price
                                                 </Button>
                                             }
-                                <div className="flex justify-center my-6 gap-4">
+                                {/* <div className="flex justify-center my-6 gap-4">
                                     <Button
                                         color="gray"
                                         onClick={onBackPressHandler}
@@ -1504,12 +1452,9 @@ useEffect(() => {
                                     >
                                         Confirm Booking
                                     </Button>
-                                </div>
+                                </div> */}
                             </>
                         }
-                        {(bookingData?.serviceType == "AUTO" || bookingData?.serviceType == "PARCEL") &&
-                            <>
-                                {/* Enhanced PARCEL booking section with shop functionality */}
                                 {bookingData?.serviceType == "PARCEL" && (
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                                         {/* Shop Details Section */}
@@ -1518,7 +1463,8 @@ useEffect(() => {
                                                 Shop Details
                                             </Typography>
                                             
-                                            {/* Shop Search */}
+                                        {/* Shop Search */}
+                                        {bookingData?.deliveryType !== 'DOOR_DELIVERY' &&
                                             <div className="mb-4">
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                                     Search Shops
@@ -1526,9 +1472,10 @@ useEffect(() => {
                                                 <div className="relative">
                                                     <Field
                                                         type="text"
+                                                        name="shopSearch"
                                                         placeholder="Search by shop name, location, or zone..."
                                                         value={shopSearchText}
-                                                        onChange={(e) => handleShopSearch(e.target.value)}
+                                                        onChange={(e) => handleShopSearch(e.target.value, setFieldValue)}
                                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                     />
                                                     <div className="absolute right-3 top-3">
@@ -1538,43 +1485,7 @@ useEffect(() => {
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            {/* Zone Filter */}
-                                            <div className="mb-4">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Filter by Zone (from Geo Markings)
-                                                </label>
-                                                <Field as="select"
-                                                    value={selectedZoneFilter}
-                                                    onChange={(e) => handleZoneFilter(e.target.value)}
-                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                >
-                                                    <option value="">All Zones</option>
-                                                    {zoneOptions.map((zone) => (
-                                                        <option key={zone.value} value={zone.value}>
-                                                            {zone.label}
-                                                        </option>
-                                                    ))}
-                                                </Field>
-                                            </div>
-                                            
-                                            {/* Add New Shop Button */}
-                                            <div className="mb-4">
-                                                <Button
-                                                    onClick={() => setShowShopAddModal(true)}
-                                                    color="green"
-                                                    variant="filled"
-                                                    size="sm"
-                                                    className="flex items-center gap-2 hover:shadow-lg transition-all duration-200"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                    </svg>
-                                                    Add New Shop
-                                                </Button>
-                                            </div>
-
-                                            {/* Shop Search Results */}
+                                            }
                                             {shopSearchText && (
                                                 <div className="mb-4">
                                                     <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
@@ -1582,14 +1493,13 @@ useEffect(() => {
                                                             filteredShops.map((shop) => (
                                                                 <div
                                                                     key={shop.shopId}
-                                                                    onClick={() => handleShopSelection(shop)}
+                                                                    onClick={() => handleShopSelection(shop, setFieldValue)}
                                                                     className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
                                                                 >
                                                                     <div className="font-medium text-gray-900">{shop.shopName}</div>
                                                                     <div className="text-sm text-gray-600">{shop.shopLocation}</div>
-                                                                    <div className="text-xs text-blue-600 mt-1">
-                                                                        Zones: {shop.availableZones?.join(', ') || 'N/A'}
-                                                                    </div>
+                                                                        {shop.zone && <div className="text-sm text-gray-600">Zone: {shop.zone}</div>}
+                                                                        {shop.shopContactPhone && <div className="text-sm text-gray-600">Contact: {shop.shopContactPhone}</div>}
                                                                 </div>
                                                             ))
                                                         ) : (
@@ -1608,13 +1518,12 @@ useEffect(() => {
                                                         <div>
                                                             <div className="font-medium text-green-800">{selectedShop.shopName}</div>
                                                             <div className="text-sm text-green-600">{selectedShop.shopLocation}</div>
-                                                            <div className="text-xs text-green-600 mt-1">
-                                                                Zones: {selectedShop.availableZones?.join(', ') || 'N/A'}
-                                                            </div>
+                                                                {selectedShop.zone && <div className="text-sm text-green-600">Zone: {selectedShop.zone}</div>}
+                                                                {selectedShop.shopContactPhone && <div className="text-sm text-green-600">Contact: {selectedShop.shopContactPhone}</div>}
                                                         </div>
                                                         <button
                                                             type="button"
-                                                            onClick={() => setSelectedShop(null)}
+                                                            onClick={() => handleDeselectShop(setFieldValue)}
                                                             className="text-green-600 hover:text-green-800"
                                                         >
                                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1624,6 +1533,7 @@ useEffect(() => {
                                                     </div>
                                                 </div>
                                             )}
+                                            
 
                                             {/* Delivery Type Selection */}
                                             <div className="mt-6">
@@ -1633,35 +1543,145 @@ useEffect(() => {
                                                 <div className="grid grid-cols-2 gap-3">
                                                     <button
                                                         type="button"
-                                                        onClick={() => setFieldValue('deliveryType', 'pickup')}
+                                                        onClick={() => setFieldValue('deliveryType', 'SHOP_PICKUP')}
                                                         className={`p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-center space-x-2 ${
-                                                            values.deliveryType === 'pickup'
+                                                            values.deliveryType === 'SHOP_PICKUP'
                                                                 ? 'border-blue-500 bg-blue-50 text-blue-700'
                                                                 : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
                                                         }`}
+                                                        disabled={bookingData?.deliveryType !== 'SHOP_PICKUP'}
                                                     >
                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                         </svg>
-                                                        <span className="font-medium">Pickup</span>
+                                                        <span className="font-medium">Shop Pickup</span>
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        onClick={() => setFieldValue('deliveryType', 'delivery')}
+                                                        onClick={() => setFieldValue('deliveryType', 'DOOR_DELIVERY')}
                                                         className={`p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-center space-x-2 ${
-                                                            values.deliveryType === 'delivery'
+                                                            values.deliveryType === 'DOOR_DELIVERY'
                                                                 ? 'border-blue-500 bg-blue-50 text-blue-700'
                                                                 : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
                                                         }`}
+                                                        disabled={bookingData?.deliveryType !== 'DOOR_DELIVERY'}
                                                     >
                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                                         </svg>
-                                                        <span className="font-medium">Delivery</span>
+                                                        <span className="font-medium">Door Delivery</span>
                                                     </button>
                                                 </div>
                                             </div>
+                                                {values.deliveryType === 'SHOP_PICKUP' && (
+                                                    <div className="mt-6 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <label className="block text-sm font-medium text-gray-700">
+                                                                Shop Address (Pickup Location) <span className="text-red-500">*</span>
+                                                            </label>
+                                                            <Field
+                                                                type="text"
+                                                                name="shopAddress"
+                                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                placeholder="Enter shop address (pickup location)"
+                                                                onChange={(e) => {
+                                                                    setFieldValue('shopAddress', e.target.value);
+                                                                    setFieldValue('shopLocation', null);
+                                                                    searchLocations(e.target.value, false, 'shop');
+                                                                }}
+                                                            />
+                                                            {shopSuggestions.length > 0 && (
+                                                                <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto">
+                                                                    {shopSuggestions.map((suggestion, index) => (
+                                                                        <li
+                                                                            key={index}
+                                                                            className="p-2 cursor-pointer hover:bg-gray-100 transition-colors"
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'shop', setFieldValue, values)}
+                                                                        >
+                                                                            {suggestion}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                            <ErrorMessage name="shopAddress" component="div" className="text-red-500 text-sm" />
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <label className="block text-sm font-medium text-gray-700">
+                                                                    Shop Name <span className="text-red-500">*</span>
+                                                                </label>
+                                                                <Field
+                                                                    type="text"
+                                                                    name="shopName"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                    placeholder="Enter shop name"
+                                                                />
+                                                                <ErrorMessage name="shopName" component="div" className="text-red-500 text-sm" />
+                                                            </div>
+                                                            {values.shopLandmark && (
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-sm font-medium text-gray-700">
+                                                                        Landmark
+                                                                    </label>
+                                                                    <Field
+                                                                        type="text"
+                                                                        name="shopLandmark"
+                                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                        placeholder="Enter landmark"
+                                                                    />
+                                                                    <ErrorMessage name="shopLandmark" component="div" className="text-red-500 text-sm" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            {values.shopContactName && (
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-sm font-medium text-gray-700">
+                                                                        Shop Contact Name
+                                                                    </label>
+                                                                    <Field
+                                                                        type="text"
+                                                                        name="shopContactName"
+                                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                        placeholder="Enter contact name"
+                                                                    />
+                                                                    <ErrorMessage name="shopContactName" component="div" className="text-red-500 text-sm" />
+                                                                </div>
+                                                            )}
+                                                            {values.shopContactPhone && (
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-sm font-medium text-gray-700">
+                                                                        Shop Contact Phone
+                                                                    </label>
+                                                                    <Field
+                                                                        type="text"
+                                                                        name="shopContactPhone"
+                                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                        placeholder="Enter contact phone"
+                                                                        maxLength="10"
+                                                                    />
+                                                                    <ErrorMessage name="shopContactPhone" component="div" className="text-red-500 text-sm" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        {values.shopComments && (
+                                                            <div className="space-y-2 mt-4">
+                                                                <label className="block text-sm font-medium text-gray-700">
+                                                                    Shop Comments
+                                                                </label>
+                                                                <Field
+                                                                    as="textarea"
+                                                                    name="shopComments"
+                                                                    rows={3}
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                    placeholder="Additional comments about the shop"
+                                                                />
+                                                                <ErrorMessage name="shopComments" component="div" className="text-red-500 text-sm" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                         </Card>
 
                                         {/* Booking Details Section */}
@@ -1707,7 +1727,6 @@ useEffect(() => {
                                                     <label className="block text-sm font-medium text-gray-700">
                                                         Drop Location (Delivery Address) <span className="text-red-500">*</span>
                                                     </label>
-                                                    <p className="text-xs text-gray-500 mb-2">This is where the parcel will be delivered to (customer address)</p>
                                                     <Field
                                                         type="text"
                                                         name="dropAddress"
@@ -1743,6 +1762,7 @@ useEffect(() => {
                                                     </Typography>
                                                     
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {values.receiverName && (
                                                         <div className="space-y-2">
                                                             <label className="block text-sm font-medium text-gray-700">
                                                                 Receiver Name <span className="text-red-500">*</span>
@@ -1755,7 +1775,8 @@ useEffect(() => {
                                                             />
                                                             <ErrorMessage name="receiverName" component="div" className="text-red-500 text-sm" />
                                                         </div>
-                                                        
+                                                        )}
+                                                    {values.receiverPhone && (
                                                         <div className="space-y-2">
                                                             <label className="block text-sm font-medium text-gray-700">
                                                                 Receiver Phone <span className="text-red-500">*</span>
@@ -1769,8 +1790,9 @@ useEffect(() => {
                                                             />
                                                             <ErrorMessage name="receiverPhone" component="div" className="text-red-500 text-sm" />
                                                         </div>
-                                                    </div>
-                                                    
+                                                    )}
+                                                </div>
+                                                {values.receiverAddress && (
                                                     <div className="space-y-2 mt-4">
                                                         <label className="block text-sm font-medium text-gray-700">
                                                             Receiver Address <span className="text-red-500">*</span>
@@ -1784,30 +1806,38 @@ useEffect(() => {
                                                         />
                                                         <ErrorMessage name="receiverAddress" component="div" className="text-red-500 text-sm" />
                                                     </div>
-                                                    
-                                                    {/* Parcel Category */}
+                                                )}
                                                     <div className="space-y-2 mt-4">
                                                         <label className="block text-sm font-medium text-gray-700">
                                                             Parcel Category <span className="text-red-500">*</span>
                                                         </label>
-                                                        <Field as="select"
-                                                            name="parcelCategory"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                        >
-                                                            <option value="">Select parcel category</option>
-                                                            <option value="Food">Food</option>
-                                                            <option value="Medicines">Medicines</option>
-                                                            <option value="Electronics">Electronics</option>
-                                                            <option value="Documents">Documents</option>
-                                                            <option value="Groceries">Groceries</option>
-                                                            <option value="Clothes">Clothes</option>
-                                                            <option value="Others">Others</option>
-                                                        </Field>
+                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                            {parcelCategories.map((category) => (
+                                                                <button
+                                                                    key={category}
+                                                                    type="button"
+                                                                    disabled
+                                                                    className={`p-2 rounded-xl border text-white text-[13px] text-center transition-colors duration-200 ${
+                                                                        values.parcelCategory === category 
+                                                                            ? 'bg-blue-400 border-blue-400' 
+                                                                            : 'bg-gray-500 hover:bg-gray-500'
+                                                                    }`}
+                                                                    onClick={() => {
+                                                                        setFieldValue('parcelCategory', category);
+                                                                        if (category !== 'Others') {
+                                                                            setFieldValue('parcelCategoryOther', '');
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {category}
+                                                                </button>
+                                                            ))}
+                                                        </div>
                                                         <ErrorMessage name="parcelCategory" component="div" className="text-red-500 text-sm" />
                                                     </div>
                                                     
                                                     {/* Other Category Input */}
-                                                    {values.parcelCategory === 'Others' && (
+                                                    {values.parcelCategory === 'Others' && values.parcelCategoryOther && (
                                                         <div className="space-y-2 mt-4">
                                                             <label className="block text-sm font-medium text-gray-700">
                                                                 Specify Category <span className="text-red-500">*</span>
@@ -1821,27 +1851,35 @@ useEffect(() => {
                                                             <ErrorMessage name="parcelCategoryOther" component="div" className="text-red-500 text-sm" />
                                                         </div>
                                                     )}
-                                                    
-                                                    {/* Delivery Instructions */}
+                                                        {values.parcelCategory && values.deliveryType === 'DOOR_DELIVERY' && (
                                                     <div className="space-y-2 mt-4">
                                                         <label className="block text-sm font-medium text-gray-700">
                                                             Delivery Instructions
                                                         </label>
-                                                        <Field as="select"
-                                                            name="deliveryInstructionType"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                        >
-                                                            <option value="">Select delivery instruction</option>
-                                                            <option value="Leave at door step">Leave at door step</option>
-                                                            <option value="Hand over to receiver">Hand over to receiver</option>
-                                                            <option value="Leave with security">Leave with security</option>
-                                                            <option value="Others">Others</option>
-                                                        </Field>
-                                                        <ErrorMessage name="deliveryInstructionType" component="div" className="text-red-500 text-sm" />
+                                                        <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
+                                                            {deliveryInstructionTypes.map((type) => (
+                                                                    <button
+                                                                        key={type}
+                                                                        type="button"
+                                                                        className={`p-2 rounded-xl border text-white text-[13px] text-center transition-colors duration-200 ${
+                                                                            values.deliveryInstructionType === type 
+                                                                                ? 'bg-blue-400 border-blue-400' 
+                                                                                : 'bg-gray-500 hover:bg-gray-500'
+                                                                        }`}
+                                                                        onClick={() => {
+                                                                            setFieldValue('deliveryInstructionType', type);
+                                                                            if (type !== 'Others') {
+                                                                                setFieldValue('specialInstructions', '');
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {type}
+                                                                    </button>
+                                                                ))}
                                                     </div>
-                                                    
-                                                    {/* Special Instructions for Other */}
-                                                    {values.deliveryInstructionType === 'Others' && (
+                                                            <ErrorMessage name="deliveryInstructionType" component="div" className="text-red-500 text-sm" />
+                                                        </div>)}
+                                                    {values.deliveryInstructionType === 'Others' && values.specialInstructions && (
                                                         <div className="space-y-2 mt-4">
                                                             <label className="block text-sm font-medium text-gray-700">
                                                                 Special Instructions
@@ -1856,62 +1894,58 @@ useEffect(() => {
                                                             <ErrorMessage name="specialInstructions" component="div" className="text-red-500 text-sm" />
                                                         </div>
                                                     )}
-                                                    
-                                                    {/* Shop Contact Information (if delivery type is shop pickup) */}
-                                                    {values.deliveryType === 'pickup' && (
-                                                        <div className="mt-6">
-                                                            <Typography variant="h6" className="mb-3 text-gray-800 font-medium">
-                                                                Shop Contact Information
-                                                            </Typography>
-                                                            
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                <div className="space-y-2">
-                                                                    <label className="block text-sm font-medium text-gray-700">
-                                                                        Shop Contact Name
-                                                                    </label>
-                                                                    <Field
-                                                                        type="text"
-                                                                        name="shopContactName"
-                                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                                        placeholder="Enter shop contact name"
-                                                                    />
-                                                                    <ErrorMessage name="shopContactName" component="div" className="text-red-500 text-sm" />
-                                                                </div>
-                                                                
-                                                                <div className="space-y-2">
-                                                                    <label className="block text-sm font-medium text-gray-700">
-                                                                        Shop Contact Phone
-                                                                    </label>
-                                                                    <Field
-                                                                        type="text"
-                                                                        name="shopContactPhone"
-                                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                                        placeholder="Enter shop contact phone"
-                                                                        maxLength="10"
-                                                                    />
-                                                                    <ErrorMessage name="shopContactPhone" component="div" className="text-red-500 text-sm" />
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <div className="space-y-2 mt-4">
-                                                                <label className="block text-sm font-medium text-gray-700">
-                                                                    Shop Comments
-                                                                </label>
-                                                                <Field
-                                                                    as="textarea"
-                                                                    name="shopComments"
-                                                                    rows={3}
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                                    placeholder="Additional comments about the shop"
-                                                                />
-                                                                <ErrorMessage name="shopComments" component="div" className="text-red-500 text-sm" />
-                                                            </div>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
                                         </Card>
                                     </div>
+                                )}                                
+                                    {quoteDetails && bookingData?.serviceType === 'PARCEL' && (
+                                        <Card className="my-6">
+                                            <div className="border rounded-xl bg-gray-200 p-4">
+                                                <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                                <hr className="my-2 border border-black" />
+                                                <div className="mt-4">
+                                                    <div className="grid grid-cols-2 justify-between">
+                                                        <Typography color="gray" variant="h6">Pick up to Drop Kilometer</Typography>
+                                                        <Typography>
+                                                            {Math.round((quoteDetails.value?.estimatedDistance || quoteDetails.amount?.estimatedDistance) || 0)} Kms
+                                                        </Typography>
+                                                        <Typography color="gray" variant="h6">Base Fare up to {quoteDetails.amount?.baseKm} Kilometer</Typography>
+                                                        <Typography>
+                                                            ₹ {quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare}
+                                                        </Typography>
+                                                        <Typography color="gray" variant="h6">Per Km Rate</Typography>
+                                                        <Typography>
+                                                            ₹ {quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal}
+                                                        </Typography>
+                                                        {(quoteDetails.value?.rideSurchargeAmount > 0 || quoteDetails.amount?.rideSurchargeAmount > 0) && (
+                                                            <>
+                                                                <Typography color="gray" variant="h6">Surcharge Applied</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount}
+                                                                </Typography>
+                                                            </>
+                                                        )}
+                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                        <Typography>
+                                                            ₹ {quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice}
+                                                        </Typography>
+                                                        {quoteDetails.discount?.percentage > 0 && (
+                                                            <>
+                                                                <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                <Typography>
+                                                                    {quoteDetails.discount?.percentage} %
+                                                                </Typography>
+                                                                <Typography color="gray" variant="h6">Total Estimated Fare</Typography>
+                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                    ₹ {(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100)}
+                                                                </Typography>
+                                                            </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                    </div>
+                                </Card>
                                 )}
                                 
                                 {/* AUTO service type - existing implementation */}
@@ -1952,7 +1986,6 @@ useEffect(() => {
                                             <label className="block text-sm font-medium text-black-700">
                                                 Drop Location (Delivery Address) <span className="text-red-500">*</span>
                                             </label>
-                                            <p className="text-xs text-gray-500 mb-2">Where the parcel will be delivered</p>
                                             <Field
                                                 type="text"
                                                 name="dropAddress"
@@ -2003,8 +2036,6 @@ useEffect(() => {
                                         Confirm Booking
                                     </Button>
                                 </div>
-                            </>
-                        }
                     </>
                             )
                         }}
@@ -2014,15 +2045,6 @@ useEffect(() => {
             <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); }} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
             <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
             <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); }} title={zoneErrorModal.title} content={zoneErrorModal.text} />
-            
-            {/* Shop Add Modal */}
-            <ShopAddModal
-                isOpen={showShopAddModal}
-                onClose={() => setShowShopAddModal(false)}
-                onShopAdded={handleShopAdded}
-                zoneOptions={zoneOptions}
-                currentZone={getCurrentZone()}
-            />
         </div>
     );
 };
