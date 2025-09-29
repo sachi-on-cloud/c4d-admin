@@ -1253,7 +1253,7 @@ const ConfirmBooking = (props) => {
                         </Card>
                     }
                 </div>
-                 {showDetails && (bookingDetails?.status === 'ENDED' || paymentDetails.enable) && (
+               {showDetails && bookingDetails?.status === 'ENDED' && (
     <Card className="mt-4">
         <CardBody>
             <div className="flex justify-between mb-2">
@@ -1268,7 +1268,7 @@ const ConfirmBooking = (props) => {
                         label="Select Trip Type"
                         value={additionalPaymentDetails.tripType || ""}
                         onChange={(value) => handleAdditionalChange("tripType", value)}
-                        disabled={bookingDetails?.status !== 'ENDED'}
+                        disabled={bookingDetails?.tripStatus === true}
                     >
                         <Option value="Internal">Internal</Option>
                         <Option value="External">External</Option>
@@ -1282,7 +1282,7 @@ const ConfirmBooking = (props) => {
                         value={additionalPaymentDetails.tollCost || ""}
                         onChange={(e) => handleAdditionalChange("tollCost", e.target.value)}
                         placeholder="Enter Toll Cost"
-                        disabled={bookingDetails?.status !== 'ENDED'}
+                        disabled={bookingDetails?.tripStatus === true}
                     />
                 </div>
                 {/* Permit Cost */}
@@ -1293,7 +1293,7 @@ const ConfirmBooking = (props) => {
                         value={additionalPaymentDetails.permitCost || ""}
                         onChange={(e) => handleAdditionalChange("permitCost", e.target.value)}
                         placeholder="Enter Permit Cost"
-                        disabled={bookingDetails?.status !== 'ENDED'}
+                        disabled={bookingDetails?.tripStatus === true}
                     />
                 </div>
                 {/* Fuel Cost */}
@@ -1304,7 +1304,7 @@ const ConfirmBooking = (props) => {
                         value={additionalPaymentDetails.fuelCost || ""}
                         onChange={(e) => handleAdditionalChange("fuelCost", e.target.value)}
                         placeholder="Enter Fuel Cost"
-                        disabled={bookingDetails?.status !== 'ENDED'}
+                        disabled={bookingDetails?.tripStatus === true}
                     />
                 </div>
                 {/* Trip Fare */}
@@ -1315,7 +1315,7 @@ const ConfirmBooking = (props) => {
                         value={additionalPaymentDetails.tripFare || ""}
                         onChange={(e) => handleAdditionalChange("tripFare", e.target.value)}
                         placeholder="Enter Trip Fare"
-                        disabled={bookingDetails?.status !== 'ENDED'}
+                        disabled={bookingDetails?.tripStatus === true}
                     />
                 </div>
                 {/* Notes */}
@@ -1329,7 +1329,7 @@ const ConfirmBooking = (props) => {
                         onChange={(e) => handleAdditionalChange("notes", e.target.value)}
                         placeholder="Enter notes..."
                         className="p-2 w-full border rounded-md h-20"
-                        disabled={bookingDetails?.status !== 'ENDED'}
+                        disabled={bookingDetails?.tripStatus === true}
                     />
                 </div>
             </div>
