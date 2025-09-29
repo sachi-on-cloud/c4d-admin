@@ -18,6 +18,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 import TextBoxWithList from "@/components/BookingNotes";
 import LandMarkBookingNotes from "@/components/LandMarkNotes";
+import Swal from "sweetalert2";
 
 const ConfirmBooking = (props) => {
     const [bookingDetails, setBookingDetails] = useState("");
@@ -29,6 +30,14 @@ const ConfirmBooking = (props) => {
     const [driverFeedback, setDriverFeedback] = useState();
     const [showDetails, setShowDetails] = useState(true);
     const [finalPaymentPirces, setFinalPaymentPrices] = useState({});
+    const [additionalPaymentDetails, setAdditionalPaymentDetails] = useState({
+        tripType: "",
+        tollCost: "",
+        permitCost: "",
+        fuelCost: "",
+        tripFare: "",
+        notes: "",
+    });
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -46,6 +55,11 @@ const ConfirmBooking = (props) => {
     // Handler to update state
     const handleChange = (field, value) => {
         setPaymentDetails((prev) => ({ ...prev, [field]: value }));
+    };
+
+    // Handler for additional payment details
+    const handleAdditionalChange = (field, value) => {
+        setAdditionalPaymentDetails((prev) => ({ ...prev, [field]: value }));
     };
 
     const onConfirmPressHandler = async () => {
@@ -827,7 +841,7 @@ const ConfirmBooking = (props) => {
                                                         carType === 'SUV' ? bookingDetails?.Package?.priceSuv :
                                                         carType === 'MUV' ? bookingDetails?.Package?.priceMVP :
                                                         carType === 'SEDAN' ? bookingDetails?.Package?.priceSedan : 
-                                                        'N/A';
+                                                        bookingDetails?.Package?.price;
                                             } else if (bookingDetails?.serviceType === 'DRIVER') {
                                             basePrice = bookingDetails?.carType?.toUpperCase() === 'MUV'
                                                 ? bookingDetails?.Package?.priceMVP
@@ -919,7 +933,7 @@ const ConfirmBooking = (props) => {
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Drop-off: </Typography>
                                 <Typography>
-                                    {bookingDetails?.dropAddress?.name || "Not Added"}
+                                    {bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name || "Not Added"}
                                 </Typography>
                             </div>
                               <div className="flex justify-between">
@@ -1065,8 +1079,10 @@ const ConfirmBooking = (props) => {
                                     </div>}
                                     {amount.extraKMs > 0 &&
                                         <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">{`Extra KM's Fare: (${amount.extraKMs} x ${amount.extraKMPrice})`}</Typography>
-                                            <Typography>₹ {amount?.extraKMs * amount?.extraKMPrice}</Typography>
+<Typography color="gray" variant="h6">         {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
+                                            <Typography>
+    ₹ {(amount?.extraKMs * amount?.extraKMPrice).toFixed(2)}
+  </Typography>
                                         </div>
                                     }
                                     {amount.extraNightCharge > 0 &&
@@ -1134,11 +1150,19 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">End KM:</Typography>
                                     <Typography>{bookingDetails?.endKM}</Typography>
                                 </div>
-                                </>}
-                                {bookingDetails?.extraHours >0 && (
+
+                                    <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total KM:</Typography>
+                                    <Typography>
+                                        {bookingDetails?.endKM && bookingDetails?.startKM ? (bookingDetails.endKM - bookingDetails.startKM).toFixed(2): "0.00"}
+                                    </Typography>
+                                    </div>
+                                </>
+                                }
+                            {bookingDetails?.extraHours >0 && (
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                    <Typography color="gray" variant="h6">{`${Math.floor(bookingDetails.extraHours / 60).toString().padStart(2, '0')} : ${(bookingDetails.extraHours % 60).toString().padStart(2, '0')} hrs`}</Typography>
+                                    <Typography color="gray" variant="h6">{`${Math.floor(bookingDetails.extraHours / 60).toString().padStart(2, '0')} : ${Math.round(bookingDetails.extraHours % 60).toString().padStart(2, '0')} mins`}</Typography>
                                 </div>
                                 )}
                                  {/* {bookingDetails?.extraHourPrice >0 &&
@@ -1156,7 +1180,7 @@ const ConfirmBooking = (props) => {
                                  {bookingDetails?.extraKMs > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra KMs:</Typography>
-                                     <Typography>{bookingDetails?.extraKMs}</Typography>     
+                                     <Typography> {Number(bookingDetails?.extraKMs).toFixed(2)}</Typography>     
                                 </div>
                                 }
                                  {bookingDetails?.extraKMPrice > 0 &&
@@ -1229,10 +1253,213 @@ const ConfirmBooking = (props) => {
                         </Card>
                     }
                 </div>
-                 {showDetails &&<LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
-                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData}   bookingId={bookingDetails?.id} /> }
-               
+               {showDetails && bookingDetails?.status === 'ENDED' && (
+    <Card className="mt-4">
+        <CardBody>
+            <div className="flex justify-between mb-2">
+                <Typography variant="h5">TripMaster Details</Typography>
+            </div>
+            <hr className="my-2" />
+            <div className="space-y-2">
+                {/* Trip Type */}
+                <div className="grid grid-cols-6 gap-x-4">
+                    <Typography color="gray" variant="h6">Trip Type:</Typography>
+                    <Select
+                        label="Select Trip Type"
+                        value={additionalPaymentDetails.tripType || ""}
+                        onChange={(value) => handleAdditionalChange("tripType", value)}
+                        disabled={bookingDetails?.tripStatus === true}
+                    >
+                        <Option value="Internal">Internal</Option>
+                        <Option value="External">External</Option>
+                    </Select>
+                </div>
+                {/* Toll Cost */}
+                <div className="grid grid-cols-6 gap-x-4">
+                    <Typography color="gray" variant="h6">Toll Cost:</Typography>
+                    <Input
+                        type="number"
+                        value={additionalPaymentDetails.tollCost || ""}
+                        onChange={(e) => handleAdditionalChange("tollCost", e.target.value)}
+                        placeholder="Enter Toll Cost"
+                        disabled={bookingDetails?.tripStatus === true}
+                    />
+                </div>
+                {/* Permit Cost */}
+                <div className="grid grid-cols-6 gap-x-4">
+                    <Typography color="gray" variant="h6">Permit Cost:</Typography>
+                    <Input
+                        type="number"
+                        value={additionalPaymentDetails.permitCost || ""}
+                        onChange={(e) => handleAdditionalChange("permitCost", e.target.value)}
+                        placeholder="Enter Permit Cost"
+                        disabled={bookingDetails?.tripStatus === true}
+                    />
+                </div>
+                {/* Fuel Cost */}
+                <div className="grid grid-cols-6 gap-x-4">
+                    <Typography color="gray" variant="h6">Fuel Cost:</Typography>
+                    <Input
+                        type="number"
+                        value={additionalPaymentDetails.fuelCost || ""}
+                        onChange={(e) => handleAdditionalChange("fuelCost", e.target.value)}
+                        placeholder="Enter Fuel Cost"
+                        disabled={bookingDetails?.tripStatus === true}
+                    />
+                </div>
+                {/* Trip Fare */}
+                <div className="grid grid-cols-6 gap-x-4">
+                    <Typography color="gray" variant="h6">Trip Fare:</Typography>
+                    <Input
+                        type="number"
+                        value={additionalPaymentDetails.tripFare || ""}
+                        onChange={(e) => handleAdditionalChange("tripFare", e.target.value)}
+                        placeholder="Enter Trip Fare"
+                        disabled={bookingDetails?.tripStatus === true}
+                    />
+                </div>
+                {/* Notes */}
+                <div className="col-span-2">
+                    <Typography color="gray" variant="h6" className="mb-1">
+                        Notes
+                    </Typography>
+                    <textarea
+                        name="notes"
+                        value={additionalPaymentDetails.notes || ""}
+                        onChange={(e) => handleAdditionalChange("notes", e.target.value)}
+                        placeholder="Enter notes..."
+                        className="p-2 w-full border rounded-md h-20"
+                        disabled={bookingDetails?.tripStatus === true}
+                    />
+                </div>
+            </div>
+            <div className="mt-4">
+               <Button
+    color="green"
+    onClick={async () => {
+        setLoading(true);
 
+        // Calculate totalKm
+        const startKm = bookingDetails?.startKM ? parseFloat(bookingDetails.startKM) : 0;
+        const endKm = bookingDetails?.endKM ? parseFloat(bookingDetails.endKM) : 0;
+        const totalKm = (endKm - startKm).toFixed(1);
+
+        // Construct tripDetails payload
+        const tripDetails = {
+            bookingId: bookingDetails?.id || null,
+            bookingNumber: bookingDetails?.bookingNumber || null,
+            cabId: bookingDetails?.Cab?.id || null,
+            driverId: bookingDetails?.Driver?.id || null,
+            customerId: bookingDetails?.Customer?.id || null,
+            tripDate: moment().format('YYYY-MM-DD'),
+            vehicleNumber: bookingDetails?.Cab?.carNumber || null,
+            driverName: bookingDetails?.Driver?.firstName || null,
+            startAddress: bookingDetails?.pickupAddress?.name ? { address: bookingDetails.pickupAddress.name } : null,
+            endAddress: (bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name) 
+                ? { address: bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name } 
+                : null,
+            startKm: startKm,
+            endKm: endKm,
+            totalKm: parseFloat(totalKm),
+            fuelType: additionalPaymentDetails.fuelType || 'CNG', // Use dynamic fuelType if available
+            fuelCost: additionalPaymentDetails.fuelCost ? parseFloat(additionalPaymentDetails.fuelCost) : 0,
+            tripFare: additionalPaymentDetails.tripFare ? parseFloat(additionalPaymentDetails.tripFare) : 0,
+            notes: additionalPaymentDetails.notes || '',
+            startLat: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0,
+            startLong: bookingDetails?.startLong ? parseFloat(bookingDetails.startLong) : 0,
+            endLat: bookingDetails?.endLat ? parseFloat(bookingDetails.endLat) : 0,
+            endLong: bookingDetails?.endLong ? parseFloat(bookingDetails.endLong) : 0,
+            toll: additionalPaymentDetails.tollCost ? parseFloat(additionalPaymentDetails.tollCost) : 0,
+            permit: additionalPaymentDetails.permitCost ? parseFloat(additionalPaymentDetails.permitCost) : 0,
+            tripType: additionalPaymentDetails.tripType || 'Internal',
+            latitude: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0, // Included for compatibility
+        };
+
+        // Validate required fields
+        const requiredFields = [
+            'bookingId',
+            'bookingNumber',
+            'tripDate',
+            'vehicleNumber',
+            'driverName',
+            'startAddress',
+            'endAddress',
+            'startKm',
+            'endKm',
+            // 'totalKm',
+            'fuelType',
+            'tripFare',
+            'tripType',
+        ];
+
+        const missingFields = requiredFields.filter(field => 
+            !tripDetails[field] || 
+            tripDetails[field] === null || 
+            (typeof tripDetails[field] === 'object' && !tripDetails[field]?.address)
+        );
+
+                                    if (missingFields.length > 0) {
+                                        console.error("Missing required fields:", missingFields);
+                                        Swal.fire({
+                                            position: "center",
+                                            icon: "error",
+                                            title: `Please provide the following required fields: ${missingFields.join(', ')}`,
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        });
+            setLoading(false);
+            return;
+        }
+
+        // Log the payload for debugging
+        console.log("Trip Details to be sent:", JSON.stringify(tripDetails, null, 2));
+
+        try {
+            const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, tripDetails);
+            console.log("API Response:", response);
+
+            if (response?.success) {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Trip details added successfully",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                if (props.onConfirm) props.onConfirm();
+                props.setIsOpen(false);
+            } else {
+                console.error("API Error:", response?.message || "Unknown error");
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: `Failed to add trip details: ${response?.message || "Unknown error"}`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        } catch (err) {
+            console.error("Submission error:", err);
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Failed to add trip details. Please try again.",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } finally {
+            setLoading(false);
+        }
+    }}
+>
+    Completed
+</Button>
+            </div>
+        </CardBody>
+    </Card>
+)}
+                {showDetails && <LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
+                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} bookingId={bookingDetails?.id} />}
             </>
         </div>
     );

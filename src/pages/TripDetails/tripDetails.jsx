@@ -16,6 +16,8 @@ const TripDetails = () => {
     fuelCost: 0,
     totalFare: 0,
     profit: 0,
+    tollCost: 0,
+    permitCost: 0,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -57,9 +59,17 @@ const TripDetails = () => {
       setAllTrips(sortedTrips); // Store unfiltered trips
       setTrips(sortedTrips); // Initially set filtered trips to all trips
 
-      // Use backend summary for overall totals (doesn't change on pagination)
+      // Use backend summary if available
       if (response.summary) {
-        setSummary(response.summary);
+        setSummary({
+          totalKm: response.summary.totalKm || 0,
+          fuelUsed: response.summary.fuelUsed || 0,
+          fuelCost: response.summary.fuelCost || 0,
+          totalFare: response.summary.totalFare || 0,
+          profit: response.summary.profit || 0,
+          tollCost: response.summary.tollCost || 0, // Use backend tollCost
+          permitCost: response.summary.permitCost || 0, // Use backend permitCost
+        });
       } else {
         // Fallback to client-side calculation only if no backend summary
         const summaryData = sortedTrips.reduce(
@@ -69,8 +79,10 @@ const TripDetails = () => {
             fuelCost: acc.fuelCost + (parseFloat(trip.fuelCost) || 0),
             totalFare: acc.totalFare + (parseFloat(trip.tripFare) || 0),
             profit: acc.profit + (parseFloat(trip.profit) || 0),
+            tollCost: acc.tollCost + (parseFloat(trip.tollCost) || 0), // Calculate tollCost
+            permitCost: acc.permitCost + (parseFloat(trip.permitCost) || 0), // Calculate permitCost
           }),
-          { totalKm: 0, fuelUsed: 0, fuelCost: 0, totalFare: 0, profit: 0 }
+          { totalKm: 0, fuelUsed: 0, fuelCost: 0, totalFare: 0, profit: 0, tollCost: 0, permitCost: 0 }
         );
         setSummary(summaryData);
       }
@@ -196,7 +208,15 @@ const TripDetails = () => {
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md w-48">
             <div>Fuel Cost</div>
-            <div className="text-2xl font-bold text-red-500">₹{summary.fuelCost.toFixed(2)}</div>
+            <div className="text-2xl font-bold ">₹{summary.fuelCost.toFixed(2)}</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-md w-48">
+            <div>Permit Cost</div>
+            <div className="text-2xl font-bold">₹{summary.permitCost.toFixed(2)}</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-md w-48">
+            <div>Toll Cost</div>
+            <div className="text-2xl font-bold">₹{summary.tollCost.toFixed(2)}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md w-48">
             <div>Total Fare</div>
