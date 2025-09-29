@@ -607,6 +607,22 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Auto Bookings",
+        path: "/booking/list/Auto",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.AUTO} />,
+        display: false,
+        permission: "All bookings",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel Bookings",
+        path: "/booking/list/Parcel",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.PARCEL} />,
+        display: false,
+        permission: "All bookings",
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Document Verification",
         path: "/doc-verification/pending",
         element: <PendingDocList />,

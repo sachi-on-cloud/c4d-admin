@@ -272,6 +272,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Drivers", path: "/dashboard/booking/list/actingDriver" },
                       { label: "Rides", path: "/dashboard/booking/list/rides" },
                       { label: "Rentals", path: "/dashboard/booking/list/rentals" },
+                      { label: "Auto", path:"/dashboard/booking/list/Auto"},
+                      { label: "Parcel", path:"/dashboard/booking/list/Parcel"}
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -307,6 +309,20 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/rental.png"
                                   alt="Rentals"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                 {label === "Auto" && (
+                                <img
+                                  src="/img/auto.png"
+                                  alt="Auto List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Parcel" && (
+                                <img
+                                  src="/img/Parcel_driver.png"
+                                  alt="Bike List"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}

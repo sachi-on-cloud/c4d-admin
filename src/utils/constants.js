@@ -951,6 +951,7 @@ export const API_ROUTES = {
     'GET_ALL_PARCEL': '/admin/parcel',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_AUTO_PACKAGE':'/get-autos',
+    // 'GET_PARCEL_PACKAGE': '/get-parcels', // driver request 
     'GET_AUTO_BY_ID':'/auto/',
     'UPDATE_AUTO_DETAILS':'/update/admin/auto',
     'AUTO_PACKAGE_LIST':'/auto-package-list',
@@ -1027,6 +1028,8 @@ export const BOOKING_SERVICE_TYPE = {
     CAB_BOOKING: 'CAB',
     CAR_WASH: 'CAR_WASH',
     RENTAL: 'RENTAL',
+    AUTO: 'AUTO',
+    PARCEL: 'PARCEL'
 };
 
 export const PUSH_NOTIFICATION_TYPE = {

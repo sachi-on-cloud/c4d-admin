@@ -687,7 +687,7 @@ const handleTabChange = (value) => {
                 </div>
             <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
-                    {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
+                    {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : type == 'AUTO' ? 'Auto' : type == 'PARCEL' ? 'Parcel' : 'Bookings'}
                 </Typography>
             </div>
             <Card>
