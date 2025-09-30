@@ -21,7 +21,6 @@ import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import EditBooking from './editBooking';
 import DistanceExceedModal from '@/components/DistanceExceedModal';
-import ShopAddModal from '@/components/ShopAddModal';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -72,16 +71,7 @@ const Booking = (props) => {
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
     const [driverSuggestions, setDriverSuggestions] = useState([]);
-    const [shopSuggestions, setShopSuggestions] = useState([]);
-    const [shopAddressList, setShopAddressList] = useState([]);
-    const [shopData, setShopData] = useState([]);
-    const [filteredShops, setFilteredShops] = useState([]);
-    const [shopSearchText, setShopSearchText] = useState('');
-    const [selectedShop, setSelectedShop] = useState(null);
-    const [zoneOptions, setZoneOptions] = useState([]);
-    const [selectedZoneFilter, setSelectedZoneFilter] = useState('');
     const [pickupLocation, setPickupLocation] = useState(null);
-    const [shopLocation, setShopLocation] = useState(null);
     const [dropLocation, setDropLocation] = useState(null);
     const [driverPickUpLocation, setDriverPickUpLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState({ lat: 12.906374, lng: 80.226452 });
@@ -103,58 +93,6 @@ const Booking = (props) => {
     const [currentServiceType, setCurrentServiceType] = useState('');
     const [currentPackageType, setCurrentPackageType] = useState('');
     const [dropTaxiDistanceExceedModal, setDropTaxiDistanceExceedModal] = useState(false);
-    
-    
-    // Parcel categories and delivery instruction types
-    const parcelCategories = ['Food', 'Medicines', 'Electronics', 'Documents', 'Groceries', 'Clothes', 'Others'];
-    const deliveryInstructionTypes = ['Leave at door step', 'Hand over to receiver', 'Leave with security', 'Others'];
-    
-    // Shop functionality
-    const fetchShopsData = async (query = '') => {
-        try {
-            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SHOP_SEARCH_ADDRESS, {
-                query
-            });
-    //   console.log('API Response:', response);
-            if (response?.success && response?.data) {
-                const shopsWithZones = response.data.map(shop => ({
-                    ...shop,
-                    availableZones: shop.availableZones || []
-                }));
-                setShopData(shopsWithZones);
-                setFilteredShops(shopsWithZones);
-            }
-        } catch (error) {
-            console.error('Error fetching shops data:', error);
-        }
-    };
-
-  const debouncedFetchShops = useCallback(
-    debounce((query) => {
-      fetchShopsData(query);
-    }, 3000),
-    []
-  );
-    
-    const handleShopSearch = (searchText) => {
-        setShopSearchText(searchText);
-        
-        if (!searchText.trim()) {
-            setFilteredShops(shopData);
-            debouncedFetchShops('');
-            return;
-        }
-            debouncedFetchShops(searchText);
-        };
-
-        const clearSearch = () => {
-            setShopSearchText('');
-            setFilteredShops(shopData); 
-            fetchShopsData(''); // Fetch all shops
-        };        
-        useEffect(() => {
-        fetchShopsData();
-        }, []);    
 
 
   const fetchGeoData = async () => {
@@ -206,12 +144,11 @@ const Booking = (props) => {
     const serviceTypeMap = {
       'RENTAL_DROP_TAXI': 'RENTAL',
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
-      'PARCEL':'PARCEL',
     };
     const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
     // console.log('Mapped serviceType:', mappedServiceType);
 
-    if (!['DRIVER', 'RENTAL', 'RIDES','PARCEL'].includes(mappedServiceType)) {
+    if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
       console.error('Invalid serviceType:', mappedServiceType);
       setPackageTypeSelectedData([]);
       return;
@@ -296,7 +233,6 @@ useEffect(() => {
         const serviceTypeMap = {
           'RENTAL_DROP_TAXI': 'RENTAL',
           'RENTAL_HOURLY_PACKAGE': 'RENTAL',
-          'PARCEL':'PARCEL',
         };
         const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
@@ -338,7 +274,6 @@ useEffect(() => {
         'RIDES':'RIDES',
         'RENTAL_DROP_TAXI': 'RENTAL',
         'RENTAL_HOURLY_PACKAGE':'RENTAL',
-        'PARCEL':'PARCEL',
         // 'DRIVER':'ACTING DRIVER'
     };
     const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
@@ -354,7 +289,7 @@ useEffect(() => {
     let checkDistance = true;
     let checkCityLimit = true;
 
-    if (val.serviceType === 'RIDES') {  // || val.serviceType === 'PARCEL'
+    if (val.serviceType === 'RIDES') {
         checkDistance = await calculateDistance(val);
         checkCityLimit = await calcluateCityLimit(val);
     } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
@@ -362,7 +297,7 @@ useEffect(() => {
     }
 
     if (!checkDistance) {
-        if (val.serviceType === 'RIDES') { //  || val.serviceType === 'PARCEL'
+        if (val.serviceType === 'RIDES') {
             setDistanceExceedModal(true);
         } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
             setDropTaxiDistanceExceedModal(true); 
@@ -382,7 +317,6 @@ useEffect(() => {
     const serviceTypeMap = {
       'RENTAL_DROP_TAXI': 'RENTAL',
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
-      'PARCEL':'PARCEL',
     };
     const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
 
@@ -402,7 +336,7 @@ useEffect(() => {
     // console.log('Zone changed to', actualZone);
 
         const quoteDate = {
-            serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : mappedServiceType,
+            serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType || mappedServiceType,
             bookingType: '',
             serviceFor: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : val.serviceType,
             packageType:'Local',
@@ -416,17 +350,6 @@ useEffect(() => {
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
             zone: actualZone,
-        ...(val.serviceType === 'PARCEL' && {
-        deliveryType: val.deliveryType || '',
-        receiverName: val.receiverName || '',
-        receiverPhone: val.receiverPhone || '',
-        receiverAddress: val.receiverAddress || '',
-        parcelCategory: val.parcelCategory || '',
-        parcelCategoryOther: val.parcelCategoryOther || '',
-        deliveryInstructionType: val.deliveryInstructionType || '',
-        specialInstructions: val.specialInstructions || '',
-        shopId: val.shopId || '',
-        }),
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
         // console.log("QUOTE DATA", data);
@@ -439,7 +362,6 @@ useEffect(() => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-        fetchShopsData();
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }
@@ -472,28 +394,6 @@ useEffect(() => {
         luggage:'',
         seaterCapacity:'',
         sourceType: '',
-        // Parcel specific fields
-        deliveryType: '',
-        receiverName: '',
-        receiverPhone: '',
-        receiverAddress: '',
-        parcelCategory: '',
-        parcelCategoryOther: '',
-        deliveryInstructionType: '',
-        specialInstructions: '',
-        shopAddress: '',
-        shopLocation: null,
-        shopName: '',
-        shopLandmark: '',
-        shopContactName: '',
-        shopContactPhone: '',
-        shopComments: '',
-        shopId: '',
-        shopData: {},
-        availableZones: [],
-        senderName:'',
-        senderPhone:'',
-        senderAddress:'',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -534,7 +434,7 @@ useEffect(() => {
     });
 
     if (calculateDistance?.success) {
-        if (values.serviceType === "RIDES") { //  || values.serviceType === 'PARCEL'
+        if (values.serviceType === "RIDES") {
             return calculateDistance?.data?.showAlert; // Existing logic for RIDES
         } else if (values.serviceType ==='RENTAL_DROP_TAXI') {
             // Check if distance exceeds 300 km for DropTaxi
@@ -647,7 +547,7 @@ useEffect(() => {
         };
 
         try {
-            // console.log('AUTO Booking Payload:', bookingData);
+            console.log('AUTO Booking Payload:', bookingData);
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_AUTO_BOOKING, bookingData,values?.customerId?.id,
        );
             if (data?.success) {
@@ -659,134 +559,14 @@ useEffect(() => {
                 error: error.message,
                 stack: error.stack,
             });
+            alert('An error occurred while creating the AUTO booking. Please try again.');
         }
     };
 
-    const onParcelSubmitHandler = async (values) => {
-        // Detect zone for parcel booking
-        const zoneData = await zoneCheckUpFun(values);
-        let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
-        if (zoneData.success && zoneData.serviceArea) {
-            actualZone = zoneData.serviceArea.name;
-            // console.log('Zone detected for parcel booking:', actualZone);
-        }
-
-        // Build payload to match exact API schema
-        const parcelData = {
-            serviceType: 'PARCEL',
-            sourceType: values.sourceType,
-            pickupLat: values.pickupLocation.lat,
-            pickupLong: values.pickupLocation.lng,
-            pickupAddress: {
-                name: values.pickupAddress,
-            },
-            dropLat: values.dropLocation?.lat,
-            dropLong: values.dropLocation?.lng,
-            dropAddress: {
-                name: values.dropAddress,
-            },
-            driverStartLat: values.driverPickUpLocation?.lat,
-            driverStartLong: values.driverPickUpLocation?.lng,
-            driverStartAddress: {
-                name: values.driverPickUpAddress,
-            },
-            deliveryType: values.deliveryType,
-            orderType: values.parcelCategory,
-            orderTypeOther: values.parcelCategoryOther || '',
-            deliveryInstructions: values.deliveryInstructionType || '',
-            deliveryInstructionsOther: values.specialInstructions || '',
-            zone: actualZone,
-            senderName: values.senderName,
-            senderPhone: values.senderPhone,
-            senderAddress: values.senderAddress,
-            receiverName: values.receiverName,
-            receiverPhone: values.receiverPhone,
-            receiverAddress: values.receiverAddress,
-        };
-        let finalParcelData = { ...parcelData };
-        if (values.deliveryType === 'SHOP_PICKUP') {
-            finalParcelData = {
-                ...parcelData,
-            shopId: selectedShop?.id || null,
-            shopContactName: values.shopContactName || '',
-            shopContactPhone: values.shopContactPhone || '',
-            shopComments: values.shopComments || ''
-        };
-    } 
-        try {
-            // console.log('Parcel Booking Payload with Shop Data:', parcelData);
-            // console.log('Zone passed:', actualZone);
-            // console.log('Customer ID:', values?.customerId?.id);
-            // console.log('API Route:', API_ROUTES.ADD_NEW_PARCEL_BOOKING);
-
-            const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_PARCEL_BOOKING, finalParcelData, values?.customerId?.id);
-            // console.log("parcel bookings response: ", data);
-
-            if (data?.success) {
-                // Add shop address if new shop data provided
-                if (values.deliveryType === 'SHOP_PICKUP' && values.shopName && !selectedShop?.id) {
-                    await addAddress(values, selectedShop);
-                }
-                setIsOpen(false);
-                setBookingData(data?.data);
-                // alert('Parcel booking created successfully!');
-            } else {
-                console.error('API Error:', data);
-                // alert(`Booking failed: ${data?.message || 'Unknown error'}`);
-            }
-        } catch (error) {
-            console.error('Error in onParcelSubmitHandler:', {
-                error: error.message,
-                stack: error.stack,
-                response: error.response?.data,
-                status: error.response?.status,
-            });
-            // alert('An error occurred while creating the parcel booking. Please check console for details.');
-        }
-    };
-
-    const addAddress = async(values, selectedShop) => {
-        try{
-            const shopAddressData = {
-                shopName: values.shopName || selectedShop?.shopName,
-                shopLat: values.shopLocation?.lat || selectedShop?.shopLat,
-                shopLong: values.shopLocation?.lng || selectedShop?.shopLong,
-                shopAddress: { name: values.shopAddress || selectedShop?.shopAddress },
-                shopLandmark: values.shopLandmark || selectedShop?.shopLandmark,
-                zone: actualZone,
-            };
-            await ApiRequestUtils.post(API_ROUTES.ADD_SHOP_ADDRESS, shopAddressData);
-            // Refresh shops data after adding
-            fetchShopsData();
-        }catch(err){
-            console.log("ERROR IN ADDING SHOP ADDRESS", err);
-        }
-    };
-    const debouncedShopSearch = useCallback(
-        debounce(async (value) => {
-            if (value !== '') {
-                const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SHOP_SEARCH_ADDRESS, {
-                    query: value
-                });
-                console.log("DADADADADA", data)
-                if (data?.success && data?.data !== null) {
-                    const shopsWithZones = data.data.map(shop => ({
-                        ...shop,
-                        availableZones: shop.availableZones || []
-                    }));
-                    setFilteredShops(shopsWithZones);
-                }
-            } else {
-                setFilteredShops(shopData);
-            }
-        }, 3000),
-        []
-    );
    const onSubmitHandler = async (values) => {
     const serviceTypeMap = {
         'RENTAL_DROP_TAXI': 'RENTAL',
-        'RENTAL_HOURLY_PACKAGE': 'RENTAL',
-        'PARCEL':'PARCEL',
+        'RENTAL_HOURLY_PACKAGE': 'RENTAL'
     };
     const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
 
@@ -960,13 +740,7 @@ useEffect(() => {
                     setPickupSuggestions(data?.data);
                 } else if (type === 'driver') {
                     setDriverSuggestions(data?.data);
-                } 
-                else if (type === 'SHOP_PICKUP') {
-                    setShopSuggestions(data?.data);
-                } else if (type === 'DOOR_DELIVERY') {
-                    setShopSuggestions(data?.data);
-                } 
-                else {
+                } else {
                     setDropSuggestions(data?.data);
                 }
             } else {
@@ -979,13 +753,11 @@ useEffect(() => {
             setPickupSuggestions([]);
             setDriverSuggestions([]);
             setDropSuggestions([]);
-            setShopSuggestions([]);
             }
         } else {
             setPickupSuggestions([]);
             setDriverSuggestions([]);
             setDropSuggestions([]);
-            setShopSuggestions([]);
         }
     };
 
@@ -998,7 +770,6 @@ useEffect(() => {
             setFieldValue("pickupLocation", location);
             setPickupLocation(location);
             setPickupSuggestions([]);
-            setFieldValue("senderAddress",address)
 
             // Check zone for pickup location
             const zoneData = await zoneCheckUpFun({ 
@@ -1027,37 +798,12 @@ useEffect(() => {
             setFieldValue("driverPickUpLocation", location);
             setDriverPickUpLocation(location);
             setDriverSuggestions([]);
-        } else if (type === 'SHOP_PICKUP' || type === 'shop') {
-            setFieldValue("shopAddress", address);
-            setFieldValue("shopLocation", location);
-            setShopLocation(location);
-            setShopSuggestions([]);
         } else {
             setFieldValue("dropAddress", address);
             setFieldValue("dropLocation", location);
-            setFieldValue("receiverAddress",address)
             setDropLocation(location);
             setDropSuggestions([]);
         }
-    }
-};
-
-    const handleShopSelection = (shop, setFieldValue) => {
-        setSelectedShop(shop);
-        setFieldValue('shopId', shop.id);
-        setFieldValue('shopName', shop.shopName);
-        setFieldValue('shopAddress', shop.shopAddress?.name || '');
-        setFieldValue('shopLandmark', shop.shopLandmark || '');
-        setFieldValue('shopContactName', shop.shopContactName || '');
-        setFieldValue('shopContactPhone', shop.primaryPhone || '');
-        setFieldValue('availableZones', shop.availableZones || []);
-        setShopSearchText('');
-        setFilteredShops([]); 
-        
-        if (shop.shopLat && shop.shopLong) {
-            const location = { lat: shop.shopLat, lng: shop.shopLong };
-            setFieldValue('shopLocation', location);
-            setShopLocation(location);
         }
     };
 
@@ -1384,9 +1130,6 @@ useEffect(() => {
                                             else if (values.submitType === "auto") {
                                                 await onAutoSubmitHandler(values, formikBag);
                                             } 
-                                            else if (values.submitType === "parcel") {
-                                                await onParcelSubmitHandler(values, formikBag);
-                                            } 
                                             else {
                                                 await onSubmitHandler(values);
                                             }
@@ -1439,8 +1182,6 @@ useEffect(() => {
                                                         onSelect={(val) => {
                                                             setFieldValue('customerId', val);
                                                             setSelectedCustomer(val.id);
-                                                            setFieldValue('senderName', val.firstName || '');
-                                                            setFieldValue('senderPhone', val.phoneNumber || '');
                                                         }}
                                                     />
 
@@ -1668,7 +1409,7 @@ useEffect(() => {
                                                 )}
                                                 
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'PARCEL') && (
+                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Pickup Date & Time
@@ -1936,15 +1677,15 @@ useEffect(() => {
                                                                         <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
                                                                     </div>
                                                                 )}
-                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'PARCEL') && (
-                                                        <div className="p-0 space-y-2">
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                        <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
                                                                 Driver Starting Point 
                                                             </label>
                                                             <Field
                                                                 type="text"
                                                                 name="driverPickUpAddress"
-                                                                className="p-2 w-[300px] rounded-xl border-2 border-gray-300"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 placeholder="Enter driver pickup location (Optional)"
                                                                 onChange={(e) => {
                                                                     setFieldValue("driverPickUpAddress", e.target.value);
@@ -1966,442 +1707,6 @@ useEffect(() => {
                                                                 </ul>
                                                             )}
                                                         </div>)}
-
-                                                                {/* Parcel Booking Component */}
-                                                                {values.serviceType === 'PARCEL' && (
-                                                                    <div className="space-y-4 my-4">
-                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                            <div>
-                                                                                <label className="text-sm font-medium text-black-700">
-                                                                                    Pickup Location <span className="text-red-500">*</span>
-                                                                                </label>
-                                                                                <Field
-                                                                                    type="text"
-                                                                                    name="pickupAddress"
-                                                                                    className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                    placeholder="Enter pickup location"
-                                                                                    onChange={(e) => {
-                                                                                        setFieldValue('pickupAddress', e.target.value);
-                                                                                        setFieldValue('pickupLocation', null);
-                                                                                        searchLocations(e.target.value, true);
-                                                                                    }}
-                                                                                />
-                                                                                {pickupSuggestions.length > 0 && (
-                                                                                    <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto">
-                                                                                        {pickupSuggestions.map((suggestion, index) => (
-                                                                                            <li
-                                                                                                key={index}
-                                                                                                className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                                                onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue, values)}
-                                                                                            >
-                                                                                                {suggestion}
-                                                                                            </li>
-                                                                                        ))}
-                                                                                    </ul>
-                                                                                )}
-                                                                                <ErrorMessage name="pickupAddress" component="div" className="text-red-500 text-sm mt-1" />
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="text-sm font-medium text-black-700">
-                                                                                    Drop Location (Delivery Address) <span className="text-red-500">*</span>
-                                                                                </label>
-                                                                                <Field
-                                                                                    type="text"
-                                                                                    name="dropAddress"
-                                                                                    className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                    placeholder="Enter delivery address"
-                                                                                    onChange={(e) => {
-                                                                                        setFieldValue('dropAddress', e.target.value);
-                                                                                        setFieldValue('dropLocation', null);
-                                                                                        searchLocations(e.target.value, false);
-                                                                                    }}
-                                                                                />
-                                                                                {dropSuggestions.length > 0 && (
-                                                                                    <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto">
-                                                                                        {dropSuggestions.map((suggestion, index) => (
-                                                                                            <li
-                                                                                                key={index}
-                                                                                                className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                                                onClick={() => handleSelectLocation(suggestion, false, null, setFieldValue, values)}
-                                                                                            >
-                                                                                                {suggestion}
-                                                                                            </li>
-                                                                                        ))}
-                                                                                    </ul>
-                                                                                )}
-                                                                                <ErrorMessage name="dropAddress" component="div" className="text-red-500 text-sm mt-1" />
-                                                                            </div>
-                                                                        </div>
-                                                                        <div>
-                                                                            <label className="text-sm font-medium text-black-700">
-                                                                                Delivery Type <span className="text-red-500">*</span>
-                                                                            </label>
-                                                                            <div className="grid grid-cols-2 gap-4 mt-2">
-                                                                                <button
-                                                                                    type="button"
-                                                                                    className={`p-3 rounded-xl border-2 transition-all duration-200 ${
-                                                                                        values.deliveryType === 'DOOR_DELIVERY'
-                                                                                            ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-md'
-                                                                                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
-                                                                                    }`}
-                                                                                    onClick={() => {
-                                                                                        setFieldValue('deliveryType', 'DOOR_DELIVERY');
-                                                                                        setFieldValue('shopAddress', '');
-                                                                                        setFieldValue('shopLocation', null);
-                                                                                        setFieldValue('shopName', '');
-                                                                                        setFieldValue('shopLandmark', '');
-                                                                                        setFieldValue('shopContactName', '');
-                                                                                        setFieldValue('shopContactPhone', '');
-                                                                                        setSelectedShop(null);
-                                                                                    }}
-                                                                                    >
-                                                                                    <div className="flex flex-col items-center space-y-2">
-                                                                                        <div className="font-medium">Send  Parcel</div>
-                                                                                        <div className="text-sm text-center">Deliver to customer address</div>
-                                                                                    </div>
-                                                                                </button>
-                                                                                <button
-                                                                                    type="button"
-                                                                                    className={`p-3 rounded-xl border-2 transition-all duration-200 ${
-                                                                                        values.deliveryType === 'SHOP_PICKUP'
-                                                                                            ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-md'
-                                                                                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
-                                                                                    }`}
-                                                                                    onClick={() => {
-                                                                                        setFieldValue('deliveryType', 'SHOP_PICKUP');
-                                                                                        setFieldValue('parcelCategory', '');
-                                                                                        setFieldValue('parcelCategoryOther', '');
-                                                                                        setFieldValue('deliveryInstructionType', '');
-                                                                                        setFieldValue('specialInstructions', '');
-                                                                                    }}
-                                                                                >
-                                                                                    <div className="flex flex-col items-center space-y-2">
-                                                                                        <div className="font-medium">Shop Pickup</div>
-                                                                                        <div className="text-sm text-center">Pickup from shop location</div>
-                                                                                    </div>
-                                                                                </button>
-                                                                            </div>
-                                                                            <ErrorMessage name="deliveryType" component="div" className="text-red-500 text-sm mt-1" />
-                                                                        </div>
-                                                                        {values.deliveryType === 'SHOP_PICKUP' && (
-                                                                            <div className="space-y-4">
-                                                                                {/* Shop Search and Filter Section */}
-                                                                                <div className="bg-gray-50 p-4 rounded-xl">
-                                                                                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
-                                                                                        
-                                                                                        
-                                                                                            <div className="flex-1">
-                                                                                                <label className="text-sm font-medium text-black-700 mb-2 block">
-                                                                                                    Search Shops
-                                                                                                </label>
-                                                                                            <div className="relative">
-                                                                                                <input
-                                                                                                    type="text"
-                                                                                                    placeholder="Search by shop name, location..."
-                                                                                                    value={shopSearchText}
-                                                                                                    onChange={(e) => handleShopSearch(e.target.value)}
-                                                                                                    className="p-2 w-full rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                                                                                />
-                                                                                                {shopSearchText && (
-                                                                                                    <button
-                                                                                                        type="button"
-                                                                                                        onClick={clearSearch}
-                                                                                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                                                                                    >
-                                                                                                        ✕
-                                                                                                    </button>
-                                                                                                )}
-                                                                                                {filteredShops.length > 0 && shopSearchText && (
-                                                                                                    <ul className="absolute z-10 w-full bg-white border rounded-lg mt-2 max-h-60 overflow-y-auto">
-                                                                                                {filteredShops.map((shop) => (
-                                                                                                    <li key={shop.id} className="p-2 cursor-pointer hover:bg-gray-100" 
-                                                                                                            onClick={() => handleShopSelection(shop, setFieldValue)}
-                                                                                                            >
-                                                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                                                                                            <div>
-                                                                                                                <div className="font-semibold text-gray-900">{shop.shopName}</div>
-                                                                                                                <div className="text-sm text-gray-600">{shop.shopAddress?.name}</div>
-                                                                                                            </div>
-                                                                                                            <div>
-                                                                                                                <div className="text-sm text-gray-500">Contact: {shop.primaryPhone}</div>
-                                                                                                                    {shop.availableZones?.length > 0 && (
-                                                                                                                        <div className="text-xs text-gray-400">Zones: {shop.availableZones.join(', ')}</div>
-                                                                                                                    )}
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                        </li>
-                                                                                                        ))}
-                                                                                                    </ul>
-                                                                                                )}
-                                                                                            </div>
-                                                                                            </div>
-                                                                                </div>
-                                                                                
-                                                                                {/* Manual Shop Entry or Selected Shop Details */}
-                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                    <div className="space-y-4">
-                                                                                        <h4 className="font-medium text-gray-900">Shop Details</h4>
-                                                                                        <div>
-                                                                                            <label className="text-sm font-medium text-black-700">
-                                                                                                Shop Address (Pickup Location) <span className="text-red-500">*</span>
-                                                                                            </label>
-                                                                                            <Field
-                                                                                                type="text"
-                                                                                                name="shopAddress"
-                                                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                                placeholder="Enter shop address (pickup location)"
-                                                                                                onChange={(e) => {
-                                                                                                    setFieldValue('shopAddress', e.target.value);
-                                                                                                    setFieldValue('shopLocation', null);
-                                                                                                    searchLocations(e.target.value, false, 'shop');
-                                                                                                }}
-                                                                                            />
-                                                                                            {shopSuggestions.length > 0 && (
-                                                                                                <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto">
-                                                                                                    {shopSuggestions.map((suggestion, index) => (
-                                                                                                        <li
-                                                                                                            key={index}
-                                                                                                            className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                                                            onClick={() => handleSelectLocation(suggestion, false, 'shop', setFieldValue, values)}
-                                                                                                        >
-                                                                                                            {suggestion}
-                                                                                                        </li>
-                                                                                                    ))}
-                                                                                                </ul>
-                                                                                            )}
-                                                                                            <ErrorMessage name="shopAddress" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                        </div>
-                                                                                        <div>
-                                                                                            <label className="text-sm font-medium text-black-700">
-                                                                                                Shop Name <span className="text-red-500">*</span>
-                                                                                            </label>
-                                                                                            <Field
-                                                                                                type="text"
-                                                                                                name="shopName"
-                                                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                                placeholder="Enter shop name"
-                                                                                            />
-                                                                                            <ErrorMessage name="shopName" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                        </div>
-                                                                                        <div>
-                                                                                            <label className="text-sm font-medium text-black-700">Landmark</label>
-                                                                                            <Field
-                                                                                                type="text"
-                                                                                                name="shopLandmark"
-                                                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                                placeholder="Enter landmark"
-                                                                                            />
-                                                                                            <ErrorMessage name="shopLandmark" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className="space-y-4">
-                                                                                        <h4 className="font-medium text-gray-900">Contact Information</h4>
-                                                                                        <div>
-                                                                                            <label className="text-sm font-medium text-black-700">
-                                                                                                Shop Contact Name <span className="text-red-500">*</span>
-                                                                                            </label>
-                                                                                            <Field
-                                                                                                type="text"
-                                                                                                name="shopContactName"
-                                                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                                placeholder="Enter contact name"
-                                                                                            />
-                                                                                            <ErrorMessage name="shopContactName" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                        </div>
-                                                                                        <div>
-                                                                                            <label className="text-sm font-medium text-black-700">
-                                                                                                Shop Contact Phone <span className="text-red-500">*</span>
-                                                                                            </label>
-                                                                                            <Field
-                                                                                                type="text"
-                                                                                                name="shopContactPhone"
-                                                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                                placeholder="Enter contact phone"
-                                                                                                maxLength="10"
-                                                                                            />
-                                                                                            <ErrorMessage name="shopContactPhone" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                        </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                    </div>
-                                                                            </div>
-                                                                        )}
-                                                                        {(values.deliveryType === 'DOOR_DELIVERY') && (
-                                                                    <div className="space-y-2 mx-2 mt-2">
-                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                            <div>
-                                                                                    <label className="text-sm font-medium text-black-700">
-                                                                                        Sender Name <span className="text-red-500">*</span>
-                                                                                    </label>
-                                                                                    <Field
-                                                                                        type="text"
-                                                                                        name="senderName"
-                                                                                        className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                        placeholder="e.g., Jane Smith"
-                                                                                    />
-                                                                                    <ErrorMessage name="senderName" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                </div>
-                                                                                <div>
-                                                                                    <label className="text-sm font-medium text-black-700">
-                                                                                        Sender Phone <span className="text-red-500">*</span>
-                                                                                    </label>
-                                                                                    <Field
-                                                                                        type="text"
-                                                                                        name="senderPhone"
-                                                                                        className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                        placeholder="e.g., +1234567890"
-                                                                                    />
-                                                                                    <ErrorMessage name="senderPhone" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                </div>
-                                                                            </div>
-                                                                                <div>
-                                                                                    <label className="text-sm font-medium text-black-700">
-                                                                                        Sender Address Details <span className="text-red-500">*</span>
-                                                                                    </label>
-
-                                                                                    <Field
-                                                                                        as="textarea"
-                                                                                        name="senderAddress"
-                                                                                        rows={3}
-                                                                                        className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                        placeholder="e.g., 123 Main St, Springfield (add apartment number or instructions if needed)"
-                                                                                    />
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-                                                                        {(values.deliveryType === 'SHOP_PICKUP' || values.deliveryType === 'DOOR_DELIVERY') && (
-                                                                            <div className="space-y-4">
-                                                                            <div className="bg-gray-50 p-4 rounded-xl">
-                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                    <div>
-                                                                                        <label className="text-sm font-medium text-black-700">
-                                                                                            Receiver Name <span className="text-red-500">*</span>
-                                                                                        </label>
-                                                                                        <Field
-                                                                                            type="text"
-                                                                                            name="receiverName"
-                                                                                            className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                            placeholder="Enter receiver name"
-                                                                                        />
-                                                                                        <ErrorMessage name="receiverName" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <label className="text-sm font-medium text-black-700">
-                                                                                            Receiver Phone Number <span className="text-red-500">*</span>
-                                                                                        </label>
-                                                                                        <Field
-                                                                                            type="text"
-                                                                                            name="receiverPhone"
-                                                                                            className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                            placeholder="Enter receiver phone"
-                                                                                            maxLength="10"
-                                                                                        />
-                                                                                        <ErrorMessage name="receiverPhone" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                    </div>
-                                                                                </div>
-                                                                                
-                                                                                <div className="space-y-2 mt-4">
-                                                                                    <label className="text-sm font-medium text-black-700">
-                                                                                        Receiver Address <span className="text-red-500">*</span>
-                                                                                    </label>
-                                                                                    <Field
-                                                                                        as="textarea"
-                                                                                        name="receiverAddress"
-                                                                                        rows={3}
-                                                                                        className="p-2 w-full rounded-xl border-2 border-gray-300 mt-1"
-                                                                                        placeholder="Enter receiver address (e.g., Home/Apartment/Shop)"
-                                                                                    />
-                                                                                    <ErrorMessage name="receiverAddress" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-                                                                        {(values.deliveryType === 'SHOP_PICKUP' || values.deliveryType === 'DOOR_DELIVERY') && (
-                                                                            <div className="space-y-2 mx-2 mt-2">
-                                                                                <div>
-                                                                                    <label className="text-sm font-medium text-black-700">
-                                                                                        Parcel Category <span className="text-red-500">*</span>
-                                                                                    </label>
-                                                                                    <div className="text-sm font-medium text-red-500">Package must be 10kg or less</div>
-                                                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-1 mt-2">
-                                                                                        {parcelCategories.map((category) => (
-                                                                                            <button
-                                                                                                key={category}
-                                                                                                type="button"
-                                                                                                className={`p-2 rounded-xl border border-gray-300 text-white text-[13px] text-center transition-colors duration-200 ${values.parcelCategory === category ? 'bg-blue-400 border-blue-400' : 'bg-gray-500 hover:bg-gray-500'
-                                                                                                    }`}
-                                                                                                onClick={() => {
-                                                                                                    setFieldValue('parcelCategory', category);
-                                                                                                    if (category !== 'Others') {
-                                                                                                        setFieldValue('parcelCategoryOther', '');
-                                                                                                        setFieldValue('deliveryInstructionType', '');
-                                                                                                        setFieldValue('specialInstructions', '');
-                                                                                                    }
-                                                                                                }}
-                                                                                            >
-                                                                                                {category}
-                                                                                            </button>
-                                                                                        ))}
-                                                                                    </div>
-                                                                                    <ErrorMessage name="parcelCategory" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                </div>
-                                                                                {values.parcelCategory && values.deliveryType === 'DOOR_DELIVERY' && (
-                                                                                    <div className="space-y-2">
-                                                                                        <div>
-                                                                                            <label className="text-sm font-medium text-black-700">
-                                                                                                Delivery Instructions <span className="text-red-500">*</span>
-                                                                                            </label>
-                                                                                            <div className="grid grid-cols-2 md:grid-cols-2 gap-1 mt-2">
-                                                                                                {deliveryInstructionTypes.map((type) => (
-                                                                                                    <button
-                                                                                                        key={type}
-                                                                                                        type="button"
-                                                                                                        className={`p-2 rounded-xl border border-gray-300 text-white text-[13px] text-center transition-colors duration-200 ${values.deliveryInstructionType === type ? 'bg-blue-400 border-blue-400' : 'bg-gray-500 hover:bg-gray-500'
-                                                                                                            }`}
-                                                                                                        onClick={() => {
-                                                                                                            setFieldValue('deliveryInstructionType', type);
-                                                                                                            if (type !== 'Others') {
-                                                                                                                setFieldValue('specialInstructions', '');
-                                                                                                            }
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        {type}
-                                                                                                    </button>
-                                                                                                ))}
-                                                                                            </div>
-                                                                                            <ErrorMessage name="deliveryInstructionType" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                        </div>
-                                                                                        {values.deliveryInstructionType === 'Others' && (
-                                                                                            <div className="relative">
-                                                                                                <Field
-                                                                                                    as="textarea"
-                                                                                                    name="specialInstructions"
-                                                                                                    className="p-2 w-full rounded-xl border border-gray-300 bg-gray-100 text-[13px] text-gray-700"
-                                                                                                    placeholder="E.g., Specify delivery instructions"
-                                                                                                    rows="3"
-                                                                                                    onFocus={(e) => e.target.select()}
-                                                                                                />
-                                                                                                <ErrorMessage name="specialInstructions" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                )}
-                                                                                {values.parcelCategory === 'Others' && (
-                                                                                    <div className="relative">
-                                                                                        <Field
-                                                                                            type="text"
-                                                                                            name="parcelCategoryOther"
-                                                                                            className="p-2 w-full rounded-xl border border-gray-300 bg-gray-100 text-[13px] text-gray-700"
-                                                                                            placeholder="Specify parcel category"
-                                                                                            onFocus={(e) => e.target.select()}
-                                                                                        />
-                                                                                        <ErrorMessage name="parcelCategoryOther" component="div" className="text-red-500 text-sm mt-1" />
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                )}
                                                 </div>
                                                 {values.serviceType === "DRIVER" && values.packageSelected &&
                                                     <Card className="my-6">
@@ -2751,11 +2056,6 @@ useEffect(() => {
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                {values.serviceType === 'PARCEL' && values.dropLocation && values.pickupLocation && (
-                                                    <Button fullWidth className="my-6 mx-2" onClick={() => getQuoteRides(values)}>
-                                                        Check Estimated Price
-                                                    </Button>
-                                                )}
 
                                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                                     fullWidth
@@ -2870,22 +2170,6 @@ useEffect(() => {
                                                                 !values.acType ||
                                                                 !values.pickupAddress ||
                                                                 !values.dropAddress
-                                                            }
-                                                            className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
-                                                        >
-                                                            Continue
-                                                        </Button>
-                                                    }
-                                                     {values.serviceType == 'PARCEL' &&
-                                                        <Button
-                                                            fullWidth
-                                                            color="blue"
-                                                            onClick={() => {
-                                                                setFieldValue("submitType", "parcel");
-                                                                handleSubmit();
-                                                            }}
-                                                            disabled={
-                                                                !values.pickupAddress
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
