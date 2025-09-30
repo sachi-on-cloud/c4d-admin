@@ -196,9 +196,10 @@ const handleTabChange = (value) => {
     try {
         const filterType = {
             type: activeTab,
-            status: statusFilter,
+            status: statusFilter.includes('COMPLETED') ? ['ENDED'] : statusFilter.filter(s => s !== 'COMPLETED'),
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
+            tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
         };
         
         // Calculate startDate and endDate based on dateFilter
@@ -508,10 +509,10 @@ const handleTabChange = (value) => {
         try {
             const filterType = {
                 type: activeTab,
-                status: statusFilterParam,
+                status: statusFilterParam.includes('COMPLETED') ? ['ENDED'] : statusFilterParam.filter(s => s !== 'COMPLETED'),
                 source: sourceFilterParam,
                 tripCoordinator: tripCoordinatorFilterParam,
-                serviceType: serviceTypeFilterParam,
+                tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
             };
             
             const queryParams = {
@@ -861,7 +862,11 @@ const handleTabChange = (value) => {
                                         )}
                                         {bookingsList
                                             .filter(booking =>
-                                                (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
+                                                (statusFilter.includes('All') ||
+                                                (statusFilter.includes('COMPLETED') && booking.status === 'ENDED'  && booking.tripStatus === true) ||
+                                                (statusFilter.includes('ENDED') && booking.status === 'ENDED' && booking.tripStatus === false) ||
+                                                (statusFilter.includes(booking.status) && booking.status !== 'ENDED'))
+                                                &&
                                                 (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
                                                 (sourceFilter.includes('All') || sourceFilter.includes(booking.source)) &&
                                                 (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id))

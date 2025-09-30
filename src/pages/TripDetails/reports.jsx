@@ -327,9 +327,9 @@ const Reports = ({ accountId }) => {
           <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm}</div>
           {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed}</div> */}
           <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost}</div>
-          <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare}</div>
           <div className="p-2 border border-gray-200 text-center">Toll Cost: ₹ {summary.tollCost}</div>
           <div className="p-2 border border-gray-200 text-center">Permit Cost: ₹ {summary.permitCost}</div>
+          <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare}</div>
         </div>
         <div className="weekly-report">
           <h3 className="text-lg font-semibold mb-4 text-center bg-primary-900 text-white p-2 rounded" style={{ width: '100%' }}>
