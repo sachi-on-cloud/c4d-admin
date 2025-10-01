@@ -42,8 +42,8 @@ export function ParcelView({ type, ownerName, id }) {
   }, []);
 
   return (
-    <div className="mb-8 flex flex-col gap-12">
-      <ParcelSearch />
+    <div className="flex flex-col gap-12 mt-12">
+      {/* <ParcelSearch /> */}
       <Card>
         {loading ? (
           <div className="flex justify-center p-6">

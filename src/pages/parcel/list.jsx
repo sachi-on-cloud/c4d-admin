@@ -124,9 +124,9 @@ export function ParcelDetailsList({ id = 0 }) {
           <>
             <CardHeader variant="gradient" color="blue" className="mb-8 p-6 flex justify-between items-center">
               <Typography variant="h6" color="white">Owner List</Typography>
-              <Typography variant="small" color="white">
+              {/* <Typography variant="small" color="white">
                 Showing {filteredData.length} entries
-              </Typography>
+              </Typography> */}
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">

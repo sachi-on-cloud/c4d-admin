@@ -306,7 +306,7 @@ const ConfirmBooking = (props) => {
                     )
                 }
 
-                {bookingDetails?.status === 'QUOTED' && (
+                {bookingDetails?.status === 'QUOTED' && bookingDetails?.serviceType !== 'PARCEL' && (
                     <Button
                         color="black"
                         variant="outlined"
@@ -693,7 +693,7 @@ const ConfirmBooking = (props) => {
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Delivery Type:</Typography>
                                 <Typography>
-                                    {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Deliver" : "Shop Pickup"}
+                                    {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Deliver" : ""}
                                 </Typography>
                             </div>
                             }

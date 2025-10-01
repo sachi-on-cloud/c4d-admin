@@ -112,10 +112,6 @@ import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
-import ShopList from "./pages/Shop/list";
-import ShopAdd  from "./pages/Shop/add";
-import ShopEdit  from "./pages/Shop/edit";
-import ShopDetails  from "./pages/Shop/details";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -1013,38 +1009,6 @@ export const routes = [
         element: <ParcelMasterPriceEdit />,
         display: true,
         permission:"Users"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Shops",
-        path: "/vendors/shops",
-        element: <ShopList />,
-        display: true,
-        permission: "Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Add Shop",
-        path: "/vendors/shops/add",
-        element: <ShopAdd />,
-        display: true,
-        permission: "Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Edit Shop",
-        path: "/vendors/shops/edit/:id",
-        element: <ShopEdit />,
-        display: true,
-        permission: "Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Shop Details",
-        path: "/vendors/shops/details/:id",
-        element: <ShopDetails />,
-        display: true,
-        permission: "Vendors"
       },
     ],
   },

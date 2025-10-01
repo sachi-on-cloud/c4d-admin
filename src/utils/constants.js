@@ -945,13 +945,10 @@ export const API_ROUTES = {
     'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
     'POST_AUTO_SEARCH':'/search/auto',
     'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
-    'ADD_NEW_PARCEL_BOOKING':'/add-parcel-booking',
-    'UPDATE_PARCEL_BOOKING':'/edit-parcel-booking',
     'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
     'GET_ALL_PARCEL': '/admin/parcel',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_AUTO_PACKAGE':'/get-autos',
-    // 'GET_PARCEL_PACKAGE': '/get-parcels', // driver request 
     'GET_AUTO_BY_ID':'/auto/',
     'UPDATE_AUTO_DETAILS':'/update/admin/auto',
     'AUTO_PACKAGE_LIST':'/auto-package-list',
@@ -960,8 +957,6 @@ export const API_ROUTES = {
     'PARCEL_PRICE_EDIT':'/update-parcel-package',
     'GET_PARCEL_CAB_BY_ID':'/parcel/', 
     'UPDATE_PARCEL_CAB':'/update/admin/parcel',
-    'ADD_SHOP_ADDRESS':'/shop/add',
-    'SHOP_SEARCH_ADDRESS':'/shops/search',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
     'GET_TRIP_REPORTS':'/get-trips-report',
@@ -975,11 +970,6 @@ export const API_ROUTES = {
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export',
-    'GET_ALL_SHOPS': '/shops',
-    'GET_SHOP_BY_ID': '/shop',
-    'ADD_SHOP': '/shop/add',
-    'UPDATE_SHOP': '/shop/update',
-    'SHOP_DOCUMENTS_UPDATED': '/shop/documents/'
 };
 
 export const KYC_PROCESS = {

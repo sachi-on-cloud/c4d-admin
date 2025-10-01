@@ -61,7 +61,7 @@ export function MasterPriceView() {
                     type : "Service area",
                 });
                  if (data?.success) {
-                        const filteredData = zones
+                        const filteredData = zone
                             ? data?.data.filter(item => item.zone === zone)
                             : data?.data;                     
                      setAutoLocalPackageList(filteredData.filter(item => item.type === "Auto" && item.serviceType === "AUTO"));

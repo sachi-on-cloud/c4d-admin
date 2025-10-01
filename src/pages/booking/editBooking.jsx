@@ -1406,7 +1406,28 @@ useEffect(() => {
                                             )}
                                         </div>
                                     </div>
+                                    
                                 )}
+                                {bookingData?.serviceType == "AUTO" &&                                 <div className="flex justify-center my-6 gap-4">
+                                <Button
+                                    color="gray"
+                                    onClick={onBackPressHandler}
+                                    className='my-6 mx-2 '
+                                >
+                                    Back
+                                </Button>
+                                <Button
+                                    color="blue"
+                                    onClick={() => {
+                                        setFieldValue("submitType", "auto");
+                                        handleSubmit()
+                                    }}
+                                    disabled={!dirty || !isValid || (!values.pickupAddress && !values.dropAddress)}
+                                    className='my-6 mx-2'
+                                >
+                                    Confirm Booking
+                                </Button>
+                            </div>}
                     </>
                             )
                         }}

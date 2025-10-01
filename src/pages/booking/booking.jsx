@@ -544,6 +544,7 @@ useEffect(() => {
             dropAddress: {
                 name: values.dropAddress,
             },
+            sourceType: values.sourceType,
         };
 
         try {

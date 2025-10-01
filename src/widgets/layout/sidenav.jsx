@@ -401,7 +401,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
                        { label: "Auto List", path: "/dashboard/Vendors/account/autoList" },
                         ],
                       },
-                      { label: "Shop List", path: "/dashboard/vendors/shops" },
                     ].map(({ label, path, isSubMenu, subItems }) => (
                       <li key={label}>
                         {isSubMenu ? (
@@ -521,14 +520,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />
-                              )}
-                                {label === "Shop List" && (
-                                  <img 
-                                  src="/img/shop.png"
-                                  alt="Shop List"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
+                              )}                                
                               <Typography
                                 color="inherit"
                                 className="font-medium px-3 capitalize"
