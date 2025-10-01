@@ -42,6 +42,7 @@ const ConfirmBooking = (props) => {
     const paramsPassed = location.state;
 
     const [loading, setLoading] = useState(true);
+    const audioUrl = bookingDetails?.deliveryDetails?.deliveryInstructionsAudioUrl;
 
     // Handler to update state
     const handleChange = (field, value) => {
@@ -61,7 +62,8 @@ const ConfirmBooking = (props) => {
             price: 0,
             extraPrice: 0,
             extraHourPrice: 0,
-            kilometer: bookingDetails?.serviceType !== "CAR_WASH" ? kms : 0
+            kilometer: bookingDetails?.serviceType !== "CAR_WASH" ? kms : 0,
+            
         };
         if (bookingDetails.status == BOOKING_STATUS.INITIATED || bookingDetails.status === 'BOOKING_ACCEPTED') {
             reqBody.type = "start";
@@ -584,6 +586,25 @@ const ConfirmBooking = (props) => {
                                 <Typography>
                                     {bookingDetails?.deliveryDetails?.receiverPhone}
                                 </Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Delivery Instructions:</Typography>
+                                <Typography>
+                                    {bookingDetails?.deliveryDetails?.deliveryInstructions}
+                                </Typography>
+                            </div>
+                           <div className="flex justify-between items-center">
+                                <Typography color="gray" variant="h6">
+                                    Delivery Audio:
+                                </Typography>
+                                {audioUrl ? (
+                                    <audio controls muted>
+                                        <source src={audioUrl} type="audio/mp4" />
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                ) : (
+                                    <Typography>No audio available</Typography>
+                                )}
                             </div>
                         </div>                
                     </CardBody>
