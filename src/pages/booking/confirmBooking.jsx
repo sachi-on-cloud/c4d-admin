@@ -715,6 +715,12 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.acType}</Typography>
                                 </div>
                             }
+                         {bookingDetails?.serviceType === 'RIDES' && (bookingDetails?.status === "STARTED" || bookingDetails?.status === "ENDED") && (
+                        <div className="flex justify-between">
+                            <Typography color="gray" variant="h6">Cab Type:</Typography>
+                            <Typography>{bookingDetails?.Cab?.carType || 'Mini'}</Typography>
+                        </div>
+                    )}
                             {bookingDetails?.serviceType != 'RIDES' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
@@ -1253,7 +1259,7 @@ const ConfirmBooking = (props) => {
                         </Card>
                     }
                 </div>
-               {showDetails && bookingDetails?.status === 'ENDED' && (
+          {showDetails && bookingDetails?.status === 'ENDED' && (bookingDetails?.tripStatus === false) && (
     <Card className="mt-4">
         <CardBody>
             <div className="flex justify-between mb-2">
@@ -1339,6 +1345,10 @@ const ConfirmBooking = (props) => {
     onClick={async () => {
         setLoading(true);
 
+        // Retrieve userId from local storage
+          const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
+    const loggedInUserId = loggedInUser.id || 0; 
+
         // Calculate totalKm
         const startKm = bookingDetails?.startKM ? parseFloat(bookingDetails.startKM) : 0;
         const endKm = bookingDetails?.endKM ? parseFloat(bookingDetails.endKM) : 0;
@@ -1373,6 +1383,7 @@ const ConfirmBooking = (props) => {
             permit: additionalPaymentDetails.permitCost ? parseFloat(additionalPaymentDetails.permitCost) : 0,
             tripType: additionalPaymentDetails.tripType || 'Internal',
             latitude: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0, // Included for compatibility
+            userId: loggedInUserId || null, 
         };
 
         // Validate required fields
@@ -1390,6 +1401,7 @@ const ConfirmBooking = (props) => {
             'fuelType',
             'tripFare',
             'tripType',
+            'userId', // Add userId to required fields if it's mandatory
         ];
 
         const missingFields = requiredFields.filter(field => 
