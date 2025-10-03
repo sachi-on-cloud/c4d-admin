@@ -22,6 +22,7 @@ const RentalsPriceMasterDetails = () => {
             if (data?.success) {
                 setInitialValues({
                     // carType: data?.data?.carType,
+                    zone: data?.data?.zone || '',
                     type: data?.data?.type,
                     period: data?.data?.period,
                     baseFare: data?.data?.baseFare,
@@ -106,6 +107,10 @@ const RentalsPriceMasterDetails = () => {
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Field type="text" name="zone" className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-200" disabled />
+                            </div>
+                            <div>
                                 <label className="text-sm font-medium text-gray-700">Trip Type</label>
                                 <Field type="string" name="type" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
@@ -174,7 +179,7 @@ const RentalsPriceMasterDetails = () => {
     <table className="w-full border-spacing-y-2  border-collapse text-sm text-center">
       <thead>
          {initialValues?.type === 'Outstation' && (
-        <tr className="bg-blue-600 text-white">
+  <tr className="bg-primary text-white">
   <th  colSpan={1}></th>
   <th  colSpan={2}></th>
 
@@ -183,7 +188,7 @@ const RentalsPriceMasterDetails = () => {
    <th  colSpan={2}className='border text-lg'>Round Trip Non AC</th>
   <th  colSpan={2}className=' border text-lg'>Round Trip AC</th>
 </tr>)}
-        <tr className="bg-blue-600 text-white">
+  <tr className="bg-primary text-white">
           <th className="border p-2">Car Type</th>
           <th className="border p-2">Base Fare</th>
           <th className="border p-2">Additional Min Charge</th>

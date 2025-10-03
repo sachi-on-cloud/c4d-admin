@@ -6,11 +6,13 @@ import {
   Typography,
   Alert,
 } from '@material-tailwind/react';
+import Select from 'react-select';
 
 const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
+    serviceTypes: initialData?.serviceTypes || [], // Initialize serviceTypes
   });
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +29,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
 
       onSave({
         ...formData,
-        coordinates
+        coordinates,
       });
     } catch (err) {
       setError(err.message);
@@ -35,6 +37,15 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
       setIsSubmitting(false);
     }
   };
+
+
+  const serviceTypeOptions = [
+    {value:"DRIVER", label: 'Acting Driver' },
+    { value:"RIDES", label: 'Local Rides' },
+    { value:"RENTAL_HOURLY_PACKAGE", label: 'Hourly Package' },
+    { value:"RENTAL_DROP_TAXI", label: 'Drop Taxi' },
+    { value:"RENTAL", label: 'Outstation' },
+  ];
 
   return (
     <Card className="p-4 mt-4">
@@ -70,8 +81,31 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
             placeholder="Enter description"
           />
         </div>
-        <Button 
-          type="submit" 
+        {/* Multi-Select Dropdown */}
+        <div className="overflow-visible relative z-50">
+          <label className="text-sm text-gray-700 mb-1 block">Service Types</label>
+          <Select
+            isMulti
+            options={serviceTypeOptions}
+            value={serviceTypeOptions.filter((opt) =>
+              formData.serviceTypes.includes(opt.value)
+            )}
+            onChange={(selected) =>
+              setFormData({
+                ...formData,
+                serviceTypes: selected ? selected.map((s) => s.value) : [],
+              })
+            }
+            closeMenuOnSelect={false} // Keep dropdown open after selection
+            placeholder="Select service types"
+            menuPortalTarget={document.body}
+            styles={{
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+            }}
+          />
+        </div>
+        <Button
+          type="submit"
           className="mt-4"
           disabled={isSubmitting || !coordinates}
         >
@@ -82,4 +116,4 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
   );
 };
 
-export default ServiceAreaForm; 
+export default ServiceAreaForm;

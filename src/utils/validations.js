@@ -402,7 +402,7 @@ export const CAB_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13,14}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     // notify: Yup.string().required('Notification Recipients is required'),
@@ -531,7 +531,7 @@ export const REASSIGN_DRIVER = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
 })
@@ -600,7 +600,7 @@ export const CAB_ADD_SCHEMA = Yup.object({
     }),
     licenseNumber: Yup.string().when(['assignOrAddDriver'], {
         is: (assignOrAddDriver) => assignOrAddDriver === 'Add',
-        then: () => Yup.string().matches('^[a-zA-Z]{2}[0-9]{13,14}$', 'Invalid Driver\'s License').required('Driving License is required'),
+        then: () => Yup.string().required('Driving License is required'),
         otherwise: () => Yup.string()
     }),
     carNumber:Yup.string().required('Car Number is requried'),
@@ -763,6 +763,7 @@ export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
     nightCharge: Yup.number().required('Night Charge is required'),
     cancelCharge: Yup.number().required('Cancel Charge is required'),
     status: Yup.string().required('Status is required'),
+    zone: Yup.string().required('Zone is required'),
     // extraPrice: Yup.number().required('Extra Price is required'),
     // nightHoursFrom:Yup.time().required('Night Hours From Start 22:00 PM.'),
     // nightHoursFrom:Yup.time().required('Night Hours To End 06:00 AM.')
@@ -782,6 +783,17 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
     isActive: Yup.boolean().required('Status is required'),
+    description: Yup.string().required('Description is required'),
+    title: Yup.string().required('Title is required'),
+    serviceArea: Yup.array()
+          .min(1, 'At least one city must be selected')
+          .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+              if (value.includes('All')) {
+                  return value.length === 1;
+              }
+              return true;
+          })
+          .required('City is required'),
   });
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
@@ -791,6 +803,17 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
     isActive: Yup.boolean().required('Status is required'),
+    description: Yup.string().required('Description is required'),
+    title: Yup.string().required('Title is required'),
+    serviceArea: Yup.array()
+        .min(1, 'At least one city must be selected')
+        .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+            if (value.includes('All')) {
+                return value.length === 1;
+            }
+            return true;
+        })
+        .required('City is required'),
   });
 
    export const GST_EDIT_SCHEMA = Yup.object().shape({

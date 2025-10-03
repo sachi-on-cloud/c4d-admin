@@ -329,7 +329,7 @@ const ReassignDriver = () => {
                                     </div>}
                                     {values?.assignOrAddDriver === 'Add' && <div>
                                         <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={15} />
+                                        <Field type="text" name="licenseNumber" className="p-2 w-full rounded-md border-gray-300" maxLength={16} />
                                         <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
                                     </div>}
                                 </>
@@ -349,7 +349,7 @@ const ReassignDriver = () => {
                                 color="black"
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || !isValid}
-                                className='my-6 mx-2 bg-[#1A73E8]'
+                                className='my-6 mx-2 bg-primary'
                             >
                                 Update
                             </Button>

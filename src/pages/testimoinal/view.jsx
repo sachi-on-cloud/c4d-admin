@@ -6,6 +6,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import moment from "moment";
 
 const TestimonialView = () => {
   const navigate = useNavigate();
@@ -67,14 +68,14 @@ const TestimonialView = () => {
       <div className="flex items-center justify-end">
         <button
           onClick={() => navigate('/dashboard/user/testimonial/add')}
-          className="ml-4 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+          className="ml-4 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-700"
         >
           Add New
         </button>
       </div>
 
       <Card>
-        <CardHeader className="mb-8 p-6 flex justify-between items-center bg-blue-600">
+  <CardHeader className="mb-8 p-6 flex justify-between items-center bg-primary">
           <Typography variant="h6" color="white">Testimonial List</Typography>
         </CardHeader>
 
@@ -92,6 +93,7 @@ const TestimonialView = () => {
                   <th className="py-3 px-5 text-left">Rating</th>
                   <th className="py-3 px-5 text-left">Message</th>
                   <th className="py-3 px-5 text-left">Status</th>
+                  <th className='py-3 px-5 text-left'>Created Date</th>
                 
                 </tr>
               </thead>
@@ -117,6 +119,7 @@ const TestimonialView = () => {
                              label={item.status ? 'Active' : 'Inactive'}/>
                                               
                       </td>                   
+                      <td className="py-3 px-5">{moment(item.created_at).format("DD-MM-YYYY")}</td>              
                      
                     </tr>
                   ))

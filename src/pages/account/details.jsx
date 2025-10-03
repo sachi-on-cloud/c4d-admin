@@ -55,7 +55,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                 <div className='grid grid-cols-2 gap-4'>
                                     <div>
                                         <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
-                                        <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                             <option value="">Select Type</option>
                                             <option value="Individual">Owner Cum Driver</option>
                                             <option value="Company">Travels</option>
@@ -155,7 +155,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             value={values.thaluk}
                                             onChange={(e) => setFieldValue("thaluk", e.target.value)}
                                             disabled
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                         >
                                             <option value="" disabled>Select Thaluk</option>
                                             {/* {filteredThaluk.map((thaluk) => (
@@ -181,7 +181,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             value={values.district}
                                             disabled
                                             onChange={(e) => setFieldValue("district", e.target.value)}
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                         >
                                             <option value="" disabled>Select District</option>
                                             {filteredDistricts.map((district) => (
@@ -207,7 +207,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             value={values.state}
                                             disabled
                                             onChange={(e) => setFieldValue("state", e.target.value)}
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
                                         >
                                             <option value="" disabled>Select State</option>
                                             {filteredState.map((state) => (

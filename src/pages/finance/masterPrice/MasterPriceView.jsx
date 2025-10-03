@@ -1,10 +1,11 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 import { Utils } from '@/utils/utils';
+import Select from 'react-select';
 
 export function MasterPriceView() {
     const [localPackageList, setLocalPackageList] = useState([]);
@@ -13,30 +14,98 @@ export function MasterPriceView() {
     const [serviceType, setServiceType] = useState("");
     const [ridesData, setRidesData] = useState([]);
     // const [rentalsData, setRentalsData] = useState([]);
+    const [zone, setZone] = useState("");
+    const [serviceAreas, setServiceAreas] = useState([]);
 
-    const handleChange = async (event) => {
-        const selectedServiceType = event.target.value;
+    const fetchGeoData = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+            const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+            setServiceAreas(filteredAreas);
+        } catch (error) {
+            console.error('Error fetching GEO_MARKINGS_LIST:', error);           
+        } 
+    };
+
+    useEffect(() => {
+        fetchGeoData();
+    }, []);
+
+    const ZONE_OPTIONS = serviceAreas.map((area) => ({
+        value: area.name, 
+        label: area.name, 
+    }));
+
+    const handleChange = async (selectedOption, field) => {
+        if (field === 'serviceType') {
+            const selectedServiceType = selectedOption.target.value;
         setServiceType(selectedServiceType);
         try {
             if (selectedServiceType === 'DRIVER') {
                 const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
                 if (data?.success) {
-                    setLocalPackageList(data?.data.filter(item => item.type === "Local" && item.serviceType === "DRIVER"));
-                    setOutstationPackageList(data?.data.filter(item => item.type === "Outstation" && item.serviceType === "DRIVER"));
+                        const filteredData = zone
+                            ? data?.data.filter(item => item.zone === zone)
+                            : data?.data;
+                        setLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "DRIVER"));
+                    setOutstationPackageList(filteredData.filter(item => item.type === "Outstation" && item.serviceType === "DRIVER"));
                 }
             } else if (selectedServiceType === 'RIDES') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
-                setRidesData(data?.data);
+                    if (data?.success) {
+                        const filteredData = zone
+                            ? data?.data.filter(item => item.zone === zone)
+                            : data?.data;
+                    setRidesData(filteredData);
+                    }
             } else if (selectedServiceType === 'RENTAL') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
                 if(data?.success) {
-                    setLocalPackageList(data?.data.filter(item => item.type === "Local" && item.serviceType === "RENTAL"));
-                    setOutstationPackageList(data?.data.filter(item => item.type === "Outstation" && item.serviceType === "RENTAL"));
+                        const filteredData = zone
+                            ? data?.data.filter(item => item.zone === zone)
+                            : data?.data;
+                        setLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "RENTAL"));
+                        setOutstationPackageList(filteredData.filter(item => item.type === "Outstation" && item.serviceType === "RENTAL"));
                 }
                 // setRentalsData(data?.data);
             }
         } catch (err) {
             console.error("Error fetching subscription data:", err);
+            }
+        } else if (field === 'zone') {
+            const selectedZone = selectedOption ? selectedOption.value : '';
+            setZone(selectedZone);
+            try {
+                if (serviceType === 'DRIVER') {
+                    const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
+                    if (data?.success) {
+                        const filteredData = selectedZone
+                            ? data?.data.filter(item => item.zone === selectedZone)
+                            : data?.data;
+                        setLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "DRIVER"));
+                        setOutstationPackageList(filteredData.filter(item => item.type === "Outstation" && item.serviceType === "DRIVER"));
+                    }
+                } else if (serviceType === 'RIDES') {
+                    const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
+                    if (data?.success) {
+                        const filteredData = selectedZone
+                            ? data?.data.filter(item => item.zone === selectedZone)
+                            : data?.data;
+                        setRidesData(filteredData);
+                    }
+                } else if (serviceType === 'RENTAL') {
+                    const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
+                    if (data?.success) {
+                        const filteredData = selectedZone
+                            ? data?.data.filter(item => item.zone === selectedZone)
+                            : data?.data;
+                        setLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "RENTAL"));
+                        setOutstationPackageList(filteredData.filter(item => item.type === "Outstation" && item.serviceType === "RENTAL"));
+                    }
+            }
+        } catch (err) {
+            console.error("Error fetching subscription data:", err);
+        }
         }
     };
 
@@ -60,6 +129,7 @@ export function MasterPriceView() {
                             <thead>
                                 <tr>
                                     {[
+                                        "Zone",
                                         "Service Type",
                                         "Trip Type",
                                         "Hours",
@@ -87,10 +157,15 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {localPackageList.map(({ id, serviceType, type, period, dropPrice, dropPriceAbove,priceSUV, addtionalmins, priceMVP, nighthours,nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extraPrice, cancelMins, surCharge, price }, key) => {
+                                {localPackageList.map(({ id, zone,serviceType, type, period, dropPrice, dropPriceAbove,priceSUV, addtionalmins, priceMVP, nighthours,nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extraPrice, cancelMins, surCharge, price }, key) => {
                                     const className = `py-3 px-5 ${key === localPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
                                         <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {serviceType}
@@ -182,6 +257,7 @@ export function MasterPriceView() {
                             <thead>
                                 <tr>
                                     {[
+                                        "Zone",
                                         "Service Type",
                                         "Trip Type",
                                         "Base Fare",
@@ -210,10 +286,15 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {outstationPackageList.map(({ id, serviceType, type, price, dropPrice,dropPriceAbove,extraHourPrice, extraPrice,additionalMinCharge, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
+                                {outstationPackageList.map(({ id, zone,serviceType, type, price, dropPrice,dropPriceAbove,extraHourPrice, extraPrice,additionalMinCharge, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
                                     const className = `py-3 px-5 ${key === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
                                         <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {serviceType}
@@ -318,6 +399,7 @@ export function MasterPriceView() {
                             <thead>
                                 <tr>
                                     {[
+                                        "Zone",
                                         "Rate Parameter",
                                         "Base Fare (Mini)",
                                         "Base Fare (Sedan)",
@@ -343,6 +425,7 @@ export function MasterPriceView() {
                             <tbody>
                                 {ridesData.map(({
                                     id,
+                                    zone,
                                     baseFare,
                                     baseFareSedan, 
                                     baseFareSuv,
@@ -358,6 +441,11 @@ export function MasterPriceView() {
 
                                     return (
                                         <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
                                                     <div onClick={() => navigate(`/dashboard/users/master-price/rides-details/${id}`)}>
@@ -437,6 +525,7 @@ export function MasterPriceView() {
                             <thead>
                                 <tr>
                                     {[
+                                        "Zone",
                                         "Type",
                                         "Package",
                                         "Base Fare",
@@ -465,6 +554,7 @@ export function MasterPriceView() {
                             <tbody>
                                 {localPackageList.map(({
                                     id,
+                                    zone,
                                     type,
                                     carType,
                                     baseFare,
@@ -484,6 +574,11 @@ export function MasterPriceView() {
 
                                     return (
                                         <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {type.toUpperCase()}
@@ -577,6 +672,7 @@ export function MasterPriceView() {
                             <thead>
                                 <tr>
                                     {[
+                                        "Zone",
                                         "Type",
                                         "Package",
                                         "Base Fare",
@@ -610,6 +706,7 @@ export function MasterPriceView() {
                             <tbody>
                                 {outstationPackageList.map(({
                                     id,
+                                    zone,
                                     type,
                                     carType,
                                     baseFare,
@@ -634,6 +731,11 @@ export function MasterPriceView() {
 
                                     return (
                                         <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {type.toUpperCase()}
@@ -747,24 +849,38 @@ export function MasterPriceView() {
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                     <div className="relative flex-grow max-w-[500px]">
-                        <div className="p-4 flex-row space-x-5">
-                            <label className="text-base font-medium text-gray-700">Select Service Type:</label>
-                            <select
-                                value={serviceType}
-                                onChange={handleChange}
-                                className="p-2 w-[40%] rounded-lg border-2 border-gray-300"
-                            >
-                                <option value="">Select Service Type</option>
-                                <option value="DRIVER">Acting Driver</option>
-                                <option value="RIDES">Rides</option>
-                                <option value="RENTAL">Rental</option>
-                            </select>
-                            {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
+                        <div className="p-4 flex flex-row space-x-5">
+                            <div className="flex flex-col">
+                                <label className="text-base font-medium text-gray-700">Select Zone:</label>
+                                <Select
+                                    options={ZONE_OPTIONS}
+                                    value={zone ? { value: zone, label: zone } : null}
+                                    onChange={(selectedOption) => handleChange(selectedOption, 'zone')}
+                                    placeholder="Select Zone"
+                                    className="w-[200px]"
+                                />
+                                {zone === "" && <div className="text-red-500 text-sm mt-1">Please select a zone</div>}
+                            </div>
+                            <div className="flex flex-col">
+                                <label className="text-base font-medium text-gray-700">Select Service Type:</label>
+                                <select
+                                    value={serviceType}
+                                    onChange={(e) => handleChange(e, 'serviceType')}
+                                    className="p-2 w-[200px] rounded-lg border-2 border-gray-300"
+                                    disabled={!zone} // Disable if zone is not selected
+                                >
+                                    <option value="">Select Service Type</option>
+                                    <option value="DRIVER">Acting Driver</option>
+                                    <option value="RIDES">Rides</option>
+                                    <option value="RENTAL">Rental</option>
+                                </select>
+                                {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
+                            </div>
                         </div>
                     </div>
                     <button
                         onClick={onHandleAddNew}
-                        className={`ml-4 px-4 py-2 rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                        className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
                             ColorStyles.addButtonColor
                         }`}
                     >

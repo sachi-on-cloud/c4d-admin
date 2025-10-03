@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { themeColors } from '@/theme/colors';
 import {
     Button,
     Card,
@@ -153,8 +154,8 @@ const RidesPeakHourTableEdit = ({ initialPriceData , onUpdate }) => {
             text: "Do you want to delete this peak hour entry?",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
+            confirmButtonColor: themeColors.danger,
+            cancelButtonColor: themeColors.info,
             confirmButtonText: "Yes, delete it!",
             cancelButtonText: "No, cancel"
         }).then((result) => {
@@ -181,7 +182,7 @@ const RidesPeakHourTableEdit = ({ initialPriceData , onUpdate }) => {
                     <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
-                                <tr className="bg-blue-600">
+                                <tr className="bg-primary text-white">
                                     {[
                                         "Start Time",
                                         "End Time",
@@ -262,7 +263,7 @@ const RidesPeakHourTableEdit = ({ initialPriceData , onUpdate }) => {
                                                 </td>
                                                 <td className={`${className} space-x-2`}>
                                                     <Button
-                                                        className="bg-blue-400"
+                                                        className="bg-primary-400 hover:bg-primary-500"
                                                         onClick={() => handleOpenModal(index)}
                                                     >
                                                         Edit

@@ -14,6 +14,7 @@ const STATUS_OPTIONS = [
 ];
 
 const DRIVER_SCHEMA = Yup.object().shape({
+    zone: Yup.string().required('Zone is required'),
     serviceType: Yup.string().required('Service Type is required'),
     type: Yup.string().required('Type is required'),
     period: Yup.number().required('Period is required'),
@@ -70,6 +71,7 @@ const DriverMasterPriceTableEdit = () => {
                     extraKmPrice:data.data.extraKmPrice,
                     dropPriceAbove:data.data.dropPriceAbove,
 
+                    zone : data.data.zone,
 
                     status: data.data.status == 1 ? "ACTIVE" : 'IN_ACTIVE',
                 });
@@ -87,7 +89,7 @@ const DriverMasterPriceTableEdit = () => {
         try {
             const reqdata = {
                 packageId: Number(id),
-
+                zone: String(values.zone),
                 serviceType: String(values.serviceType),
                 type: String(values.type),
                 period: Number(values.period),
@@ -150,6 +152,16 @@ const DriverMasterPriceTableEdit = () => {
                         <Form className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 {/* <pre>{JSON.stringify(errors, null, 2)}</pre> */}
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Field
+                                    type="text"
+                                    name="zone"
+                                    disabled
+                                    className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-200"
+                                />
+                                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+                            </div>
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Service Type</label>
                                     <Field type="string" name="serviceType" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

@@ -10,13 +10,25 @@ import RidesPeakHourTableDetails from './RidesPeakHourTableDetails';
 
 const PriceDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const { id } = useParams();
     const navigate = useNavigate();
     const [peakHours, setPeakHours] = useState([])
 
     useEffect(() => {
+        fetchGeoData();
         fetchPriceDetails();
     }, []);
+
+    const fetchGeoData = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+            const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+            setServiceAreas(filteredAreas);
+        } catch (error) {
+            console.error('Error fetching GEO_MARKINGS_LIST:', error);
+        }
+    };
 
     const fetchPriceDetails = async () => {
         try {
@@ -41,6 +53,7 @@ const PriceDetails = () => {
                     cancellationMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins),
                     cancellationCharge: data?.data?.cancelCharge,
                     status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
+                    zone: data?.data?.zone || '',
                 });
                 setPeakHours(data.data.peakHours);
             }
@@ -60,6 +73,10 @@ const PriceDetails = () => {
                 {() => (
                     <Form className="space-y-7">
                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Field type="text" name="zone" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
                                 <Field type="number" name="baseFare" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />

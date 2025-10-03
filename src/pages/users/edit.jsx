@@ -20,8 +20,10 @@ const UserEdit = () => {
     const handleRoleChange = (selectedOption, setFieldValue) => {
         const selectedRole = selectedOption?.value || '';
         setRole(selectedRole);
-        setFieldValue('role', selectedRole);
+        setFieldValue('role', selectedRole);        // Only set default permissions if no user permissions are loaded
+        if (!userVal.permission) {
         setFieldValue('permission', ROLE_PERMISSIONS[selectedRole] || [])
+        }
     };
 
     useEffect(() => {
@@ -37,15 +39,27 @@ const UserEdit = () => {
     }, [userVal.role]); 
     
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + `${itemId}`);
-        setUserVal(data.data);
+        try {
+            const data = await ApiRequestUtils.get(`${API_ROUTES.GET_USER_BY_ID}${itemId}`);
+            console.log('Fetched User Data:', data.data);
+            const permissionIds = data.data.permission.map((permName) => {
+                const matchingOption = PERMISSION_OPTIONS.find( (option) => option.name === permName || option.id === permName );
+                return matchingOption ? matchingOption.id : null;
+            }).filter(Boolean);
+            setUserVal({ ...data.data, permission: permissionIds });
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            setAlert({ message: 'Failed to fetch user data!', color: 'red' });
+            setTimeout(() => setAlert(null), 5000);
+        }
     };
+
     const initialValues = {
         name: userVal?.name || "",
         phoneNumber: userVal?.phoneNumber || "",
         email: userVal?.email || "",
         password: "",
-        permission: userVal?.permission || "",
+        permission: Array.isArray(userVal?.permission) ? userVal.permission : [],
         role: userVal?.role || "",
         status: userVal?.status || "",
     };
@@ -155,19 +169,51 @@ const UserEdit = () => {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="permission" className="text-sm font-medium text-gray-700 mt-4">Permission</label>
+                                <label htmlFor="permission" className="text-sm font-medium mt-4">Permission</label>
                                 <Multiselect
                                     options={PERMISSION_OPTIONS}
                                     displayValue="name"
-                                    selectedValues={PERMISSION_OPTIONS.filter(option => ROLE_PERMISSIONS[values?.role]?.includes(option.id))}
+                                    selectedValues={PERMISSION_OPTIONS.filter((option) => values.permission.includes(option.id) )}
                                     placeholder="Select options"
-                                    className="w-full rounded-md border-gray-300"
+                                    className="w-full rounded-m border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
                                     showCheckbox={true}
                                     onSelect={(selectedList) => {
                                         setFieldValue('permission', selectedList.map(item => item.id));
                                     }}
                                     onRemove={(selectedList) => {
                                         setFieldValue('permission', selectedList.map(item => item.id));
+                                    }}
+                                    style={{
+                                        multiselectContainer: {
+                                        backgroundColor: 'white',
+                                        borderRadius: '0.375rem',
+                                        },
+                                        searchBox: {
+                                        border: 'none',
+                                        padding: '8px',
+                                        fontSize: '14px',
+                                        color: '#1f2937',
+                                        },
+                                        option: {
+                                        color: '#1f2937',
+                                        backgroundColor: 'white',
+                                        padding: '8px 12px',
+                                        },
+                                        optionContainer: {
+                                        backgroundColor: 'white',
+                                        borderRadius: '0.375rem',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                        },
+                                        chips: {
+                                        backgroundColor: '#3b82f6',
+                                        color: 'white',
+                                        borderRadius: '0.375rem',
+                                        margin: '2px',
+                                        padding: '4px 8px',
+                                        },
+                                        highlightOption: {
+                                        backgroundColor: '#e5e7eb',
+                                        },
                                     }}
                                 />
                             </div>

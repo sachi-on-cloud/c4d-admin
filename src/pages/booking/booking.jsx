@@ -1,8 +1,3 @@
-
-
-
-
-
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -12,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -25,8 +20,30 @@ import SelectLocation from './selectLocation';
 import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import EditBooking from './editBooking';
+import DistanceExceedModal from '@/components/DistanceExceedModal';
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
+const useLuggageAndSeaterLogic = (carType, setFieldValue) => {
+    useEffect(() => {
+        if (carType === 'Mini' || carType === 'Sedan') {
+            setFieldValue('luggage', 1);
+            setFieldValue('seaterCapacity', '5');
+        } else if (carType === 'SUV' || carType === 'MUV') {
+            setFieldValue('luggage', 2);
+            setFieldValue('seaterCapacity', '7');
+        } else {
+            setFieldValue('luggage', '');
+            setFieldValue('seaterCapacity', '');
+        }
+    }, [carType, setFieldValue]);
+};
 // Format date to YYYY-MM-DD for input's min attribute
 const currentDate = () => {
     return (new Date()).toISOString().split('T')[0];
@@ -48,7 +65,9 @@ const Booking = (props) => {
     const [editBooking, setEditBooking] = useState();
     const [customerNumber, setCustomerNumber] = useState('');
     const [addCustomerNumber, setAddCustomerNumber] = useState('');
-
+    const [searchBookingId, setSearchBookingId] = useState('');
+    const [searchText, setSearchText] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
     const [pickupSuggestions, setPickupSuggestions] = useState([]);
     const [dropSuggestions, setDropSuggestions] = useState([]);
     const [driverSuggestions, setDriverSuggestions] = useState([]);
@@ -59,8 +78,50 @@ const Booking = (props) => {
     const [mapZoom, setMapZoom] = useState(10);
     const mapRef = useRef(null);
     const [quoteDetails, setQuoteDetails] = useState(null);
+    const [bookingType, setBookingType] = useState(props.typeProp || '');
+    const [discountDetails, setDiscountDetails] = useState(null);
 
     const [editBookingView, setEditBookingView] = useState(false);
+    const [distanceExceedModal, setDistanceExceedModal] = useState(false);
+    const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
+    const [zoneErrorModal, setZoneErrorModal] = useState({ show: false, text: '', title: '' });
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const [formikActions, setFormikActions] = useState({});
+    const [serviceAreas, setServiceAreas] = useState([]);
+    const [services, setServices] = useState([]);
+    const [selectedAreaId, setSelectedAreaId] = useState(null);
+    const [currentServiceType, setCurrentServiceType] = useState('');
+    const [currentPackageType, setCurrentPackageType] = useState('');
+    const [dropTaxiDistanceExceedModal, setDropTaxiDistanceExceedModal] = useState(false);
+
+
+  const fetchGeoData = async () => {
+    try {
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+      const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+      setServiceAreas(filteredAreas);
+    //   console.log('Available service areas:', filteredAreas);
+    } catch (error) {
+      console.error('Error fetching GEO_MARKINGS_LIST:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGeoData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedAreaId) {
+      const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
+      const newServices = selectedArea ? selectedArea.services : [];
+      setServices(newServices);
+    //   console.log('Services for selected area:', newServices);
+      setCurrentServiceType('');
+    } else {
+      setServices([]);
+      setCurrentServiceType('');
+    }
+  }, [selectedAreaId, serviceAreas]);
 
     const fetchData = async () => {
         try {
@@ -77,17 +138,107 @@ const Booking = (props) => {
     const location = useLocation();
     const params = location.state;
 
-    const getPackageListDetails = useCallback(async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
-        if (data?.success) {
-            setPackageTypeSelectedData(data?.data);
-        }
-    }, []);
+    const getPackageListDetails = useCallback(async (serviceType, zone) => {
+  try {
+    // console.log('Fetching packages with:', { serviceType, zone });
+    const serviceTypeMap = {
+      'RENTAL_DROP_TAXI': 'RENTAL',
+      'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+    };
+    const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
+    // console.log('Mapped serviceType:', mappedServiceType);
+
+    if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
+      console.error('Invalid serviceType:', mappedServiceType);
+      setPackageTypeSelectedData([]);
+      return;
+    }
+
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ZONE_PACKAGE_LIST, {
+      serviceType: mappedServiceType,
+      zone: zone || '',
+    });
+
+    // console.log('Raw API response:', JSON.stringify(data, null, 2));
+
+    if (data?.success && Array.isArray(data?.data)) {
+      setPackageTypeSelectedData(data.data);
+    //   console.log('Package list fetched:', data.data);
+    } else {
+      console.error('Failed to fetch package list or data is not an array:', data?.message || 'No message provided');
+      setPackageTypeSelectedData([]);
+    }
+  } catch (error) {
+    console.error('Error fetching package list:', error.message || error);
+    setPackageTypeSelectedData([]);
+  }
+}, []);
+
+useEffect(() => {
+//   console.log('useEffect for package list:', { selectedAreaId, currentServiceType, currentPackageType });
+  if (!selectedAreaId || !currentServiceType) {
+    // console.log('Skipping getPackageListDetails: missing selectedAreaId or currentServiceType');
+    setPackageTypeSelectedData([]);
+    return;
+  }
+  const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
+  const zone = selectedArea ? selectedArea.name : '';
+//   console.log('Calling getPackageListDetails with:', { serviceType: currentServiceType, zone });
+  getPackageListDetails(currentServiceType, zone);
+
+  if (params?.bookingDetails?.packageType === 'Outstation' && params?.bookingDetails?.fromDate && params?.bookingDetails?.toDate) {
+    setRange({ startDate: params?.bookingDetails?.fromDate, endDate: params?.bookingDetails?.toDate });
+  }
+}, [selectedAreaId, currentServiceType, currentPackageType, getPackageListDetails, params, serviceAreas]);
+    const handleTypeChange = (type) => {
+        setBookingType(type);
+    };
+    const searchBookings = useCallback(
+        debounce(async (search) => {
+            if (search.length < 3) {
+                setSearchResults([]);
+                return;
+            }
+
+            try {
+                // console.log("BOOKINGTYPE", bookingType);
+                const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_BOOKINGS_BY_NUMBER, {
+                    search,
+                    type: bookingType || 'ALL_BOOKINGS',
+                });
+                if (data?.success && data?.data) {
+                    setSearchResults(data.data);
+                } else {
+                    setSearchResults([]);
+                }
+            } catch (error) {
+                console.error('Error searching bookings:', error);
+                setSearchResults([]);
+            }
+        }, 300),
+        [bookingType]
+    );
 
     const getQuoteOutstationDetails = async (values) => {
+        const zoneData = await zoneCheckUpFun(values);
+        // console.log("frist",zoneData)
+        let actualZone = '';
+        if (zoneData.success && zoneData.serviceArea) {
+            actualZone = zoneData.serviceArea.name;
+            // console.log('Outstation Zone', actualZone);
+        } else {
+            console.error('Error getting zone for outstation');
+            return;
+        }
+        const serviceTypeMap = {
+          'RENTAL_DROP_TAXI': 'RENTAL',
+          'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+        };
+        const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
-            serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType,
+            serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
             bookingType: values?.tripType?.toUpperCase(),
+            packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
@@ -98,30 +249,113 @@ const Booking = (props) => {
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
+            zone: actualZone,
         };
+        if (values?.serviceType === 'RENTAL_DROP_TAXI') {
+            quoteData.serviceFor = 'RENTAL';
+        }
+        else if (values?.serviceType === 'RENTAL') {
+            quoteData.serviceFor = 'RENTAL';
+        }
+        else if(values?.serviceType === 'DRIVER') {
+            quoteData.serviceFor = 'DRIVER';
+        }
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
-        //console.log("QOYTEE DATA", data);
+        // console.log("QOYTEE DATA", data);
         if (data.success) {
             setQuoteDetails(data?.data);
+            setDiscountDetails(data?.data);
         }
+        // console.log("QUOTE DETAILS", quoteDetails);
     };
 
-    const getQuoteRides = async (val) => {
+  const zoneCheckUpFun = async (val) => {
+    const serviceTypeMap = {
+        'RIDES':'RIDES',
+        'RENTAL_DROP_TAXI': 'RENTAL',
+        'RENTAL_HOURLY_PACKAGE':'RENTAL',
+        // 'DRIVER':'ACTING DRIVER'
+    };
+    const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
+
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.ZONE_PACKAGE_LIST, {
+        serviceType: mappedServiceType,
+        lat: val.pickupLocation.lat,
+        long: val.pickupLocation.lng,
+    });
+    return data;
+};
+    const getQuoteRides = async (val, setFieldValue) => {
+    let checkDistance = true;
+    let checkCityLimit = true;
+
+    if (val.serviceType === 'RIDES') {
+        checkDistance = await calculateDistance(val);
+        checkCityLimit = await calcluateCityLimit(val);
+    } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
+        checkDistance = await calculateDistance(val); // Check distance for DropTaxi
+    }
+
+    if (!checkDistance) {
+        if (val.serviceType === 'RIDES') {
+            setDistanceExceedModal(true);
+        } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
+            setDropTaxiDistanceExceedModal(true); 
+        }
+        setFieldValue?.('pickupAddress', '');
+        setFieldValue?.('dropAddress', '');
+        setIsButtonDisabled(false);
+        return;
+    } else if (!checkCityLimit) {
+        setCityLimitExceedModal(true);
+        setFieldValue?.('pickupAddress', '');
+        setFieldValue?.('dropAddress', '');
+        setIsButtonDisabled(false);
+        return;
+    }
+    
+    const serviceTypeMap = {
+      'RENTAL_DROP_TAXI': 'RENTAL',
+      'RENTAL_HOURLY_PACKAGE': 'RENTAL',
+    };
+    const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
+
+    let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+    
+    const zoneData = await zoneCheckUpFun(val);
+    //  console.log("secondZone",zoneData)
+    if (!zoneData.success || !zoneData.serviceArea) {
+        setZoneErrorModal({ show: true, text: zoneData.error || 'Service not available in this area.', title: zoneData.title || 'Oops!' });
+        setFieldValue?.('pickupAddress', '');
+        setIsButtonDisabled(false);
+        return;
+        
+    }
+   
+    actualZone = zoneData.serviceArea.name;
+    // console.log('Zone changed to', actualZone);
+
         const quoteDate = {
-            serviceType: val.serviceType,
-            bookingType: "",
+            serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType || mappedServiceType,
+            bookingType: '',
+            serviceFor: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : val.serviceType,
+            packageType:'Local',
             fromDate: moment(`${val?.rideDate} ${val?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: '',
+            carType: val.carType || '',
+            period: val.serviceType === 'RENTAL_HOURLY_PACKAGE' || val?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(val.packageSelected))?.period || '' : '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
             driverLat: val?.driverPickUpLocation?.lat,
             driverLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
-        }
+            zone: actualZone,
+        };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
+        // console.log("QUOTE DATA", data);
         if (data?.success) {
             setQuoteDetails(data?.data)
+            setDiscountDetails(data?.data);
         }
     }
 
@@ -157,6 +391,9 @@ const Booking = (props) => {
         cabType: '',
         driverPickUpAddress: '',
         driverPickUpLocation: null,
+        luggage:'',
+        seaterCapacity:'',
+        sourceType: '',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -187,7 +424,72 @@ const Booking = (props) => {
         daysText = days == 1 ? '1 Day' : days == 1 ? '2 Days and 1 Night' : `${days} Days and ${days - 1} Nights`;
     }
 
-    const onRideSubmitHandler = async (values) => {
+    const calculateDistance = async (values) => {
+    let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
+        pickupLat: values.pickupLocation.lat,
+        pickupLong: values.pickupLocation.lng,
+        dropLat: values.dropLocation?.lat,
+        dropLong: values.dropLocation?.lng,
+        serviceType: values.serviceType === 'RENTAL_DROP_TAXI' ? "RENTAL" : values.serviceType,
+    });
+
+    if (calculateDistance?.success) {
+        if (values.serviceType === "RIDES") {
+            return calculateDistance?.data?.showAlert; // Existing logic for RIDES
+        } else if (values.serviceType ==='RENTAL_DROP_TAXI') {
+            // Check if distance exceeds 300 km for DropTaxi
+            const distance = calculateDistance?.data?.estimatedDistance || 0;
+            return distance <= 300; // Return false if distance > 300 km
+        }
+    }
+    return true;
+};
+
+    const calcluateCityLimit = async (values) => {
+        let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.CITY_LIMIT_CHECKING, {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+        });
+        if (calculateDistance?.success) {
+            return calculateDistance?.cityLimit;
+        }
+        return false;
+    };
+
+    const onRideSubmitHandler = async (values, formikBag) => {
+        if (isButtonDisabled) return;
+        setIsButtonDisabled(true);
+
+        try {
+            let zoneCheckUp = await zoneCheckUpFun(values);
+            let checkDistance = await calculateDistance(values);
+            let checkCityLimit = await calcluateCityLimit(values);
+
+            let actualZone = '';
+            if (values.serviceType === 'RIDES') {
+                if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
+                    setZoneErrorModal({ show: true, text: zoneCheckUp.error || 'Service not available in this area.', title: zoneCheckUp.title || 'Oops!' });
+                    setIsButtonDisabled(false);
+                    return;
+                }
+                actualZone = zoneCheckUp.serviceArea.name;
+                // console.log("third Zone",actualZone)
+            } else {
+                actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+            }
+
+            if (!checkDistance) {
+                setDistanceExceedModal(true);
+                setIsButtonDisabled(false);
+                return;
+            } else if (!checkCityLimit) {
+                setCityLimitExceedModal(true);
+                setIsButtonDisabled(false);
+                return;
+            }
+
         const bookingData = {
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
@@ -199,46 +501,61 @@ const Booking = (props) => {
             dropAddress: {
                 name: values.dropAddress
             },
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
+            source: 'Call',
+            sourceType: values.sourceType,
+            serviceType:values.serviceType,
+            zone: actualZone,  
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
             setIsOpen(false);
             setBookingData(data?.data);
+            navigate('/dashboard/booking');
+            formikBag.resetForm();
+            setSelectedCustomer(0);
+            setSearchBookingId('');
+        } else {
+            console.log("Error in creating new booking");
+            formikBag.setErrors({ submit: 'Failed to create booking. Please try again.' });
+        }
+    } catch (err) {
+        console.log("ERROR IN RIDES BOOKING", err);
+        formikBag.setErrors({ submit: 'An error occurred. Please try again.' });
+    } finally {
+        setIsButtonDisabled(false);
+        formikBag.setSubmitting(false); // Ensure form is not stuck in submitting state
+    }
+};
+
+   const onSubmitHandler = async (values) => {
+    const serviceTypeMap = {
+        'RENTAL_DROP_TAXI': 'RENTAL',
+        'RENTAL_HOURLY_PACKAGE': 'RENTAL'
+    };
+    const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
+
+    // Check distance only for DropTaxi
+    if (values.serviceType === 'RENTAL_DROP_TAXI') {
+        const checkDistance = await calculateDistance(values);
+        if (!checkDistance) {
+            setDropTaxiDistanceExceedModal(true); // Show the DropTaxi distance exceed modal
+            setIsButtonDisabled(false);
+            return;
         }
     }
 
-    const onAutoSubmitHandler = async (values) => {
-        const bookingData = {
-            pickupLat: values.pickupLocation.lat,
-            pickupLong: values.pickupLocation.lng,
-            pickupAddress: {
-                name: values.pickupAddress,
-            },
-            dropLat: values.dropLocation?.lat,
-            dropLong: values.dropLocation?.lng,
-            dropAddress: {
-                name: values.dropAddress,
-            },
-        };
+    const zoneData = await zoneCheckUpFun(values);
+    let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+    if (zoneData.success && zoneData.serviceArea) {
+        actualZone = zoneData.serviceArea.name;
+        // console.log('Zone for booking', actualZone);
+    }
 
-        try {
-            console.log('AUTO Booking Payload:', bookingData);
-            const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_AUTO_BOOKING, bookingData,values?.customerId?.id,
-       );
-            if (data?.success) {
-                setIsOpen(false);
-                setBookingData(data?.data);
-            } 
-        } catch (error) {
-            console.error('Error in onAutoSubmitHandler:', {
-                error: error.message,
-                stack: error.stack,
-            });
-            alert('An error occurred while creating the AUTO booking. Please try again.');
-        }
-    };
-
-    const onSubmitHandler = async (values) => {
         const bookingData = {
             carId: values?.carSelected?.id,
             packageId: values?.packageSelected === "0" ? 0 : Number(values?.packageSelected),
@@ -248,7 +565,7 @@ const Booking = (props) => {
             // fromDate: values.fromDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType || "AUTO",
+            serviceType: values.serviceType,
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
             acType: values?.acType?.toUpperCase(),
@@ -265,7 +582,18 @@ const Booking = (props) => {
             dropAddress: values.dropLocation ? {
                 name: values.dropAddress
             } : null,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name:values.driverPickUpAddress,
+            },
             source: 'Call',
+            sourceType: values.sourceType,
+            luggage: values.luggage,
+            seaterCapacity:values.seaterCapacity,
+            period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
+            serviceType: values.serviceType || mappedServiceType,
+            zone: actualZone,
         };
 
         if (values.toDate && values.toTime) {
@@ -299,6 +627,7 @@ const Booking = (props) => {
         setBookingView(false);
         setEditBooking();
         setSelectedCustomer(0);
+        setSearchBookingId('');
     };
 
     const onEditBooking = async (data) => {
@@ -400,28 +729,51 @@ const Booking = (props) => {
         }
     };
 
-    const handleSelectLocation = async (address, isPickup, type, setFieldValue) => {
-        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
-        if (data?.success) {
-            const location = { lat: data.data.lat, lng: data.data.lng };
-            if (isPickup) {
-                setFieldValue("pickupAddress", address);
-                setFieldValue("pickupLocation", location);
-                setPickupLocation(location);
-                setPickupSuggestions([]);
-            } else if (type === 'driver') {
-                setFieldValue("driverPickUpAddress", address);
-                setFieldValue("driverPickUpLocation", location);
-                setDriverPickUpLocation(location);
-                setDriverSuggestions([]);
+   const handleSelectLocation = async (address, isPickup, type, setFieldValue, values) => {
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
+    if (data?.success) {
+        const location = { lat: data.data.lat, lng: data.data.lng };
+        if (isPickup) {
+            setFieldValue("pickupAddress", address);
+            setFieldValue("pickupLocation", location);
+            setPickupLocation(location);
+            setPickupSuggestions([]);
+
+            // Check zone for pickup location
+            const zoneData = await zoneCheckUpFun({ 
+                serviceType: values.serviceType || currentServiceType,
+                pickupLocation: location 
+            });
+            if (zoneData.success && zoneData.serviceArea) {
+                const newArea = serviceAreas.find(area => area.name === zoneData.serviceArea.name);
+                if (newArea && newArea.id !== parseInt(selectedAreaId)) {
+                    setSelectedAreaId(newArea.id);
+                    setFieldValue("serviceTypeArea", newArea.id);
+                    getPackageListDetails(currentServiceType, newArea.name);
+                }
             } else {
-                setFieldValue("dropAddress", address);
-                setFieldValue("dropLocation", location);
-                setDropLocation(location);
-                setDropSuggestions([]);
+                setZoneErrorModal({ 
+                    show: true, 
+                    text: zoneData.error || 'Service not available in this area.', 
+                    title: zoneData.title || 'Oops!' 
+                });
+                setFieldValue("pickupAddress", "");
+                setFieldValue("pickupLocation", null);
+                setPickupLocation(null);
             }
+        } else if (type === 'driver') {
+            setFieldValue("driverPickUpAddress", address);
+            setFieldValue("driverPickUpLocation", location);
+            setDriverPickUpLocation(location);
+            setDriverSuggestions([]);
+        } else {
+            setFieldValue("dropAddress", address);
+            setFieldValue("dropLocation", location);
+            setDropLocation(location);
+            setDropSuggestions([]);
         }
-    };
+    }
+};
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -504,7 +856,7 @@ const Booking = (props) => {
         switch (statusLower) {
             case 'started':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         On Trip
                     </span>
                 );
@@ -522,7 +874,7 @@ const Booking = (props) => {
                 );
                 case 'cancelled':
                 return (
-                    <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                    <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                        Customer Cancelled
                     </span>
                 );
@@ -567,7 +919,7 @@ const Booking = (props) => {
                     );
                 case 'driver_on_the_way':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         DRIVER ON THE WAY
                     </span>
                     );
@@ -585,7 +937,7 @@ const Booking = (props) => {
                     );
                       case 'support_cancelled':
                    return(
-                        <span className="mx-3 px-2 py-1 text-white bg-blue-600 rounded-md text-sm font-medium">
+                        <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
                         SUPPORT CANCELLED
                     </span>
                     );
@@ -596,21 +948,88 @@ const Booking = (props) => {
 
     // modal data
     const [isOpen, setIsOpen] = useState(false);
+
+    const serviceDisplayNames = {
+        DRIVER: "Acting Driver",
+        RIDES: "Rides",
+        RENTAL_DROP_TAXI: "Drop Taxi",
+        RENTAL_HOURLY_PACKAGE: "Hourly Package",
+        RENTAL: "Outstation",
+        AUTO: "Auto",
+        PARCEL: "Parcel",
+    };
+
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
                 <div className='py-6 rounded-3xl flex justify-between'>
-                    {customerData && <div className="p-2 flex w-[40%]">
-                        <SearchableDropdown 
-                            searchVal={setCustomerNumber} 
-                            addVal={addCustomerNumber} 
+                    {customerData && (
+                        <div className="p-2 flex w-[40%] flex-col relative">
+                            <input
+                                type="text"
+                                className="w-full p-2 border rounded"
+                                placeholder="Search by customer number or booking ID"
+                                value={searchText}
+                                onChange={(e) => {
+                                    setSearchText(e.target.value);
+                                    searchBookings(e.target.value);
+                                }}
+                            />
+                            {(searchText || searchBookingId) && (
+                                <button
+                                    type="button"
+                                    // className="bg-white text-gray-500 hover:text-gray-700"
+                                    aria-label="Clear search"
+                                    onClick={() => { setSearchText(''); 
+                                                    searchBookings('');
+                                                    setSearchBookingId(''); 
+                                                    setSelectedCustomer(0);
+                                                    setSearchResults([]); 
+                                                }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                >
+                                    X
+                                </button>
+                            )}
+                            {searchResults.length > 0 && (
+                                <ul className="absolute top-full left-0 w-full border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto z-10">
+                                    {searchResults.map((result, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                            onClick={() => {
+                                                if (result?.type == 'booking') {
+                                                    setSelectedCustomer(0);
+                                                    setSearchBookingId(result?.bookingNumber);
+                                                    setSearchText(result?.bookingNumber);
+                                                } else {
+                                                    const label = [result?.firstName, result?.phoneNumber].filter(Boolean).join(' - ');
+                                                    setSearchText(label.trim());
+                                                    setSelectedCustomer(result?.id);
+                                                    setSearchBookingId('');
+                                                }
+                                                setSearchResults([]);
+                                            }}
+                                        >
+                                            {result?.type == 'booking' ? result?.bookingNumber : [result?.firstName, result?.phoneNumber].filter(Boolean).join(' - ')}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    )}
+                    {/* {customerData && <div className="p-2 flex w-[40%]">
+                        <SearchableDropdown
+                            searchVal={setCustomerNumber}
+                            addVal={addCustomerNumber}
                             selected={editBooking?.customerId} 
                             options={customerData} 
                             onSelect={(val) => {
                                 setSelectedCustomer(val.id);
-                            }} 
-                            />
-                    </div>}
+                            }}
+                            setSearchBookingId={(value) => {setSearchBookingId(value)}}
+                        />
+                    </div>} */}
                     <button
                         onClick={() => setIsOpen(true)}
                         className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
@@ -619,41 +1038,43 @@ const Booking = (props) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} />
+                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
             </div>
             <div>
                 {isOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
                         setIsOpen(false)
                         onConfirmBooking()
-                        setSelectedCustomer();
+                        setSelectedCustomer(0);
                         setEditBookingView();
                         setEditBooking();
                         setQuoteDetails();
+                        setSearchBookingId('')
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex-1 bg-[#f5f5f5] rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
-                                {/* max-h-screen overflow-y-auto shadow p-4 */}
-
-                                <div className='rounded-2xl justify-end items-end space-x-12 flex'>
+                                <div className='justify-end items-end  absolute -right-6'>
                                     <button
                                         onClick={
                                             () => {
                                                 setIsOpen(false);
                                                 onConfirmBooking();
-                                                setSelectedCustomer();
+                                                setSelectedCustomer(0);
                                                 setEditBookingView();
                                                 setEditBooking();
                                                 setQuoteDetails();
+                                                setSearchBookingId('');
                                             }
                                         }
-                                        className="px-0 py-0 bg-black-500"
+                                        className="rounded-3xl  p-2 bg-surface-muted"
                                     >
                                         X
                                     </button>
                                 </div>
+                            <div className="flex-1 bg-surface-muted rounded-xl max-h-screen overflow-y-auto overflow-x-hidden shadow p-4">
+                                {/* max-h-screen overflow-y-auto shadow p-4 */}
+
                                 {!showQuickCreateCustomer && !editBookingView && <div className='text-2xl font-bold mb-8'>
-                                    <Typography variant="h5" color='#000000'>
+                                    <Typography variant="h5" className='text-gray-900'>
                                         {/* ${bookingData?.Customer?.firstName ? `- ${bookingData?.Customer?.firstName}` : ''} */}
                                         <div className="flex items-center">
                                             {bookingView ? (
@@ -669,39 +1090,62 @@ const Booking = (props) => {
                                 {!showQuickCreateCustomer && !bookingView && <>
                                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                                         initialValues={initialValues}
-                                        onSubmit={async (values, { resetForm }) => {
-                                            console.log(values)
-                                            if (values.submitType == "rides") {
-                                                await onRideSubmitHandler(values);
-                                            }  
-                                           else if (values.submitType == "auto") {
-                                                await onAutoSubmitHandler(values);
-                                                console.log('submitType:', values.submitType)
-                                                // console.log('Auto Submit Data',values)
+                                        onSubmit={async (values, formikBag) => {
+                                            setFormikActions(formikBag); // Store Formik actions for modals
+                                            if (values.submitType === "rides") {
+                                                await onRideSubmitHandler(values, formikBag);
                                             } else {
                                                 await onSubmitHandler(values);
                                             }
                                             setLoading(true);
-                                            resetForm();
                                             setRange({});
                                             setLoading(false);
                                             setQuoteDetails();
+                                            setSelectedCustomer(0);
+                                            setSearchBookingId('');
                                         }}
                                         validationSchema={BOOKING_DETAILS_SCHEMA}
                                         enableReinitialize={true}
                                     >
-                                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => (
-                                            <>
-                                                {customerData && <div className="p-2 flex">
+                                       {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => {
+                                                
+                                                    useLuggageAndSeaterLogic(values.carType, setFieldValue);
+                                        useEffect(() => {
+                                        if (values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation?.lat && values.pickupLocation?.lng) {
+                                            zoneCheckUpFun(values).then(zoneData => {
+                                            if (zoneData.success && zoneData.serviceArea) {
+                                                const newZone = zoneData.serviceArea.name;
+                                                const selectedArea = serviceAreas.find(area => area.name === newZone);
+                                                
+                                                // Only fetch package list and reset packageSelected if the zone has changed
+                                                if (selectedArea && selectedArea.id !== parseInt(selectedAreaId)) {
+                                                setSelectedAreaId(selectedArea.id);
+                                                setFieldValue('serviceTypeArea', selectedArea.id);
+                                                getPackageListDetails(values.serviceType, newZone);
+                                                setFieldValue('packageSelected', ''); // Reset only if zone changes
+                                                }
+                                            } else {
+                                                setPackageTypeSelectedData([]);
+                                                setFieldValue('packageSelected', '');
+                                            }
+                                            });
+                                        }
+                                        }, [values.serviceType, values.pickupLocation?.lat, values.pickupLocation?.lng, selectedAreaId, serviceAreas, getPackageListDetails, setFieldValue]);
+
+                                                    return (
+                                                        <Form>
+
+
+                                                {customerData  && !editBookingView && <div className="p-2 flex">
                                                    <SearchableDropdown 
                                                         searchVal={setCustomerNumber} 
                                                         addVal={addCustomerNumber} 
-                                                        selected={selectedCustomer} 
+                                                        selected={selectedCustomer} // Use selectedCustomer instead of editBooking?.customerId
                                                         options={customerData} 
                                                         onSelect={(val) => {
-                                                        setFieldValue('customerId', val);
-                                                        setSelectedCustomer(val.id);
-                                                        }} 
+                                                            setFieldValue('customerId', val);
+                                                            setSelectedCustomer(val.id);
+                                                        }}
                                                     />
 
                                                     {!editBookingView && <Button
@@ -712,31 +1156,68 @@ const Booking = (props) => {
                                                         Add New
                                                     </Button>}
                                                 </div>}
-                                                {!editBookingView && <div className="flex-1 mb-4">
+                                                {!editBookingView && ( <div className="flex-1 mb-4">
+                                                        <div>
+                                                            <Typography variant="h6" className="mb-2">
+                                                                Service Area
+                                                            </Typography>
+                                                           <Field
+                                                                as="select"
+                                                                name="serviceTypeArea"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                onChange={(e) => {
+                                                                    const selectedValue = e.target.value;
+                                                                    // console.log('Selected area value:', selectedValue);
+                                                                    setFieldValue('serviceTypeArea', selectedValue, false);
+                                                                    setSelectedAreaId(selectedValue);
+
+                                                                    // Fetch new packages for the current serviceType without resetting fields
+                                                                    if (values.serviceType) {
+                                                                    const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedValue));
+                                                                    const zone = selectedArea ? selectedArea.name : '';
+                                                                    getPackageListDetails(values.serviceType, zone);
+                                                                    }
+
+                                                                    setFieldValue('serviceTypeArea', selectedValue, true);
+                                                                }}
+                                                                >
+                                                                <option value="" label="Select a service area" />
+                                                                {serviceAreas.map((area) => (
+                                                                    <option key={area.id} value={area.id}>
+                                                                    {area.name}
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
+                                                            
+                                                            <ErrorMessage name="serviceTypeArea" component="div" className="text-red-500 text-sm" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {!editBookingView && ( <div className="flex-1 mb-4">
                                                     <div>
                                                         <Typography variant="h6" className="mb-2">
                                                             Service Type
                                                         </Typography>
                                                         <Field as="select" name="serviceType" className="p-2 w-full rounded-xl border-2 border-gray-300" onChange={(e) => {
-                                                            console.log('e.target.value', e.target.value);
-                                                            setFieldValue("serviceType", e.target.value, false);
-                                                            resetPackageValues(setFieldValue, e.target.value);
-                                                            setFieldValue("serviceType", e.target.value, true);
-                                                            // if (e.target.value === 'CAR_WASH')
-                                                            //     setFieldValue("packageTypeSelected", "CarWash");
-
-                                                        }}>
-                                                            <option value="">Service Type</option>
-                                                            <option value="DRIVER">Acting Driver</option>
-                                                            <option value="RIDES">Local Rides</option>
-                                                            <option value="RENTAL_HOURLY_PACKAGE">Hourly Package</option>
-                                                            <option value="RENTAL_DROP_TAXI">Drop Taxi</option>
-                                                            <option value="RENTAL">OutStation</option>
-                                                            <option value="AUTO">Auto</option>
+                                                                    const selectedValue = e.target.value;
+                                                                    // console.log('Selected service value:', selectedValue);
+                                                                    setFieldValue('serviceType', selectedValue, false);
+                                                                    setCurrentServiceType(selectedValue);
+                                                                    resetPackageValues(setFieldValue, selectedValue);
+                                                                    setFieldValue('serviceType', selectedValue, true);
+                                                                }}
+                                                                disabled={!selectedAreaId}
+                                                        >
+                                                            <option value="" label="Service Type" />
+                                                            {services.map((service) => (
+                                                                <option key={service} value={service}>
+                                                                    {serviceDisplayNames[service] || service}
+                                                                </option>
+                                                            ))}
                                                         </Field>
                                                         <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                                     </div>
-                                                </div>}
+                                                </div>)}
                                                 {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI')) && (
                                                     <div className='space-y-3 my-3'>
                                                         <div className={`grid grid-cols-2 gap-4 ${values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'hidden' : ''}`}>
@@ -812,7 +1293,10 @@ const Booking = (props) => {
                                                                                 type="radio"
                                                                                 name="carType"
                                                                                 value={carType}
-                                                                                className="h-4 w-4 text-blue-600"
+                                                                                className="h-4 w-4 text-primary-600"
+                                                                                onChange={(e) => {
+                                                                                    setFieldValue('carType', e.target.value);
+                                                                                }}
                                                                             />
                                                                             <span className="text-black-700">{carType}</span>
                                                                         </label>
@@ -831,7 +1315,7 @@ const Booking = (props) => {
                                                                                     type="radio"
                                                                                     name="transmissionType"
                                                                                     value={transType}
-                                                                                    className="h-4 w-4 text-blue-600"
+                                                                                    className="h-4 w-4 text-primary-600"
                                                                                 />
                                                                                 <span className="text-black-700">{transType}</span>
                                                                             </label>
@@ -866,6 +1350,27 @@ const Booking = (props) => {
                                                         </div>
                                                     </div>
                                                 )}
+                                                
+                                                {/* Source Type Field for all services */}
+                                                {values.serviceType && (
+                                                    <div className="space-y-2 mb-4">
+                                                        <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
+                                                        <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                                            <option value="">Select Source Type</option>
+                                                            <option value="Facebook">Facebook</option>
+                                                            <option value="Instagram">Instagram</option>
+                                                            <option value="Influencer Reels">Influencer Reels</option>
+                                                            <option value="WhatsApp">WhatsApp</option>
+                                                            <option value="Google">Google</option>
+                                                            <option value="YouTube">YouTube</option>
+                                                            <option value="Justdial">Justdial</option>
+                                                            <option value="Paper Notice">Paper Notice</option>
+                                                            <option value="On Field">On Field</option>
+                                                        </Field>
+                                                        <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
+                                                
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
                                                     {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (
                                                         <div className="flex-1 mb-2">
@@ -914,6 +1419,7 @@ const Booking = (props) => {
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
                                                                 value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
                                                                 min={values.rideDate ? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
+                                                                 onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                                 onChange={(e) => {
                                                                     const selectedDateTime = e.target.value;
                                                                     const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
@@ -937,7 +1443,7 @@ const Booking = (props) => {
                                                             <Typography variant="h6" className="mb-2">
                                                                 Choose a package
                                                             </Typography>
-                                                            <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value={values.packageSelected}
+                                                            <Field as="select" disabled={bookingStage === 1} name="packageSelected" className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50" value={values.packageSelected}
                                                                 onChange={(e) => {
                                                                     setFieldValue('packageSelected', e.target.value);
                                                                     if (values.packageTypeSelected === 'Outstation' && values.fromDate && values.toDate) {
@@ -1034,8 +1540,9 @@ const Booking = (props) => {
                                         )}
                                     </div>
                                 )} */}
-                                                <div className='grid grid-cols-2'>
-                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType =='AUTO') && (<div className="p-2 space-y-2">
+                                                <div className='grid grid-cols-1'>
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && 
+                                                    (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
@@ -1056,7 +1563,7 @@ const Booking = (props) => {
                                                                     <li
                                                                         key={index}
                                                                         className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                        onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue)}
+                                                                        onClick={() => handleSelectLocation(suggestion, true, null, setFieldValue,values)}
                                                                     >
                                                                         {suggestion}
                                                                     </li>
@@ -1067,14 +1574,14 @@ const Booking = (props) => {
                                                     </div>
                                                 )}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                                                 <Field
                                                                     type="text"
                                                                     name="dropAddress"
                                                                     className="p-2  mt-2 w-full rounded-xl border-2 border-gray-300"
-                                                                    placeholder="Enter drop location"
+                                                                    placeholder="Enter drop location (Optional)"
                                                                     onChange={(e) => {
                                                                         setFieldValue("dropAddress", e.target.value);
                                                                         setFieldValue("dropLocation", null);
@@ -1088,7 +1595,7 @@ const Booking = (props) => {
                                                                                 key={index}
                                                                                 className="p-2 cursor-pointer hover:bg-gray-100"
                                                                                 onClick={() => {
-                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue);
+                                                                                    handleSelectLocation(suggestion, false, null, setFieldValue,values);
                                                                                 }}
                                                                             >
                                                                                 {suggestion}
@@ -1100,16 +1607,49 @@ const Booking = (props) => {
 
                                                         )}
                                                     </div>
+                                                   {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (
+                                                                    <div className="p-2 space-y-2">
+                                                                        <label className="block text-sm font-medium text-black-700">
+                                                                            Luggage
+                                                                        </label>
+                                                                        <Field
+                                                                            type="number"
+                                                                            name="luggage"
+                                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                            placeholder="Luggage Count (Auto-filled)"
+                                                                            disabled={true}
+                                                                            value={values.luggage}
+                                                                        />
+                                                                        <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
+                                                                    </div>
+                                                                )}
+                                                                {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (
+                                                                    <div className="p-2 space-y-2">
+                                                                        <label className="block text-sm font-medium text-black-700">
+                                                                            Seater Capacity
+                                                                        </label>
+                                                                        <Field
+                                                                            type="text"
+                                                                            name="seaterCapacity"
+                                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                                            placeholder="Seater Capacity (Auto-filled)"
+                                                                            disabled={true}
+                                                                            value={values.seaterCapacity}
+                                                                        />
+                                                                       
+                                                                        <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
+                                                                    </div>
+                                                                )}
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
-                                                                Driver Starting Point <span className="text-red-500">*</span>
+                                                                Driver Starting Point 
                                                             </label>
                                                             <Field
                                                                 type="text"
                                                                 name="driverPickUpAddress"
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter driver pickup location"
+                                                                placeholder="Enter driver pickup location (Optional)"
                                                                 onChange={(e) => {
                                                                     setFieldValue("driverPickUpAddress", e.target.value);
                                                                     setFieldValue("driverPickUpLocation", null);
@@ -1122,7 +1662,7 @@ const Booking = (props) => {
                                                                         <li
                                                                             key={index}
                                                                             className="p-2 cursor-pointer hover:bg-gray-100"
-                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue)}
+                                                                            onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue,values)}
                                                                         >
                                                                             {suggestion}
                                                                         </li>
@@ -1131,7 +1671,7 @@ const Booking = (props) => {
                                                             )}
                                                         </div>)}
                                                 </div>
-                                                {values.packageSelected &&
+                                                {values.serviceType === "DRIVER" && values.packageSelected &&
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
                                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -1147,24 +1687,24 @@ const Booking = (props) => {
                                                                     <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                        <Typography>
-  ₹{(() => {
-    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-    if (!selectedPackage) return "";
+                                                                            ₹{(() => {
+                                                                                const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                                if (!selectedPackage) return "";
 
-    switch (values.carType?.toUpperCase()) {
-      case "MINI":
-        return selectedPackage.price || "";
-      case "SEDAN":
-        return selectedPackage.priceSedan || "";
-      case "SUV":
-        return selectedPackage.priceSuv || "";
-      case "MUV":
-        return selectedPackage.priceMVP || "";
-      default:
-        return "";
-    }
-  })()}
-</Typography>
+                                                                                switch (values.carType?.toUpperCase()) {
+                                                                                case "MINI":
+                                                                                    return selectedPackage.price || "";
+                                                                                case "SEDAN":
+                                                                                    return selectedPackage.price || "";
+                                                                                case "SUV":
+                                                                                    return selectedPackage.price || "";
+                                                                                case "MUV":
+                                                                                    return selectedPackage.priceMVP || "";
+                                                                                default:
+                                                                                    return "";
+                                                                                }
+                                                                            })()}
+                                                                            </Typography>
                                                                     </div>
                                                                 </>
                                                             </div>
@@ -1179,32 +1719,120 @@ const Booking = (props) => {
                                                             <hr className="my-2 border border-black" />
                                                             <div className="mt-4">
                                                                 <>
+                                                                    {values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? (
+                                                                        <div className="space-y-3">
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Package Period:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.packageDetails?.period || ''} hours
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.carType || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Package Price:</Typography>
+                                                                                <Typography>
+                                                                                    ₹{(() => {
+                                                                                        const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                                        if (!selectedPackage) return "";
+                                                                                        switch (quoteDetails.amount?.carType?.toUpperCase()) {
+                                                                                            case "MINI": return selectedPackage.price || "";
+                                                                                            case "SEDAN": return selectedPackage.priceSedan || "";
+                                                                                            case "SUV": return selectedPackage.priceSuv || "";
+                                                                                            case "MUV": return selectedPackage.priceMVP || "";
+                                                                                            default: return "";
+                                                                                        }
+                                                                                    })()}
+                                                                                </Typography>
+                                                                            </div>
+                                                                            {quoteDetails.discount?.percentage > 0 && (
+                                                                                <>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                                                                        <Typography>
+                                                                                            {quoteDetails.discount?.percentage} %
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
+                                                                                        <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                            ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)}
+                                                                                            {/* {(() => {
+                                                                                                const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
+                                                                                                const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;
+                                                                                                return packagePrice - (packagePrice * discountPercentage / 100);
+                                                                                            })()} */}
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : (
                                                                     <div className="grid grid-cols-2 justify-between">
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Kilometer</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
+                                                                        {values?.serviceType !== 'DRIVER' && ( <>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                        <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount.estimatedDistance) + (Number(quoteDetails.amount.baseKm))} Kms
-                                                                        </Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography color="gray" variant="h6">Per Km Rate</Typography>}
-                                                                        {values.serviceType !== 'DRIVER' && <Typography>
-                                                                            ₹ {quoteDetails.amount.kilometerPriceVal}
-                                                                        </Typography>}
-                                                                        <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                            {Math.round(quoteDetails.amount?.estimatedDistance) + (Number(quoteDetails.amount?.baseKm)) 
+                                                                            // + (Number(quoteDetails.amount.driverWithin))
+                                                                            } Kms + {quoteDetails.amount?.driverWithin} Kms
+                                                                        </Typography></>)}
+                                                                        {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
+                                                                            <>
+                                                                        <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount.baseFare}
-                                                                        </Typography>
-                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                            ₹ {quoteDetails.amount?.kilometerPriceVal}
+                                                                        </Typography></>)}
+                                                                        <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount.estimatedPrice}
+                                                                            ₹ {quoteDetails.amount?.baseFare}
                                                                         </Typography>
-                                                                        {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
+                                                                        
+                                                                        {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
                                                                         <>
-                                                                        <Typography color="gray" variant="h6">Driver With in</Typography>
+                                                                        <Typography color="gray" variant="h6">Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount.driverWithin + ' Km'}
                                                                         </Typography>
                                                                         </>
+                                                                        } */}
+                                                                        {(values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
+                                                                            <>
+                                                                        <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.carType || ''}
+                                                                        </Typography>   
+                                                                        </>)}
+                                                                        
+                                                                        {quoteDetails.amount?.isPrimeLocation === true && quoteDetails.amount?.rideSurchargeAmount > 0 && 
+                                                                        <>
+                                                                        <Typography color="gray" variant="h6">Surcharge Applied</Typography>
+                                                                            <Typography>
+                                                                                ₹  {quoteDetails.amount?.rideSurchargeAmount}
+                                                                            </Typography>
+                                                                        </>
                                                                         }
+                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount?.estimatedPrice}
+                                                                        </Typography>
+                                                                        {quoteDetails.discount?.percentage > 0 && <>
+                                                                        
+                                                                          <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.discount?.percentage} %
+                                                                            </Typography>
+                                                                            <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                    {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
+                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                            </Typography>
+
+                                                                        </>}
                                                                         
                                                                         
                                                                         
@@ -1221,6 +1849,7 @@ const Booking = (props) => {
                                                                             ₹ {quoteDetails.amount.driverCharge}
                                                                         </Typography> */}
                                                                     </div>
+                                                                    )}
                                                                 </>
                                                             </div>
                                                         </div>
@@ -1260,8 +1889,113 @@ const Booking = (props) => {
                                         )}
                                     </GoogleMap>
                                 )} */}
+                                                {values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageSelected && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.additionalMinCharge :
+                                                                            values.carType === 'Sedan' ? selectedPackage.additionalMinChargeSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.additionalMinChargeSuv :
+                                                                                    selectedPackage.additionalMinChargeMVP
+                                                                    ) : '';
+                                                                })()} will be charged for every 15 minutes beyond {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ''} hours.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{(() => {
+                                                                    const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                    return selectedPackage ? (
+                                                                        values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
+                                                                            values.carType === 'Sedan' ? selectedPackage.extraKilometerPriceSedan :
+                                                                                values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
+                                                                                    selectedPackage.extraKilometerPriceMVP
+                                                                    ) : '';
+                                                                })()} will be charged per extra kilometer.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A night charge of ₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''} applies if the trip extends past {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                            </Typography>
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
 
-                                                {/* <p>Form Errors (Debug):</p><p>{JSON.stringify(errors, null, 2)}</p> */}
+                                                )}
+                                                {values.serviceType == 'RENTAL_DROP_TAXI' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className="text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                 {values.serviceType == 'RENTAL' && quoteDetails && (
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                        <div className="space-y-2">
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Toll, parking, permit charges, and state taxes are excluded.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                            </Typography>   
+                                                            {quoteDetails.amount?.rideSurchargeAmount > 0 && (
+                                                                <Typography className=" text-sm text-gray-700">
+                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                </Typography>
+                                                            )}
+                                                        </div>
+                                                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className=" text-center text-sm text-gray-700"
+                                                            >
+                                                                {BOOKING_TERMS_AND_CONDITIONS}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
                                                 {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
@@ -1270,12 +2004,13 @@ const Booking = (props) => {
                                                 }
 
                                                 {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation &&
-                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation &&
-                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+
+                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
@@ -1310,23 +2045,7 @@ const Booking = (props) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
-                                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
-                                                    >
-                                                        Continue
-                                                    </Button>
-                                                }
-                                                 {(values.serviceType == 'AUTO') &&
-                                                    <Button
-                                                        fullWidth
-                                                        color="blue"
-                                                        onClick={() => {
-                                                            //    handleSubmit();
-                                                            setFieldValue("submitType", "auto");
-                                                            console.log('AUTO Button Clicked, Values:', values);
-                                                            handleSubmit();
-                                                        }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -1400,9 +2119,11 @@ const Booking = (props) => {
                                                         </Button>
                                                     }
                                                 </div>
-                                            </>
-                                        )}
-                                    </Formik>}
+                                           </Form>
+                                                    );
+                                                }}
+                                            </Formik>
+                                        }
                                     {bookingStage === 2 && bookingData && (
                                         <SearchDrivers bookingData={bookingData} onNext={() => {
                                             setBookingStage(0);
@@ -1421,9 +2142,13 @@ const Booking = (props) => {
                         </div>
                     </div>
                 )}
+                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content="You can choose Outstation within 300km only for the DropTaxi service."/>
+                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
+                <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
+                {/* <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); formikActions.setFieldValue?.('pickupAddress', ''); }} title={zoneErrorModal.title} content={zoneErrorModal.text} /> */}
             </div>
         </div>
     );
 };
 
-export default Booking;
+export default Booking; 

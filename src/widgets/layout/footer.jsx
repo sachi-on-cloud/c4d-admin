@@ -14,7 +14,7 @@ export function Footer({ brandName, brandLink, routes }) {
           <a
             href={brandLink}
             target="_blank"
-            className="transition-colors hover:text-blue-500 font-bold"
+            className="transition-colors hover:text-primary-500 font-bold"
           >
             {brandName}
           </a>{" "}
@@ -28,7 +28,7 @@ export function Footer({ brandName, brandLink, routes }) {
                 href={path}
                 target="_blank"
                 variant="small"
-                className="py-0.5 px-1 font-normal text-inherit transition-colors hover:text-blue-500"
+                className="py-0.5 px-1 font-normal text-inherit transition-colors hover:text-primary-500"
               >
                 {name}
               </Typography>

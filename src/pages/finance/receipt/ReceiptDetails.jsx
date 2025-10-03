@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import ConfirmBooking from "@/pages/booking/confirmBooking";
+import { themeColors } from "@/theme/colors";
 
 const ReceiptDetails = () => {
     const [receipt, setReceipt] = useState({});
@@ -65,7 +66,7 @@ const ReceiptDetails = () => {
         html2canvas(input, {
             scale: 2,
             useCORS: true,
-            backgroundColor: "#ffffff",
+            backgroundColor: themeColors.white,
         }).then((canvas) => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
@@ -109,7 +110,7 @@ const ReceiptDetails = () => {
                                                 onClick={() => {
                                                     setIsOpen(true)
                                                 }}
-                                                className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 text-blue-900 underline font-medium cursor-pointer" 
+                                                className="p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 text-primary-900 underline font-medium cursor-pointer" 
                                             />
                                         </div>
                                     )}
@@ -148,7 +149,7 @@ const ReceiptDetails = () => {
                                                 name="driverName" 
                                                 value={initialValues.driverName} 
                                                 onClick={() => handleDriverNavigation(initialValues.DriverId)} 
-                                                className="p-2 h-[50px] w-full rounded-md border text-blue-600 underline cursor-pointer bg-gray-200 border-gray-300" />
+                                                className="p-2 h-[50px] w-full rounded-md border text-primary-600 underline cursor-pointer bg-gray-200 border-gray-300" />
                                         </div>
                                         <div className='space-y-1'>
                                                 <label className="text-sm font-medium text-gray-700">Driver Phone Number</label>
@@ -162,7 +163,7 @@ const ReceiptDetails = () => {
                                                 name="ownerName"
                                                 value={initialValues.ownerName}
                                                 onClick={() => handleOwnerNavigation(initialValues.accountId)}
-                                                className={`p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 ${initialValues.accountId ? 'text-blue-600 underline cursor-pointer' : 'text-gray-600 cursor-not-allowed'
+                                                className={`p-2 h-[50px] w-full rounded-md border bg-gray-200 border-gray-300 ${initialValues.accountId ? 'text-primary-600 underline cursor-pointer' : 'text-gray-600 cursor-not-allowed'
                                                     }`}
                                             />
                                         </div>

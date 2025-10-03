@@ -9,6 +9,9 @@ export function reducer(state, action) {
     case "OPEN_SIDENAV": {
       return { ...state, openSidenav: action.value };
     }
+    case "MINI_SIDENAV": {
+      return { ...state, miniSidenav: action.value };
+    }
     case "SIDENAV_TYPE": {
       return { ...state, sidenavType: action.value };
     }
@@ -33,6 +36,7 @@ export function reducer(state, action) {
 export function MaterialTailwindControllerProvider({ children }) {
   const initialState = {
     openSidenav: false,
+  miniSidenav: false,
     sidenavColor: "dark",
     sidenavType: "white",
     transparentNavbar: true,
@@ -73,6 +77,8 @@ MaterialTailwindControllerProvider.propTypes = {
 
 export const setOpenSidenav = (dispatch, value) =>
   dispatch({ type: "OPEN_SIDENAV", value });
+export const setMiniSidenav = (dispatch, value) =>
+  dispatch({ type: "MINI_SIDENAV", value });
 export const setSidenavType = (dispatch, value) =>
   dispatch({ type: "SIDENAV_TYPE", value });
 export const setSidenavColor = (dispatch, value) =>

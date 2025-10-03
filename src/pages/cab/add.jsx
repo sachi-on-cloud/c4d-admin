@@ -163,24 +163,33 @@ const CabAdd = () => {
         }
     };
 
-    const getPackageListDetails = async () => {
-        const data = await ApiRequestUtils.get(API_ROUTES.PACKAGE_CABS_LIST);
-        if (data?.success) {
-            const packageData = data?.data.map(option => {
-                const suffix = option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '';
-                return {
-                    ...option,
-                    period: `${option.type == 'Rides' ? "" : option.period} ${suffix}`, // Append 'hr' or 'd'
-                };
-            });
-            //console.log("PACKAGE", packageData);
-            const intercityPackage = orderPackages(packageData.filter(val => val.type === 'Local'), 'Local');
-            const outstationPackage = packageData.filter(val => { return val.type === 'Outstation' && val.period === '1 d' });
-            const carWashPackage = orderPackages(packageData.filter(val => val.type === 'CarWash'), 'CarWash');
-            const ridesPackagePrices = packageData.filter(val => { return val.type == 'Rides' });
-            setPackageDetails([...intercityPackage, ...outstationPackage, ...carWashPackage, ...ridesPackagePrices]);
-        }
-    };
+const getPackageListDetails = async () => {
+    const data = await ApiRequestUtils.get(API_ROUTES.PACKAGE_CABS_LIST);
+    if (data?.success) {
+        const packageData = data?.data.map(option => {
+            const suffix = option.zone === 'Vellore' ? (option.type === 'Local' ? 'hr' : option.type === 'Outstation' ? 'd' : option.type === 'Rides' ? 'Rides' : '') : '';
+            return {
+                ...option,
+                period: `${option.zone === 'Vellore' && option.type !== 'Rides' ? option.period : ''} ${suffix}`.trim(),
+            };
+        });
+
+        // Log only Vellore packages
+        console.log("Vellore Packages:", packageData.filter(val => val.zone === 'Vellore'));
+
+            const intercityPackage = orderPackages(packageData.filter(val => val.zone === 'Vellore' && val.type === 'Local'), 'Local');
+            const outstationPackage = packageData.filter(val => val.zone === 'Vellore' && val.type === 'Outstation' && val.period === '1 d');
+            const carWashPackage = orderPackages(packageData.filter(val => val.zone === 'Vellore' && val.type === 'CarWash'), 'CarWash');
+            const ridesPackagePrices = packageData.filter(val => val.zone === 'Vellore' && val.type === 'Rides');
+
+        setPackageDetails([
+            ...intercityPackage,
+            ...outstationPackage,
+            ...carWashPackage,
+            ...ridesPackagePrices
+        ]);
+    }
+};
 
     // const checkDriver = async () => {
     //     const data = await ApiRequestUtils.get(API_ROUTES.CHECK_DRIVER + '+916666666666');
@@ -547,7 +556,7 @@ const CabAdd = () => {
                             </div>
                             <div>
                                 <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
-                                <Field as="select" name="vehicleType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" name="vehicleType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="">Select Type</option>
                                     {carType
                                         .filter((type) => type.carType == selectedCarType)
@@ -576,7 +585,7 @@ const CabAdd = () => {
                             </div>
                             <div>
                                 <label htmlFor="assignedTo" className="text-sm font-medium text-gray-700">Assigned To</label>
-                                <Field as="select" disabled={type == 'Individual'} name="assignedTo" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <Field as="select" disabled={type == 'Individual'} name="assignedTo" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="">Select Type</option>
                                     <option value="Driver">Driver</option>
                                     <option value="Owner">Owner</option>

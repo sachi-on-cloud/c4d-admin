@@ -294,8 +294,8 @@ export function PayableView() {
                                     id="transactionId"
                                     value={transactionId}
                                     onChange={(e) => setTransactionId(e.target.value)}
-                                    className={`border rounded-md px-3 py-2 focus:ring ${
-                                        transactionIdError ? "border-red-500" : "focus:ring-blue-500"
+                  className={`border rounded-md px-3 py-2 focus:ring ${
+                    transactionIdError ? "border-red-500" : "focus:ring-primary-500"
                                     }`}
                                     placeholder="Enter Transaction ID"
                                 />
@@ -314,7 +314,7 @@ export function PayableView() {
                                     id="comments"
                                     value={comments}
                                     onChange={(e) => setComments(e.target.value)}
-                                    className="border rounded-md px-3 py-2 focus:ring focus:ring-blue-500"
+                                    className="border rounded-md px-3 py-2 focus:ring focus:ring-primary-500"
                                     placeholder="Enter Comments"
                                 />
                             </div>

@@ -190,7 +190,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                                         </div>
                                         <div>
                                             <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                            <Field type="text" name="licenseNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={15} />
+                                            <Field type="text" name="licenseNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={16} />
                                             <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
                                         </div>
                                     </>

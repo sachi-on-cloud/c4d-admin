@@ -91,7 +91,7 @@ const GeoMarkings = () => {
         <TabsHeader 
           className="bg-blue-gray-50/60 rounded-lg"
           indicatorProps={{
-            className: "bg-blue-500/80 shadow-md shadow-blue-500/20 ",
+            className: "bg-primary/80 shadow-md shadow-primary/20 ",
           }}
         >
           {data.map(({ label, value }) => (

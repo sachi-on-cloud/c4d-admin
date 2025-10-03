@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Alert, Button } from '@material-tailwind/react';
@@ -14,6 +14,7 @@ const STATUS_OPTIONS = [
 ];
 
 const PRICE_SCHEMA = Yup.object().shape({
+    zone: Yup.string().required('Zone is required'),
     // carType: Yup.string().required('Cab Type is required'),
     // serviceType: Yup.string().required('Service Type is required'),
     type: Yup.string().required('Trip Type is required'),
@@ -39,10 +40,32 @@ const PRICE_SCHEMA = Yup.object().shape({
 
 const RentalsPriceMasterAdd = () => {
     const [alert, setAlert] = useState(false);
+    const [zones, setZones] = useState([]);
     const navigate = useNavigate();
+
+useEffect(() => {
+    const fetchZones = async () => {
+      try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+        if (response?.success) {
+          const filteredAreas = response.data
+            .filter((area) => area.type === 'Service Area')
+            .map((area) => ({
+              value: area.id,
+              label: area.name, // Use original name without transformation
+            }));
+          setZones(filteredAreas);
+        }
+      } catch (error) {
+        console.error('Error fetching zones:', error);
+      }
+    };
+    fetchZones();
+  }, []);
 
     const initialValues = {
         // carType: '',
+        zone: '',
         serviceType: '',
         type: '',
         period: '',
@@ -125,6 +148,7 @@ const RentalsPriceMasterAdd = () => {
         try {
             const reqBody = {
                 // 'carType': values.carType,
+                 'zone': String(values.zone),
                 'serviceType': 'RENTAL',
                 'type': String(values.type),
                 'period': String(values.period),
@@ -221,6 +245,16 @@ const RentalsPriceMasterAdd = () => {
                 {({ handleSubmit, setFieldValue, isValid, dirty, errors, values }) => (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                                <Select
+                                  options={zones}
+                                  onChange={(selectedOption) => setFieldValue('zone', selectedOption ? selectedOption.value : '')}
+                                  placeholder="Select Zone"
+                                  className="w-full"
+                                />
+                                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Trip Type</label>
                                 <Field as="select" name="type" className="p-2 w-full rounded-md border-2 border-gray-300">
@@ -320,7 +354,7 @@ const RentalsPriceMasterAdd = () => {
     <table className="w-full border border-collapse text-sm text-center">
       <thead>
          {values.type === 'Outstation' && (
-         <tr className="bg-blue-600  text-white">
+         <tr className="bg-primary  text-white">
   <th  colSpan={1}></th>
   <th  colSpan={2}></th>
 
@@ -329,7 +363,7 @@ const RentalsPriceMasterAdd = () => {
    <th  colSpan={2}className='border text-lg'>Round Trip Non AC</th>
   <th  colSpan={2}className='border text-lg'>Round Trip AC</th>
 </tr>)}
-        <tr className="bg-blue-600 text-white">
+  <tr className="bg-primary text-white">
           <th className="border p-2">Car Type</th>
           <th className="border p-2">Base Fare</th>
           <th className="border p-2">Additional Min Charge</th>

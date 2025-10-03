@@ -3,6 +3,8 @@ import moment from "moment";
 import {
     GPAY_NAME, GPAY_NUMBER, supportNumber,
     WHATSAPP_BOOKING_CONFIRMED_TEMPLATE,WHATSAPP_FARE_QUOTATION_TEMPLATE,WHATSAPP_TRIP_STARTED,WHATSAPP_TRIP_COMPLETED,WHATSAPP_BOOKING_CANCELLED,
+    WHATSAPP_DRIVER_REACHED,
+    WHATSAPP_BOOKING_ACCEPTED,
 
 } from "./constants";
 
@@ -248,6 +250,7 @@ export const Utils = {
                     .replace('${carType}', vehicleType)
                     .replace('${totalAmount}', estimatedFare)
                     .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
             );
         }
 
@@ -282,6 +285,7 @@ export const Utils = {
                     .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
                     .replace('${startDate}', startDate)
                     .replace('${startTime}', startTime)
+                     .replace('${startOtp}',bookingDetails.startOtp)
                     .replace('${baseFare}', bookingDetails.Package.price)
                     .replace('${carType}', vehicleType)
                     .replace('${packageRow}', packageRow)
@@ -305,6 +309,48 @@ export const Utils = {
                     .replace('${driverName}', driverName)
                     .replace('${startTime}', startTime)
                     .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
+            );
+        }
+
+         if (bookingDetails?.status === "DRIVER_REACHED") {
+            const driverName = bookingDetails.Driver?.firstName || 'Not assigned';
+            const vehicleType = bookingDetails?.Cab?.carType || bookingDetails?.carType || 'Not assigned';
+            const pickup = bookingDetails.pickupAddress?.name || 'Not specified';
+            const startTime = bookingDetails.startTime ? moment(bookingDetails.startTime).format("hh:mm A") : 'Not available';
+            
+
+            text = encodeURIComponent(
+                WHATSAPP_DRIVER_REACHED
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${pickup}', pickup)
+                    .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
+                    .replace('${carType}', vehicleType)
+                    .replace('${driverName}', driverName)
+                    .replace('${startTime}', startTime)
+                    .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
+            );
+        }
+         if ( bookingDetails?.status === "BOOKING_ACCEPTED") {
+            const driverName = bookingDetails.Driver?.firstName || 'Not assigned';
+            const vehicleType = bookingDetails?.Cab?.carType || bookingDetails?.carType || 'Not assigned';
+            const pickup = bookingDetails.pickupAddress?.name || 'Not specified';
+            const startTime = bookingDetails.startTime ? moment(bookingDetails.startTime).format("hh:mm A") : 'Not available';
+            
+
+            text = encodeURIComponent(
+                WHATSAPP_BOOKING_ACCEPTED
+                    .replace('${bookingNumber}', bookingDetails.bookingNumber)
+                    .replace('${customerName}', bookingDetails.Customer.firstName)
+                    .replace('${pickup}', pickup)
+                    .replace('${drop}', bookingDetails.dropAddress?.name || 'Not specified')
+                    .replace('${carType}', vehicleType)
+                    .replace('${driverName}', driverName)
+                    .replace('${startTime}', startTime)
+                    .replace('${supportNumber}', supportNumber)
+                    .replace('${startOtp}',bookingDetails.startOtp)
             );
         }
 

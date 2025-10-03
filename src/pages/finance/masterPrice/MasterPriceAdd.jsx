@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import Multiselect from 'multiselect-react-dropdown';
+import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@material-tailwind/react';
 import { MASTERPRICE_ADD_SCHEME } from "@/utils/validations";
@@ -10,9 +10,10 @@ import { Utils } from "@/utils/utils";
 
 export function MasterPriceAdd() {
     const navigate = useNavigate();
-    
+    const [serviceAreas, setServiceAreas] = useState([]);
     const initialValues = {
         serviceType: '',
+        zone: '',
         type: '',
         period: '',
         waitingMins: '',
@@ -30,7 +31,21 @@ export function MasterPriceAdd() {
         dropPriceAbove:'',
     };
 
-    const handleSubmit = async (values) => {
+    const fetchGeoData = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+            const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+            setServiceAreas(filteredAreas);
+        } catch (error) {
+            console.error('Error fetching GEO_MARKINGS_LIST:', error);           
+        } 
+    };
+
+    useEffect(() => {
+        fetchGeoData();
+    }, []);
+
+    const handleSubmit = async (values, { setSubmitting }) => {
         try {
             const masterpriceList = {
                 serviceType: values.serviceType,
@@ -51,6 +66,7 @@ export function MasterPriceAdd() {
                 dropPriceAbove: values.dropPriceAbove,
                 status: 1,
                 extraKmPrice:values.extraKmPrice,
+                zone: values.zone,
             };
             if (values.type === 'Outstation') {
                 masterpriceList['baseFare'] = values.baseFare;
@@ -71,7 +87,14 @@ export function MasterPriceAdd() {
         } catch (err) {
             console.log('ERROR IN SUBMIT :', err)
         }
+        setSubmitting(false);
     };
+
+    const ZONE_OPTIONS = serviceAreas.map((area) => ({
+        value: area.name,
+        label: area.name,
+    }));
+
     return (
         <div className="p-4">
 
@@ -89,6 +112,16 @@ export function MasterPriceAdd() {
                         <p>Package Debug: {JSON.stringify(values.package, null, 2)}</p> */}
 
                         <div className="p-4 bg-blue-gray-100 grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Zone</label>
+                              <Select
+                                    options={ZONE_OPTIONS}
+                                    onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
+                                    placeholder="Select Zone"
+                                    className="w-full"
+                                />
+                                <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Service Type</label>
                                 <Field as="select" name="serviceType" className="p-2 w-full rounded-md border-2 border-gray-300">

@@ -172,7 +172,7 @@ export function InvoiceList() {
                     <div className="relative flex-grow max-w-[500px]">
                         <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             placeholder="Search Invoice Number"
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -251,8 +251,7 @@ export function InvoiceList() {
                                                     <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                         <Typography
                                                             variant="small"
-                                                            color="blue"
-                                                            className="font-semibold underline cursor-pointer"
+                                                            className="font-semibold underline cursor-pointer text-primary-600"
                                                             onClick={() => navigate(`/dashboard/finance/invoice/details/${invoice?.invoiceNumber}`)}
                                                         >
                                                             {invoice?.invoiceNumber}
