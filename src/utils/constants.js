@@ -954,6 +954,20 @@ export const API_ROUTES = {
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
+    'GET_AUTO_LIST':"/admin/autos",
+    'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
+    'POST_AUTO_SEARCH':'/search/auto',
+    'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
+    
+    'UPDATE_LANDMARK':'/update-landmark',
+    'GET_AUTO_PACKAGE':'/get-autos',
+    'GET_AUTO_BY_ID':'/auto/',
+    'UPDATE_AUTO_DETAILS':'/update/admin/auto',
+    'AUTO_PACKAGE_LIST':'/auto-package-list',
+    'AUTO_PRICE_EDIT':'/update-auto-package',
+    
+    
+    
 };
 
 export const KYC_PROCESS = {

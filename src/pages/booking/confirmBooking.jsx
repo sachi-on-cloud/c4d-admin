@@ -642,7 +642,7 @@ const ConfirmBooking = (props) => {
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Type:</Typography>
-                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
+                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Rides': bookingDetails.serviceType == "AUTO" ? 'Auto' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}</Typography>
                             </div>
                             {bookingDetails?.source !== "Mobile App" &&
                             <div className="flex justify-between">
@@ -701,7 +701,7 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.acType}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.serviceType != 'RIDES' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
@@ -722,7 +722,7 @@ const ConfirmBooking = (props) => {
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Package:</Typography>
                                     <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
@@ -737,6 +737,7 @@ const ConfirmBooking = (props) => {
                                             ${bookingDetails?.packageType === "Outstation" ? bookingDetails?.value?.travelDistance + ' Km':''}`}</Typography>
                                 </div>
                             }
+                           
                             {bookingDetails?.value?.baseFare > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Base Fare:</Typography>

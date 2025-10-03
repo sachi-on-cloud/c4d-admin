@@ -1,3 +1,8 @@
+
+
+
+
+
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -565,7 +570,7 @@ useEffect(() => {
             // fromDate: values.fromDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType,
+            serviceType: values.serviceType || "AUTO",
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
             acType: values?.acType?.toUpperCase(),
@@ -1574,7 +1579,7 @@ useEffect(() => {
                                                     </div>
                                                 )}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                                                 <Field
@@ -2014,6 +2019,11 @@ useEffect(() => {
                                                         Check Estimated Price
                                                     </Button>
                                                 }
+                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
 
                                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                                     fullWidth
@@ -2046,6 +2056,22 @@ useEffect(() => {
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled}
+                                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                                    >
+                                                        Continue
+                                                    </Button>
+                                                }
+                                                 {(values.serviceType == 'AUTO') &&
+                                                    <Button
+                                                        fullWidth
+                                                        color="blue"
+                                                        onClick={() => {
+                                                            //    handleSubmit();
+                                                            setFieldValue("submitType", "auto");
+                                                            console.log('AUTO Button Clicked, Values:', values);
+                                                            handleSubmit();
+                                                        }}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue

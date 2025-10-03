@@ -1076,17 +1076,25 @@ const handleTabChange = (value) => {
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Request {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Request {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES"  || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Assign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
                                                             {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
@@ -1099,7 +1107,11 @@ const handleTabChange = (value) => {
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    ReAssign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
                                                             {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
@@ -1109,7 +1121,11 @@ const handleTabChange = (value) => {
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Assign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : "Cab"}
                                                                    
                                                                 </Button>
                                                             }

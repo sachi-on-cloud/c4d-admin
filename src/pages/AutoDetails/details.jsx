@@ -9,12 +9,12 @@ import { Button } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintCabDetails from '@/components/PrintCabDetails';
 import DocumentsList from '@/components/DocumentsList';
-import CabPriceTableLog from './CabPriceTableLog';
+// import CabPriceTableLog from './CabPriceTableLog';
 import SubscriptionLog from '@/components/SubscriptionLog';
 import CabDriverWalletLog from '@/components/CabDriverWallet';
 import DriverBookingNotes from '@/components/DriverBookingNotes';
 
-const CabDetails = ({ btnShow = false, noApprove = false }) => {
+const DetailsAuto = ({ btnShow = false, noApprove = false }) => {
     //const [enablePrint, setEnablePrint] = useState(false);
     const printRef = useRef();
 
@@ -53,14 +53,14 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
         }
     }, [id]);
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_CAB_BY_ID + `${itemId}`);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_AUTO_BY_ID+ `${itemId}`);
         setCab(data?.data);
     };
     const initialValues = {
         name: cab?.result?.name || "",
         ownerName: cab?.result?.Account ? cab?.result?.Account?.name : "",
         ownerPhoneNumber: cab?.result?.ownerPhoneNumber ? cab?.result?.ownerPhoneNumber.replace(/^(\+91)/, '') : "",
-        carNumber: cab?.result?.carNumber || "",
+        carNumber: cab?.result?.autoNumber || "",
         address: cab?.result?.curAddress || "",
         status: cab?.result?.status || "",
         insurance: cab?.result?.insurance || "",
@@ -83,7 +83,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
         <>
             <div className="p-4 mx-auto">
                 <div className="flex flex-row justify-between pr-5">
-                    <h2 className="text-2xl font-bold mb-4">Cabs Details</h2>
+                    <h2 className="text-2xl font-bold mb-4">Auto Details</h2>
                     {/* <img src="/img/printing.png" height={30} width={30} alt="" onClick={handlePrintClick} /> */}
                 </div>
                 <Formik
@@ -105,7 +105,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                                     <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
                                 <div>
-                                    <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Car Number</label>
+                                    <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">Auto Number</label>
                                     <Field type="text" name="carNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={10} />
                                     <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
                                 </div>
@@ -119,93 +119,21 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                                     <Field type="text" name="insurance" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                     <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
-                                    <div className="space-x-4">
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="carType" disabled value="MINI" className="form-radio" />
-                                            <span className="ml-2">Mini</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="carType" disabled value="SUV" className="form-radio" />
-                                            <span className="ml-2">SUV</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="carType" disabled value="MUV" className="form-radio" />
-                                            <span className="ml-2">MUV</span>
-                                        </label>
-                                        <label className="inline-flex items-center">
-                                            <Field type="radio" name="carType" disabled value="Sedan" className="form-radio" />
-                                            <span className="ml-2">Sedan</span>
-                                        </label>
-                                    </div>
-                                    <ErrorMessage name="carType" component="div" className="text-red-500 text-sm" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
-                                    <Field type="text" name="vehicleType" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                    <ErrorMessage name="vehicleType" component="div" className="text-red-500 text-sm" />
-                                </div>
+                               
                                 <div>
                                     <label htmlFor="seater" className="text-sm font-medium text-gray-700">Seater</label>
                                     <Field type="text" name="seater" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                     <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div>
-                                    <label htmlFor="luggage" className="text-sm font-medium text-gray-700">Luggage</label>
-                                    <Field type="text" name="luggage" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
-                                    <ErrorMessage name="luggage" component="div" className="text-red-500 text-sm" />
-                                </div>
+                              
                                 <div>
                                     <label htmlFor="modelYear" className="text-sm font-medium text-gray-700">Year of Model</label>
                                     <Field type="text" name="modelYear" disabled className="p-2 w-full rounded-md border-gray-300" maxLength={10} />
                                     <ErrorMessage name="modelYear" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div>
-                                    <label htmlFor="assignedTo" className="text-sm font-medium text-gray-700">Assigned To</label>
-                                    <Field as="select" name="assignedTo" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm bg-gray-200">
-                                        <option value="">Select Type</option>
-                                        <option value="Driver">Driver</option>
-                                        <option value="Owner">Owner</option>
-                                    </Field>
-                                    <ErrorMessage name="assignedTo" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                {values.withDriver === "Yes" && (
-                                    <>
-                                        <div>
-                                            <label htmlFor="driverName" className="text-sm font-medium text-gray-700">Driver Name</label>
-                                            <Field type="text" name="driverName" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
-                                            <ErrorMessage name="driverName" component="div" className="text-red-500 text-sm" />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</label>
-                                            <Field type="tel" name="phoneNumber" disabled className="p-2 w-full rounded-md border border-gray-300 bg-gray-200" maxLength={10} />
-                                            <ErrorMessage name="phoneNumber" component="div" className="text-red-500 text-sm" />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="driverAddress" className="text-sm font-medium text-gray-700">Driver Address</label>
-                                            <Field type="text" name="driverAddress" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
-                                            <ErrorMessage name="driverAddress" component="div" className="text-red-500 text-sm" />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">License Number</label>
-                                            <Field type="text" name="licenseNumber" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" maxLength={16} />
-                                            <ErrorMessage name="licenseNumber" component="div" className="text-red-500 text-sm" />
-                                        </div>
-                                    </>
-                                )}
-                                <div>
-                                    <label htmlFor="packages" className="text-sm font-medium text-gray-700">Package</label>
-                                    <Multiselect
-                                        options={packageDetails}
-                                        displayValue="period"
-                                        selectedValues={packageDetails.filter(option => values.packages.includes(option.id))}
-                                        placeholder=""
-                                        className="w-full rounded-xl border-gray-300 bg-gray-200 border"
-                                        disable={true}
-                                    />
-                                </div>
+                               
+                               
+                               
                                 <div>
                                     <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
                                     <Field type="text" name="status" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
@@ -219,11 +147,11 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
             <DriverBookingNotes cabId={id} />
             <CabDriverWalletLog cabId={id} />
             {cab && cab?.creditLog && <SubscriptionLog subscriptionlog={cab?.creditLog} />}
-            {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />}
+            {/* {cab?.price && <PriceTable type={"cabId"} id={id} packages={packageDetails} selectedPackages={cab?.result?.packages} />} */}
             {/* {cab?.wallet && <WalletDetails wallet={cab?.wallet} onFetch={() => fetchItem(id)} />} */}
             {/* <PrintCabDetails ref={printRef} packages={packageDetails} cabId={id} /> */}
             {/* {cab && cab?.result?.id && <DocumentsList id={cab?.result?.id} type={'cab'} noApprove={noApprove}/>} */}
-            <CabPriceTableLog id={id} />
+            {/* <CabPriceTableLog id={id} /> */}
             {!btnShow && <div className='flex justify-center w-full'>
                 <Button
                     onClick={() => navigate(`/dashboard/vendors/account/details/${cab?.result?.AccountId}`)}
@@ -232,7 +160,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
                     Back
                 </Button>
                 <Button
-                    onClick={() => navigate(`/dashboard/vendors/account/allVehicles/edit/${id}`)}
+                    onClick={() => navigate(`/dashboard/vendors/account/autoDetails/details/edit/${id}`)}
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Edit
@@ -242,5 +170,4 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
     );
 };
 
-export default CabDetails;
-// modify
+export default DetailsAuto;

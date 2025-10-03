@@ -94,6 +94,16 @@ import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
+import AutoView from "./pages/AutoService/AutoView";
+import AutoAdd from "./pages/AutoService/autoAdd";
+import AutoDetails from "./pages/AutoService/details";
+import AutoForm from "./pages/AutoService/autoform";
+import DetailsAuto from "./pages/AutoDetails/details";
+import AutoDetailsList from "./pages/AutoDetails/list";
+import EditAuto from "./pages/AutoDetails/edit";
+import AutoMasterPriceEdit from "./pages/finance/masterPriceTable/AutoMasterPriceTableEdit";
+import AutoEdit from "./pages/AutoService/edit";
+
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -278,6 +288,63 @@ export const routes = [
         display: false,
         permission: "Vendors",
       },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto View",
+        path: "/vendors/account/autoView/add",
+        element: <AutoAdd />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        
+        name: "Auto Add",
+        path: "/vendors/account/autoview",
+        element: <AutoView />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoView/details/:id",
+        element: <AutoDetails />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoDetails/details/:id",
+        element: <DetailsAuto />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoDetails/details/edit/:id",
+        element: <EditAuto />,
+        display: false
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Form",
+        path: "/vendors/account/autoView/details/add",
+        element: <AutoForm />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Form",
+        path: "/vendors/account/autoList",
+        element: <AutoDetailsList />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Edit",
+        path: "/vendors/account/autoView/details/edit/:id",
+        element: <AutoEdit />,
+        display: false
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
@@ -427,6 +494,7 @@ export const routes = [
         display: true,
         permission: "Vendors",
       },
+     
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -650,6 +718,13 @@ export const routes = [
         element: <RentalsMasterPriceEdit />,
         display: false,
         permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Master Price Edit",
+        path: "/users/master-price/auto-edit/:id",
+        element: <AutoMasterPriceEdit />,
+        display: false
       },
       {
         icon: <UserIcon {...icon} />,
