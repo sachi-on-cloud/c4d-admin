@@ -532,6 +532,38 @@ useEffect(() => {
     }
 };
 
+ const onAutoSubmitHandler = async (values) => {
+        const bookingData = {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            pickupAddress: {
+                name: values.pickupAddress,
+            },
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+            dropAddress: {
+                name: values.dropAddress,
+            },
+            sourceType: values.sourceType,
+        };
+
+        try {
+            console.log('AUTO Booking Payload:', bookingData);
+            const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_AUTO_BOOKING, bookingData,values?.customerId?.id,
+       );
+            if (data?.success) {
+                setIsOpen(false);
+                setBookingData(data?.data);
+            } 
+        } catch (error) {
+            console.error('Error in onAutoSubmitHandler:', {
+                error: error.message,
+                stack: error.stack,
+            });
+            alert('An error occurred while creating the AUTO booking. Please try again.');
+        }
+    };
+
    const onSubmitHandler = async (values) => {
     const serviceTypeMap = {
         'RENTAL_DROP_TAXI': 'RENTAL',
@@ -772,8 +804,8 @@ useEffect(() => {
             setDropLocation(location);
             setDropSuggestions([]);
         }
-    }
-};
+        }
+    };
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -1094,7 +1126,11 @@ useEffect(() => {
                                             setFormikActions(formikBag); // Store Formik actions for modals
                                             if (values.submitType === "rides") {
                                                 await onRideSubmitHandler(values, formikBag);
-                                            } else {
+                                            } 
+                                            else if (values.submitType === "auto") {
+                                                await onAutoSubmitHandler(values, formikBag);
+                                            } 
+                                            else {
                                                 await onSubmitHandler(values);
                                             }
                                             setLoading(true);
@@ -1134,6 +1170,7 @@ useEffect(() => {
 
                                                     return (
                                                         <Form>
+                                                            {/* <pre>{JSON.stringify(errors, null, 2)}</pre> */}
 
 
                                                 {customerData  && !editBookingView && <div className="p-2 flex">
@@ -1541,7 +1578,7 @@ useEffect(() => {
                                     </div>
                                 )} */}
                                                 <div className='grid grid-cols-1'>
-                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && 
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType == 'AUTO') && 
                                                     (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Customer Pickup Location <span className="text-red-500">*</span>
@@ -2145,10 +2182,10 @@ useEffect(() => {
                 <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content="You can choose Outstation within 300km only for the DropTaxi service."/>
                 <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
                 <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
-                {/* <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); formikActions.setFieldValue?.('pickupAddress', ''); }} title={zoneErrorModal.title} content={zoneErrorModal.text} /> */}
+                {/* <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); formikActions.setFieldValue?.('pickupAddress', ''); }} title={zoneErrorModal.title} content={zoneErrorModal.text} /> */}            
             </div>
         </div>
     );
-};
+}
 
 export default Booking; 
