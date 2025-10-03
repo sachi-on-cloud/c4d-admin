@@ -54,6 +54,11 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [customDateTo, setCustomDateTo] = useState('');
     const [isManualDateFilter, setIsManualDateFilter] = useState(false);
     const [effectiveSearchId, setEffectiveSearchId] = useState(searchBookingId);
+    const [onlineDrivers, setOnlineDrivers] = useState([]);
+    const [selectedHour, setSelectedHour] = useState(moment().hour()); 
+    const [selectedDriver, setSelectedDriver] = useState(null); 
+    const [selectedTime, setSelectedTime] = useState(moment().format(' hh:mm A')); 
+    const [totalDriverCount, setTotalDriverCount] = useState(0);
 
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
@@ -65,6 +70,18 @@ useEffect(() => {
   }
 }, []);
 
+useEffect(() => {
+  if (onlineDrivers.length > 0) {
+    const driverData = onlineDrivers.find(driver => {
+      const driverTime = moment(driver.date_time).hour();
+      return driverTime === selectedHour;
+    });
+    setSelectedDriver(driverData || { count: 0 });
+    // Keep initial time as 12:08 unless a box is clicked
+  } else {
+    setSelectedDriver({ count: 0 });
+  }
+}, [onlineDrivers, selectedHour]);
     useEffect(() => {
         const stored = localStorage.getItem('bookingSearchId') || '';
         const newEffective = searchBookingId || stored;
@@ -253,21 +270,26 @@ const handleTabChange = (value) => {
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
                 setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+                setOnlineDrivers(data?.onlineDrivers || []);
+                setTotalDriverCount(data?.totalDrivers || 0);
                 setSelectedBookingId(null);
             } 
             else {
                 setBookingsList([]);
+                setOnlineDrivers([]);
                 setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
             }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
+            setOnlineDrivers([]);
             setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
+        setOnlineDrivers([]);
         setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
     } finally {
         setLoading(false);
@@ -599,6 +621,52 @@ const handleTabChange = (value) => {
                         </div>
                     );
                     })}
+                </div>
+                </div>
+                   {/* Added Driver Statistics UI from Reference Image */}
+  <div className="w-full px-4 py-6 md:px-6 lg:px-8">
+    <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+        <Typography variant='h6' className='col-span-6 sm:col-span-12 text-gray-900 mb-2'>Hourly online drivers</Typography>
+        {Array.from({ length: 24 }, (_, i) => {
+            const startHour = i;
+            const endHour = (i + 1) % 24;
+            const timeRange = `${String(startHour).padStart(2, '0')}:00 - ${String(endHour).padStart(2, '0')}:00`;
+            const driverCount = onlineDrivers.find(driver => {
+                const driverTime = moment(driver.date_time).hour();
+                return driverTime === startHour;
+            })?.count || 0;
+
+            return (
+                <div
+                    key={i}
+                    className={`bg-gray-100 text-gray-800 p-2 rounded text-center cursor-pointer ${selectedHour === i ? 'border-2 border-black' : ''}`}
+                    onClick={() => {
+                        setSelectedHour(i);
+                        const driverData = onlineDrivers.find(driver => moment(driver.date_time).hour() === i);
+                        setSelectedDriver(driverData || { count: 0 });
+                        setSelectedTime(driverData ? moment(driverData.date_time).format(' hh:mm A') : moment().format(' hh:mm A'));
+                    }}
+                >
+                    <Typography variant="small" className="text-xs font-bold mb-1">
+                        {timeRange}
+                    </Typography>
+                    <Typography variant="h5" className="font-extrabold text-base">
+                        {driverCount}
+                    </Typography>
+                </div>
+            );
+        })}
+    </div>
+    <div className="grid grid-cols-1 mt-11 sm:grid-cols-3 gap-4">
+        <div className="bg-blue-500 text-white p-4 rounded-lg text-center">
+            <Typography variant="small" className="font-medium">Total Drivers</Typography>
+            <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
+        </div>
+        <div className="bg-green-500 text-white p-4 rounded-lg text-center">
+            <Typography variant="small" className="font-medium">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+            <Typography variant="h3" className="font-bold text-2xl">{selectedDriver?.count || 0}</Typography>
+            <Typography variant="small" className="mt-2 font-medium text-white">Last Updated: {selectedTime}</Typography>
+        </div>
                 </div>
                 </div>
             <div className='px-3 py-3'>
