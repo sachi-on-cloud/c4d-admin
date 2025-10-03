@@ -102,7 +102,16 @@ const ConfirmBooking = (props) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         // console.log("BOOKING DATA", data);
         if (data?.success) {
-            setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, notesData: data?.notes });
+           setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark });
+            if(data?.data?.status === BOOKING_STATUS.END_OTP){
+                const finalPrice = await ApiRequestUtils.get(API_ROUTES.GET_BOOKINGDETAILS_FINAL_PAYMENT + bookingId);
+                setFinalPaymentPrices({
+                    amountAfterGST: finalPrice?.data?.gstDetails?.details?.amountAfterGst,
+                    customerWalledUsed: finalPrice?.data?.gstDetails?.details?.walletAmountUsed,
+                    driverWalletAdded: Number(finalPrice?.data?.gstDetails?.details?.walletAmountUsed) + Number(finalPrice?.data?.gstDetails?.details?.discountAmount),
+                    discountAmount: finalPrice?.data?.gstDetails?.details?.discountAmount,
+                })
+            }
             if (data?.data?.status == BOOKING_STATUS.ENDED) {
                 setAmount({
                     price: data?.data?.price,
@@ -657,6 +666,17 @@ const ConfirmBooking = (props) => {
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
                         </div>} */}
+                        {(
+                            bookingDetails?.serviceType === 'DRIVER' || 
+                            (bookingDetails?.serviceType === 'RENTAL' && 
+                            bookingDetails?.packageType === 'Outstation' && 
+                            bookingDetails?.bookingType !== 'Hourly Package')
+                        ) && (
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Booking Type:</Typography>
+                                <Typography>{bookingDetails?.bookingType}</Typography>
+                            </div>
+                        )}
                       {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType =='Local') && 
                         <div className="flex justify-between">
                         <Typography color="gray" variant="h6">KM:</Typography>
@@ -1211,7 +1231,6 @@ const ConfirmBooking = (props) => {
                     }
                 </div>
 
-                {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} /> }
             </>
         </div>
     );

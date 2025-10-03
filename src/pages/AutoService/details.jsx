@@ -200,7 +200,7 @@ const AutoDetails = ({ btnShow = false, noApprove = false }) => {
                         Back
                     </Button>
                     <Button
-                        onClick={() => { navigate(`/dashboard/vendors/account/autoView/details/${id}/edit`) }}
+                        onClick={() => { navigate(`/dashboard/vendors/account/autoView/details/edit/${id}`) }}
                         className={`my-6 px-8 border-2 rounded-xl ${ColorStyles.editButton}`}
                     >
                         Edit

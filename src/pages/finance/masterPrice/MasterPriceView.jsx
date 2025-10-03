@@ -10,6 +10,7 @@ import Select from 'react-select';
 export function MasterPriceView() {
     const [localPackageList, setLocalPackageList] = useState([]);
     const [outstationPackageList, setOutstationPackageList] = useState([]);
+    const [autoLocalPackageList, setAutoLocalPackageList] = useState([]);
     const navigate = useNavigate();
     const [serviceType, setServiceType] = useState("");
     const [ridesData, setRidesData] = useState([]);
@@ -844,6 +845,92 @@ export function MasterPriceView() {
             </div>
         );
     };
+        const LocalAutoTable = () => {
+        return (
+            <div className='my-6'>
+                <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {[
+                                        "Type",
+                                        "Base Fare",
+                                        "base Km",
+                                        "Kilometer Rate",
+                                        "Status",
+                                        "Actions"
+                                    ].map((el, index) => (
+                                        <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-white"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {autoLocalPackageList.map(({
+                                    id,
+                                    type,
+                                    baseFare,
+                                    baseKm,
+                                    kilometerPrice,
+                                    status
+                                }, key) => {
+                                    const className = `py-3 px-5 ${key === autoLocalPackageList?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+
+                                    return (
+                                        <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    <span onClick={() => navigate(`/dashboard/users/master-price/auto-edit/${id}`)} className="cursor-pointer underline text-blue-600">
+                                                        {type.toUpperCase()}
+                                                    </span>
+                                                </Typography>
+                                            </td>
+                                            
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFare}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseKm}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {status == 1 ? 'Active' : 'InActive'}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <button onClick={() => navigate(`/dashboard/users/master-price/auto-edit/${id}`)} className={`px-3 py-1 rounded-lg ${ColorStyles.editButton}`}>
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
+   
     return (
         <>
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
@@ -878,6 +965,7 @@ export function MasterPriceView() {
                             </div>
                         </div>
                     </div>
+                    { serviceType !== 'AUTO' && (
                     <button
                         onClick={onHandleAddNew}
                         className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
@@ -886,6 +974,7 @@ export function MasterPriceView() {
                     >
                         Add new
                     </button>
+                    )}
                 </div>
             </div>
 
@@ -919,6 +1008,10 @@ export function MasterPriceView() {
                 <div>{renderOutstationRentalsTable()}</div>
             ) : (<>
             </>)}
+            {serviceType === 'AUTO' && autoLocalPackageList && autoLocalPackageList.length > 0 ? (
+                <div>{LocalAutoTable()}</div>
+            ): (<></>)}
+            
         </>
 
     );

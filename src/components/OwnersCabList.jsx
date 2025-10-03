@@ -13,44 +13,29 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
 
     return (
         <>
-            <div className='flex flex-row justify-between px-2 mb-2 mt-4'>
-                <h2 className="text-2xl font-bold mb-4">Cabs List</h2>
-                {type == 'Parcel' ? (<div>
-                    <Button
-                        className={`text-white ${ColorStyles.addButtonColor}`}
-                        onClick={() =>navigate('/dashboard/vendors/account/parcel/allVehicles/add', {
-                            state:{
-                                ownerName,
-                                type: 'Parcel',
-                                accountId : id,
-                            }
-                        })
-                    }>
-                        Add new Cab
-                    </Button>
-                </div>
-                ) : (
-                    /* Button for Individual (with cabsList < 1) or Company */
-                    (type === 'Company' || (type === 'Individual' && (!cabsList || cabsList.length < 1))) && (
-                        <div>
-                            <Button
-                                className={`text-white ${ColorStyles.addButtonColor}`}
-                                onClick={() =>
-                                    navigate('/dashboard/vendors/account/allVehicles/add', {
-                                        state: {
-                                            ownerName,
-                                            type,
-                                            accountId: id,
-                                        },
-                                    })
-                                }
-                            >
-                                Add new Cab
-                            </Button>
-                        </div>
-                    )
-                )}
-            </div>
+           <div className='flex flex-row justify-between px-2 mb-2 mt-4'>
+    <h2 className="text-2xl font-bold mb-4">Cabs List</h2>
+
+    {/* Button for Individual (with cabsList < 1) or Company */}
+    {(type === 'Company' || (type === 'Individual' && (!cabsList || cabsList.length < 1))) && (
+        <div>
+            <Button
+                className={`text-white ${ColorStyles.addButtonColor}`}
+                onClick={() =>
+                    navigate('/dashboard/vendors/account/allVehicles/add', {
+                        state: {
+                            ownerName,
+                            type,
+                            accountId: id,
+                        },
+                    })
+                }
+            >
+                Add new Cab
+            </Button>
+        </div>
+    )}
+</div>
             <Card>
                 {cabsList && cabsList?.length > 0 ? (
                     <>

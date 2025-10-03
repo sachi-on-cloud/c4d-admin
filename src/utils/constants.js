@@ -835,8 +835,6 @@ export const API_ROUTES = {
     'GET_ALL_CUSTOMERS': '/admin/customers',
     'GET_ALL_DRIVERS': '/admin/drivers',
     'GET_ALL_ACCOUNTS': '/register/admin/account',
-    'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
-    'GET_ALL_PARCEL': '/admin/parcel',
     'GET_DRIVERS_PACKAGE': '/get-drivers',
     'GET_ALL_USERS': '/users',
     'UPDATE_USER': '/users',

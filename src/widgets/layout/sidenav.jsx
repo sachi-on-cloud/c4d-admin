@@ -237,10 +237,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
-                        {name ==="Trip Master" ? (
-                        <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
-                      ) : null}
+                        
 
                       {!miniSidenav && (
                         <Typography color="inherit" className="font-medium capitalize">
@@ -368,7 +365,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
-                      { label: "Parcel Driver", path: "/dashboard/vendors/account/parcel" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
                       { label: "Auto Owner", path: "/dashboard/Vendors/account/autoview" },
@@ -408,6 +404,20 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                  {label === "Online Vehicles List" && (
                                 <img
                                   src="/img/vehicleslist.png"
+                                  alt="Online Vehicles List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label ===  "Auto Owner" && (
+                                <img
+                                  src="/img/auto_owners.png"
+                                  alt="Online Vehicles List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Auto List" && (
+                                <img
+                                  src="/img/auto.png"
                                   alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />

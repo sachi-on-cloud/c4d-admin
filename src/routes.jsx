@@ -89,22 +89,21 @@ import AddBanner from "./pages/bannerImage/add";
 import TestimoinalView from "./pages/testimoinal/view";
 import TestimoinalAdd from "./pages/testimoinal/add";
 import { OnlineVehiclesList } from "./pages/vendor/onlineVehiclesList";
-import AutoView from "./pages/AutoService/AutoView";
-import AutoAdd from "./pages/AutoService/autoAdd";
-import AutoDetails from "./pages/AutoService/details";
-import AutoForm from "./pages/AutoService/autoform";
-import DetailsAuto from "./pages/AutoDetails/details";
-import ParcelView from "./pages/parcel/view";
-import ParcelAdd from "./pages/parcel/add";
-import ParcelDetails from "./pages/parcel/deatils";
-import ParcelCabAdd from "./pages/cab/addParcelCab";
-import ParcelCabDetails from "./pages/cab/parcelCabDetails";
-import AutoDetailsList from "./pages/AutoDetails/list";
 import TripDetails from "./pages/TripDetails/tripDetails";
 import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
+import AutoView from "./pages/AutoService/AutoView";
+import AutoAdd from "./pages/AutoService/autoAdd";
+import AutoDetails from "./pages/AutoService/details";
+import AutoForm from "./pages/AutoService/autoform";
+import DetailsAuto from "./pages/AutoDetails/details";
+import AutoDetailsList from "./pages/AutoDetails/list";
+import EditAuto from "./pages/AutoDetails/edit";
+import AutoMasterPriceEdit from "./pages/finance/masterPriceTable/AutoMasterPriceTableEdit";
+import AutoEdit from "./pages/AutoService/edit";
+
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -318,6 +317,13 @@ export const routes = [
         element: <DetailsAuto />,
         display: false
       },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoDetails/details/edit/:id",
+        element: <EditAuto />,
+        display: false
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "Auto Form",
@@ -330,6 +336,13 @@ export const routes = [
         name: "Auto Form",
         path: "/vendors/account/autoList",
         element: <AutoDetailsList />,
+        display: false
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Edit",
+        path: "/vendors/account/autoView/details/edit/:id",
+        element: <AutoEdit />,
         display: false
       },
       {
@@ -345,23 +358,6 @@ export const routes = [
         name: "cab",
         path: "/vendors/account/allVehicles/edit/:id",
         element: <CabEdit />,
-        display: false,
-        permission: "Vendors",
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/add",
-        element: <ParcelCabAdd />,
-        display: false,
-        permission: "Vendors",
-      },
-
-      {
-        icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/details/:id",
-        element: <ParcelCabDetails />,
         display: false,
         permission: "Vendors",
       },
@@ -498,27 +494,7 @@ export const routes = [
         display: true,
         permission: "Vendors",
       },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel",
-        path: "/vendors/account/parcel",
-        element: <ParcelView />,
-        display: true
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel add",
-        path: "/vendors/account/parcel/add",
-        element: <ParcelAdd />,
-        display: true
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel details",
-        path: "/vendors/account/parcel/details/:id",
-        element: <ParcelDetails />,
-        display: true
-      },
+     
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -742,6 +718,13 @@ export const routes = [
         element: <RentalsMasterPriceEdit />,
         display: false,
         permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Master Price Edit",
+        path: "/users/master-price/auto-edit/:id",
+        element: <AutoMasterPriceEdit />,
+        display: false
       },
       {
         icon: <UserIcon {...icon} />,

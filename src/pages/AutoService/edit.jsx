@@ -459,7 +459,7 @@ const AutoEdit = () => {
             }
             const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_ACCOUNT, formData);
             console.log('data in driver UPDATE :', data);
-            navigate('/dashboard/vendors/account', {
+            navigate('/dashboard/vendors/account/autoView', {
                 state: {
                     accountUpdated: true,
                     accountName: data?.data?.name
@@ -774,7 +774,7 @@ const AutoEdit = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {values.type === "Individual" && <>
+                                          
                                                 <DocumentUpload
                                                     label="Driving License Image"
                                                     value={imagePreviews.drivingLicenseImage?.image1}
@@ -783,7 +783,7 @@ const AutoEdit = () => {
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.drivingLicenseImage}
                                                 />
-                                            </>}
+                                            
 
                                             <DocumentUpload
                                                 label="Aadhaar Image"
@@ -793,16 +793,7 @@ const AutoEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.aadhaarImage}
                                             />
-                                            {values.type !== "Company" && values.type !== "Individual" && <>
-                                                <DocumentUpload
-                                                    label="Pan Card"
-                                                    value={imagePreviews.panImage?.image1}
-                                                    name="panImage"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "panImage", imagePreviews?.panImage?.id)}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.panImage}
-                                                />
-                                            </>}
+                                            
 
                                             <DocumentUpload
                                                 label="Live Photo"
@@ -820,24 +811,7 @@ const AutoEdit = () => {
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.rcImage}
                                             />
-                                            {values.type !== "Company" && values.type !== "Individual" && <>
-                                                <DocumentUpload
-                                                    label="Insurance Image"
-                                                    value={imagePreviews?.insurranceImage?.image1}
-                                                    name="insurranceImage"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage", imagePreviews?.insurranceImage?.id)}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.insurranceImage}
-                                                />
-                                                <DocumentUpload
-                                                    label="Bank Statement"
-                                                    value={imagePreviews.bankStatementImage?.image1}
-                                                    name="bankStatement"
-                                                    onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement", imagePreviews?.bankStatementImage?.id)}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.bankStatementImage}
-                                                />
-                                            </>}
+                                           
 
                                         </tbody>
                                     </table>
@@ -847,7 +821,7 @@ const AutoEdit = () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/vendors/account'); }}
+                                onClick={() => { navigate('/dashboard/vendors/account/autoView'); }}
                                 className={`my-6 mx-2 ${ColorStyles.backButton}`}
                             >
                                 Back

@@ -320,7 +320,7 @@ export function AutoDetailsList({ id = 0 }) {
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <div
                           className="underline cursor-pointer text-blue-600"
-                          onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
+                          onClick={() => navigate(`/dashboard/vendors/account/autoDetails/details/${id}`)}
                         >
                           <Typography className="text-xs font-semibold text-blue-600">{name}</Typography>
                         </div>
