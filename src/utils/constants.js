@@ -941,6 +941,22 @@ export const API_ROUTES = {
     'GET_TESTIMOINAL':'/testimonial',
     'POST_TESTIMOINAL':'/testimonial/add',
     'UPDATE_TESTIMONIAL':'/testimonial/update',
+    'GET_AUTO_LIST':"/admin/autos",
+    'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
+    'POST_AUTO_SEARCH':'/search/auto',
+    'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
+    'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
+    'GET_ALL_PARCEL': '/admin/parcel',
+    'UPDATE_LANDMARK':'/update-landmark',
+    'GET_AUTO_PACKAGE':'/get-autos',
+    'GET_AUTO_BY_ID':'/auto/',
+    'UPDATE_AUTO_DETAILS':'/update/admin/auto',
+    'AUTO_PACKAGE_LIST':'/auto-package-list',
+    'AUTO_PRICE_EDIT':'/update-auto-package',
+    'PARCEL_PACKAGE_LIST':'/parcel-package-list',
+    'PARCEL_PRICE_EDIT':'/update-parcel-package',
+    'GET_PARCEL_CAB_BY_ID':'/parcel/', 
+    'UPDATE_PARCEL_CAB':'/update/admin/parcel',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
     'GET_TRIP_REPORTS':'/get-trips-report',
@@ -953,21 +969,7 @@ export const API_ROUTES = {
     'BANNER_POSITION_UPDATE': '/banner/position/update',
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
-    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
-    'GET_AUTO_LIST':"/admin/autos",
-    'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
-    'POST_AUTO_SEARCH':'/search/auto',
-    'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
-    
-    'UPDATE_LANDMARK':'/update-landmark',
-    'GET_AUTO_PACKAGE':'/get-autos',
-    'GET_AUTO_BY_ID':'/auto/',
-    'UPDATE_AUTO_DETAILS':'/update/admin/auto',
-    'AUTO_PACKAGE_LIST':'/auto-package-list',
-    'AUTO_PRICE_EDIT':'/update-auto-package',
-    
-    
-    
+    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export',
 };
 
 export const KYC_PROCESS = {
@@ -1016,6 +1018,8 @@ export const BOOKING_SERVICE_TYPE = {
     CAB_BOOKING: 'CAB',
     CAR_WASH: 'CAR_WASH',
     RENTAL: 'RENTAL',
+    AUTO: 'AUTO',
+    PARCEL: 'PARCEL'
 };
 
 export const PUSH_NOTIFICATION_TYPE = {

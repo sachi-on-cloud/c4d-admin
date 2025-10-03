@@ -11,6 +11,7 @@ export function MasterPriceView() {
     const [localPackageList, setLocalPackageList] = useState([]);
     const [outstationPackageList, setOutstationPackageList] = useState([]);
     const [autoLocalPackageList, setAutoLocalPackageList] = useState([]);
+    const [parcelLocalPackageList, setParcelLocalPackageList] = useState([]);
     const navigate = useNavigate();
     const [serviceType, setServiceType] = useState("");
     const [ridesData, setRidesData] = useState([]);
@@ -53,13 +54,43 @@ export function MasterPriceView() {
                 }
             } else if (selectedServiceType === 'RIDES') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
-                    if (data?.success) {
+                setRidesData(data?.data);
+            }
+            else if(selectedServiceType === 'AUTO') {
+                const data = await ApiRequestUtils.get(API_ROUTES.AUTO_PACKAGE_LIST,{
+                    type : "Service area",
+                });
+                 if (data?.success) {
+                        const filteredData = zone
+                            ? data?.data.filter(item => item.zone === zone)
+                            : data?.data;                     
+                     setAutoLocalPackageList(filteredData.filter(item => item.type === "Auto" && item.serviceType === "AUTO"));
+                 }
+                 console.log("DADADADAD",data)
+            }
+
+             else if(selectedServiceType === 'PARCEL') {
+                const data = await ApiRequestUtils.get(API_ROUTES.PARCEL_PACKAGE_LIST,{
+                    type : "Service area",
+                });
+                    if(data?.success) {
                         const filteredData = zone
                             ? data?.data.filter(item => item.zone === zone)
                             : data?.data;
-                    setRidesData(filteredData);
+                        setParcelLocalPackageList(filteredData.filter(item => item.type === "Parcel" && item.serviceType === "PARCEL"));
                     }
-            } else if (selectedServiceType === 'RENTAL') {
+                    // console.log("DADADADAD",data)
+            } 
+           
+            // else if (selectedServiceType === 'RENTAL') {
+            //         if (data?.success) {
+            //             const filteredData = zone
+            //                 ? data?.data.filter(item => item.zone === zone)
+            //                 : data?.data;
+            //         setRidesData(filteredData);
+            //         }
+            // } 
+            else if (selectedServiceType === 'RENTAL') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
                 if(data?.success) {
                         const filteredData = zone
@@ -845,6 +876,89 @@ export function MasterPriceView() {
             </div>
         );
     };
+    const LocalParcelTable = () => {
+        return (
+            <div className='my-6'>
+                <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {[
+                                        "Zone",
+                                        "Type",
+                                        "Base Fare",
+                                        "Kilometer Rate",
+                                        "Status",
+                                        "Actions"
+                                    ].map((el, index) => (
+                                        <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-white"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {parcelLocalPackageList.map(({
+                                    zone,
+                                    id,
+                                    type,
+                                    baseFare,
+                                    kilometerPrice,
+                                    status
+                                }, key) => {
+                                    const className = `py-3 px-5 ${key === parcelLocalPackageList?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+
+                                    return (
+                                        <tr key={id}>
+                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    <span onClick={() => navigate(`/dashboard/users/master-price/parcel-edit/${id}`)} className="cursor-pointer underline text-blue-600">
+                                                        {type.toUpperCase()}
+                                                    </span>
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFare}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {status == 1 ? 'Active' : 'InActive'}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <button onClick={() => navigate(`/dashboard/users/master-price/parcel-edit/${id}`)} className={`px-3 py-1 rounded-lg ${ColorStyles.editButton}`}>
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
         const LocalAutoTable = () => {
         return (
             <div className='my-6'>
@@ -855,6 +969,7 @@ export function MasterPriceView() {
                             <thead>
                                 <tr>
                                     {[
+                                        "zone",
                                         "Type",
                                         "Base Fare",
                                         "base Km",
@@ -875,6 +990,7 @@ export function MasterPriceView() {
                             </thead>
                             <tbody>
                                 {autoLocalPackageList.map(({
+                                    zone,
                                     id,
                                     type,
                                     baseFare,
@@ -886,6 +1002,11 @@ export function MasterPriceView() {
 
                                     return (
                                         <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     <span onClick={() => navigate(`/dashboard/users/master-price/auto-edit/${id}`)} className="cursor-pointer underline text-blue-600">
@@ -960,12 +1081,14 @@ export function MasterPriceView() {
                                     <option value="DRIVER">Acting Driver</option>
                                     <option value="RIDES">Rides</option>
                                     <option value="RENTAL">Rental</option>
+                                    <option value="AUTO">Auto</option>
+                                    <option value="PARCEL">Parcel</option>
                                 </select>
                                 {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
                             </div>
                         </div>
                     </div>
-                    { serviceType !== 'AUTO' && (
+                    { serviceType !== 'AUTO' || serviceType!== 'PARCEL' && (
                     <button
                         onClick={onHandleAddNew}
                         className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
@@ -1011,8 +1134,11 @@ export function MasterPriceView() {
             {serviceType === 'AUTO' && autoLocalPackageList && autoLocalPackageList.length > 0 ? (
                 <div>{LocalAutoTable()}</div>
             ): (<></>)}
+            {serviceType === 'PARCEL' && parcelLocalPackageList && parcelLocalPackageList.length > 0 ? (
+                <div>{LocalParcelTable()}</div>
+            ): (<></>)}
             
         </>
 
     );
-}
+};

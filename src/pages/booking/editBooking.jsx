@@ -577,6 +577,22 @@ useEffect(() => {
                 name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
             }
             editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_RIDES_BOOKING, data);
+        } else if (values.submitType == 'auto') {
+            data = {
+                customerId: bookingData?.Customer?.id,
+                bookingId: bookingData?.id,
+                pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
+                pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
+                pickupAddress: {
+                    name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
+                },
+                dropLat: values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat,
+                dropLong: values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong,
+                dropAddress: {
+                    name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
+                }
+            }
+            editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_AUTO_BOOKING, data);
         }
         if (editBookingData.success) {
             props.editCancel();
@@ -661,11 +677,12 @@ useEffect(() => {
                                         <option value="DRIVER">Driver</option>
                                         <option value="RENTAL">Rentals</option>
                                         <option value="RIDES">Rides</option>
+                                        <option value="AUTO">Auto</option>
                                     </Field>
                                     <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
-                                    {bookingData?.serviceType !== "RIDES" && <>
+                                    {bookingData?.serviceType !== "RIDES" && bookingData?.serviceType !== "AUTO" && <>
                             <div className='space-y-3 my-3'>
                                 <div className={['RENTAL', 'DRIVER'].includes(values.serviceType) ? 'hidden' : ''}>
                                     <Button
@@ -1324,6 +1341,93 @@ useEffect(() => {
                                 </div>
                             </>
                         }
+                        {bookingData?.serviceType == "AUTO" && (
+                                    <div className="flex gap-2">
+                                        <div className="flex-1 p-2 space-y-2">
+                                            <label className="block text-sm font-medium text-black-700">
+                                                Pickup Location <span className="text-red-500">*</span>
+                                            </label>
+                                            <Field
+                                                type="text"
+                                                name="pickupAddress"
+                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                placeholder="Enter pickup location"
+                                                onChange={(e) => {
+                                                    setFieldValue("pickupAddress", e.target.value);
+                                                    setFieldValue("pickupLocation", null);
+                                                    searchLocations(e.target.value, true);
+                                                }}
+                                            />
+                                            {pickupSuggestions.length > 0 && (
+                                                <ul className="border rounded-lg bg-white mt-2">
+                                                    {pickupSuggestions.map((suggestion, index) => (
+                                                        <li
+                                                            key={index}
+                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                            onClick={() => {
+                                                                handleSelectLocation(suggestion, true, null, setFieldValue, values);
+                                                            }}
+                                                        >
+                                                            {suggestion}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 p-2 space-y-2">
+                                            <label className="block text-sm font-medium text-black-700">
+                                                Drop Location (Delivery Address) <span className="text-red-500">*</span>
+                                            </label>
+                                            <Field
+                                                type="text"
+                                                name="dropAddress"
+                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                placeholder="Enter delivery address"
+                                                onChange={(e) => {
+                                                    setFieldValue("dropAddress", e.target.value);
+                                                    setFieldValue("dropLocation", null);
+                                                    searchLocations(e.target.value, false);
+                                                }}
+                                            />
+                                            {dropSuggestions.length > 0 && (
+                                                <ul className="border rounded-lg bg-white mt-2">
+                                                    {dropSuggestions.map((suggestion, index) => (
+                                                        <li
+                                                            key={index}
+                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                            onClick={() => {
+                                                                handleSelectLocation(suggestion, false, null, setFieldValue, values);
+                                                            }}
+                                                        >
+                                                            {suggestion}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                )}
+                                {bookingData?.serviceType == "AUTO" &&                                 <div className="flex justify-center my-6 gap-4">
+                                <Button
+                                    color="gray"
+                                    onClick={onBackPressHandler}
+                                    className='my-6 mx-2 '
+                                >
+                                    Back
+                                </Button>
+                                <Button
+                                    color="blue"
+                                    onClick={() => {
+                                        setFieldValue("submitType", "auto");
+                                        handleSubmit()
+                                    }}
+                                    disabled={!dirty || !isValid || (!values.pickupAddress && !values.dropAddress)}
+                                    className='my-6 mx-2'
+                                >
+                                    Confirm Booking
+                                </Button>
+                            </div>}
                     </>
                             )
                         }}

@@ -63,7 +63,7 @@ export const EDIT_USER_SCHEMA = Yup.object({
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     packageTypeSelected: Yup.string().when('serviceType', {
-        is: (val) => val !== 'Outstation' && val !== 'RIDES' && val !== 'AUTO',
+        is: (val) => val !== 'Outstation' && val !== 'RIDES' && val !== 'AUTO' && val !== 'PARCEL',
         then: (schema) => schema.required('Package Type is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
@@ -110,6 +110,7 @@ dropAddress: Yup.string().when('serviceType', {
     then: () => Yup.string().required('Drop Address is required'),
     otherwise: () => Yup.string(),
 }),
+
 });
 
 
