@@ -59,6 +59,7 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [selectedDriver, setSelectedDriver] = useState(null); 
     const [selectedTime, setSelectedTime] = useState(moment().format(' hh:mm A')); 
     const [totalDriverCount, setTotalDriverCount] = useState(0);
+    const [showDriverHours, setShowDriverHours] = useState(false);
 
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
@@ -92,6 +93,17 @@ useEffect(() => {
             localStorage.removeItem('bookingSearchId');
         }
     }, [searchBookingId]);
+    const handleToggleDriverHours = () => {
+  setShowDriverHours(true);
+};
+    
+    const handleHourSelect = (hour) => {
+  setSelectedHour(hour);
+  const driverData = onlineDrivers.find(driver => moment(driver.date_time).hour() === hour);
+  setSelectedDriver(driverData || { count: 0 });
+  setSelectedTime(driverData ? moment(driverData.date_time).format(' hh:mm A') : moment().format(' hh:mm A'));
+  setShowDriverHours(false); // Hide the popup after selection
+};
 
 const handleTabChange = (value) => {
     if (typeof value !== 'string') {
@@ -624,9 +636,23 @@ const handleTabChange = (value) => {
                 </div>
                 </div>
                    {/* Added Driver Statistics UI from Reference Image */}
-  <div className="w-full px-4 py-6 md:px-6 lg:px-8">
-    <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
-        <Typography variant='h6' className='col-span-6 sm:col-span-12 text-gray-900 mb-2'>Hourly online drivers</Typography>
+ <div className="w-full px-4  md:px-6 lg:px-8">
+      <div className="flex justify-between items-center mb-4">
+        <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
+          Hourly Online Drivers
+        </Typography>
+        <Button
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+          onClick={handleToggleDriverHours}
+        >
+          Select Slot
+        </Button>
+      </div>
+
+      {showDriverHours && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
+            <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
         {Array.from({ length: 24 }, (_, i) => {
             const startHour = i;
             const endHour = (i + 1) % 24;
@@ -634,30 +660,37 @@ const handleTabChange = (value) => {
             const driverCount = onlineDrivers.find(driver => {
                 const driverTime = moment(driver.date_time).hour();
                 return driverTime === startHour;
-            })?.count || 0;
+            });
 
             return (
                 <div
                     key={i}
                     className={`bg-gray-100 text-gray-800 p-2 rounded text-center cursor-pointer ${selectedHour === i ? 'border-2 border-black' : ''}`}
-                    onClick={() => {
-                        setSelectedHour(i);
-                        const driverData = onlineDrivers.find(driver => moment(driver.date_time).hour() === i);
-                        setSelectedDriver(driverData || { count: 0 });
-                        setSelectedTime(driverData ? moment(driverData.date_time).format(' hh:mm A') : moment().format(' hh:mm A'));
-                    }}
-                >
+                    onClick={() => handleHourSelect(i)}
+                  >
                     <Typography variant="small" className="text-xs font-bold mb-1">
-                        {timeRange}
+                      {timeRange}
                     </Typography>
-                    <Typography variant="h5" className="font-extrabold text-base">
-                        {driverCount}
-                    </Typography>
-                </div>
-            );
-        })}
+                    {/* <Typography variant="h5" className="font-extrabold text-base">
+                      {driverCount ? driverCount.count : 0}
+                    </Typography> */}
+                  </div>
+                );
+              })}
+            </div>
+           <div className="flex justify-end mt-4">
+      <Button
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+        onClick={() => setShowDriverHours(false)}
+      >
+        Close
+      </Button>
     </div>
-    <div className="grid grid-cols-1 mt-11 sm:grid-cols-3 gap-4">
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 mt-4 sm:grid-cols-3 gap-4">
         <div className="bg-blue-500 text-white p-4 rounded-lg text-center">
             <Typography variant="small" className="font-medium">Total Drivers</Typography>
             <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
