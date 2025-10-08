@@ -2,7 +2,7 @@ export const constants = {
     andriodUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
-    url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
+    // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
@@ -12,7 +12,7 @@ export const constants = {
 };
 
 export const getBaseUrl = () => {
-    return constants.url_dev + '/api/customer/dev';
+    return constants.url + '/api/customer/dev';
 }
 
 export const GENDER = {
