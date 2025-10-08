@@ -112,6 +112,14 @@ import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
+import CategoryList from "./pages/Inventory/category/list";
+import ProductList from "./pages/Inventory/product/list";
+import AddCategory from "./pages/Inventory/category/add";
+import AddProduct from "./pages/Inventory/product/add";
+import CategoryEdit from "./pages/Inventory/category/edit";
+import EditProduct from "./pages/Inventory/product/edit";
+import QuantityList from "./pages/Inventory/quantity/list";
+import AddQuantity from "./pages/Inventory/quantity/add";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -1010,6 +1018,81 @@ export const routes = [
         display: true,
         permission:"Users"
       },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Category List",
+        path: "/inventory/category-list",
+        element: <CategoryList />,
+        display: true,
+        permission:"Inventory"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Category Add",
+        path: "/inventory/category-add",
+        element: <AddCategory />,
+        display: true,
+        permission:"Inventory"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Category Edit",
+        path: "/inventory/category-edit/:id",
+        element: <CategoryEdit />,
+        display: true,
+        permission:"Inventory"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Product List",
+        path: "/inventory/product-list",
+        element: <ProductList />,
+        display: true,
+        permission:"Inventory"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Product Add",
+        path: "/inventory/product-add",
+        element: <AddProduct />,
+        display: true,
+        permission:"Inventory"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Product Edit",
+        path: "/inventory/product-edit/:id",
+        element: <EditProduct />,
+        display: true,
+        permission: "Inventory"
+      },
+
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Quantity List",
+        path: "/inventory/quantity-list",
+        element: <QuantityList />,
+        display: true,
+        permission:"Inventory"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Quantity Add",
+        path: "/inventory/quantity-add",
+        element: <AddQuantity />,
+        display: true,
+        permission:"Inventory"
+      },
+      // {
+      //   icon: <UserIcon {...icon} />,
+      //   name: "Product Edit",
+      //   path: "/inventory/product-edit/:id",
+      //   element: <EditProduct />,
+      //   display: true,
+      //   permission: "Inventory"
+      // },
+      
+
     ],
   },
   {

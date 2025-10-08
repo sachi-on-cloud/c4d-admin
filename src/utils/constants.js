@@ -2,7 +2,7 @@ export const constants = {
     andriodUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     iosUrl: 'https://9728-103-171-10-244.ngrok-free.app/api/customer/dev',
     // url_dev: 'https://special-kiwi-apparent.ngrok-free.app', //gokul
-    // url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
+    url_dev: 'https://becoming-careful-fish.ngrok-free.app', //mukesh
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
@@ -12,7 +12,7 @@ export const constants = {
 };
 
 export const getBaseUrl = () => {
-    return constants.url + '/api/customer/dev';
+    return constants.url_dev + '/api/customer/dev';
 }
 
 export const GENDER = {
@@ -970,7 +970,19 @@ export const API_ROUTES = {
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export',
+    'POST_CATEGORY': '/inventory/categories',
+    'GET_CATEGORY': '/inventory/categories',
+    'UPDATE_CATEGORY': '/inventory/categories',
+    'GET_PRODUCTS': '/inventory/products',
+    'POST_PRODUCTS': '/inventory/products',
+    'UPDATE_PRODUCTS': '/inventory/products',
+    'POST_STOCK': '/inventory/products',
 };
+export const QUANTITY_TYPE = [
+    { label: 'Weight', value: 'weight'},
+    { label: 'Count',  value: 'count'},
+    { label: 'Litre',  value: 'litre'},
+]
 
 export const KYC_PROCESS = {
     AADHAAR: 'AADHAAR',
@@ -1065,7 +1077,7 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
+    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors','Inventory','Trip Master','Finance', 'Document verification','Marketing', 'Users'],
     'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
     'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
     'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
@@ -1076,6 +1088,7 @@ export const PERMISSION_OPTIONS = [
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
+    { name: 'Inventory', id: 'Inventory' },
     { name:'Trip Master',id:'Trip Master'},
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
