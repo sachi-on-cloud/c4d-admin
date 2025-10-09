@@ -17,7 +17,7 @@ import {
     Tab,
     TabPanel,
 } from "@material-tailwind/react";
-import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
+import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -582,13 +582,20 @@ const handleTabChange = (value) => {
         <div className="flex flex-col bg-white rounded-xl shadow-lg" >
             {/* Status Cards Section */}
             <div className="w-full px-4 py-6 md:px-6 lg:px-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                  
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-1">
+                {/* Status Cards in a Single Line */}
+                
+                <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 ">
+                     <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
+          Booking Status Count
+        </Typography>
                     {[
                     { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
                     { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
-                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
+                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
                     { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
-                    { key: 'supportCount', label: 'Support Cancelled', icon: FaClipboardList, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
+                   { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
                     ].map((item, index) => {
                     const IconComponent = item.icon;
                     return (
@@ -613,10 +620,11 @@ const handleTabChange = (value) => {
                     );
                     })}
                 </div>
-                </div>
-                   {/* Added Driver Statistics UI from Reference Image */}
- <div className="w-full px-4  md:px-6 lg:px-8">
-      <div className="flex justify-between items-center mb-4">
+
+                {/* Hourly Online Drivers Section */}
+                <div className="lg:col-span-4">
+                
+    <div className="flex justify-between items-center mb-4">
         <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
           Hourly Online Drivers
         </Typography>
@@ -669,18 +677,29 @@ const handleTabChange = (value) => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 mt-4 sm:grid-cols-3 gap-4">
-        <div className="bg-blue-500 text-white p-4 rounded-lg text-center">
-            <Typography variant="small" className="font-medium">Total Drivers</Typography>
-            <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
-        </div>
-        <div className="bg-green-500 text-white p-4 rounded-lg text-center">
-            <Typography variant="small" className="font-medium">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
-            <Typography variant="h3" className="font-bold text-2xl">{selectedDriver?.count || 0}</Typography>
-            <Typography variant="small" className="mt-2 font-medium text-white">Last Updated: {selectedTime}</Typography>
-        </div>
+    <div className="grid grid-cols-1 mt-4 sm:grid-cols-2 gap-4">
+      <div className="bg-blue-500 text-white py-9 rounded-lg text-center flex flex-col items-center justify-center">
+      <div className="flex items-center mb-2">
+        <FaUsers className="w-6 h-4 mr-2  text-white" />
+        <Typography variant="small" className="text-white font-bold text-sm ">
+          Total Drivers
+        </Typography>
+      </div>
+      <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
+    </div>
+    <div className="bg-green-500 text-white p-4 rounded-lg text-center flex flex-col items-center justify-center">
+      <div className="flex items-center">
+        <FaSync className="w-6 h-4 mr-2  text-white" />
+        <Typography variant="small" className="font-bold text-sm">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+      </div>
+      <Typography variant="h3" className="font-bold text-2xl">{selectedDriver?.count || 0}</Typography>
+      <Typography variant="small" className="mt-2 font-medium text-white">Last Updated: {selectedTime}</Typography>
+    </div>
                 </div>
                 </div>
+</div>
+</div>
+
             <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
