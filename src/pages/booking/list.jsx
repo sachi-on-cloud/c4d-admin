@@ -54,6 +54,12 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [customDateTo, setCustomDateTo] = useState('');
     const [isManualDateFilter, setIsManualDateFilter] = useState(false);
     const [effectiveSearchId, setEffectiveSearchId] = useState(searchBookingId);
+    const [onlineDrivers, setOnlineDrivers] = useState([]);
+    const [selectedHour, setSelectedHour] = useState(moment().hour()); 
+    const [selectedDriver, setSelectedDriver] = useState(null); 
+    const [selectedTime, setSelectedTime] = useState(moment().format(' hh:mm A')); 
+    const [totalDriverCount, setTotalDriverCount] = useState(0);
+    const [showDriverHours, setShowDriverHours] = useState(false);
 
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
@@ -65,6 +71,18 @@ useEffect(() => {
   }
 }, []);
 
+useEffect(() => {
+  if (onlineDrivers.length > 0) {
+    const driverData = onlineDrivers.find(driver => {
+      const driverTime = moment(driver.date_time).hour();
+      return driverTime === selectedHour;
+    });
+    setSelectedDriver(driverData || { count: 0 });
+    // Keep initial time as 12:08 unless a box is clicked
+  } else {
+    setSelectedDriver({ count: 0 });
+  }
+}, [onlineDrivers, selectedHour]);
     useEffect(() => {
         const stored = localStorage.getItem('bookingSearchId') || '';
         const newEffective = searchBookingId || stored;
@@ -75,6 +93,17 @@ useEffect(() => {
             localStorage.removeItem('bookingSearchId');
         }
     }, [searchBookingId]);
+    const handleToggleDriverHours = () => {
+  setShowDriverHours(true);
+};
+    
+    const handleHourSelect = (hour) => {
+  setSelectedHour(hour);
+  const driverData = onlineDrivers.find(driver => moment(driver.date_time).hour() === hour);
+  setSelectedDriver(driverData || { count: 0 });
+  setSelectedTime(driverData ? moment(driverData.date_time).format(' hh:mm A') : moment().format(' hh:mm A'));
+  setShowDriverHours(false); // Hide the popup after selection
+};
 
 const handleTabChange = (value) => {
     if (typeof value !== 'string') {
@@ -253,21 +282,26 @@ const handleTabChange = (value) => {
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
                 setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+                setOnlineDrivers(data?.onlineDrivers || []);
+                setTotalDriverCount(data?.totalDrivers || 0);
                 setSelectedBookingId(null);
             } 
             else {
                 setBookingsList([]);
+                setOnlineDrivers([]);
                 setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
             }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
+            setOnlineDrivers([]);
             setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
+        setOnlineDrivers([]);
         setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
     } finally {
         setLoading(false);
@@ -599,6 +633,73 @@ const handleTabChange = (value) => {
                         </div>
                     );
                     })}
+                </div>
+                </div>
+                   {/* Added Driver Statistics UI from Reference Image */}
+ <div className="w-full px-4  md:px-6 lg:px-8">
+      <div className="flex justify-between items-center mb-4">
+        <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
+          Hourly Online Drivers
+        </Typography>
+        <Button
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+          onClick={handleToggleDriverHours}
+        >
+          Select Slot
+        </Button>
+      </div>
+
+      {showDriverHours && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
+            <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+        {Array.from({ length: 24 }, (_, i) => {
+            const startHour = i;
+            const endHour = (i + 1) % 24;
+            const timeRange = `${String(startHour).padStart(2, '0')}:00 - ${String(endHour).padStart(2, '0')}:00`;
+            const driverCount = onlineDrivers.find(driver => {
+                const driverTime = moment(driver.date_time).hour();
+                return driverTime === startHour;
+            });
+
+            return (
+                <div
+                    key={i}
+                    className={`bg-gray-100 text-gray-800 p-2 rounded text-center cursor-pointer ${selectedHour === i ? 'border-2 border-black' : ''}`}
+                    onClick={() => handleHourSelect(i)}
+                  >
+                    <Typography variant="small" className="text-xs font-bold mb-1">
+                      {timeRange}
+                    </Typography>
+                    {/* <Typography variant="h5" className="font-extrabold text-base">
+                      {driverCount ? driverCount.count : 0}
+                    </Typography> */}
+                  </div>
+                );
+              })}
+            </div>
+           <div className="flex justify-end mt-4">
+      <Button
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+        onClick={() => setShowDriverHours(false)}
+      >
+        Close
+      </Button>
+    </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 mt-4 sm:grid-cols-3 gap-4">
+        <div className="bg-blue-500 text-white p-4 rounded-lg text-center">
+            <Typography variant="small" className="font-medium">Total Drivers</Typography>
+            <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
+        </div>
+        <div className="bg-green-500 text-white p-4 rounded-lg text-center">
+            <Typography variant="small" className="font-medium">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+            <Typography variant="h3" className="font-bold text-2xl">{selectedDriver?.count || 0}</Typography>
+            <Typography variant="small" className="mt-2 font-medium text-white">Last Updated: {selectedTime}</Typography>
+        </div>
                 </div>
                 </div>
             <div className='px-3 py-3'>
@@ -1040,7 +1141,7 @@ const handleTabChange = (value) => {
                                                                     End Trip
                                                                 </Button>
                                                             } */}
-                                                                {([ 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && 
+                                                                {([ 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType =="DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && 
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
@@ -1050,7 +1151,7 @@ const handleTabChange = (value) => {
                                                                     Request {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
                                                                 </Button>
                                                             }
-                                                            {([ 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                            {([ 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
