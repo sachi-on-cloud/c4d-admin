@@ -116,7 +116,7 @@ const ConfirmBooking = (props) => {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         // console.log("BOOKING DATA", data);
         if (data?.success) {
-           setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark });
+           setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark,customerBookingCount: data?.customerBookingCount, lastBookingCreatedAt: data?.lastBookingCreatedAt });
             if(data?.data?.status === BOOKING_STATUS.END_OTP){
                 const finalPrice = await ApiRequestUtils.get(API_ROUTES.GET_BOOKINGDETAILS_FINAL_PAYMENT + bookingId);
                 setFinalPaymentPrices({
@@ -531,6 +531,19 @@ const ConfirmBooking = (props) => {
             <div className="grid grid-cols-2 gap-4">
                 <Card className="mb-2">
                     <CardBody>
+                        <div className="border  p-2 rounded-md my-2 flex items-end gap-4 bg-gradient-to-r from-pink-300 to-orange-400">
+                        <Typography color="white" className="font-bold text-sm">
+                        Total Enquiry Count: {bookingDetails?.customerBookingCount || 'N/A'}
+                    </Typography>
+                    <Typography color="white" className="font-bold text-sm">
+                        Last Enquired Date: {bookingDetails?.lastBookingCreatedAt
+                            ? moment(bookingDetails?.lastBookingCreatedAt).format('DD-MM-YYYY')
+                            : 'N/A'}
+                    </Typography>
+                    <Typography color="white" className="font-bold text-sm text-center">
+                        
+                    </Typography> 
+                    </div>
                         <div className="flex justify-between mb-2">
                             <Typography variant="h5">Customer Details </Typography>
                         </div>
