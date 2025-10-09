@@ -60,6 +60,8 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [selectedTime, setSelectedTime] = useState(moment().format(' hh:mm A')); 
     const [totalDriverCount, setTotalDriverCount] = useState(0);
     const [showDriverHours, setShowDriverHours] = useState(false);
+    const [isCustomDatePopoverOpen, setIsCustomDatePopoverOpen] = useState(false);
+    
 
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
@@ -120,13 +122,14 @@ const handleTabChange = (value) => {
         // setServiceTypeFilter(['All']);
         // setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
-            // Reset date inputs when switching tabs
-            if (value !== 'CUSTOM_DATE') {
                 setCustomDateFrom('');
                 setCustomDateTo('');
-                setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : 'All');
+                setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : value === 'CUSTOM_DATE' ? 'Custom date' : 'All');
+
+            if (value === 'CUSTOM_DATE') {
+                setIsCustomDatePopoverOpen(true);
             } else {
-                setDateFilter('Custom date');
+                setIsCustomDatePopoverOpen(false);
             }
         }
     };
@@ -491,47 +494,23 @@ const handleTabChange = (value) => {
         triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], '');
     };
 
-    // Date filtering implementation
-    const handleDateFilter = () => {
-        console.log('Date filter applied:', {
-            filter: dateFilter,
-            customFrom: customDateFrom,
-            customTo: customDateTo
-        });
-        
-        // Set manual filter flag to prevent useEffect conflicts
-        setIsManualDateFilter(true);
-        
-        // Reset pagination when applying date filter
-        setPagination((prev) => ({ ...prev, currentPage: 1 }));
-        
-        // Calculate dates based on current filter
-        let startDate = '';
-        let endDate = '';
-        if (dateFilter === 'All') {
-            const all = moment().format('YYYY-MM-DD');
-            startDate = '';
-            endDate = '';
-        }
-        else if (dateFilter === 'Today') {
-            const today = moment().format('YYYY-MM-DD');
-            startDate = today;
-            endDate = today;
-        } else if (dateFilter === 'Future') {
-            const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
-            startDate = tomorrow;
-            endDate = '';
-        } else if (dateFilter === 'Last 7 days') {
-            startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
-            endDate = moment().format('YYYY-MM-DD');
-        } else if (dateFilter === 'Custom date') {
-            startDate = customDateFrom;
-            endDate = customDateTo;
-        }
-        
-        // Use the direct API call function to avoid state timing issues
-        triggerFilteredAPICall(startDate, endDate, 1);
-    };
+//     // Date filtering implementation
+//    const handleDateFilter = () => {
+//     console.log('Date filter applied:', {
+//         filter: dateFilter,
+//         customFrom: customDateFrom,
+//         customTo: customDateTo
+//     });
+    
+//     if (dateFilter === 'Custom date' && (!customDateFrom || !customDateTo)) {
+//         console.warn('Please select both From and To dates');
+//         return;
+//     }
+    
+//     setIsManualDateFilter(true);
+//     setPagination((prev) => ({ ...prev, currentPage: 1 }));
+//     triggerFilteredAPICall(customDateFrom, customDateTo, 1);
+// };
 
     // Function to trigger API call with specific dates (bypasses state timing issues)
    const triggerFilteredAPICall = async (startDate, endDate, page = 1, statusFilterParam = statusFilter, sourceFilterParam = sourceFilter, tripCoordinatorFilterParam = tripCoordinatorFilter, serviceTypeFilterParam = serviceTypeFilter, effectiveSearchIdParam = effectiveSearchId) => {
@@ -719,7 +698,7 @@ const handleTabChange = (value) => {
                 </div>
                 <CardBody>
                     <Tabs  value={activeTab} >
-                        <TabsHeader className="bg-gray-300 z-0">
+                        <TabsHeader className="bg-gray-300 z-0 mb-4">
                     <div className="flex w-full items-center">
                         <div className="flex w-full">
                             {tabs.map(({ label, value }) => (
@@ -734,7 +713,7 @@ const handleTabChange = (value) => {
                                         {label}
                                     </Typography>
                         {value === 'CUSTOM_DATE' && (
-                            <Popover placement="bottom-start">
+                            <Popover placement="bottom-start" open={isCustomDatePopoverOpen}>
                                 <PopoverHandler>
                                     <div className="flex items-center cursor-pointer ml-2">
                                         <ChevronDownIcon className="w-5 h-5 text-gray-600" />
