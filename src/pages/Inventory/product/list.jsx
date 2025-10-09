@@ -38,8 +38,11 @@ export function ProductList() {
   // Fetch products with optional zone filter
   const fetchProductList = async () => {
     try {
-      const queryParams = zone ? { zone } : {};
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_PRODUCTS, queryParams);
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_PRODUCTS,{
+        // category: { type: "string" },
+        // status: { type: "string", enum: ["ACTIVE", "IN_ACTIVE", "ALL"] },
+        // zoneId: { type: "string" },
+      });
       setProductItems(data.data || []);
     } catch (err) {
       console.error('API error:', err);
@@ -63,7 +66,7 @@ export function ProductList() {
   // Zone options for the select dropdown
   const ZONE_OPTIONS = useMemo(
     () => [
-      { value: 'All', label: 'All' },
+      { value: 'ALL', label: 'All' },
       ...serviceAreas.map((area) => ({
         value: area.name,
         label: area.name,

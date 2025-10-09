@@ -38,8 +38,11 @@ export function CategoryList() {
   // Fetch categories with optional zone filter
   const fetchCategoryList = async () => {
     try {
-      const queryParams = zone ? { zone } : {};
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CATEGORY, queryParams);
+      
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CATEGORY, {
+        // status: { type: "string", enum: ["ACTIVE", "IN_ACTIVE", "ALL"] },
+        // zoneId: { type: "string" },
+      });
       setCategoryItems(data.data || []);
     } catch (err) {
       console.error('API error:', err);
@@ -63,7 +66,7 @@ export function CategoryList() {
   // Zone options for the select dropdown
   const ZONE_OPTIONS = useMemo(
     () => [
-      { value: 'All', label: 'All' },
+      { value: 'ALL', label: 'ALl' },
       ...serviceAreas.map((area) => ({
         value: area.name,
         label: area.name,
