@@ -1493,7 +1493,7 @@ const ConfirmBooking = (props) => {
         }
     }}
 >
-    Completed
+    Complete
 </Button>
             </div>
         </CardBody>

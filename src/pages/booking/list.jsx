@@ -17,7 +17,7 @@ import {
     Tab,
     TabPanel,
 } from "@material-tailwind/react";
-import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
+import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -60,6 +60,8 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [selectedTime, setSelectedTime] = useState(moment().format(' hh:mm A')); 
     const [totalDriverCount, setTotalDriverCount] = useState(0);
     const [showDriverHours, setShowDriverHours] = useState(false);
+    const [isCustomDatePopoverOpen, setIsCustomDatePopoverOpen] = useState(false);
+    
 
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
@@ -120,13 +122,14 @@ const handleTabChange = (value) => {
         // setServiceTypeFilter(['All']);
         // setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
-            // Reset date inputs when switching tabs
-            if (value !== 'CUSTOM_DATE') {
                 setCustomDateFrom('');
                 setCustomDateTo('');
-                setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : 'All');
+                setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : value === 'CUSTOM_DATE' ? 'Custom date' : 'All');
+
+            if (value === 'CUSTOM_DATE') {
+                setIsCustomDatePopoverOpen(true);
             } else {
-                setDateFilter('Custom date');
+                setIsCustomDatePopoverOpen(false);
             }
         }
     };
@@ -491,47 +494,23 @@ const handleTabChange = (value) => {
         triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], '');
     };
 
-    // Date filtering implementation
-    const handleDateFilter = () => {
-        console.log('Date filter applied:', {
-            filter: dateFilter,
-            customFrom: customDateFrom,
-            customTo: customDateTo
-        });
-        
-        // Set manual filter flag to prevent useEffect conflicts
-        setIsManualDateFilter(true);
-        
-        // Reset pagination when applying date filter
-        setPagination((prev) => ({ ...prev, currentPage: 1 }));
-        
-        // Calculate dates based on current filter
-        let startDate = '';
-        let endDate = '';
-        if (dateFilter === 'All') {
-            const all = moment().format('YYYY-MM-DD');
-            startDate = '';
-            endDate = '';
-        }
-        else if (dateFilter === 'Today') {
-            const today = moment().format('YYYY-MM-DD');
-            startDate = today;
-            endDate = today;
-        } else if (dateFilter === 'Future') {
-            const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
-            startDate = tomorrow;
-            endDate = '';
-        } else if (dateFilter === 'Last 7 days') {
-            startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
-            endDate = moment().format('YYYY-MM-DD');
-        } else if (dateFilter === 'Custom date') {
-            startDate = customDateFrom;
-            endDate = customDateTo;
-        }
-        
-        // Use the direct API call function to avoid state timing issues
-        triggerFilteredAPICall(startDate, endDate, 1);
-    };
+//     // Date filtering implementation
+//    const handleDateFilter = () => {
+//     console.log('Date filter applied:', {
+//         filter: dateFilter,
+//         customFrom: customDateFrom,
+//         customTo: customDateTo
+//     });
+    
+//     if (dateFilter === 'Custom date' && (!customDateFrom || !customDateTo)) {
+//         console.warn('Please select both From and To dates');
+//         return;
+//     }
+    
+//     setIsManualDateFilter(true);
+//     setPagination((prev) => ({ ...prev, currentPage: 1 }));
+//     triggerFilteredAPICall(customDateFrom, customDateTo, 1);
+// };
 
     // Function to trigger API call with specific dates (bypasses state timing issues)
    const triggerFilteredAPICall = async (startDate, endDate, page = 1, statusFilterParam = statusFilter, sourceFilterParam = sourceFilter, tripCoordinatorFilterParam = tripCoordinatorFilter, serviceTypeFilterParam = serviceTypeFilter, effectiveSearchIdParam = effectiveSearchId) => {
@@ -603,13 +582,20 @@ const handleTabChange = (value) => {
         <div className="flex flex-col bg-white rounded-xl shadow-lg" >
             {/* Status Cards Section */}
             <div className="w-full px-4 py-6 md:px-6 lg:px-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                  
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-1">
+                {/* Status Cards in a Single Line */}
+                
+                <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 ">
+                     <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
+          Booking Status Count
+        </Typography>
                     {[
                     { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
                     { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
-                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
+                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
                     { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
-                    { key: 'supportCount', label: 'Support Cancelled', icon: FaClipboardList, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
+                   { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
                     ].map((item, index) => {
                     const IconComponent = item.icon;
                     return (
@@ -634,10 +620,11 @@ const handleTabChange = (value) => {
                     );
                     })}
                 </div>
-                </div>
-                   {/* Added Driver Statistics UI from Reference Image */}
- <div className="w-full px-4  md:px-6 lg:px-8">
-      <div className="flex justify-between items-center mb-4">
+
+                {/* Hourly Online Drivers Section */}
+                <div className="lg:col-span-4">
+                
+    <div className="flex justify-between items-center mb-4">
         <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
           Hourly Online Drivers
         </Typography>
@@ -690,18 +677,29 @@ const handleTabChange = (value) => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 mt-4 sm:grid-cols-3 gap-4">
-        <div className="bg-blue-500 text-white p-4 rounded-lg text-center">
-            <Typography variant="small" className="font-medium">Total Drivers</Typography>
-            <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
-        </div>
-        <div className="bg-green-500 text-white p-4 rounded-lg text-center">
-            <Typography variant="small" className="font-medium">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
-            <Typography variant="h3" className="font-bold text-2xl">{selectedDriver?.count || 0}</Typography>
-            <Typography variant="small" className="mt-2 font-medium text-white">Last Updated: {selectedTime}</Typography>
-        </div>
+    <div className="grid grid-cols-1 mt-4 sm:grid-cols-2 gap-4">
+      <div className="bg-blue-500 text-white py-9 rounded-lg text-center flex flex-col items-center justify-center">
+      <div className="flex items-center mb-2">
+        <FaUsers className="w-6 h-4 mr-2  text-white" />
+        <Typography variant="small" className="text-white font-bold text-sm ">
+          Total Drivers
+        </Typography>
+      </div>
+      <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
+    </div>
+    <div className="bg-green-500 text-white p-4 rounded-lg text-center flex flex-col items-center justify-center">
+      <div className="flex items-center">
+        <FaSync className="w-6 h-4 mr-2  text-white" />
+        <Typography variant="small" className="font-bold text-sm">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+      </div>
+      <Typography variant="h3" className="font-bold text-2xl">{selectedDriver?.count || 0}</Typography>
+      <Typography variant="small" className="mt-2 font-medium text-white">Last Updated: {selectedTime}</Typography>
+    </div>
                 </div>
                 </div>
+</div>
+</div>
+
             <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
@@ -719,7 +717,7 @@ const handleTabChange = (value) => {
                 </div>
                 <CardBody>
                     <Tabs  value={activeTab} >
-                        <TabsHeader className="bg-gray-300 z-0">
+                        <TabsHeader className="bg-gray-300 z-0 mb-4">
                     <div className="flex w-full items-center">
                         <div className="flex w-full">
                             {tabs.map(({ label, value }) => (
@@ -734,7 +732,7 @@ const handleTabChange = (value) => {
                                         {label}
                                     </Typography>
                         {value === 'CUSTOM_DATE' && (
-                            <Popover placement="bottom-start">
+                            <Popover placement="bottom-start" open={isCustomDatePopoverOpen}>
                                 <PopoverHandler>
                                     <div className="flex items-center cursor-pointer ml-2">
                                         <ChevronDownIcon className="w-5 h-5 text-gray-600" />
