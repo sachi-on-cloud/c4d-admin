@@ -253,7 +253,6 @@ export function SearchDrivers(props) {
                     }
                     data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
                 } else {
-                    setLoading(false);
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,

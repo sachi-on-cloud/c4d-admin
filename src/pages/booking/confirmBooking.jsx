@@ -768,6 +768,12 @@ const ConfirmBooking = (props) => {
                                     <Typography>{(Number(bookingDetails?.value?.estimatedDistance) + Number(bookingDetails?.Package?.baseKm)).toFixed(1)} Kms</Typography>
                                 </div>
                             }
+                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Total Distance:</Typography>
+                                    <Typography>{(Number(bookingDetails?.totalDistanceKilometer))} Kms</Typography>
+                                </div>
+                            }
                             {/* {(bookingDetails?.serviceType == 'RENTAL' && bookingDetails?.packageType == 'Outstation' && bookingDetails?.bookingType == 'ROUND TRIP') &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total Days:</Typography>
