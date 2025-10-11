@@ -10,7 +10,13 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [noteType, setNoteType] = useState('')
   const [items, setItems] = useState([]);
   const [bookingLogs, setBookingLogs] = useState([]);
-  const [errorMessage, setErrorMessage] = useState(''); 
+    const [quotationLogs, setQuotationLogs] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [tripDetailsLogs, setTripDetailsLogs] = useState([]);
+  const [tripFare, setTripFare] = useState(0);
+  const [fuelCost, setFuelCost] = useState(0);
+  const [tollCost, setTollCost] = useState(0);
+  const [permitCost, setPermitCost] = useState(0);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -20,6 +26,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         console.warn('No bookingId provided, falling back to notesData');
         setItems(fallbackNotes);
         setBookingLogs([]);
+        setQuotationLogs([]);
         return;
       }
 
@@ -32,15 +39,42 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           setItems(Array.isArray(data?.data?.notes) ? data.data.notes : []);
           // Set bookingLogs, ensuring it's an array
           setBookingLogs(Array.isArray(data?.data?.bookingLog) ? data.data.bookingLog : []);
+          setQuotationLogs(Array.isArray(data?.data?.quotationLog) ? data?.data?.quotationLog : []);
+          
+          // Extract trip details from tripMaster
+          const tripMaster = data.data.tripMaster || {};
+          setTripFare(tripMaster.tripFare || 0);
+          setFuelCost(tripMaster.fuelCost || 0);
+          setTollCost(tripMaster.tollCost || 0);
+          setPermitCost(tripMaster.permitCost || 0);
+          
+          // Initialize tripDetailsLogs with user name from tripMaster only if tripMaster exists
+          if (tripMaster && Object.keys(tripMaster).length > 0) {
+            setTripDetailsLogs([{ 
+              id: 1, 
+              createdBy: tripMaster?.createdBy?.name || tripMaster?.User?.name || 'System', 
+              created_at: new Date().toISOString(), 
+              tripFare: tripMaster.tripFare || 0, 
+              fuelCost: tripMaster.fuelCost || 0, 
+              tollCost: tripMaster.tollCost || 0, 
+              permitCost: tripMaster.permitCost || 0 
+            }]);
+          } else {
+            setTripDetailsLogs([]);
+          }
         } else {
           console.warn('API call failed, falling back to notesData:', data?.message);
           setItems(fallbackNotes);
           setBookingLogs([]);
+          setQuotationLogs([]);
+          setTripDetailsLogs([]);
         }
       } catch (error) {
         console.error('Error fetching notes:', error);
         setItems(fallbackNotes);
         setBookingLogs([]);
+        setQuotationLogs([]);
+        setTripDetailsLogs([]);
       }
     };
 
@@ -76,6 +110,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         setItems(Array.isArray(data?.data?.notes) ? data.data.notes : []);
         // Set bookingLogs, ensuring it's an array
         setBookingLogs(Array.isArray(data?.data?.bookingLog) ? data.data.bookingLog : []);
+        setQuotationLogs(Array.isArray(data?.data?.quotationLog) ? data?.data?.quotationLog : []);
       }
     } catch (error) {
       console.error('Error adding comment:', error);
@@ -152,9 +187,85 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           </ul>
         )}
       </div>
+     {tripDetailsLogs.length > 0 && (
+  <>
+    <div className='py-5'>
+      <Typography className="text-xl font-semibold text-blue-gray-600">
+        Trip Details Log
+      </Typography>
+    </div>
+    
+    <div className="flex-1">
+      {tripDetailsLogs.length > 0 ? (
+        <ul className="space-y-3">
+          {tripDetailsLogs.map((log) => (
+            <li
+              key={log?.id}
+              className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <UserIcon className="h-5 w-5 text-gray-600" />
+                <span className="text-sm font-medium text-gray-800">
+                  {log?.createdBy || 'System'}
+                </span>
+                <span className="text-sm text-gray-500 ml-auto">
+                  {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
+                </span>
+              </div>
+              <p className="text-base text-gray-700">
+                Trip Fare: ₹{log?.tripFare || '0'} | Fuel Cost: ₹{log?.fuelCost || '0'} | Toll Cost: ₹{log?.tollCost || '0'} | Permit Cost: ₹{log?.permitCost || '0'}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center text-gray-500 text-base mt-5">No trip details logs yet.</p>
+      )}
+    </div>
+  </>
+)}
       <div className='py-5'>
         <Typography className="text-xl font-semibold text-blue-gray-600">
-          Booking Status Log</Typography>
+          Check Estimate Price Log
+        </Typography>
+      </div>
+      <div className="flex-1 mb-5">
+        <ul className="space-y-3">
+          {quotationLogs.length === 0 ? (
+            <p className="text-center text-gray-500 text-base mt-5">No estimate logs yet.</p>
+          ) : (
+            quotationLogs.map((log) => (
+              <li
+                key={log.id}
+                className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-800">
+                    {log?.User?.name || 'System'}
+                  </span>
+                  <span className="text-sm text-gray-500 ml-auto">
+                    {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
+                  </span>
+                </div>
+              <div className="text-base text-gray-700 flex items-center gap-2">
+  <span>
+    <span className="font-bold">Estimate Price:</span> ₹{log?.amount} | <span className="font-bold">Pickup:</span> {log?.pickupAddress?.name || 'N/A'} | <span className="font-bold">Drop:</span> {log?.dropAddress?.name || 'N/A'}
+    {/* {log?.packageId && ` | <span className="font-bold">Package ID:</span> ${log?.packageId}`} */}
+  </span>
+  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+    Estimated
+  </span>
+</div>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+      <div className='py-5'>
+        <Typography className="text-xl font-semibold text-blue-gray-600">
+          Booking Status Log
+        </Typography>
       </div>
       <div className="flex-1">
         {bookingLogs.length === 0 ? (
