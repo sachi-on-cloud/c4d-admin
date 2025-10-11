@@ -970,6 +970,7 @@ export const API_ROUTES = {
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export',
+    'EXOTEL_CALL_LOGS': '/call-logs'
 };
 
 export const KYC_PROCESS = {

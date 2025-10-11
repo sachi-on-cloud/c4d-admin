@@ -730,6 +730,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   <ul className="ml-0">
                     {[
                       { label: "Users", path: "/dashboard/users" },
+                      { label: "Calls", path: "/dashboard/users/exotel-calls/list" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
@@ -750,6 +751,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/user.png"
                                   alt="Users"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              {label === "Calls" && (
+                                <img
+                                  src="/img/calls.png"
+                                  alt="Calls"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
