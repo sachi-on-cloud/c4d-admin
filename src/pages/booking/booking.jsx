@@ -93,6 +93,11 @@ const Booking = (props) => {
     const [currentServiceType, setCurrentServiceType] = useState('');
     const [currentPackageType, setCurrentPackageType] = useState('');
     const [dropTaxiDistanceExceedModal, setDropTaxiDistanceExceedModal] = useState(false);
+    const [quotationLogs, setQuotationLogs] = useState([]);
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
+    const loggedInUserId = loggedInUser.id || 0;
+
+
 
 
   const fetchGeoData = async () => {
@@ -219,7 +224,28 @@ useEffect(() => {
         [bookingType]
     );
 
-    const getQuoteOutstationDetails = async (values) => {
+const addQuotationLog = (values, quoteDetails, bookingId = null) => {
+    const newLog = {
+        userId: loggedInUserId,
+        bookingId: bookingId || 0,
+    //   ...((values?.serviceType === 'DRIVER' || values?.serviceType === 'RENTAL_HOURLY_PACKAGE') && {
+    //         packageId: values.packageSelected ? Number(values.packageSelected) : 0
+    //     }),
+        pickupAddress: {
+            name: values.pickupAddress || '',
+            lat: values.pickupLocation?.lat || 0,
+            lng: values.pickupLocation?.lng || 0,
+        },
+        dropAddress: values.dropAddress ? {
+            name: values.dropAddress,
+            lat: values.dropLocation?.lat || 0,
+            lng: values.dropLocation?.lng || 0,
+        } : {},
+        amount: quoteDetails?.amount?.estimatedPrice || 0, // Use estimatedPrice from quoteDetails
+    };
+    setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
+};
+  const getQuoteOutstationDetails = async (values) => {
         const zoneData = await zoneCheckUpFun(values);
         // console.log("frist",zoneData)
         let actualZone = '';
@@ -265,6 +291,8 @@ useEffect(() => {
         if (data.success) {
             setQuoteDetails(data?.data);
             setDiscountDetails(data?.data);
+            // Add to quotationLogs
+            addQuotationLog(values, data?.data);
         }
         // console.log("QUOTE DETAILS", quoteDetails);
     };
@@ -356,6 +384,7 @@ useEffect(() => {
         if (data?.success) {
             setQuoteDetails(data?.data)
             setDiscountDetails(data?.data);
+            addQuotationLog(val, data?.data);
         }
     }
 
@@ -458,6 +487,25 @@ useEffect(() => {
         return false;
     };
 
+const sendQuotationLogs = async (bookingId, userId) => {
+    try {
+        // Update bookingId and ensure userId is included in all logs
+        const updatedLogs = quotationLogs.map(log => ({
+            ...log,
+            bookingId: bookingId || 0, // Update with actual bookingId
+            userId: userId || log.userId || 0, // Use provided userId or fallback to log's userId
+        }));
+        const response = await ApiRequestUtils.post(API_ROUTES.POST_QUOTATION_LOG, updatedLogs);
+        if (response?.success) {
+            console.log('Quotation logs sent successfully:', response);
+            setQuotationLogs([]); // Clear the logs after successful submission
+        } else {
+            console.error('Failed to send quotation logs:', response?.message);
+        }
+    } catch (error) {
+        console.error('Error sending quotation logs:', error);
+    }
+};
     const onRideSubmitHandler = async (values, formikBag) => {
         if (isButtonDisabled) return;
         setIsButtonDisabled(true);
@@ -515,6 +563,7 @@ useEffect(() => {
         if (data?.success) {
             setIsOpen(false);
             setBookingData(data?.data);
+             await sendQuotationLogs(data?.data?.id, loggedInUserId);
             navigate('/dashboard/booking');
             formikBag.resetForm();
             setSelectedCustomer(0);
@@ -636,6 +685,7 @@ useEffect(() => {
         data = await ApiRequestUtils.post(values.serviceType == "DRIVER" ? API_ROUTES.ADD_NEW_BOOKING : API_ROUTES.ADD_NEW_RENTAL_BOOKING, bookingData, values?.customerId?.id);
         if (data?.success) {
             setIsOpen(false);
+        await sendQuotationLogs(data?.data?.result?.id, loggedInUserId);
             if (params?.bookingDetails) {
                 navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
             } else {
@@ -894,11 +944,18 @@ useEffect(() => {
                     </span>
                 );
             case 'ended':
+                if (bookingData?.tripStatus === true) {
                 return (
                     <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
                         Completed
                     </span>
                 );
+            }
+            return (
+                <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+                    ENDED
+                </span>
+            );
             case 'customer_cancelled':
                 return (
                     <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
@@ -1115,7 +1172,7 @@ useEffect(() => {
                                                     {`Booking Details - ${bookingData?.bookingNumber}`}
                                                     {bookingData?.status && getStatusDisplay(bookingData.status)}
                                                 </>
-                                            ) : (bookingStage === 0 ? 'New Booking' : bookingStage === 1 ? 'New Booking' : bookingData?.serviceType == "RENTAL" ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber} `)}
+                                            ) : (bookingStage === 0 ? 'New Booking' :  bookingStage === 1 ? 'New Booking' :  bookingData?.requestType === 'REQUEST_ALL' ? `Request Cab - ${bookingData?.bookingNumber}` :  bookingData?.serviceType === 'RENTAL' ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber}`)}
                                         </div>
                                     </Typography>
                                 </div>}
@@ -1796,9 +1853,22 @@ useEffect(() => {
                                                                                         </Typography>
                                                                                     </div>
                                                                                     <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Kilometer :</Typography>
+                                                                                        <Typography>{quoteDetails?.amount?.packageDetails?.kilometer} Kms</Typography>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
                                                                                         <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
                                                                                         <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                                            ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)}
+                                                                                            {/* ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)} */}
+                                                                                            ₹ {(() => {
+                                                                                                const carType = quoteDetails?.amount?.carType?.toUpperCase();
+                                                                                                const pkg = quoteDetails?.amount?.packageDetails;
+                                                                                                const price = carType === 'MINI' ? Number(pkg?.price) :
+                                                                                                            carType === 'MUV' ? Number(pkg?.priceMVP) :
+                                                                                                            carType === 'SUV' ? Number(pkg?.priceSuv) :
+                                                                                                            carType === 'SEDAN' ? Number(pkg?.priceSedan) : 0;
+                                                                                                return price ? (price - (price * (Number(quoteDetails?.discount?.percentage) || 0) / 100)).toFixed(2) : 'N/A';
+                                                                                            })()}
                                                                                             {/* {(() => {
                                                                                                 const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
                                                                                                 const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;

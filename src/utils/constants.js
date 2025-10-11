@@ -970,6 +970,8 @@ export const API_ROUTES = {
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export',
+    'POST_QUOTATION_LOG':'/quotation-log',
+    'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
     'EXOTEL_CALL_LOGS': '/call-logs'
 };
 
