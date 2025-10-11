@@ -1017,7 +1017,7 @@ export const routes = [
         path: "/users/exotel-calls/list",
         element: <ExotelCallsList />,
         display: false,
-        permission: "Users",
+        permission: "Calls",
       },
     ],
   },
