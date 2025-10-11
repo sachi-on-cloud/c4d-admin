@@ -21,6 +21,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
     integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme') || 'default';
+        var html = document.documentElement;
+        if (saved === 'auto') {
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var hour = new Date().getHours();
+          var timeDark = (hour >= 19 || hour < 7);
+          saved = (prefersDark || timeDark) ? 'dark' : 'default';
+        }
+        // Tailwind-only: toggle just the dark class
+        if (saved === 'dark') html.classList.add('dark'); else html.classList.remove('dark');
+      } catch (e) { /* no-op */ }
+    })();
+  </script>
 </head>
 
 <body>

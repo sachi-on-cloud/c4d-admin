@@ -38,9 +38,9 @@ export function ExotelCallsList() {
       <Card>
         {callList.length > 0 ? (
           <>
-            <CardHeader variant="gradient" color="blue" className="mb-8 p-6 flex justify-between items-center">
+            <div className="themed mb-8 p-6 flex justify-between items-center rounded-lg shadow-card bg-gradient-to-r from-blue-600 to-blue-500 text-white">
               <Typography variant="h6" color="white">Call Logs</Typography>
-            </CardHeader>
+            </div>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
@@ -197,9 +197,9 @@ export function ExotelCallsList() {
             </CardBody>
           </>
         ) : (
-          <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
+          <div className="themed mb-8 p-6 rounded-lg shadow-card bg-gradient-to-r from-blue-600 to-blue-500 text-white">
             <Typography variant="h6" color="white">No Call Records Available</Typography>
-          </CardHeader>
+          </div>
         )}
       </Card>
     </div>

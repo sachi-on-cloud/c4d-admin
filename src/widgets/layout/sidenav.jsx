@@ -8,6 +8,10 @@ import {
   Typography,
   Spinner,
   Tooltip,
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
 } from "@material-tailwind/react";
 import { useMaterialTailwindController, setOpenSidenav, setMiniSidenav } from "@/context";
 import React, { useEffect, useState } from "react";
@@ -28,6 +32,64 @@ import {
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
+
+function ThemeSwitcherButton() {
+  const [theme, setTheme] = React.useState(() => (typeof window !== 'undefined' && localStorage.getItem('theme')) || 'default');
+
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const html = document.documentElement;
+    if (theme === 'default') {
+      html.removeAttribute('data-theme');
+      html.classList.remove('dark');
+    } else {
+      const applied = theme;
+      html.setAttribute('data-theme', applied);
+      html.classList.toggle('dark', applied === 'dark');
+    }
+    try { localStorage.setItem('theme', theme); } catch {}
+  }, [theme]);
+
+  const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
+  const choose = (key, e) => { stop(e); setTheme(key); };
+
+  const solid = [
+    { key: 'default', label: 'Default', swatch: 'bg-blue-600' },
+    { key: 'light', label: 'Light', swatch: 'bg-amber-500' },
+    { key: 'dark', label: 'Dark', swatch: 'bg-gray-900' },
+    { key: 'red', label: 'Red', swatch: 'bg-rose-500' },
+    { key: 'green', label: 'Green', swatch: 'bg-emerald-500' },
+    { key: 'gray', label: 'Gray', swatch: 'bg-gray-500' },
+    { key: 'blue', label: 'Blue', swatch: 'bg-blue-500' },
+    { key: 'purple', label: 'Purple', swatch: 'bg-purple-500' },
+    { key: 'teal', label: 'Teal', swatch: 'bg-teal-500' },
+    { key: 'orange', label: 'Orange', swatch: 'bg-orange-500' },
+  ];
+
+  const gradients = [];
+
+  return (
+    <Menu placement="bottom-end">
+      <MenuHandler>
+        <Button variant="text" className="flex items-center gap-2 rounded-lg border border-blue-gray-100 bg-white px-2 py-1" onClick={stop} onMouseDown={(e)=>e.preventDefault()} aria-label="Select theme">
+          <span className={`inline-block h-2.5 w-2.5 rounded-full ${theme==='dark'?'bg-gray-900': theme==='light'?'bg-amber-500':'bg-blue-600'}`} />
+          <span className="text-xs">Theme</span>
+        </Button>
+      </MenuHandler>
+      <MenuList className="min-w-[12rem]">
+        <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-blue-gray-500">Solid</div>
+        {solid.map(({key,label,swatch}) => (
+          <MenuItem key={key} onClick={(e)=>choose(key,e)} className="flex items-center gap-2">
+            <span className={`inline-block h-2.5 w-2.5 rounded-full ${swatch}`} />
+            <span className="flex-1">{label}</span>
+            {theme===key && <span className="text-xs text-brand-600">Selected</span>}
+          </MenuItem>
+        ))}
+        {/* Gradient themes removed */}
+      </MenuList>
+    </Menu>
+  );
+}
 
 const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
@@ -140,18 +202,24 @@ export function Sidenav({ brandImg, brandName, routes }) {
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-3 px-4 pt-2">
+                <div className="flex items-center justify-between gap-3 px-4 pt-2">
                   <img src="/img/app_icon.png" alt="ROOT CABS" className="h-8 w-8 rounded-full ring-2 ring-primary-200" />
-                  <div className="flex flex-col items-start">
-                    <span className="text-base font-semibold tracking-wide">ROOT CABS</span>
-                    <span className="text-xs text-blue-gray-500">{userName}</span>
+                  <div className="flex flex-1 items-center justify-between gap-3">
+                    <div className="flex flex-col items-start">
+                      <span className="text-base font-semibold tracking-wide">ROOT CABS</span>
+                      <span className="text-xs text-blue-gray-500">{userName}</span>
+                    </div>
+                    <div className="hidden lg:block" />
                   </div>
                 </div>
               </>
             )}
-            
           </Typography>
         </Link>
+          <div className="absolute right-12 pb-5 top-6 z-50 pointer-events-auto">
+          <ThemeSwitcherButton />
+        </div>
+        
         {/* Collapse toggle (desktop) */}
         <div className="absolute -right-3 top-6 hidden lg:block">
           <IconButton

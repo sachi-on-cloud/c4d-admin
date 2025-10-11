@@ -4,6 +4,59 @@
 
 @layer base {
 	html { @apply antialiased; }
+
+/* ------------------------------------------------------ */
+/* Additional color themes (solid + gradient variants)     */
+/* Usage: set data-theme="red" or data-theme="red-gradient" */
+@layer base {
+  /* Helper to keep neutral surfaces; only accent changes */
+  [data-theme^="red"] { --button-text: #ffffff; --accent: #ef4444; --focus: #f87171; }
+  [data-theme^="green"] { --button-text: #0b0b0b; --accent: #22c55e; --focus: #86efac; }
+  [data-theme^="gray"] { --button-text: #ffffff; --accent: #6b7280; --focus: #cbd5e1; }
+  [data-theme^="blue"] { --button-text: #ffffff; --accent: #3b82f6; --focus: #93c5fd; }
+  [data-theme^="purple"] { --button-text: #ffffff; --accent: #8b5cf6; --focus: #c4b5fd; }
+  [data-theme^="teal"] { --button-text: #0b0b0b; --accent: #14b8a6; --focus: #99f6e4; }
+  [data-theme^="orange"] { --button-text: #0b0b0b; --accent: #f97316; --focus: #fed7aa; }
+  [data-theme^="pink"] { --button-text: #ffffff; --accent: #ec4899; --focus: #fbcfe8; }
+  [data-theme^="indigo"] { --button-text: #ffffff; --accent: #6366f1; --focus: #c7d2fe; }
+  [data-theme^="amber"] { --button-text: #111827; --accent: #f59e0b; --focus: #fde68a; }
+
+  /* Base surfaces (inherit from default neutral) */
+  html[data-theme="red"],
+  html[data-theme="green"],
+  html[data-theme="gray"],
+  html[data-theme="blue"],
+  html[data-theme="purple"],
+  html[data-theme="teal"],
+  html[data-theme="orange"],
+  html[data-theme="pink"],
+  html[data-theme="indigo"],
+  html[data-theme="amber"],
+  html[data-theme$="-gradient"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+  }
+
+  /* Solid variants set button-bg */
+  html[data-theme="red"] { --button-bg: #ef4444; }
+  html[data-theme="green"] { --button-bg: #22c55e; }
+  html[data-theme="gray"] { --button-bg: #6b7280; }
+  html[data-theme="blue"] { --button-bg: #3b82f6; }
+  html[data-theme="purple"] { --button-bg: #8b5cf6; }
+  html[data-theme="teal"] { --button-bg: #14b8a6; }
+  html[data-theme="orange"] { --button-bg: #f97316; }
+  html[data-theme="pink"] { --button-bg: #ec4899; }
+  html[data-theme="indigo"] { --button-bg: #6366f1; }
+  html[data-theme="amber"] { --button-bg: #f59e0b; }
+
+}
 	body { @apply bg-surface-soft text-gray-800; }
 }
 
@@ -26,4 +79,330 @@
 	.th { @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600; }
 	.tr { @apply even:bg-surface-soft; }
 	.td { @apply px-4 py-3 align-top text-sm text-blue-gray-700; }
+}
+
+/* Theme tokens and mappings */
+/* We keep layout intact and only remap colors via CSS variables. */
+@layer base {
+  :root {
+    /* Default (neutral) */
+    --bg: #f1f5f9; /* slate-100 */
+    --bg-alt: #f8fafc; /* slate-50 */
+    --text: #111827; /* gray-900 */
+    --header-text: #0f172a; /* slate-900 */
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #93c5fd; /* blue-300 */
+    --button-bg: #2563eb; /* blue-600 */
+    --button-text: #ffffff;
+    --accent: #22c55e; /* green-500 */
+  }
+
+  html[data-theme="default"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #93c5fd;
+    --button-bg: #2563eb;
+    --button-text: #ffffff;
+    --accent: #22c55e;
+  }
+
+  html[data-theme="light"] {
+    --bg: #fffbeb; /* amber-50 */
+    --bg-alt: #fef3c7; /* amber-100 */
+    --text: #0f172a; /* slate-900 */
+    --header-text: #0f172a;
+    --nav-bg: #fffaf0; /* soft warm nav */
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #fef3c7; /* amber-100 */
+    --border: #fcd34d; /* amber-300 */
+    --focus: #f59e0b; /* amber-500 */
+    --button-bg: #f59e0b; /* amber-500 */
+    --button-text: white; /* dark text for contrast on yellow */
+    --accent: #f59e0b; /* amber-500 */
+  }
+
+  html[data-theme="dark"] {
+    --bg: #000000; /* true black */
+    --bg-alt: #0b0b0b;
+    --text: #e5e7eb; /* gray-200 */
+    --header-text: #f8fafc; /* slate-50 */
+    --nav-bg: #0b0b0b;
+    --nav-text: #f8fafc;
+    --surface: #111111;
+    --surface-hover: #1a1a1a;
+    --border: #262626;
+    --focus: #60a5fa; /* blue-400 */
+    --button-bg: #22c55e; /* green-500 */
+    --button-text: #0b0b0b;
+    --accent: #22c55e;
+  }
+
+  /* Solid color themes (explicit) */
+  html[data-theme="red"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #fca5a5; /* red-300 */
+    --button-bg: #ef4444; /* red-500 */
+    --button-text: #ffffff;
+    --accent: #ef4444;
+  }
+  html[data-theme="green"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #86efac; /* green-200 */
+    --button-bg: #22c55e; /* green-500 */
+    --button-text: #0b0b0b; /* dark text for contrast on light greens */
+    --accent: #22c55e;
+  }
+  html[data-theme="gray"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #cbd5e1; /* slate-300 */
+    --button-bg: #6b7280; /* gray-500 */
+    --button-text: #ffffff;
+    --accent: #6b7280;
+  }
+  html[data-theme="blue"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #93c5fd; /* blue-300 */
+    --button-bg: #3b82f6; /* blue-500 */
+    --button-text: #ffffff;
+    --accent: #3b82f6;
+  }
+  html[data-theme="purple"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #c4b5fd; /* violet-300 */
+    --button-bg: #8b5cf6; /* violet-500 */
+    --button-text: #ffffff;
+    --accent: #8b5cf6;
+  }
+  html[data-theme="teal"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #99f6e4; /* teal-200 */
+    --button-bg: #14b8a6; /* teal-500 */
+    --button-text: #0b0b0b;
+    --accent: #14b8a6;
+  }
+  html[data-theme="orange"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #fed7aa; /* orange-200 */
+    --button-bg: #f97316; /* orange-500 */
+    --button-text: #0b0b0b;
+    --accent: #f97316;
+  }
+  html[data-theme="pink"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #fbcfe8; /* pink-200 */
+    --button-bg: #ec4899; /* pink-500 */
+    --button-text: #ffffff;
+    --accent: #ec4899;
+  }
+  html[data-theme="indigo"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #c7d2fe; /* indigo-200 */
+    --button-bg: #6366f1; /* indigo-500 */
+    --button-text: #ffffff;
+    --accent: #6366f1;
+  }
+  html[data-theme="amber"] {
+    --bg: #f1f5f9;
+    --bg-alt: #f8fafc;
+    --text: #111827;
+    --header-text: #0f172a;
+    --nav-bg: #ffffff;
+    --nav-text: #0f172a;
+    --surface: #ffffff;
+    --surface-hover: #f3f4f6;
+    --border: #e2e8f0;
+    --focus: #fde68a; /* amber-200 */
+    --button-bg: #f59e0b; /* amber-500 */
+    --button-text: #111827;
+    --accent: #f59e0b;
+  }
+
+  /* Apply to page */
+  html[data-theme] body {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+  }
+}
+
+/* Map common Tailwind utility colors to theme tokens without altering layout */
+@layer utilities {
+  /* Project aliases used in ColorStyles (map to theme tokens) */
+  html[data-theme] .bg-primary { background-image: none !important; background-color: var(--button-bg, var(--accent)) !important; color: inherit; }
+  html[data-theme] .bg-primary-200 { background-color: color-mix(in srgb, var(--accent) 25%, white) !important; }
+  html[data-theme] .text-primary { color: var(--accent) !important; }
+  html[data-theme] .border-primary { border-color: var(--accent) !important; }
+  html[data-theme] .hover\:bg-primary:hover { background-color: color-mix(in srgb, var(--button-bg, var(--accent)) 90%, black) !important; }
+  html[data-theme] .hover\:bg-primary-200:hover { background-color: color-mix(in srgb, var(--accent) 30%, white) !important; }
+
+  html[data-theme] .bg-white { background-color: var(--surface) !important; }
+  html[data-theme] .bg-surface-soft { background-color: var(--bg-alt) !important; }
+  html[data-theme] .bg-blue-gray-100 { background-color: var(--bg-alt) !important; }
+  html[data-theme] .text-gray-800 { color: var(--text) !important; }
+  html[data-theme] .text-blue-gray-900 { color: var(--header-text) !important; }
+  html[data-theme] .border-blue-gray-100 { border-color: var(--border) !important; }
+  html[data-theme] .border-gray-300 { border-color: var(--border) !important; }
+  html[data-theme] .hover\:bg-gray-50:hover { background-color: var(--surface-hover) !important; }
+
+  /* Buttons */
+  html[data-theme] .btn-primary { background-color: var(--button-bg) !important; background-image: var(--button-gradient, initial) !important; color: var(--button-text) !important; }
+  html[data-theme] .btn-gradient { background-image: var(--button-gradient) !important; color: var(--button-text) !important; }
+  html[data-theme] .btn-outline { color: var(--text) !important; border-color: var(--border) !important; }
+
+  /* Inputs & focus */
+  html[data-theme] .input { color: var(--text) !important; background-color: var(--surface) !important; border-color: var(--border) !important; }
+  html[data-theme] .input:focus { outline: none !important; box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 40%, transparent); border-color: var(--focus) !important; }
+
+  /* Tables */
+  html[data-theme] .table-container { background-color: var(--surface) !important; border-color: var(--border) !important; }
+  html[data-theme] .table { border-color: var(--border) !important; }
+  html[data-theme] .thead { background-color: var(--bg-alt) !important; }
+  html[data-theme] .th { color: color-mix(in srgb, var(--text) 70%, transparent) !important; }
+  html[data-theme] .tr:nth-child(even) { background-color: var(--bg-alt) !important; }
+  html[data-theme] .td { color: color-mix(in srgb, var(--text) 85%, transparent) !important; }
+
+  /* Map project brand/primary utilities to theme accent */
+  html[data-theme] .bg-brand,
+  html[data-theme] .bg-brand-500,
+  html[data-theme] .bg-brand-600 { background-color: var(--button-bg, var(--accent)) !important; }
+  html[data-theme] .hover\:bg-brand-700:hover { background-color: color-mix(in srgb, var(--button-bg, var(--accent)) 85%, black) !important; }
+  html[data-theme] .text-brand,
+  html[data-theme] .text-brand-500,
+  html[data-theme] .text-brand-600 { color: var(--accent) !important; }
+  html[data-theme] .border-brand,
+  html[data-theme] .border-brand-500,
+  html[data-theme] .border-brand-600 { border-color: var(--accent) !important; }
+
+  /* Map primary soft backgrounds used in lists/cards */
+  html[data-theme] .bg-primary-50 { background-color: color-mix(in srgb, var(--accent) 8%, white) !important; }
+  html[data-theme] .bg-primary-100 { background-color: color-mix(in srgb, var(--accent) 15%, white) !important; }
+  html[data-theme] .hover\:bg-primary-50:hover { background-color: color-mix(in srgb, var(--accent) 8%, white) !important; }
+  html[data-theme] .text-primary-500 { color: var(--accent) !important; }
+}
+
+/* Scoped theme overrides: apply only when parent adds .themed to avoid recoloring semantics */
+@layer utilities {
+  /* Opt-in container: add class="themed" on elements that should follow the active theme */
+  html[data-theme] .themed {
+    /* Default gradient stops for Tailwind's gradient system */
+    --tw-gradient-from: var(--button-bg, var(--accent)) !important;
+    --tw-gradient-to: color-mix(in srgb, var(--button-bg, var(--accent)) 85%, black) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  /* Apply theme gradient only for opt-in gradient elements */
+  html[data-theme] .themed.bg-gradient-to-r,
+  html[data-theme] .themed.bg-gradient-to-l,
+  html[data-theme] .themed.bg-gradient-to-t,
+  html[data-theme] .themed.bg-gradient-to-b,
+  html[data-theme] .themed.bg-gradient-to-tr,
+  html[data-theme] .themed.bg-gradient-to-tl,
+  html[data-theme] .themed.bg-gradient-to-br,
+  html[data-theme] .themed.bg-gradient-to-bl {
+    background-image: var(--button-gradient, linear-gradient(90deg, var(--tw-gradient-from), var(--tw-gradient-to))) !important;
+  }
+
+  /* If an element explicitly uses Tailwind from-/via-/to-* stops, override them only when inside .themed */
+  html[data-theme] .themed[class*=" from-"],
+  html[data-theme] .themed[class^="from-"],
+  html[data-theme] .themed[class*=" to-"],
+  html[data-theme] .themed[class^="to-"],
+  html[data-theme] .themed[class*=" via-"],
+  html[data-theme] .themed[class^="via-"] {
+    --tw-gradient-from: var(--button-bg, var(--accent)) !important;
+    --tw-gradient-to: color-mix(in srgb, var(--button-bg, var(--accent)) 85%, black) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  /* Opt-in brand text/background/border under .themed only */
+  html[data-theme] .themed .text-primary,
+  html[data-theme] .themed .text-brand,
+  html[data-theme] .themed .text-primary-500 { color: var(--accent) !important; }
+  html[data-theme] .themed .bg-brand,
+  html[data-theme] .themed .bg-primary { background-color: var(--button-bg, var(--accent)) !important; }
+  html[data-theme] .themed .border-brand,
+  html[data-theme] .themed .border-primary { border-color: var(--accent) !important; }
 }
