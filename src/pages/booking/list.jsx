@@ -930,7 +930,7 @@ const handleTabChange = (value) => {
                                                 <Button
                                                 className={`${ColorStyles.bgStatusColor} text-white w-28 mt-14`}
                                                 onClick={() => {
-                                                    onRequestDriverHandler(selectedBookingForReassign, 'REQUEST_ALL');
+                                                    onRequestDriverHandler(selectedBookingForReassign, 'DRIVER');
                                                     setShowReassignModal(false);
                                                     setSelectedBookingForReassign(null);
                                                 }}
