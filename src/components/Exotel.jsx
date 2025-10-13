@@ -2,18 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardBody, Typography, Button, Spinner, Input } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { Popover, PopoverHandler, PopoverContent } from "@material-tailwind/react";
 import moment from "moment";
 
 export function ExotelCallsList() {
   const [callList, setCallList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isDateFilterPopoverOpen, setIsDateFilterPopoverOpen] = useState(false);
+  const [startTimeFrom, setStartTimeFrom] = useState('');
+  const [startTimeTo, setStartTimeTo] = useState('');
 
- 
-  const callsList = async (showLoader = false) => {
+  const callsList = async (showLoader = false, values = {}) => {
     if (showLoader) setLoading(true);
     try {
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.EXOTEL_CALL_LOGS);
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.EXOTEL_CALL_LOGS, {
+        StartTimeFrom: values.from || '',
+        StartTimeTo: values.to || '',
+        limit: values.limit || 15,
+        offset: values.offset || 0,
+      });
       if (data?.success) {
         setCallList(data.data || []);
       } else {
@@ -30,10 +38,80 @@ export function ExotelCallsList() {
     callsList();
   }, []);
 
+  useEffect(() => {
+    if (startTimeFrom && startTimeTo) {
+      callsList(true, { from: startTimeFrom, to: startTimeTo });
+    }
+  }, [startTimeFrom, startTimeTo]);
+
+  const handleResetFilters = () => {
+    setStartTimeFrom('');
+    setStartTimeTo('');
+    setIsDateFilterPopoverOpen(false);
+    callsList(true);
+  };
 
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="p-4 rounded-lg shadow-sm">
+        <div className="flex items-center gap-4">
+          <Typography variant="small" className="text-gray-600 font-semibold">
+            Filter by Date Range
+          </Typography>
+          <Popover placement="bottom-start" open={isDateFilterPopoverOpen} handler={setIsDateFilterPopoverOpen}>
+            <PopoverHandler>
+              <div className="flex items-center cursor-pointer">
+                <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                <Typography variant="small" className="ml-2 text-gray-600">
+                  {startTimeFrom && startTimeTo
+                    ? `${moment(startTimeFrom).format('DD-MM-YYYY HH:mm:ss')} to ${moment(startTimeTo).format('DD-MM-YYYY HH:mm:ss')}`
+                    : 'Select Date Range'}
+                </Typography>
+              </div>
+            </PopoverHandler>
+            <PopoverContent className="p-4 z-10 bg-white shadow-lg rounded-lg w-auto">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Typography variant="small" className="text-gray-600 w-auto">
+                    From:
+                  </Typography>
+                  <input
+                    type="datetime-local"
+                    value={startTimeFrom}
+                    onChange={(e) => setStartTimeFrom(e.target.value)}
+                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                    min={`${moment().format('YYYY-MM-DD')}T hh:mm:ss`}
+                    max={`${moment().format('YYYY-MM-DD')}T hh:mm:ss`}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm flex-1"
+                  />
+                
+                
+                  <Typography variant="small" className="text-gray-600 w-auto">
+                    To:
+                  </Typography>
+                  <input
+                    type="datetime-local"
+                    value={startTimeTo}
+                    onChange={(e) => setStartTimeTo(e.target.value)}
+                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                    min={startTimeFrom || `${moment().format('YYYY-MM-DD')}T hh:mm`}
+                    max={`${moment().format('YYYY-MM-DD')}T hh:mm`}
+                    className="px-2 py-1 border border-gray-300 rounded-md text-sm flex-1"
+                  />
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outlined"
+                    size="sm"
+                    onClick={handleResetFilters}
+                  >
+                    Reset
+                  </Button>
+                </div>
+        </div>
       </div>
       <Card>
         {callList.length > 0 ? (
@@ -48,6 +126,8 @@ export function ExotelCallsList() {
                     {[
                     // "sid", 
                     // "Parent Call Sid", 
+                    "Start Time",
+                    "End Time", 
                     "Date Created", 
                     "Date Updated", 
                     "Account Sid", 
@@ -56,8 +136,6 @@ export function ExotelCallsList() {
                     "Phone Number",
                     // "phone Number Sid",
                     "Status",
-                    "Start Time",
-                    "End Time",
                     "Duration",
                     "Price",
                     "Direction",
@@ -122,6 +200,12 @@ export function ExotelCallsList() {
                             <Typography className="text-xs font-semibold text-blue-gray-600">{parentCallSid || '-'}</Typography>
                           </td> */}
                           <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(startTime).format('DD-MM-YYYY HH:MM') || '-'}</Typography>
+                          </td>
+                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(endTime).format('DD-MM-YYYY HH:MM') || '-'}</Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Typography className="text-xs font-semibold text-blue-gray-600">{moment(dateCreated).format("DD-MM-YYYY HH:MM") || '-'}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -144,12 +228,6 @@ export function ExotelCallsList() {
                           </td> */}
                           <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Typography className="text-xs font-semibold text-blue-gray-600">{status || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(startTime).format('DD-MM-YYYY HH:MM') || '-'}</Typography>
-                          </td>
-                            <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(endTime).format('DD-MM-YYYY HH:MM') || '-'}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Typography className="text-xs font-semibold text-blue-gray-600">{duration || '-'}</Typography>
