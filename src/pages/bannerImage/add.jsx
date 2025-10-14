@@ -3,9 +3,9 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-select'; // Assuming react-select is used
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import Multiselect from 'multiselect-react-dropdown';
 
 const AddBanner = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const AddBanner = () => {
     status: true,
     type: '',
     image: null,
-    zone: '',
+    zone: [],
   };
 
   const fetchGeoData = async () => {
@@ -58,7 +58,7 @@ const AddBanner = () => {
       ),
       fromDate: Yup.string().required('Start Date is required'),
       toDate: Yup.string().required('End Date is required'),
-      zone: Yup.string().required('Zone is required')
+      zone: Yup.mixed().required('Zone is required')
   });
 
   const handleImageUpload = (file, setFieldValue) => {
@@ -82,7 +82,7 @@ const AddBanner = () => {
       formData.append('redirectUrl', values.redirectUrl.trim());
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
-      formData.append('zone', values.zone);
+      formData.append('zone', JSON.stringify(values.zone));
       formData.append('image', values.image, values.image.name);
       formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
@@ -161,11 +161,28 @@ const AddBanner = () => {
                 <label htmlFor="zone" className="text-sm font-medium text-gray-700">
                   Zone
                 </label>
-                <Select
+                <Multiselect
                   options={ZONE_OPTIONS}
-                  onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
-                  placeholder="Select Zone"
+                  selectedValues={ZONE_OPTIONS.filter((option) =>
+                    initialValues.zone.includes(option.value)
+                  )}
+                  onSelect={(selectedList) =>
+                    setFieldValue(
+                      'zone',
+                      selectedList.map((item) => item.value)
+                    )
+                  }
+                  onRemove={(selectedList) =>
+                    setFieldValue(
+                      'zone',
+                      selectedList.map((item) => item.value)
+                    )
+                  }
+                  displayValue="label"
+                  placeholder="Select Zones"
                   className="w-full"
+                  showCheckbox
+                  closeOnSelect={false}
                   name="zone"
                 />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
