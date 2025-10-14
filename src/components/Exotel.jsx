@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardHeader, CardBody, Typography, Button, Spinner, Input } from "@material-tailwind/react";
+import { Card, CardHeader, CardBody, Typography, Button, Spinner, Input,Chip  } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
@@ -12,35 +12,64 @@ export function ExotelCallsList() {
   const [isDateFilterPopoverOpen, setIsDateFilterPopoverOpen] = useState(false);
   const [startTimeFrom, setStartTimeFrom] = useState('');
   const [startTimeTo, setStartTimeTo] = useState('');
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 15,
+  });
 
-  const callsList = async (showLoader = false, values = {}) => {
+  const callsList = async (page = 1, showLoader = false, values = {}) => {
     if (showLoader) setLoading(true);
     try {
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.EXOTEL_CALL_LOGS, {
-        StartTimeFrom: values.from || '',
-        StartTimeTo: values.to || '',
-        limit: values.limit || 15,
-        offset: values.offset || 0,
-      });
-      if (data?.success) {
-        setCallList(data.data || []);
+      const queryParams = {
+        StartTimeFrom: values.from ? new Date(values.from).toISOString() : '',
+        StartTimeTo: values.to ? new Date(values.to).toISOString() : '',
+        limit: pagination.itemsPerPage,
+        page: page,
+      };
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.EXOTEL_CALL_LOGS, queryParams);
+      console.log('API Response:', data);
+      if (data?.success && Array.isArray(data.data)) {
+        setCallList(data.data);
+        setPagination({
+          currentPage: data?.pagination?.currentPage || page,
+          totalPages: data?.pagination?.totalPages || Math.ceil((data?.pagination?.totalItems || data.data.length) / pagination.itemsPerPage),
+          totalItems: data?.pagination?.totalItems || data.data.length,
+          itemsPerPage: data?.pagination?.itemsPerPage || pagination.itemsPerPage,
+        });
       } else {
-        console.error('API request failed:', data?.message);
+        console.error('API request failed or data is not an array:', data?.message);
+        setCallList([]);
+        setPagination((prev) => ({
+          ...prev,
+          currentPage: page,
+          totalPages: 1,
+          totalItems: 0,
+        }));
       }
     } catch (error) {
       console.error('Error fetching call logs:', error);
+      setCallList([]);
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: page,
+        totalPages: 1,
+        totalItems: 0,
+      }));
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    callsList();
-  }, []);
+    callsList(pagination.currentPage, true);
+  }, [pagination.currentPage]);
 
   useEffect(() => {
     if (startTimeFrom && startTimeTo) {
-      callsList(true, { from: startTimeFrom, to: startTimeTo });
+      callsList(1, true, { from: startTimeFrom, to: startTimeTo });
+      setPagination((prev) => ({ ...prev, currentPage: 1 }));
     }
   }, [startTimeFrom, startTimeTo]);
 
@@ -48,7 +77,40 @@ export function ExotelCallsList() {
     setStartTimeFrom('');
     setStartTimeTo('');
     setIsDateFilterPopoverOpen(false);
-    callsList(true);
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    callsList(1, true);
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+    }
+  };
+
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === pagination.currentPage ? "filled" : "outlined"}
+          className={`mx-1 ${i === pagination.currentPage ? 'bg-blue-500 text-white' : 'border-blue-500 text-blue-500'}`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
   };
 
   return (
@@ -80,12 +142,8 @@ export function ExotelCallsList() {
                     value={startTimeFrom}
                     onChange={(e) => setStartTimeFrom(e.target.value)}
                     onClick={(e) => e.target.showPicker && e.target.showPicker()}
-                    min={`${moment().format('YYYY-MM-DD')}T hh:mm:ss`}
-                    max={`${moment().format('YYYY-MM-DD')}T hh:mm:ss`}
                     className="px-3 py-1 border border-gray-300 rounded-md text-sm flex-1"
                   />
-                
-                
                   <Typography variant="small" className="text-gray-600 w-auto">
                     To:
                   </Typography>
@@ -94,8 +152,7 @@ export function ExotelCallsList() {
                     value={startTimeTo}
                     onChange={(e) => setStartTimeTo(e.target.value)}
                     onClick={(e) => e.target.showPicker && e.target.showPicker()}
-                    min={startTimeFrom || `${moment().format('YYYY-MM-DD')}T hh:mm`}
-                    max={`${moment().format('YYYY-MM-DD')}T hh:mm`}
+                    min={startTimeFrom}
                     className="px-2 py-1 border border-gray-300 rounded-md text-sm flex-1"
                   />
                 </div>
@@ -128,8 +185,8 @@ export function ExotelCallsList() {
                     // "Parent Call Sid", 
                     "Start Time",
                     "End Time", 
-                    "Date Created", 
-                    "Date Updated", 
+                    // "Date Created", 
+                    // "Date Updated", 
                     "Account Sid", 
                     "To", 
                     "From",
@@ -161,7 +218,7 @@ export function ExotelCallsList() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={7} className="py-3 px-5">
+                      <td colSpan={11} className="py-3 px-5">
                         <div className="flex justify-center items-center">
                           <Spinner className="h-12 w-12" />
                         </div>
@@ -169,100 +226,111 @@ export function ExotelCallsList() {
                     </tr>
                   ) : (
                     callList.map(
-                      ({ id, 
-                        sid,
-                        parentCallSid,
-                        dateCreated,
-                        dateUpdated,
-                        accountSid,
-                        to,
-                        from,
-                        phoneNumber,
-                        phoneNumberSid,
-                        status,
-                        startTime,
-                        endTime,
-                        duration,
-                        price,
-                        direction,
-                        answeredBy,
-                        forwardedFrom,
-                        callerName,
-                        uri,
-                        customField,
-                        recordingUrl,  
+                      ({
+                        id,
+                        CallSid,
+                        ParentCallSid,
+                        DateCreated,
+                        DateUpdated,
+                        AccountSid,
+                        To,
+                        From,
+                        PhoneNumber,
+                        PhoneNumberSid,
+                        CallStatus,
+                        StartTime,
+                        EndTime,
+                        Duration,
+                        Price,
+                        Direction,
+                        AnsweredBy,
+                        ForwardedFrom,
+                        CallerName,
+                        Uri,
+                        CustomField,
+                        RecordingUrl,
                       }) => (
                         <tr key={id}>
                           {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{sid}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{CallSid}</Typography>
                           </td> */}
                           {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{parentCallSid || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{ParentCallSid || '-'}</Typography>
                           </td> */}
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(startTime).format('DD-MM-YYYY HH:MM') || '-'}</Typography>
-                          </td>
-                            <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(endTime).format('DD-MM-YYYY HH:MM') || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(StartTime).format('DD-MM-YYYY HH:mm') || '-'}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(dateCreated).format("DD-MM-YYYY HH:MM") || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(dateUpdated).format("DD-MM-YYYY HH:MM") || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{accountSid|| '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{to|| '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{from|| '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{phoneNumber|| '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(EndTime).format('DD-MM-YYYY HH:mm') || '-'}</Typography>
                           </td>
                           {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{phoneNumberSid || '-'}</Typography>
-                          </td> */}
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{status || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{duration || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{price || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{direction || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{answeredBy || '-'}</Typography>
-                          </td>
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{forwardedFrom || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(DateCreated).format("DD-MM-YYYY HH:mm") || '-'}</Typography>
                           </td> */}
                           {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{callerName || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(DateUpdated).format("DD-MM-YYYY HH:mm") || '-'}</Typography>
+                          </td> */}
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{AccountSid || '-'}</Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{To || '-'}</Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{From || '-'}</Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{PhoneNumber || '-'}</Typography>
+                          </td>
+                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{PhoneNumberSid || '-'}</Typography>
+                          </td> */}
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Chip
+                              variant="ghost"
+                              value={CallStatus || "-"}
+                              className={`py-0.5 px-2 text-[11px] font-medium w-fit 
+                                ${CallStatus === "completed"
+                                ? "bg-green-600 text-white"
+                                : CallStatus === "failed"
+                                  ? "bg-red-600 text-white"
+                                  : CallStatus === 'buys' ? "bg-yellow-600" : "bg-blue-gray-600 text-white"
+                                }`}
+                            />
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{Duration || '-'}</Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{Price || '-'}</Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{Direction || '-'}</Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{AnsweredBy || '-'}</Typography>
+                          </td>
+                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{ForwardedFrom || '-'}</Typography>
                           </td> */}
                           {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{uri || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{CallerName || '-'}</Typography>
                           </td> */}
                           {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{customField || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{Uri || '-'}</Typography>
+                          </td> */}
+                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{CustomField || '-'}</Typography>
                           </td> */}
                           {/* <td>
-                          {recordingUrl ? (
+                            {RecordingUrl ? (
                               <audio controls className="w-full max-w-[200px]">
-                                <source src={recordingUrl} type="audio/mpeg" />
+                                <source src={RecordingUrl} type="audio/mpeg" />
                                 Your browser does not support the audio element.
                               </audio>
                             ) : (
                               <Typography className="text-xs font-semibold text-blue-gray-600">No Audio</Typography>
                             )}
-                            </td> */}
+                          </td> */}
                           {/* <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Typography className="text-xs font-semibold text-blue-gray-600">{}</Typography>
                           </td> */}
@@ -272,6 +340,27 @@ export function ExotelCallsList() {
                   )}
                 </tbody>
               </table>
+              <div className="flex items-center justify-center mt-4">
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={pagination.currentPage === 1}
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  className="mx-1"
+                >
+                  {"<"}
+                </Button>
+                {generatePageButtons()}
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  className="mx-1"
+                >
+                  {">"}
+                </Button>
+              </div>
             </CardBody>
           </>
         ) : (
