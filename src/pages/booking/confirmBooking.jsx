@@ -1052,10 +1052,12 @@ const ConfirmBooking = (props) => {
                                     {bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name || "Not Added"}
                                 </Typography>
                             </div>
-                              <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
-                               <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km` }</Typography>
-                            </div>
+                         { bookingDetails?.packageType !== 'Local' &&
+  <div className="flex justify-between">
+    <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
+    <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
+  </div>
+}
                             {bookingDetails?.status !== "QUOTED" &&  <>
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Start OTP: </Typography>
