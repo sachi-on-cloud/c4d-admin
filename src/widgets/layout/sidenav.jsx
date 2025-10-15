@@ -125,22 +125,22 @@ export function Sidenav({ brandImg, brandName, routes }) {
   border border-blue-gray-100`}
     >
       <div className={`relative`}>
-        <Link to="/" className={`py-5 ${miniSidenav ? 'px-0' : 'px-6'} text-center`}>
+        <Link to="/" className={`py-6 ${miniSidenav ? 'px-0' : 'px-6'} text-center transition-all duration-300`}>
           <Typography
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
           >
             {miniSidenav ? (
               <div className="flex items-center justify-center pt-4">
-                <img src="/img/app_icon.png" alt="ROOT CABS" className="h-8 w-8 rounded-full ring-2 ring-primary-200" />
+                <img src="/img/app_icon.png" alt="ROOT CABS" className="h-10 w-10 rounded-full ring-4 ring-primary-200 shadow-lg" />
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-3 px-4 pt-2">
-                  <img src="/img/app_icon.png" alt="ROOT CABS" className="h-8 w-8 rounded-full ring-2 ring-primary-200" />
+                <div className="flex items-center gap-4 px-4 pt-3">
+                  <img src="/img/app_icon.png" alt="ROOT CABS" className="h-10 w-10 rounded-full ring-4 ring-primary-200 shadow-lg" />
                   <div className="flex flex-col items-start">
-                    <span className="text-base font-semibold tracking-wide">ROOT CABS</span>
-                    <span className="text-xs text-blue-gray-500">{userName}</span>
+                    <span className="text-lg font-bold tracking-wide">ROOT CABS</span>
+                    <span className="text-sm text-blue-gray-600 font-medium">{userName}</span>
                   </div>
                 </div>
               </>
@@ -177,70 +177,66 @@ export function Sidenav({ brandImg, brandName, routes }) {
         </IconButton>
       </div>
       <div className={`m-1 h-[calc(100vh-150px)] overflow-y-auto ${miniSidenav ? 'px-0' : ''}`}>
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-2">
           {menuItems
             .filter(item => userPermissions.includes(item.permission))
             .map(({ name, path, end }) => (
-              <li key={name}>
-                <NavLink to={path} end={end}>
+              <li key={name} className="group">
+                <NavLink to={path} end={end} className="block">
                   {({ isActive }) => (
                     <Button
+                      size="sm"
                       variant="text"
-                      className={`group flex items-center gap-3 ${miniSidenav ? 'justify-center px-0' : 'px-3'} capitalize rounded-xl 
-                        ${isActive ? 'bg-primary-100 text-black' : 'hover:bg-primary-50'} `}
+                      className={`group flex items-center gap-4 ${miniSidenav ? 'justify-center px-0 py-3' : 'px-4 py-3'} capitalize rounded-xl transition-all duration-200 ease-in-out
+                        ${isActive 
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg transform scale-[1.02]' 
+                          : 'hover:bg-gradient-to-r hover:from-primary-50 hover:to-primary-100 text-gray-700 hover:shadow-md hover:transform hover:scale-[1.01]'
+                        } ${miniSidenav ? 'w-12 h-12' : 'w-full'}`}
                       fullWidth
                       onClick={() => toggleSubMenu(name)}
                     >
                       {name === "Home" ? (
                         <HomeIcon
-                          className={`h-6 w-6 text-black`}
+                          className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200`}
                         />
                       ) : null}
 
                       {name === "All Bookings" ? (
-                        <DocumentTextIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <DocumentTextIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       )
                         : (null)}
                       {name === "Customers" ? (
 
-                        <UserGroupIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <UserGroupIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       ) : null}
 
                       {name === "Vendors" ? (
-                        <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <BuildingStorefrontIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       ) : null}
                        {name === "Trip Master" ? (
-                        <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <BuildingStorefrontIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       ) : null}
 
 
                       {name === "Finance" ? (
-                        <ChartBarIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <ChartBarIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       ) : null}
 
                       {name === "Document Verification" ? (
-                        <DocumentCheckIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <DocumentCheckIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       ) : null}
                       {name === "Marketing" ? (
-                        <MegaphoneIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <MegaphoneIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       ) : null}
 
                       {name === "Admin" ? (
-                        <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                          }`} />
+                        <UserCircleIcon className={`h-7 w-7 ${miniSidenav ? 'mx-auto' : ''} ${isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} transition-colors duration-200 ${isActive ? 'bg-white/20' : ''} rounded-lg p-1`} />
                       ) : null}
 
                       {!miniSidenav && (
-                        <Typography color="inherit" className="font-medium capitalize">
-                          {name.toLowerCase()}
-                        </Typography>
+                        <Typography color="inherit" className={`font-semibold capitalize tracking-wide ${miniSidenav ? 'hidden' : 'block'} ${isActive ? 'text-white' : 'text-gray-700 group-hover:text-primary-700'} transition-colors duration-200`}>
+                        {name.toLowerCase()}
+                      </Typography>
                       )}
                       {miniSidenav && (
                         <Tooltip content={name} placement="right">
@@ -249,12 +245,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       )}
 
                       {!miniSidenav && name !== "Home" && (
-                        <div className="ml-auto">
-                          {isActive ? (
-                            <ChevronUpIcon className="w-5 h-5" />
-                          ) : (
-                            <ChevronDownIcon className="w-5 h-5" />
-                          )}
+                        <div className={`ml-auto transition-transform duration-200 ${openSubMenu === name ? 'rotate-180' : ''}`}>
+                          <ChevronDownIcon className={`w-5 h-5 ${isActive ? 'text-white/80' : 'text-gray-500 group-hover:text-primary-600'} transition-colors duration-200`} />
                         </div>
                       )}
                     </Button>
@@ -262,7 +254,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 </NavLink>
 
                 {!miniSidenav && name === "All Bookings" && openSubMenu === "All Bookings" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                       { label: "All", path: "/dashboard/booking/list" },
                       { label: "Drivers", path: "/dashboard/booking/list/actingDriver" },
@@ -274,41 +266,45 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                                 {label === "All" && (
                                 <img
                                   src="/img/all.png"
                                   alt="All"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                              {label === "Drivers" && (
                                 <img
                                   src="/img/driver.png"
                                   alt="Driver"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "Rides" && (
                                 <img
                                   src="/img/rides.png"
                                   alt="Rides"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "Rentals" && (
                                 <img
                                   src="/img/rental.png"
                                   alt="Rentals"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full "
                                 />
                               )}
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
@@ -321,7 +317,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 )}
 
                 {!miniSidenav && name === "Customers" && openSubMenu === "Customers" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                       { label: "All", path: "/dashboard/customers" },
                     ].map(({ label, path }) => (
@@ -330,8 +326,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                                 {label === "All" && (
@@ -339,14 +338,15 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                       <img
                                   src="/img/all.png"
                                   alt="All"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                                   </div>
                               
                               )}
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
@@ -359,7 +359,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 )}
 
                 {!miniSidenav && name === "Vendors" && openSubMenu === "Vendors" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                       { label: "Owners", path: "/dashboard/vendors/account" },
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
@@ -371,42 +371,46 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                                 {label === "Owners" && (
                                 <img
                                   src="/img/owners.png"
                                   alt="Owners"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                 {label === "Acting Driver" && (
                                 <img
                                   src="/img/acting_driver.png"
                                   alt="Acting Driver"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                 {label === "Vehicles" && (
                                 <img
                                   src="/img/vehicles.png"
                                   alt="Vehicles"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                  {label === "Online Vehicles List" && (
                                 <img
                                   src="/img/vehicleslist.png"
                                   alt="Online Vehicles List"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
 
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
@@ -418,7 +422,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   </ul>
                 )}
                 {!miniSidenav && name === "Trip Master" && openSubMenu === "Trip Master" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                       { label: "Details", path: "/dashboard/tripDetails" },
                       { label: "Reports", path: "/dashboard/tripDetails/reports" },
@@ -428,8 +432,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                               {label === "Details"  }
@@ -437,12 +444,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 // <img
                                 //   src="/img/pending_doc.png"
                                 //   alt="Pending Documents"
-                                //   className="h-6 w-6 rounded-full"
+                                //   className="h-4 w-4 rounded-full"
                                 // />
                               }
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
@@ -455,7 +463,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 )}
             
                 {name === "Finance" && openSubMenu === "Finance" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                     
                       { label: "Invoice", path: "/dashboard/finance/invoice" },
@@ -467,34 +475,38 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                                {label === "Invoice" && (
                                 <img
                                   src="/img/invoice.png"
                                   alt="Invoice"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                 {label === "Receipt" && (
                                 <img
                                   src="/img/recipt.png"
                                   alt="Receipt"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                 {label === "Master Subscription" && (
                                 <img
                                   src="/img/subscription.png"
                                   alt="Master Subscription"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
@@ -507,7 +519,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 )}
 
                 {name === "Document Verification" && openSubMenu === "Document Verification" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                       { label: "All", path: "/dashboard/doc-verification" },
                       { label: "Pending Documents", path: "/dashboard/doc-verification/pending" },
@@ -517,27 +529,31 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                               {label === "All" && (
                                 <img
                                   src="/img/all.png"
                                   alt="All"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "Pending Documents" && (
                                 <img
                                   src="/img/pending_doc.png"
                                   alt="Pending Documents"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
@@ -550,7 +566,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 )}
 
                 {name === "Marketing" && openSubMenu === "Marketing" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                       { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
                       { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
@@ -562,41 +578,45 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                               {label === "All Push Notification" && (
                                 <img
                                   src="/img/push_notification.png"
                                   alt="All Push Notification"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                 {label === "Drivers App Notification" && (
                                 <img
                                   src="/img/driver_app_notification.png"
                                   alt="Drivers App Notification"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                               {label === "Banner Image" && (
                                 <img
                                   src="/img/banner_img.png"
                                   alt="Banner Image"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                               {label === "Testimonial" && (
                                 <img
                                   src="/img/testimonial.png"
                                   alt="Testimonials Image"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
@@ -609,7 +629,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 )}
 
                 {name === "Admin" && openSubMenu === "Admin" && (
-                  <ul className="ml-0">
+                  <ul className="ml-6 mt-2 flex flex-col gap-1">
                     {[
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
@@ -624,29 +644,32 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           {({ isActive }) => (
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                                }`}
+                              className={`flex items-center gap-3 ${miniSidenav ? 'justify-center px-0 py-2' : 'px-4 py-2'} rounded-lg capitalize transition-all duration-200 ease-in-out
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
+                                  : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:shadow-sm'
+                                } ${miniSidenav ? 'w-10 h-10' : 'w-full'}`}
                               fullWidth
                             >
                               {label === "Users" && (
                                 <img
                                   src="/img/user.png"
                                   alt="Users"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "Master Price Table" && (
                                 <img
                                   src="/img/master_price.png"
                                   alt="Master Price"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "Instant Reward" && (
                                 <img
                                   src="/img/reward.png"
                                   alt="Instant Reward"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                                       
@@ -654,33 +677,34 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/geo_marking.png"
                                   alt="GeoMarkings"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "Version Control" && (
                                 <img
                                   src="/img/version_control.png"
                                   alt="Version Control"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "Discount Module" && (
                                 <img
                                   src="/img/discount.png"
                                   alt="Version Control"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                                {label === "TAX" && (
                                 <img
                                   src="/img/gst.png"
                                   alt="TAX"
-                                  className="h-6 w-6 rounded-full"
+                                  className="h-4 w-4 rounded-full"
                                 />
                               )}
                               <Typography
+                                size='sm'
                                 color="inherit"
-                                className="font-medium px-3 capitalize"
+                                className={`font-medium capitalize ${isActive ? 'text-white' : 'text-gray-700'} transition-colors duration-200`}
                               >
                                 {label}
                               </Typography>
