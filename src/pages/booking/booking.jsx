@@ -241,7 +241,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             lat: values.dropLocation?.lat || 0,
             lng: values.dropLocation?.lng || 0,
         } : {},
-        amount: quoteDetails?.amount?.estimatedPrice || 0, // Use estimatedPrice from quoteDetails
+        amount: quoteDetails?.amount?.estimatedPrice || 0,
+        cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
 };
@@ -1728,19 +1729,27 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             )}
                                                         </div>)}
                                                 </div>
-                                                {values.serviceType === "DRIVER" && values.packageSelected &&
+
+                                                {quoteDetails && (
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
-                                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
-                                                            <hr className="my-2 border border-black" />
-                                                            <div className="mt-4">
+                                                        <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                                        <hr className="my-2 border border-black" />
+                                                        <div className="mt-4">
+                                                            {values.serviceType === 'DRIVER' ? (
+                                                            <>
                                                                 <div className="flex justify-between">
                                                                     <Typography color="gray" variant="h6">Package:</Typography>
                                                                     <Typography>
                                                                         {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
                                                                     </Typography>
                                                                 </div>
-                                                                <>
+                                                                 <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.carType || ''}
+                                                                                </Typography>
+                                                                            </div>
                                                                     <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                        <Typography>
@@ -1761,22 +1770,46 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                     return "";
                                                                                 }
                                                                             })()}
-                                                                            </Typography>
-                                                                    </div>
-                                                                </>
-                                                            </div>
-                                                        </div>
-                                                    </Card>
-                                                }
-
-                                                {quoteDetails &&
-                                                    <Card className="my-6">
-                                                        <div className="border rounded-xl bg-gray-200 p-4">
-                                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
-                                                            <hr className="my-2 border border-black" />
-                                                            <div className="mt-4">
-                                                                <>
-                                                                    {values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ? (
+                                                                        </Typography>
+                                                                        </div>
+                                                                        <div>
+                                                                            {quoteDetails.discount?.percentage > 0 && (
+                                                                                <>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                                                                        <Typography>
+                                                                                            {quoteDetails.discount?.percentage} %
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Kilometer :</Typography>
+                                                                                        <Typography>{quoteDetails?.amount?.packageDetails?.kilometer} Kms</Typography>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between">
+                                                                                        <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
+                                                                                        <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                            {/* ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)} */}
+                                                                                            ₹ {(() => {
+                                                                                                const carType = quoteDetails?.amount?.carType?.toUpperCase();
+                                                                                                const pkg = quoteDetails?.amount?.packageDetails;
+                                                                                                const price = carType === 'MINI' ? Number(pkg?.price) :
+                                                                                                            carType === 'MUV' ? Number(pkg?.priceMVP) :
+                                                                                                            carType === 'SUV' ? Number(pkg?.priceSuv) :
+                                                                                                            carType === 'SEDAN' ? Number(pkg?.priceSedan) : 0;
+                                                                                                return price ? (price - (price * (Number(quoteDetails?.discount?.percentage) || 0) / 100)).toFixed(2) : 'N/A';
+                                                                                            })()}
+                                                                                            {/* {(() => {
+                                                                                                const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
+                                                                                                const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;
+                                                                                                return packagePrice - (packagePrice * discountPercentage / 100);
+                                                                                            })()} */}
+                                                                                        </Typography>
+                                                                                    </div>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                                                                                    </>
+                                                                        ) : values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? (
                                                                         <div className="space-y-3">
                                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Package Period:</Typography>
@@ -1920,11 +1953,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </Typography> */}
                                                                     </div>
                                                                     )}
-                                                                </>
+                                                               
                                                             </div>
                                                         </div>
                                                     </Card>
-                                                }
+                                                )}
 
                                                 {/* {values.pickupAddress && isLoaded && (
                                     <GoogleMap
@@ -2084,6 +2117,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         Check Estimated Price
                                                     </Button>
                                                 }
+                                                {values.serviceType == 'DRIVER' && values.pickupLocation && values.packageSelected &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() =>  getQuoteRides(values, setFieldValue)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
 
                                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                                     fullWidth
@@ -2101,7 +2139,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                         (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                         (values.packageTypeSelected === "Local" && values.tripType === "Round Trip" && !values.dropAddress) ||
-                                                        validationCheckForDriver(values)
+                                                        validationCheckForDriver(values) ||
+                                                          !quoteDetails
                                                     }
                                                     className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                 >
@@ -2115,7 +2154,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled ||  !quoteDetails}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2140,7 +2179,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                                 (values.packageTypeSelected === "Outstation" && !values.acType) ||
                                                                 (values.packageTypeSelected === "Outstation" && values.tripType === "Round Trip" && !values.toDate) ||
-                                                                validationCheckForDriverRental(values)
+                                                                validationCheckForDriverRental(values)||
+                                                                  !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2160,7 +2200,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !isValid ||
                                                                 !values.rideDate ||
                                                                 !values.packageSelected ||
-                                                                !values.pickupAddress
+                                                                !values.pickupAddress||
+                                                                  !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2181,7 +2222,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !values.rideDate ||
                                                                 !values.acType ||
                                                                 !values.pickupAddress ||
-                                                                !values.dropAddress
+                                                                !values.dropAddress||
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
