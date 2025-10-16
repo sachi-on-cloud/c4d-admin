@@ -627,7 +627,7 @@ const handleTabChange = (value) => {
                                             <Typography variant="h6" className="font-bold text-base  pr-3">
                                                 {counts[item.key]}
                                             </Typography>
-                                            <IconComponent className="w-10 h-10 mr-1" />
+                                            <IconComponent className="w-6 h-6 mr-1" />
                                         </div>
                                     </div>
                                 );
@@ -645,7 +645,7 @@ const handleTabChange = (value) => {
                         <div className="bg-gradient-to-r from-green-100 to-green-100 text-green-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
                             <div className="flex items-center justify-end w-full">
                                 <Typography variant="small" className="font-bold text-xs text-green-900">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
-                                <FaSync className="w-6 h-6 mr-2 text-green-900" />
+                                <FaSync className="w-4 h-4 mr-2 text-green-900" />
                             <Typography variant="h3" className="font-bold text-xl text-green-900">{selectedDriver?.count || 0}</Typography>
                             </div>
                             <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Last Updated: {selectedTime}</Typography>
