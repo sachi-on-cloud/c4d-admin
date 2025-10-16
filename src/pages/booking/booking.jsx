@@ -242,6 +242,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             lng: values.dropLocation?.lng || 0,
         } : {},
         amount: quoteDetails?.amount?.estimatedPrice || 0, // Use estimatedPrice from quoteDetails
+        cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
 };
