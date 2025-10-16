@@ -21,7 +21,7 @@ import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriang
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, ChevronUpIcon, UserIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
@@ -581,56 +581,77 @@ const handleTabChange = (value) => {
     return (
         <div className="flex flex-col bg-white rounded-xl shadow-lg" >
             {/* Status Cards Section */}
-            <div className="w-full px-4 py-6 md:px-6 lg:px-8">
-                <div className="grid grid-cols-1 gap-4">
+            <div className="w-full px-4 py-3 md:px-6 lg:px-8">
+                <div className="relative">
                     {/* Booking Status Count Section */}
-                    <div className="bg-white p-4 rounded-2xl shadow-2xl">
-                        <Typography variant="h6" className="text-gray-900 text-sm mb-2">
-                            Booking Status Count
-                        </Typography>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
+                    <div className="absolute top-0 right-0 flex gap-4 justify-end">
+                        <Button
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm shadow-lg"
+                            onClick={handleToggleDriverHours}
+                        >
+                            Select Slot
+                        </Button>
+                        
+                        <button
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm shadow-lg"
+                            onClick={() => {
+                                handleRefresh();
+                            }}
+                        >
+                            <span className="flex items-center gap-2">
+                                <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+                                Refresh
+                            </span>
+                        </button>
+                    </div>
+                
+                    {/* Status Cards Grid */}
+                    <div className="grid grid-cols-1  py-12 sm:grid-cols-2 md:grid-cols-7 gap-2">
                             {[
-                                { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
-                                { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
-                                { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-500', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
-                                { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-500', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
-                                { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-500', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
+                                { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
+                                { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-50 text-yellow-900', chipColor: 'bg-yellow-600 text-white' },
+                                { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-50 text-purple-900', chipColor: 'bg-purple-600 text-white' },
+                                { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-50 text-green-900', chipColor: 'bg-green-600 text-white' },
+                                { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-50 text-red-900', chipColor: 'bg-red-600 text-white' },
                             ].map((item, index) => {
                                 const IconComponent = item.icon;
                                 return (
                                     <div
                                         key={index}
-                                        className={`p-2 rounded-lg shadow-md flex flex-col items-center ${item.bgColor} text-white`}
+                                        className={`p-2 rounded-lg shadow-md flex flex-col items-end min-w-[80] ${item.color}`}
                                     >
-                                        <Typography variant="small" className="text-xs font-medium mb-1">
+                                        <Typography variant="small" className="text-xs font-medium mb-1 text-center w-full">
                                             {item.label}
                                         </Typography>
-                                        <div className="flex items-center">
-                                            <IconComponent className="w-5 h-5 mr-1" />
-                                            <Typography variant="h6" className="font-bold text-base">
+                                        <div className="flex items-center justify-end w-full">
+                                            <Typography variant="h6" className="font-bold text-base  pr-3">
                                                 {counts[item.key]}
                                             </Typography>
+                                            <IconComponent className="w-10 h-10 mr-1" />
                                         </div>
                                     </div>
                                 );
                             })}
+
+                        <div className="bg-gradient-to-r from-blue-100 to-blue-100 text-blue-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
+                            <div className="flex items-center justify-end mb-1 w-full">
+                                <FaUsers className="w-6 h-6 mr-2 text-blue-900" />
+                            <Typography variant="small" className="font-bold text-xs text-blue-900">
+                                    Total Drivers
+                            </Typography>
+                        </div>
+                            <Typography variant="h3" className="font-bold text-xl text-blue-900">{totalDriverCount}</Typography>
+                        </div>
+                        <div className="bg-gradient-to-r from-green-100 to-green-100 text-green-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
+                            <div className="flex items-center justify-end w-full">
+                                <Typography variant="small" className="font-bold text-xs text-green-900">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+                                <FaSync className="w-6 h-6 mr-2 text-green-900" />
+                            <Typography variant="h3" className="font-bold text-xl text-green-900">{selectedDriver?.count || 0}</Typography>
+                            </div>
+                            <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Last Updated: {selectedTime}</Typography>
                         </div>
                     </div>
-
-                    {/* Hourly Online Drivers Section */}
-                    <div className="bg-white p-4 rounded-2xl shadow-2xl">
-                        <div className="flex justify-between items-center mb-2">
-                            <Typography variant="h6" className="text-gray-900 text-sm">
-                                Hourly Online Drivers
-                            </Typography>
-                            <Button
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm"
-                                onClick={handleToggleDriverHours}
-                            >
-                                Select Slot
-                            </Button>
-                        </div>
-
+                </div>                    
                         {showDriverHours && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
@@ -668,46 +689,14 @@ const handleTabChange = (value) => {
                                 </div>
                             </div>
                         )}
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
-                            <div className="bg-blue-400 bg-gradient-to-br from-blue-500 to-blue-800 text-white p-2 rounded-lg text-center flex flex-col items-center">
-                                <div className="flex items-center mb-1">
-                                    <FaUsers className="w-6 h-6 mr-1 text-white" />
-                                    <Typography variant="small" className="text-white font-bold text-xs">
-                                        Total Drivers
-                                    </Typography>
                                 </div>
-                                <Typography variant="h3" className="font-bold text-xl">{totalDriverCount}</Typography>
-                            </div>
-                            <div className="bg-green-600 bg-gradient-to-br from-green-600 to-green-800 text-white p-2 rounded-lg text-center flex flex-col items-center">
-                                <div className="flex items-center">
-                                    <FaSync className="w-5 h-5 mr-1 text-white" />
-                                    <Typography variant="small" className="font-bold text-xs">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
-                                </div>
-                                <Typography variant="h3" className="font-bold text-xl">{selectedDriver?.count || 0}</Typography>
-                                <Typography variant="small" className="mt-1 font-medium text-xs text-white">Last Updated: {selectedTime}</Typography>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className='px-3 py-3'>
+            {/* <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
                 </Typography>
-            </div>
+            </div> */}
             <Card>
-                <div className='absolute right-10 -top-10'>
-                    <button
-                        className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
-                        onClick={handleRefresh}
-                    >
-                        <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
-                        <span>Refresh</span>
-                    </button>
-                </div>
-                <CardBody>
+                <CardBody className='pt-0'>
                     <Tabs  value={activeTab} >
                         <TabsHeader className="bg-gray-300 z-0 mb-4">
                     <div className="flex w-full items-center">
@@ -1115,7 +1104,10 @@ const handleTabChange = (value) => {
                                                                 {loadingStates[data.id] ? (
                                                                     <Spinner className="h-4 w-4" />
                                                                 ) : (
-                                                                    'Assign To Me'
+                                                                <div className="flex items-center">
+                                                                    <UserIcon className="w-8 h-8 text-white mr-1" />
+                                                                        Assign To Me
+                                                                    </div>
                                                                 )}
                                                                 </Button>
                                                             )}

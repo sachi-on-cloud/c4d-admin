@@ -21,6 +21,8 @@ import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import EditBooking from './editBooking';
 import DistanceExceedModal from '@/components/DistanceExceedModal';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -49,7 +51,7 @@ const currentDate = () => {
     return (new Date()).toISOString().split('T')[0];
 };
 
-const Booking = (props) => {
+const Booking = (props, btnShow=true) => {
     const [loading, setLoading] = useState(false);
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
     const [bookingTimes, setBookingTimes] = useState([]);
@@ -1019,12 +1021,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
-                <div className='py-6 rounded-3xl flex justify-between'>
+                <div className='py-2  flex justify-between bg-white mb-2'>
                     {customerData && (
                         <div className="p-2 flex w-[40%] flex-col relative">
                             <input
                                 type="text"
-                                className="w-full p-2 border rounded"
+                                className="relative w-full py-2 px-8 border rounded text-sm bg-gray-100"
                                 placeholder="Search by customer number or booking ID"
                                 value={searchText}
                                 onChange={(e) => {
@@ -1032,6 +1034,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                     searchBookings(e.target.value);
                                 }}
                             />
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <MagnifyingGlassIcon className="w-5 h-5 text-gray-600" />
+                            </div>
                             {(searchText || searchBookingId) && (
                                 <button
                                     type="button"
@@ -1089,8 +1094,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     </div>} */}
                     <button
                         onClick={() => setIsOpen(true)}
-                        className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
+                        className={`relative px-6 py-2 mr-2 text-sm w-40 h-10 mt-2 ${ColorStyles.addButtonColor}`}
                     >
+                        <div className="absolute inset-y-0 left-0 flex items-center  pointer-events-none ">
+                            <PlusIcon className="w-6 h-6 text-white" />
+                        </div>
                         Add New Booking
                     </button>
 
