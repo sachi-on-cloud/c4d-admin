@@ -63,17 +63,17 @@ export const EDIT_USER_SCHEMA = Yup.object({
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     packageTypeSelected: Yup.string().when('serviceType', {
-        is: (val) => val !== 'Outstation' && val !== 'RIDES',
+        is: (val) => val !== 'Outstation' && val !== 'RIDES' && val !== 'AUTO' && val !== 'PARCEL',
         then: (schema) => schema.required('Package Type is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
     rideTime: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val !== 'RIDES' && val !== 'AUTO',
         then: (schema) => schema.required('Ride Time is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
     rideDate: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val !== 'RIDES' && val !== 'AUTO',
         then: (schema) => schema.required('Ride Date is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
@@ -100,16 +100,17 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
         then: () => Yup.string().required('Trip Type is required'),
         otherwise: () => Yup.string(),
     }),
-    pickupAddress: Yup.string().when('serviceType', {
-        is: 'RIDES',
-        then: () => Yup.string().required('Pickup Address is required'),
-        otherwise: () => Yup.string(),
-    }),
-    dropAddress: Yup.string().when('serviceType', {
-        is: 'RIDES',
-        then: () => Yup.string().required('Drop Address is required'),
-        otherwise: () => Yup.string(),
-    }),
+   pickupAddress: Yup.string().when('serviceType', {
+    is: (val) => ['RIDES', 'AUTO'].includes(val),
+    then: () => Yup.string().required('Pickup Address is required'),
+    otherwise: () => Yup.string(),
+}),
+dropAddress: Yup.string().when('serviceType', {
+    is: (val) => ['RIDES', 'AUTO'].includes(val),
+    then: () => Yup.string().required('Drop Address is required'),
+    otherwise: () => Yup.string(),
+}),
+
 });
 
 

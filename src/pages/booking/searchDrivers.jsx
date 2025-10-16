@@ -145,8 +145,8 @@ export function SearchDrivers(props) {
                         return regex.test(nameField);
                     }
                 });
-                setDrivers(filtredOptions);
-            } else if (props.bookingData.serviceType === 'RIDES' && props.bookingData.requestType == 'REQUEST_ALL') {
+                setDrivers(filteredOptions);
+            } else if (props.bookingData.serviceType === 'RIDES' && props.bookingData.requestType === 'REQUEST_ALL') {
                 setLoadingRides(true);
                 try {
                     let data = {
@@ -191,6 +191,8 @@ export function SearchDrivers(props) {
                     }
                 } catch (error) {
                     console.error("Error in sendDriverRequest:", error);
+                    setLoadingRides(false);
+                    setLoading(false);
                 }
             } else if (props.bookingData.serviceType === 'RENTAL' && props.bookingData.requestType == 'REQUEST_ALL') {
                 setLoadingRides(true);
@@ -241,6 +243,57 @@ export function SearchDrivers(props) {
                     }
                 } catch (error) {
                     console.error("Error in sendDriverRequest:", error);
+                    setLoadingRides(false);
+                    setLoading(false);
+                }
+            } else if (props.bookingData.serviceType === 'AUTO' && props.bookingData.requestType === 'REQUEST_ALL') {
+                setLoadingRides(true);
+                try {
+                    let data = {
+                        bookingId: props.bookingData.id,
+                        distance: 0, // Adjust if distance is available in bookingData
+                        customerId: props.bookingData.CustomerId
+                    };
+                    let requestDriver = await ApiRequestUtils.post('/search/auto', data);
+                    if (requestDriver?.success) {
+                        setDrivers([]);
+                        setTimeout(async () => {
+                            console.log("30 seconds passed. Checking driver availability...");
+                            let checkDriverStatus = await ApiRequestUtils.get(API_ROUTES.RIDES_DRIVER_LIST + '/' + props.bookingData.id);
+                            if (checkDriverStatus?.data?.length > 0) {
+                                const formattedDrivers = checkDriverStatus.data.map((item) => ({
+                                    id: item.cabId || item.Driver?.Cab?.id || item.id,
+                                    name: item.Driver?.Cab?.name || item.name || 'N/A',
+                                    driverName: item.Driver?.firstName || 'N/A',
+                                    status: item.Shift?.availability === "AVAILABLE" ? "ACTIVE" : "INACTIVE",
+                                    carType: item.Driver?.Cab?.carType || 'AUTO',
+                                    phoneNumber: item.Driver?.phoneNumber || '',
+                                    priceOffered: item.offerPrice || item.driverPrice || 0,
+                                    tripCount: item.Driver?.totalRides || 0,
+                                    Drivers: [{ id: item.DriverId || item.Driver?.id }],
+                                    fullData: item,
+                                    curAddress: item.Shift?.curAddress?.name || item.curAddress || '',
+                                    travelDistance: item.travelDistance || '',
+                                    travelDuration: item.travelDuration || 0,
+                                    intercityCount: item.localCount || 0,
+                                    outstationCount: item.outstationCount || 0,
+                                }));
+                                console.log("Formatted Drivers for AUTO:", formattedDrivers);
+                                setDrivers(formattedDrivers);
+                            } else {
+                                console.log("No driver found.");
+                                setDrivers([]);
+                            }
+                            setLoadingRides(false);
+                        }, 30000);
+                    } else {
+                        setLoadingRides(false);
+                        setLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Error in sendDriverRequest for AUTO:", error);
+                    setLoadingRides(false);
+                    setLoading(false);
                 }
             } else {
                 let data;
@@ -252,6 +305,12 @@ export function SearchDrivers(props) {
                         type: props?.bookingData?.packageType,
                     }
                     data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
+                } else if (props.bookingData.serviceType === 'AUTO') {
+                    setLoading(false);
+                    data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_AUTO_PACKAGE, {
+                        latitude: props?.bookingData?.pickupLat,
+                        longitude: props?.bookingData?.pickupLong,
+                    });
                 } else {
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
@@ -378,7 +437,7 @@ export function SearchDrivers(props) {
                 reqBody.cabId = driverId;
                 reqBody.driverId = cabDriverId;
             } else {
-                reqBody.driverId = driverId;
+                reqBody.driverId = cabDriverId;
             }
             const data = await ApiRequestUtils.update(API_ROUTES.UPATE_ADMIN_BOOKINGS, reqBody, props?.bookingData?.customerId);
             if (data?.success) {
@@ -607,7 +666,7 @@ export function SearchDrivers(props) {
                     </div>
                 </div >
             }
-            {props?.bookingData?.serviceType != 'DRIVER' &&
+            {props?.bookingData?.serviceType !== 'DRIVER' &&
                 <div className="flex flex-col w-full">
                     <Card>
                         {loadingRides ? (
@@ -623,32 +682,32 @@ export function SearchDrivers(props) {
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
-                <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
-                    {props.bookingData?.requestType !== 'REQUEST_ALL' && 
-                    <div className="flex justify-end mb-4">
-                        <Button
-                            color="red"
-                            size="sm"
-                            className="w-36"
-                            onClick={checkAllStatus}
-                            disabled={checkingAllStatus}
-                        >
-                            {checkingAllStatus ? (
-                                <div className="flex items-center justify-center">
-                                    <Spinner className="h-4 w-4 mr-2" />
-                                     {/* <AnimatedProgress duration={30000} /> */}
-                                    Checking...
-                                </div>
-                            ) : "Check All Status"}
-                        </Button>
-                    </div>
-                    }
+                            <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
+                                {props.bookingData?.requestType !== 'REQUEST_ALL' && 
+                                    <div className="flex justify-end mb-4">
+                                        <Button
+                                            color="red"
+                                            size="sm"
+                                            className="w-36"
+                                            onClick={checkAllStatus}
+                                            disabled={checkingAllStatus}
+                                        >
+                                            {checkingAllStatus ? (
+                                                <div className="flex items-center justify-center">
+                                                    <Spinner className="h-4 w-4 mr-2" />
+                                                    {/* <AnimatedProgress duration={30000} /> */}
+                                                    Checking...
+                                                </div>
+                                            ) : "Check All Status"}
+                                        </Button>
+                                    </div>
+                                }
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {["Cab Name", "Driver Name", "Phone Number", "Current Address", "Cab Type",
+                                            {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : "Cab Name", "Driver Name", "Phone Number", "Current Address", ...(props.bookingData?.serviceType !== "AUTO" ? ["Cab Type"] : []), 
                                                 ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []),
-                                                "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
+                                                "Local Count",  ...(props.bookingData?.serviceType !== "AUTO" ? ["Outstation Count"] : []), "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
                                                     <th
                                                         key={el}
                                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -716,11 +775,13 @@ export function SearchDrivers(props) {
                                                                 {(Shifts?.[0]?.curAddress?.name || curAddress?.name) || curAddress}
                                                             </Typography>
                                                         </td>
-                                                        <td className={className}>
-                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {carType}
-                                                            </Typography>
-                                                        </td>
+                                                        {props.bookingData.serviceType !== "AUTO" && (
+                                                            <td className={className}>
+                                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                    {carType}
+                                                                </Typography>
+                                                            </td>
+                                                        )}
                                                         {props.bookingData.requestType == 'REQUEST_ALL' &&
                                                             <td className={className}>
                                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -733,11 +794,13 @@ export function SearchDrivers(props) {
                                                                 {intercityCount}
                                                             </Typography>
                                                         </td>
-                                                        <td className={className}>
-                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {outstationCount}
-                                                            </Typography>
-                                                        </td>
+                                                        {props.bookingData.serviceType !== "AUTO" && (
+                                                            <td className={className}>
+                                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                    {outstationCount}
+                                                                </Typography>
+                                                            </td>
+                                                       )}
                                                         <td className={className}>
                                                             <Chip
                                                                 variant="ghost"
@@ -777,7 +840,7 @@ export function SearchDrivers(props) {
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id, fullData) }}
                                                                 className="text-xs font-semibold text-white bg-primary"
                                                             >
-                                                                Assign Cab
+                                                                {props.bookingData.serviceType === "AUTO" ? "Assign Auto" : "Assign Cab"}
                                                             </Button>
                                                         </td>
                                                     </tr>
@@ -786,7 +849,8 @@ export function SearchDrivers(props) {
                                         )}
                                     </tbody>
                                 </table>
-                            </CardBody>) : (
+                            </CardBody>
+                        ) : (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
                                     {`No ${props?.bookingData?.serviceType == "DRIVER" ? 'drivers' : 'cabs'} Near By`}

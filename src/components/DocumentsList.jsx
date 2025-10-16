@@ -15,13 +15,15 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import Swal from "sweetalert2";
 
-const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
+const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcelsList }) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
     const [isDeclining, setIsDeclining] = useState(false);
     const [declineReason, setDeclineReason] = useState("");
     const [cabs, setCabs] = useState(cabsList);
+    const [autos, setAutos] = useState(autoList);
+    const [parcels, setParcels] = useState(parcelsList);
 
     const fetchData = async () => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
@@ -109,7 +111,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                             "Updated At",
                                             "Verified By",
                                             "Verified At",
-                                            
+
                                         ].map((el, index) => (
                                             <th
                                                 key={index}
@@ -127,7 +129,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                 </thead>
                                 <tbody>
                                     {documentData.map(
-                                        ({ id, type, image1, status, User, created_at ,updated_at, image2,Proofs }, key) => {
+                                        ({ id, type, image1, status, User, created_at, updated_at, image2, Proofs }, key) => {
                                             const className = `py-3 px-5 ${key === documentData.length - 1
                                                 ? ""
                                                 : "border-b border-blue-gray-50"
@@ -180,12 +182,12 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                                                 {moment(created_at).format("DD-MM-YYYY")}
                                                             </Typography>
                                                         </td>
-                                                    <td className={className}>
+                                                        <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                            {status !== 'PENDING' ? 
-                                                            moment(Proofs?.[0]?.updated_at).format("DD-MM-YYYY"):""}
+                                                                {status !== 'PENDING' ?
+                                                                    moment(Proofs?.[0]?.updated_at).format("DD-MM-YYYY") : ""}
                                                             </Typography>
-                                                            </td>
+                                                        </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {User ? User?.name : ''}
@@ -193,7 +195,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                 {status !== 'PENDING' ? moment(updated_at).format("DD-MM-YYYY") : ""}
+                                                                {status !== 'PENDING' ? moment(updated_at).format("DD-MM-YYYY") : ""}
                                                             </Typography>
                                                         </td>
                                                     </tr>
@@ -309,7 +311,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList }) => {
                                 <div className="flex space-x-5">
                                     <Button
                                         onClick={() => {
-                                            if (type !== 'driver' && (modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? cabs.length > 0 : true) {
+                                            if (type !== 'driver' && (modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? (cabs.length > 0 || autos.length > 0 || parcels.length > 0) : true) {
                                                 handleStatusChange(modalData.id, "APPROVED", "")
                                             } else {
                                                 setModalData(null);

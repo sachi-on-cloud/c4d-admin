@@ -39,6 +39,7 @@ const menuItems = [
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Marketing", path:"/dashboard/vendors/notificationList", permission: "Marketing" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
+  
 ];
 
 export function Sidenav({ brandImg, brandName, routes }) {
@@ -57,6 +58,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [openSubMenu, setOpenSubMenu] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [openBikeSubMenu, setOpenBikeSubMenu] = useState("");  
+  const [openAutoSubMenu, setOpenAutoSubMenu] = useState("");
 
   const toggleMenu = (menu) => {
     setOpenMenu((prev) => (prev === menu ? null : menu));
@@ -236,6 +239,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         <UserCircleIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
+                        
 
                       {!miniSidenav && (
                         <Typography color="inherit" className="font-medium capitalize">
@@ -268,6 +272,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Drivers", path: "/dashboard/booking/list/actingDriver" },
                       { label: "Rides", path: "/dashboard/booking/list/rides" },
                       { label: "Rentals", path: "/dashboard/booking/list/rentals" },
+                      { label: "Auto", path:"/dashboard/booking/list/Auto"},
+                      { label: "Parcel", path:"/dashboard/booking/list/Parcel"}
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -303,6 +309,20 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/rental.png"
                                   alt="Rentals"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                                 {label === "Auto" && (
+                                <img
+                                  src="/img/auto.png"
+                                  alt="Auto List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                               {label === "Parcel" && (
+                                <img
+                                  src="/img/Parcel_driver.png"
+                                  alt="Bike List"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
@@ -365,13 +385,111 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
-                    ].map(({ label, path }) => (
+                      {
+                        label: "Bike",
+                        isSubMenu: true,
+                        subItems: [
+                          { label: "Bike Owner", path:"/dashboard/vendors/account/parcel/list" },
+                          { label: "Bike List", path: "/dashboard/vendors/account/parcel" },
+                        ],
+                      },
+                      {
+                        label: "Auto",
+                        isSubMenu: true,
+                        subItems: [
+                      { label: "Auto Owner", path: "/dashboard/Vendors/account/autoview" },
+                       { label: "Auto List", path: "/dashboard/Vendors/account/autoList" },
+                        ],
+                      },
+                    ].map(({ label, path, isSubMenu, subItems }) => (
                       <li key={label}>
-                        <NavLink to={path} end>
-                          {({ isActive }) => (
+                        {isSubMenu ? (
+                          <>
                             <Button
                               variant="text"
-                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1 hover:bg-primary-50`}
+                              fullWidth
+                              onClick={() =>
+                                label === "Bike"
+                                  ? setOpenBikeSubMenu(openBikeSubMenu === label ? "" : label)
+                                  : setOpenAutoSubMenu(openAutoSubMenu === label ? "" : label)
+                              } 
+                            >
+                              <img
+                                src={label === "Bike" ? "/img/multiple_bike.jpg" : "/img/auto.png"}
+                                alt={label}
+                                className="h-6 w-6 rounded-full"
+                              />
+                              <Typography color="inherit" className="font-medium px-3 capitalize">
+                                {label}
+                              </Typography>
+                            </Button>
+                            {(label === "Bike" ? openBikeSubMenu === label : openAutoSubMenu === label) && (
+                              <ul className="ml-4">
+                                {subItems.map(({ label: subLabel, path: subPath }) => (
+                                  <li key={subLabel}>
+                                    <NavLink to={subPath} end>
+                                      {({ isActive }) => (
+                                        <Button
+                                          variant="text"
+                                          className={`flex items-center gap-2 ${
+                                            miniSidenav ? "justify-center px-0" : "px-8"
+                                          } py-2 rounded-lg capitalize mt-1 ${
+                                            isActive ? "bg-primary-100" : "hover:bg-primary-50"
+                                          }`}
+                                          fullWidth
+                                        >
+                                          {subLabel === "Bike Owner" && (
+                                            <img
+                                              src="/img/parcel_list.png"
+                                              alt="Bike Owner"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          {subLabel === "Bike List" && (
+                                            <img
+                                              src="/img/Parcel_driver.png"
+                                              alt="Bike List"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          {subLabel === "Auto Owner" && (
+                                            <img
+                                              src="/img/auto_owners.png"
+                                              alt="Auto Owner"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          {subLabel === "Auto List" && (
+                                            <img
+                                              src="/img/auto.png"
+                                              alt="Auto List"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          <Typography
+                                            color="inherit"
+                                            className="font-medium px-3 capitalize"
+                                          >
+                                            {subLabel}
+                                          </Typography>
+                                        </Button>
+                                      )}
+                                    </NavLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <NavLink to={path} end>
+                            {({ isActive }) => (
+                              <Button
+                                variant="text"
+                                className={`flex items-center gap-2 ${
+                                  miniSidenav ? "justify-center px-0" : "px-8"
+                                } py-2 rounded-lg capitalize mt-1 ${
+                                  isActive ? "bg-primary-100" : "hover:bg-primary-50"
                                 }`}
                               fullWidth
                             >
@@ -402,8 +520,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />
-                              )}
-
+                              )}                                
                               <Typography
                                 color="inherit"
                                 className="font-medium px-3 capitalize"
@@ -413,6 +530,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                             </Button>
                           )}
                         </NavLink>
+                        )}
                       </li>
                     ))}
                   </ul>

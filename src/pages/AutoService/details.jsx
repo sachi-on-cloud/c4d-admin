@@ -4,24 +4,42 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
-import { Button } from '@material-tailwind/react';
-import OwnersCabList from '@/components/OwnersCabList';
+import { Button, Spinner } from '@material-tailwind/react';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
+import AutoList from '@/components/AutoList';
 
-const AccountDetails = ({ btnShow = false, noApprove = false }) => {
+const AutoDetails = ({ btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
-    const [accountVal, setAccountVal] = useState({});
+    const [accountVal, setAccountVal] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const { id } = useParams();
+
     useEffect(() => {
         if (id) {
             fetchItem(id);
         }
     }, [id]);
+
     const fetchItem = async (itemId) => {
-        const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
-        setAccountVal(data?.data?.data);
+        try {
+            setLoading(true);
+            const response = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
+
+            if (response?.success) {
+                setAccountVal(response.data?.data);
+            } else {
+                setError("Failed to fetch account details");
+            }
+        } catch (error) {
+            console.error("Failed to fetch account details", error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
+
     const initialValues = {
         name: accountVal?.name || '',
         type: accountVal?.type || '',
@@ -36,13 +54,26 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
         pincode: accountVal?.pincode || '',
         status: accountVal?.availableStatus || 'Offline',
         ownerStatus: accountVal?.ownerStatus || 'InActive',
-        kycStatus: accountVal?.documentStatus?.status
+        kycStatus: accountVal?.documentStatus?.status || 'Pending'
     };
+
+    if (loading) {
+        return <div className="flex justify-center items-center py-10 mt-96">
+            <Spinner className="h-10 w-10" />
+        </div>
+    }
+
+    if (error) {
+        return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>;
+    }
+
+    if (!accountVal) {
+        return <div className="flex justify-center items-center h-screen">Account not found</div>;
+    }
 
     return (
         <>
             <div className="p-4">
-
                 <h2 className="text-2xl font-bold mb-4">Account Details</h2>
                 <Formik
                     initialValues={initialValues}
@@ -55,11 +86,9 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                 <div className='grid grid-cols-2 gap-4'>
                                     <div>
                                         <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
-                                        <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
-                                            <option value="">Select Type</option>
-                                            <option value="Individual">Owner Cum Driver</option>
-                                            <option value="Company">Travels</option>
-                                            <option value="Parcel">Bike</option>
+                                        <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="">Auto</option>
+
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -75,16 +104,16 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                     </div>
                                     <div>
                                         <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-                                        <Field type="email" name="email" disabled className="p-2 w-full rounded-md border-2  shadow-sm border-gray-300" />
+                                        <Field type="email" name="email" disabled className="p-2 w-full rounded-md border-2 shadow-sm border-gray-300" />
                                         <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="status" className="text-sm font-medium text-gray-700">Available Status</label>
+                                        <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
                                         <Field type="text" name="status" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700"> Status</label>
+                                        <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700">Subscription Status</label>
                                         <Field type="text" name="ownerStatus" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -105,35 +134,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                     </div>
                                 </div>
                                 <div className='space-y-2'>
-                                    {/* <div className="flex items-center mt-2">
-                                        <input
-                                            type="checkbox"
-                                            id="sameAddress"
-                                            disabled
-                                            checked={isSameAddress}
-                                            onChange={(e) => {
-                                                setIsSameAddress(e.target.checked);
-                                                if (e.target.checked) {
-                                                    const currentAddress = parseAddress(values.address);
-                                                    setFieldValue("street", currentAddress.street);
-                                                    setFieldValue("thaluk", currentAddress.taluk);
-                                                    setFieldValue("district", currentAddress.district);
-                                                    setFieldValue("state", currentAddress.state);
-                                                    setFieldValue("pincode", currentAddress.pincode);
-                                                } else {
-                                                    setFieldValue("street", "");
-                                                    setFieldValue("thaluk", "");
-                                                    setFieldValue("district", "");
-                                                    setFieldValue("state", "");
-                                                    setFieldValue("pincode", "");
-                                                }
-                                            }}
-                                            className="mr-2"
-                                        />
-                                        <label htmlFor="sameAddress" className="text-sm text-gray-700">
-                                            Same as Current Address
-                                        </label>
-                                    </div> */}
                                     <div>
                                         <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
                                     </div>
@@ -149,22 +149,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             Thaluk
                                         </label>
                                         <Field type="text" name="thaluk" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        {/* <Field type="text" disabled name="thaluk" className="p-2 w-full rounded-md border-gray-300 shadow-sm" /> */}
-                                        {/* <select
-                                            id="thaluk"
-                                            name="thaluk"
-                                            value={values.thaluk}
-                                            onChange={(e) => setFieldValue("thaluk", e.target.value)}
-                                            disabled
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
-                                        >
-                                            <option value="" disabled>Select Thaluk</option>
-                                            {/* {filteredThaluk.map((thaluk) => (
-                                                <option key={thaluk.id} value={thaluk.id}>
-                                                    {thaluk.name}
-                                                </option>
-                                            ))}
-                                        </select>  */}
                                         <ErrorMessage
                                             name="thaluk"
                                             component="div"
@@ -176,21 +160,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             District
                                         </label>
                                         <Field type="text" disabled name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        {/* <select
-                                            id="district"
-                                            name="district"
-                                            value={values.district}
-                                            disabled
-                                            onChange={(e) => setFieldValue("district", e.target.value)}
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
-                                        >
-                                            <option value="" disabled>Select District</option>
-                                            {filteredDistricts.map((district) => (
-                                                <option key={district.id} value={district.id}>
-                                                    {district.name}
-                                                </option>
-                                            ))}
-                                        </select> */}
                                         <ErrorMessage
                                             name="district"
                                             component="div"
@@ -202,21 +171,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             State
                                         </label>
                                         <Field type="text" disabled name="state" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        {/* <select
-                                            id="state"
-                                            name="state"
-                                            value={values.state}
-                                            disabled
-                                            onChange={(e) => setFieldValue("state", e.target.value)}
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
-                                        >
-                                            <option value="" disabled>Select State</option>
-                                            {filteredState.map((state) => (
-                                                <option key={state.id} value={state.id}>
-                                                    {state.name}
-                                                </option>
-                                            ))}
-                                        </select> */}
                                         <ErrorMessage
                                             name="state"
                                             component="div"
@@ -234,20 +188,21 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
-            {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels}/>}
-            {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
+            {accountVal && !btnShow && <AutoList cabsList={accountVal?.Autos} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} />}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow &&
                 <div className='flex justify-center w-full'>
                     <Button
-                        onClick={() => { navigate('/dashboard/vendors/account'); }}
+                        onClick={() => { navigate('/dashboard/vendors/account/autoView'); }}
                         className={`my-6 px-8 ${ColorStyles.backButton}`}
                     >
                         Back
                     </Button>
-                    <Button onClick={() => { navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`) }} className={`my-6 px-8 border-2 rounded-xl ${ColorStyles.editButton
-                        }`}>
+                    <Button
+                        onClick={() => { navigate(`/dashboard/vendors/account/autoView/details/edit/${id}`) }}
+                        className={`my-6 px-8 border-2 rounded-xl ${ColorStyles.editButton}`}
+                    >
                         Edit
                     </Button>
                 </div>
@@ -256,4 +211,4 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
     );
 };
 
-export default AccountDetails;
+export default AutoDetails;

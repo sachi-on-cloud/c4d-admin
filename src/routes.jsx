@@ -9,7 +9,6 @@ import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
 import { PriceList } from "@/pages/public/price";
 
-
 import { CustomerView } from "@/pages/customer";
 import { AccountView } from "@/pages/account";
 import { DriverView } from "@/pages/driver";
@@ -90,11 +89,30 @@ import AddBanner from "./pages/bannerImage/add";
 import TestimoinalView from "./pages/testimoinal/view";
 import TestimoinalAdd from "./pages/testimoinal/add";
 import { OnlineVehiclesList } from "./pages/vendor/onlineVehiclesList";
+import AutoView from "./pages/AutoService/AutoView";
+import AutoAdd from "./pages/AutoService/autoAdd";
+import AutoDetails from "./pages/AutoService/details";
+import AutoForm from "./pages/AutoService/autoform";
+import DetailsAuto from "./pages/AutoDetails/details";
+import AutoDetailsList from "./pages/AutoDetails/list";
+import EditAuto from "./pages/AutoDetails/edit";
+import AutoMasterPriceEdit from "./pages/finance/masterPriceTable/AutoMasterPriceTableEdit";
+import AutoEdit from "./pages/AutoService/edit";
+import ParcelView from "./pages/parcel/view";
+import ParcelAdd from "./pages/parcel/add";
+import ParcelDetails from "./pages/parcel/deatils";
+import ParcelEdit from "./pages/parcel/edit";
+import ParcelDetailsList from "./pages/parcel/list";
+import ParcelCabAdd from "./pages/cab/addParcelCab";
+import ParcelCabDetails from "./pages/cab/parcelCabDetails";
+import ParcelCabEdit from "./pages/cab/parcelCabEdit";
+import ParcelMasterPriceEdit from "./pages/finance/masterPriceTable/ParcelMasterPriceTableEdit";
 import TripDetails from "./pages/TripDetails/tripDetails";
 import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
+
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -279,6 +297,71 @@ export const routes = [
         display: false,
         permission: "Vendors",
       },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto View",
+        path: "/vendors/account/autoView/add",
+        element: <AutoAdd />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        
+        name: "Auto Add",
+        path: "/vendors/account/autoview",
+        element: <AutoView />,
+        display: true,
+        permission:"Vendors"
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoView/details/:id",
+        element: <AutoDetails />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoDetails/details/:id",
+        element: <DetailsAuto />,
+        display: true,
+        permission:"Vendors"
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto details",
+        path: "/vendors/account/autoDetails/details/edit/:id",
+        element: <EditAuto />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Form",
+        path: "/vendors/account/autoView/details/add",
+        element: <AutoForm />,
+        display: true,
+        permission:"Vendors"
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Form",
+        path: "/vendors/account/autoList",
+        element: <AutoDetailsList />,
+        display: true,
+        permission:"Vendors"
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Edit",
+        path: "/vendors/account/autoView/details/edit/:id",
+        element: <AutoEdit />,
+        display: true,
+        permission:"Vendors"
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "cab",
@@ -295,6 +378,7 @@ export const routes = [
         display: false,
         permission: "Vendors",
       },
+      
       {
         icon: <UserIcon {...icon} />,
         name: "GST List",
@@ -428,6 +512,7 @@ export const routes = [
         display: true,
         permission: "Vendors",
       },
+     
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -513,6 +598,22 @@ export const routes = [
         name: "Acting Driver Bookings",
         path: "/booking/list/actingDriver",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.DRIVER} />,
+        display: false,
+        permission: "All bookings",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Bookings",
+        path: "/booking/list/Auto",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.AUTO} />,
+        display: false,
+        permission: "All bookings",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel Bookings",
+        path: "/booking/list/Parcel",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.PARCEL} />,
         display: false,
         permission: "All bookings",
       },
@@ -651,6 +752,14 @@ export const routes = [
         element: <RentalsMasterPriceEdit />,
         display: false,
         permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Master Price Edit",
+        path: "/users/master-price/auto-edit/:id",
+        element: <AutoMasterPriceEdit />,
+        display: true,
+        permission:"Users"
       },
       {
         icon: <UserIcon {...icon} />,
@@ -827,6 +936,79 @@ export const routes = [
         element: <DetailsTrip />,
         display: true,
         permission: "Trip Master",
+      },
+            {
+        icon: <UserIcon {...icon} />,
+        name: "bike",
+        path: "/vendors/account/parcel/allVehicles/add",
+        element: <ParcelCabAdd />,
+        display: true,
+        permission:"Vendors"
+      },
+
+      {
+        icon: <UserIcon {...icon} />,
+        name: "bike",
+        path: "/vendors/account/parcel/allVehicles/details/:id",
+        element: <ParcelCabDetails />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "bike",
+        path: "/vendors/account/parcel/allVehicles/details/edit/:id",
+        element: <ParcelCabEdit />,
+        display: true,
+        permission:"Vendors"
+      },
+            {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel",
+        path: "/vendors/account/parcel",
+        element: <ParcelView />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel add",
+        path: "/vendors/account/parcel/add",
+        element: <ParcelAdd />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel details",
+        path: "/vendors/account/parcel/details/:id",
+        element: <ParcelDetails />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel list",
+        path: "/vendors/account/parcel/list",
+        element: <ParcelDetailsList />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel edit",
+        path: "/vendors/account/parcel/edit/:id",
+        element: <ParcelEdit />,
+        display: true,
+        permission:"Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel Master Price Edit",
+        path: "/users/master-price/parcel-edit/:id",
+        element: <ParcelMasterPriceEdit />,
+        display: true,
+        permission:"Users"
       },
     ],
   },

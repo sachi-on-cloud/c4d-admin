@@ -5,11 +5,10 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
-import OwnersCabList from '@/components/OwnersCabList';
+import ParcelCabList from '@/components/ParcelCabList';
 import DocumentLogs from '@/components/DocumentLogs';
-import SubscriptionLog from '@/components/SubscriptionLog';
 
-const AccountDetails = ({ btnShow = false, noApprove = false }) => {
+const ParcelDetails = ({ btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
     const [accountVal, setAccountVal] = useState({});
     const { id } = useParams();
@@ -43,7 +42,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
         <>
             <div className="p-4">
 
-                <h2 className="text-2xl font-bold mb-4">Account Details</h2>
+                <h2 className="text-2xl font-bold mb-4">Parcel Details</h2>
                 <Formik
                     initialValues={initialValues}
                     onSubmit={() => { }}
@@ -55,16 +54,14 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                 <div className='grid grid-cols-2 gap-4'>
                                     <div>
                                         <label htmlFor="type" className="text-sm font-medium text-gray-700">Service Type</label>
-                                        <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                        <Field as="select" disabled name="type" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                             <option value="">Select Type</option>
-                                            <option value="Individual">Owner Cum Driver</option>
-                                            <option value="Company">Travels</option>
                                             <option value="Parcel">Bike</option>
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div>
-                                        <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'Individual' ? "Full Name" : 'Company Name'}</label>
+                                        <label htmlFor="name" className="text-sm font-medium text-gray-700">Company Name</label>
                                         <Field type="text" name="name" disabled className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                         <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                     </div>
@@ -105,35 +102,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                     </div>
                                 </div>
                                 <div className='space-y-2'>
-                                    {/* <div className="flex items-center mt-2">
-                                        <input
-                                            type="checkbox"
-                                            id="sameAddress"
-                                            disabled
-                                            checked={isSameAddress}
-                                            onChange={(e) => {
-                                                setIsSameAddress(e.target.checked);
-                                                if (e.target.checked) {
-                                                    const currentAddress = parseAddress(values.address);
-                                                    setFieldValue("street", currentAddress.street);
-                                                    setFieldValue("thaluk", currentAddress.taluk);
-                                                    setFieldValue("district", currentAddress.district);
-                                                    setFieldValue("state", currentAddress.state);
-                                                    setFieldValue("pincode", currentAddress.pincode);
-                                                } else {
-                                                    setFieldValue("street", "");
-                                                    setFieldValue("thaluk", "");
-                                                    setFieldValue("district", "");
-                                                    setFieldValue("state", "");
-                                                    setFieldValue("pincode", "");
-                                                }
-                                            }}
-                                            className="mr-2"
-                                        />
-                                        <label htmlFor="sameAddress" className="text-sm text-gray-700">
-                                            Same as Current Address
-                                        </label>
-                                    </div> */}
                                     <div>
                                         <p className="text-sm font-medium text-gray-800 mb-5">Permanent Address</p>
                                     </div>
@@ -149,22 +117,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             Thaluk
                                         </label>
                                         <Field type="text" name="thaluk" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        {/* <Field type="text" disabled name="thaluk" className="p-2 w-full rounded-md border-gray-300 shadow-sm" /> */}
-                                        {/* <select
-                                            id="thaluk"
-                                            name="thaluk"
-                                            value={values.thaluk}
-                                            onChange={(e) => setFieldValue("thaluk", e.target.value)}
-                                            disabled
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
-                                        >
-                                            <option value="" disabled>Select Thaluk</option>
-                                            {/* {filteredThaluk.map((thaluk) => (
-                                                <option key={thaluk.id} value={thaluk.id}>
-                                                    {thaluk.name}
-                                                </option>
-                                            ))}
-                                        </select>  */}
                                         <ErrorMessage
                                             name="thaluk"
                                             component="div"
@@ -176,21 +128,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             District
                                         </label>
                                         <Field type="text" disabled name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        {/* <select
-                                            id="district"
-                                            name="district"
-                                            value={values.district}
-                                            disabled
-                                            onChange={(e) => setFieldValue("district", e.target.value)}
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
-                                        >
-                                            <option value="" disabled>Select District</option>
-                                            {filteredDistricts.map((district) => (
-                                                <option key={district.id} value={district.id}>
-                                                    {district.name}
-                                                </option>
-                                            ))}
-                                        </select> */}
                                         <ErrorMessage
                                             name="district"
                                             component="div"
@@ -202,21 +139,6 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             State
                                         </label>
                                         <Field type="text" disabled name="state" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                        {/* <select
-                                            id="state"
-                                            name="state"
-                                            value={values.state}
-                                            disabled
-                                            onChange={(e) => setFieldValue("state", e.target.value)}
-                                            className="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-300 focus:ring-opacity-50"
-                                        >
-                                            <option value="" disabled>Select State</option>
-                                            {filteredState.map((state) => (
-                                                <option key={state.id} value={state.id}>
-                                                    {state.name}
-                                                </option>
-                                            ))}
-                                        </select> */}
                                         <ErrorMessage
                                             name="state"
                                             component="div"
@@ -234,19 +156,19 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
-            {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels}/>}
+            {accountVal && !btnShow && <ParcelCabList parcelsList={accountVal?.Parcels || accountVal?.ParcelVehicles} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
+            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} />}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow &&
                 <div className='flex justify-center w-full'>
                     <Button
-                        onClick={() => { navigate('/dashboard/vendors/account'); }}
+                        onClick={() => { navigate('/dashboard/vendors/account/parcel/list'); }}
                         className={`my-6 px-8 ${ColorStyles.backButton}`}
                     >
                         Back
                     </Button>
-                    <Button onClick={() => { navigate(`/dashboard/vendors/account/edit/${accountVal?.id}`) }} className={`my-6 px-8 border-2 rounded-xl ${ColorStyles.editButton
+                    <Button onClick={() => { navigate(`/dashboard/vendors/account/parcel/edit/${accountVal?.id}`) }} className={`my-6 px-8 border-2 rounded-xl ${ColorStyles.editButton
                         }`}>
                         Edit
                     </Button>
@@ -256,4 +178,4 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
     );
 };
 
-export default AccountDetails;
+export default ParcelDetails;
