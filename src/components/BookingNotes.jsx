@@ -249,10 +249,14 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                   </span>
                 </div>
               <div className="text-base text-gray-700 flex items-center gap-2">
-  <span>
-    <span className="font-bold">Estimate Price:</span> ₹{log?.amount} | <span className="font-bold">Pickup:</span> {log?.pickupAddress?.name || 'N/A'} | <span className="font-bold">Drop:</span> {log?.dropAddress?.name || 'N/A'}
-    {/* {log?.packageId && ` | <span className="font-bold">Package ID:</span> ${log?.packageId}`} */}
-  </span>
+              <span>
+              <span className="font-bold">Estimate Price:</span> ₹{log?.amount || 'N/A'} |{' '}
+              <span className="font-bold">Cab Type:</span> {log?.cabType || 'N/A'} |{' '}
+              <span className="font-bold">Pickup:</span> {log?.pickupAddress?.name || 'N/A'} |{' '}
+              <span className="font-bold">Drop:</span> {log?.dropAddress?.name || 'N/A'} |{' '}
+            
+              {/* {log?.packageId && ` | <span className="font-bold">Package ID:</span> ${log?.packageId}`} */}
+            </span>
   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
     Estimated
   </span>

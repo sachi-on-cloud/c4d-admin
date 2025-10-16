@@ -241,7 +241,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             lat: values.dropLocation?.lat || 0,
             lng: values.dropLocation?.lng || 0,
         } : {},
-        amount: quoteDetails?.amount?.estimatedPrice || 0, // Use estimatedPrice from quoteDetails
+        amount: quoteDetails?.amount?.estimatedPrice || 0,
+        cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
 };
