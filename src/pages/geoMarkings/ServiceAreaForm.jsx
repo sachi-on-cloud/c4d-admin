@@ -12,7 +12,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
-    services: initialData?.services ||  [], // Handle both services and serviceTypes
+    services: initialData?.services || [], // Initialize services
   });
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
