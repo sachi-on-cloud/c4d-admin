@@ -98,6 +98,7 @@ import DetailsTrip from "./pages/TripDetails/details";
 import CombineView from "./pages/CustomerNotification/view";
 import Combineadd from "./pages/CustomerNotification/add";
 import CombineEdit from "./pages/CustomerNotification/edit";
+import ExotelCallsList from "./components/Exotel";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -863,6 +864,14 @@ export const routes = [
         element: <DetailsTrip />,
         display: true,
         permission: "Trip Master",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "exotel calls",
+        path: "/users/exotel-calls/list",
+        element: <ExotelCallsList />,
+        display: false,
+        permission: "Calls",
       },
     ],
   },
