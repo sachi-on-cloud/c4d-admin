@@ -977,7 +977,7 @@ const ConfirmBooking = (props) => {
                                     {bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name || "Not Added"}
                                 </Typography>
                             </div>
-                         { bookingDetails?.packageType !== 'Local' &&
+                         { bookingDetails?.packageType !== 'Local' &&   bookingDetails?.serviceType !== 'DRIVER' &&
   <div className="flex justify-between">
     <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
     <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
