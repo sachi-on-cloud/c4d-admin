@@ -1021,12 +1021,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
-                <div className='py-2  flex justify-between bg-white mb-2'>
+                <div className='py-2  rounded-xl flex justify-between bg-white mb-2'>
                     {customerData && (
                         <div className="p-2 flex w-[40%] flex-col relative">
                             <input
                                 type="text"
-                                className="relative w-full py-2 px-8 border rounded text-sm bg-gray-100"
+                                className="relative w-full py-2 px-8 border  rounded-xl text-sm bg-gray-100"
                                 placeholder="Search by customer number or booking ID"
                                 value={searchText}
                                 onChange={(e) => {
@@ -1094,10 +1094,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     </div>} */}
                     <button
                         onClick={() => setIsOpen(true)}
-                        className={`relative px-6 py-2 mr-2 text-sm w-40 h-10 mt-2 ${ColorStyles.addButtonColor}`}
+                        className={`relative rounded-xl px-6 py-2 mr-2 text-sm w-40 h-10 mt-2 ${ColorStyles.addButtonColor}`}
                     >
                         <div className="absolute inset-y-0 left-0 flex items-center  pointer-events-none ">
-                            <PlusIcon className="w-6 h-6 text-white" />
+                            <PlusIcon className="w-4 h-4 font-medium text-white" />
                         </div>
                         Add New Booking
                     </button>

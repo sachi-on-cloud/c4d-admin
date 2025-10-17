@@ -585,12 +585,12 @@ const handleTabChange = (value) => {
                 <div className="relative">
                     {/* Booking Status Count Section */}
                     <div className="absolute top-0 right-0 flex gap-4 justify-end">
-                        <Button
+                        {/* <Button
                             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm shadow-lg"
                             onClick={handleToggleDriverHours}
                         >
                             Select Slot
-                        </Button>
+                        </Button> */}
                         
                         <button
                             className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm shadow-lg"
@@ -606,7 +606,7 @@ const handleTabChange = (value) => {
                     </div>
                 
                     {/* Status Cards Grid */}
-                    <div className="grid grid-cols-1 py-12 sm:grid-cols-2 md:grid-cols-7 gap-2">
+                    <div className="grid grid-cols-1 py-10 sm:grid-cols-2 md:grid-cols-7 gap-2">
                             {[
                                 { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
                                 { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-50 text-yellow-900', chipColor: 'bg-yellow-600 text-white' },
@@ -644,16 +644,18 @@ const handleTabChange = (value) => {
                             </div>
                         </div>
                         <div className="bg-gradient-to-r from-green-100 to-green-100 text-green-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
-                            <div className="flex items-center justify-end w-full">
+                            <div className="flex items-center justify-center w-full">
                                 <Typography variant="small" className="font-bold text-xs text-green-900">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
                                 {/* <FaSync className="w-4 h-4 mr-2 text-green-900" /> */}
-                            <Typography variant="h3" className="font-bold text-xl text-green-900">{selectedDriver?.count || 0}</Typography>
                             </div>
-                            <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Updated: {selectedTime}</Typography>
+                            <div className="flex items-center justify-center w-full">
+                                <Typography variant="h3" className="font-bold text-2xl text-green-900">{selectedDriver?.count || 0}</Typography>
+                            </div>
+                            {/* <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Updated: {selectedTime}</Typography> */}
                         </div>
                     </div>
                 </div>                    
-                        {showDriverHours && (
+                        {/* {showDriverHours && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
                                     <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
@@ -689,7 +691,7 @@ const handleTabChange = (value) => {
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        )} */}
                                 </div>
             {/* <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
@@ -786,7 +788,7 @@ const handleTabChange = (value) => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Owner", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
@@ -891,7 +893,7 @@ const handleTabChange = (value) => {
                                                             //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
                                                             //                 }
                                                             //             />
-                                                                el === "Trip Co-Ordinator" ? (
+                                                                el === "Trip Owner" ? (
                                                                     <FilterPopover
                                                                         title={el}
                                                                         options={tripCoordinatorOptions}
