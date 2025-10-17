@@ -1130,8 +1130,8 @@ const ConfirmBooking = (props) => {
                                     }
                                     {amount.extraNightCharge > 0 &&
                                         <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">{`Night Charge: (${amount.extraNightCharge} x ${amount.extraNightChargePrice})`}</Typography>
-                                            <Typography>₹ {amount?.extraNightCharge * amount?.extraNightChargePrice}</Typography>
+                                            <Typography color="gray" variant="h6">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
+                                            <Typography>₹ {amount?.extraNightCharge}</Typography>
                                         </div>
                                     }
                                 </> : ""
