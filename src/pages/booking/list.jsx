@@ -627,7 +627,7 @@ const handleTabChange = (value) => {
                                             <Typography variant="h6" className="font-bold text-2xl">
                                                 {counts[item.key]}
                                             </Typography>
-                                            <IconComponent className="w-5 h-5 ml-2" />
+                                            {/* <IconComponent className="w-5 h-5 ml-2" /> */}
                                         </div>
                                     </div>
                                 );
@@ -640,13 +640,13 @@ const handleTabChange = (value) => {
                         </div>
                             <div className='flex gap-2 items-center'>
                                 <Typography variant="h3" className="font-bold text-2xl text-blue-900">{totalDriverCount}</Typography>
-                                <FaUsers className="w-5 h-5 mr-2 text-blue-900" />
+                                {/* <FaUsers className="w-5 h-5 mr-2 text-blue-900" /> */}
                             </div>
                         </div>
                         <div className="bg-gradient-to-r from-green-100 to-green-100 text-green-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
                             <div className="flex items-center justify-end w-full">
                                 <Typography variant="small" className="font-bold text-xs text-green-900">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
-                                <FaSync className="w-4 h-4 mr-2 text-green-900" />
+                                {/* <FaSync className="w-4 h-4 mr-2 text-green-900" /> */}
                             <Typography variant="h3" className="font-bold text-xl text-green-900">{selectedDriver?.count || 0}</Typography>
                             </div>
                             <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Updated: {selectedTime}</Typography>
