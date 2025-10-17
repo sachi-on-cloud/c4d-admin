@@ -606,7 +606,7 @@ const handleTabChange = (value) => {
                     </div>
                 
                     {/* Status Cards Grid */}
-                    <div className="grid grid-cols-1  py-12 sm:grid-cols-2 md:grid-cols-7 gap-2">
+                    <div className="grid grid-cols-1 py-12 sm:grid-cols-2 md:grid-cols-7 gap-2">
                             {[
                                 { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
                                 { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-50 text-yellow-900', chipColor: 'bg-yellow-600 text-white' },
@@ -618,29 +618,30 @@ const handleTabChange = (value) => {
                                 return (
                                     <div
                                         key={index}
-                                        className={`p-2 rounded-lg shadow-md flex flex-col items-end min-w-[80] ${item.color}`}
+                                        className={`p-2 rounded-lg shadow-md flex flex-col items-center justify-center min-w-[80px] ${item.color}`}
                                     >
                                         <Typography variant="small" className="text-xs font-medium mb-1 text-center w-full">
                                             {item.label}
                                         </Typography>
-                                        <div className="flex items-center justify-end w-full">
-                                            <Typography variant="h6" className="font-bold text-base  pr-3">
+                                        <div className="flex items-center justify-center w-full">
+                                            <Typography variant="h6" className="font-bold text-2xl">
                                                 {counts[item.key]}
                                             </Typography>
-                                            <IconComponent className="w-6 h-6 mr-1" />
+                                            <IconComponent className="w-5 h-5 ml-2" />
                                         </div>
                                     </div>
                                 );
-                            })}
-
-                        <div className="bg-gradient-to-r from-blue-100 to-blue-100 text-blue-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
-                            <div className="flex items-center justify-end mb-1 w-full">
-                                <FaUsers className="w-6 h-6 mr-2 text-blue-900" />
+                        })}
+                        <div className="bg-gradient-to-r from-blue-100 to-blue-100 text-blue-900 p-2 rounded-lg shadow-md flex flex-col items-center justify-center min-w-[120px]">
+                            <div className="flex items-center justify-center mb-1 w-full">
                             <Typography variant="small" className="font-bold text-xs text-blue-900">
                                     Total Drivers
                             </Typography>
                         </div>
-                            <Typography variant="h3" className="font-bold text-xl text-blue-900">{totalDriverCount}</Typography>
+                            <div className='flex gap-2 items-center'>
+                                <Typography variant="h3" className="font-bold text-2xl text-blue-900">{totalDriverCount}</Typography>
+                                <FaUsers className="w-5 h-5 mr-2 text-blue-900" />
+                            </div>
                         </div>
                         <div className="bg-gradient-to-r from-green-100 to-green-100 text-green-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
                             <div className="flex items-center justify-end w-full">
@@ -648,7 +649,7 @@ const handleTabChange = (value) => {
                                 <FaSync className="w-4 h-4 mr-2 text-green-900" />
                             <Typography variant="h3" className="font-bold text-xl text-green-900">{selectedDriver?.count || 0}</Typography>
                             </div>
-                            <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Last Updated: {selectedTime}</Typography>
+                            <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Updated: {selectedTime}</Typography>
                         </div>
                     </div>
                 </div>                    
