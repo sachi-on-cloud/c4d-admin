@@ -241,7 +241,10 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             lat: values.dropLocation?.lat || 0,
             lng: values.dropLocation?.lng || 0,
         } : {},
-        amount: quoteDetails?.amount?.estimatedPrice || 0, // Use estimatedPrice from quoteDetails
+        amount: quoteDetails?.amount?.estimatedPrice === "0" || quoteDetails?.amount?.estimatedPrice === 0
+            ? (quoteDetails?.amount?.packageDetails?.price || 0)
+            : (quoteDetails?.amount?.estimatedPrice || 0),
+        cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
 };
@@ -1728,48 +1731,51 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             )}
                                                         </div>)}
                                                 </div>
-                                                {values.serviceType === "DRIVER" && values.packageSelected &&
+                                              {values.serviceType == 'DRIVER' && values.packageTypeSelected !== 'Outstation' && quoteDetails && (
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
-                                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
-                                                            <hr className="my-2 border border-black" />
-                                                            <div className="mt-4">
-                                                                <div className="flex justify-between">
-                                                                    <Typography color="gray" variant="h6">Package:</Typography>
-                                                                    <Typography>
-                                                                        {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
-                                                                    </Typography>
-                                                                </div>
-                                                                <>
-                                                                    <div className="flex justify-between">
-                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                                       <Typography>
-                                                                            ₹{(() => {
-                                                                                const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                                if (!selectedPackage) return "";
-
-                                                                                switch (values.carType?.toUpperCase()) {
-                                                                                case "MINI":
-                                                                                    return selectedPackage.price || "";
-                                                                                case "SEDAN":
-                                                                                    return selectedPackage.price || "";
-                                                                                case "SUV":
-                                                                                    return selectedPackage.price || "";
-                                                                                case "MUV":
-                                                                                    return selectedPackage.priceMVP || "";
-                                                                                default:
-                                                                                    return "";
-                                                                                }
-                                                                            })()}
-                                                                            </Typography>
-                                                                    </div>
-                                                                </>
+                                                        <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                                        <hr className="my-2 border border-black" />
+                                                        <div className="mt-4">
+                                                            <div className="flex justify-between">
+                                                            <Typography color="gray" variant="h6">Package:</Typography>
+                                                            <Typography>
+                                                                {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ""} hr
+                                                            </Typography>
                                                             </div>
-                                                        </div>
-                                                    </Card>
-                                                }
+                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.carType || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                        <div className="flex justify-between">
+                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹{(() => {
+                                                                            const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                            if (!selectedPackage) return "";
 
-                                                {quoteDetails &&
+                                                                            switch (values.carType?.toUpperCase()) {
+                                                                                case "MINI":
+                                                                                return selectedPackage.price || "";
+                                                                                case "SEDAN":
+                                                                                return selectedPackage.price || "";
+                                                                                case "SUV":
+                                                                                return selectedPackage.price || "";
+                                                                                case "MUV":
+                                                                                return selectedPackage.priceMVP || "";
+                                                                                default:
+                                                                                return "";
+                                                                            }
+                                                                            })()}
+                                                                        </Typography>
+                                                                        </div>
+                                                                    </div>
+                                                                    </div>
+                                                                </Card>
+                                                                )}
+                                                    {quoteDetails && (values.serviceType !== 'DRIVER' || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation')) && 
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
                                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -2080,6 +2086,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 }
 
                                                 {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+                                                {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Local' && values.pickupLocation && values.packageSelected &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>

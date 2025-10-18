@@ -836,6 +836,7 @@ const handleTabChange = (value) => {
                                                             options={[
                                                                 { value: 'All', label: 'All' },
                                                                 { value: 'QUOTED', label: 'Quoted' },
+                                                                { value: 'BOOKING_ACCEPTED', label: 'Booking Accepted' },
                                                                 { value: 'CONFIRMED', label: 'Booking Confirmed' },
                                                                 { value: 'REQUEST_DRIVER', label: 'Request Driver' },
                                                                 { value: 'STARTED', label: 'Started' },
@@ -930,7 +931,7 @@ const handleTabChange = (value) => {
                                                 <Button
                                                 className={`${ColorStyles.bgStatusColor} text-white w-28 mt-14`}
                                                 onClick={() => {
-                                                    onRequestDriverHandler(selectedBookingForReassign, 'REQUEST_ALL');
+                                                    onRequestDriverHandler(selectedBookingForReassign, 'DRIVER');
                                                     setShowReassignModal(false);
                                                     setSelectedBookingForReassign(null);
                                                 }}

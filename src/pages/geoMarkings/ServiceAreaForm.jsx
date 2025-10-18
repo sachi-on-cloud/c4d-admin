@@ -12,7 +12,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
-    serviceTypes: initialData?.serviceTypes || [], // Initialize serviceTypes
+    services: initialData?.services || [], // Initialize services
   });
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,11 +40,13 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
 
 
   const serviceTypeOptions = [
+    { value:"RENTAL_DROP_TAXI", label: 'Drop Taxi' },
+    { value:"RENTAL", label: 'Outstation' },
     {value:"DRIVER", label: 'Acting Driver' },
     { value:"RIDES", label: 'Local Rides' },
     { value:"RENTAL_HOURLY_PACKAGE", label: 'Hourly Package' },
-    { value:"RENTAL_DROP_TAXI", label: 'Drop Taxi' },
-    { value:"RENTAL", label: 'Outstation' },
+    { value:"AUTO", label: 'Auto' },
+    { value:"PARCEL", label: 'Parcel' },
   ];
 
   return (
@@ -88,12 +90,12 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
             isMulti
             options={serviceTypeOptions}
             value={serviceTypeOptions.filter((opt) =>
-              formData.serviceTypes.includes(opt.value)
+              formData.services.includes(opt.value)
             )}
             onChange={(selected) =>
               setFormData({
                 ...formData,
-                serviceTypes: selected ? selected.map((s) => s.value) : [],
+                services: selected ? selected.map((s) => s.value) : [],
               })
             }
             closeMenuOnSelect={false} // Keep dropdown open after selection
