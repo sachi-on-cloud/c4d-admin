@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardHeader, CardBody, Typography, Button, Spinner, Input,Chip  } from "@material-tailwind/react";
+import { Card, CardHeader, CardBody, Typography, Button, Spinner, Input, Chip } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import { Popover, PopoverHandler, PopoverContent } from "@material-tailwind/react";
 import moment from "moment";
 
 const ExotelCallsList = () => {
   const [callList, setCallList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isDateFilterPopoverOpen, setIsDateFilterPopoverOpen] = useState(false);
   const [startTimeFrom, setStartTimeFrom] = useState('');
   const [startTimeTo, setStartTimeTo] = useState('');
   const [pagination, setPagination] = useState({
@@ -29,7 +26,6 @@ const ExotelCallsList = () => {
         page: page,
       };
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.EXOTEL_CALL_LOGS, queryParams);
-      console.log('API Response:', data);
       if (data?.success && Array.isArray(data.data)) {
         setCallList(data.data);
         setPagination({
@@ -39,7 +35,6 @@ const ExotelCallsList = () => {
           itemsPerPage: data?.pagination?.itemsPerPage || pagination.itemsPerPage,
         });
       } else {
-        console.error('API request failed or data is not an array:', data?.message);
         setCallList([]);
         setPagination((prev) => ({
           ...prev,
@@ -49,7 +44,6 @@ const ExotelCallsList = () => {
         }));
       }
     } catch (error) {
-      console.error('Error fetching call logs:', error);
       setCallList([]);
       setPagination((prev) => ({
         ...prev,
@@ -76,7 +70,6 @@ const ExotelCallsList = () => {
   const handleResetFilters = () => {
     setStartTimeFrom('');
     setStartTimeTo('');
-    setIsDateFilterPopoverOpen(false);
     setPagination((prev) => ({ ...prev, currentPage: 1 }));
     callsList(1, true);
   };
@@ -113,28 +106,47 @@ const ExotelCallsList = () => {
     return buttons;
   };
 
+const formatDuration = (seconds) => {
+  if (!seconds) return '-';
+  if (seconds < 60) return `${seconds} sec`;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins} mins ${secs} sec`;
+};
+
+  const getStatusLabel = (CallType, Direction) => {
+    if (CallType === 'completed') return 'Call successful';
+    if (CallType === 'no-answer') return 'No Answer';
+    if (CallType === 'failed') return 'Declined';
+    if (CallType === 'busy') {
+      if (Direction === 'incoming') return 'Dropped before connect';
+      if (Direction === 'outcoming') return 'Dropped during call';
+    }
+    return CallType || '-';
+  };
+
+  const getStatusColor = (CallType) => {
+    if (CallType === 'completed') return 'bg-green-600 text-white';
+    if (CallType === 'failed') return 'bg-red-600 text-white';
+    if (CallType === 'busy') return 'bg-yellow-600 text-white';
+    return 'bg-blue-600 text-white';
+  };
+
+  const getDirectionColor = (Direction) => {
+    if (Direction === 'incoming') return 'text-orange-500';
+    if (Direction === 'outbound-api') return 'text-green-500';
+    return 'text-blue-600';
+  };
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="p-4 rounded-lg shadow-sm">
         <div className="flex items-center gap-4">
           <Typography variant="small" className="text-gray-600 font-semibold">
-            Filter by Date Range
+            Filter by Date
           </Typography>
-          <Popover placement="bottom-start" open={isDateFilterPopoverOpen} handler={setIsDateFilterPopoverOpen}>
-            <PopoverHandler>
-              <div className="flex items-center cursor-pointer">
-                <ChevronDownIcon className="w-5 h-5 text-gray-600" />
-                <Typography variant="small" className="ml-2 text-gray-600">
-                  {startTimeFrom && startTimeTo
-                    ? `${moment(startTimeFrom).format('DD-MM-YYYY HH:mm:ss')} to ${moment(startTimeTo).format('DD-MM-YYYY HH:mm:ss')}`
-                    : 'Select Date Range'}
-                </Typography>
-              </div>
-            </PopoverHandler>
-            <PopoverContent className="p-4 z-10 bg-white shadow-lg rounded-lg w-auto">
-              <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <Typography variant="small" className="text-gray-600 w-auto">
+                  <Typography variant="small" className="text-gray w-auto font-semibold">
                     From:
                   </Typography>
                   <input
@@ -144,7 +156,7 @@ const ExotelCallsList = () => {
                     onClick={(e) => e.target.showPicker && e.target.showPicker()}
                     className="px-3 py-1 border border-gray-300 rounded-md text-sm flex-1"
                   />
-                  <Typography variant="small" className="text-gray-600 w-auto">
+                  <Typography variant="small" className="text-gray w-auto font-semibold">
                     To:
                   </Typography>
                   <input
@@ -156,10 +168,8 @@ const ExotelCallsList = () => {
                     className="px-2 py-1 border border-gray-300 rounded-md text-sm flex-1"
                   />
                 </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          <div className="flex justify-end gap-2">
+          {startTimeFrom && startTimeTo && (
+                <div className="flex justify-end gap-2">
                   <Button
                     variant="outlined"
                     size="sm"
@@ -168,6 +178,7 @@ const ExotelCallsList = () => {
                     Reset
                   </Button>
                 </div>
+              )}
         </div>
       </div>
       <Card>
@@ -177,32 +188,17 @@ const ExotelCallsList = () => {
               <Typography variant="h6" color="white">Call Logs</Typography>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-              <table className="w-full min-w-[640px] table-auto">
+              <table className="w-full table-auto">
                 <thead>
                   <tr>
                     {[
-                    // "sid", 
-                    // "Parent Call Sid", 
                     "Start Time",
-                    "End Time", 
-                    // "Date Created", 
-                    // "Date Updated", 
-                    "Account Sid", 
-                    "To", 
+                    "End Time",
                     "From",
-                    "Phone Number",
-                    // "phone Number Sid",
+                    "To",
                     "Status",
-                    "Duration",
-                    "Price",
+                    "Calls Duration",
                     "Direction",
-                    "Answered By",
-                    // "Forwarded From",
-                    // "Caller Name",
-                    // "uri",
-                    // "Custom Field",
-                    // "recordingUrl",
-
                   ].map((el) => (
                       <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                         <Typography
@@ -218,7 +214,7 @@ const ExotelCallsList = () => {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={11} className="py-3 px-5">
+                      <td colSpan={7} className="py-3 px-5">
                         <div className="flex justify-center items-center">
                           <Spinner className="h-12 w-12" />
                         </div>
@@ -228,112 +224,43 @@ const ExotelCallsList = () => {
                     callList.map(
                       ({
                         id,
-                        CallSid,
-                        ParentCallSid,
-                        DateCreated,
-                        DateUpdated,
-                        AccountSid,
                         To,
                         From,
-                        PhoneNumber,
-                        PhoneNumberSid,
-                        CallStatus,
+                        CallFrom,
+                        CallTo,
+                        CallType,
                         StartTime,
-                        EndTime,
-                        Duration,
-                        Price,
+                        DialCallDuration,
                         Direction,
-                        AnsweredBy,
-                        ForwardedFrom,
-                        CallerName,
-                        Uri,
-                        CustomField,
-                        RecordingUrl,
+                        CurrentTime,
+                        DialWhomNumber
                       }) => (
                         <tr key={id}>
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{CallSid}</Typography>
-                          </td> */}
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{ParentCallSid || '-'}</Typography>
-                          </td> */}
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(StartTime).format('DD-MM-YYYY HH:mm') || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{StartTime ? moment(StartTime).subtract(5, 'hours').subtract(30, 'minutes').format('DD-MM-YYYY HH:mm') : '-'}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(EndTime).format('DD-MM-YYYY HH:mm') || '-'}</Typography>
-                          </td>
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(DateCreated).format("DD-MM-YYYY HH:mm") || '-'}</Typography>
-                          </td> */}
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{moment(DateUpdated).format("DD-MM-YYYY HH:mm") || '-'}</Typography>
-                          </td> */}
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{AccountSid || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{CurrentTime ? moment(CurrentTime).subtract(5, 'hours').subtract(30, 'minutes').format('DD-MM-YYYY HH:mm') : '-'}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{To || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{From || CallFrom || '-'}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{From || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{DialWhomNumber || '-'}</Typography>
                           </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{PhoneNumber || '-'}</Typography>
-                          </td>
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{PhoneNumberSid || '-'}</Typography>
-                          </td> */}
                           <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Chip
                               variant="ghost"
-                              value={CallStatus || "-"}
-                              className={`py-0.5 px-2 text-[11px] font-medium w-fit 
-                                ${CallStatus === "completed"
-                                ? "bg-green-600 text-white"
-                                : CallStatus === "failed"
-                                  ? "bg-red-600 text-white"
-                                  : CallStatus === 'buys' ? "bg-yellow-600" : "bg-blue-gray-600 text-white"
-                                }`}
+                              value={getStatusLabel(CallType, Direction)}
+                              className={`py-0.5 px-2 text-[11px] font-medium w-fit ${getStatusColor(CallType)}`}
                             />
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{Duration || '-'}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{formatDuration(DialCallDuration)}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{Price || '-'}</Typography>
+                            <Typography className={`text-xs font-semibold ${getDirectionColor(Direction)}`}>{Direction || '-'}</Typography>
                           </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{Direction || '-'}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{AnsweredBy || '-'}</Typography>
-                          </td>
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{ForwardedFrom || '-'}</Typography>
-                          </td> */}
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{CallerName || '-'}</Typography>
-                          </td> */}
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{Uri || '-'}</Typography>
-                          </td> */}
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{CustomField || '-'}</Typography>
-                          </td> */}
-                          {/* <td>
-                            {RecordingUrl ? (
-                              <audio controls className="w-full max-w-[200px]">
-                                <source src={RecordingUrl} type="audio/mpeg" />
-                                Your browser does not support the audio element.
-                              </audio>
-                            ) : (
-                              <Typography className="text-xs font-semibold text-blue-gray-600">No Audio</Typography>
-                            )}
-                          </td> */}
-                          {/* <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{}</Typography>
-                          </td> */}
                         </tr>
                       )
                     )
