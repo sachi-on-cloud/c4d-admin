@@ -31,6 +31,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
+  { name: "Calls", path: "/dashboard/users/exotel-calls/list", permission: "Calls"},
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
@@ -200,6 +201,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         />
                       ) : null}
 
+                      {name === "Calls" && (
+                        <img
+                          src="/img/calls.png"
+                          alt="Calls"
+                          className="h-6 w-6 rounded-full"
+                        />
+                      )}
+
                       {name === "All Bookings" ? (
                         <DocumentTextIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
@@ -252,7 +261,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         </Tooltip>
                       )}
 
-                      {!miniSidenav && name !== "Home" && (
+                      {!miniSidenav && name !== "Home" && name !== 'Calls' && (
                         <div className="ml-auto">
                           {isActive ? (
                             <ChevronUpIcon className="w-5 h-5" />
@@ -671,6 +680,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   <ul className="ml-0">
                     {[
                       { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
+                      { label: "Combine Message", path: "/dashboard/vendors/customerNotificationList" },
                       { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
                       { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                       { label: "Testimonial", path: "/dashboard/user/testimonialView" },

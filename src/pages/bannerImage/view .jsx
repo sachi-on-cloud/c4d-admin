@@ -174,7 +174,7 @@ const BannerView = () => {
 ];
 
   const zoneOptions = [
-    { value: 'All', label: 'All' },
+    { value: 'All', label: 'All'},
     { value: 'Chennai', label: 'Chennai' },
     { value: 'Thiruvannamali', label: 'Thiruvannamali' },
     { value: 'Vellore', label: 'Vellore' },
