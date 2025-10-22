@@ -166,8 +166,7 @@ const AddBanner = () => {
                   onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
                   placeholder="Select Zone"
                   className="w-full"
-                  name="zone"
-                />
+                  name="zone" />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
               </div>
 
