@@ -553,6 +553,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   <ul className="ml-0">
                     {[
                       { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
+                      { label: "Combine Message", path: "/dashboard/vendors/customerNotificationList" },
                       { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
                       { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                       { label: "Testimonial", path: "/dashboard/user/testimonialView" },
