@@ -58,6 +58,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [openSubMenu, setOpenSubMenu] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [openNotificationSubMenu, setOpenNotificationSubMenu] = useState(""); // New state for Marketing submenu
 
   const toggleMenu = (menu) => {
     setOpenMenu((prev) => (prev === menu ? null : menu));
@@ -75,9 +76,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const toggleSubMenu = (subMenu) => {
     setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
   };
- 
+
   const [userPermissions, setUserPermissions] = useState(null);
- const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState("");
 
   const getPermissions = async () => {
     try{
@@ -382,46 +383,46 @@ export function Sidenav({ brandImg, brandName, routes }) {
                               variant="text"
                               className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
                                 }`}
-                              fullWidth
-                            >
+                                fullWidth
+                              >
                                 {label === "Owners" && (
                                 <img
                                   src="/img/owners.png"
                                   alt="Owners"
                                   className="h-6 w-6 rounded-full"
                                 />
-                              )}
+                                )}
                                 {label === "Acting Driver" && (
                                 <img
                                   src="/img/acting_driver.png"
                                   alt="Acting Driver"
                                   className="h-6 w-6 rounded-full"
                                 />
-                              )}
+                                )}
                                 {label === "Vehicles" && (
                                 <img
                                   src="/img/vehicles.png"
                                   alt="Vehicles"
                                   className="h-6 w-6 rounded-full"
                                 />
-                              )}
-                                 {label === "Online Vehicles List" && (
+                                )}
+                                {label === "Online Vehicles List" && (
                                 <img
                                   src="/img/vehicleslist.png"
                                   alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />
-                              )}
+                                )}
 
                               <Typography
                                 color="inherit"
                                 className="font-medium px-3 capitalize"
                               >
-                                {label}
-                              </Typography>
-                            </Button>
-                          )}
-                        </NavLink>
+                                  {label}
+                                </Typography>
+                              </Button>
+                            )}
+                          </NavLink>
                       </li>
                     ))}
                   </ul>
@@ -561,58 +562,99 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 {name === "Marketing" && openSubMenu === "Marketing" && (
                   <ul className="ml-0">
                     {[
-                      { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
-                      { label: "Combine Message", path: "/dashboard/vendors/customerNotificationList" },
-                      { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
+                      { label: "All Push Notification", isSubMenu: true, subItems: [
+                        { label: "Push Notification", path: "/dashboard/vendors/notificationList" },
+                        { label: "Customer App", path: "/dashboard/vendors/customerNotificationList" },
+                        { label: "Driver App", path: "/dashboard/vendors/driverNotificationList" },
+                      ] },
                       { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                       { label: "Testimonial", path: "/dashboard/user/testimonialView" },
-                    ].map(({ label, path }) => (
+                    ].map(({ label, path, isSubMenu, subItems }) => (
                       <li key={label}>
-                        <NavLink to={path} end>
-                          {({ isActive }) => (
+                        {isSubMenu ? (
+                          <>
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                                }`}
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-7'} py-2 rounded-lg capitalize mt-1 hover:bg-primary-50`}
                               fullWidth
+                              onClick={() => setOpenNotificationSubMenu(openNotificationSubMenu === label ? "" : label)}
                             >
-                              {label === "All Push Notification" && (
-                                <img
-                                  src="/img/push_notification.png"
-                                  alt="All Push Notification"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                                {label === "Drivers App Notification" && (
-                                <img
-                                  src="/img/driver_app_notification.png"
-                                  alt="Drivers App Notification"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                              {label === "Banner Image" && (
-                                <img
-                                  src="/img/banner_img.png"
-                                  alt="Banner Image"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                              {label === "Testimonial" && (
+                              <img src="/img/push_notification.png" alt={label} className="h-6 w-6 rounded-full" />
+                              <Typography color="inherit" className="font-medium px-3 capitalize">
+                                {label}
+                              </Typography>
+                            </Button>
+                            {openNotificationSubMenu === label && (
+                              <ul className="ml-4">
+                                {subItems.map(({ label: subLabel, path: subPath }) => (
+                                  <li key={subLabel}>
+                                    <NavLink to={subPath} end>
+                                      {({ isActive }) => (
+                                        <Button
+                                          variant="text"
+                                          className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1 ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'} `}
+                                          fullWidth
+                                        >
+                                          {subLabel === "Push Notification" && (
+                                            <img 
+                                            src="/img/push_notification.png"
+                                             alt="Push Notification"
+                                              className="h-6 w-6 rounded-full"
+                                               />
+                                          )}
+                                          {subLabel === "Customer App" && (
+                                            <img src="/img/push_notification.png" alt="Combine Message" className="h-6 w-6 rounded-full" />
+                                          )}
+                                          {subLabel === "Driver App" && (
+                                            <img
+                                             src="/img/driver_app_notification.png" 
+                                             alt="Drivers App Notification"
+                                              className="h-6 w-6 rounded-full" 
+                                              />
+                                          )}
+                                          <Typography color="inherit" className="font-medium px-3 capitalize">
+                                            {subLabel}
+                                          </Typography>
+                                        </Button>
+                                      )}
+                                    </NavLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <NavLink to={path} end>
+                            {({ isActive }) => (
+                              <Button
+                                variant="text"
+                                className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1 ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'} `}
+                                fullWidth
+                              >
+                                {label === "Banner Image" && (
+                                  <img
+                                   src="/img/banner_img.png" 
+                                   alt="Banner Image"
+                                    className="h-6 w-6 rounded-full"
+                                     />
+                                )}
+                                {label === "Testimonial" && (
                                 <img
                                   src="/img/testimonial.png"
                                   alt="Testimonials Image"
                                   className="h-6 w-6 rounded-full"
                                 />
-                              )}
+                                )}
                               <Typography
                                 color="inherit"
                                 className="font-medium px-3 capitalize"
                               >
-                                {label}
-                              </Typography>
-                            </Button>
-                          )}
-                        </NavLink>
+                                  {label}
+                                </Typography>
+                              </Button>
+                            )}
+                          </NavLink>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -625,7 +667,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
-                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
+                      { label: "Version Control", path: "/dashboard/user/versionControlList" },
                       { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
                       { label: "TAX", path: "/dashboard/user/GSTList" },
                     ].map(({ label, path }) => (

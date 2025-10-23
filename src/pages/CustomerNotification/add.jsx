@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Field, ErrorMessage, Form } from 'formik';
-import { Button } from '@material-tailwind/react';
-import { ColorStyles, API_ROUTES } from '@/utils/constants';
+import { Button, Typography } from '@material-tailwind/react';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
@@ -28,17 +28,21 @@ const CombineAdd = () => {
   };
 
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const data = await ApiRequestUtils.post(API_ROUTES.POST_COMBINE_ADD, values);
-      console.log('Submitted successfully:', data);
+      setError(null); // Clear previous errors
+      const data = await ApiRequestUtils.post(API_ROUTES.POST_CUSTOMER_NOTIFICATION, values);
       if (data?.success) {
-        navigate('/dashboard/combine-view');
+        navigate('/dashboard/vendors/customerNotificationList');
+      } else {
+        setError('Failed to submit data to the API');
       }
     } catch (error) {
       console.error('Submission error:', error);
+      setError('An error occurred while submitting the form');
     } finally {
       setSubmitting(false);
     }
@@ -47,13 +51,13 @@ const CombineAdd = () => {
   useEffect(() => {
     const fetchGeoData = async () => {
       try {
-        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+        const response = await ApiRequestUtils.getWithQueryParam('/geo-markings', {
           type: 'Service Area',
         });
-        console.log('GEO MARKINGS RESPONSE:', response);
         setServiceAreas(response?.data || []);
       } catch (error) {
         console.error('Error fetching GEO_MARKINGS_LIST:', error);
+        setError('Failed to fetch service areas');
       }
     };
     fetchGeoData();
@@ -69,14 +73,21 @@ const CombineAdd = () => {
 
   const SERVICE_TYPE_OPTIONS = [
     { value: '', label: 'Select Type' },
-    { value: 'Type1', label: 'Type 1' },
-    { value: 'Type2', label: 'Type 2' },
-    { value: 'Type3', label: 'Type 3' },
+  { value: 'RIDES', label: 'Rides' },
+  { value: 'DROP_TAXI', label: 'Drop Taxi' },
+  { value: 'OUTSTATION', label: 'Outstation' },
+  { value: 'HOURLY_PACKAGE', label: 'Hourly Package' },
+  { value: 'ACTING_DRIVER', label: 'Acting Driver' },
   ];
 
   return (
     <div className="p-4 mx-auto">
       <h2 className="text-2xl font-bold mb-4">Add New</h2>
+      {error && (
+        <Typography color="red" className="text-center mb-4">
+          {error}
+        </Typography>
+      )}
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
