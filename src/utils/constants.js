@@ -959,6 +959,7 @@ export const API_ROUTES = {
     'EXOTEL_CALL_LOGS': '/call-logs',
     'GET_CUSTOMER_NOTIFICATION':'/notification-messages',
     'POST_CUSTOMER_NOTIFICATION':'/notification-messages',
+    'UPDATE_FOLLOWUP':'/booking/followup',
     
 
 };
