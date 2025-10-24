@@ -956,6 +956,8 @@ export const API_ROUTES = {
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
     'POST_QUOTATION_LOG':'/quotation-log',
     'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
+    'UPDATE_FOLLOWUP':'/booking/followup',
+    
 
 };
 
