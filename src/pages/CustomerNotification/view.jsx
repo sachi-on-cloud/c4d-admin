@@ -115,7 +115,7 @@ export function CombineView() {
           className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
         >
           <Typography variant="h6" color="white">
-            Combine View
+            Customer App Notification
           </Typography>
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

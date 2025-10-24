@@ -603,7 +603,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                                />
                                           )}
                                           {subLabel === "Customer App" && (
-                                            <img src="/img/push_notification.png" alt="Combine Message" className="h-6 w-6 rounded-full" />
+                                            <img src="/img/customerNotification.png" alt="Combine Message" className="h-6 w-6 rounded-full" />
                                           )}
                                           {subLabel === "Driver App" && (
                                             <img

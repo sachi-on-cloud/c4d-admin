@@ -60,6 +60,14 @@ export function AccountView() {
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
+        filterType: JSON.stringify({
+       
+          status: documentTypeFilter,
+          source: sourceFilter,
+          serviceType: serviceTypeFilter,
+          
+          
+        })
       });
       if (data?.success) {
         setAccounts(data?.data);
@@ -105,7 +113,7 @@ export function AccountView() {
       }, 5000);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate,pagination.currentPage, pagination.search]);
+  }, [location, navigate,pagination.currentPage, pagination.search, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
@@ -149,7 +157,7 @@ export function AccountView() {
       }));
       fetchAccounts(1, searchQuery, false);
     }, 1000),
-    [pagination.itemsPerPage]
+    [pagination.itemsPerPage, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]
   );
   function formatPhoneNumber(phoneNumber) {
     if(phoneNumber){if (phoneNumber.startsWith("+91")) {
