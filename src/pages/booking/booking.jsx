@@ -500,7 +500,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
         }));
         const response = await ApiRequestUtils.post(API_ROUTES.POST_QUOTATION_LOG, updatedLogs);
         if (response?.success) {
-            console.log('Quotation logs sent successfully:', response);
+            // console.log('Quotation logs sent successfully:', response);
             setQuotationLogs([]); // Clear the logs after successful submission
         } else {
             console.error('Failed to send quotation logs:', response?.message);
@@ -572,11 +572,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setSelectedCustomer(0);
             setSearchBookingId('');
         } else {
-            console.log("Error in creating new booking");
+            // console.log("Error in creating new booking");
             formikBag.setErrors({ submit: 'Failed to create booking. Please try again.' });
         }
     } catch (err) {
-        console.log("ERROR IN RIDES BOOKING", err);
+        // console.log("ERROR IN RIDES BOOKING", err);
         formikBag.setErrors({ submit: 'An error occurred. Please try again.' });
     } finally {
         setIsButtonDisabled(false);
@@ -597,10 +597,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 name: values.dropAddress,
             },
             sourceType: values.sourceType,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
         };
 
         try {
-            console.log('AUTO Booking Payload:', bookingData);
+            // console.log('AUTO Booking Payload:', bookingData);
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_AUTO_BOOKING, bookingData,values?.customerId?.id,
        );
             if (data?.success) {
@@ -1738,7 +1743,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
                                                                     </div>
                                                                 )}
-                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
                                                                 Driver Starting Point 
@@ -2183,7 +2188,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         onClick={() => {
                                                             //    handleSubmit();
                                                             setFieldValue("submitType", "auto");
-                                                            console.log('AUTO Button Clicked, Values:', values);
+                                                            // console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
