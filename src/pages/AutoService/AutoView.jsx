@@ -13,15 +13,13 @@ import {
   PopoverContent,
   Spinner,
 } from "@material-tailwind/react";
-import AccountSearch from "@/components/AccountSearch";
+import AutoSearch from '@/components/AutoSearch';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
-import AutoList from '@/components/AutoList';
-import AutoSearch from '@/components/AutoSearch';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -66,6 +64,11 @@ export function AutoView() {
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
+        filterType: JSON.stringify({
+          status: documentTypeFilter,
+          source: sourceFilter,
+          serviceType: [ 'Auto'], // Include 'Auto' to ensure serviceType filter includes Auto
+        }),
       });
       if (data?.success) {
         setAccounts(data?.data);
@@ -111,7 +114,7 @@ export function AutoView() {
       }, 5000);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate,pagination.currentPage, pagination.search]);
+  }, [location, navigate, pagination.currentPage, pagination.search, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
@@ -155,13 +158,15 @@ export function AutoView() {
       }));
       fetchAccounts(1, searchQuery, false);
     }, 1000),
-    [pagination.itemsPerPage]
+    [pagination.itemsPerPage, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]
   );
   function formatPhoneNumber(phoneNumber) {
-    if(phoneNumber){if (phoneNumber.startsWith("+91")) {
-      return phoneNumber;
+    if (phoneNumber) {
+      if (phoneNumber.startsWith("+91")) {
+        return phoneNumber;
+      }
+      return `+91${phoneNumber}`;
     }
-    return `+91${phoneNumber}`;}
   }
 
   const handleSort = (key) => {
@@ -369,19 +374,7 @@ export function AutoView() {
                       //       onFilterChange={(value) => handleFilterChange("availableStatus", value)}
                       //     />
                       //   )
-                         : el === "Service Type" ? (
-                          <FilterPopover
-                            title={el}
-                            options={[
-                              { value: "All", label: "All" },
-                              { value: "Company", label: "Travels" },
-                              { value: "Individual", label: "Owner Cum Driver" },
-                              
-                            ]}
-                            selectedFilters={serviceTypeFilter}
-                            onFilterChange={(value) => handleFilterChange("type", value)}
-                          />
-                        ) :  el === "Created Date" ? (
+                         :  el === "Created Date" ? (
                           <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">    <Typography
                           variant="small"
                           className="text-[11px] font-bold uppercase text-black"
