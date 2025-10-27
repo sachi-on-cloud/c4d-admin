@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardBody,
   Typography,
+  Button,
   Chip,
   Popover,
   PopoverHandler,
@@ -16,26 +17,55 @@ import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from "react-icons/fa";
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import ParcelSearch from '@/components/ParcelSearch';
+
+// Debounce utility (same as in AutoView)
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 export function ParcelDetailsList({ id = 0 }) {
   const [parcelList, setParcelList] = useState([]);
   const [statusFilter, setStatusFilter] = useState(["All"]);
   const [documentStatusFilter, setDocumentStatusFilter] = useState(["All"]);
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Memoize fetchParcelList to prevent unnecessary re-creations
-  const fetchParcelList = useCallback(async (showLoader = false) => {
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 15,
+    search: '',
+  });
+
+  // Fetch parcel list with pagination and search
+  const fetchParcelList = useCallback(async (page = 1, searchQuery = '', showLoader = true) => {
     if (showLoader) setLoading(true);
     try {
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_ACCOUNTS, {
         serviceType: "Parcel",
-        // Removed page and limit since pagination is not needed
+        page,
+        limit: pagination.itemsPerPage,
+        search: searchQuery.trim(),
       });
       console.log("API Response:", data);
       if (data?.success) {
         setParcelList(data.data || []);
+        setPagination({
+          currentPage: page,
+          totalPages: searchQuery.trim() ? 1 : data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 15,
+          search: searchQuery.trim(),
+        });
       } else {
         console.error('API request failed:', data?.message);
       }
@@ -44,13 +74,86 @@ export function ParcelDetailsList({ id = 0 }) {
     } finally {
       setLoading(false);
     }
-  }, []); // No dependencies since pagination and filters are handled client-side
+  }, [pagination.itemsPerPage]);
 
   // Fetch data when id changes or filters change
   useEffect(() => {
-    fetchParcelList(true);
-  }, [id, statusFilter, documentStatusFilter, fetchParcelList]);
+    fetchParcelList(pagination.currentPage, pagination.search, true);
+  }, [fetchParcelList, pagination.currentPage, pagination.search]);
 
+  // Debounced search handler
+  const handleSearch = useCallback(
+    debounce((searchQuery) => {
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1,
+        search: searchQuery,
+      }));
+      fetchParcelList(1, searchQuery, true);
+    }, 1000),
+    [fetchParcelList]
+  );
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchParcelList(page, pagination.search, true);
+    }
+  };
+
+  // Generate pagination buttons
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+          className={`mx-1 ${ColorStyles.bgColor} text-white`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
+  };
+
+  // Handle sorting
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+
+    const sortedParcels = [...parcelList].sort((a, b) => {
+      if (key === 'created_at') {
+        return direction === 'ascending'
+          ? new Date(a[key]) - new Date(b[key])
+          : new Date(b[key]) - new Date(a[key]);
+      } else {
+        const aValue = a[key]?.toLowerCase() || '';
+        const bValue = b[key]?.toLowerCase() || '';
+        if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
+        if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
+        return 0;
+      }
+    });
+    setParcelList(sortedParcels);
+  };
+
+  // Handle filter changes
   const handleFilterChange = (filterType, value) => {
     if (filterType === "Status") {
       setStatusFilter((prev) => {
@@ -110,9 +213,20 @@ export function ParcelDetailsList({ id = 0 }) {
     </Popover>
   );
 
+  // Format phone number
+  const formatPhoneNumber = (phoneNumber) => {
+    if (phoneNumber) {
+      if (phoneNumber.startsWith("+91")) {
+        return phoneNumber;
+      }
+      return `+91${phoneNumber}`;
+    }
+    return "-";
+  };
+
   return (
     <div className="mb-8 flex flex-col gap-12">
-      <ParcelSearch />
+      <ParcelSearch onSearch={handleSearch} />
       <Card>
         {loading ? (
           <CardBody>
@@ -132,7 +246,7 @@ export function ParcelDetailsList({ id = 0 }) {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number", "Email", "Type", "Source", "Created Date", "Status", "KYC Status"].map((el) => (
+                    {["Created Date", "Name", "Phone Number", "Email", "Type", "Source", "Status", "KYC Status"].map((el) => (
                       <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                         {el === "KYC Status" ? (
                           <FilterPopover
@@ -157,6 +271,22 @@ export function ParcelDetailsList({ id = 0 }) {
                             selectedFilters={statusFilter}
                             onFilterChange={(value) => handleFilterChange("Status", value)}
                           />
+                        ) : el === "Created Date" ? (
+                          <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">
+                            <Typography
+                              variant="small"
+                              className="text-[11px] font-bold uppercase text-black"
+                            >
+                              {el}
+                            </Typography>
+                            {sortConfig.key === "created_at" && (
+                              sortConfig.direction === "ascending" ? (
+                                <ChevronUpIcon className="w-4 h-4 ml-1 text-black" />
+                              ) : (
+                                <ChevronDownIcon className="w-4 h-4 ml-1 text-black" />
+                              )
+                            )}
+                          </div>
                         ) : (
                           <Typography
                             variant="small"
@@ -183,6 +313,11 @@ export function ParcelDetailsList({ id = 0 }) {
                       ({ id, name, phoneNumber, email, type, source, ownerStatus, documentStatus, created_at }) => (
                         <tr key={id}>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {moment(created_at).format('DD-MM-YYYY ')}
+                            </Typography>
+                          </td>
+                          <td className="py-3 px-5 border-b border-blue-gray-50">
                             <div
                               className="underline cursor-pointer text-blue-600"
                               onClick={() => navigate(`/dashboard/vendors/account/parcel/details/${id}`)}
@@ -191,21 +326,18 @@ export function ParcelDetailsList({ id = 0 }) {
                             </div>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{phoneNumber || "-"}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                              {formatPhoneNumber(phoneNumber)}
+                            </Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Typography className="text-xs font-semibold text-blue-gray-600">{email || "-"}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">{type}</Typography>
+                            <Typography className="text-xs font-semibold text-blue-gray-600">{type || "-"}</Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Typography className="text-xs font-semibold text-blue-gray-600">{source || "-"}</Typography>
-                          </td>
-                          <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                              {moment(created_at).format('DD-MM-YYYY / hh:mm A')}
-                            </Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Chip
@@ -229,6 +361,29 @@ export function ParcelDetailsList({ id = 0 }) {
                   )}
                 </tbody>
               </table>
+              {filteredData.length > 0 && (
+                <div className="flex items-center justify-center mt-4">
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={pagination.currentPage === 1}
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    className="mx-1"
+                  >
+                    {'<'}
+                  </Button>
+                  {generatePageButtons()}
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={pagination.currentPage === pagination.totalPages}
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    className="mx-1"
+                  >
+                    {'>'}
+                  </Button>
+                </div>
+              )}
             </CardBody>
           </>
         ) : (
