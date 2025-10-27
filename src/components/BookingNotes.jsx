@@ -10,6 +10,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [noteType, setNoteType] = useState('')
   const [items, setItems] = useState([]);
   const [bookingLogs, setBookingLogs] = useState([]);
+  const [bookingFollowupLogs,setBookingFollowupLogs] = useState([])
     const [quotationLogs, setQuotationLogs] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [tripDetailsLogs, setTripDetailsLogs] = useState([]);
@@ -27,6 +28,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         setItems(fallbackNotes);
         setBookingLogs([]);
         setQuotationLogs([]);
+        setBookingFollowupLogs([]);
         return;
       }
 
@@ -40,6 +42,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           // Set bookingLogs, ensuring it's an array
           setBookingLogs(Array.isArray(data?.data?.bookingLog) ? data.data.bookingLog : []);
           setQuotationLogs(Array.isArray(data?.data?.quotationLog) ? data?.data?.quotationLog : []);
+          setBookingFollowupLogs(Array.isArray(data?.data?.bookingFollowupLog) ? data?.data?.bookingFollowupLog : []);
           
           // Extract trip details from tripMaster
           const tripMaster = data.data.tripMaster || {};
@@ -68,6 +71,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           setBookingLogs([]);
           setQuotationLogs([]);
           setTripDetailsLogs([]);
+          setBookingFollowupLogs([]);
         }
       } catch (error) {
         console.error('Error fetching notes:', error);
@@ -75,6 +79,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         setBookingLogs([]);
         setQuotationLogs([]);
         setTripDetailsLogs([]);
+        setBookingFollowupLogs([])
       }
     };
 
@@ -111,6 +116,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         // Set bookingLogs, ensuring it's an array
         setBookingLogs(Array.isArray(data?.data?.bookingLog) ? data.data.bookingLog : []);
         setQuotationLogs(Array.isArray(data?.data?.quotationLog) ? data?.data?.quotationLog : []);
+        setBookingFollowupLogs(Array.isArray(data?.data?.bookingFollowupLog) ? data?.data?.bookingFollowupLog : []);
       }
     } catch (error) {
       console.error('Error adding comment:', error);
@@ -272,19 +278,24 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         </Typography>
       </div>
       <div className="flex-1">
-        {bookingLogs.length === 0 ? (
+        {bookingLogs.length === 0 && bookingFollowupLogs.length === 0 ? (
           <p className="text-center text-gray-500 text-base mt-5">No activity logs yet.</p>
         ) : (
           <ul className="space-y-3">
-            {bookingLogs.map((log) => (
+            {[...bookingLogs.map((log) => ({ ...log, type: "booking" })),
+              ...bookingFollowupLogs.map((log) => ({ ...log, type: "followup" })),
+            ]
+              .map((log) => (
               <li
-                key={log?.id}
+                key={`${log.type}-${log.id}`}
                 className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <UserIcon className="h-5 w-5 text-gray-600" />
                   <span className="text-sm font-medium text-gray-800">
-                    {log?.createdBy?.name || 'System'}
+                    {log.type === "booking"
+                        ? log?.createdBy?.name || "System"
+                        : log?.followupCreatedBy?.name || "System"}
                   </span>
                   <span className="text-sm text-gray-500 ml-auto">
                     {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
@@ -292,18 +303,39 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                 </div>
                 <div className="text-base text-gray-700 flex items-center gap-2">
                   <span>
+                {log.type === "booking" ? (
+                  <>
                     Customer Trip Status changed from{' '}
                     <span className="font-medium text-primary-600">{log?.old_status || 'N/A'}</span>{' '}
                     to{' '}
                     <span className="font-medium text-green-600">{log?.new_status || 'N/A'}</span>
+                        </>
+                      ) : (
+                        <>
+                          Follow-up Status changed from{" "}
+                          <span className="font-medium text-primary-600">
+                            {log?.previousStatus === "NONE" ? "QUOTED" : log?.previousStatus || "N/A"}
+                          </span>{" "}
+                          to{" "}
+                          <span className="font-medium text-green-600">
+                            {log?.newStatus === "NONE" ? "QUOTED" : log?.newStatus || "N/A"}
+                          </span>
+                  </>
+                )}
                   </span>
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      log?.new_status === 'Confirmed'
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                      ${log.type === "booking"
+                      ? log?.new_status === 'Confirmed'
                         ? 'bg-green-100 text-green-800'
                         : log?.new_status === 'Cancelled'
                         ? 'bg-red-100 text-red-800'
                         : 'bg-gray-100 text-gray-800'
+                        : (log?.newStatus === "FOLLOWUP" || log?.newStatus === "NONE")
+                        ? "bg-yellow-100 text-yellow-800"
+                        : log?.newStatus === "FOLLOWUP_COMPLETED"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
                     }`}
                   >
                     {/* {log?.new_status || 'N/A'} */}

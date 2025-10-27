@@ -972,7 +972,11 @@ export const API_ROUTES = {
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
     'POST_QUOTATION_LOG':'/quotation-log',
     'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
-    'EXOTEL_CALL_LOGS': '/call-logs'
+    'EXOTEL_CALL_LOGS': '/call-logs',
+    'GET_CUSTOMER_NOTIFICATION':'/notification-messages',
+    'POST_CUSTOMER_NOTIFICATION':'/notification-messages',
+    'UPDATE_FOLLOWUP':'/booking/followup',
+    
 
 };
 
