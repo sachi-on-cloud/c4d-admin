@@ -8,11 +8,16 @@ import {
   Spinner,
   Switch,
   Input,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Checkbox,
 } from '@material-tailwind/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import { FaFilter } from 'react-icons/fa';
 
 const BannerView = () => {
   const navigate = useNavigate();
@@ -22,13 +27,21 @@ const BannerView = () => {
   const [updatingBannerId, setUpdatingBannerId] = useState(null);
   const [editingPositionId, setEditingPositionId] = useState(null);
   const [positionValues, setPositionValues] = useState([]);
+  const [typeFilter, setTypeFilter] = useState(['All']);
+  const [zoneFilter, setZoneFilter] = useState(['All']);
 
   useEffect(() => {
-  const fetchBanners = async () => {
-    try {
-      setLoading(true);
-      const res = await ApiRequestUtils.get(API_ROUTES.GET_BANNER);
-      // console.log('Full API Response:', res); 
+    const fetchBanners = async () => {
+      try {
+        setLoading(true);
+        const filterType = {
+          type: typeFilter,
+          zone: zoneFilter,
+        };
+        const queryParams = {
+          filterType: JSON.stringify(filterType),
+        };
+      const res = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BANNER, queryParams);
       
       // Handle different response structures
       let list = [];
@@ -54,7 +67,7 @@ const BannerView = () => {
   };
 
   fetchBanners();
-}, [location.state]);
+}, [location.state, typeFilter, zoneFilter]);
 
   const handleStatusToggle = async (bannerId, newStatus) => {
     try {
@@ -110,6 +123,70 @@ const BannerView = () => {
     }
   };
 
+  const handleFilterChange = (filterType, value) => {
+    const setter = filterType === 'type' ? setTypeFilter : setZoneFilter;
+    setter(prev => {
+      if (value === 'All') {
+        return ['All'];
+      } else {
+        const newFilter = prev.includes(value)
+          ? prev.filter(item => item !== value)
+          : [...prev.filter(item => item !== 'All'), value];
+        return newFilter.length === 0 ? ['All'] : newFilter;
+      }
+    });
+  };
+
+  const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <div className="flex items-center cursor-pointer">
+         {title}
+         <FaFilter className="text-gray-700
+           text-xs" />
+        </div>
+      </PopoverHandler>
+      <PopoverContent className="p-2 z-10">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center mb-2">
+            <Checkbox
+              color="blue"
+              checked={selectedFilters.includes(option.value)}
+              onChange={() => onFilterChange(option.value)}
+            />
+            <Typography color="blue-gray" className="font-medium ml-2">
+              {option.label}
+            </Typography>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+
+  const typeOptions = [
+  { value: 'ALL', label: 'All' },
+  { value: 'TOP', label: 'Top' },
+  { value: 'BOTTOM', label: 'Bottom' },
+  { value: 'YOUTUBE', label: 'YouTube' },
+  { value: 'BACKGROUND', label: 'Background' },
+  { value: 'BANNER', label: 'Banner' },
+  { value: 'STATS', label: 'Stats' },
+];
+
+  const zoneOptions = [
+    { value: 'All', label: 'All' },
+    { value: 'Chennai', label: 'Chennai' },
+    { value: 'Thiruvannamali', label: 'Thiruvannamali' },
+    { value: 'Vellore', label: 'Vellore' },
+    { value: 'Kanchipuram', label: 'Kanchipuram' },
+  ];
+
+  // Client-side filtering remains as a fallback
+  const filteredBannerList = bannerList.filter(item =>
+    (typeFilter.includes('All') || typeFilter.includes(item.type)) &&
+    (zoneFilter.includes('All') || zoneFilter.includes(item.zone))
+  );
+
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="flex items-center justify-end">
@@ -134,26 +211,41 @@ const BannerView = () => {
           ) : (
             <table className="w-full min-w-[640px] table-auto">
               <thead>
-                <tr>
-                  <th className="py-3 px-5 text-left">Image</th>
-                  <th className="py-3 px-5 text-left">Type</th>
-                  <th className="py-3 px-5 text-left">Redirect URL</th>
-                  <th className="py-3 px-5 text-left">From Date</th>
-                  <th className="py-3 px-5 text-left">To Date</th>
-                  <th className="py-3 px-5 text-left">Status</th>
-                  <th className="py-3 px-5 text-left">Position</th>
+                <tr className=" text-black">
+                  <th className="py-3 px-5 text-left text-gray-700">Image</th>
+                 <th className="py-3 px-5 text-left">
+                    <FilterPopover
+                      title={<span className="text-base font-semibold text-gray-700">Type</span>}
+                      options={typeOptions}
+                      selectedFilters={typeFilter}
+                      onFilterChange={(value) => handleFilterChange('type', value)}
+                    />
+                  </th>
+                  <th className="py-3 px-5 text-left  text-gray-700">Redirect URL</th>
+                  <th className="py-3 px-5 text-left  text-gray-700">From Date</th>
+                  <th className="py-3 px-5 text-left  text-gray-700">To Date</th>
+                  <th className="py-3 px-5 text-left  text-gray-700">Status</th>
+                  <th className="py-3 px-5 text-left  text-gray-700">Position</th>
+                  <th className="py-3 px-5 text-left  text-gray-700">
+                  <FilterPopover
+                      title={<span className="text-base font-semibold text-gray-700">Zone</span>}
+                      options={zoneOptions}
+                      selectedFilters={zoneFilter}
+                      onFilterChange={(value) => handleFilterChange('zone', value)}
+                    />
+                  </th>
                   <th className="py-3 px-5 text-left"></th>
                 </tr>
               </thead>
               <tbody>
-                {bannerList.length === 0 ? (
+                {filteredBannerList.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="text-center py-4">
                       No Banner Records Found
                     </td>
                   </tr>
                 ) : (
-                  bannerList.map((item, index) => (
+                  filteredBannerList.map((item, index) => (
                     <tr key={item.id || index} className="border-b">
                       <td className="py-3 px-5">
                         <img
@@ -204,6 +296,9 @@ const BannerView = () => {
                             {editingPositionId === item.id ? 'Update' : 'Edit'}
                           </Button>
                         </div>
+                      </td>
+                       <td className="py-3 px-5">
+                        {item.zone}
                       </td>
                      
                     </tr>

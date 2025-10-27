@@ -2,8 +2,9 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import { Button } from '@material-tailwind/react';
-import { ColorStyles } from '@/utils/constants'; // Assuming ColorStyles is available, as in TripDetails
+import { Button, Card, CardHeader, Typography, Spinner } from '@material-tailwind/react';
+import { ColorStyles } from '@/utils/constants';
+import { saveAs } from 'file-saver';
 
 const tabs = ['Daily', 'Weekly', 'Monthly'];
 
@@ -24,9 +25,8 @@ const Reports = ({ accountId }) => {
   const [driversError, setDriversError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isXlsxLoaded, setIsXlsxLoaded] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
 
-  
   const [summary, setSummary] = useState({
     totalTrips: 0,
     totalKm: 0,
@@ -34,18 +34,9 @@ const Reports = ({ accountId }) => {
     fuelCost: 0,
     totalFare: 0,
     profitLoss: 0,
+    totalTollCost: 0,
+    totalPermitCost: 0,
   });
-
-  useEffect(() => {
-    const checkXlsx = (attempts = 5, delay = 500) => {
-      if (window.XLSX && typeof window.XLSX.utils.aoa_to_sheet === 'function') {
-        setIsXlsxLoaded(true);
-        return;
-      }
-      setTimeout(() => checkXlsx(attempts - 1, delay), delay);
-    };
-    checkXlsx();
-  }, []);
 
   useEffect(() => {
     const fetchVehiclesAndDrivers = async () => {
@@ -57,7 +48,9 @@ const Reports = ({ accountId }) => {
       try {
         const vehicleData = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_CABS, { accountId });
         const vehiclesList = vehicleData.data || [];
-        if (vehiclesList.length === 0) {
+         if (vehiclesList.length > 0) {
+          setVehicles(vehiclesList);
+        } else {
           console.warn('No vehicles from GET_ACCOUNT_CABS, falling back to trips data');
         }
         setVehicles(vehiclesList);
@@ -71,7 +64,9 @@ const Reports = ({ accountId }) => {
       try {
         const driverData = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ACCOUNT_RELATED_DRIVERS + accountId);
         const driversList = driverData.data || [];
-        if (driversList.length === 0) {
+      if (driversList.length > 0) {
+          setDrivers(driversList);
+        } else {
           console.warn('No drivers from GET_ACCOUNT_RELATED_DRIVERS, falling back to trips data');
         }
         setDrivers(driversList);
@@ -131,14 +126,12 @@ const Reports = ({ accountId }) => {
           };
         });
 
-        const uniqueVehicles = Array.from(new Map(data.data.map(trip => [trip.Cab.id, trip.Cab])).values());
-        const uniqueDrivers = Array.from(new Map(data.data.map(trip => [trip.Driver.id, trip.Driver])).values());
-        if (vehicles.length === 0 && uniqueVehicles.length > 0) {
-          setVehicles(uniqueVehicles);
-        }
-        if (drivers.length === 0 && uniqueDrivers.length > 0) {
-          setDrivers(uniqueDrivers);
-        }
+         const uniqueVehicles = Array.from(new Map([...vehicles, ...data.data.map(trip => trip.Cab)].filter(cab => cab).map(cab => [cab.id, cab])).values());
+        const uniqueDrivers = Array.from(new Map([...drivers, ...data.data.map(trip => trip.Driver)].filter(driver => driver).map(driver => [driver.id, driver])).values());
+
+        setVehicles(prevVehicles => prevVehicles.length === 0 ? uniqueVehicles : [...prevVehicles, ...uniqueVehicles.filter(v => !prevVehicles.some(pv => pv.id === v.id))]);
+        setDrivers(prevDrivers => prevDrivers.length === 0 ? uniqueDrivers : [...prevDrivers, ...uniqueDrivers.filter(d => !prevDrivers.some(pd => pd.id === d.id))]);
+
 
         setTrips(transformedTrips);
         setTotalPages(data.pagination.totalPages);
@@ -184,90 +177,58 @@ const Reports = ({ accountId }) => {
     return buttons;
   };
 
-  const handleExportCSV = () => {
-    const data = trips.map(trip => [
-      trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-',
-      trip.bookingId || '-',
-      trip.tripType || '-',
-      trip.vehicle || '-',
-      trip.driver || '-',
-      trip.startPoint || '-',
-      trip.endPoint || '-',
-      isNaN(trip.totalKm) ? '0.000' : trip.totalKm.toFixed(2),
-      isNaN(trip.toll) ? '0.00' : trip.toll.toFixed(2),
-      isNaN(trip.permit) ? '0.00' : trip.permit.toFixed(2),
-      isNaN(trip.cost) ? '0.00' : trip.cost.toFixed(2),
-      isNaN(trip.fare) ? '0.00' : trip.fare.toFixed(2),
-    ]);
-
+  const handleExportExcel = async () => {
     try {
-      if (isXlsxLoaded && window.XLSX && typeof window.XLSX.utils.aoa_to_sheet === 'function') {
-        const worksheetData = [
-          ['Root Cabs Report - ' + fromDate + ' to ' + toDate],
-          ['Date', 'Vehicle', 'Driver', 'Start Point', 'End Point', 'KM', 'Toll', 'Permit', 'Cost', 'Fare'],
-          ...data,
-        ];
-        const worksheet = window.XLSX.utils.aoa_to_sheet(worksheetData);
+      setExportLoading(true);
+    const response = await ApiRequestUtils.fetchExcelDownload(
+  API_ROUTES.EXPORT_EXCEL_TRIP_DETAILS,
+  0, // custID if needed, else 0
+  {
+    fromDate,
+    toDate,
+    cabId: vehicleFilter === 'All Vehicles' ? '' : vehicleFilter,
+    driverId: driverFilter === 'All Drivers' ? '' : driverFilter,
+  }
+);
 
-        if (worksheet['A1']) {
-          worksheet['A1'].s = {
-            fill: { fgColor: { rgb: '4B5EAA' } },
-            font: { color: { rgb: 'FFFFFF' }, bold: true },
-            alignment: { horizontal: 'center' },
-          };
-          worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 9 } }];
-        }
+      
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
 
-        const headers = ['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2', 'J2'];
-        headers.forEach(cell => {
-          if (worksheet[cell]) {
-            worksheet[cell].s = {
-              fill: { fgColor: { rgb: 'D3D3D3' } },
-              font: { color: { rgb: '000000' } },
-              alignment: { horizontal: 'center' },
-            };
-          }
-        });
-
-        const range = window.XLSX.utils.decode_range(worksheet['!ref']);
-        for (let row = range.s.r + 2; row <= range.e.r; row++) {
-          const cellAddress = `A${row + 1}`;
-          if (worksheet[cellAddress] && worksheet[cellAddress].v !== '-' && moment(worksheet[cellAddress].v, 'MM/DD/YYYY', true).isValid()) {
-            worksheet[cellAddress].t = 'd';
-            worksheet[cellAddress].z = 'mm/dd/yyyy';
-            const dateValue = moment(worksheet[cellAddress].v, 'MM/DD/YYYY').toDate();
-            if (!isNaN(dateValue)) {
-              worksheet[cellAddress].v = dateValue;
-            }
-          }
-        }
-
-        const workbook = window.XLSX.utils.book_new();
-        window.XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
-        const filename = `Report_${fromDate}_to_${toDate}.xlsx`;
-        window.XLSX.write_file(workbook, filename, { bookType: 'xlsx', type: 'binary' });
-      } else {
-        const headers = ['Date', 'Vehicle', 'Driver', 'Start Point', 'End Point', 'KM', 'Toll', 'Permit', 'Cost', 'Fare'];
-        const escapeCsvValue = (value) => `"${String(value).replace(/"/g, '""')}"`;
-        const rows = data.map(row => headers.map((header, index) => escapeCsvValue(row[index])).join(','));
-        const csv = [headers.join(','), ...rows].join('\n');
-        const filename = `Report_${fromDate}_to_${toDate}.csv`;
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      let filename = `Report_${fromDate}_to_${toDate}.xlsx`;
+      if (response.headers['content-disposition']) {
+        const match = response.headers['content-disposition'].match(/filename="(.+)"/);
+        if (match && match[1]) filename = match[1];
       }
+
+      saveAs(blob, filename);
     } catch (err) {
       console.error('Export error:', err);
+      setError('Failed to export report: ' + err.message);
+    } finally {
+      setExportLoading(false);
     }
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow">
+      <Card className="bg-white p-6 rounded shadow">
+        <CardHeader variant="gradient" className={`mb-8 p-6 rounded-xl ${ColorStyles.bgColor}`}>
+          <div className="flex justify-between items-center">
+            <Typography variant="h6" color="white">
+              Trip Reports
+            </Typography>
+            <Button
+              size="sm"
+              className="bg-green-500 text-white"
+              onClick={handleExportExcel}
+              disabled={exportLoading}
+            >
+              {exportLoading ? 'Exporting...' : 'Export to Excel'}
+            </Button>
+          </div>
+        </CardHeader>
         <div className="border-b border-gray-200 mb-6">
           <div className="px-6 py-4">
             <div className="flex space-x-8">
@@ -366,14 +327,17 @@ const Reports = ({ accountId }) => {
           <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm}</div>
           {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed}</div> */}
           <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost}</div>
+          <div className="p-2 border border-gray-200 text-center">Toll Cost: ₹ {summary.tollCost}</div>
+          <div className="p-2 border border-gray-200 text-center">Permit Cost: ₹ {summary.permitCost}</div>
           <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare}</div>
-          {/* <div className="p-2 border border-gray-200 text-center">Profit/Loss: ₹ {summary.profitLoss}</div> */}
         </div>
         <div className="weekly-report">
           <h3 className="text-lg font-semibold mb-4 text-center bg-primary-900 text-white p-2 rounded" style={{ width: '100%' }}>
             Root Cabs Report - {fromDate} to {toDate}</h3>
           {loading ? (
-            <div className="text-center text-gray-500">Loading...</div>
+            <div className="flex justify-center items-center">
+              <Spinner className="h-12 w-12" />
+            </div>
           ) : error ? (
             <div className="text-center text-red-500">{error}</div>
           ) : (
@@ -398,14 +362,14 @@ const Reports = ({ accountId }) => {
                 <tbody>
                   {trips.length === 0 ? (
                     <tr>
-                      <td colSpan="11" className="border border-gray-200 p-2 text-center text-gray-500">
+                      <td colSpan="12" className="border border-gray-200 p-2 text-center text-gray-500">
                         No trips found for the selected criteria
                       </td>
                     </tr>
                   ) : (
                     trips.map((trip, index) => (
                       <tr key={index}>
-                        <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('MM/DD/YYYY') : '-'}</td>
+                        <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('DD/MM/YYYY') : '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.bookingId || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.tripType || '-'}</td>
                         <td className="border border-gray-200 p-2">{trip.vehicle || '-'}</td>
@@ -448,13 +412,7 @@ const Reports = ({ accountId }) => {
             </>
           )}
         </div>
-        <button
-          onClick={handleExportCSV}
-          className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
-        >
-          Export to CSV
-        </button>
-      </div>
+      </Card>
     </div>
   );
 };
