@@ -161,21 +161,10 @@ const AddBanner = () => {
                 <Select
                   name="zone"
                   options={ZONE_OPTIONS}
-                  isMulti
-                  value={values.zone.map((val) => ({ value: val, label: val }))}
-                  onChange={(selectedOptions) => {
-                    const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
-                    if (selectedValues.includes['All'] && selectedValues.length > 1) {
-                      setFieldValue('zone', ['All']);
-                    } else if (selectedValues.includes('All')) {
-                      setFieldValue('zone', ['All']);
-                    } else {
-                      setFieldValue('zone', selectedValues);
-                    }
-                  }}
-                  placeholder="Select service Area"
-                  className="mt-1"
-                />
+                  onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
+                  placeholder="Select Zone"
+                  className="w-full"
+                  name="zone" />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
               </div>
 

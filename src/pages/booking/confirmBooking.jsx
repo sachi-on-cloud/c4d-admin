@@ -1052,7 +1052,7 @@ const ConfirmBooking = (props) => {
                                     {bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name || "Not Added"}
                                 </Typography>
                             </div>
-                         { bookingDetails?.packageType !== 'Local' &&
+                         { bookingDetails?.packageType !== 'Local' &&   bookingDetails?.serviceType !== 'DRIVER' &&
   <div className="flex justify-between">
     <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
     <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
@@ -1205,8 +1205,8 @@ const ConfirmBooking = (props) => {
                                     }
                                     {amount.extraNightCharge > 0 &&
                                         <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">{`Night Charge: (${amount.extraNightCharge} x ${amount.extraNightChargePrice})`}</Typography>
-                                            <Typography>₹ {amount?.extraNightCharge * amount?.extraNightChargePrice}</Typography>
+                                            <Typography color="gray" variant="h6">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
+                                            <Typography>₹ {amount?.extraNightCharge}</Typography>
                                         </div>
                                     }
                                 </> : ""
@@ -1279,8 +1279,10 @@ const ConfirmBooking = (props) => {
                                 }
                             {bookingDetails?.extraHours >0 && (
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                    <Typography color="gray" variant="h6">{`${Math.floor(bookingDetails.extraHours / 60).toString().padStart(2, '0')} : ${Math.round(bookingDetails.extraHours % 60).toString().padStart(2, '0')} mins`}</Typography>
+                                    <Typography color="gray" variant="h6">Extra Hrs (For Each 15 Mins) : </Typography>
+                                    <Typography color="gray" variant="h6">
+                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} hrs`}
+                                    </Typography>
                                 </div>
                                 )}
                                  {/* {bookingDetails?.extraHourPrice >0 &&
@@ -1303,7 +1305,7 @@ const ConfirmBooking = (props) => {
                                 }
                                  {bookingDetails?.extraKMPrice > 0 &&
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra KM Price:</Typography>
+                                    <Typography color="gray" variant="h6">Extra Per KM Price:</Typography>
                                      <Typography>{bookingDetails?.extraKMPrice}</Typography>     
                                 </div>
                                 }

@@ -383,6 +383,7 @@ export function SearchDrivers(props) {
                 estimatedDistance: fullData.estimatedDistance,
                 estimatedMin: fullData.estimatedMin,
                 packageId: fullData.package,
+                // fromWebportal: true,
             };
             const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RENTAL_BOOKING, reqBody);
             if (data?.success) {
@@ -424,6 +425,7 @@ export function SearchDrivers(props) {
                 estimatedDistance: fullData.estimatedDistance || null,
                 estimatedMin: fullData.estimatedMin || null,
                 // packageId: fullData.package,
+                // fromWebportal: true,
             }
             let data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RENTAL_BOOKING, reqBody);
             if (data?.success) {
@@ -454,6 +456,7 @@ export function SearchDrivers(props) {
                 estimatedDistance: fullData?.travelDistance,
                 estimatedMin: fullData?.travelDuration,
                 zone: fullData?.Booking?.zone || props?.bookingData?.zone,
+                // fromWebportal: true,
             };
             const data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_RIDES_BOOKING, reqBody);
             if (data?.success) {

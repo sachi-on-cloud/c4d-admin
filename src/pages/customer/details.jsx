@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
 import CustomerWalletLog from '@/components/CustomerWalletLog';
 import CustomerBookingNotes from '@/components/CustomerBookingNotes';
+import CustomerCallsLog from '@/components/CustomerCallsLog';
 import moment from "moment";
 
 const CustomerDetails = () => {
@@ -104,6 +105,7 @@ const CustomerDetails = () => {
                                     <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
                                 </div> */}
                             </div>
+                            <CustomerCallsLog customerId={id} />
                             <CustomerWalletLog customerId={id} />
                             <div>
                                     <h2 className="text-2xl font-bold mb-4">Feedback Details</h2>

@@ -17,7 +17,7 @@ import {
     Tab,
     TabPanel,
 } from "@material-tailwind/react";
-import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
+import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -34,6 +34,7 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
     const [tripCoordinatorFilter, setTripCoordinatorFilter] = useState(['All']);
+    const [zoneFilter, setZoneFilter] = useState(['All']);
     const [showPickedBooking, setShowPickedBooking] = useState(0);
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
     const [pagination, setPagination] = useState({
@@ -61,6 +62,7 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [totalDriverCount, setTotalDriverCount] = useState(0);
     const [showDriverHours, setShowDriverHours] = useState(false);
     const [isCustomDatePopoverOpen, setIsCustomDatePopoverOpen] = useState(false);
+    const [followupLoading, setFollowupLoading] = useState({});
     
 
 useEffect(() => {
@@ -182,6 +184,18 @@ const handleTabChange = (value) => {
                 }
             });
         }
+        else if (filterType === 'zone') {
+            setZoneFilter(prev => {
+                if (value === 'All') {
+                    return ['All'];
+                } else {
+                    const newFilter = prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+                    return newFilter.length === 0 ? ['All'] : newFilter;
+                }
+            });
+        }
     };
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange, customContent }) => (
         <Popover placement="bottom-start">
@@ -232,6 +246,7 @@ const handleTabChange = (value) => {
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
             tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
+            zone: zoneFilter.includes('All') ? ['All'] : zoneFilter,
         };
         
         // Calculate startDate and endDate based on dateFilter
@@ -356,7 +371,7 @@ const handleTabChange = (value) => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, effectiveSearchId, bookingStage, type, pagination.currentPage, activeTab, statusFilter, sourceFilter, tripCoordinatorFilter, dateFilter, customDateFrom, customDateTo]);
+    }, [customerId, effectiveSearchId, bookingStage, type, pagination.currentPage, activeTab, statusFilter, sourceFilter, tripCoordinatorFilter, zoneFilter, dateFilter, customDateFrom, customDateTo]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -485,13 +500,14 @@ const handleTabChange = (value) => {
         setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
         setServiceTypeFilter(['All']);
+        setZoneFilter(['All']);
         setDateFilter('All');
         setCustomDateFrom('');
         setCustomDateTo('');
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
         setEffectiveSearchId('');
         localStorage.removeItem('bookingSearchId');
-        triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], '');
+        triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], ['All'], '');
     };
 
 //     // Date filtering implementation
@@ -513,7 +529,7 @@ const handleTabChange = (value) => {
 // };
 
     // Function to trigger API call with specific dates (bypasses state timing issues)
-   const triggerFilteredAPICall = async (startDate, endDate, page = 1, statusFilterParam = statusFilter, sourceFilterParam = sourceFilter, tripCoordinatorFilterParam = tripCoordinatorFilter, serviceTypeFilterParam = serviceTypeFilter, effectiveSearchIdParam = effectiveSearchId) => {
+   const triggerFilteredAPICall = async (startDate, endDate, page = 1, statusFilterParam = statusFilter, sourceFilterParam = sourceFilter, tripCoordinatorFilterParam = tripCoordinatorFilter, serviceTypeFilterParam = serviceTypeFilter, zoneFilterParam = zoneFilter, effectiveSearchIdParam = effectiveSearchId) => {
         setLoading(true);
         
         // Clear existing data to show loading state
@@ -526,6 +542,7 @@ const handleTabChange = (value) => {
                 source: sourceFilterParam,
                 tripCoordinator: tripCoordinatorFilterParam,
                 tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
+                zone: zoneFilterParam.includes('All') ? ["All"] : zoneFilterParam,
             };
             
             const queryParams = {
@@ -577,6 +594,31 @@ const handleTabChange = (value) => {
         }
     };
 
+    const handleFollowupClick = async (bookingId, currentFollowup) => {
+        const nextStatus = currentFollowup === 'NONE' ? 'FOLLOWUP' : currentFollowup === 'FOLLOWUP' ? 'FOLLOWUP_COMPLETED' : 'FOLLOWUP_COMPLETED';
+        try {
+            setFollowupLoading((prev) => ({ ...prev, [bookingId]: true }));
+            const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_FOLLOWUP, { bookingId, followup: nextStatus, userId });
+            if (response?.success) {
+                await getBookingsList(pagination.currentPage);
+            } else {
+                console.error('Follow-up update failed:', response?.message);
+            }
+        } catch (error) {
+            console.error('Error updating follow-up:', error);
+        } finally {
+            setFollowupLoading((prev) => ({ ...prev, [bookingId]: false }));
+        }
+    };
+
+    function getFollowup(status) {
+        switch (status) {
+            case 'NONE': return 'Call Back';
+            case 'FOLLOWUP': return 'Call Back Complete';
+            case 'FOLLOWUP_COMPLETED': return 'Call Back Completed';
+            default: return 'Call Back';
+        }
+    }
 
     return (
         <div className="flex flex-col bg-white rounded-xl shadow-lg" >
@@ -796,7 +838,7 @@ const handleTabChange = (value) => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Zone", "Status","Trip Owner", "Follow Up", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
@@ -830,6 +872,19 @@ const handleTabChange = (value) => {
                                                                 )
                                                             )}
                                                         </th>
+                                                    ) : el === "Zone" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'Vellore', label: 'Vellore' },
+                                                                { value: 'Thiruvannamalai', label: 'Thiruvannamalai' },
+                                                                { value: 'Chennai', label: 'Chennai' },
+                                                                { value: 'Kanchipuram', label: 'Kanchipuram' },
+                                                            ]}
+                                                            selectedFilters={zoneFilter}
+                                                            onFilterChange={(value) => handleFilterChange('zone', value)}
+                                                        />
                                                     ) : el === "Status" ? (
                                                         <FilterPopover
                                                             title={el}
@@ -902,7 +957,7 @@ const handleTabChange = (value) => {
                                                             //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
                                                             //                 }
                                                             //             />
-                                                                el === "Trip Co-Ordinator" ? (
+                                                                el === "Trip Owner" ? (
                                                                     <FilterPopover
                                                                         title={el}
                                                                         options={tripCoordinatorOptions}
@@ -961,7 +1016,8 @@ const handleTabChange = (value) => {
                                                 &&
                                                 (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
                                                 (sourceFilter.includes('All') || sourceFilter.includes(booking.source)) &&
-                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id))
+                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id)) &&
+                                                (zoneFilter.includes('All') || zoneFilter.includes(booking.zone))
                                             )
                                             .map((data, key) => {
                                                const isSelected = data.id === selectedBookingId;
@@ -1032,6 +1088,11 @@ const handleTabChange = (value) => {
                                                                 {moment(data?.created_at).format('DD-MM-YYYY / hh:mm A')}
                                                             </Typography>
                                                         </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.zone ? data?.zone : '-'}
+                                                            </Typography>
+                                                        </td>
                                                         {/* <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                             {data?.ownership === "ASSIGNED_TO_SUPPORT" ? (
@@ -1082,7 +1143,7 @@ const handleTabChange = (value) => {
                                                             <Chip
                                                                 variant="ghost"
                                                                 // color={"blue"}
-                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status}
+                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Follow Up Completed" : data?.status}
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
                                                                     data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
@@ -1120,6 +1181,29 @@ const handleTabChange = (value) => {
                                                                 )}
                                                                 </Button>
                                                             )}
+                                                        </td>
+                                                        <td className={className}>
+                                                            <button
+                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-xl px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
+                                                                    ? 'bg-blue-500'
+                                                                    : (data?.followup || 'NONE') === 'FOLLOWUP'
+                                                                        ? 'bg-yellow-600'
+                                                                        : 'bg-green-600'
+                                                                    } ${data?.userId && data?.User && data?.status === 'QUOTED' && !followupLoading[data.id] && (data?.followup || 'NONE') !== 'FOLLOWUP_COMPLETED' ? '' : 'bg-blue-gray-100'}`}
+                                                                onClick={() => handleFollowupClick(data.id, (data?.followup || 'NONE'))}
+                                                                disabled={
+                                                                    !(data?.userId && data?.User && data?.status === 'QUOTED') ||
+                                                                    followupLoading[data.id] ||
+                                                                    (data?.followup || 'NONE') === 'FOLLOWUP_COMPLETED'
+                                                                }
+                                                            >
+                                                                {/* {followupLoading[data.id] ? (
+                                                                    <Spinner className="h-6 w-6" />
+                                                                ) : (
+                                                                    <FaPhone className="w-6 h-6 rotate-90" />
+                                                                )} */}
+                                                                {getFollowup(data?.followup || 'NONE')}
+                                                            </button>
                                                          </td>
                                                         
                                                         <td className={className}>
