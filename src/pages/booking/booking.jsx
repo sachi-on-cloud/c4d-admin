@@ -1813,7 +1813,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     </div>
                                                                 </Card>
                                                                 )}
-                                                    {quoteDetails && (values.serviceType !== 'DRIVER' || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation')) && 
+                                                {quoteDetails && (values.serviceType !== 'DRIVER' || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation')) && 
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
                                                             <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
@@ -1964,11 +1964,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </Typography> */}
                                                                     </div>
                                                                     )}
-                                                               
+                                                               </>
                                                             </div>
                                                         </div>
                                                     </Card>
-                                                )}
+                                       }
 
                                                 {/* {values.pickupAddress && isLoaded && (
                                     <GoogleMap
