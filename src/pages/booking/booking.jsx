@@ -585,6 +585,19 @@ const sendQuotationLogs = async (bookingId, userId) => {
 };
 
  const onAutoSubmitHandler = async (values) => {
+       let zoneCheckUp = await zoneCheckUpFun(values)
+            let actualZone = '';
+            if (values.serviceType === 'AUTO') {
+                if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
+                    setZoneErrorModal({ show: true, text: zoneCheckUp.error || 'Service not available in this area.', title: zoneCheckUp.title || 'Oops!' });
+                    setIsButtonDisabled(false);
+                    return;
+                }
+                actualZone = zoneCheckUp.serviceArea.name;
+                // console.log("third Zone",actualZone)
+            } else {
+                actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+            }
         const bookingData = {
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
@@ -602,6 +615,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             driverStartAddress: {
                 name: values.driverPickUpAddress,
             },
+            zone: actualZone, 
         };
 
         try {
@@ -1896,7 +1910,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount?.estimatedDistance) + (Number(quoteDetails.amount?.baseKm)) 
+                                                                            {(quoteDetails.amount?.distanceEstimated)
                                                                             // + (Number(quoteDetails.amount.driverWithin))
                                                                             } Kms + {quoteDetails.amount?.driverWithin} Kms
                                                                         </Typography></>)}

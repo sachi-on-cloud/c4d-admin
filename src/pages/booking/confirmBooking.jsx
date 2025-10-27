@@ -860,7 +860,7 @@ const ConfirmBooking = (props) => {
                             {bookingDetails?.value?.estimatedDistance > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total Distance:</Typography>
-                                    <Typography>{(Number(bookingDetails?.value?.estimatedDistance) + Number(bookingDetails?.Package?.baseKm)).toFixed(1)} Kms</Typography>
+                                    <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
                                 </div>
                             }
                                 {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'PARCEL' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
@@ -1257,7 +1257,7 @@ const ConfirmBooking = (props) => {
                                     {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
                                 </div>
                                 
-                                {bookingDetails?.serviceType !== "RIDES" &&  <>
+                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && <> 
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Start KM:</Typography>
                                     <Typography>{bookingDetails?.startKM}</Typography>
@@ -1277,6 +1277,16 @@ const ConfirmBooking = (props) => {
                                     </div>
                                 </>
                                 }
+                            {bookingDetails?.serviceType === 'AUTO' &&
+                                <>
+                                    {bookingDetails?.value?.estimatedDistance > 0 &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Total KM:</Typography>
+                                            <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
+                                        </div>
+                                    }
+                                </>}
+
                             {bookingDetails?.extraHours >0 && (
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs (For Each 15 Mins) : </Typography>
