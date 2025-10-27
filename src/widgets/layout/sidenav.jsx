@@ -61,7 +61,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const [isOpen, setIsOpen] = useState(false);
   const [openBikeSubMenu, setOpenBikeSubMenu] = useState("");  
   const [openAutoSubMenu, setOpenAutoSubMenu] = useState("");
-  const [openNotificationSubMenu, setOpenNotificationSubMenu] = useState(""); // New state for Marketing submenu
+  const [openNotificationSubMenu, setOpenNotificationSubMenu] = useState("");
 
   const toggleMenu = (menu) => {
     setOpenMenu((prev) => (prev === menu ? null : menu));
@@ -530,17 +530,17 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   alt="Online Vehicles List"
                                   className="h-6 w-6 rounded-full"
                                 />
-                                )}
-
+                              )}                                
                               <Typography
                                 color="inherit"
                                 className="font-medium px-3 capitalize"
                               >
-                                  {label}
-                                </Typography>
-                              </Button>
-                            )}
-                          </NavLink>
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
+                        )}
                       </li>
                     ))}
                   </ul>
