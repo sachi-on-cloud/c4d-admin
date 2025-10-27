@@ -3,9 +3,9 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-select'; // Assuming react-select is used
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+import Select from 'react-select';
 
 const AddBanner = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const AddBanner = () => {
     status: true,
     type: '',
     image: null,
-    zone: '',
+    zone: [],
   };
 
   const fetchGeoData = async () => {
@@ -28,8 +28,7 @@ const AddBanner = () => {
     const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
       type: 'Service Area',
     });
-    const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
-    setServiceAreas(filteredAreas || []); // Ensure serviceAreas is always an array
+ setServiceAreas(response?.data);// Ensure serviceAreas is always an array
   } catch (error) {
     console.error('Error fetching GEO_MARKINGS_LIST:', error);
     setError('Failed to fetch service areas. Please try again.');
@@ -58,7 +57,7 @@ const AddBanner = () => {
       ),
       fromDate: Yup.string().required('Start Date is required'),
       toDate: Yup.string().required('End Date is required'),
-      zone: Yup.string().required('Zone is required')
+      zone: Yup.mixed().required('Zone is required')
   });
 
   const handleImageUpload = (file, setFieldValue) => {
@@ -82,13 +81,11 @@ const AddBanner = () => {
       formData.append('redirectUrl', values.redirectUrl.trim());
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
-      formData.append('zone', values.zone);
+      formData.append('zone', JSON.stringify(values.zone.includes['All'] ? ['All'] : values.zone));
       formData.append('image', values.image, values.image.name);
       formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
-
       const response = await ApiRequestUtils.postDocs(API_ROUTES.POST_BANNER, formData);
-
       if (response?.success) {
         navigate('/dashboard/user/bannerimgView');
       } else {
@@ -162,11 +159,22 @@ const AddBanner = () => {
                   Zone
                 </label>
                 <Select
-                  options={ZONE_OPTIONS}
-                  onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
-                  placeholder="Select Zone"
-                  className="w-full"
                   name="zone"
+                  options={ZONE_OPTIONS}
+                  isMulti
+                  value={values.zone.map((val) => ({ value: val, label: val }))}
+                  onChange={(selectedOptions) => {
+                    const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+                    if (selectedValues.includes['All'] && selectedValues.length > 1) {
+                      setFieldValue('zone', ['All']);
+                    } else if (selectedValues.includes('All')) {
+                      setFieldValue('zone', ['All']);
+                    } else {
+                      setFieldValue('zone', selectedValues);
+                    }
+                  }}
+                  placeholder="Select service Area"
+                  className="mt-1"
                 />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
               </div>

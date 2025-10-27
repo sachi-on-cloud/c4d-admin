@@ -49,6 +49,22 @@ export function SearchDrivers(props) {
         }
     };
 
+    const CountdownTimer = ({ duration = 30 }) => {
+  const [seconds, setSeconds] = useState(duration);
+
+  useEffect(() => {
+    if (seconds <= 0) return;
+
+    const timer = setInterval(() => {
+      setSeconds((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [seconds]);
+
+  return <span>{seconds}</span>;
+};
+
     const checkAllStatus = async () => {
         const driversToCheck = drivers.filter(
             (driver) => 
@@ -296,7 +312,6 @@ export function SearchDrivers(props) {
                         longitude: props?.bookingData?.pickupLong,
                     });
                 } else {
-                    setLoading(false);
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
@@ -657,7 +672,7 @@ export function SearchDrivers(props) {
                         {loadingRides ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    Requesting nearby drivers. Please wait 30 seconds...
+                                Requesting nearby drivers. Please wait <CountdownTimer /> seconds...
                                 </Typography>
                             </CardHeader>
                         ) : loading ? (

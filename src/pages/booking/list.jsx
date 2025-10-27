@@ -582,123 +582,115 @@ const handleTabChange = (value) => {
         <div className="flex flex-col bg-white rounded-xl shadow-lg" >
             {/* Status Cards Section */}
             <div className="w-full px-4 py-6 md:px-6 lg:px-8">
-                  
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-1">
-                {/* Status Cards in a Single Line */}
-                
-                <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 ">
-                     <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
-          Booking Status Count
-        </Typography>
-                    {[
-                    { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
-                    { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
-                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
-                    { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
-                   { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
-                    ].map((item, index) => {
-                    const IconComponent = item.icon;
-                    return (
-                        <div
-                        key={index}
-                        className={`p-4 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center ${item.bgColor}`}
-                        >
-                        <Typography variant="small" className="text-white font-medium mb-2">
-                            {item.label}
+                <div className="grid grid-cols-1 gap-4">
+                    {/* Booking Status Count Section */}
+                    <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                        <Typography variant="h6" className="text-gray-900 text-sm mb-2">
+                            Booking Status Count
                         </Typography>
-                        <div className="flex flex-row items-center justify-between w-full space-x-4">
-                            <div className="w-1/2">
-                            <Typography variant="h3" className="font-bold text-white text-xl md:text-2xl">
-                                {counts[item.key]}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
+                            {[
+                                { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
+                                { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
+                                { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-500', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
+                                { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-500', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
+                                { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-500', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
+                            ].map((item, index) => {
+                                const IconComponent = item.icon;
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`p-2 rounded-lg shadow-md flex flex-col items-center ${item.bgColor} text-white`}
+                                    >
+                                        <Typography variant="small" className="text-xs font-medium mb-1">
+                                            {item.label}
+                                        </Typography>
+                                        <div className="flex items-center">
+                                            <IconComponent className="w-5 h-5 mr-1" />
+                                            <Typography variant="h6" className="font-bold text-base">
+                                                {counts[item.key]}
+                                            </Typography>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Hourly Online Drivers Section */}
+                    <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                        <div className="flex justify-between items-center mb-2">
+                            <Typography variant="h6" className="text-gray-900 text-sm">
+                                Hourly Online Drivers
                             </Typography>
+                            <Button
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm"
+                                onClick={handleToggleDriverHours}
+                            >
+                                Select Slot
+                            </Button>
+                        </div>
+
+                        {showDriverHours && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
+                                    <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+                                        {Array.from({ length: 24 }, (_, i) => {
+                                            const startHour = i;
+                                            const endHour = (i + 1) % 24;
+                                            const timeRange = `${String(startHour).padStart(2, '0')}:00 - ${String(endHour).padStart(2, '0')}:00`;
+                                            const driverCount = onlineDrivers.find(driver => {
+                                                const driverTime = moment(driver.date_time).hour();
+                                                return driverTime === startHour;
+                                            });
+
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    className={`bg-gray-100 text-gray-800 p-2 rounded text-center cursor-pointer ${selectedHour === i ? 'border-2 border-black' : ''}`}
+                                                    onClick={() => handleHourSelect(i)}
+                                                >
+                                                    <Typography variant="small" className="text-xs font-bold mb-1">
+                                                        {timeRange}
+                                                    </Typography>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="flex justify-end mt-4">
+                                        <Button
+                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+                                            onClick={() => setShowDriverHours(false)}
+                                        >
+                                            Close
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
-                            <div className={`flex justify-center items-center w-12 h-12 md:w-14 md:h-14 rounded-full ${item.color}`}>
-                            <IconComponent className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
+                            <div className="bg-blue-400 bg-gradient-to-br from-blue-500 to-blue-800 text-white p-2 rounded-lg text-center flex flex-col items-center">
+                                <div className="flex items-center mb-1">
+                                    <FaUsers className="w-6 h-6 mr-1 text-white" />
+                                    <Typography variant="small" className="text-white font-bold text-xs">
+                                        Total Drivers
+                                    </Typography>
+                                </div>
+                                <Typography variant="h3" className="font-bold text-xl">{totalDriverCount}</Typography>
+                            </div>
+                            <div className="bg-green-600 bg-gradient-to-br from-green-600 to-green-800 text-white p-2 rounded-lg text-center flex flex-col items-center">
+                                <div className="flex items-center">
+                                    <FaSync className="w-5 h-5 mr-1 text-white" />
+                                    <Typography variant="small" className="font-bold text-xs">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+                                </div>
+                                <Typography variant="h3" className="font-bold text-xl">{selectedDriver?.count || 0}</Typography>
+                                <Typography variant="small" className="mt-1 font-medium text-xs text-white">Last Updated: {selectedTime}</Typography>
                             </div>
                         </div>
-                        </div>
-                    );
-                    })}
+                    </div>
                 </div>
-
-                {/* Hourly Online Drivers Section */}
-                <div className="lg:col-span-4">
-                
-    <div className="flex justify-between items-center mb-4">
-        <Typography variant="h6" className="col-span-6 sm:col-span-12 text-gray-900">
-          Hourly Online Drivers
-        </Typography>
-        <Button
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          onClick={handleToggleDriverHours}
-        >
-          Select Slot
-        </Button>
-      </div>
-
-      {showDriverHours && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
-            <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
-        {Array.from({ length: 24 }, (_, i) => {
-            const startHour = i;
-            const endHour = (i + 1) % 24;
-            const timeRange = `${String(startHour).padStart(2, '0')}:00 - ${String(endHour).padStart(2, '0')}:00`;
-            const driverCount = onlineDrivers.find(driver => {
-                const driverTime = moment(driver.date_time).hour();
-                return driverTime === startHour;
-            });
-
-            return (
-                <div
-                    key={i}
-                    className={`bg-gray-100 text-gray-800 p-2 rounded text-center cursor-pointer ${selectedHour === i ? 'border-2 border-black' : ''}`}
-                    onClick={() => handleHourSelect(i)}
-                  >
-                    <Typography variant="small" className="text-xs font-bold mb-1">
-                      {timeRange}
-                    </Typography>
-                    {/* <Typography variant="h5" className="font-extrabold text-base">
-                      {driverCount ? driverCount.count : 0}
-                    </Typography> */}
-                  </div>
-                );
-              })}
             </div>
-           <div className="flex justify-end mt-4">
-      <Button
-        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-        onClick={() => setShowDriverHours(false)}
-      >
-        Close
-      </Button>
-    </div>
-          </div>
-        </div>
-      )}
-
-    <div className="grid grid-cols-1 mt-4 sm:grid-cols-2 gap-4">
-      <div className="bg-blue-500 text-white py-9 rounded-lg text-center flex flex-col items-center justify-center">
-      <div className="flex items-center mb-2">
-        <FaUsers className="w-6 h-4 mr-2  text-white" />
-        <Typography variant="small" className="text-white font-bold text-sm ">
-          Total Drivers
-        </Typography>
-      </div>
-      <Typography variant="h3" className="font-bold text-2xl">{totalDriverCount}</Typography>
-    </div>
-    <div className="bg-green-500 text-white p-4 rounded-lg text-center flex flex-col items-center justify-center">
-      <div className="flex items-center">
-        <FaSync className="w-6 h-4 mr-2  text-white" />
-        <Typography variant="small" className="font-bold text-sm">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
-      </div>
-      <Typography variant="h3" className="font-bold text-2xl">{selectedDriver?.count || 0}</Typography>
-      <Typography variant="small" className="mt-2 font-medium text-white">Last Updated: {selectedTime}</Typography>
-    </div>
-                </div>
-                </div>
-</div>
-</div>
 
             <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
@@ -844,6 +836,7 @@ const handleTabChange = (value) => {
                                                             options={[
                                                                 { value: 'All', label: 'All' },
                                                                 { value: 'QUOTED', label: 'Quoted' },
+                                                                { value: 'BOOKING_ACCEPTED', label: 'Booking Accepted' },
                                                                 { value: 'CONFIRMED', label: 'Booking Confirmed' },
                                                                 { value: 'REQUEST_DRIVER', label: 'Request Driver' },
                                                                 { value: 'STARTED', label: 'Started' },
@@ -938,7 +931,7 @@ const handleTabChange = (value) => {
                                                 <Button
                                                 className={`${ColorStyles.bgStatusColor} text-white w-28 mt-14`}
                                                 onClick={() => {
-                                                    onRequestDriverHandler(selectedBookingForReassign, 'REQUEST_ALL');
+                                                    onRequestDriverHandler(selectedBookingForReassign, 'DRIVER');
                                                     setShowReassignModal(false);
                                                     setSelectedBookingForReassign(null);
                                                 }}
