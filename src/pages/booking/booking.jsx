@@ -1015,7 +1015,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
         RENTAL_DROP_TAXI: "Drop Taxi",
         RENTAL_HOURLY_PACKAGE: "Hourly Package",
         RENTAL: "Outstation",
-        AUTO: "Auto",
+        AUTO : "Auto",
         PARCEL: "Parcel",
     };
 
