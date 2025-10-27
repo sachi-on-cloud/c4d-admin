@@ -33,6 +33,7 @@ export function ParcelDetailsList({ id = 0 }) {
   const [parcelList, setParcelList] = useState([]);
   const [statusFilter, setStatusFilter] = useState(["All"]);
   const [documentStatusFilter, setDocumentStatusFilter] = useState(["All"]);
+  const [sourceFilter, setSourceFilter] = useState(["All"]); // New state for source filter
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -55,6 +56,11 @@ export function ParcelDetailsList({ id = 0 }) {
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
+        filterType: JSON.stringify({
+          status: documentStatusFilter, // KYC status
+          source: sourceFilter,
+           serviceType: [ 'Parcel'],// Ensure Parcel is included
+        }),
       });
       console.log("API Response:", data);
       if (data?.success) {
@@ -74,12 +80,12 @@ export function ParcelDetailsList({ id = 0 }) {
     } finally {
       setLoading(false);
     }
-  }, [pagination.itemsPerPage]);
+  }, [pagination.itemsPerPage, statusFilter, documentStatusFilter, sourceFilter]);
 
   // Fetch data when id changes or filters change
   useEffect(() => {
     fetchParcelList(pagination.currentPage, pagination.search, true);
-  }, [fetchParcelList, pagination.currentPage, pagination.search]);
+  }, [fetchParcelList, pagination.currentPage, pagination.search, statusFilter, documentStatusFilter, sourceFilter]);
 
   // Debounced search handler
   const handleSearch = useCallback(
@@ -171,13 +177,22 @@ export function ParcelDetailsList({ id = 0 }) {
           : [...prev.filter((item) => item !== "All"), value];
         return newFilter.length === 0 ? ["All"] : newFilter;
       });
+    } else if (filterType === "source") {
+      setSourceFilter((prev) => {
+        if (value === "All") return ["All"];
+        const newFilter = prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev.filter((item) => item !== "All"), value];
+        return newFilter.length === 0 ? ["All"] : newFilter;
+      });
     }
   };
 
   const getFilteredData = () => {
     return parcelList.filter(parcel =>
       (statusFilter.includes('All') || statusFilter.includes(parcel?.ownerStatus)) &&
-      (documentStatusFilter.includes('All') || documentStatusFilter.includes(parcel?.documentStatus?.status))
+      (documentStatusFilter.includes('All') || documentStatusFilter.includes(parcel?.documentStatus?.status)) &&
+      (sourceFilter.includes('All') || sourceFilter.includes(parcel?.source))
     );
   };
 
@@ -251,25 +266,41 @@ export function ParcelDetailsList({ id = 0 }) {
                         {el === "KYC Status" ? (
                           <FilterPopover
                             title={el}
-                            options={[
+                          options={[
                               { value: "All", label: "All" },
-                              { value: "PENDING", label: "Pending" },
-                              { value: "VERIFIED", label: "Verified" }, // Updated to match API
+                              { value: "PENDING UPLOAD", label: "Pending Upload" },
+                              // { value: "PENDING VERIFICATION", label: "Pending Verified" },
+                              { value: "VERIFIED", label: "Verified" },
                               { value: "DECLINED", label: "Declined" },
                             ]}
                             selectedFilters={documentStatusFilter}
                             onFilterChange={(value) => handleFilterChange("DocumentStatus", value)}
                           />
-                        ) : el === "Status" ? (
+                        ) 
+                        // : el === "Status" ? (
+                        //   <FilterPopover
+                        //     title={el}
+                        //     options={[
+                        //       { value: "All", label: "All" },
+                        //       { value: "ACTIVE", label: "Active" },
+                        //       { value: "IN_ACTIVE", label: "In_Active" },
+                        //     ]}
+                        //     selectedFilters={statusFilter}
+                        //     onFilterChange={(value) => handleFilterChange("Status", value)}
+                        //   />
+                        // ) 
+                        : el === "Source" ? (
                           <FilterPopover
                             title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "ACTIVE", label: "Active" },
-                              { value: "IN_ACTIVE", label: "In_Active" },
+                              { value: "Mobile App", label: "Mobile App" },
+                              { value: "Walk In", label: "Walk In" },
+                              { value: "Call", label: "Call" },
+                              { value: "Website", label: "Website" },
                             ]}
-                            selectedFilters={statusFilter}
-                            onFilterChange={(value) => handleFilterChange("Status", value)}
+                            selectedFilters={sourceFilter}
+                            onFilterChange={(value) => handleFilterChange("source", value)}
                           />
                         ) : el === "Created Date" ? (
                           <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">

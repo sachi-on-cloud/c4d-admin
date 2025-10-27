@@ -240,7 +240,7 @@ const ConfirmBooking = (props) => {
                 : API_ROUTES.CONFIRM_ADMIN_BOOKING,
             reqBody
         );
-        console.log("CANCELBOKING", data);
+        // console.log("CANCELBOKING", data);
 
         if (data?.success) {
             props.onConfirm();
@@ -808,21 +808,21 @@ const ConfirmBooking = (props) => {
                             <Typography>{bookingDetails?.Cab?.carType || 'Mini'}</Typography>
                         </div>
                     )}
-                            {bookingDetails?.serviceType != 'RIDES' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !='AUTO' && bookingDetails?.serviceType !='PARCEL' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Luggage:</Typography>
                                     <Typography>{bookingDetails.luggage || '0'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Seater Capacity:</Typography>
                                     <Typography>{bookingDetails.seaterCapacity || '0'}</Typography>
@@ -860,10 +860,10 @@ const ConfirmBooking = (props) => {
                             {bookingDetails?.value?.estimatedDistance > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total Distance:</Typography>
-                                    <Typography>{(Number(bookingDetails?.value?.estimatedDistance) + Number(bookingDetails?.Package?.baseKm)).toFixed(1)} Kms</Typography>
+                                    <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
                                 </div>
                             }
-                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
+                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'PARCEL' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total Distance:</Typography>
                                     <Typography>{(Number(bookingDetails?.totalDistanceKilometer))} Kms</Typography>
@@ -1257,7 +1257,7 @@ const ConfirmBooking = (props) => {
                                     {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
                                 </div>
                                 
-                                {bookingDetails?.serviceType !== "RIDES" &&  <>
+                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && <> 
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Start KM:</Typography>
                                     <Typography>{bookingDetails?.startKM}</Typography>
@@ -1277,6 +1277,16 @@ const ConfirmBooking = (props) => {
                                     </div>
                                 </>
                                 }
+                            {bookingDetails?.serviceType === 'AUTO' &&
+                                <>
+                                    {bookingDetails?.value?.estimatedDistance > 0 &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Total KM:</Typography>
+                                            <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
+                                        </div>
+                                    }
+                                </>}
+
                             {bookingDetails?.extraHours >0 && (
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs (For Each 15 Mins) : </Typography>
@@ -1538,11 +1548,11 @@ const ConfirmBooking = (props) => {
         }
 
         // Log the payload for debugging
-        console.log("Trip Details to be sent:", JSON.stringify(tripDetails, null, 2));
+        // console.log("Trip Details to be sent:", JSON.stringify(tripDetails, null, 2));
 
         try {
             const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, tripDetails);
-            console.log("API Response:", response);
+            // console.log("API Response:", response);
 
             if (response?.success) {
                 Swal.fire({

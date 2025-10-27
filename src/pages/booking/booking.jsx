@@ -500,7 +500,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
         }));
         const response = await ApiRequestUtils.post(API_ROUTES.POST_QUOTATION_LOG, updatedLogs);
         if (response?.success) {
-            console.log('Quotation logs sent successfully:', response);
+            // console.log('Quotation logs sent successfully:', response);
             setQuotationLogs([]); // Clear the logs after successful submission
         } else {
             console.error('Failed to send quotation logs:', response?.message);
@@ -572,11 +572,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setSelectedCustomer(0);
             setSearchBookingId('');
         } else {
-            console.log("Error in creating new booking");
+            // console.log("Error in creating new booking");
             formikBag.setErrors({ submit: 'Failed to create booking. Please try again.' });
         }
     } catch (err) {
-        console.log("ERROR IN RIDES BOOKING", err);
+        // console.log("ERROR IN RIDES BOOKING", err);
         formikBag.setErrors({ submit: 'An error occurred. Please try again.' });
     } finally {
         setIsButtonDisabled(false);
@@ -585,6 +585,19 @@ const sendQuotationLogs = async (bookingId, userId) => {
 };
 
  const onAutoSubmitHandler = async (values) => {
+       let zoneCheckUp = await zoneCheckUpFun(values)
+            let actualZone = '';
+            if (values.serviceType === 'AUTO') {
+                if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
+                    setZoneErrorModal({ show: true, text: zoneCheckUp.error || 'Service not available in this area.', title: zoneCheckUp.title || 'Oops!' });
+                    setIsButtonDisabled(false);
+                    return;
+                }
+                actualZone = zoneCheckUp.serviceArea.name;
+                // console.log("third Zone",actualZone)
+            } else {
+                actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+            }
         const bookingData = {
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
@@ -597,6 +610,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 name: values.dropAddress,
             },
             sourceType: values.sourceType,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
+            zone: actualZone, 
         };
 
         try {
@@ -1735,7 +1754,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
                                                                     </div>
                                                                 )}
-                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
                                                                 Driver Starting Point 
@@ -1888,7 +1907,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                         <Typography>
                                                                             {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount?.estimatedDistance) + (Number(quoteDetails.amount?.baseKm)) 
+                                                                            {(quoteDetails.amount?.distanceEstimated)
                                                                             // + (Number(quoteDetails.amount.driverWithin))
                                                                             } Kms + {quoteDetails.amount?.driverWithin} Kms
                                                                         </Typography></>)}
@@ -2179,7 +2198,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         onClick={() => {
                                                             //    handleSubmit();
                                                             setFieldValue("submitType", "auto");
-                                                            console.log('AUTO Button Clicked, Values:', values);
+                                                            // console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
