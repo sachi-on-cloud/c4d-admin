@@ -2168,6 +2168,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         !values.rideDate ||
                                                         !values.packageTypeSelected ||
                                                         !values.pickupAddress ||
+                                                        !values.sourceType ||
                                                         (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                         (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                         (values.packageTypeSelected === "Local" && values.tripType === "Round Trip" && !values.dropAddress) ||
@@ -2185,7 +2186,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType)||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2201,7 +2202,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             // console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer)}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType)}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2221,6 +2222,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !isValid ||
                                                                 !values.rideDate ||
                                                                 !values.packageTypeSelected ||
+                                                                !values.sourceType ||
                                                                 !values.pickupAddress ||
                                                                 (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                                 (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
@@ -2245,6 +2247,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !dirty ||
                                                                 !isValid ||
                                                                 !values.rideDate ||
+                                                                !values.sourceType ||
                                                                 !values.packageSelected ||
                                                                 !values.pickupAddress
                                                             }
@@ -2265,6 +2268,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !dirty ||
                                                                 !isValid ||
                                                                 !values.rideDate ||
+                                                                !values.sourceType ||
                                                                 !values.acType ||
                                                                 !values.pickupAddress ||
                                                                 !values.dropAddress
