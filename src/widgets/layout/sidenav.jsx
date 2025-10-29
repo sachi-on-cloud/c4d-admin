@@ -36,6 +36,7 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
+  { name: "Shop List", path: "/dashboard/vendors/shops", permission:"Shop List"},
   { name: "Inventory", path: "/dashboard/inventory/category-list", permission: "Inventory" },
   { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Trip Master" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
@@ -225,6 +226,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
                       {name === "Vendors" ? (
                         <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
+                      { name === "Shop List" ? (
+                         <ShoppingBagIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
                       { name === "Inventory" ? (
@@ -548,6 +553,41 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           )}
                         </NavLink>
                         )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {!miniSidenav && name === "Shop List" && openSubMenu === "Shop List" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "All", path: "/dashboard/vendors/shops" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
+                                }`}
+                              fullWidth
+                            >
+                              {label === "All" && (
+                                <img
+                                  src="/img/shop.png"
+                                  alt="Shop List"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )} 
+                              
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
                       </li>
                     ))}
                   </ul>

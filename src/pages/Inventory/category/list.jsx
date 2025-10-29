@@ -66,7 +66,7 @@ export function CategoryList() {
   // Zone options for the select dropdown
   const ZONE_OPTIONS = useMemo(
     () => [
-      { value: 'ALL', label: 'ALl' },
+      { value: 'ALL', label: 'All' },
       ...serviceAreas.map((area) => ({
         value: area.name,
         label: area.name,
