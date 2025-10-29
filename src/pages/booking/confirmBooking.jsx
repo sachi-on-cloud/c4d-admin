@@ -285,7 +285,7 @@ const ConfirmBooking = (props) => {
                         Back
                     </Button> */}
 
-                {bookingDetails.status === "QUOTED" && (
+              {bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP" && (
                     <Button
                         color="green"
                         variant="outlined"
