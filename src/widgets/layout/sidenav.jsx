@@ -417,6 +417,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                        { label: "Auto List", path: "/dashboard/Vendors/account/autoList" },
                         ],
                       },
+                      { label: "Shop List", path: "/dashboard/vendors/shops" },
                     ].map(({ label, path, isSubMenu, subItems }) => (
                       <li key={label}>
                         {isSubMenu ? (
