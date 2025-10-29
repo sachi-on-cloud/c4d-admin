@@ -25,6 +25,7 @@ import {
   DocumentCheckIcon,
   UserGroupIcon,
   MegaphoneIcon,
+  ShoppingBagIcon,
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -35,6 +36,7 @@ const menuItems = [
   { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
+  { name: "Inventory", path: "/dashboard/inventory/category-list", permission: "Inventory" },
   { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Trip Master" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
@@ -223,6 +225,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
                       {name === "Vendors" ? (
                         <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
+                      { name === "Inventory" ? (
+                         <ShoppingBagIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
                        {name === "Trip Master" ? (
@@ -541,6 +547,38 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           )}
                         </NavLink>
                         )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {!miniSidenav && name === "Inventory" && openSubMenu === "Inventory" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "Category", path: "/dashboard/inventory/category-list" },
+                      { label: "Product", path: "/dashboard/inventory/product-list" },
+                      { label: "Stock", path: "/dashboard/inventory/quantity-list" },
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
+                                }`}
+                              fullWidth
+                            >
+                              {label === "Category"}
+                              {label === "Product"}
+                              {label === "Stock"}
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
                       </li>
                     ))}
                   </ul>

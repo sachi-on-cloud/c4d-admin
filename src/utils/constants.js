@@ -27,6 +27,11 @@ export const TITLE_LIST = [
     { label: 'Miss', value: 'Miss' },
     { label: 'Others', value: 'Others' },
 ]
+export const QUANTITY_TYPE = [
+    { label: 'Weight', value: 'weight'},
+    { label: 'Count',  value: 'count'},
+    { label: 'Litre',  value: 'litre'},
+]
 
 export const DISTRICT_LIST = [
     { label: 'Ariyalur', value: 'Ariyalur' },
@@ -976,6 +981,13 @@ export const API_ROUTES = {
     'GET_CUSTOMER_NOTIFICATION':'/notification-messages',
     'POST_CUSTOMER_NOTIFICATION':'/notification-messages',
     'UPDATE_FOLLOWUP':'/booking/followup',
+    'POST_CATEGORY': '/inventory/categories',
+    'GET_CATEGORY': '/inventory/categories',
+    'UPDATE_CATEGORY': '/inventory/categories',
+    'GET_PRODUCTS': '/inventory/products',
+    'POST_PRODUCTS': '/inventory/products',
+    'UPDATE_PRODUCTS': '/inventory/products',
+    'POST_STOCK': '/inventory/products',
     
 
 };
@@ -1073,7 +1085,7 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
+    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Inventory','Trip Master','Finance', 'Document verification','Marketing', 'Users'],
     'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
     'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
     'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
@@ -1085,6 +1097,7 @@ export const PERMISSION_OPTIONS = [
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
+    { name: 'Inventory', id: 'Inventory'},
     { name:'Trip Master',id:'Trip Master'},
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
