@@ -988,6 +988,11 @@ export const API_ROUTES = {
     'POST_PRODUCTS': '/inventory/products',
     'UPDATE_PRODUCTS': '/inventory/products',
     'POST_STOCK': '/inventory/products',
+    'GET_ALL_SHOPS': '/shops',
+    'GET_SHOP_BY_ID': '/shop',
+    'ADD_SHOP': '/shop/add',
+    'UPDATE_SHOP': '/shop/update',
+    'SHOP_DOCUMENTS_UPDATED': '/shop/documents/'
     
 
 };

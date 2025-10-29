@@ -124,6 +124,10 @@ import CategoryEdit from "./pages/Inventory/category/edit";
 import EditProduct from "./pages/Inventory/product/edit";
 import QuantityList from "./pages/Inventory/quantity/list";
 import AddQuantity from "./pages/Inventory/quantity/add";
+import ShopList from "./pages/Shop/list";
+import ShopAdd from "./pages/Shop/add";
+import ShopEdit from "./pages/Shop/edit";
+import ShopDetails from "./pages/Shop/details";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -1127,6 +1131,38 @@ export const routes = [
       //   display: true,
       //   permission: "Inventory"
       // },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Shops",
+        path: "/vendors/shops",
+        element: <ShopList />,
+        display: true,
+        permission: "Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Add Shop",
+        path: "/vendors/shops/add",
+        element: <ShopAdd />,
+        display: true,
+        permission: "Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Edit Shop",
+        path: "/vendors/shops/edit/:id",
+        element: <ShopEdit />,
+        display: true,
+        permission: "Vendors"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Shop Details",
+        path: "/vendors/shops/details/:id",
+        element: <ShopDetails />,
+        display: true,
+        permission: "Vendors"
+      },
     ],
   },
   {
