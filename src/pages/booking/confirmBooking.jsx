@@ -287,7 +287,11 @@ const ConfirmBooking = (props) => {
                         Back
                     </Button> */}
 
-              {bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP" && (
+                    {(
+                        (bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP") ||
+                        (bookingDetails.ownership === "ASSIGNED_TO_SUPPORT" &&
+                            (bookingDetails.serviceType === "AUTO" || bookingDetails.serviceType === "PARCEL"))
+                    ) && (
                     <Button
                         color="green"
                         variant="outlined"
@@ -741,7 +745,7 @@ const ConfirmBooking = (props) => {
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Delivery Type:</Typography>
                                 <Typography>
-                                    {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Deliver" : ""}
+                                    {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Delivery" : ""}
                                 </Typography>
                             </div>
                             }
@@ -751,12 +755,12 @@ const ConfirmBooking = (props) => {
                                 <Typography>{bookingDetails?.sourceType}</Typography>
                             </div>
                             }
-                            {bookingDetails?.source !== "Mobile App" &&
+                            
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Area:</Typography>
                                 <Typography>{bookingDetails?.zone}</Typography>
                             </div>
-                            }
+                            
                             {/* {bookingDetails?.zone > 0 &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Area:</Typography>

@@ -295,6 +295,52 @@ export function SearchDrivers(props) {
                     setLoadingRides(false);
                     setLoading(false);
                 }
+            } else if (props.bookingData.serviceType === 'PARCEL' && props.bookingData.requestType === 'REQUEST_ALL') {
+                setLoadingRides(true);
+                try {
+                    let data = {
+                        bookingId: props.bookingData.id,
+                        distance: 0,
+                        customerId: props.bookingData.CustomerId
+                    };
+                    let requestDriver = await ApiRequestUtils.post('/search/parcel', data);
+                    if (requestDriver?.success) {
+                        setDrivers([]);
+                        setTimeout(async () => {
+                            console.log("30 seconds passed. Checking driver availability...");
+                            let checkDriverStatus = await ApiRequestUtils.get(API_ROUTES.RIDES_DRIVER_LIST + '/' + props.bookingData.id);
+                            if (checkDriverStatus?.data?.length > 0) {
+                                const formattedDrivers = checkDriverStatus.data.map((item) => ({
+                                    id: item.cabId || item.Driver?.Cab?.id || item.id,
+                                    name: item.Driver?.Cab?.name || item.name || 'N/A',
+                                    driverName: item.Driver?.firstName || 'N/A',
+                                    status: item.Shift?.availability === "AVAILABLE" ? "ACTIVE" : "INACTIVE",
+                                    phoneNumber: item.Driver?.phoneNumber || '',
+                                    priceOffered: item.offerPrice || item.driverPrice || 0,
+                                    tripCount: item.Driver?.totalRides || 0,
+                                    Drivers: [{ id: item.DriverId || item.Driver?.id }],
+                                    fullData: item,
+                                    curAddress: item.Shift?.curAddress?.name || item.curAddress || '',
+                                    travelDistance: item.travelDistance || '',
+                                    travelDuration: item.travelDuration || 0,
+                                }));
+                                console.log("Formatted Drivers for bike:", formattedDrivers);
+                                setDrivers(formattedDrivers);
+                            } else {
+                                console.log("No driver found.");
+                                setDrivers([]);
+                            }
+                            setLoadingRides(false);
+                        }, 30000);
+                    } else {
+                        setLoadingRides(false);
+                        setLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Error in sendDriverRequest for Bike:", error);
+                    setLoadingRides(false);
+                    setLoading(false);
+                }
             } else {
                 let data;
                 if (props.bookingData.serviceType === 'DRIVER') {
@@ -306,12 +352,20 @@ export function SearchDrivers(props) {
                     }
                     data = await ApiRequestUtils.getWithQueryParam(api, queryObj);
                 } else if (props.bookingData.serviceType === 'AUTO') {
-                    setLoading(false);
+                    setLoadingRides(false);
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_AUTO_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
                     });
-                } else {
+                } else if (props.bookingData.serviceType === 'PARCEL') {
+                    setLoadingRides(false);
+                    data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BIKE_PACKAGE, {
+                        latitude: props?.bookingData?.pickupLat,
+                        longitude: props?.bookingData?.pickupLong,
+                    });
+                    // console.log("Bike Package Data:", data);
+                }
+                else {
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
@@ -681,7 +735,12 @@ export function SearchDrivers(props) {
                         ) : loading ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    Loading cabs...
+                                    {`Loading ${props.bookingData.serviceType=== "AUTO"
+                                        ? "Autos"
+                                        : props.bookingData.serviceType=== "PARCEL"
+                                            ? "Bikes"
+                                            : "Cabs"
+                                        }...`}
                                 </Typography>
                             </CardHeader>
                         ) : drivers.length > 0 ? (
@@ -708,9 +767,11 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : "Cab Name", "Driver Name", "Phone Number", "Current Address", ...(props.bookingData?.serviceType !== "AUTO" ? ["Cab Type"] : []), 
-                                                ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []),
-                                                "Local Count",  ...(props.bookingData?.serviceType !== "AUTO" ? ["Outstation Count"] : []), "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
+                                            {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : "Cab Name", "Driver Name", "Phone Number", "Current Address",
+                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Cab Type"] : []), 
+                                            ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []),
+                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Local Count"] : []),
+                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Outstation Count"] : []), "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
                                                     <th
                                                         key={el}
                                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -778,7 +839,7 @@ export function SearchDrivers(props) {
                                                                 {(Shifts?.[0]?.curAddress?.name || curAddress?.name) || curAddress}
                                                             </Typography>
                                                         </td>
-                                                        {props.bookingData.serviceType !== "AUTO" && (
+                                                        {props.bookingData.serviceType !== "AUTO" && props.bookingData.serviceType !== "PARCEL" && (
                                                             <td className={className}>
                                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                     {carType}
@@ -792,12 +853,14 @@ export function SearchDrivers(props) {
                                                                 </Typography>
                                                             </td>
                                                         }
+                                                        {props.bookingData.serviceType !== "AUTO" && props.bookingData.serviceType !== "PARCEL" && (
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {intercityCount}
                                                             </Typography>
                                                         </td>
-                                                        {props.bookingData.serviceType !== "AUTO" && (
+                                                        )}
+                                                        {props.bookingData.serviceType !== "AUTO" && props.bookingData.serviceType !== "PARCEL" && (
                                                             <td className={className}>
                                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                     {outstationCount}
@@ -843,7 +906,7 @@ export function SearchDrivers(props) {
                                                                 onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id, fullData) }}
                                                                 className="text-xs font-semibold text-white bg-primary"
                                                             >
-                                                                {props.bookingData.serviceType === "AUTO" ? "Assign Auto" : "Assign Cab"}
+                                                                {props.bookingData.serviceType === "AUTO" ? "Assign Auto" : props?.bookingData.serviceType === "PARCEL" ? "Assign Bike" : "Assign Cab"}
                                                             </Button>
                                                         </td>
                                                     </tr>
@@ -856,7 +919,7 @@ export function SearchDrivers(props) {
                         ) : (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    {`No ${props?.bookingData?.serviceType == "DRIVER" ? 'drivers' : 'cabs'} Near By`}
+                                    {`No ${props.bookingData.serviceType === "AUTO" ? "Autos" : props.bookingData.serviceType == "PARCEL" ? "Bikes" : "Cabs"} Near By`}
                                 </Typography>
                             </CardHeader>
                         )}
@@ -867,7 +930,12 @@ export function SearchDrivers(props) {
                             onClick={() => { props?.onNext() }}
                             className='text-white border-2 bg-primary rounded-xl'
                         >
-                            {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab Later" : "Assign Captain Later"}
+                            {props?.bookingData?.serviceType === "AUTO"
+                                ? "Assign Auto Later"
+                                : props?.bookingData?.serviceType === "PARCEL"
+                                    ? "Assign Bike Later"
+                                    : "Assign Cab Later"
+                            }
                         </Button>
                     </div>
                 </div >
