@@ -18,6 +18,8 @@ const PRICE_SCHEMA = Yup.object().shape({
   type: Yup.string().required('Trip Type is required'),
   baseFare: Yup.number().required('Base Fare is required'),
   kilometerPrice: Yup.number().required('Kilometer Rate is required'),
+  baseKm: Yup.number().required('Base KM is required'),
+  extraKmPrice: Yup.number().required('Extra Kilometer Rate is required'),
 });
 
 const AutoMasterPriceEdit = () => {
@@ -37,6 +39,8 @@ const AutoMasterPriceEdit = () => {
           type: data?.data?.type || '',
           baseFare: data?.data?.baseFare || 0,
           kilometerPrice: data?.data?.kilometerPrice || 0,
+          baseKm: data?.data?.baseKm || 0,
+          extraKmPrice: data?.data?.extraKmPrice || 0,
           // status: data?.data?.status == 'ACTIVE' ? 1 : 0,
         });
       }
@@ -55,6 +59,8 @@ const AutoMasterPriceEdit = () => {
         packageId: Number(id),
         baseFare: Number(values.baseFare),
         kilometerPrice: Number(values.kilometerPrice),
+        baseKm:Number(values.baseKm),
+        extraKmPrice: Number(values.extraKmPrice),
       };
 
       const response = await ApiRequestUtils.post(API_ROUTES.AUTO_PRICE_EDIT, reqBody);
@@ -86,10 +92,20 @@ const AutoMasterPriceEdit = () => {
                 <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                 <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
               </div>
+               <div>
+                <label className="text-sm font-medium text-gray-700">Base Km</label>
+                <Field type="number" name="baseKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                <ErrorMessage name="baseKm" component="div" className="text-red-500 text-sm" />
+              </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Kilometer Price</label>
                 <Field type="number" name="kilometerPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                 <ErrorMessage name="kilometerPrice" component="div" className="text-red-500 text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
+                <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
               </div>
               {/* <div>
                 <label className="text-sm font-medium text-gray-700">Status</label>
