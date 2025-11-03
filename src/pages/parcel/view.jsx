@@ -167,7 +167,7 @@ export function ParcelView({ type, ownerName, id }) {
                 <thead>
                   <tr>
                     {["Name","company","vehicleType","vehicleNumber"].map((el) => (
-                      <th key={el} className="border-b border-gray-300 text-center">
+                      <th key={el} className="border-b border-gray-50 text-left py-3 px-5">
                         <Typography
                           variant="small"
                           className="text-[11px] font-bold uppercase text-black"
@@ -190,7 +190,7 @@ export function ParcelView({ type, ownerName, id }) {
                       },
                       key
                     ) => {
-                      const className = `py-3 text-center ${
+                      const className = `py-3 px-5 ${
                         key === accounts.length - 1 ? '' : 'border-b border-blue-gray-50'
                       }`;
                       return (

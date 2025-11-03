@@ -9,7 +9,12 @@ import {
   Button,
   Select,
   Option,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Checkbox,
 } from '@material-tailwind/react';
+import { FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +25,7 @@ export function OnlineVehiclesList({ id = 0 }) {
   const [loading, setLoading] = useState(false);
   const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState('');
+   const [typeFilter, setTypeFilter] = useState(['All']);
   const intervalRef = useRef(null);
   const navigate = useNavigate();
 
@@ -66,8 +72,10 @@ export function OnlineVehiclesList({ id = 0 }) {
   const fetchCabList = async () => {
     setLoading(true);
     try {
+      const driverType = typeFilter[0] === 'All' ? 'ALL' : typeFilter[0];
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
-            isToday:'true'
+        isToday:'true',
+        type: driverType,
       });
       if (data?.success) {
         const updatedVehicleList = (data.data || []).map((item) => {
@@ -109,6 +117,16 @@ export function OnlineVehiclesList({ id = 0 }) {
     }
   };
 
+  const handleFilterChange = (filterType, value) => {
+    if (filterType === 'type') {
+      setTypeFilter([value]);
+    }
+  };
+
+  useEffect(() => {
+    fetchCabList();
+  }, [typeFilter]);
+
   useEffect(() => {
     fetchCabList();
     return () => {
@@ -117,6 +135,41 @@ export function OnlineVehiclesList({ id = 0 }) {
       }
     };
   }, [id]);
+
+  const filteredVehicles = vehicleList.filter((v) => {
+    if (typeFilter[0] === 'All') return true;
+    return (v.type?.toUpperCase() ?? '') === typeFilter[0];
+  });
+
+  const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <div className="flex items-center cursor-pointer">
+          <Typography
+            variant="small"
+            className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}
+          >
+            {title}
+          </Typography>
+          <FaFilter className="text-black text-xs" />
+        </div>
+      </PopoverHandler>
+      <PopoverContent className="p-2">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center mb-2">
+            <Checkbox
+              color="blue"
+              checked={selectedFilters[0] === option.value}
+              onChange={() => onFilterChange('type', option.value)}
+            />
+            <Typography color="blue-gray" className="font-medium ml-2">
+              {option.label}
+            </Typography>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -135,8 +188,6 @@ export function OnlineVehiclesList({ id = 0 }) {
         </div>
       </div>
       <Card>
-       {vehicleList.length > 0 ? (
-          <>
             <CardHeader
               variant="gradient"
               className="mb-8 p-6 flex justify-between items-center bg-primary"
@@ -162,6 +213,7 @@ export function OnlineVehiclesList({ id = 0 }) {
                 <thead>
                   <tr>
                     {[
+                      'Type',
                       'Driver Name',
                       'Cab Name',
                       'Phone Number',
@@ -174,19 +226,39 @@ export function OnlineVehiclesList({ id = 0 }) {
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
+                    {el === 'Type' ? (
+                      <FilterPopover
+                        title={el}
+                        options={[
+                          { value: 'All', label: 'All' },
+                          { value: 'CAB', label: 'Cab' },
+                          { value: 'AUTO', label: 'Auto' },
+                          { value: 'PARCEL', label: 'Bike' },
+                        ]}
+                        selectedFilters={typeFilter}
+                        onFilterChange={handleFilterChange}
+                      />
+                    ) : (
                         <Typography
                           variant="small"
                           className="text-[11px] font-bold uppercase text-black"
                         >
                           {el}
                         </Typography>
+                    )}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {vehicleList.map((vehicle) => (
+                {filteredVehicles.length > 0 ? (
+                  filteredVehicles.map((vehicle) => (
                     <tr key={vehicle.id}>
+                      <td className="py-3 px-5 border-b border-blue-gray-50">
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {vehicle.type || '-'}
+                        </Typography>
+                      </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Typography className="text-xs font-semibold text-blue-gray-600">
                           {vehicle.Drivers?.[0]?.firstName || '-'}
@@ -249,18 +321,19 @@ export function OnlineVehiclesList({ id = 0 }) {
                       
                     
                     </tr>
-                  ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="text-center py-8">
+                      <Typography variant="h6" color="gray">
+                        No Online Vehicles Available
+                      </Typography>
+                    </td>
+                  </tr>
+                )}
                 </tbody>
               </table>
             </CardBody>
-          </>
-        ) : (
-          <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
-            <Typography variant="h6" color="white">
-              No Online Vehicles Available
-            </Typography>
-          </CardHeader>
-        )}
       </Card>
     </div>
   );
