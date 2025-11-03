@@ -5,6 +5,7 @@ import {
   CardBody,
   Typography,
   Button,
+  Switch,
 } from '@material-tailwind/react';
 import { ColorStyles } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
@@ -21,8 +22,9 @@ export function CombineView() {
     itemsPerPage: 15,
   });
   const [error, setError] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null); // For loading state
 
-  const fetchCombineViewList = async (page = 1, showLoader = true) => {
+  const fetchCombineViewList = async (page = 1) => {
     try {
       setError(null);
       const queryParams = {
@@ -69,7 +71,31 @@ export function CombineView() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
-      fetchCombineViewList(page, true);
+    }
+  };
+
+  // Toggle Status API Call
+  const handleStatusToggle = async (id, currentStatus) => {
+    setUpdatingId(id);
+    try {
+      const response = await ApiRequestUtils.update(`/notification-messages/${id}`, {
+        status: !currentStatus,
+      });
+
+      if (response?.success) {
+        setItems(prevItems =>
+          prevItems.map(item =>
+            item.id === id ? { ...item, status: !currentStatus } : item
+          )
+        );
+      } else {
+        alert('Failed to update status');
+      }
+    } catch (err) {
+      console.error('Status update error:', err);
+      alert('An error occurred');
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -140,13 +166,14 @@ export function CombineView() {
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Message</th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Created Date</th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Last Updated</th>
+                <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Status</th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Action</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 && !error ? (
                 <tr>
-                  <td colSpan="6" className="py-3 px-5 text-center">
+                  <td colSpan="7" className="py-3 px-5 text-center">
                     No Combine View Items
                   </td>
                 </tr>
@@ -155,10 +182,22 @@ export function CombineView() {
                   <tr key={item.id || index} className="border-b border-blue-gray-50">
                     <td className="py-3 px-5">{item.serviceType || '-'}</td>
                     <td className="py-3 px-5">{item.serviceArea || '-'}</td>
-                    <td className="py-3 px-5">{item.message || '-'}</td>
+                    <td className="py-3 px-5 max-w-xs truncate">{item.message || '-'}</td>
                     <td className="py-3 px-5">{moment(item?.created_at).format('DD-MM-YYYY / hh:mm A') || '-'}</td>
                     <td className="py-3 px-5">{moment(item?.updated_at).format('DD-MM-YYYY / hh:mm A') || '-'}</td>
-                    <td>
+                    
+                    {/* Status Toggle */}
+                    <td className="py-3 px-5">
+                      <Switch
+                        checked={item.status === true}
+                        onChange={() => handleStatusToggle(item.id, item.status)}
+                        disabled={updatingId === item.id}
+                        color="blue"
+                        label={updatingId === item.id ? "Updating..." : (item.status ? "Active" : "Inactive")}
+                      />
+                    </td>
+
+                    <td className="py-3 px-5">
                       <Button
                         onClick={() => navigate(`/dashboard/vendors/customerNotificationList/edit/${item.id}`)}
                         className="text-xs font-semibold text-white bg-primary"

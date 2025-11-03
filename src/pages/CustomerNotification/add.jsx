@@ -18,6 +18,7 @@ const validationSchema = Yup.object({
       return true;
     }),
   message: Yup.string().required('Message is required'),
+  status: Yup.boolean().required('Status is required'),
 });
 
 const CombineAdd = () => {
@@ -25,6 +26,7 @@ const CombineAdd = () => {
     serviceType: '',
     serviceArea: '',
     message: '',
+    status: true,
   };
 
   const [serviceAreas, setServiceAreas] = useState([]);
@@ -80,6 +82,11 @@ const CombineAdd = () => {
   { value: 'ACTING_DRIVER', label: 'Acting Driver' },
   ];
 
+  const STATUS_OPTIONS = [
+    { value: true, label: 'Active' },
+    { value: false, label: 'Inactive' },
+  ];
+
   return (
     <div className="p-4 mx-auto">
       <h2 className="text-2xl font-bold mb-4">Add New</h2>
@@ -94,13 +101,11 @@ const CombineAdd = () => {
         onSubmit={handleSubmit}
       >
         {({ isSubmitting, setFieldValue, values }) => (
-          <Form className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="serviceType" className="text-sm font-medium text-gray-700">
-                    Service Type
-                  </label>
+          <Form className="space-y-6">
+
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Service Type</label>
                   <Field
                     as="select"
                     name="serviceType"
@@ -141,8 +146,28 @@ const CombineAdd = () => {
                     placeholder="Select Service Area"
                     className="mt-1"
                   />
-                  <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-sm my-1" />
-                </div>
+                  <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-xs mt-1" />
+              </div>
+            </div>
+
+            {/* ROW 2: Status + Message (Same width, same line) */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Status</label>
+                <Field
+                  as="select"
+                  name="status"
+                  className="mt-1 p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200"
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value.toString()} value={opt.value.toString()}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage name="status" component="div" className="text-red-500 text-xs mt-1" />
+              </div>
+
                 <div>
                   <label htmlFor="message" className="text-sm font-medium text-gray-700">
                     Message
@@ -156,8 +181,9 @@ const CombineAdd = () => {
                   <ErrorMessage name="message" component="div" className="text-red-500 text-sm my-1" />
                 </div>
               </div>
-            </div>
-            <div className="flex flex-row">
+
+       
+            <div className="flex justify-center gap-8 mt-8">
               <Button
                 fullWidth
                 className={`my-6 mx-2 rounded-xl ${ColorStyles.backButton}`}
