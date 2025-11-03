@@ -913,10 +913,10 @@ const ConfirmBooking = (props) => {
                                     <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
                                 </div>
                                 }
-                                {bookingDetails?.discount?.percentage > 0 && 
+                                {bookingDetails?.paymentDetails?.details?.discountPercentage > 0 && 
                                  <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Discount Applied :</Typography>
-                                    <Typography>{bookingDetails?.discount?.percentage} %</Typography>
+                                    <Typography>{bookingDetails?.paymentDetails?.details?.discountPercentage} %</Typography>
                                 </div>
                                 }
                                
