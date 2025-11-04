@@ -18,6 +18,7 @@ const validationSchema = Yup.object({
       return true;
     }),
   message: Yup.string().required('Message is required'),
+  status: Yup.boolean().required('Status is required'),
 });
 
 const CombineEdit = () => {
@@ -27,12 +28,12 @@ const CombineEdit = () => {
     serviceType: '',
     serviceArea: '',
     message: '',
+    status: true,
   });
   const [serviceAreas, setServiceAreas] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch notification message by ID
   useEffect(() => {
     const fetchNotification = async () => {
       try {
@@ -44,6 +45,7 @@ const response = await ApiRequestUtils.get(`${API_ROUTES.GET_CUSTOMER_NOTIFICATI
             serviceType: response.data.serviceType || '',
             serviceArea: response.data.serviceArea || '',
             message: response.data.message || '',
+            status: response.data.status ?? true,
           });
         } else {
           setError('Failed to fetch notification data');
@@ -105,6 +107,12 @@ const response = await ApiRequestUtils.get(`${API_ROUTES.GET_CUSTOMER_NOTIFICATI
   { value: 'HOURLY_PACKAGE', label: 'Hourly Package' },
   { value: 'ACTING_DRIVER', label: 'Acting Driver' },
   ];
+
+  const STATUS_OPTIONS = [
+    { value: true, label: 'Active' },
+    { value: false, label: 'Inactive' },
+  ];
+
   if (loading) {
     return (
       <div className="p-4 mx-auto">
@@ -128,13 +136,12 @@ const response = await ApiRequestUtils.get(`${API_ROUTES.GET_CUSTOMER_NOTIFICATI
         enableReinitialize // Allow form to reinitialize when initialValues change
       >
         {({ isSubmitting, setFieldValue, values }) => (
-          <Form className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="grid grid-cols-2 gap-4">
+            <Form className="space-y-6">
+
+              {/* ROW 1: Service Type + Service Area */}
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="serviceType" className="text-sm font-medium text-gray-700">
-                    Service Type
-                  </label>
+                  <label className="text-sm font-medium text-gray-700">Service Type</label>
                   <Field
                     as="select"
                     name="serviceType"
@@ -175,7 +182,26 @@ const response = await ApiRequestUtils.get(`${API_ROUTES.GET_CUSTOMER_NOTIFICATI
                     placeholder="Select Service Area"
                     className="mt-1"
                   />
-                  <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-sm my-1" />
+                  <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-xs mt-1" />
+              </div>
+            </div>
+
+            {/* ROW 2: Status + Message (SAME LINE, SAME WIDTH) */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Status</label>
+                <Field
+                  as="select"
+                  name="status"
+                  className="mt-1 p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200"
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value.toString()} value={opt.value.toString()}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage name="status" component="div" className="text-red-500 text-xs mt-1" />
                 </div>
                 <div>
                   <label htmlFor="message" className="text-sm font-medium text-gray-700">
@@ -187,11 +213,12 @@ const response = await ApiRequestUtils.get(`${API_ROUTES.GET_CUSTOMER_NOTIFICATI
                     className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                     rows="4"
                   />
-                  <ErrorMessage name="message" component="div" className="text-red-500 text-sm my-1" />
-                </div>
+                  <ErrorMessage name="message" component="div" className="text-red-500 text-xs mt-1" />
               </div>
             </div>
-            <div className="flex flex-row">
+
+            {/* Buttons */}
+            <div className="flex justify-center gap-8 mt-8">
               <Button
                 fullWidth
                 className={`my-6 mx-2 rounded-xl ${ColorStyles.backButton}`}

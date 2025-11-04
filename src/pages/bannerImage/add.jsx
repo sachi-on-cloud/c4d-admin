@@ -70,8 +70,8 @@ const AddBanner = () => {
       .test('fileType', 'Only JPEG or PNG files are allowed', (value) =>
         value ? ['image/jpeg', 'image/png','image/gif'].includes(value.type) : false
       ),
-      fromDate: Yup.string().required('Start Date is required'),
-      toDate: Yup.string().required('End Date is required'),
+      // fromDate: Yup.string().required('Start Date is required'),
+      // toDate: Yup.string().required('End Date is required'),
       zone: Yup.string().required('Zone is required')
   });
 
@@ -141,7 +141,7 @@ const AddBanner = () => {
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
 
       // Append Drop Location
-      formData.append('dropAddress', values.dropAddress);
+      formData.append('dropAddress', values.dropAddress||'');
       formData.append('dropLat', values.dropLocation?.lat || '');
       formData.append('dropLong', values.dropLocation?.lng || '');
 
@@ -207,8 +207,7 @@ const AddBanner = () => {
                   <option value="STATS">Stats</option>
                   <option value="TOP_NEW">Top_new</option>
                   <option value="MIDCAROUSEL">MidCarousel</option>
-                  <option value="PROMOTION1">Promotion1</option>
-                  <option value="PROMOTION2">Promotion2</option>
+                  <option value="PROMOTION">Promotion</option>
                    <option value="BOTTOM_NEW">Bottom_new</option>
                 </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
