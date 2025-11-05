@@ -1,5 +1,4 @@
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo  } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
@@ -66,7 +65,7 @@ export function MasterPriceView() {
                             : data?.data;                     
                      setAutoLocalPackageList(filteredData.filter(item => item.type === "Auto" && item.serviceType === "AUTO"));
                  }
-                 console.log("DADADADAD",data)
+                //  console.log("DADADADAD",data)
             }
 
              else if(selectedServiceType === 'PARCEL') {
@@ -79,7 +78,7 @@ export function MasterPriceView() {
                             : data?.data;
                         setParcelLocalPackageList(filteredData.filter(item => item.type === "Parcel" && item.serviceType === "PARCEL"));
                     }
-                    console.log("DADADADAD",data)
+                    // console.log("DADADADAD",data)
             } 
            
             // else if (selectedServiceType === 'RENTAL') {
@@ -150,6 +149,19 @@ export function MasterPriceView() {
             navigate('/dashboard/users/master-price/rentals-add');
         }
     };
+    const tierList = useMemo(() => {
+    return parcelLocalPackageList.flatMap((pkg) =>
+      (pkg.parcelPricing || []).map((tier) => ({
+        pkgId: pkg.id,
+        zone: pkg.zone,
+        parcelType: tier.parcelType?.toUpperCase() || "—",
+        baseFare: tier.baseFare || "—",
+        baseKm: tier.baseKm || "—",
+        pickupFreeKm: tier.pickupFreeKm || "—",
+        nightCharge: tier.nightCharge || "—",
+      }))
+    );
+  }, [parcelLocalPackageList]);
 
     const renderLocalPriceTable = () => {
         return (
@@ -887,10 +899,11 @@ export function MasterPriceView() {
                                 <tr>
                                     {[
                                         "Zone",
-                                        "Type",
+                                        "Parcel Type",
                                         "Base Fare",
-                                        "Kilometer Rate",
-                                        "Status",
+                                        "Base Km",
+                                        "Pickup Free Km",
+                                        "Night Charge", 
                                         "Actions"
                                     ].map((el, index) => (
                                         <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
@@ -905,29 +918,25 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {parcelLocalPackageList.map(({
-                                    zone,
-                                    id,
-                                    type,
+                                {tierList.map(({ 
+                                    pkgId, 
+                                    zone, 
+                                    parcelType, 
+                                    baseKm, 
                                     baseFare,
-                                    kilometerPrice,
-                                    status
-                                }, key) => {
-                                    const className = `py-3 px-5 ${key === parcelLocalPackageList?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
-
+                                    pickupFreeKm,
+                                    nightCharge }, 
+                                    idx) => {
+                                    const className = `py-3 px-5 ${idx === tierList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
-                                        <tr key={id}>
-                                             <td className={className}>
+                                        <tr key={`${pkgId}-${parcelType}`}>
+                                            <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                     {zone}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    <span onClick={() => navigate(`/dashboard/users/master-price/parcel-edit/${id}`)} className="cursor-pointer underline text-blue-600">
-                                                        {type.toUpperCase()}
-                                                    </span>
-                                                </Typography>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">{parcelType}</Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -936,17 +945,22 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {kilometerPrice}
+                                                    {baseKm}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {status == 1 ? 'Active' : 'InActive'}
+                                                    {pickupFreeKm}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <button onClick={() => navigate(`/dashboard/users/master-price/parcel-edit/${id}`)} className={`px-3 py-1 rounded-lg ${ColorStyles.editButton}`}>
-                                                    Edit
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {nightCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <button onClick={() => navigate(`/dashboard/users/master-price/parcel-edit/${pkgId}`)} className={`px-3 py-1 rounded-lg text-xs font-semibold  ${ColorStyles.editButton}`} >
+                                                    View / Edit
                                                 </button>
                                             </td>
                                         </tr>
