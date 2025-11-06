@@ -267,15 +267,30 @@ const AddBanner = () => {
               </div>
 
               {/* NEW FIELD: Navigate To */}
-              <div>
-                <label className="text-sm font-medium text-gray-700">Navigate To </label>
+            <div>
+                <label className="text-sm font-medium text-gray-700">Navigate To</label>
                 <Field
+                  as="select"
                   name="navigateTo"
-                  type="text"
-                  placeholder="Enter navigation path or URL..."
                   className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
-                />
-               
+                >
+                  <option value="">Select navigation path...</option>
+                  {[
+                    'RENTAL_DROP_TAXI',
+                    'RENTAL',
+                    'AUTO',
+                    'RIDES',
+                    'DRIVER',
+                    'PARCEL',
+                    'RENTAL_HOURLY_PACKAGE',
+                    'EMERGENCY_CONTACT',
+                    'REFER_AND_EARN'
+                  ].map((option) => (
+                    <option key={option} value={option}>
+                      {option.replaceAll('_', ' ')}
+                    </option>
+                  ))}
+                </Field>
               </div>
 
               {/* Image Upload */}
