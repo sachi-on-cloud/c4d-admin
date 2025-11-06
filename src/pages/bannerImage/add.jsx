@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
@@ -7,11 +7,22 @@ import Select from 'react-select'; // Assuming react-select is used
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 
+// Debounce function (same as in Booking page)
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 const AddBanner = () => {
   const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [dropSuggestions, setDropSuggestions] = useState([]);
+  const [dropLocation, setDropLocation] = useState(null); 
 
   const initialValues = {
     fromDate: '',
@@ -21,6 +32,9 @@ const AddBanner = () => {
     type: '',
     image: null,
     zone: '',
+    dropAddress: '',        
+    dropLocation: null,     
+    navigateTo: '',         
   };
 
   const fetchGeoData = async () => {
@@ -56,8 +70,8 @@ const AddBanner = () => {
       .test('fileType', 'Only JPEG or PNG files are allowed', (value) =>
         value ? ['image/jpeg', 'image/png','image/gif'].includes(value.type) : false
       ),
-      fromDate: Yup.string().required('Start Date is required'),
-      toDate: Yup.string().required('End Date is required'),
+      // fromDate: Yup.string().required('Start Date is required'),
+      // toDate: Yup.string().required('End Date is required'),
       zone: Yup.string().required('Zone is required')
   });
 
@@ -72,6 +86,45 @@ const AddBanner = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
+  // Search Locations (same as Booking page)
+  const searchLocations = useCallback(
+    debounce(async (query, setFieldValue) => {
+      if (query.length > 2) {
+        try {
+          const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, { address: query });
+          if (data?.success && data?.data) {
+            setDropSuggestions(data.data);
+          } else {
+            setDropSuggestions([]);
+          }
+        } catch (error) {
+          console.error('Error searching drop locations:', error);
+          setDropSuggestions([]);
+        }
+      } else {
+        setDropSuggestions([]);
+      }
+    }, 300),
+    []
+  );
+
+  // Handle Location Selection
+  const handleSelectLocation = async (address, setFieldValue) => {
+    try {
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
+      if (data?.success) {
+        const location = { lat: data.data.lat, lng: data.data.lng };
+        setFieldValue('dropAddress', address);
+        setFieldValue('dropLocation', location);
+        setDropLocation(location);
+        setDropSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching lat/lng:', error);
+    }
+  };
+
+  // Submit Handler
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       // console.log('Sending image:', values.image?.name, values.image?.type);
@@ -86,6 +139,14 @@ const AddBanner = () => {
       formData.append('image', values.image, values.image.name);
       formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
+
+      // Append Drop Location
+      formData.append('dropAddress', values.dropAddress||'');
+      formData.append('dropLat', values.dropLocation?.lat || '');
+      formData.append('dropLong', values.dropLocation?.lng || '');
+
+      // NEW FIELD: Append Navigate To
+      formData.append('navigateTo', values.navigateTo.trim());
 
       const response = await ApiRequestUtils.postDocs(API_ROUTES.POST_BANNER, formData);
 
@@ -144,6 +205,10 @@ const AddBanner = () => {
                   <option value="BACKGROUND">Background</option>
                   <option value="BANNER">Banner</option>
                   <option value="STATS">Stats</option>
+                  <option value="TOP_NEW">Top_new</option>
+                  <option value="MIDCAROUSEL">MidCarousel</option>
+                  <option value="PROMOTION">Promotion</option>
+                   <option value="BOTTOM_NEW">Bottom_new</option>
                 </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
               </div>
@@ -163,7 +228,7 @@ const AddBanner = () => {
                 </label>
                 <Select
                   options={ZONE_OPTIONS}
-                  onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
+                  onChange={(opt) => setFieldValue('zone', opt.value)}
                   placeholder="Select Zone"
                   className="w-full"
                   name="zone" />
