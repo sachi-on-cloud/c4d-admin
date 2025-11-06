@@ -4,7 +4,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Button, Card, CardBody, Typography, Dialog, DialogHeader, DialogBody, DialogFooter, Input, IconButton, Chip, Switch} from "@material-tailwind/react";
 import { PencilIcon } from "@heroicons/react/24/solid";
-import MasterPriceLog from "../masterPriceTable/MasterPriceLog";
+import MasterPriceLogParcel from "../masterPriceTable/MasterPriceLogParcel";
 
 const safeTier = {
     parcelType: "",
@@ -390,8 +390,8 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
                         <div className="font-medium text-gray-700">Distance Slabs</div>
                         {(formData.distanceSlabs || []).slice(0, 2).map((s, i) => {
                             const isSecond = i === 1;
-                            const maxKmValue = isSecond ? "" : s.maxKm ?? "";
-                            const placeholder = isSecond ? `Above ${formData.distanceSlabs[0]?.maxKm ?? ""} km` : "";
+                            const maxKmValue = isSecond ? "" : s.maxKm || "";
+                            const placeholder = isSecond ? `Above ${formData.distanceSlabs[0]?.maxKm || ""} km` : "";
                             return (
                                 <div key={i} className="flex gap-3 items-end">
                                     <Input label="Max Km" value={maxKmValue} placeholder={placeholder} disabled={isSecond}
@@ -434,7 +434,7 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
                                 ]
                             };
 
-                            const firstMaxKm = peak.slabs[0]?.maxKm ?? 0;
+                            const firstMaxKm = peak.slabs[0]?.maxKm || 0;
 
                             return (
                                 <div className="space-y-4">
@@ -466,7 +466,7 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
                                     <div className="space-y-2">
                                         {(formData.peakSurcharge?.[0]?.slabs || []).slice(0, 2).map((slab, j) => {
                                             const isSecond = j === 1;
-                                            const currentFirstMaxKm = formData.peakSurcharge?.[0]?.slabs?.[0]?.maxKm ?? 0;
+                                            const currentFirstMaxKm = formData.peakSurcharge?.[0]?.slabs?.[0]?.maxKm || 0;
                                             const placeholder = isSecond ? `Above ${currentFirstMaxKm} km` : "Max Km for this slab";
 
                                             return (
@@ -474,7 +474,7 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
                                                     <Input
                                                         label={isSecond ? "" : "Max Km"}
                                                         type="number"
-                                                        value={isSecond ? "" : (slab.maxKm ?? "")}
+                                                        value={isSecond ? "" : (slab.maxKm || "")}
                                                         placeholder={placeholder}
                                                         disabled={isSecond}
                                                         onChange={e => {
@@ -488,7 +488,7 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
                                                         labelProps={{ className: isSecond ? "hidden" : "" }}
                                                     />
                                                     <Input
-                                                        type="number" label="₹/km" value={slab.amountPerKm ?? 0}
+                                                        type="number" label="₹/km" value={slab.amountPerKm || 0}
                                                         onChange={e => {
                                                             const val = e.target.value;
                                                             const num = val === "" ? 0 : Number(val);
@@ -559,7 +559,7 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
                 </Button>
             </div>
 
-            <MasterPriceLog id={id} />
+            <MasterPriceLogParcel id={id} />
         </>
     );
 }

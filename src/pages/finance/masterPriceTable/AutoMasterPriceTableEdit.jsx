@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import Select from 'react-select';
+import MasterPriceLog from "../masterPriceTable/MasterPriceLog";
 
 
 
@@ -130,6 +131,7 @@ const AutoMasterPriceEdit = () => {
           </Form>
         )}
       </Formik>
+      <MasterPriceLog id={id}/>
     </div>
   );
 };

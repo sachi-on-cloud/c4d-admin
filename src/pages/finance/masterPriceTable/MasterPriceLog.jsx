@@ -47,12 +47,6 @@ const MasterPriceLog = ({ id }) => {
         "extra_km_price": "Additional KM Rate",
         "toll_charge": "Toll Charge",
         "driver_charge": "Driver Charge",
-        "parcelType": "Parcel Type",
-        "parcel_pricing": "Parcel Pricing",
-        "pickupFreeKm": "Pickup Free Km",
-        "weightCharge": "Weight Charge",
-        "weightFreeKg": "Weight Free Kg",
-        "serviceCharge": "Service Charge",
     };
 
     const formatPeakHours = (peakHours) => {
@@ -71,46 +65,6 @@ const MasterPriceLog = ({ id }) => {
             .join(", ");
     };
 
-    const formatParcelPrice = (parcelPricing) => {
-        if (parcelPricing === 0) {
-            return 0;
-        }
-
-        if (typeof parcelPricing === "string") {
-            try {
-                parcelPricing = JSON.parse(parcelPricing);
-            } catch (parseError) {
-                return parcelPricing;
-            }
-        }
-
-        let parcelArray = Array.isArray(parcelPricing)
-            ? parcelPricing
-            : parcelPricing && typeof parcelPricing === "object"
-                ? [parcelPricing]
-                : [];
-
-        if (parcelArray.length === 1 && Array.isArray(parcelArray[0])) {
-            parcelArray = parcelArray[0];
-        }
-
-        if (!parcelArray || parcelArray.length === 0) {
-            return "-";
-        }
-
-        const formatted = parcelArray
-            .filter((parcel) => parcel && typeof parcel === "object")
-            .map((parcel) => {
-                const { parcelType, pickupFreeKm, weightCharge, weightFreeKg, serviceCharge } = parcel;
-                return `Parcel Type: ${parcelType || "-"}, Pickup Free Km: ${pickupFreeKm || "-"}, Weight Charge: ${weightCharge || "-"}, Weight Free Kg: ${weightFreeKg || "-"}, Service Charge: ${serviceCharge || "-"}`;
-            });
-
-        if (formatted.length === 0) {
-            return "-";
-        }
-
-        return formatted.join(" | ");
-    };
 
     const formatValue = (field, value) => {
         if (value === null || value === undefined || value === "") {
@@ -123,9 +77,6 @@ const MasterPriceLog = ({ id }) => {
             return formatPeakHours(value);
         }
 
-        if (normalizedField === "parcelpricing" || normalizedField === "parcel_pricing") {
-            return formatParcelPrice(value);
-        }
 
         if (Array.isArray(value)) {
             return value.length ? value.join(", ") : "-";
