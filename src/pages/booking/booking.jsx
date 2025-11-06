@@ -1849,6 +1849,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </div>
                                                                     ) : (
                                                                     <div className="grid grid-cols-2 justify-between">
+                                                                          {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
+                                                                            <>
+                                                                        <Typography color="gray" variant="h6">Per Km Rate</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount?.kilometerPriceVal}
+                                                                        </Typography></>)}
                                                                         {values?.serviceType !== 'DRIVER' && ( <>
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                         <Typography>
@@ -1857,12 +1863,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             // + (Number(quoteDetails.amount.driverWithin))
                                                                             } Kms + {quoteDetails.amount?.driverWithin} Kms
                                                                         </Typography></>)}
-                                                                        {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
-                                                                            <>
-                                                                        <Typography color="gray" variant="h6">Per Km Rate</Typography>
-                                                                        <Typography>
-                                                                            ₹ {quoteDetails.amount?.kilometerPriceVal}
-                                                                        </Typography></>)}
+                                                                      
                                                                         <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount?.baseFare}
