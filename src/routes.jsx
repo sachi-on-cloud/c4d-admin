@@ -116,6 +116,7 @@ import CombineView from "./pages/CustomerNotification/view";
 import Combineadd from "./pages/CustomerNotification/add";
 import CombineEdit from "./pages/CustomerNotification/edit";
 import ExotelCallsList from "./components/Exotel";
+import AnalyticsView from "./pages/analytics/view";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -1045,6 +1046,14 @@ export const routes = [
         element: <ExotelCallsList />,
         display: false,
         permission: "Calls",
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "analytics",
+        path: "/users/analytics/list",
+        element: <AnalyticsView />,
+        display: false,
+        permission: "Analytics",
       },
     ],
   },
