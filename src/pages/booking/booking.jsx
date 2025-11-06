@@ -1918,6 +1918,19 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             // + (Number(quoteDetails.amount.driverWithin))
                                                                             } Kms + {quoteDetails.amount?.driverWithin} Kms
                                                                         </Typography></>)}
+                                                                        { values?.serviceType === 'RIDES' && ( <>
+                                                                        
+                                                                        <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.displayTime}
+                                                                        </Typography>
+                                                                        </>)}
+                                                                         { values?.serviceType === "RENTAL" &&  values?.serviceType === "RENTAL_DROP_TAXI"  && ( <>
+                                                                        <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.totalHours > 60 ? (quoteDetails.amount?.totalHours / 60).toFixed(2) + ' hrs' : quoteDetails.amount?.totalHours +' mins'}
+                                                                        </Typography>
+                                                                        </>)}
                                                                       
                                                                         <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>

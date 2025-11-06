@@ -731,7 +731,7 @@ const ConfirmBooking = (props) => {
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Type:</Typography>
                                 <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : 
-                                            bookingDetails.serviceType == "RIDES" ? 'Rides': 
+                                            bookingDetails.serviceType == "RIDES" ? 'Local Rides': 
                                             bookingDetails.serviceType == "AUTO" ? 'Auto' : 
                                             bookingDetails?.packageType == "Local" ? 'Hourly Package' : 
                                             bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 
