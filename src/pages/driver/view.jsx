@@ -299,7 +299,7 @@ useEffect(() => {
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
                       {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th> */}
-                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status"].map((el) => (
+                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status","Last Online Date and Time"].map((el) => (
                       <th
                       key={el}
                       className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -381,7 +381,7 @@ useEffect(() => {
                       (subscriptionStatusFilter.includes('All') || subscriptionStatusFilter.includes(driver?.subscriptionStatus)) && 
                       (documentTypeFilter.includes('All') || documentTypeFilter.includes(driver?.documentStatus?.status) )
                     ).map(
-                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus}, key) => {
+                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus, Shifts}, key) => {
                         const className = `py-3 px-5 ${key === drivers.length - 1
                           ? ""
                           : "border-b border-blue-gray-50"
@@ -459,6 +459,11 @@ useEffect(() => {
                                 value={documentStatus?.status}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
+                                {Shifts[0]?created_at?moment(created_at).format("DD-MM-YYYY HH:mm"): '-':'-'}
+                              </Typography>
                             </td>
                             <div>
                             </div>
