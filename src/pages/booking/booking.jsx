@@ -1011,7 +1011,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
 
     const serviceDisplayNames = {
         DRIVER: "Acting Driver",
-        RIDES: "Rides",
+        RIDES: "Local Rides",
         RENTAL_DROP_TAXI: "Drop Taxi",
         RENTAL_HOURLY_PACKAGE: "Hourly Package",
         RENTAL: "Outstation",
@@ -1219,7 +1219,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 {!editBookingView && ( <div className="flex-1 mb-4">
                                                         <div>
                                                             <Typography variant="h6" className="mb-2">
-                                                                Service Area
+                                                                Service Pickup Area
                                                             </Typography>
                                                            <Field
                                                                 as="select"
@@ -1241,7 +1241,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     setFieldValue('serviceTypeArea', selectedValue, true);
                                                                 }}
                                                                 >
-                                                                <option value="" label="Select a service area" />
+                                                                <option value="" label="Select a Service Pickup Area" />
                                                                 {serviceAreas.map((area) => (
                                                                     <option key={area.id} value={area.id}>
                                                                     {area.name}
