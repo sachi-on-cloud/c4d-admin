@@ -94,7 +94,8 @@ export function SearchDrivers(props) {
                 ]);
                 setCheckingStatusDriverIds([]);
                 setCheckingAllStatus(false);
-            }, 30000);
+                // console.log("All driver statuses checked");
+            }, 15000);
         } catch (error) {
             console.error("Error checking presence:", error);
             setCheckingStatusDriverIds([]);
