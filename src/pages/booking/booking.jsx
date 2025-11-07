@@ -394,7 +394,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-        searchBookings();
+        
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }
