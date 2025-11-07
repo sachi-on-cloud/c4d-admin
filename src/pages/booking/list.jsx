@@ -891,7 +891,7 @@ const handleTabChange = (value) => {
                                                             options={[
                                                                 { value: 'All', label: 'All' },
                                                                 { value: 'QUOTED', label: 'Quoted' },
-                                                                { value: 'BOOKING_ACCEPTED', label: 'Booking Accepted' },
+                                                                { value: 'BOOKING_ACCEPTED', label: 'Driver Accepted' },
                                                                 { value: 'CONFIRMED', label: 'Booking Confirmed' },
                                                                 { value: 'REQUEST_DRIVER', label: 'Request Driver' },
                                                                 { value: 'STARTED', label: 'Started' },
@@ -1143,7 +1143,7 @@ const handleTabChange = (value) => {
                                                             <Chip
                                                                 variant="ghost"
                                                                 // color={"blue"}
-                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Call Back Completed" : data?.status}
+                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "BOOKING_ACCEPTED" ? "DRIVER_ACCEPTED": data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Call Back Completed" : data?.status}
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
                                                                     data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
