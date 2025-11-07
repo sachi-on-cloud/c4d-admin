@@ -969,7 +969,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 case 'booking_accepted':
                    return(
                         <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
-                        BOOKING ACCEPTED
+                        DRIVER ACCEPTED
                     </span>
                     );
                 case 'end_otp':
@@ -1871,7 +1871,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             {quoteDetails.amount?.displayTime}
                                                                         </Typography>
                                                                         </>)}
-                                                                         { values?.serviceType === "RENTAL" &&  values?.serviceType === "RENTAL_DROP_TAXI"  && ( <>
+                                                                        {values?.serviceType === "RENTAL_DROP_TAXI"  && ( <>
                                                                         <Typography color="gray" variant="h6">Estimate Time</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount?.totalHours > 60 ? (quoteDetails.amount?.totalHours / 60).toFixed(2) + ' hrs' : quoteDetails.amount?.totalHours +' mins'}
