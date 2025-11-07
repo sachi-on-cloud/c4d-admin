@@ -21,30 +21,54 @@ export function OnlineVehiclesList({ id = 0 }) {
   const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState('');
   const intervalRef = useRef(null);
+  const [driverIds, setDriverIds] = useState([]);
   const navigate = useNavigate();
 
-  const checkPresence = async (driverId, vehicleId) => {
+  const checkPresence = async (driverId, vehicleId, all) => {
     try {
-      const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
-      if (result?.success && result?.data?.status) {
-        setVehicleList((prev) =>
-          prev.map((vehicle) =>
-            vehicle.id === vehicleId && vehicle.Drivers?.length > 0
-              ? {
-                  ...vehicle,
-                  Drivers: [
-                    {
-                      ...vehicle.Drivers[0],
-                      status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
-                    },
-                  ],
-                }
-              : vehicle
-          )
-        );
-      } else {
-        console.error('Invalid API response:', result?.message);
-      }
+      if(all){
+        const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId : driverIds });
+        if (result?.success && result?.data?.status) {
+            setVehicleList((prev) =>
+              prev.map((vehicle) =>
+                vehicle.id === vehicleId && vehicle.Drivers?.length > 0
+                  ? {
+                      ...vehicle,
+                      Drivers: [
+                        {
+                          ...vehicle.Drivers[0],
+                          status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
+                        },
+                      ],
+                    }
+                  : vehicle
+              )
+            );
+          } else {
+            console.error('Invalid API response:', result?.message);
+          }
+      }else {
+        const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
+          if (result?.success && result?.data?.status) {
+            setVehicleList((prev) =>
+              prev.map((vehicle) =>
+                vehicle.id === vehicleId && vehicle.Drivers?.length > 0
+                  ? {
+                      ...vehicle,
+                      Drivers: [
+                        {
+                          ...vehicle.Drivers[0],
+                          status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
+                        },
+                      ],
+                    }
+                  : vehicle
+              )
+            );
+          } else {
+            console.error('Invalid API response:', result?.message);
+          }
+        }
     } catch (error) {
       console.error('Error checking presence:', error);
     } finally {
@@ -59,7 +83,7 @@ export function OnlineVehiclesList({ id = 0 }) {
         !statusCheckedDriverIds.includes(vehicle.Drivers[0]?.id)
     );
     for (const vehicle of vehiclesWithDrivers) {
-      await checkPresence(vehicle.Drivers[0]?.id, vehicle.id);
+      await checkPresence(vehicle.Drivers[0]?.id, vehicle.id, true);
     }
   };
 
@@ -84,6 +108,7 @@ export function OnlineVehiclesList({ id = 0 }) {
         });
         setVehicleList(updatedVehicleList);
         setStatusCheckedDriverIds([]);
+        setDriverIds(data?.driverIds);
         // console.log('Fetched vehicle list:', updatedVehicleList);
       } else {
         console.error('API request failed:', data?.message);
@@ -239,7 +264,7 @@ export function OnlineVehiclesList({ id = 0 }) {
                             !statusCheckedDriverIds.includes(vehicle.Drivers[0]?.id) && (
                               <Typography
                                 className="text-xs font-semibold text-primary-900 underline cursor-pointer"
-                                onClick={() => checkPresence(vehicle.Drivers[0]?.id, vehicle.id)}
+                                onClick={() => checkPresence(vehicle.Drivers[0]?.id, vehicle.id, false)}
                               >
                                 Check Status
                               </Typography>
