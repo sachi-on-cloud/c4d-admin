@@ -21,30 +21,60 @@ export function OnlineVehiclesList({ id = 0 }) {
   const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState('');
   const intervalRef = useRef(null);
+  const [driverIds, setDriverIds] = useState([]);
   const navigate = useNavigate();
+  const [pagination, setPagination] = useState({
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: 0,
+      itemsPerPage: 15,
+    });
 
-  const checkPresence = async (driverId, vehicleId) => {
+  const checkPresence = async (driverId, vehicleId, all) => {
     try {
-      const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
-      if (result?.success && result?.data?.status) {
-        setVehicleList((prev) =>
-          prev.map((vehicle) =>
-            vehicle.id === vehicleId && vehicle.Drivers?.length > 0
-              ? {
-                  ...vehicle,
-                  Drivers: [
-                    {
-                      ...vehicle.Drivers[0],
-                      status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
-                    },
-                  ],
-                }
-              : vehicle
-          )
-        );
-      } else {
-        console.error('Invalid API response:', result?.message);
-      }
+      if(all){
+        const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId : driverIds });
+        if (result?.success && result?.data?.status) {
+            setVehicleList((prev) =>
+              prev.map((vehicle) =>
+                vehicle.id === vehicleId && vehicle.Drivers?.length > 0
+                  ? {
+                      ...vehicle,
+                      Drivers: [
+                        {
+                          ...vehicle.Drivers[0],
+                          status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
+                        },
+                      ],
+                    }
+                  : vehicle
+              )
+            );
+          } else {
+            console.error('Invalid API response:', result?.message);
+          }
+      }else {
+        const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
+          if (result?.success && result?.data?.status) {
+            setVehicleList((prev) =>
+              prev.map((vehicle) =>
+                vehicle.id === vehicleId && vehicle.Drivers?.length > 0
+                  ? {
+                      ...vehicle,
+                      Drivers: [
+                        {
+                          ...vehicle.Drivers[0],
+                          status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
+                        },
+                      ],
+                    }
+                  : vehicle
+              )
+            );
+          } else {
+            console.error('Invalid API response:', result?.message);
+          }
+        }
     } catch (error) {
       console.error('Error checking presence:', error);
     } finally {
@@ -59,15 +89,17 @@ export function OnlineVehiclesList({ id = 0 }) {
         !statusCheckedDriverIds.includes(vehicle.Drivers[0]?.id)
     );
     for (const vehicle of vehiclesWithDrivers) {
-      await checkPresence(vehicle.Drivers[0]?.id, vehicle.id);
+      await checkPresence(vehicle.Drivers[0]?.id, vehicle.id, true);
     }
   };
 
-  const fetchCabList = async () => {
+  const fetchCabList = async (page = 1) => {
     setLoading(true);
     try {
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
-            isToday:'true'
+            isToday:'true',
+            page: page,
+            limit: pagination.itemsPerPage,
       });
       if (data?.success) {
         const updatedVehicleList = (data.data || []).map((item) => {
@@ -84,6 +116,13 @@ export function OnlineVehiclesList({ id = 0 }) {
         });
         setVehicleList(updatedVehicleList);
         setStatusCheckedDriverIds([]);
+        setDriverIds(data?.driverIds);
+        setPagination({
+          currentPage: page,
+          totalPages:data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 15,
+        })
         // console.log('Fetched vehicle list:', updatedVehicleList);
       } else {
         console.error('API request failed:', data?.message);
@@ -109,14 +148,50 @@ export function OnlineVehiclesList({ id = 0 }) {
     }
   };
 
+
   useEffect(() => {
-    fetchCabList();
+    fetchCabList(pagination.currentPage);
+  }, [pagination.currentPage]);
+
+  useEffect(() => {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
   }, [id]);
+
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= pagination.totalPages) {
+            setPagination((prev) => ({ ...prev, currentPage: page }));
+        }
+    };
+  
+    const generatePageButtons = () => {
+      const buttons = [];
+      const maxVisible = 5;
+      let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+  
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+  
+      for (let i = startPage; i <= endPage; i++) {
+        buttons.push(
+          <Button
+            key={i}
+            size="sm"
+            variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+            className={`mx-1 ${ColorStyles.bgColor} text-white`}
+            onClick={() => handlePageChange(i)}
+          >
+            {i}
+          </Button>
+        );
+      }
+      return buttons;
+    };
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -239,7 +314,7 @@ export function OnlineVehiclesList({ id = 0 }) {
                             !statusCheckedDriverIds.includes(vehicle.Drivers[0]?.id) && (
                               <Typography
                                 className="text-xs font-semibold text-primary-900 underline cursor-pointer"
-                                onClick={() => checkPresence(vehicle.Drivers[0]?.id, vehicle.id)}
+                                onClick={() => checkPresence(vehicle.Drivers[0]?.id, vehicle.id, false)}
                               >
                                 Check Status
                               </Typography>
@@ -252,6 +327,27 @@ export function OnlineVehiclesList({ id = 0 }) {
                   ))}
                 </tbody>
               </table>
+              <div className="flex items-center justify-center mt-4">
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={pagination.currentPage === 1}
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  className="mx-1"
+                >
+                  {'<'}
+                </Button>
+                {generatePageButtons()}
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  className="mx-1"
+                >
+                  {'>'}
+                </Button>
+              </div>
             </CardBody>
           </>
         ) : (
