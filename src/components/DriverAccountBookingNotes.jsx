@@ -56,9 +56,9 @@ const DriverAccountBookingNotes = ({ accountId }) => {
     }
   };
 
-  if (!accountId) {
-    return <div className="p-4 text-red-500">Driver ID is missing.</div>;
-  }
+  // if (!accountId) {
+  //   return <div className="p-4 text-red-500">Driver ID is missing.</div>;
+  // }
 
   return (
     <div className="p-2 border rounded-sm bg-gray-50  mt-2 shadow-sm">
@@ -122,7 +122,7 @@ const DriverAccountBookingNotes = ({ accountId }) => {
                     <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
                       {note.User?.name || 'Admin'}
                     </span>
-                    <span className="bg-gray-700 text-white text-xs px-3 py-1 rounded-full">
+                    <span className="bg-gray-700 text-white text-xs px-3 py-1 rounded-full hidden">
                       {note.noteType}
                     </span>
                   </div>
