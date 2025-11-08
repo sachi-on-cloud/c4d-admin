@@ -462,7 +462,9 @@ useEffect(() => {
                             </td>
                             <td className={className}>
                               <Typography className="text-xs font-semibold text-blue-gray-900">
-                                {Shifts[0]?created_at?moment(created_at).format("DD-MM-YYYY HH:mm"): '-':'-'}
+                                {Shifts?.[0]?.created_at
+                                  ? moment(Shifts[0].created_at).add(330, 'minutes').format("DD-MM-YYYY HH:mm")
+                                  : "-"}
                               </Typography>
                             </td>
                             <div>
