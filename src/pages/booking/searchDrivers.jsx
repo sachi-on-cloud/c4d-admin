@@ -36,13 +36,15 @@ export function SearchDrivers(props) {
         setCheckingStatusDriverIds((prev) => [...prev, driverId]);
 
         try {
-            const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
+            const ids = Array.isArray(driverId) ? driverId : [driverId];
+            const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId: ids });
+            // console.log("Checking presence for driver ID:", ids);
 
             setTimeout(async () => {
                 await getDriversList();
                 setCheckingStatusDriverIds(prev => prev.filter(id => id !== driverId));
                 setStatusCheckedDriverIds(prev => [...prev, driverId]);
-            }, 30000);
+            }, 15000);
         } catch (error) {
             console.error("Error checking presence:", error);
             setCheckingStatusDriverIds(prev => prev.filter(id => id !== driverId));
@@ -82,9 +84,14 @@ export function SearchDrivers(props) {
         setCheckingStatusDriverIds(driversToCheck.map(d => d.Drivers[0].id));
         
         try {
-            await Promise.all(driversToCheck.map(driver => 
-                ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId: driver.Drivers[0].id })
-            ));
+            const allDriverIds = driversToCheck.flatMap(driver =>
+                driver.Drivers.map(d => d.id)
+            );
+            // console.log("Checking presence for driver IDs:", allDriverIds);
+            await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, {
+                driverIds: allDriverIds
+            });
+
 
             setTimeout(async () => {
                 await getDriversList();
@@ -94,8 +101,9 @@ export function SearchDrivers(props) {
                 ]);
                 setCheckingStatusDriverIds([]);
                 setCheckingAllStatus(false);
-                // console.log("All driver statuses checked");
+                console.log("All driver statuses checked");
             }, 15000);
+        
         } catch (error) {
             console.error("Error checking presence:", error);
             setCheckingStatusDriverIds([]);
