@@ -5,6 +5,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Button } from '@material-tailwind/react';
 import moment from 'moment';
+import { UserIcon } from '@heroicons/react/24/solid';
 
 const DriverAccountBookingNotes = ({ accountId }) => {
   const [notes, setNotes] = useState([]);
@@ -119,7 +120,8 @@ const DriverAccountBookingNotes = ({ accountId }) => {
               >
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-3">
-                    <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                     <UserIcon className="h-5 w-5 text-gray-600" />
+                     <span className="text-sm font-medium text-gray-800">
                       {note.User?.name || 'Admin'}
                     </span>
                     <span className="bg-gray-700 text-white text-xs px-3 py-1 rounded-full hidden">

@@ -6,6 +6,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Button } from '@material-tailwind/react';
 import moment from 'moment';
+import { UserIcon } from '@heroicons/react/24/solid';
 
 const DriverBookingNotes = ({ cabId }) => {
   const { id } = useParams();
@@ -123,13 +124,14 @@ const DriverBookingNotes = ({ cabId }) => {
                   key={note?.id}
                   className="bg-white rounded-lg p-3 shadow-sm border"
                 >
-                  <div className="flex justify-between items-center mb-2">
-                     <span className="inline-block px-2 py-0.5 text-xs text-white bg-primary rounded">
-                      {note.User.name || '-'}
+                  <div className="flex  items-center mb-2">
+                     <UserIcon className="h-5 w-5 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-800">
+                      {note.User.name || 'Admin'}
                     </span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="inline-block px-2 py-0.5 text-xs text-white bg-primary rounded">
+                    <span className="inline-block px-2 py-2 text-xs text-white bg-primary rounded">
                       {note?.noteType || 'Note'}
                     </span>
                     <span className="text-sm text-gray-500">
