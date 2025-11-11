@@ -281,6 +281,19 @@ const ConfirmBooking = (props) => {
             </div>
         );
     }
+    const convertTo12HourFormat = (time24) => {
+        if (!time24) return '';
+
+        const [hours, minutes] = time24.split(':');
+        let hour = parseInt(hours, 10);
+        const minute = minutes || '00';
+        const period = hour >= 12 ? 'PM' : 'AM';
+
+        hour = hour % 12;
+        hour = hour === 0 ? 12 : hour;
+
+        return `${hour}:${minute} ${period}`;
+    };
 
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
@@ -1011,6 +1024,49 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
             </div>
+            {(bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && bookingDetails?.packageType !== 'Local' && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
+            ) && (
+                    <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
+                        <Typography className="font-bold text-xl text-gray-900 pb-2">
+                            Terms and Conditions
+                        </Typography>
+                        <div className="space-y-4 text-gray-700">
+                            <Typography className="text-sm">
+                                • Toll, parking, permit charges and state tax are <span className="font-bold">excluded</span>.
+                            </Typography>
+                            <Typography className="text-sm">
+                                • For Every extra <span className="font-bold">15 minutes</span> ₹ <span className="font-bold text-black">
+                                    {bookingDetails?.Cab?.carType === 'Mini'
+                                        ? bookingDetails?.Package?.additionalMinCharge
+                                        : bookingDetails?.Cab?.carType === 'Sedan'
+                                            ? bookingDetails?.Package?.additionalMinChargeSedan
+                                            : bookingDetails?.Cab?.carType === 'SUV'
+                                                ? bookingDetails?.Package?.additionalMinChargeSuv
+                                                : bookingDetails?.Package?.additionalMinChargeMVP}
+                                </span> will be charged
+                            </Typography>
+                            <Typography className="text-sm">
+                                •For every extra kilometer  ₹ <span className="font-bold text-black">
+                                    {bookingDetails?.Cab?.carType === 'Mini'
+                                        ? bookingDetails?.Package?.extraKilometerPrice
+                                        : bookingDetails?.Cab?.carType === 'Sedan'
+                                            ? bookingDetails?.Package?.extraKilometerPriceSedan
+                                            : bookingDetails?.Cab?.carType === 'SUV'
+                                                ? bookingDetails?.Package?.extraKilometerPriceSuv
+                                                : bookingDetails?.Package?.extraKilometerPriceMVP}
+                                </span> will be charged
+                            </Typography>
+                            <Typography className="text-sm">
+                                • Night Charge of ₹<span className="font-bold text-black">
+                                    {bookingDetails?.Package?.nightCharge}
+                                </span> applies if the trip extends past{' '}
+                                <span className="font-bold text-black">
+                                    {convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}
+                                </span>.
+                            </Typography>
+                        </div>
+                    </div>
+                )}
             {/*{(bookingDetails?.status === 'STARTED') ||
                 ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) &&
                 <Card className="my-4 gap-4">
