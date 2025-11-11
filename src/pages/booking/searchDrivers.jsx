@@ -89,7 +89,7 @@ export function SearchDrivers(props) {
             );
             // console.log("Checking presence for driver IDs:", allDriverIds);
             await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, {
-                driverIds: allDriverIds
+                driverId: allDriverIds
             });
 
 
