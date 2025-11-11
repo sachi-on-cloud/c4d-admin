@@ -396,6 +396,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
+        //  localStorage.removeItem('bookingSearchId');
         
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
@@ -1051,6 +1052,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     setSearchBookingId(''); 
                                                     setSelectedCustomer(0);
                                                     setSearchResults([]); 
+                                                    
+                                                    // localStorage.removeItem('bookingSearchId');
+                                                   
                                                 }}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
@@ -2135,7 +2139,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                         (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                         (values.packageTypeSelected === "Local" && values.tripType === "Round Trip" && !values.dropAddress) ||
-                                                        validationCheckForDriver(values)
+                                                        validationCheckForDriver(values) ||
+                                                        !quoteDetails
                                                     }
                                                     className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                 >
@@ -2149,7 +2154,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer )||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && quoteDetails )||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2174,7 +2179,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                                 (values.packageTypeSelected === "Outstation" && !values.acType) ||
                                                                 (values.packageTypeSelected === "Outstation" && values.tripType === "Round Trip" && !values.toDate) ||
-                                                                validationCheckForDriverRental(values)
+                                                                validationCheckForDriverRental(values) ||
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2194,7 +2200,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !isValid ||
                                                                 !values.rideDate ||
                                                                 !values.packageSelected ||
-                                                                !values.pickupAddress
+                                                                !values.pickupAddress ||
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2215,7 +2222,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !values.rideDate ||
                                                                 !values.acType ||
                                                                 !values.pickupAddress ||
-                                                                !values.dropAddress
+                                                                !values.dropAddress ||
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
