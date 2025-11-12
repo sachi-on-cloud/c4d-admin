@@ -281,7 +281,10 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             zone: actualZone,
         };
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
-            quoteData.serviceFor = 'RENTAL';
+            quoteData.serviceFor = 'RENTAL_DROP_TAXI';
+        }
+        else if (values?.serviceType === 'RENTAL_HOURLY_PACKAGE') {
+            quoteData.serviceFor = 'RENTAL_HOURLY_PACKAGE';
         }
         else if (values?.serviceType === 'RENTAL') {
             quoteData.serviceFor = 'RENTAL';
@@ -1858,10 +1861,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </Typography></>)}
                                                                         {values?.serviceType !== 'DRIVER' && ( <>
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
-                                                                        <Typography>
-                                                                            {/* {Math.round(quoteDetails.amount.estimatedDistance)} Kms */}
-                                                                            {Math.round(quoteDetails.amount?.estimatedDistance) + (Number(quoteDetails.amount?.baseKm)) 
-                                                                            // + (Number(quoteDetails.amount.driverWithin))
+                                                                        <Typography>                                                                            
+                                                                            {((quoteDetails.amount?.estimatedDistance)
+                                                                            - 
+                                                                            Number(quoteDetails.amount?.driverWithin)) 
+                                                                            + 
+                                                                            (Number(quoteDetails.amount?.baseKm))
                                                                             } Kms + {quoteDetails.amount?.driverWithin} Kms
                                                                         </Typography></>)}
                                                                         { values?.serviceType === 'RIDES' && ( <>
