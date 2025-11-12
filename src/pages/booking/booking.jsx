@@ -686,11 +686,6 @@ const sendQuotationLogs = async (bookingId, userId) => {
             pickupAddress: {
                 name: values.pickupAddress,
             },
-            dropLat: values.dropLocation?.lat,
-            dropLong: values.dropLocation?.lng,
-            dropAddress: values.dropLocation ? {
-                name: values.dropAddress
-            } : null,
             driverStartLat: values.driverPickUpLocation?.lat,
             driverStartLong: values.driverPickUpLocation?.lng,
             driverStartAddress: {
@@ -704,7 +699,14 @@ const sendQuotationLogs = async (bookingId, userId) => {
             serviceType: values.serviceType || mappedServiceType,
             zone: actualZone,
         };
-
+        if(values.serviceType !== "RENTAL_HOURLY_PACKAGE" )
+        {
+            bookingData.dropLat= values.dropLocation?.lat;
+            bookingData.dropLong= values.dropLocation?.lng;
+            bookingData.dropAddress= values.dropLocation ? {
+                name: values.dropAddress
+            } : null;
+        }
         if (values.toDate && values.toTime) {
             bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()
         };
@@ -1492,6 +1494,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <option value="Justdial">Justdial</option>
                                                             <option value="Paper Notice">Paper Notice</option>
                                                             <option value="On Field">On Field</option>
+                                                            <option value="Existing Customer">Existing Customer</option>
+                                                            <option value="Referral">Referral</option>
+                                                            <option value="Reddit">Reddit</option>
                                                         </Field>
                                                         <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
                                                     </div>
@@ -2200,7 +2205,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                         (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                         (values.packageTypeSelected === "Local" && values.tripType === "Round Trip" && !values.dropAddress) ||
-                                                        validationCheckForDriver(values)
+                                                        validationCheckForDriver(values) ||
+                                                        !quoteDetails
                                                     }
                                                     className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                 >
@@ -2214,7 +2220,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType)||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2230,7 +2236,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             // console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType)}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2256,7 +2262,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                                 (values.packageTypeSelected === "Outstation" && !values.acType) ||
                                                                 (values.packageTypeSelected === "Outstation" && values.tripType === "Round Trip" && !values.toDate) ||
-                                                                validationCheckForDriverRental(values)
+                                                                validationCheckForDriverRental(values) ||
+                                                        !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2277,7 +2284,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !values.rideDate ||
                                                                 !values.sourceType ||
                                                                 !values.packageSelected ||
-                                                                !values.pickupAddress
+                                                                !values.pickupAddress ||
+                                                        !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2299,7 +2307,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !values.sourceType ||
                                                                 !values.acType ||
                                                                 !values.pickupAddress ||
-                                                                !values.dropAddress
+                                                                !values.dropAddress ||
+                                                        !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
