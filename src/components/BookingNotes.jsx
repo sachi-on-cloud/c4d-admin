@@ -293,9 +293,11 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                 <div className="text-base text-gray-700 flex items-center gap-2">
                   <span>
                     Customer Trip Status changed from{' '}
-                    <span className="font-medium text-primary-600">{log?.old_status || 'N/A'}</span>{' '}
+                    <span className="font-medium text-primary-600">{
+                    log?.old_status === 'BOOKING_ACCEPTED' ? 'DRIVER_ACCEPTED' : log?.old_status || 'N/A'}</span>{' '}
                     to{' '}
-                    <span className="font-medium text-green-600">{log?.new_status || 'N/A'}</span>
+                    <span className="font-medium text-green-600">{
+                    log?.new_status === 'BOOKING_ACCEPTED' ? 'DRIVER_ACCEPTED' : log?.new_status || 'N/A'}</span>
                   </span>
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${

@@ -7,7 +7,7 @@ import { Button } from '@material-tailwind/react';
 import moment from 'moment';
 import { UserIcon } from '@heroicons/react/24/solid';
 
-const DriverAccountBookingNotes = ({ accountId }) => {
+const ActingDriverBookingNotes = ({ driverId }) => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,12 +20,11 @@ const DriverAccountBookingNotes = ({ accountId }) => {
   const initialValues = { notes: '' };
 
   const fetchNotes = async () => {
-    if (!accountId) return;
+    if (!driverId) return;
     try {
       setLoading(true);
-      const response = await ApiRequestUtils.get(
-        `${API_ROUTES.GET_ACCOUNT_BY_ID}/${accountId}`
-      );
+      const response = await ApiRequestUtils.get(API_ROUTES.GET_DRIVERS_ADMIN + `${driverId}`);
+      
       setNotes(response?.data?.notes || response?.data?.data?.notes || []);
     } catch (err) {
       console.error('Error fetching driver notes:', err);
@@ -36,13 +35,13 @@ const DriverAccountBookingNotes = ({ accountId }) => {
   };
 
   useEffect(() => {
-    if (accountId) fetchNotes();
-  }, [accountId]);
+    if (driverId) fetchNotes();
+  }, [driverId]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       await ApiRequestUtils.post(API_ROUTES.ADD_NOTES_BOOKING, {
-        accountId,
+        driverId,
         noteType: 'DOCUMENT', // Hardcoded
         notes: values.notes,
       });
@@ -57,7 +56,7 @@ const DriverAccountBookingNotes = ({ accountId }) => {
     }
   };
 
-  // if (!accountId) {
+  // if (!driverId) {
   //   return <div className="p-4 text-red-500">Driver ID is missing.</div>;
   // }
 
@@ -142,4 +141,4 @@ const DriverAccountBookingNotes = ({ accountId }) => {
   );
 };
 
-export default DriverAccountBookingNotes;
+export default ActingDriverBookingNotes;
