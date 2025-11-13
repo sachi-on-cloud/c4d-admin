@@ -98,7 +98,7 @@ const Booking = (props) => {
     const [quotationLogs, setQuotationLogs] = useState([]);
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
     const loggedInUserId = loggedInUser.id || 0;
-
+     const [refreshFn, setRefreshFn] = useState(null);
 
 
 
@@ -396,7 +396,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-        //  localStorage.removeItem('bookingSearchId');
+         localStorage.removeItem('bookingSearchId');
         
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
@@ -1053,7 +1053,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     setSelectedCustomer(0);
                                                     setSearchResults([]); 
                                                     
-                                                    // localStorage.removeItem('bookingSearchId');
+                                                    localStorage.removeItem('bookingSearchId');
+                                                   if (refreshFn) refreshFn();
                                                    
                                                 }}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -1111,7 +1112,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
+                <BookingsList onRegisterRefresh={setRefreshFn}  customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
             </div>
             <div>
                 {isOpen && (
