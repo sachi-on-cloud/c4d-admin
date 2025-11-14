@@ -800,7 +800,7 @@ const ConfirmBooking = (props) => {
                                     <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
                                 </div>
                             }
-                            {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.bookingType !== 'DROP ONLY') && bookingDetails?.value?.kilometerPriceVal > 0 &&
+                            { bookingDetails?.value?.kilometerPriceVal > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Per KM Rate:</Typography>
                                     <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>
