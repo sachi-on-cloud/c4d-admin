@@ -250,10 +250,31 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                 </div>
               <div className="text-base text-gray-700 flex items-center gap-2">
               <span>
-              <span className="font-bold">Estimate Price:</span> ₹{log?.amount || 'N/A'} |{' '}
-              <span className="font-bold">Cab Type:</span> {log?.cabType || 'N/A'} |{' '}
+              <span className="font-bold">Service Type:</span> {log?.serviceType || 'N/A'} |{' '}
+                {log?.startDate != null && (
+                  <>
+              <span className="font-bold">Start Date:</span> {log?.startDate ? moment(log?.startDate).format('DD-MM-YYYY / hh:mm A') : 'N/A'} |{' '}
+                  </>
+                )}
+               {log?.endDate != null && (
+                <>
+              <span className="font-bold">End Date:</span> {log?.endDate ? moment(log?.endDate).format('DD-MM-YYYY / hh:mm A') : 'N/A'} |{' '}
+              </>
+               )}
               <span className="font-bold">Pickup:</span> {log?.pickupAddress?.name || 'N/A'} |{' '}
+              {log?.dropAddress && Object.keys(log.dropAddress).length > 0 && (
+                <>
               <span className="font-bold">Drop:</span> {log?.dropAddress?.name || 'N/A'} |{' '}
+                </>
+              )}
+              <span className="font-bold">Cab Type:</span> {log?.cabType || 'N/A'} |{' '}
+              <span className="font-bold">Estimate Price:</span> ₹{log?.amount || 'N/A'} |{' '}
+              {log?.discount > 0 && (
+                <>
+                  <span className="font-bold">Discount Applied:</span> {log?.discount || 'N/A'}% |{' '}
+                  <span className="font-bold">Total Estimate Fare:</span> ₹{log?.discountAmount || 'N/A'} 
+                </>
+              )}
             
               {/* {log?.packageId && ` | <span className="font-bold">Package ID:</span> ${log?.packageId}`} */}
             </span>
