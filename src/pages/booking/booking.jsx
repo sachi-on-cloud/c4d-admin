@@ -248,6 +248,17 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         amount: quoteDetails?.amount?.estimatedPrice === "0" || quoteDetails?.amount?.estimatedPrice === 0
             ? (quoteDetails?.amount?.packageDetails?.price || 0)
             : (quoteDetails?.amount?.estimatedPrice || 0),
+        discount: quoteDetails?.discount?.percentage || 0,   
+        discountAmount: (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) || 0,
+        ...((values?.serviceType != 'RIDES') && {
+               startDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || '',
+           }),
+         
+        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&&  values?.packageTypeSelected != 'Local')&& 
+        { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || ' '}
+         ),
+
+         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL_DROP_TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY_PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || mappedServiceType,
         cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
