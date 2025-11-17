@@ -13,6 +13,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import Swal from 'sweetalert2';
 
 const AddTripDetails = () => {
   const [formData, setFormData] = useState({
@@ -235,11 +236,20 @@ const AddTripDetails = () => {
         setShowDropdown(false);
         navigate('/dashboard/tripDetails');
       } else {
-        setError('Failed to add trip. Please try again.');
+        Swal.fire({
+          icon: "error",
+          title: "Trip Already Exists.",
+          timer: 2000,
+         
+        });
       }
     } catch (err) {
-      console.error('Submission error:', err);
-      setError('Failed to add trip. Please try again.');
+      Swal.fire({
+        icon: "error",
+        title: "Trip Already Exists.",
+        timer: 2000,
+        
+      });
     } finally {
       setLoading(false);
     }
