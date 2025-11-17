@@ -115,6 +115,7 @@ useEffect(() => {
           driverId: driverFilter === 'All Drivers' ? '' : driverFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
+        // console.log("Fetched trip data:", data);
 
         
         if (data.summary) {
@@ -123,7 +124,7 @@ useEffect(() => {
 
         
         const transformedTrips = data.data.map(trip => {
-          console.log("Mapping trip:", trip);
+          // console.log("Mapping trip:", trip);
           const km = parseFloat(trip.totalKm) || 0;
           const endKm = parseFloat(trip.endKm) || 0;
           const startKm = parseFloat(trip.startKm) || 0;
@@ -314,7 +315,7 @@ useEffect(() => {
                 <option value="All Vehicles">All Vehicles</option>
                 {vehicles.map((vehicle) => (
                   <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.name}
+                    {vehicle.Cab?.carNumber || vehicle.carNumber}
                   </option>
                 ))}
               </select>

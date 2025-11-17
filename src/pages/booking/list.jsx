@@ -25,7 +25,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
-export function BookingsList({ customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
+export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -358,6 +358,11 @@ const handleTabChange = (value) => {
                 }
             };
   
+             useEffect(() => {
+                    if (onRegisterRefresh) {
+                    onRegisterRefresh(() => handleRefresh);
+                    }
+                }, [onRegisterRefresh]);
     useEffect(() => {
         // Skip automatic API call if we're in the middle of a manual date filter operation
         if (isManualDateFilter) {

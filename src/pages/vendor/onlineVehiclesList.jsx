@@ -14,6 +14,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 
 export function OnlineVehiclesList({ id = 0 }) {
   const [vehicleList, setVehicleList] = useState([]);
@@ -29,6 +30,7 @@ export function OnlineVehiclesList({ id = 0 }) {
       totalItems: 0,
       itemsPerPage: 15,
     });
+const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   const checkPresence = async (driverId, vehicleId, all) => {
     try {
@@ -193,6 +195,34 @@ export function OnlineVehiclesList({ id = 0 }) {
       return buttons;
     };
 
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+
+    setSortConfig({ key, direction });
+
+    const sorted = [...vehicleList].sort((a, b) => {
+      let aVal, bVal;
+
+      if (key === 'firstName') {
+        aVal = (a.Drivers?.[0]?.firstName || '').trim().toLowerCase();
+        bVal = (b.Drivers?.[0]?.firstName || '').trim().toLowerCase();
+      } else if (key === 'updated_at') {
+        aVal = a.Shifts?.[0]?.updated_at ? new Date(a.Shifts[0].updated_at) : new Date(0);
+        bVal = b.Shifts?.[0]?.updated_at ? new Date(b.Shifts[0].updated_at) : new Date(0);
+      } else {
+        return 0;
+      }
+
+      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    setVehicleList(sorted);
+    };
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm flex justify-between items-center">
@@ -244,19 +274,44 @@ export function OnlineVehiclesList({ id = 0 }) {
                       'Last Location Updated',
                       'Available Status',
                       
-                    ].map((el) => (
-                      <th
-                        key={el}
-                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                      >
-                        <Typography
-                          variant="small"
-                          className="text-[11px] font-bold uppercase text-black"
-                        >
+                    ].map((el) => {
+                      const sortKey = el === 'Driver Name' ? 'firstName' : el === 'Last Location Updated' ? 'updated_at' : null;
+
+                      return (
+                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                          {sortKey ? (
+                            <div
+                              onClick={() => handleSort(sortKey)}
+                              className="cursor-pointer flex items-center hover:text-blue-700 transition-colors"
+                            >
+                              <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
+                                {el}
+                              </Typography>
+
+                              
+                              <span className="ml-1 flex flex-col">
+                                <ChevronUpIcon
+                                  className={`w-4 h-4 ${sortConfig.key === sortKey && sortConfig.direction === 'asc'
+                                    ? 'text-blue-600'
+                                    : 'text-gray-400'
+                                    }`}
+                                />
+                                <ChevronDownIcon
+                                  className={`w-4 h-4 -mt-1 ${sortConfig.key === sortKey && sortConfig.direction === 'desc'
+                                    ? 'text-blue-600'
+                                    : 'text-gray-400'
+                                    }`}
+                                />
+                              </span>
+                            </div>
+                          ) : (
+                        <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
                           {el}
                         </Typography>
+                          )}
                       </th>
-                    ))}
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody>

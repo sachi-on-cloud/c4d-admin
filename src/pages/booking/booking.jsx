@@ -98,7 +98,7 @@ const Booking = (props) => {
     const [quotationLogs, setQuotationLogs] = useState([]);
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
     const loggedInUserId = loggedInUser.id || 0;
-
+     const [refreshFn, setRefreshFn] = useState(null);
 
 
 
@@ -246,6 +246,17 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         amount: quoteDetails?.amount?.estimatedPrice === "0" || quoteDetails?.amount?.estimatedPrice === 0
             ? (quoteDetails?.amount?.packageDetails?.price || 0)
             : (quoteDetails?.amount?.estimatedPrice || 0),
+        discount: quoteDetails?.discount?.percentage || 0,   
+        discountAmount: (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) || 0,
+        ...((values?.serviceType != 'RIDES') && {
+               startDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || '',
+           }),
+         
+        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&&  values?.packageTypeSelected != 'Local')&& 
+        { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || ' '}
+         ),
+
+         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'DROP TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || mappedServiceType,
         cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
@@ -399,7 +410,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-        //  localStorage.removeItem('bookingSearchId');
+         localStorage.removeItem('bookingSearchId');
         
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
@@ -1109,7 +1120,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     setSelectedCustomer(0);
                                                     setSearchResults([]); 
                                                     
-                                                    // localStorage.removeItem('bookingSearchId');
+                                                    localStorage.removeItem('bookingSearchId');
+                                                   if (refreshFn) refreshFn();
                                                    
                                                 }}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -1167,7 +1179,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
+                <BookingsList onRegisterRefresh={setRefreshFn}  customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
             </div>
             <div>
                 {isOpen && (
@@ -2224,20 +2236,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer&& quoteDetails )||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
                                                     </Button>
                                                 }
-                                                 {(values.serviceType == 'AUTO') &&
+                                                {(values.serviceType == 'AUTO') &&
                                                     <Button
                                                         fullWidth
                                                         color="blue"
                                                         onClick={() => {
-                                                            //    handleSubmit();
                                                             setFieldValue("submitType", "auto");
-                                                            // console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)}
@@ -2289,7 +2299,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !values.sourceType ||
                                                                 !values.packageSelected ||
                                                                 !values.pickupAddress ||
-                                                                !quoteDetails
+                                                        !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
