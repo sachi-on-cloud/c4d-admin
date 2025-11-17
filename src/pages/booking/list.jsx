@@ -228,7 +228,7 @@ const handleTabChange = (value) => {
     try {
         const filterType = {
             type: activeTab,
-            status: statusFilter.includes('COMPLETED') ? ['ENDED'] : statusFilter.filter(s => s !== 'COMPLETED'),
+            status: statusFilter,
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
             tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
@@ -527,7 +527,7 @@ const handleTabChange = (value) => {
         try {
             const filterType = {
                 type: activeTab,
-                status: statusFilterParam.includes('COMPLETED') ? ['ENDED'] : statusFilterParam.filter(s => s !== 'COMPLETED'),
+                status: statusFilterParam,
                 source: sourceFilterParam,
                 tripCoordinator: tripCoordinatorFilterParam,
                 tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
