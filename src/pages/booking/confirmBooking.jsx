@@ -61,7 +61,11 @@ const ConfirmBooking = (props) => {
     const handleAdditionalChange = (field, value) => {
         setAdditionalPaymentDetails((prev) => ({ ...prev, [field]: value }));
     };
-
+      const minsToHHMM = (totalMins)=> {
+        const hrs = Math.floor(totalMins / 60);
+        const mins = Math.round(totalMins % 60);          // round to nearest minute
+        return `${hrs} : ${mins.toString().padStart(2, "0")}`;
+        };
     const onConfirmPressHandler = async () => {
         setLoading(true);
         let dateTime = dateVal + " " + timeVal;
@@ -1115,10 +1119,10 @@ const ConfirmBooking = (props) => {
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
                                     </div> */}
-                                    {amount.extraKMs > 0 && <div className="flex justify-between">
+                                    {bookingDetails?.extraHours >0 && <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
                                             } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
-                                        <Typography>₹ {amount?.extraPrice}</Typography>
+                                        <Typography>₹ {bookingDetails?.extraPrice}</Typography>
                                     </div>}
                                     {amount.extraKMs > 0 &&
                                         <div className="flex justify-between">
@@ -1202,9 +1206,17 @@ const ConfirmBooking = (props) => {
                                     </div>
                                 </>
                                 }
-                            {bookingDetails?.extraHours >0 && (
+                                 {bookingDetails?.extraHours >0 &&  (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")&&(
+                              
+                                  <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
+                                    <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} hrs
+                                    </Typography>
+                                </div>
+                                )}
+                            {bookingDetails?.extraHours >0 &&  (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local")&&(
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs (For Each 15 Mins) : </Typography>
+                                    <Typography color="gray" variant="h6">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="h6">
                                         {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} hrs`}
                                     </Typography>
@@ -1216,10 +1228,10 @@ const ConfirmBooking = (props) => {
                                      <Typography>{bookingDetails?.extraHourPrice}</Typography>     
                                 </div>
                                 } */}
-                                {bookingDetails?.extraHourPrice > 0 &&
+                                {bookingDetails?.extraHour> 0 &&
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs Price:</Typography>
-                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
+                                    <Typography color="gray" variant="h6">Extra Hrs Price (For Each 15 Mins):</Typography>
+                                     <Typography>₹ {bookingDetails?.extraHourPrice}</Typography>     
                                 </div>
                                 }
                                  {bookingDetails?.extraKMs > 0 &&
