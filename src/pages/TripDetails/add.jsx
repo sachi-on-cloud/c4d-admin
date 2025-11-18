@@ -238,7 +238,7 @@ const AddTripDetails = () => {
       } else {
         Swal.fire({
           icon: "error",
-          title: "Trip Already Exists.",
+          title: "Trip Id Already Exists.",
           timer: 2000,
          
         });
@@ -246,7 +246,7 @@ const AddTripDetails = () => {
     } catch (err) {
       Swal.fire({
         icon: "error",
-        title: "Trip Already Exists.",
+        title: "Trip Id Already Exists.",
         timer: 2000,
         
       });
