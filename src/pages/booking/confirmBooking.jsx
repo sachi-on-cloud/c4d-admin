@@ -678,7 +678,12 @@ const ConfirmBooking = (props) => {
                             {bookingDetails?.source !== "Mobile App" &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Source Type:</Typography>
-                                <Typography>{bookingDetails?.sourceType}</Typography>
+                                 <Typography>
+                                    {(bookingDetails?.sourceType === "Others" ||
+                                        bookingDetails?.sourceType === "Offline Ads")
+                                        ? bookingDetails?.otherSourceType
+                                        : bookingDetails?.sourceType}
+                                    </Typography>
                             </div>
                             }
                             {bookingDetails?.source !== "Mobile App" &&
