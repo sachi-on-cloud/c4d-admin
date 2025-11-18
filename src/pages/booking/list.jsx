@@ -852,7 +852,7 @@ const handleTabChange = (value) => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Zone", "Status","Trip Owner", "Follow Up", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Owner", "Follow Up", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
