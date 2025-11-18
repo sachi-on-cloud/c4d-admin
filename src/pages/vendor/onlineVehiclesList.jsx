@@ -15,6 +15,15 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 export function OnlineVehiclesList({ id = 0 }) {
   const [vehicleList, setVehicleList] = useState([]);
@@ -22,6 +31,7 @@ export function OnlineVehiclesList({ id = 0 }) {
   const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState('');
   const intervalRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [driverIds, setDriverIds] = useState([]);
   const navigate = useNavigate();
   const [pagination, setPagination] = useState({
@@ -95,14 +105,18 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     }
   };
 
-  const fetchCabList = async (page = 1) => {
+  const fetchCabList = async (page = 1, search = searchQuery) => {
     setLoading(true);
     try {
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, {
+      const params = {
             isToday:'true',
             page: page,
             limit: pagination.itemsPerPage,
-      });
+      };
+      if (search.trim()) {
+        params.search = search.trim();
+      }
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_CABS_PACKAGE, params);
       if (data?.success) {
         const updatedVehicleList = (data.data || []).map((item) => {
           // console.log(`Vehicle ${item.id}: Shift availability = ${item.Shifts?.[0]?.availability}`);
@@ -223,6 +237,24 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     setVehicleList(sorted);
     };
+
+    useEffect(() => {
+      fetchCabList(pagination.currentPage, searchQuery);
+    }, [pagination.currentPage]);
+
+    const debouncedFetchCabList = useRef(
+      debounce((searchTerm) => {
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
+        fetchCabList(1, searchTerm);
+      }, 600)
+    ).current;
+
+    const handleSearchChange = (e) => {
+      const value = e.target.value;
+      setSearchQuery(value);
+      debouncedFetchCabList(value);
+    };
+  
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm flex justify-between items-center">
@@ -237,6 +269,28 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
               <Option key={sec} value={sec}>{`${sec} sec`}</Option>
             ))}
           </Select>
+        </div>
+        <div className="relative w-full sm:max-w-md">
+          <input
+            type="text"
+            value={searchQuery}
+           onChange={handleSearchChange}
+            className="w-full py-2 pl-10 pr-10 border rounded-xl text-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Search by Driver Name"
+          />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+
+          {searchQuery && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                debouncedFetchCabList('')
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-600 text-xl font-bold"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
       <Card>
