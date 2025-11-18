@@ -25,7 +25,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
-export function BookingsList({ customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
+export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -242,7 +242,7 @@ const handleTabChange = (value) => {
     try {
         const filterType = {
             type: activeTab,
-            status: statusFilter.includes('COMPLETED') ? ['ENDED'] : statusFilter.filter(s => s !== 'COMPLETED'),
+            status: statusFilter,
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
             tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
@@ -358,6 +358,11 @@ const handleTabChange = (value) => {
                 }
             };
   
+             useEffect(() => {
+                    if (onRegisterRefresh) {
+                    onRegisterRefresh(() => handleRefresh);
+                    }
+                }, [onRegisterRefresh]);
     useEffect(() => {
         // Skip automatic API call if we're in the middle of a manual date filter operation
         if (isManualDateFilter) {
@@ -538,7 +543,7 @@ const handleTabChange = (value) => {
         try {
             const filterType = {
                 type: activeTab,
-                status: statusFilterParam.includes('COMPLETED') ? ['ENDED'] : statusFilterParam.filter(s => s !== 'COMPLETED'),
+                status: statusFilterParam,
                 source: sourceFilterParam,
                 tripCoordinator: tripCoordinatorFilterParam,
                 tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
@@ -623,44 +628,63 @@ const handleTabChange = (value) => {
     return (
         <div className="flex flex-col bg-white rounded-xl shadow-lg" >
             {/* Status Cards Section */}
-            <div className="w-full px-4 py-6 md:px-6 lg:px-8">
-                <div className="grid grid-cols-1 gap-4">
+            <div className="w-full px-4 py-3 md:px-6 lg:px-8">
+                <div className="relative">
                     {/* Booking Status Count Section */}
-                    <div className="bg-white p-4 rounded-2xl shadow-2xl">
-                        <Typography variant="h6" className="text-gray-900 text-sm mb-2">
-                            Booking Status Count
-                        </Typography>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
+                    <div className="absolute top-0  right-0 flex gap-4 justify-end">
+                        
+                        <button
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-2 rounded-lg text-sm shadow-lg"
+                            onClick={() => {
+                                handleRefresh();
+                            }}
+                        >
+                            <span className="flex items-center gap-2">
+                                <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+                                Refresh
+                            </span>
+                        </button>
+                    </div>
+                
+                    {/* Status Cards Grid */}
+                        <div className="grid grid-cols-1 py-12 sm:grid-cols-2 md:grid-cols-7 gap-2">
                             {[
-                                { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
-                                { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
-                                { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-500', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
-                                { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-500', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
-                                { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-500', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
+                                { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
+                                { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-50 text-yellow-900', chipColor: 'bg-yellow-600 text-white' },
+                                { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-50 text-purple-900', chipColor: 'bg-purple-600 text-white' },
+                                { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-50 text-green-900', chipColor: 'bg-green-600 text-white' },
+                                { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-50 text-red-900', chipColor: 'bg-red-600 text-white' },
                             ].map((item, index) => {
                                 const IconComponent = item.icon;
                                 return (
                                     <div
                                         key={index}
-                                        className={`p-2 rounded-lg shadow-md flex flex-col items-center ${item.bgColor} text-white`}
+                                        className={`p-2 rounded-lg shadow-md flex flex-col items-center justify-center min-w-[80px] ${item.color}`}
                                     >
-                                        <Typography variant="small" className="text-xs font-medium mb-1">
+                                        <Typography variant="small" className="text-xs font-medium mb-1 text-center w-full">
                                             {item.label}
                                         </Typography>
-                                        <div className="flex items-center">
-                                            <IconComponent className="w-5 h-5 mr-1" />
-                                            <Typography variant="h6" className="font-bold text-base">
+                                        <div className="flex items-center justify-center w-full">
+                                            <Typography variant="h6" className="font-bold text-2xl">
                                                 {counts[item.key]}
                                             </Typography>
                                         </div>
                                     </div>
                                 );
                             })}
+                        <div className="bg-gradient-to-r from-blue-100 to-blue-100 text-blue-900 p-2 rounded-lg shadow-md flex flex-col items-center justify-center min-w-[120px]">
+                            <div className="flex items-center justify-center mb-1 w-full">
+                            <Typography variant="small" className="font-bold text-xs text-blue-900">
+                                    Total Drivers
+                            </Typography>
                         </div>
-                    </div>
-
+                            <div className='flex gap-2 items-center'>
+                                <Typography variant="h3" className="font-bold text-2xl text-blue-900">{totalDriverCount}</Typography>
+                                {/* <FaUsers className="w-5 h-5 mr-2 text-blue-900" /> */}
+                            </div>
+                            
                     {/* Hourly Online Drivers Section */}
-                    <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                    {/* <div className="bg-white p-4 rounded-2xl shadow-2xl">
                         <div className="flex justify-between items-center mb-2">
                             <Typography variant="h6" className="text-gray-900 text-sm">
                                 Hourly Online Drivers
@@ -671,9 +695,21 @@ const handleTabChange = (value) => {
                             >
                                 Select Slot
                             </Button>
+                        </div> */}
                         </div>
-
-                        {showDriverHours && (
+                        <div className="bg-gradient-to-r from-green-100 to-green-100 text-green-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
+                            <div className="flex items-center justify-center w-full">
+                                <Typography variant="small" className="font-bold text-xs text-green-900">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+                                {/* <FaSync className="w-4 h-4 mr-2 text-green-900" /> */}
+                            </div>
+                            <div className="flex items-center justify-center w-full">
+                                <Typography variant="h3" className="font-bold text-2xl text-green-900">{selectedDriver?.count || 0}</Typography>
+                            </div>
+                            {/* <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Updated: {selectedTime}</Typography> */}
+                        </div>
+                    </div>
+                </div>                    
+                        {/* {showDriverHours && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
                                     <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
@@ -709,9 +745,8 @@ const handleTabChange = (value) => {
                                     </div>
                                 </div>
                             </div>
-                        )}
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
+                        )} */}
+                        {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
                             <div className="bg-blue-400 bg-gradient-to-br from-blue-500 to-blue-800 text-white p-2 rounded-lg text-center flex flex-col items-center">
                                 <div className="flex items-center mb-1">
                                     <FaUsers className="w-6 h-6 mr-1 text-white" />
@@ -732,15 +767,15 @@ const handleTabChange = (value) => {
                         </div>
                     </div>
                 </div>
+            </div > */}
             </div>
-
-            <div className='px-3 py-3'>
+            {/* <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : type == 'AUTO' ? 'Auto' : type == 'PARCEL' ? 'Parcel' : 'Bookings'}
                 </Typography>
-            </div>
+            </div> */}
             <Card>
-                <div className='absolute right-10 -top-10'>
+                {/* <div className='absolute right-10 -top-10'>
                     <button
                         className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
                         onClick={handleRefresh}
@@ -748,8 +783,8 @@ const handleTabChange = (value) => {
                         <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
                         <span>Refresh</span>
                     </button>
-                </div>
-                <CardBody>
+                </div> */}
+                <CardBody className='pt-0'>
                     <Tabs  value={activeTab} >
                         <TabsHeader className="bg-gray-300 z-0 mb-4">
                     <div className="flex w-full items-center">
@@ -891,7 +926,7 @@ const handleTabChange = (value) => {
                                                             options={[
                                                                 { value: 'All', label: 'All' },
                                                                 { value: 'QUOTED', label: 'Quoted' },
-                                                                { value: 'BOOKING_ACCEPTED', label: 'Booking Accepted' },
+                                                                { value: 'BOOKING_ACCEPTED', label: 'Driver Accepted' },
                                                                 { value: 'CONFIRMED', label: 'Booking Confirmed' },
                                                                 { value: 'REQUEST_DRIVER', label: 'Request Driver' },
                                                                 { value: 'STARTED', label: 'Started' },
@@ -1143,7 +1178,7 @@ const handleTabChange = (value) => {
                                                             <Chip
                                                                 variant="ghost"
                                                                 // color={"blue"}
-                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Call Back Completed" : data?.status}
+                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "BOOKING_ACCEPTED" ? "DRIVER_ACCEPTED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Call Back Completed" : data?.status}
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
                                                                     data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
@@ -1184,7 +1219,7 @@ const handleTabChange = (value) => {
                                                         </td>
                                                         <td className={className}>
                                                             <button
-                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-xl px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
+                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-sm px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
                                                                     ? 'bg-blue-500'
                                                                     : (data?.followup || 'NONE') === 'FOLLOWUP'
                                                                         ? 'bg-yellow-600'
@@ -1234,7 +1269,7 @@ const handleTabChange = (value) => {
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {([ 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                            {([ 'CONFIRMED', 'QUOTED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}

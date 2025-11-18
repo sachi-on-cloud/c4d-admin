@@ -21,6 +21,8 @@ import BookingItem from "./confirmBooking"
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import EditBooking from './editBooking';
 import DistanceExceedModal from '@/components/DistanceExceedModal';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -96,7 +98,7 @@ const Booking = (props) => {
     const [quotationLogs, setQuotationLogs] = useState([]);
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
     const loggedInUserId = loggedInUser.id || 0;
-
+     const [refreshFn, setRefreshFn] = useState(null);
 
 
 
@@ -244,6 +246,17 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         amount: quoteDetails?.amount?.estimatedPrice === "0" || quoteDetails?.amount?.estimatedPrice === 0
             ? (quoteDetails?.amount?.packageDetails?.price || 0)
             : (quoteDetails?.amount?.estimatedPrice || 0),
+        discount: quoteDetails?.discount?.percentage || 0,   
+        discountAmount: (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) || 0,
+        ...((values?.serviceType != 'RIDES') && {
+               startDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || '',
+           }),
+         
+        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&&  values?.packageTypeSelected != 'Local')&& 
+        { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || ' '}
+         ),
+
+         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL_DROP_TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY_PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || mappedServiceType,
         cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
@@ -273,15 +286,18 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
             pickupLat: values?.pickupLocation?.lat,
             pickupLong: values?.pickupLocation?.lng,
-            driverLat: values?.driverPickUpLocation?.lat,
-            driverLong: values?.driverPickUpLocation?.lng,
+            driverStartLat: values?.driverPickUpLocation?.lat,
+            driverStartLong: values?.driverPickUpLocation?.lng,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
             zone: actualZone,
         };
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
-            quoteData.serviceFor = 'RENTAL';
+            quoteData.serviceFor = 'RENTAL_DROP_TAXI';
+        }
+        else if (values?.serviceType === 'RENTAL_HOURLY_PACKAGE') {
+            quoteData.serviceFor = 'RENTAL_HOURLY_PACKAGE';
         }
         else if (values?.serviceType === 'RENTAL') {
             quoteData.serviceFor = 'RENTAL';
@@ -376,8 +392,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             period: val.serviceType === 'RENTAL_HOURLY_PACKAGE' || val?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(val.packageSelected))?.period || '' : '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
-            driverLat: val?.driverPickUpLocation?.lat,
-            driverLong: val?.driverPickUpLocation?.lng,
+            driverStartLat: val?.driverPickUpLocation?.lat,
+            driverStartLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
             zone: actualZone,
@@ -394,7 +410,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-        searchBookings();
+         localStorage.removeItem('bookingSearchId');
+        
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }
@@ -560,6 +577,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
             },
             source: 'Call',
             sourceType: values.sourceType,
+            ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
+                otherSourceType: values.otherSourceType?.trim() || null
+            }),
             serviceType:values.serviceType,
             zone: actualZone,  
         }
@@ -681,11 +701,6 @@ const sendQuotationLogs = async (bookingId, userId) => {
             pickupAddress: {
                 name: values.pickupAddress,
             },
-            dropLat: values.dropLocation?.lat,
-            dropLong: values.dropLocation?.lng,
-            dropAddress: values.dropLocation ? {
-                name: values.dropAddress
-            } : null,
             driverStartLat: values.driverPickUpLocation?.lat,
             driverStartLong: values.driverPickUpLocation?.lng,
             driverStartAddress: {
@@ -693,13 +708,23 @@ const sendQuotationLogs = async (bookingId, userId) => {
             },
             source: 'Call',
             sourceType: values.sourceType,
+            ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
+             otherSourceType: values.otherSourceType?.trim() || null
+            }),
             luggage: values.luggage,
             seaterCapacity:values.seaterCapacity,
             period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
             serviceType: values.serviceType || mappedServiceType,
             zone: actualZone,
         };
-
+        if(values.serviceType !== "RENTAL_HOURLY_PACKAGE" )
+        {
+            bookingData.dropLat= values.dropLocation?.lat;
+            bookingData.dropLong= values.dropLocation?.lng;
+            bookingData.dropAddress= values.dropLocation ? {
+                name: values.dropAddress
+            } : null;
+        }
         if (values.toDate && values.toTime) {
             bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()
         };
@@ -1020,7 +1045,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 case 'booking_accepted':
                    return(
                         <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
-                        BOOKING ACCEPTED
+                        DRIVER ACCEPTED
                     </span>
                     );
                 case 'end_otp':
@@ -1063,7 +1088,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
 
     const serviceDisplayNames = {
         DRIVER: "Acting Driver",
-        RIDES: "Rides",
+        RIDES: "Local Rides",
         RENTAL_DROP_TAXI: "Drop Taxi",
         RENTAL_HOURLY_PACKAGE: "Hourly Package",
         RENTAL: "Outstation",
@@ -1074,12 +1099,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
     return (
         <div className='flex flex-row space-x-6 justify-between w-full'>
             <div className='w-full'>
-                <div className='py-6 rounded-3xl flex justify-between'>
+                <div className='py-2  rounded-xl flex justify-between bg-white mb-2'>
                     {customerData && (
                         <div className="p-2 flex w-[40%] flex-col relative">
                             <input
                                 type="text"
-                                className="w-full p-2 border rounded"
+                                className="relative w-full py-2 px-8 border  rounded-xl text-sm bg-gray-100 pr-10"
                                 placeholder="Search by customer number or booking ID"
                                 value={searchText}
                                 onChange={(e) => {
@@ -1087,6 +1112,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                     searchBookings(e.target.value);
                                 }}
                             />
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <MagnifyingGlassIcon className="w-5 h-5 text-gray-600" />
+                            </div>
                             {(searchText || searchBookingId) && (
                                 <button
                                     type="button"
@@ -1097,6 +1125,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     setSearchBookingId(''); 
                                                     setSelectedCustomer(0);
                                                     setSearchResults([]); 
+                                                    
+                                                    localStorage.removeItem('bookingSearchId');
+                                                   if (refreshFn) refreshFn();
+                                                   
                                                 }}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
@@ -1144,13 +1176,16 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     </div>} */}
                     <button
                         onClick={() => setIsOpen(true)}
-                        className={`px-4 py-2 rounded-3xl ${ColorStyles.addButtonColor}`}
+                        className={`relative rounded-xl px-6 py-2 mr-2 text-sm w-40 h-10 mt-2 ${ColorStyles.addButtonColor}`}
                     >
+                        <div className="absolute inset-y-0 left-0 flex items-center  pointer-events-none px-3">
+                            <PlusIcon className="w-4 h-4 font-medium text-white space-x-3" />
                         Add New Booking
+                        </div>
                     </button>
 
                 </div>
-                <BookingsList customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
+                <BookingsList onRegisterRefresh={setRefreshFn}  customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
             </div>
             <div>
                 {isOpen && (
@@ -1274,7 +1309,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 {!editBookingView && ( <div className="flex-1 mb-4">
                                                         <div>
                                                             <Typography variant="h6" className="mb-2">
-                                                                Service Area
+                                                                Service Pickup Area
                                                             </Typography>
                                                            <Field
                                                                 as="select"
@@ -1296,7 +1331,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     setFieldValue('serviceTypeArea', selectedValue, true);
                                                                 }}
                                                                 >
-                                                                <option value="" label="Select a service area" />
+                                                                <option value="" label="Select a Service Pickup Area" />
                                                                 {serviceAreas.map((area) => (
                                                                     <option key={area.id} value={area.id}>
                                                                     {area.name}
@@ -1481,8 +1516,26 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <option value="Justdial">Justdial</option>
                                                             <option value="Paper Notice">Paper Notice</option>
                                                             <option value="On Field">On Field</option>
+                                                            <option value="Existing Customer">Existing Customer</option>
+                                                            <option value="Referral">Referral</option>
+                                                            <option value="Reddit">Reddit</option>
+                                                            <option value="Offline Ads">Offline Ads</option>
+                                                            <option value="Others">Others</option>
                                                         </Field>
+                                                       {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                            <Field
+                                                                type="text"
+                                                                name="otherSourceType"
+                                                                placeholder="Please specify the source"
+                                                                className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                            />
+                                                            )}
+
                                                         <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                {values.sourceType === "Others" && (
+                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                                )}
                                                     </div>
                                                 )}
                                                 
@@ -1918,6 +1971,30 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount?.kilometerPriceVal}
                                                                         </Typography></>)}
+                                                                        {values?.serviceType !== 'DRIVER' && ( <>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                        <Typography>                                                                            
+                                                                            {((quoteDetails.amount?.estimatedDistance)
+                                                                            - 
+                                                                            Number(quoteDetails.amount?.driverWithin)) 
+                                                                            + 
+                                                                            (Number(quoteDetails.amount?.baseKm))
+                                                                            } Kms + {quoteDetails.amount?.driverWithin} Kms
+                                                                        </Typography></>)}
+                                                                        { values?.serviceType === 'RIDES' && ( <>
+                                                                        
+                                                                        <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.displayTime}
+                                                                        </Typography>
+                                                                        </>)}
+                                                                        {values?.serviceType === "RENTAL_DROP_TAXI"  && ( <>
+                                                                        <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.totalHours > 60 ? (quoteDetails.amount?.totalHours / 60).toFixed(2) + ' hrs' : quoteDetails.amount?.totalHours +' mins'}
+                                                                        </Typography>
+                                                                        </>)}
+                                                                      
                                                                         <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount?.baseFare}
@@ -2173,7 +2250,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                         (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                         (values.packageTypeSelected === "Local" && values.tripType === "Round Trip" && !values.dropAddress) ||
-                                                        validationCheckForDriver(values)
+                                                        validationCheckForDriver(values) ||
+                                                        !quoteDetails
                                                     }
                                                     className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                 >
@@ -2187,7 +2265,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType)||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && values.sourceType)||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2229,7 +2307,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                                 (values.packageTypeSelected === "Outstation" && !values.acType) ||
                                                                 (values.packageTypeSelected === "Outstation" && values.tripType === "Round Trip" && !values.toDate) ||
-                                                                validationCheckForDriverRental(values)
+                                                                validationCheckForDriverRental(values) ||
+                                                        !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2250,7 +2329,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !values.rideDate ||
                                                                 !values.sourceType ||
                                                                 !values.packageSelected ||
-                                                                !values.pickupAddress
+                                                                !values.pickupAddress ||
+                                                        !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2272,7 +2352,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !values.sourceType ||
                                                                 !values.acType ||
                                                                 !values.pickupAddress ||
-                                                                !values.dropAddress
+                                                                !values.dropAddress ||
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >

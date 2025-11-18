@@ -26,6 +26,8 @@ const Reports = ({ accountId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [exportLoading, setExportLoading] = useState(false);
+  const [userRole, setUserRole] = useState('');
+  const [permsLoaded, setPermsLoaded] = useState(false);
 
   const [summary, setSummary] = useState({
     totalTrips: 0,
@@ -37,6 +39,22 @@ const Reports = ({ accountId }) => {
     totalTollCost: 0,
     totalPermitCost: 0,
   });
+
+  const getPermissions = () => {
+  const userData = localStorage.getItem('loggedInUser');
+  if (userData) {
+    const { role } = JSON.parse(userData);
+    if (role) {
+      setUserRole(role.trim().toUpperCase());
+      // console.log('User role set to:', role.trim().toUpperCase());
+    }
+  }
+  setPermsLoaded(true);
+};
+
+useEffect(() => {
+  getPermissions();
+}, []);
 
   useEffect(() => {
     const fetchVehiclesAndDrivers = async () => {
@@ -97,6 +115,7 @@ const Reports = ({ accountId }) => {
           driverId: driverFilter === 'All Drivers' ? '' : driverFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
+        // console.log("Fetched trip data:", data);
 
         
         if (data.summary) {
@@ -105,7 +124,7 @@ const Reports = ({ accountId }) => {
 
         
         const transformedTrips = data.data.map(trip => {
-          console.log("Mapping trip:", trip);
+          // console.log("Mapping trip:", trip);
           const km = parseFloat(trip.totalKm) || 0;
           const endKm = parseFloat(trip.endKm) || 0;
           const startKm = parseFloat(trip.startKm) || 0;
@@ -219,6 +238,7 @@ const Reports = ({ accountId }) => {
             <Typography variant="h6" color="white">
               Trip Reports
             </Typography>
+            {permsLoaded && userRole === 'SUPER_USER' && (
             <Button
               size="sm"
               className="bg-green-500 text-white"
@@ -227,6 +247,7 @@ const Reports = ({ accountId }) => {
             >
               {exportLoading ? 'Exporting...' : 'Export to Excel'}
             </Button>
+            )}
           </div>
         </CardHeader>
         <div className="border-b border-gray-200 mb-6">
@@ -294,7 +315,7 @@ const Reports = ({ accountId }) => {
                 <option value="All Vehicles">All Vehicles</option>
                 {vehicles.map((vehicle) => (
                   <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.name}
+                    {vehicle.Cab?.carNumber || vehicle.carNumber}
                   </option>
                 ))}
               </select>
