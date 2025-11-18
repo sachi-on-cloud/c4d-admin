@@ -1119,11 +1119,18 @@ const ConfirmBooking = (props) => {
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
                                     </div> */}
-                                    {bookingDetails?.extraHours >0 && <div className="flex justify-between">
+                                    {bookingDetails?.extraHours >0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local")&&( 
+                                        <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                            } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
+                                            }hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails.extraHours} x ${amount.extraHourPrice})`}</Typography>
                                         <Typography>₹ {bookingDetails?.extraPrice}</Typography>
-                                    </div>}
+                                    </div>)}
+                                     {bookingDetails?.extraHours >0&&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                                         <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                            }hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails.extraHours)} x ${amount.extraHourPrice})`}</Typography>
+                                        <Typography>₹ {bookingDetails?.extraPrice}</Typography>
+                                    </div>)}
                                     {amount.extraKMs > 0 &&
                                         <div className="flex justify-between">
 <Typography color="gray" variant="h6">         {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
@@ -1206,14 +1213,14 @@ const ConfirmBooking = (props) => {
                                     </div>
                                 </>
                                 }
-                                 {bookingDetails?.extraHours >0 &&  (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")&&(
-                              
-                                  <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                    <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} hrs
-                                    </Typography>
+                                 
+                               {bookingDetails?.extraHours > 0 &&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                                <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Extra Hrs:</Typography>
+                                <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} hrs
+                                </Typography>
                                 </div>
-                                )}
+                            )}
                             {bookingDetails?.extraHours >0 &&  (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local")&&(
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs  : </Typography>
