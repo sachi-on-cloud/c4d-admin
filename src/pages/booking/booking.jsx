@@ -1452,8 +1452,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <option value="Existing Customer">Existing Customer</option>
                                                             <option value="Referral">Referral</option>
                                                             <option value="Reddit">Reddit</option>
-                                                             <option value="Others">Others</option>
-                                                            <option value="Offline Ads">Offline ads</option>
+                                                            <option value="Offline Ads">Offline Ads</option>
+                                                            <option value="Others">Others</option>
                                                         </Field>
                                                        {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
                                                             <Field
