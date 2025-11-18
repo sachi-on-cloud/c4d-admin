@@ -8,6 +8,7 @@ import { Button } from '@material-tailwind/react';
 import OwnersCabList from '@/components/OwnersCabList';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
+import DriverAccountBookingNotes from '@/components/DriverAccountBookingNotes';
 
 const AccountDetails = ({ btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
@@ -233,6 +234,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
+            <DriverAccountBookingNotes accountId={accountVal?.id} />
             {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
             {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} />}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
