@@ -1179,7 +1179,7 @@ const handleTabChange = (value) => {
                                                         </td>
                                                         <td className={className}>
                                                             <button
-                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-xl px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
+                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-sm px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
                                                                     ? 'bg-blue-500'
                                                                     : (data?.followup || 'NONE') === 'FOLLOWUP'
                                                                         ? 'bg-yellow-600'
