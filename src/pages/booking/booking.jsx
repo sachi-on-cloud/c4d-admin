@@ -577,6 +577,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
             },
             source: 'Call',
             sourceType: values.sourceType,
+            ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
+                otherSourceType: values.otherSourceType?.trim() || null
+            }),
             serviceType:values.serviceType,
             zone: actualZone,  
         }
@@ -654,6 +657,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
             },
             source: 'Call',
             sourceType: values.sourceType,
+            ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
+             otherSourceType: values.otherSourceType?.trim() || null
+            }),
             luggage: values.luggage,
             seaterCapacity:values.seaterCapacity,
             period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
@@ -1459,8 +1465,23 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <option value="Existing Customer">Existing Customer</option>
                                                             <option value="Referral">Referral</option>
                                                             <option value="Reddit">Reddit</option>
+                                                            <option value="Offline Ads">Offline Ads</option>
+                                                            <option value="Others">Others</option>
                                                         </Field>
+                                                       {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                            <Field
+                                                                type="text"
+                                                                name="otherSourceType"
+                                                                placeholder="Please specify the source"
+                                                                className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                            />
+                                                            )}
+
                                                         <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                {values.sourceType === "Others" && (
+                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                                )}
                                                     </div>
                                                 )}
                                                 

@@ -956,6 +956,8 @@ export const API_ROUTES = {
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
     'POST_QUOTATION_LOG':'/quotation-log',
     'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
+    'UPDATE_FOLLOWUP':'/booking/followup',
+    'EXOTEL_CALL_LOGS': '/call-logs'
 
 };
 
@@ -1050,7 +1052,7 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
+    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
     'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
     'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
     'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
@@ -1058,6 +1060,7 @@ export const ROLE_PERMISSIONS = {
 
 export const PERMISSION_OPTIONS = [
     { name: 'Home', id: 'Home' },
+    { name: 'Calls', id: 'Calls'},
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
