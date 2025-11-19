@@ -1029,7 +1029,7 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
             </div>
-            {(bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && bookingDetails?.packageType !== 'Local' && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
+            {(bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && bookingDetails?.packageType !== 'Local' && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
             ) && (
                     <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
                         <Typography className="font-bold text-xl text-gray-900 pb-2">
@@ -1079,21 +1079,53 @@ const ConfirmBooking = (props) => {
                         </div>
                     </div>
                 )}
-            {(bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && (bookingDetails?.packageType === 'Local' && bookingDetails?.serviceType == 'RENTAL') && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
-            ) && (
-            <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
-                <Typography className="font-bold text-xl text-gray-900 pb-2">
-                    Terms and Conditions
-                </Typography>
-                <div className="space-y-4 text-gray-700">                  
-                    <Typography className="text-sm">• Toll, parking, permits charges and state tax are <span className="font-bold">excluded</span>.</Typography>                  
-                    <Typography className="text-sm">• For every extra 15 minutes after <span className="font-bold">{bookingDetails?.Package?.period} hours</span>, <span className="font-bold">₹{bookingDetails?.Cab?.carType == 'Mini' ? bookingDetails?.Package?.additionalMinCharge : bookingDetails?.Cab?.carType == 'Sedan' ? bookingDetails?.Package?.additionalMinChargeSedan : bookingDetails?.Cab?.carType == 'SUV' ? bookingDetails?.Package?.additionalMinChargeSuv : bookingDetails?.Package?.additionalMinChargeMVP}</span> will be charged.</Typography>                                    
-                    <Typography className="text-sm">• For every extra kilometer <span className="font-bold">₹{bookingDetails?.Cab?.carType == 'Mini' ? bookingDetails?.Package?.extraKilometerPrice : bookingDetails?.Cab?.carType == 'Sedan' ? bookingDetails?.Package?.extraKilometerPriceSedan : bookingDetails?.Cab?.carType == 'SUV' ? bookingDetails?.Package?.extraKilometerPriceSuv : bookingDetails?.Package?.extraKilometerPriceMVP}</span> will be charged.</Typography>
-                    <Typography className="text-sm">• Night Charge of <span className="font-bold">₹{bookingDetails?.Package?.nightCharge}</span> will be charged after <span className="font-bold">{convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}</span>.</Typography>
-                     <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
-                            <Typography
-                                className=" text-center text-sm text-gray-700"
-                            >
+{bookingDetails?.packageType === 'Local' && 
+ bookingDetails?.serviceType === 'RENTAL' && 
+ bookingDetails?.source === 'Mobile App' && 
+ (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType) && (
+  <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
+    <Typography className="font-bold text-xl text-gray-900 pb-2">
+      Terms and Conditions
+    </Typography>
+
+    <div className="space-y-4 text-gray-700">
+      <Typography className="text-sm">
+        • Toll, parking, permits charges and state tax are <span className="font-bold">excluded</span>.
+      </Typography>
+
+      <Typography className="text-sm">
+        • For every extra 15 minutes after <span className="font-bold">{bookingDetails?.Package?.period} hours</span>, ₹
+        <span className="font-bold">
+          {(() => {
+            const type = bookingDetails?.Cab?.carType;
+            if (type === 'Mini') return bookingDetails?.Package?.additionalMinCharge;
+            if (type === 'Sedan') return bookingDetails?.Package?.additionalMinChargeSedan;
+            if (type === 'SUV') return bookingDetails?.Package?.additionalMinChargeSuv;
+            return bookingDetails?.Package?.additionalMinChargeMVP;
+          })()}
+        </span> will be charged.
+      </Typography>
+
+      <Typography className="text-sm">
+        • For every extra kilometer ₹
+        <span className="font-bold">
+          {(() => {
+            const type = bookingDetails?.Cab?.carType;
+            if (type === 'Mini') return bookingDetails?.Package?.extraKilometerPrice;
+            if (type === 'Sedan') return bookingDetails?.Package?.extraKilometerPriceSedan;
+            if (type === 'SUV') return bookingDetails?.Package?.extraKilometerPriceSuv;
+            return bookingDetails?.Package?.extraKilometerPriceMVP;
+          })()}
+        </span> will be charged.
+      </Typography>
+
+      <Typography className="text-sm">
+        • Night Charge of <span className="font-bold">₹{bookingDetails?.Package?.nightCharge}</span> 
+        will be charged after <span className="font-bold">{convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}</span>.
+      </Typography>
+
+      <div className="border border-gray-300 bg-yellow-50 rounded-xl p-3 text-center">
+        <Typography className="text-sm text-gray-800 font-medium">
                                 {BOOKING_TERMS_AND_CONDITIONS}
                             </Typography>
                         </div>
