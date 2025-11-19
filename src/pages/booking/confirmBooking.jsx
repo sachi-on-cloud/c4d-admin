@@ -275,6 +275,20 @@ const ConfirmBooking = (props) => {
         );
     }
 
+        const convertTo12HourFormat = (time24) => {
+        if (!time24) return '';
+
+        const [hours, minutes] = time24.split(':');
+        let hour = parseInt(hours, 10);
+        const minute = minutes || '00';
+        const period = hour >= 12 ? 'PM' : 'AM';
+
+        hour = hour % 12;
+        hour = hour === 0 ? 12 : hour;
+
+        return `${hour}:${minute} ${period}`;
+    };
+
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto">
