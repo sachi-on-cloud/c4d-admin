@@ -1246,7 +1246,7 @@ export const WHATSAPP_BOOKING_CANCELLED=`
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-export const BOOKING_TERMS_AND_CONDITIONS = "Price mighty vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
+export const BOOKING_TERMS_AND_CONDITIONS = "Price might vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
 export const ColorStyles = {
     sidenavColors: "bg-primary-200",
     bgColor: "bg-primary",
