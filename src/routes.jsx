@@ -95,6 +95,7 @@ import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
+import ExotelCallsList from "./components/Exotel";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -827,6 +828,14 @@ export const routes = [
         element: <DetailsTrip />,
         display: true,
         permission: "Trip Master",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "exotel calls",
+        path: "/users/exotel-calls/list",
+        element: <ExotelCallsList />,
+        display: false,
+        permission: "Calls",
       },
     ],
   },

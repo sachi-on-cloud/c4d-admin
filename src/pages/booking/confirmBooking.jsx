@@ -12,7 +12,7 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS  } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS, BOOKING_TERMS_AND_CONDITIONS  } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
@@ -61,7 +61,11 @@ const ConfirmBooking = (props) => {
     const handleAdditionalChange = (field, value) => {
         setAdditionalPaymentDetails((prev) => ({ ...prev, [field]: value }));
     };
-
+      const minsToHHMM = (totalMins)=> {
+        const hrs = Math.floor(totalMins / 60);
+        const mins = Math.round(totalMins % 60);          // round to nearest minute
+        return `${hrs} hrs : ${mins.toString().padStart(2, "0")} mins`;
+        };
     const onConfirmPressHandler = async () => {
         setLoading(true);
         let dateTime = dateVal + " " + timeVal;
@@ -271,6 +275,20 @@ const ConfirmBooking = (props) => {
         );
     }
 
+        const convertTo12HourFormat = (time24) => {
+        if (!time24) return '';
+
+        const [hours, minutes] = time24.split(':');
+        let hour = parseInt(hours, 10);
+        const minute = minutes || '00';
+        const period = hour >= 12 ? 'PM' : 'AM';
+
+        hour = hour % 12;
+        hour = hour === 0 ? 12 : hour;
+
+        return `${hour}:${minute} ${period}`;
+    };
+
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     return (
         <div className="container mx-auto">
@@ -285,7 +303,7 @@ const ConfirmBooking = (props) => {
                         Back
                     </Button> */}
 
-                {bookingDetails.status === "QUOTED" && (
+              {bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP" && (
                     <Button
                         color="green"
                         variant="outlined"
@@ -674,9 +692,20 @@ const ConfirmBooking = (props) => {
                             {bookingDetails?.source !== "Mobile App" &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Source Type:</Typography>
-                                <Typography>{bookingDetails?.sourceType}</Typography>
+                                 <Typography>
+                                    {bookingDetails?.sourceType}
+                                </Typography>
                             </div>
                             }
+                            {(bookingDetails?.sourceType == 'Others' || bookingDetails?.sourceType == 'Offline Ads') && 
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Specification:</Typography>
+                                 <Typography>
+                                    {bookingDetails?.otherSourceType}
+                                </Typography>
+                            </div>
+                             }
+
                             {bookingDetails?.source !== "Mobile App" &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Area:</Typography>
@@ -776,7 +805,7 @@ const ConfirmBooking = (props) => {
                                     <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
                                 </div>
                             }
-                            {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.bookingType !== 'DROP ONLY') && bookingDetails?.value?.kilometerPriceVal > 0 &&
+                            { bookingDetails?.value?.kilometerPriceVal > 0 &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Per KM Rate:</Typography>
                                     <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>
@@ -1000,6 +1029,108 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
             </div>
+            {(bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && bookingDetails?.packageType !== 'Local' && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
+            ) && (
+                    <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
+                        <Typography className="font-bold text-xl text-gray-900 pb-2">
+                            Terms and Conditions
+                        </Typography>
+                        <div className="space-y-4 text-gray-700">
+                            <Typography className="text-sm">
+                                • Toll, parking, permit charges and state tax are <span className="font-bold">excluded</span>.
+                            </Typography>
+                            <Typography className="text-sm">
+                                • For Every extra <span className="font-bold">15 minutes</span>,  <span className="font-bold text-black">₹ 
+                                    {bookingDetails?.Cab?.carType === 'Mini'
+                                        ? bookingDetails?.Package?.additionalMinCharge
+                                        : bookingDetails?.Cab?.carType === 'Sedan'
+                                            ? bookingDetails?.Package?.additionalMinChargeSedan
+                                            : bookingDetails?.Cab?.carType === 'SUV'
+                                                ? bookingDetails?.Package?.additionalMinChargeSuv
+                                                : bookingDetails?.Package?.additionalMinChargeMVP}
+                                </span> will be charged
+                            </Typography>
+                            <Typography className="text-sm">
+                                • For every extra kilometer  <span className="font-bold text-black">₹ 
+                                    {bookingDetails?.Cab?.carType === 'Mini'
+                                        ? bookingDetails?.Package?.extraKilometerPrice
+                                        : bookingDetails?.Cab?.carType === 'Sedan'
+                                            ? bookingDetails?.Package?.extraKilometerPriceSedan
+                                            : bookingDetails?.Cab?.carType === 'SUV'
+                                                ? bookingDetails?.Package?.extraKilometerPriceSuv
+                                                : bookingDetails?.Package?.extraKilometerPriceMVP}
+                                </span> will be charged
+                            </Typography>
+                            <Typography className="text-sm">
+                                • Night Charge of <span className="font-bold text-black">₹
+                                    {bookingDetails?.Package?.nightCharge}
+                                </span> applies if the trip extends past{' '}
+                                <span className="font-bold text-black">
+                                    {convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}
+                                </span>.
+                            </Typography>
+                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                            <Typography
+                                className=" text-center text-sm text-gray-700"
+                            >
+                                {BOOKING_TERMS_AND_CONDITIONS}
+                            </Typography>
+                        </div>
+                        </div>
+                    </div>
+                )}
+{bookingDetails?.packageType === 'Local' && 
+ bookingDetails?.serviceType === 'RENTAL' && 
+ bookingDetails?.source === 'Mobile App'  && (
+  <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
+    <Typography className="font-bold text-xl text-gray-900 pb-2">
+      Terms and Conditions
+    </Typography>
+
+    <div className="space-y-4 text-gray-700">
+      <Typography className="text-sm">
+        • Toll, parking, permits charges and state tax are <span className="font-bold">excluded</span>.
+      </Typography>
+
+      <Typography className="text-sm">
+        • For every extra 15 minutes after <span className="font-bold">{bookingDetails?.Package?.period} hours</span>, ₹
+        <span className="font-bold">
+          {(() => {
+            const type = bookingDetails?.Cab?.carType;
+            if (type === 'Mini') return bookingDetails?.Package?.additionalMinCharge;
+            if (type === 'Sedan') return bookingDetails?.Package?.additionalMinChargeSedan;
+            if (type === 'SUV') return bookingDetails?.Package?.additionalMinChargeSuv;
+            return bookingDetails?.Package?.additionalMinChargeMVP;
+          })()}
+        </span> will be charged.
+      </Typography>
+
+      <Typography className="text-sm">
+        • For every extra kilometer ₹
+        <span className="font-bold">
+          {(() => {
+            const type = bookingDetails?.Cab?.carType;
+            if (type === 'Mini') return bookingDetails?.Package?.extraKilometerPrice;
+            if (type === 'Sedan') return bookingDetails?.Package?.extraKilometerPriceSedan;
+            if (type === 'SUV') return bookingDetails?.Package?.extraKilometerPriceSuv;
+            return bookingDetails?.Package?.extraKilometerPriceMVP;
+          })()}
+        </span> will be charged.
+      </Typography>
+
+      <Typography className="text-sm">
+        • Night Charge of <span className="font-bold">₹{bookingDetails?.Package?.nightCharge}</span> 
+        will be charged after <span className="font-bold">{convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}</span>.
+      </Typography>
+
+      <div className="border border-gray-300 bg-yellow-500 rounded-xl p-3 text-center">
+        <Typography className="text-sm text-gray-800 font-medium">
+                                {BOOKING_TERMS_AND_CONDITIONS}
+                            </Typography>
+                        </div>
+                  </div>
+                </div>
+          )}
             {/*{(bookingDetails?.status === 'STARTED') ||
                 ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) &&
                 <Card className="my-4 gap-4">
@@ -1115,11 +1246,18 @@ const ConfirmBooking = (props) => {
                                         <Typography color="gray" variant="h6">Base Fare:</Typography>
                                         <Typography>₹ {amount?.price}</Typography>
                                     </div> */}
-                                    {amount.extraKMs > 0 && <div className="flex justify-between">
+                                    {bookingDetails?.extraHours >0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local")&&( 
+                                        <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                            } ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${amount.extraHours} x ${amount.extraHourPrice})`}</Typography>
-                                        <Typography>₹ {amount?.extraPrice}</Typography>
-                                    </div>}
+                                            }hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails.extraHours} x ${amount.extraHourPrice})`}</Typography>
+                                        <Typography>₹ {bookingDetails?.extraPrice}</Typography>
+                                    </div>)}
+                                     {bookingDetails?.extraHours >0&&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                                         <div className="flex justify-between">
+                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
+                                            }hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails.extraHours)} x ${amount.extraHourPrice})`}</Typography>
+                                        <Typography>₹ {bookingDetails?.extraPrice}</Typography>
+                                    </div>)}
                                     {amount.extraKMs > 0 &&
                                         <div className="flex justify-between">
 <Typography color="gray" variant="h6">         {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
@@ -1202,11 +1340,19 @@ const ConfirmBooking = (props) => {
                                     </div>
                                 </>
                                 }
-                            {bookingDetails?.extraHours >0 && (
+                                 
+                               {bookingDetails?.extraHours > 0 &&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs (For Each 15 Mins) : </Typography>
+                                <Typography color="gray" variant="h6">Extra Hrs:</Typography>
+                                <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} 
+                                </Typography>
+                                </div>
+                            )}
+                            {bookingDetails?.extraHours >0 &&  (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local")&&(
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="h6">
-                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} hrs`}
+                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} hrs : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} mins`}
                                     </Typography>
                                 </div>
                                 )}
@@ -1216,10 +1362,10 @@ const ConfirmBooking = (props) => {
                                      <Typography>{bookingDetails?.extraHourPrice}</Typography>     
                                 </div>
                                 } */}
-                                {bookingDetails?.extraHourPrice > 0 &&
+                                {bookingDetails?.extraHour> 0 &&
                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs Price:</Typography>
-                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
+                                    <Typography color="gray" variant="h6">Extra Hrs Price (For Each 15 Mins):</Typography>
+                                     <Typography>₹ {bookingDetails?.extraHourPrice}</Typography>     
                                 </div>
                                 }
                                  {bookingDetails?.extraKMs > 0 &&
