@@ -64,7 +64,7 @@ const ConfirmBooking = (props) => {
       const minsToHHMM = (totalMins)=> {
         const hrs = Math.floor(totalMins / 60);
         const mins = Math.round(totalMins % 60);          // round to nearest minute
-        return `${hrs} : ${mins.toString().padStart(2, "0")}`;
+        return `${hrs} hrs : ${mins.toString().padStart(2, "0")} mins`;
         };
     const onConfirmPressHandler = async () => {
         setLoading(true);
@@ -1228,7 +1228,7 @@ const ConfirmBooking = (props) => {
                                {bookingDetails?.extraHours > 0 &&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                 <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} hrs
+                                <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} 
                                 </Typography>
                                 </div>
                             )}
@@ -1236,7 +1236,7 @@ const ConfirmBooking = (props) => {
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="h6">
-                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} hrs`}
+                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} hrs : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} mins`}
                                     </Typography>
                                 </div>
                                 )}
