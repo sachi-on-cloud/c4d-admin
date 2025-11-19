@@ -12,7 +12,7 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS  } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS, BOOKING_TERMS_AND_CONDITIONS  } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
@@ -1115,7 +1115,7 @@ const ConfirmBooking = (props) => {
                                 • Toll, parking, permit charges and state tax are <span className="font-bold">excluded</span>.
                             </Typography>
                             <Typography className="text-sm">
-                                • For Every extra <span className="font-bold">15 minutes</span> ₹ <span className="font-bold text-black">
+                                • For Every extra <span className="font-bold">15 minutes</span>,  <span className="font-bold text-black">₹ 
                                     {bookingDetails?.Cab?.carType === 'Mini'
                                         ? bookingDetails?.Package?.additionalMinCharge
                                         : bookingDetails?.Cab?.carType === 'Sedan'
@@ -1126,7 +1126,7 @@ const ConfirmBooking = (props) => {
                                 </span> will be charged
                             </Typography>
                             <Typography className="text-sm">
-                                •For every extra kilometer  ₹ <span className="font-bold text-black">
+                                • For every extra kilometer  <span className="font-bold text-black">₹ 
                                     {bookingDetails?.Cab?.carType === 'Mini'
                                         ? bookingDetails?.Package?.extraKilometerPrice
                                         : bookingDetails?.Cab?.carType === 'Sedan'
@@ -1137,16 +1137,44 @@ const ConfirmBooking = (props) => {
                                 </span> will be charged
                             </Typography>
                             <Typography className="text-sm">
-                                • Night Charge of ₹<span className="font-bold text-black">
+                                • Night Charge of <span className="font-bold text-black">₹
                                     {bookingDetails?.Package?.nightCharge}
                                 </span> applies if the trip extends past{' '}
                                 <span className="font-bold text-black">
                                     {convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}
                                 </span>.
                             </Typography>
+                        <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                            <Typography
+                                className=" text-center text-sm text-gray-700"
+                            >
+                                {BOOKING_TERMS_AND_CONDITIONS}
+                            </Typography>
+                        </div>
                         </div>
                     </div>
                 )}
+            {(bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && (bookingDetails?.packageType === 'Local' && bookingDetails?.serviceType == 'RENTAL') && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
+            ) && (
+            <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
+                <Typography className="font-bold text-xl text-gray-900 pb-2">
+                    Terms and Conditions
+                </Typography>
+                <div className="space-y-4 text-gray-700">                  
+                    <Typography className="text-sm">• Toll, parking, permits charges and state tax are <span className="font-bold">excluded</span>.</Typography>                  
+                    <Typography className="text-sm">• For every extra 15 minutes after <span className="font-bold">{bookingDetails?.Package?.period} hours</span>, <span className="font-bold">₹{bookingDetails?.Cab?.carType == 'Mini' ? bookingDetails?.Package?.additionalMinCharge : bookingDetails?.Cab?.carType == 'Sedan' ? bookingDetails?.Package?.additionalMinChargeSedan : bookingDetails?.Cab?.carType == 'SUV' ? bookingDetails?.Package?.additionalMinChargeSuv : bookingDetails?.Package?.additionalMinChargeMVP}</span> will be charged.</Typography>                                    
+                    <Typography className="text-sm">• For every extra kilometer <span className="font-bold">₹{bookingDetails?.Cab?.carType == 'Mini' ? bookingDetails?.Package?.extraKilometerPrice : bookingDetails?.Cab?.carType == 'Sedan' ? bookingDetails?.Package?.extraKilometerPriceSedan : bookingDetails?.Cab?.carType == 'SUV' ? bookingDetails?.Package?.extraKilometerPriceSuv : bookingDetails?.Package?.extraKilometerPriceMVP}</span> will be charged.</Typography>
+                    <Typography className="text-sm">• Night Charge of <span className="font-bold">₹{bookingDetails?.Package?.nightCharge}</span> will be charged after <span className="font-bold">{convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}</span>.</Typography>
+                     <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                            <Typography
+                                className=" text-center text-sm text-gray-700"
+                            >
+                                {BOOKING_TERMS_AND_CONDITIONS}
+                            </Typography>
+                        </div>
+                  </div>
+                </div>
+          )}
             {/*{(bookingDetails?.status === 'STARTED') ||
                 ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) &&
                 <Card className="my-4 gap-4">
