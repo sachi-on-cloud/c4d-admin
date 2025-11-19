@@ -1081,8 +1081,7 @@ const ConfirmBooking = (props) => {
                 )}
 {bookingDetails?.packageType === 'Local' && 
  bookingDetails?.serviceType === 'RENTAL' && 
- bookingDetails?.source === 'Mobile App' && 
- (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType) && (
+ bookingDetails?.source === 'Mobile App'  && (
   <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
     <Typography className="font-bold text-xl text-gray-900 pb-2">
       Terms and Conditions
@@ -1124,7 +1123,7 @@ const ConfirmBooking = (props) => {
         will be charged after <span className="font-bold">{convertTo12HourFormat(bookingDetails?.Package?.nightHoursFrom)}</span>.
       </Typography>
 
-      <div className="border border-gray-300 bg-yellow-50 rounded-xl p-3 text-center">
+      <div className="border border-gray-300 bg-yellow-500 rounded-xl p-3 text-center">
         <Typography className="text-sm text-gray-800 font-medium">
                                 {BOOKING_TERMS_AND_CONDITIONS}
                             </Typography>
