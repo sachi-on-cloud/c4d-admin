@@ -47,9 +47,11 @@ const useLuggageAndSeaterLogic = (carType, setFieldValue) => {
     }, [carType, setFieldValue]);
 };
 // Format date to YYYY-MM-DD for input's min attribute
-const currentDate = () => {
-    return (new Date()).toISOString().split('T')[0];
-};
+const minsToHHMM = (totalMins)=> {
+        const hrs = Math.floor(totalMins / 60);
+        const mins = Math.round(totalMins % 60);          // round to nearest minute
+        return `${hrs} hrs : ${mins.toString().padStart(2, "0")} mins`;
+        };
 
 const Booking = (props) => {
     const [loading, setLoading] = useState(false);
@@ -1909,6 +1911,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         { values?.serviceType === 'RIDES' && ( <>
                                                                         
                                                                         <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                             
                                                                         <Typography>
                                                                             {quoteDetails.amount?.displayTime}
                                                                         </Typography>
@@ -1916,7 +1919,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         {values?.serviceType === "RENTAL_DROP_TAXI"  && ( <>
                                                                         <Typography color="gray" variant="h6">Estimate Time</Typography>
                                                                         <Typography>
-                                                                            {quoteDetails.amount?.totalHours > 60 ? (quoteDetails.amount?.totalHours / 60).toFixed(2) + ' hrs' : quoteDetails.amount?.totalHours +' mins'}
+                                                                            {quoteDetails.amount?.hoursEstimated}
+                                                                        </Typography>
+                                                                        </>)}
+                                                                        {values?.serviceType === "RENTAL"  && ( <>
+                                                                        <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                        <Typography>
+                                                                          {minsToHHMM(quoteDetails.amount?.distanceEstimated)}
                                                                         </Typography>
                                                                         </>)}
                                                                       
