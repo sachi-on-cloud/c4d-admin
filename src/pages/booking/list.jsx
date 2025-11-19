@@ -18,6 +18,7 @@ import {
     TabPanel,
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
+import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -1219,7 +1220,7 @@ const handleTabChange = (value) => {
                                                         </td>
                                                         <td className={className}>
                                                             <button
-                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-xl px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
+                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-sm px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
                                                                     ? 'bg-blue-500'
                                                                     : (data?.followup || 'NONE') === 'FOLLOWUP'
                                                                         ? 'bg-yellow-600'
