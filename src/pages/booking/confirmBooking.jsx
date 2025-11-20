@@ -1029,7 +1029,7 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>
             </div>
-            {(bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && bookingDetails?.packageType !== 'Local' && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
+            {/* {(bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && bookingDetails?.packageType !== 'Local' && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
             ) && (
                     <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
                         <Typography className="font-bold text-xl text-gray-900 pb-2">
@@ -1130,7 +1130,7 @@ const ConfirmBooking = (props) => {
                         </div>
                   </div>
                 </div>
-          )}
+          )} */}
             {/*{(bookingDetails?.status === 'STARTED') ||
                 ((bookingDetails?.status === 'INITIATED' || bookingDetails?.status === 'BOOKING_ACCEPTED') && (!!bookingDetails?.Driver?.id || !!bookingDetails?.Cab?.id)) &&
                 <Card className="my-4 gap-4">
