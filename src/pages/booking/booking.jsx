@@ -47,9 +47,11 @@ const useLuggageAndSeaterLogic = (carType, setFieldValue) => {
     }, [carType, setFieldValue]);
 };
 // Format date to YYYY-MM-DD for input's min attribute
-const currentDate = () => {
-    return (new Date()).toISOString().split('T')[0];
-};
+const minsToHHMM = (totalMins)=> {
+        const hrs = Math.floor(totalMins / 60);
+        const mins = Math.round(totalMins % 60);          // round to nearest minute
+        return `${hrs} hrs : ${mins.toString().padStart(2, "0")} mins`;
+        };
 
 const Booking = (props) => {
     const [loading, setLoading] = useState(false);
@@ -411,6 +413,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
          localStorage.removeItem('bookingSearchId');
+        if (refreshFn) refreshFn();
         
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
@@ -1749,7 +1752,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     type="text"
                                                                     name="dropAddress"
                                                                     className="p-2  mt-2 w-full rounded-xl border-2 border-gray-300"
-                                                                    placeholder="Enter drop location (Optional)"
+                                                                    placeholder="Enter drop location"
                                                                     onChange={(e) => {
                                                                         setFieldValue("dropAddress", e.target.value);
                                                                         setFieldValue("dropLocation", null);
@@ -1984,6 +1987,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         { values?.serviceType === 'RIDES' && ( <>
                                                                         
                                                                         <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                             
                                                                         <Typography>
                                                                             {quoteDetails.amount?.displayTime}
                                                                         </Typography>
@@ -1991,7 +1995,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         {values?.serviceType === "RENTAL_DROP_TAXI"  && ( <>
                                                                         <Typography color="gray" variant="h6">Estimate Time</Typography>
                                                                         <Typography>
-                                                                            {quoteDetails.amount?.totalHours > 60 ? (quoteDetails.amount?.totalHours / 60).toFixed(2) + ' hrs' : quoteDetails.amount?.totalHours +' mins'}
+                                                                            {quoteDetails.amount?.hoursEstimated}
+                                                                        </Typography>
+                                                                        </>)}
+                                                                        {values?.serviceType === "RENTAL"  && ( <>
+                                                                        <Typography color="gray" variant="h6">Estimate Time</Typography>
+                                                                        <Typography>
+                                                                          {minsToHHMM(quoteDetails.amount?.distanceEstimated)}
                                                                         </Typography>
                                                                         </>)}
                                                                       
@@ -2107,7 +2117,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Toll, parking, permit charges, and state taxes are excluded.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • ₹{(() => {
+                                                                • For every additional 15 minutes after <span className="font-bold text-black">{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ''} hours, ₹{(() => {
                                                                     const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                     return selectedPackage ? (
                                                                         values.carType === 'Mini' ? selectedPackage.additionalMinCharge :
@@ -2115,10 +2125,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                 values.carType === 'SUV' ? selectedPackage.additionalMinChargeSuv :
                                                                                     selectedPackage.additionalMinChargeMVP
                                                                     ) : '';
-                                                                })()} will be charged for every 15 minutes beyond {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || ''} hours.
+                                                                })()}</span> will be charged.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • ₹{(() => {
+                                                                • For every extra kilometer <span className="font-bold text-black">₹{(() => {
                                                                     const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                     return selectedPackage ? (
                                                                         values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
@@ -2126,10 +2136,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                 values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
                                                                                     selectedPackage.extraKilometerPriceMVP
                                                                     ) : '';
-                                                                })()} will be charged per extra kilometer.
+                                                                })()}</span> will be charged.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • A night charge of ₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''} applies if the trip extends past {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                                • Night charge of <span className="font-bold text-black">₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''}</span> will be charged after {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
                                                             </Typography>
                                                         </div>
                                                         <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
@@ -2152,14 +2162,24 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Toll, parking, permit charges, and state taxes are excluded.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
-                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                                • For Every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
-                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
+                                                                • A Driver starting  Points <span className="font-bold text-black">{quoteDetails.amount?.driverWithin || ''}</span> Kms.
                                                             </Typography>
+                                                            {quoteDetails.amount?.driverCharge > 0 && (
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>
+                                                            </Typography>
+                                                            )}
+                                                            {quoteDetails.amount?.extraNightCharge > 0 && (
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • Night Charge of <span className="font-bold text-black">₹{quoteDetails.amount?.extraNightCharge}</span> applies if the trip extends past{' '}
+                                                            </Typography>
+                                                            )}                                                            
                                                             {quoteDetails.amount?.rideSurchargeAmount > 0 && (
                                                                 <Typography className=" text-sm text-gray-700">
-                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                    • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
                                                         </div>
@@ -2183,14 +2203,24 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Toll, parking, permit charges, and state taxes are excluded.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • ₹{quoteDetails.amount?.extraKmPrice || ''} will be charged per extra kilometer beyond {quoteDetails.amount?.baseKm || ''} kilometers.
+                                                                • For every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.  
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • A Driver starting  Points ₹{quoteDetails.amount?.driverWithin || '2'} Kms
-                                                            </Typography>   
+                                                                • A Driver starting  Points <span className="font-bold text-black">{quoteDetails.amount?.driverWithin || '2'}</span> Kms.
+                                                            </Typography>
+                                                            {quoteDetails.amount?.driverCharge > 0 && (
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>.
+                                                            </Typography>
+                                                            )}
+                                                            {quoteDetails.amount?.extraNightCharge > 0 && (
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • Night Charge of <span className="font-bold text-black">₹ {quoteDetails.amount?.extraNightCharge}</span> applies if the trip extends past{' '}.
+                                                            </Typography>
+                                                            )}
                                                             {quoteDetails.amount?.rideSurchargeAmount > 0 && (
                                                                 <Typography className=" text-sm text-gray-700">
-                                                                    • A surcharge of ₹{quoteDetails.amount?.rideSurchargeAmount} applies for prime locations.
+                                                                    • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
                                                         </div>

@@ -256,7 +256,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                 </div>
               <div className="text-base text-gray-700 flex items-center gap-2">
               <span>
-              <span className="font-bold">Service Type:</span> {log?.serviceType || 'N/A'} |{' '}
+              <span className="font-bold">Service Type:</span> {log?.serviceType === 'RENTAL_DROP_TAXI' ? ' Drop Taxi' : log?.serviceType === 'HOURLY_PACKAGE' ? ' Hourly Package' : log?.serviceType === 'OUTSTATION' ? ' Outstation' : log?.serviceType ==='RIDES' ? ' Local Rides' : log?.serviceType === 'DRIVER' ? ' Acting Driver' : log?.serviceType || 'N/A'} |{' '}
                 {log?.startDate != null && (
                   <>
               <span className="font-bold">Start Date:</span> {log?.startDate ? moment(log?.startDate).format('DD-MM-YYYY / hh:mm A') : 'N/A'} |{' '}
