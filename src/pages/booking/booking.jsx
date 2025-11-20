@@ -413,6 +413,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
          localStorage.removeItem('bookingSearchId');
+        if (refreshFn) refreshFn();
         
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
