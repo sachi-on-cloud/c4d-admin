@@ -9,7 +9,12 @@ import {
   Button,
   Select,
   Option,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Checkbox,
 } from '@material-tailwind/react';
+import { FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
@@ -30,63 +35,66 @@ export function OnlineVehiclesList({ id = 0 }) {
   const [loading, setLoading] = useState(false);
   const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState('');
+   const [typeFilter, setTypeFilter] = useState(['All']);
   const intervalRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [driverIds, setDriverIds] = useState([]);
   const navigate = useNavigate();
+
   const [pagination, setPagination] = useState({
-      currentPage: 1,
-      totalPages: 1,
-      totalItems: 0,
-      itemsPerPage: 15,
-    });
-const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 15,
+  });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const driverType = typeFilter[0] === 'All' ? undefined : typeFilter[0];
 
   const checkPresence = async (driverId, vehicleId, all) => {
     try {
-      if(all){
-        const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId : driverIds });
+      if (all) {
+        const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId: driverIds });
         if (result?.success && result?.data?.status) {
-            setVehicleList((prev) =>
-              prev.map((vehicle) =>
-                vehicle.id === vehicleId && vehicle.Drivers?.length > 0
-                  ? {
-                      ...vehicle,
-                      Drivers: [
-                        {
-                          ...vehicle.Drivers[0],
-                          status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
-                        },
-                      ],
-                    }
-                  : vehicle
-              )
-            );
-          } else {
-            console.error('Invalid API response:', result?.message);
-          }
-      }else {
-        const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
-          if (result?.success && result?.data?.status) {
-            setVehicleList((prev) =>
-              prev.map((vehicle) =>
-                vehicle.id === vehicleId && vehicle.Drivers?.length > 0
-                  ? {
-                      ...vehicle,
-                      Drivers: [
-                        {
-                          ...vehicle.Drivers[0],
-                          status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
-                        },
-                      ],
-                    }
-                  : vehicle
-              )
-            );
-          } else {
-            console.error('Invalid API response:', result?.message);
-          }
+          setVehicleList((prev) =>
+            prev.map((vehicle) =>
+              vehicle.id === vehicleId && vehicle.Drivers?.length > 0
+                ? {
+                    ...vehicle,
+                    Drivers: [
+                      {
+                        ...vehicle.Drivers[0],
+                        status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
+                      },
+                    ],
+                  }
+                : vehicle
+            )
+          );
+        } else {
+          console.error('Invalid API response:', result?.message);
         }
+      } else {
+      const result = await ApiRequestUtils.post(API_ROUTES.CHECK_PRESENCE, { driverId });
+      if (result?.success && result?.data?.status) {
+        setVehicleList((prev) =>
+          prev.map((vehicle) =>
+            vehicle.id === vehicleId && vehicle.Drivers?.length > 0
+              ? {
+                  ...vehicle,
+                  Drivers: [
+                    {
+                      ...vehicle.Drivers[0],
+                      status: result.data.status === 'AVAILABLE' ? 'ACTIVE' : 'INACTIVE',
+                    },
+                  ],
+                }
+              : vehicle
+          )
+        );
+      } else {
+        console.error('Invalid API response:', result?.message);
+        }
+      }
     } catch (error) {
       console.error('Error checking presence:', error);
     } finally {
@@ -109,10 +117,11 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     setLoading(true);
     try {
       const params = {
-            isToday:'true',
-            page: page,
-            limit: pagination.itemsPerPage,
+        isToday: 'true',
+        page: page,
+        limit: pagination.itemsPerPage,
       };
+      if (driverType) params.type = driverType;          
       if (search.trim()) {
         params.search = search.trim();
       }
@@ -132,14 +141,14 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
         });
         setVehicleList(updatedVehicleList);
         setStatusCheckedDriverIds([]);
+        // console.log('Fetched vehicle list:', updatedVehicleList);
         setDriverIds(data?.driverIds);
         setPagination({
           currentPage: page,
-          totalPages:data?.pagination?.totalPages || 1,
+          totalPages: data?.pagination?.totalPages || 1,
           totalItems: data?.pagination?.totalItems || 0,
           itemsPerPage: data?.pagination?.itemsPerPage || 15,
-        })
-        // console.log('Fetched vehicle list:', updatedVehicleList);
+        });
       } else {
         console.error('API request failed:', data?.message);
       }
@@ -164,12 +173,18 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     }
   };
 
+  const handleFilterChange = (filterType, value) => {
+    if (filterType === 'type') {
+      setTypeFilter([value]);
+    }
+  };
 
   useEffect(() => {
     fetchCabList(pagination.currentPage);
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, typeFilter]);
 
   useEffect(() => {
+    fetchCabList();
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -177,37 +192,72 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     };
   }, [id]);
 
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= pagination.totalPages) {
-            setPagination((prev) => ({ ...prev, currentPage: page }));
-        }
-    };
-  
-    const generatePageButtons = () => {
-      const buttons = [];
-      const maxVisible = 5;
-      let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
-      let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
-  
-      if (endPage - startPage < maxVisible - 1) {
-        startPage = Math.max(1, endPage - maxVisible + 1);
-      }
-  
-      for (let i = startPage; i <= endPage; i++) {
-        buttons.push(
-          <Button
-            key={i}
-            size="sm"
-            variant={i === pagination.currentPage ? 'filled' : 'outlined'}
-            className={`mx-1 ${ColorStyles.bgColor} text-white`}
-            onClick={() => handlePageChange(i)}
+  const filteredVehicles = vehicleList.filter((v) => {
+    if (typeFilter[0] === 'All') return true;
+    return (v.type?.toUpperCase() ?? '') === typeFilter[0];
+  });
+
+  const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <div className="flex items-center cursor-pointer">
+          <Typography
+            variant="small"
+            className={`text-[11px] font-bold uppercase mr-1 ${ColorStyles.PopoverHandlerText}`}
           >
-            {i}
-          </Button>
-        );
-      }
-      return buttons;
-    };
+            {/* {title} */}
+          </Typography>
+          <FaFilter className="text-black text-xs" />
+        </div>
+      </PopoverHandler>
+      <PopoverContent className="p-2">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center mb-2">
+            <Checkbox
+              color="blue"
+              checked={selectedFilters[0] === option.value}
+              onChange={() => onFilterChange('type', option.value)}
+            />
+            <Typography color="blue-gray" className="font-medium ml-2">
+              {option.label}
+            </Typography>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+    }
+  };
+
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+          className={`mx-1 ${ColorStyles.bgColor} text-white`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
+  };
 
   const handleSort = (key) => {
     let direction = 'asc';
@@ -236,25 +286,21 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     });
 
     setVehicleList(sorted);
-    };
+  };
 
-    useEffect(() => {
-      fetchCabList(pagination.currentPage, searchQuery);
-    }, [pagination.currentPage]);
+  const debouncedFetchCabList = useRef(
+    debounce((searchTerm) => {
+      setPagination(prev => ({ ...prev, currentPage: 1 }));
+      fetchCabList(1, searchTerm);
+    }, 600)
+  ).current;
 
-    const debouncedFetchCabList = useRef(
-      debounce((searchTerm) => {
-        setPagination(prev => ({ ...prev, currentPage: 1 }));
-        fetchCabList(1, searchTerm);
-      }, 600)
-    ).current;
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    debouncedFetchCabList(value);
+  };
 
-    const handleSearchChange = (e) => {
-      const value = e.target.value;
-      setSearchQuery(value);
-      debouncedFetchCabList(value);
-    };
-  
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="p-4 border border-gray-300 rounded-lg shadow-sm flex justify-between items-center">
@@ -274,7 +320,7 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
           <input
             type="text"
             value={searchQuery}
-           onChange={handleSearchChange}
+            onChange={handleSearchChange}
             className="w-full py-2 pl-10 pr-10 border rounded-xl text-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="Search by Driver Name"
           />
@@ -294,8 +340,6 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
         </div>
       </div>
       <Card>
-       {vehicleList.length > 0 ? (
-          <>
             <CardHeader
               variant="gradient"
               className="mb-8 p-6 flex justify-between items-center bg-primary"
@@ -321,56 +365,73 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
                 <thead>
                   <tr>
                     {[
+                      'Type',
                       'Driver Name',
                       'Cab Name',
                       'Phone Number',
                       'Current Address',
                       'Last Location Updated',
                       'Available Status',
-                      
-                    ].map((el) => {
-                      const sortKey = el === 'Driver Name' ? 'firstName' : el === 'Last Location Updated' ? 'updated_at' : null;
-
-                      return (
-                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
-                          {sortKey ? (
-                            <div
-                              onClick={() => handleSort(sortKey)}
-                              className="cursor-pointer flex items-center hover:text-blue-700 transition-colors"
-                            >
-                              <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
-                                {el}
-                              </Typography>
-
-                              
-                              <span className="ml-1 flex flex-col">
-                                <ChevronUpIcon
-                                  className={`w-4 h-4 ${sortConfig.key === sortKey && sortConfig.direction === 'asc'
-                                    ? 'text-blue-600'
-                                    : 'text-gray-400'
-                                    }`}
-                                />
-                                <ChevronDownIcon
-                                  className={`w-4 h-4 -mt-1 ${sortConfig.key === sortKey && sortConfig.direction === 'desc'
-                                    ? 'text-blue-600'
-                                    : 'text-gray-400'
-                                    }`}
-                                />
-                              </span>
-                            </div>
-                          ) : (
-                        <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
-                          {el}
-                        </Typography>
-                          )}
+                ].map((el) => {
+                  const sortKey = el === 'Driver Name' ? 'firstName' : el === 'Last Location Updated' ? 'updated_at' : null;
+                  return (
+                    <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                      <div className="flex items-center justify-between">
+                        {sortKey ? (
+                          <div
+                            onClick={() => handleSort(sortKey)}
+                            className="cursor-pointer flex items-center hover:text-blue-700 transition-colors"
+                          >
+                            <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
+                              {el}
+                            </Typography>
+                            <span className="ml-1 flex flex-col">
+                              <ChevronUpIcon
+                                className={`w-4 h-4 ${sortConfig.key === sortKey && sortConfig.direction === 'asc'
+                                  ? 'text-blue-600'
+                                  : 'text-gray-400'
+                                  }`}
+                              />
+                              <ChevronDownIcon
+                                className={`w-4 h-4 -mt-1 ${sortConfig.key === sortKey && sortConfig.direction === 'desc'
+                                  ? 'text-blue-600'
+                                  : 'text-gray-400'
+                                  }`}
+                              />
+                            </span>
+                          </div>
+                        ) : (
+                          <Typography variant="small" className="text-[11px] font-bold uppercase text-black">
+                            {el}
+                          </Typography>
+                        )}
+                        {el === 'Type' && (
+                      <FilterPopover
+                        // title={el}
+                        options={[
+                          { value: 'All', label: 'All' },
+                          { value: 'CAB', label: 'Cab' },
+                          { value: 'AUTO', label: 'Auto' },
+                          { value: 'PARCEL', label: 'Bike' },
+                        ]}
+                        selectedFilters={typeFilter}
+                        onFilterChange={handleFilterChange}
+                      />
+                            )}
+                          </div>
                       </th>
-                      );
+                    );
                     })}
                   </tr>
                 </thead>
                 <tbody>
-                  {vehicleList.map((vehicle) => (
+                {filteredVehicles.map((vehicle) => (
                     <tr key={vehicle.id}>
+                      <td className="py-3 px-5 border-b border-blue-gray-50">
+                        <Typography className="text-xs font-semibold text-blue-gray-600">
+                          {vehicle.type || '-'}
+                        </Typography>
+                      </td>
                       <td className="py-3 px-5 border-b border-blue-gray-50">
                         <Typography className="text-xs font-semibold text-blue-gray-600">
                           {vehicle.Drivers?.[0]?.firstName || '-'}
@@ -436,6 +497,7 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
                   ))}
                 </tbody>
               </table>
+
               <div className="flex items-center justify-center mt-4">
                 <Button
                   size="sm"
@@ -444,7 +506,7 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
                   onClick={() => handlePageChange(pagination.currentPage - 1)}
                   className="mx-1"
                 >
-                  {'<'}
+                 {"<"}
                 </Button>
                 {generatePageButtons()}
                 <Button
@@ -454,18 +516,10 @@ const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
                   onClick={() => handlePageChange(pagination.currentPage + 1)}
                   className="mx-1"
                 >
-                  {'>'}
+                  {">"}
                 </Button>
-              </div>
+              </div>            
             </CardBody>
-          </>
-        ) : (
-          <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
-            <Typography variant="h6" color="white">
-              No Online Vehicles Available
-            </Typography>
-          </CardHeader>
-        )}
       </Card>
     </div>
   );
