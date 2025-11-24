@@ -11,6 +11,7 @@ import {
     PopoverHandler,
     PopoverContent,
     Progress,
+    Spinner,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
@@ -19,7 +20,6 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import ConfirmBooking from './confirmBooking';
 import { ColorStyles } from '@/utils/constants';
 import { FaFilter } from 'react-icons/fa';
-import { Spinner } from "@material-tailwind/react";
 
 export function SearchDrivers(props) {
     const [drivers, setDrivers] = useState([]);
@@ -31,6 +31,7 @@ export function SearchDrivers(props) {
     const [checkingStatusDriverIds, setCheckingStatusDriverIds] = useState([]);
     const [cabTypeFilter, setCabTypeFilter] = useState(['All']);
     const [checkingAllStatus, setCheckingAllStatus] = useState(false);
+    const [seconds, setSeconds] = useState(15);
 
     const checkPresence = async (driverId, rowId) => {
         setCheckingStatusDriverIds((prev) => [...prev, driverId]);
@@ -51,7 +52,7 @@ export function SearchDrivers(props) {
         }
     };
 
-    const CountdownTimer = ({ duration = 30 }) => {
+    const CountdownTimer = ({ duration = 15 }) => {
   const [seconds, setSeconds] = useState(duration);
 
   useEffect(() => {
@@ -193,7 +194,7 @@ export function SearchDrivers(props) {
                                 setDrivers([]);
                             }
                             setLoadingRides(false);
-                        }, 30000);
+                        }, 15000);
                     } else {
                         setLoadingRides(false);
                         setLoading(false);
@@ -243,7 +244,7 @@ export function SearchDrivers(props) {
                                 setDrivers([]);
                             }
                             setLoadingRides(false);
-                        }, 30000);
+                        }, 15000);
                     } else {
                         setLoadingRides(false);
                         setLoading(false);
@@ -477,11 +478,20 @@ export function SearchDrivers(props) {
             </PopoverContent>
         </Popover>
     );
+    useEffect(() => {
+        if ( props.bookingData?.requestType === 'REQUEST_ALL' && drivers.length === 1  && drivers[0]?.fullData) 
+            {
+            const timer = setTimeout(() => {
+                onAssignDriver(props.bookingData.serviceType,drivers[0].id,drivers[0].Drivers?.[0]?.id || drivers[0].fullData.DriverId,drivers[0].fullData);
+            },2000);
+            return () => clearTimeout(timer);
+        }
+    }, [drivers, props.bookingData?.requestType]);
 
     return (
         <>
             <ConfirmBooking bookingData={props.bookingData} hideAllNewButton={true} />
-            {props?.bookingData?.serviceType === 'DRIVER' &&
+            {props?.bookingData?.serviceType === 'DRIVER' && (
                 <div className="flex flex-col w-full gap-y-4">
                     <Card>
                         {loading ? (
@@ -618,17 +628,68 @@ export function SearchDrivers(props) {
                         </Button>
                     </div>
                 </div >
-            }
-            {props?.bookingData?.serviceType != 'DRIVER' &&
+            )}
+            {props?.bookingData?.serviceType !== 'DRIVER' && (
                 <div className="flex flex-col w-full">
                     <Card>
+                        {props.bookingData?.requestType === 'REQUEST_ALL' ? (
+                            <CardBody className="py-16">
+                                <div className="text-center max-w-md mx-auto">
                         {loadingRides ? (
-                            <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
-                                <Typography variant="h6" color="white">
-                                Requesting nearby drivers. Please wait <CountdownTimer /> seconds...
+                                        <div>
+                                            <Spinner className="h-16 w-16 mx-auto mb-6" color="blue" />
+                                <Typography variant="h5" color="blue-gray" className="mb-3">
+                                Request Sent to Nearby Drivers
                                 </Typography>
-                            </CardHeader>
-                        ) : loading ? (
+                                            <Typography color="gray" className="mb-6 text-lg">
+                                                Waiting for a driver to accept...
+                                            </Typography>
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="text-5xl font-bold text-blue-600">
+                                                    <CountdownTimer duration={15} />
+                                                </div>
+                                                <Progress
+                                                    value={((15 - seconds) / 15) * 100}
+                                                    color="blue"
+                                                    className="w-80 h-4"
+                                                />
+                                                <Typography color="gray" className="text-sm">
+                                                    Please wait while drivers respond
+                                                </Typography>
+                                            </div>
+                                        </div>
+                                    ) : drivers.length > 0 ? (
+                                        <div>
+                                            <Typography variant="h4" color="green" className="mb-3 font-bold">
+                                                Driver Accepted!
+                                            </Typography>
+                                            <Typography color="gray" className="mb-6">
+                                                Great! A driver has accepted the ride.
+                                            </Typography>
+                                            {drivers[0] && (
+                                                <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+                                                    <Typography variant="lead" className="font-bold text-green-800">
+                                                        {drivers[0].driverName || drivers[0].name || 'Driver'}
+                                                    </Typography>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <Typography variant="h4" color="red" className="mb-3 font-bold">
+                                                No Response
+                                            </Typography>
+                                            <Typography color="gray" className="mb-6 max-w-sm">
+                                                No driver accepted the request in 30 seconds.
+                                            </Typography>
+                                            <Button color="blue" onClick={() => props?.onNext()}>
+                                                Assign Manually
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardBody>
+                        ) : ( loading ? (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
                                     Loading cabs...
@@ -636,7 +697,6 @@ export function SearchDrivers(props) {
                             </CardHeader>
                         ) : drivers.length > 0 ? (
                 <CardBody className="overflow-x-auto overflow-y-auto w-full px-0 pt-0 pb-2">
-                    {props.bookingData?.requestType !== 'REQUEST_ALL' && 
                     <div className="flex justify-end mb-4">
                         <Button
                             color="red"
@@ -654,12 +714,10 @@ export function SearchDrivers(props) {
                             ) : "Check All Status"}
                         </Button>
                     </div>
-                    }
                                 <table className="w-full">
                                     <thead>
                                         <tr>
                                             {["Cab Name", "Driver Name", "Phone Number", "Current Address", "Cab Type",
-                                                ...(props.bookingData?.requestType == 'REQUEST_ALL' ? ["Driver Offered"] : []),
                                                 "Local Count", "Outstation Count", "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
                                                     <th
                                                         key={el}
@@ -733,13 +791,13 @@ export function SearchDrivers(props) {
                                                                 {carType}
                                                             </Typography>
                                                         </td>
-                                                        {props.bookingData.requestType == 'REQUEST_ALL' &&
+                                                        {/* {props.bookingData.requestType == 'REQUEST_ALL' &&
                                                             <td className={className}>
                                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                     {priceOffered}
                                                                 </Typography>
                                                             </td>
-                                                        }
+                                                        } */}
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {intercityCount}
@@ -804,6 +862,7 @@ export function SearchDrivers(props) {
                                     {`No ${props?.bookingData?.serviceType == "DRIVER" ? 'drivers' : 'cabs'} Near By`}
                                 </Typography>
                             </CardHeader>
+                            )
                         )}
                     </Card>
                     <div className=''>
@@ -816,7 +875,7 @@ export function SearchDrivers(props) {
                         </Button>
                     </div>
                 </div >
-            }
+            )}
         </>
     );
 }
