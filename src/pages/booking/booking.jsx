@@ -579,6 +579,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 name: values.driverPickUpAddress,
             },
             source: 'Call',
+            carType: values.carType,
             sourceType: values.sourceType,
             ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
                 otherSourceType: values.otherSourceType?.trim() || null
@@ -1711,6 +1712,30 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                         )}
                                     </div>
                                 )} */}
+                                                        <div className='grid grid-cols-2 mt-2 space-x-3'>
+                                                            {(values.serviceType === 'RIDES' ? 'visible' : '') && 
+                                                            (<div>
+                                                                <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                                <div className="flex gap-4">
+                                                                    {['Mini', 'Sedan'].map((carType) => (
+                                                                        <label key={carType} className="flex items-center space-x-2">
+                                                                            <Field
+                                                                                type="radio"
+                                                                                name="carType"
+                                                                                value={carType}
+                                                                                className="h-4 w-4 text-primary-600"
+                                                                                onChange={(e) => {
+                                                                                    setFieldValue('carType', e.target.value);
+                                                                                }}
+                                                                            />
+                                                                            <span className="text-black-700">{carType}</span>
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                                            </div>
+                                                            )}
+                                                        </div>
                                                 <div className='grid grid-cols-1'>
                                                     {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType == 'AUTO') && 
                                                     (<div className="p-2 space-y-2">

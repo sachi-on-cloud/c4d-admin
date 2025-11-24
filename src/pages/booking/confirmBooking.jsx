@@ -837,12 +837,11 @@ const ConfirmBooking = (props) => {
                             <Typography>{bookingDetails?.Cab?.carType || 'Mini'}</Typography>
                         </div>
                     )}
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !='AUTO' && bookingDetails?.serviceType !='PARCEL' &&
+                            {bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
                                 </div>
-                                
                             }
                             {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
