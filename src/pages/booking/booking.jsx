@@ -2320,7 +2320,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && values.sourceType)||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && values.sourceType && quoteDetails)||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
@@ -2336,7 +2336,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             // console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType)}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
