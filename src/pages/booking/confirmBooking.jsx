@@ -757,17 +757,18 @@ const ConfirmBooking = (props) => {
                                     <Typography>{bookingDetails?.acType}</Typography>
                                 </div>
                             }
-                         {bookingDetails?.serviceType === 'RIDES' && (bookingDetails?.status === "STARTED" || bookingDetails?.status === "ENDED") && (
+                         {bookingDetails?.Cab?.carType && bookingDetails?.serviceType === 'RIDES' && (bookingDetails?.status === "STARTED" || bookingDetails?.status === "ENDED") && (
                         <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Cab Type:</Typography>
-                            <Typography>{bookingDetails?.Cab?.carType || 'Mini'}</Typography>
+                            <Typography>{bookingDetails?.Cab?.carType}</Typography>
                         </div>
                     )}
-                            
+                            {bookingDetails?.carType && 
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
-                                    <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
+                                    <Typography>{bookingDetails?.carType}</Typography>
                                 </div>
+                            }
                                 
                             
                             {bookingDetails?.serviceType != 'RIDES' &&
