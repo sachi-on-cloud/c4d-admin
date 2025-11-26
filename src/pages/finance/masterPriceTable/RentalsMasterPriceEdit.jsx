@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef} from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
@@ -7,6 +7,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import Select from 'react-select';
 import { Utils } from '@/utils/utils';
+import PremiumPriceDetailsEdit from '@/components/PremiumPriceDetailsEdit';
 
 
 
@@ -35,6 +36,8 @@ const RentalsMasterPriceEdit = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [premiumConfig ,setPremiumConfig] = useState({});
+    const initialPremiumRef = useRef({});
 
     useEffect(() => {
         if (id) fetchPriceDetails(id);
@@ -112,6 +115,8 @@ const RentalsMasterPriceEdit = () => {
                     acExtraKilometerRoundPriceSuv: data?.data?.acExtraKilometerRoundPriceSuv || 0,
                     acExtraKilometerRoundPriceSedan: data?.data?.acExtraKilometerRoundPriceSedan || 0,
                 });
+                initialPremiumRef.current = data.data.premiumConfig;
+                setPremiumConfig(data.data.premiumConfig || []);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -121,6 +126,10 @@ const RentalsMasterPriceEdit = () => {
     const convertToTimeFormat = (timeString) => {
         return timeString ? timeString.slice(0, 5) : "";
     };
+
+  const hasPremiumConfig = () => {
+    return JSON.stringify(premiumConfig) !== JSON.stringify(initialPremiumRef.current);
+  }
 
     const onSubmit = async (values) => {
         try {
@@ -192,6 +201,7 @@ const RentalsMasterPriceEdit = () => {
                 acExtraKilometerRoundPriceMVP: Number(values.acExtraKilometerRoundPriceMVP),
                 acExtraKilometerRoundPriceSuv: Number(values.acExtraKilometerRoundPriceSuv),
                 acExtraKilometerRoundPriceSedan: Number(values.acExtraKilometerRoundPriceSedan),
+                premiumConfig:premiumConfig,
             };
 
             const response = await ApiRequestUtils.post(API_ROUTES.RENDAL_PRICE_EDIT, reqBody);
@@ -905,12 +915,14 @@ const RentalsMasterPriceEdit = () => {
     </tbody>
   </table>
 </div>
-                             
+              {(values?.type === 'Outstation') &&
+                <PremiumPriceDetailsEdit initialPremiumData={premiumConfig} onUpdate={(data) => setPremiumConfig(data)} />
+              }
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="blue" type="submit" disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="blue" type="submit" disabled={!(dirty || hasPremiumConfig()) || !isValid} className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>

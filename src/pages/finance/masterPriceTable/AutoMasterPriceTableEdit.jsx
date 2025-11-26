@@ -7,6 +7,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import Select from 'react-select';
 import MasterPriceLog from "../masterPriceTable/MasterPriceLog";
+import PremiumPriceDetailsEdit from '@/components/PremiumPriceDetailsEdit';
 
 
 
@@ -27,6 +28,8 @@ const AutoMasterPriceEdit = () => {
   const [initialValues, setInitialValues] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const [premiumConfig,setPremiumConfig] = useState({});
+  const initialPremiumRef = useState({});
 
   useEffect(() => {
     if (id) fetchPriceDetails(id);
@@ -44,11 +47,17 @@ const AutoMasterPriceEdit = () => {
           extraKmPrice: data?.data?.extraKmPrice || 0,
           // status: data?.data?.status == 'ACTIVE' ? 1 : 0,
         });
+        initialPremiumRef.current = data.data.premiumConfig;
+        setPremiumConfig(data.data.premiumConfig || []);
       }
     } catch (error) {
       console.error("Error fetching price details:", error);
     }
   };
+
+      const hasPremiumConfig = () => {
+      return JSON.stringify(premiumConfig) !== JSON.stringify(initialPremiumRef.current);
+    }
 
   const convertToTimeFormat = (timeString) => {
     return timeString ? timeString.slice(0, 5) : "";
@@ -62,6 +71,7 @@ const AutoMasterPriceEdit = () => {
         kilometerPrice: Number(values.kilometerPrice),
         baseKm:Number(values.baseKm),
         extraKmPrice: Number(values.extraKmPrice),
+        premiumConfig:premiumConfig,
       };
 
       const response = await ApiRequestUtils.post(API_ROUTES.AUTO_PRICE_EDIT, reqBody);
@@ -120,11 +130,12 @@ const AutoMasterPriceEdit = () => {
                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
               </div> */}
             </div>
+            <PremiumPriceDetailsEdit initialPremiumData={premiumConfig} onUpdate={(data)=> setPremiumConfig(data) } />
             <div className="flex flex-row">
               <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                 Cancel
               </Button>
-              <Button fullWidth color="blue" type="submit" disabled={!dirty || !isValid} className="my-6 mx-2">
+              <Button fullWidth color="blue" type="submit" disabled={!(dirty || hasPremiumConfig()) || !isValid} className="my-6 mx-2">
                 Save Changes
               </Button>
             </div>

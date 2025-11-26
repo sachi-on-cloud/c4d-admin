@@ -8,6 +8,7 @@ import { API_ROUTES } from '@/utils/constants';
 import Select from 'react-select';
 import { Utils } from '@/utils/utils';
 import RidesPeakHourTableEdit from './RidesPeakHourTableEdit';
+import PremiumPriceDetailsEdit from '@/components/PremiumPriceDetailsEdit';
 
 const RATE_PARAMETER_OPTIONS = [
     { value: 'RAINY_DAY', label: 'Rainy Day' },
@@ -50,7 +51,9 @@ const PriceEdit = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [peakHours, setPeakHours] = useState([]);
+    const [premiumConfig ,setPremiumConfig] = useState({});
     const initialPeakHoursRef = useRef([]);
+    const initialPremiumRef = useRef({});
 
     useEffect(() => {
         fetchPriceDetails();
@@ -83,6 +86,9 @@ const PriceEdit = () => {
                 });
                 setPeakHours(data.data.peakHours || []);
                 initialPeakHoursRef.current = data.data.peakHours;
+                initialPremiumRef.current = data.data.premiumConfig;
+                setPremiumConfig(data.data.premiumConfig || []);
+
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -96,6 +102,9 @@ const PriceEdit = () => {
     const hasPeakHoursChanged = () => {
         return JSON.stringify(peakHours) !== JSON.stringify(initialPeakHoursRef.current);
     };
+    const hasPremiumConfig = () => {
+        return JSON.stringify(premiumConfig) !== JSON.stringify(initialPremiumRef.current);
+    }
 
     const onSubmit = async (values) => {
         try {
@@ -121,6 +130,7 @@ const PriceEdit = () => {
                 status: values.status == 'ACTIVE' ? 1 : 0,
                 serviceType:'RIDES',
                 peakHours: peakHours,
+                premiumConfig:premiumConfig,
                 zone: values.zone,
             };
             const response = await ApiRequestUtils.update(API_ROUTES.RIDES_PRICE_EDIT, reqBody);
@@ -134,7 +144,7 @@ const PriceEdit = () => {
 
     return (
         <div className="p-4 mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Edit Pricing Details</h2>
+            <h2 className="text-2xl font-bold mb-4">Edit Rides Pricing Details</h2>
             <Formik initialValues={initialValues} validationSchema={PRICE_SCHEMA} onSubmit={onSubmit} enableReinitialize>
                 {({ handleSubmit, setFieldValue, isValid, dirty, values }) => (
                     <Form className="space-y-4">
@@ -253,11 +263,12 @@ const PriceEdit = () => {
                             </div>
                         </div>
                         <RidesPeakHourTableEdit initialPriceData={peakHours} onUpdate={(data)=> setPeakHours(data)}/>
+                        <PremiumPriceDetailsEdit initialPremiumData={premiumConfig} onUpdate={(data)=> setPremiumConfig(data) } />
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="blue" onClick={handleSubmit} disabled={!(dirty || hasPeakHoursChanged()) || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="blue" onClick={handleSubmit} disabled={!(dirty || hasPeakHoursChanged() || hasPremiumConfig()) || !isValid} className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>
