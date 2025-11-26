@@ -305,7 +305,11 @@ const ConfirmBooking = (props) => {
                         Back
                     </Button> */}
 
-              {bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP" && (
+                    {(
+                        (bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP") ||
+                        (bookingDetails.ownership === "ASSIGNED_TO_SUPPORT" &&
+                            (bookingDetails.serviceType === "AUTO" || bookingDetails.serviceType === "PARCEL"))
+                    ) && (
                     <Button
                         color="green"
                         variant="outlined"
@@ -759,7 +763,7 @@ const ConfirmBooking = (props) => {
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Delivery Type:</Typography>
                                 <Typography>
-                                    {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Deliver" : ""}
+                                    {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Delivery" : ""}
                                 </Typography>
                             </div>
                             }
@@ -837,7 +841,7 @@ const ConfirmBooking = (props) => {
                             <Typography>{bookingDetails?.Cab?.carType || 'Mini'}</Typography>
                         </div>
                     )}
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !='AUTO' && bookingDetails?.serviceType !='PARCEL' &&
+                            {bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType || 'Mini'}</Typography>
@@ -1087,19 +1091,21 @@ const ConfirmBooking = (props) => {
     <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
   </div>
 }
-                            {bookingDetails?.status !== "QUOTED" &&  <>
+                        {bookingDetails?.status !== "QUOTED" &&  <>
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Start OTP: </Typography>
                                 <Typography>
                                     {bookingDetails?.startOtp || "Not Added"}
                                 </Typography>
                             </div>
+                            {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && (
                              <div className="flex justify-between ">
                                 <Typography color="gray" variant="h6">End OTP: </Typography>
                                 <Typography>
                                     {bookingDetails?.endOtp || "Not Added"}
                                 </Typography>
-                            </div></>}
+                            </div>)}
+                        </>}
                         </div>
                     </CardBody>
                 </Card>
@@ -1424,8 +1430,16 @@ const ConfirmBooking = (props) => {
                                     </div>
                                 </>
                                 }
-                                 
-                               {bookingDetails?.extraHours > 0 &&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                            {bookingDetails?.serviceType === 'AUTO' &&
+                                <>
+                                    {bookingDetails?.value?.estimatedDistance > 0 &&
+                                        <div className="flex justify-between">
+                                            <Typography color="gray" variant="h6">Total KM:</Typography>
+                                            <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
+                                        </div>
+                                    }
+                                </>}
+                            {bookingDetails?.extraHours > 0 && (
                                 <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Extra Hrs:</Typography>
                                 <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} 

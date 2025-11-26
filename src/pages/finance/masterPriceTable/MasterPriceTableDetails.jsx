@@ -7,6 +7,7 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import MasterPriceLog from './MasterPriceLog';
 import RidesPeakHourTableDetails from './RidesPeakHourTableDetails';
+import PremiumPriceDetails from '@/components/PremiumPriceDetails';
 
 const PriceDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
@@ -14,6 +15,7 @@ const PriceDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [peakHours, setPeakHours] = useState([])
+    const [premiumConfig ,setPremiumConfig] = useState({});
 
     useEffect(() => {
         fetchGeoData();
@@ -56,6 +58,7 @@ const PriceDetails = () => {
                     zone: data?.data?.zone || '',
                 });
                 setPeakHours(data.data.peakHours);
+                setPremiumConfig(data.data.premiumConfig);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -68,7 +71,7 @@ const PriceDetails = () => {
 
     return (
         <div className="p-4 mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Pricing Details</h2>
+            <h2 className="text-2xl font-bold mb-4">Rides Pricing Details</h2>
             <Formik initialValues={initialValues} enableReinitialize>
                 {() => (
                     <Form className="space-y-7">
@@ -165,6 +168,7 @@ const PriceDetails = () => {
                             </div>
                         </div>
                         <RidesPeakHourTableDetails priceData={peakHours}/>
+                        <PremiumPriceDetails premiumData={premiumConfig}/>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back

@@ -127,6 +127,7 @@ const formatDuration = (seconds) => {
 
   const getStatusColor = (CallType) => {
     if (CallType === 'completed') return 'bg-green-600 text-white';
+    if (CallType === 'client-hangup') return 'bg-red-600 text-white';
     if (CallType === 'failed') return 'bg-red-600 text-white';
     if (CallType === 'busy') return 'bg-yellow-600 text-white';
     return 'bg-blue-600 text-white';
@@ -134,6 +135,7 @@ const formatDuration = (seconds) => {
 
   const getDirectionColor = (Direction) => {
     if (Direction === 'incoming') return 'text-orange-500';
+    if (Direction === 'outcoming') return 'text-green-500';
     if (Direction === 'outbound-api') return 'text-green-500';
     return 'text-blue-600';
   };

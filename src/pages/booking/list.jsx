@@ -1251,7 +1251,7 @@ const handleTabChange = (value) => {
                                                                     End Trip
                                                                 </Button>
                                                             } */}
-                                                                {([ 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType =="DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && 
+                                                                {['RIDES', 'RENTAL', 'DRIVER','AUTO'].includes(data?.serviceType) && ([ 'CONFIRMED','REQUEST_DRIVER'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType =="DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && 
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
@@ -1262,10 +1262,12 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                // : data?.serviceType === "PARCEL"
+                                                                                // ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {([ 'CONFIRMED', 'QUOTED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                            {([ 'CONFIRMED', 'QUOTED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER" || data?.serviceType == "AUTO"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
@@ -1276,6 +1278,8 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                // : data?.serviceType === "PARCEL"
+                                                                                // ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
@@ -1293,6 +1297,8 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                // : data?.serviceType === "PARCEL"
+                                                                                // ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
@@ -1307,6 +1313,8 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                // : data?.serviceType === "PARCEL"
+                                                                                // ? "Bike"
                                                                                 : "Cab"}
                                                                    
                                                                 </Button>

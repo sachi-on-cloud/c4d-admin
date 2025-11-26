@@ -6,11 +6,13 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import MasterPriceLog from './MasterPriceLog';
+import PremiumPriceDetails from '@/components/PremiumPriceDetails';
 
 const RentalsPriceMasterDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [premiumConfig ,setPremiumConfig] = useState({});
 
     useEffect(() => {
         fetchPriceDetails();
@@ -89,6 +91,7 @@ const RentalsPriceMasterDetails = () => {
                     acExtraKilometerRoundPriceSuv: data?.data?.acExtraKilometerRoundPriceSuv || 0,
                     acExtraKilometerRoundPriceSedan: data?.data?.acExtraKilometerRoundPriceSedan || 0,
                 });
+                setPremiumConfig(data.data.premiumConfig);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -609,6 +612,9 @@ const RentalsPriceMasterDetails = () => {
     </table>
   </div>
 </div>
+              {initialValues?.type === 'Outstation' &&
+                <PremiumPriceDetails premiumData={premiumConfig} />
+              }
 
 
                         <div className="flex flex-row">

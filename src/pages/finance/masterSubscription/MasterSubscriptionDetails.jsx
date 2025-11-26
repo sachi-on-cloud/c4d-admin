@@ -64,6 +64,7 @@ const MasterSubscriptionDetails = () => {
                                         <option value="">Select Service Type</option>
                                         <option value="ACTING DRIVER">Driver</option>
                                         <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
+                                        <option value="AUTO">Autos</option>
                                     </Field>
                                    
                                 </div>
