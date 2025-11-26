@@ -87,6 +87,7 @@ const MasterSubscriptionAdd = () => {
                     <option value="">Select Service Type</option>
                     <option value="ACTING_DRIVER">Driver</option>
                     <option value="RIDES_RENTAL_CABS">Rides/Rental Cabs</option>
+                    <option value="AUTO">Autos</option>
                   </Field>
                   <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                 </div>
