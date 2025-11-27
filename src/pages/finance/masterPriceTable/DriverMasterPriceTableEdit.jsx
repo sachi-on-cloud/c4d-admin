@@ -30,6 +30,7 @@ const DRIVER_SCHEMA = Yup.object().shape({
 
 const DriverMasterPriceTableEdit = () => {
     const [initialValues, setInitialValues] = useState(null);
+    const [loading, setLoading] = useState(true);
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -79,6 +80,8 @@ const DriverMasterPriceTableEdit = () => {
             
         } catch (error) {
             console.error("Error fetching price details:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -137,6 +140,14 @@ const DriverMasterPriceTableEdit = () => {
         }
     };
 
+    // Loading state
+    if (loading || !initialValues) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <p className="text-xl">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -167,166 +178,103 @@ const DriverMasterPriceTableEdit = () => {
                                     <Field type="string" name="serviceType" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                 </div>
+                                
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Trip Type</label>
-                                    <Field type="string" name="type" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Package</label>
-                                    <Field type="number" name="period"  disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="period" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                   <div>
-                                        <label className="text-sm font-medium text-gray-700">Kilometer</label>
-                                        <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                        <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
-                                    </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Price</label>
-                                    <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
-                                    <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                
-
-                                {/* <div>
-                                    <label className="text-sm font-medium text-gray-700">Free Waiting Time</label>
-                                    <Field type="number" name="waitingMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="waitingMins" component="div" className="text-red-500 text-sm" />
-                                </div> */}
-                                {values?.type === 'Outstation' &&
+                                    <Field type="text" name="type" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-200" />
+                            </div>
+ {values?.type === 'Outstation' &&
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Base Fare</label>
                                         <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                         <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
                                     </div>
-                                }                                 
-                               
-                                    {/* <div>
-                                        <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
-                                        <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                        <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
-                                    </div>
-                                
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Waiting Charges</label>
-                                    <Field type="number" name="waitingCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="waitingCharge" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Drop Only</label>
-                                    <Field type="number" name="dropPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="dropPrice" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Drop Price Above</label>
-                                    <Field type="number" name="dropPriceAbove" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="dropPriceAbove" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Additional Mins</label>
-                                    <Field type="number" name="additionalMinCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="additionalMinCharge" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Hours</label>
-                                    <Field type="number" name="extraPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="extraPrice" component="div" className="text-red-500 text-sm" />
-                                </div> */}
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
-                                    <div className="flex items-center">
-                                        <Field
-                                            type="time"
-                                            name="nightHoursFrom"
-                                            min="22:00"
-                                            max="23:59"
-                                            className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
-                                        />
-                                        <span className="px-3 py-2 bg-gray-100 border-t border-b border-gray-300">to</span>
-                                        <Field
-                                            type="time"
-                                            name="nightHoursTo"
-                                            min="05:00"
-                                            max="08:00"
-                                            className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
-                                        />
-                                    </div>
-                                    <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
-                                    <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                {/* <div>
-                                    <label className="text-sm font-medium text-gray-700">Night Charges</label>
-                                    <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="nightCharge" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Cancellation Time</label>
-                                    <Field type="number" name="cancelMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="cancelMins" component="div" className="text-red-500 text-sm" />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Cancellation Charges</label>
-                                    <Field type="number" name="cancelCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                    <ErrorMessage name="cancelCharge" component="div" className="text-red-500 text-sm" />
-                                </div> */}
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Status</label>
+                                }   
 
-                                    <Select
-                                        options={STATUS_OPTIONS}
-                                        onChange={(selectedOption) => setFieldValue('status', selectedOption.value)}
-                                        value={STATUS_OPTIONS.find(option => option.value === values?.status)}
-                                        placeholder="Select Status"
-                                        className="w-full"
-                                    />
-
-
-                                    <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Night Hours</label>
+                                <div className="flex items-center gap-2">
+                                    <Field type="time" name="nightHoursFrom" className="p-2 rounded border" />
+                                    <span>to</span>
+                                    <Field type="time" name="nightHoursTo" className="p-2 rounded border" />
                                 </div>
                             </div>
-                        
+                             {/* Outstation Base Fare */}
+                       
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Status</label>
+                                <Select
+                                    options={STATUS_OPTIONS}
+                                    onChange={(opt) => setFieldValue('status', opt.value)}
+                                    value={STATUS_OPTIONS.find(o => o.value === values.status)}
+                                    placeholder="Select Status"
+                                    className="w-full"
+                                />
+                                <ErrorMessage name="status" component="div" className="text-red-500 text-xs" />
+                            </div>
+                        </div>
 
-                        {/* Editable Table - Exactly like Details Page */}
-                        <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-sm">
-                            <table className="min-w-full bg-white border border-gray-300">
+                        {/* Editable Table */}
+                        <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-md">
+                            <table className="min-w-full bg-white border border-gray-300 text-center">
                                 <thead>
-                                    <tr className="bg-blue-600">
-                                         <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Free Waiting Time</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Extra KM Price</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Extra Hours</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Waiting Charge</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Drop Only</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Drop Price Above</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Additional Mins</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Night Charge</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Cancel Mins</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Cancel Charge</th>
+                                    <tr className="bg-blue-600 text-white">
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Package </th>
+                                         {values?.type != 'Outstation' && <>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Price</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Price(MUV)</th>
+                                    </>}
+                                     {values?.type === 'Outstation' && <>
+                                        <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Round Trip Price</th>
+                                        <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Round Trip Price(MUV)</th>
+                                    </>}
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Kilometer</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Additional Mins</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Additional Mins Price</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Extra KM Price</th>
+
+                                        {values?.type === 'Outstation' && (
+                                            <>
+                                                <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Drop Only Charge</th>
+                                                <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Drop Price Above 300</th>
+                                            </>
+                                        )}
+
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Free Waiting (mins)</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Waiting Charge</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Night Charge</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Cancel Mins</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Cancel Charge</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr className="bg-white hover:bg-gray-50">
-                                        <td className="px-4 py-4 border"><Field type="number" name="waitingMins" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="extraKmPrice" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="extraPrice" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="waitingCharge" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="dropPrice" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="dropPriceAbove" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="additionalMinCharge" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="nightCharge" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="cancelMins" className="w-full p-2 border rounded" /></td>
-                                        <td className="px-4 py-4 border"><Field type="number" name="cancelCharge" className="w-full p-2 border rounded" /></td>
+                                    <tr className="hover:bg-gray-50">
+                                        <td className="px-2 py-3 border"><Field type="number" name="period" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="price" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="priceMVP" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="kilometer" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="additionalMinCharge" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="extraPrice" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="extraKmPrice" className="w-full text-center border rounded p-1" /></td>
+
+                                        {values?.type === 'Outstation' && (
+                                            <>
+                                                <td className="px-2 py-3 border"><Field type="number" name="dropPrice" className="w-full text-center border rounded p-1" /></td>
+                                                <td className="px-2 py-3 border"><Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-1" /></td>
+                                            </>
+                                        )}
+
+                                        <td className="px-2 py-3 border"><Field type="number" name="waitingMins" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="waitingCharge" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="nightCharge" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="cancelMins" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="cancelCharge" className="w-full text-center border rounded p-1" /></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
+
+                       
 
                         {/* Buttons */}
                             <div className="flex flex-row">
