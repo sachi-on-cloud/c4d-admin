@@ -194,11 +194,11 @@ const DriverMasterPriceTableEdit = () => {
                                 </div>
                                 
 
-                                <div>
+                                {/* <div>
                                     <label className="text-sm font-medium text-gray-700">Free Waiting Time</label>
                                     <Field type="number" name="waitingMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="waitingMins" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                </div> */}
                                 {values?.type === 'Outstation' &&
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Base Fare</label>
@@ -207,7 +207,7 @@ const DriverMasterPriceTableEdit = () => {
                                     </div>
                                 }                                 
                                
-                                    <div>
+                                    {/* <div>
                                         <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
                                         <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
                                         <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
@@ -239,7 +239,7 @@ const DriverMasterPriceTableEdit = () => {
                                     <label className="text-sm font-medium text-gray-700">Extra Hours</label>
                                     <Field type="number" name="extraPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="extraPrice" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                </div> */}
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
                                     <div className="flex items-center">
@@ -262,7 +262,7 @@ const DriverMasterPriceTableEdit = () => {
                                     <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
                                     <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
                                 </div>
-                                <div>
+                                {/* <div>
                                     <label className="text-sm font-medium text-gray-700">Night Charges</label>
                                     <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="nightCharge" component="div" className="text-red-500 text-sm" />
@@ -276,7 +276,7 @@ const DriverMasterPriceTableEdit = () => {
                                     <label className="text-sm font-medium text-gray-700">Cancellation Charges</label>
                                     <Field type="number" name="cancelCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="cancelCharge" component="div" className="text-red-500 text-sm" />
-                                </div>
+                                </div> */}
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Status</label>
 
@@ -292,6 +292,43 @@ const DriverMasterPriceTableEdit = () => {
                                     <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
+                        
+
+                        {/* Editable Table - Exactly like Details Page */}
+                        <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-sm">
+                            <table className="min-w-full bg-white border border-gray-300">
+                                <thead>
+                                    <tr className="bg-blue-600">
+                                         <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Free Waiting Time</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Extra KM Price</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Extra Hours</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Waiting Charge</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Drop Only</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Drop Price Above</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Additional Mins</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Night Charge</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Cancel Mins</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-white uppercase">Cancel Charge</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="bg-white hover:bg-gray-50">
+                                        <td className="px-4 py-4 border"><Field type="number" name="waitingMins" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="extraKmPrice" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="extraPrice" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="waitingCharge" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="dropPrice" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="dropPriceAbove" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="additionalMinCharge" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="nightCharge" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="cancelMins" className="w-full p-2 border rounded" /></td>
+                                        <td className="px-4 py-4 border"><Field type="number" name="cancelCharge" className="w-full p-2 border rounded" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Buttons */}
                             <div className="flex flex-row">
                                 <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                     Back
