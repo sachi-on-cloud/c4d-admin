@@ -208,7 +208,7 @@ const PriceDetails = () => {
                     </Form>
                 )}
             </Formik>
-            {/* <MasterPriceLog id={id}/> */}
+            <MasterPriceLog id={id}/>
         </div>
     );
 };
