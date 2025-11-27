@@ -632,7 +632,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Auto Bookings",
-        path: "/booking/list/Auto",
+        path: "/Auto",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.AUTO} />,
         display: false,
         permission: "All bookings",
