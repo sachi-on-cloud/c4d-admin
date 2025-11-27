@@ -268,7 +268,7 @@ const PriceEdit = () => {
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         <tr className="hover:bg-gray-50">
-                                            <td className="px-6 py-1 font-medium text-gray-800">Mini</td>
+                                            <td className="px-6 py-1 font-medium text-gray-800">MINI</td>
                                             <td className="px-6 py-1">
                                                 <Field
                                                     type="number"
@@ -287,7 +287,7 @@ const PriceEdit = () => {
                                             </td>
                                         </tr>
                                         <tr className="bg-gray-50 hover:bg-gray-100">
-                                            <td className="px-6 py-1 font-medium text-gray-800">Sedan</td>
+                                            <td className="px-6 py-1 font-medium text-gray-800">SEDAN</td>
                                             <td className="px-6 py-1">
                                                 <Field type="number" name="baseFareSedan" className="w-full p-2 border border-gray-300 rounded-md" />
                                                 <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-xs mt-1" />

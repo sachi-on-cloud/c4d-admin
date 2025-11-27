@@ -128,7 +128,7 @@ const PriceDetails = () => {
                                     </thead>
                                     <tbody className="bg-white divide-y ">
                                         <tr className="hover:bg-gray-50">
-                                            <td className="px-6  font-medium text-gray-800">Mini</td>
+                                            <td className="px-6  font-medium text-gray-800">MINI</td>
                                             <td className="px-6 py-1">
                                                 <Field type="number" name="baseFare" disabled className=" p-1  rounded-md bg-gray-50" />
                                             </td>
@@ -137,7 +137,7 @@ const PriceDetails = () => {
                                             </td>
                                         </tr>
                                         <tr className="bg-gray-50 hover:bg-gray-100">
-                                            <td className="px-6 py-1 font-medium text-gray-800">Sedan</td>
+                                            <td className="px-6 py-1 font-medium text-gray-800">SEDAN</td>
                                             <td className="px-6 py-1">
                                                 <Field type="number" name="baseFareSedan" disabled className=" p-1  rounded-md bg-gray-50" />
                                             </td>
