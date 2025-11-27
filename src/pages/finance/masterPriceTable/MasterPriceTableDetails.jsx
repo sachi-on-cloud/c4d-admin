@@ -77,14 +77,14 @@ const PriceDetails = () => {
                                 <label className="text-sm font-medium text-gray-700">Zone</label>
                                 <Field type="text" name="zone" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
                                 <Field type="number" name="ratePerMin" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional Min Charge</label>
                                 <Field type="number" name="additionalMin" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
-                            </div>
+                            </div> */}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
                                 <Field type="text" name="status" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100 font-semibold" />
@@ -117,23 +117,32 @@ const PriceDetails = () => {
 
                         {/* Your Requested Table - Base Fare + Rate Per Km */}
                         <div className="mt-10">
-                            <div className="overflow-hidden rounded-lg shadow border border-gray-300">
+                            <div className="overflow-x-auto rounded-lg shadow border border-gray-300">
                                 <table className="min-w-full">
                                     <thead className="bg-blue-600">
                                         <tr>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Car Type</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Base Fare</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Rate Per Km</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Rate Per Min</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Additional Min Charge</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y ">
                                         <tr className="hover:bg-gray-50">
                                             <td className="px-6  font-medium text-gray-800">MINI</td>
-                                            <td className="px-6 py-1">
+                                            <td className="px-6 py-1 ">
                                                 <Field type="number" name="baseFare" disabled className=" p-1  rounded-md bg-gray-50" />
                                             </td>
                                             <td className="px-6 py-1">
                                                 <Field type="number" name="ratePerKm" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                             <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
                                             </td>
                                         </tr>
                                         <tr className="bg-gray-50 hover:bg-gray-100">
@@ -144,6 +153,12 @@ const PriceDetails = () => {
                                             <td className="px-6 py-1">
                                                 <Field type="number" name="ratePerKmSedan" disabled className=" p-1  rounded-md bg-gray-50" />
                                             </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
                                         </tr>
                                         <tr className="hover:bg-gray-50">
                                             <td className="px-6 py-1 font-medium text-gray-800">SUV</td>
@@ -153,6 +168,12 @@ const PriceDetails = () => {
                                             <td className="px-6 py-1">
                                                 <Field type="number" name="ratePerKmSuv" disabled className=" p-1 rounded-md bg-gray-50" />
                                             </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
                                         </tr>
                                         <tr className="bg-gray-50 hover:bg-gray-100">
                                             <td className="px-6 py-1 font-medium text-gray-800">MUV</td>
@@ -161,6 +182,12 @@ const PriceDetails = () => {
                                             </td>
                                             <td className="px-6 py-1">
                                                 <Field type="number" name="ratePerKmMVP" disabled className=" p-1 rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
                                             </td>
                                         </tr>
                                     </tbody>
@@ -181,7 +208,7 @@ const PriceDetails = () => {
                     </Form>
                 )}
             </Formik>
-            <MasterPriceLog id={id}/>
+            {/* <MasterPriceLog id={id}/> */}
         </div>
     );
 };
