@@ -92,6 +92,7 @@ const Booking = (props) => {
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [formikActions, setFormikActions] = useState({});
     const [serviceAreas, setServiceAreas] = useState([]);
+    const [premiumServicesMap, setPremiumServicesMap] = useState({})
     const [services, setServices] = useState([]);
     const [selectedAreaId, setSelectedAreaId] = useState(null);
     const [currentServiceType, setCurrentServiceType] = useState('');
@@ -109,6 +110,11 @@ const Booking = (props) => {
       const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
       const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
       setServiceAreas(filteredAreas);
+      if (response.premiumServices) {
+      setPremiumServicesMap(response.premiumServices);
+    //   console.log("Premium Services Map Loaded:", response.premiumServices);
+    }
+    //   console.log("DADAD ", fileredpremiumCarType)
     //   console.log('Available service areas:', filteredAreas);
     } catch (error) {
       console.error('Error fetching GEO_MARKINGS_LIST:', error);
@@ -294,6 +300,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
             zone: actualZone,
+            isPremiumService : values?.isPremiumService ? true : false
         };
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
             quoteData.serviceFor = 'RENTAL_DROP_TAXI';
@@ -399,6 +406,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
             zone: actualZone,
+            isPremiumService : val?.isPremiumService ? true : false
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
         // console.log("QUOTE DATA", data);
@@ -447,6 +455,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         luggage:'',
         seaterCapacity:'',
         sourceType: '',
+        isPremiumService : '',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -586,6 +595,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             }),
             serviceType:values.serviceType,
             zone: actualZone,  
+            isPremiumService : values?.isPremiumService ? true : false
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
@@ -669,6 +679,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
             serviceType: values.serviceType || mappedServiceType,
             zone: actualZone,
+            isPremiumService : values?.isPremiumService ? true : false
         };
         if(values.serviceType !== "RENTAL_HOURLY_PACKAGE" )
         {
@@ -1181,6 +1192,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 <>
                                                     {`Booking Details - ${bookingData?.bookingNumber}`}
                                                     {bookingData?.status && getStatusDisplay(bookingData.status)}
+                                                    {bookingData?.serviceType &&
+                                                        <div className={`rounded-md text-white text-sm font-semibold mr-2 ${bookingData?.serviceType ? 'bg-gradient-to-r from-[#11021b] to-[#0b3ae4]' : 'bg-gray-400' }`}>
+                                                            <Typography className='font-semibold text-sm px-1 py-1 text-white'>
+                                                                {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}
+                                                            </Typography>
+                                                        </div>}
+                                                    {bookingData?.isPremiumService &&
+                                                    <div className={`rounded-md text-white text-sm font-semibold ${bookingData?.isPremiumService ? 'bg-gradient-to-r from-[#11021b] to-[#7e0ad1]' : 'bg-gray-400'}`}>
+                                                        <Typography className='font-semibold text-sm px-1 py-1 text-white'>
+                                                            {bookingData?.isPremiumService ? "PREMIUM" : ""}
+                                                        </Typography>
+                                                    </div>}
                                                 </>
                                             ) : (bookingStage === 0 ? 'New Booking' :  bookingStage === 1 ? 'New Booking' :  bookingData?.requestType === 'REQUEST_ALL' ? `Request Cab - ${bookingData?.bookingNumber}` :  bookingData?.serviceType === 'RENTAL' ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber}`)}
                                         </div>
@@ -1208,6 +1231,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                         enableReinitialize={true}
                                     >
                                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => {
+                                            const getCurrentPremiumOptions = () => {
+                                                return premiumServicesMap[values?.serviceType] || [];
+                                            };
                                                 
                                                     useLuggageAndSeaterLogic(values.carType, setFieldValue);
                                         useEffect(() => {
@@ -1382,12 +1408,69 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 </div>
                                                             </div>
                                                         )}
-
-                                                        <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                            {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (<div>
-                                                                <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                <div className='flex mt-2 space-x-3'>
+                                                    {(values?.serviceType === 'DRIVER' || values?.serviceType === 'RENTAL' || values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                        <div className="flex gap-2">
+                                                        <div>
+                                                            <div className="mt-3 flex gap-3">
+                                                                {(values?.isPremiumService ||
+                                                                            values?.serviceType === 'RENTAL' ||
+                                                                            values?.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                                                <div className="w-full">
+                                                                                    <label className="flex items-center space-x-2 cursor-pointer select-none">
+                                                                                        <Field
+                                                                                            type="checkbox"
+                                                                                            name="isPremiumService"
+                                                                                            className="h-5 w-5 text-primary-600 rounded"
+                                                                                            onChange={(e) => {
+                                                                                                setFieldValue('isPremiumService', e.target.checked);
+                                                                                                if (!e.target.checked) {
+                                                                                                    setFieldValue('carType', ''); // reset when disabled
+                                                                                                }
+                                                                                            }}
+                                                                                        />
+                                                                                        <span className="text-sm font-medium text-gray-700">Enable Premium Service</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                            )}
+                                                                            </div>
+                                                                                <div>
+                                                                    {values?.isPremiumService && (
+                                                                        <div className="w-full mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                                            <p className="text-sm font-semibold text-blue-900 mb-3">
+                                                                                Premium Options Available:
+                                                                            </p>
+                                                                            {getCurrentPremiumOptions().length > 0 ? (
                                                                 <div className="flex gap-4">
-                                                                    {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
+                                                                                    {getCurrentPremiumOptions().map((premium, index) => (
+                                                                                        <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                                                                                            <Field
+                                                                                                type="radio"
+                                                                                                name="carType"
+                                                                                                value={premium.carType}
+                                                                                                className="h-4 w-4 text-primary-600"
+                                                                                                onChange={(e) => setFieldValue('carType', e.target.value)}
+                                                                                            />
+                                                                                            <span className="text-gray-800 font-medium">
+                                                                                                {premium.label}
+                                                                                            </span>
+                                                                                        </label>
+                                                                                    ))}
+                                                                                </div>
+                                                                            ) : (
+                                                                                <p className="text-sm text-gray-600 italic">
+                                                                                    No premium options available for {values?.serviceType}
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                        <div className='pt-2'>
+                                                        {!values?.isPremiumService && ( <>
+                                                                <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                                <div className='pt-3 grid grid-cols-6 gap-3'>
+                                                                {(values?.serviceType === 'DRIVER' || values?.serviceType === 'RENTAL' || values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                                    ['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
                                                                         <label key={carType} className="flex items-center space-x-2">
                                                                             <Field
                                                                                 type="radio"
@@ -1400,15 +1483,16 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             />
                                                                             <span className="text-black-700">{carType}</span>
                                                                         </label>
-                                                                    ))}
+                                                                    )))}
                                                                 </div>
                                                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                                            </>)}
                                                             </div>
-                                                            )}
+                                                            </div>
                                                             {(values.serviceType === 'DRIVER') && (
-                                                                <div>
+                                                                <div className='pt-4'>
                                                                     <label className="text-sm font-medium text-black-700">Transmission Type</label>
-                                                                    <div className="flex gap-2">
+                                                                    <div className="flex gap-2 pt-3">
                                                                         {['Manual', 'Automatic'].map((transType) => (
                                                                             <label key={transType} className="flex items-center space-x-2">
                                                                                 <Field
@@ -1424,6 +1508,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
                                                                 </div>
                                                             )}
+                                                                </div>
+                                                        )}
                                                         </div>
                                                     </div>
 
@@ -1658,13 +1744,59 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                         )}
                                     </div>
                                 )} */}
-                                                        <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                            {(values.serviceType === 'RIDES' ? 'visible' : '') && 
-                                                            (<div>
-                                                                <label className="text-sm font-medium text-black-700">Car Type</label>
-                                                                <div className="flex gap-4">
+                                                {values.serviceType === 'RIDES' && (
+                                                    <div className="mt-6">
+                                                        <div className="mt-3 space-y-5">
+                                                            <div className="flex items-center space-x-3 ml-2">
+                                                                <Field
+                                                                    type="checkbox"
+                                                                    name="isPremiumService"
+                                                                    className="h-5 w-5 text-primary-600 rounded focus:ring-primary-500"
+                                                                    onChange={(e) => {
+                                                                        setFieldValue('isPremiumService', e.target.checked);
+                                                                        if (!e.target.checked) {
+                                                                            setFieldValue('carType', '');
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                <span className="text-sm font-medium text-gray-700">Enable Premium Service</span>
+                                                            </div>
+                                                            {values?.isPremiumService && (
+                                                                <div className="w-full mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                                    <p className="text-sm font-semibold text-blue-900 mb-3">
+                                                                        Premium Options Available:
+                                                                    </p>
+                                                                    {getCurrentPremiumOptions().length > 0 ? (
+                                                                        <div className="flex gap-4">
+                                                                            {getCurrentPremiumOptions().map((premium, index) => (
+                                                                                <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                                                                                    <Field
+                                                                                        type="radio"
+                                                                                        name="carType"
+                                                                                        value={premium.carType}
+                                                                                        className="h-4 w-4 text-primary-600"
+                                                                                        onChange={(e) => setFieldValue('carType', e.target.value)}
+                                                                                    />
+                                                                                    <span className="text-gray-800 font-medium">
+                                                                                        {premium.label}
+                                                                                    </span>
+                                                                                </label>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <p className="text-sm text-gray-600 italic">
+                                                                            No premium options available for {values?.serviceType}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                            {!values.isPremiumService && (
+                                                                <>
+                                                                <div className='ml-2'>
+                                                                    <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                                <div className="flex gap-6 mt-2">
                                                                     {['Mini', 'Sedan'].map((carType) => (
-                                                                        <label key={carType} className="flex items-center space-x-2">
+                                                                        <label key={carType} className="flex items-center space-x-2 cursor-pointer">
                                                                             <Field
                                                                                 type="radio"
                                                                                 name="carType"
@@ -1680,8 +1812,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 </div>
                                                                 <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
                                                             </div>
+                                                                </>
                                                             )}
                                                         </div>
+                                                    </div>
+                                                )}
                                                 <div className='grid grid-cols-1'>
                                                     {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && 
                                                     (<div className="p-2 space-y-2">
@@ -1931,6 +2066,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </div>
                                                                     ) : (
                                                                     <div className="grid grid-cols-2 justify-between">
+                                                                        {quoteDetails?.amount?.isPremiumFare && (
+                                                                            <>
+                                                                                <Typography color="gray" variant="h6">Car Service</Typography>
+                                                                                <Typography className='font-semibold'> {quoteDetails.amount?.isPremiumFare ? "Premium Car Service" : "Not a Premium Car Services "}</Typography>
+                                                                            </>
+                                                                        )}
                                                                           {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
