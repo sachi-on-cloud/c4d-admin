@@ -592,7 +592,7 @@ useEffect(() => {
                     name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
                 }
             }
-            editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_AUTO_BOOKING, data);
+            editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_RIDES_BOOKING, data);
         }
         if (editBookingData.success) {
             props.editCancel();
