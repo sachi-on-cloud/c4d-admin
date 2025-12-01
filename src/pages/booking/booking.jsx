@@ -594,6 +594,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             }),
             serviceType:values.serviceType,
             zone: actualZone,  
+            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             isPremiumService : values?.isPremiumService ? true : false
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
@@ -1630,7 +1631,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Pickup Date & Time
@@ -2124,6 +2125,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <>
                                                                                 <Typography color="gray" variant="h6">Car Service</Typography>
                                                                                 <Typography className='font-semibold'> {quoteDetails.amount?.isPremiumFare ? "Premium Car Service" : "Not a Premium Car Services "}</Typography>
+                                                                            </>
+                                                                        )}
+                                                                        {quoteDetails?.amount?.isPremiumFare && (
+                                                                            <>
+                                                                                <Typography color="gray" variant="h6">Premium Car Type</Typography>
+                                                                                <Typography> {quoteDetails.amount?.premiumDetails?.appliedCarType}</Typography>
                                                                             </>
                                                                         )}
                                                                           {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
