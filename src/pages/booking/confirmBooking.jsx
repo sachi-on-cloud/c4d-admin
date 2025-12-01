@@ -38,6 +38,12 @@ const ConfirmBooking = (props) => {
         tripFare: "",
         notes: "",
     });
+    const [additionalCharges, setAdditionalCharges] = useState({
+        permit: 0,
+        toll: 0,
+        parking: 0,
+        hill: 0,
+        });
 
     const [paymentDetails, setPaymentDetails] = useState({
         paymentCollected: "",
@@ -165,6 +171,18 @@ const ConfirmBooking = (props) => {
         setLoading(false);
     };
 
+    useEffect(() => {
+    if (bookingDetails?.extraCharges) {
+        setAdditionalCharges({
+            permit: Number(bookingDetails.extraCharges.permitCharge) || 0,
+            toll: Number(bookingDetails.extraCharges.tollCharge) || 0,
+            parking: Number(bookingDetails.extraCharges.parkingCharge) || 0,
+            hill: Number(bookingDetails.extraCharges.hillStationCharge
+
+            ) || 0,
+        });
+    }
+}, [bookingDetails?.extraCharges]);
     const getPriceForBooking = async () => {
         if (bookingDetails?.status == BOOKING_STATUS.STARTED && dateVal && timeVal) {
             //const date = moment(dateVal).format("YYYY-MM-DD HH:mm:ss.SSSZ");
@@ -223,6 +241,44 @@ const ConfirmBooking = (props) => {
             [name]: value,
         }));
     };
+    const handleRecalculateAndSaveExtraCharges = async () => {
+    // Prevent if no changes or booking ended already
+    if (!bookingDetails?.id) return;
+
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
+    const userId = loggedInUser?.id || null;
+
+    const payload = {
+        bookingId: bookingDetails.id,
+        tollCharge: Number(additionalCharges.toll) || 0,
+        parkingCharge: Number(additionalCharges.parking) || 0,
+        permitCharge: Number(additionalCharges.permit) || 0,
+        hillStationCharge: Number(additionalCharges.hill) || 0,
+        userId: userId,
+    };
+
+    try {
+        setLoading(true);
+        const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_EXTRA_CHARGES, payload);
+        
+        if (response?.success) {
+            Swal.fire({
+                icon: "success",
+                title: "Additional charges updated successfully!",
+                timer: 1500,
+                showConfirmButton: false
+            });
+            getBookingById(bookingDetails.id, bookingDetails.customerId);
+        } else {
+            Swal.fire("Error", response?.message || "Failed to update charges", "error");
+        }
+    } catch (err) {
+        console.error("Error updating extra charges:", err);
+        Swal.fire("Error", "Something went wrong!", "error");
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleBookingAction = async (actionType) => {
         if (actionType === BOOKING_STATUS.CANCELLED && !cancelData.cancelReason.trim()) return;
@@ -249,6 +305,20 @@ const ConfirmBooking = (props) => {
             props.setIsOpen(false);
         }
     };
+     const baseTripFare = Number(
+    bookingDetails?.serviceType === 'DRIVER' 
+        ? bookingDetails?.totalPrice 
+        : bookingDetails?.totalPrice || 0
+);
+
+const totalExtraCharges = 
+    Number(additionalCharges.permit || 0) +
+    Number(additionalCharges.toll || 0) +
+    Number(additionalCharges.parking || 0) +
+    Number(additionalCharges.hill || 0);
+    const taxAmount = Number(bookingDetails?.paymentDetails?.details?.gstAmount || 0);
+
+const finalAmountAfterExtras =  Math.round(baseTripFare + totalExtraCharges +taxAmount);
 
     const addNotes = async (text) => {
         setLoading(true);
@@ -1220,10 +1290,14 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>  
             }*/}
-            {amount && (
-                <Card className="my-6">
-                    <div className="border rounded-xl bg-gray-200 p-4">
-                        <h2 className="text-2xl font-bold text-center">Receipt</h2>
+            
+         {amount&&(
+ 
+  
+                <Card className="my-6 w-full p-4">
+                    <div className="border rounded-xl w-full max-w-3xl mx-auto p-6 shadow-lg">
+                        <h2 className="text-2xl font-bold text-center text-blue-700"> Receipt</h2>
+                        <div className="mt-4 space-y-2">
                         {/* <div className="mt-3">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Company Name: </Typography>
@@ -1389,6 +1463,66 @@ const ConfirmBooking = (props) => {
                                 }
                                 
                                 
+                        {/* Editable Additional Charges */}
+         {bookingDetails?.serviceType !== "RIDES" && (
+    <>
+        <hr className="my-2 border border-gray-400" />
+        <Typography variant="h6" className="font-semibold text-blue-700">
+            Additional Charges
+        </Typography>
+
+        {['permit', 'toll', 'parking', 'hill'].map((type) => {
+            const label = {
+                permit: 'Permit Charge',
+                toll: 'Toll Charge',
+                parking: 'Parking Charge',
+                hill: 'Hill Charge',
+            }[type];
+
+            return (
+                <div key={type} className="flex justify-between items-center my-2">
+                    <Typography color="gray" variant="h6">{label}:</Typography>
+                    
+                    <div className="flex items-center gap-3">
+                        {/* Live Display */}
+                        <span className="font-bold text-green-700 text-lg min-w-24 text-right">
+                            ₹ 
+                        </span>
+
+                        {/* Editable Input */}
+                        <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                            className="border rounded p-1 w-20  text-center font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={additionalCharges[type] || ''}
+                            onChange={(e) => {
+                                const val = parseInt(e.target.value) || 0;
+                                setAdditionalCharges(prev => ({ ...prev, [type]: val }));
+                            }}
+                        />
+                    </div>
+                </div>
+            );
+        })}
+    </>
+            )}
+
+          <hr className="my-2 border border-gray-400" />
+            <div className="flex justify-between">
+                <Typography color="gray" variant="h6">
+                    Final Price (After Additional charges Added):
+                </Typography>
+                <Typography className="font-bold text-lg text-green-700">
+                    ₹ {finalAmountAfterExtras}
+                </Typography>
+            </div>
+
+         <Button color="green" size="xs" className="mt-4 " onClick={handleRecalculateAndSaveExtraCharges}disabled={loading}>
+            Recalculate
+            </Button>
+        </div>
                         </div>
                     </div>
                 </Card>
