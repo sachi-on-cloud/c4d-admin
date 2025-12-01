@@ -136,7 +136,7 @@ const ConfirmBooking = (props) => {
                     discountAmount: finalPrice?.data?.gstDetails?.details?.discountAmount,
                 })
             }
-            if (data?.data?.status == BOOKING_STATUS.ENDED) {
+            if (data?.data?.status == BOOKING_STATUS.ENDED || data?.data?.status == BOOKING_STATUS.PAYMENT_REQUESTED) {
                 setAmount({
                     price: data?.data?.price,
                     extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0,
@@ -1291,7 +1291,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare + totalExtraCharges +tax
                 </Card>  
             }*/}
             
-         {amount&&(
+         {amount && (bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === 'PAYMENT_REQUESTED') &&(
  
   
                 <Card className="my-6 w-full p-4">
