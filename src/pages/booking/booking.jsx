@@ -651,7 +651,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 name: values.driverPickUpAddress,
             },
             zone: actualZone, 
-            isPremiumService : values?.isPremiumService ? true : false
+            isPremiumService : values?.isPremiumService ? true : false,
+            fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
         };
 
         try {
@@ -1631,7 +1632,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Pickup Date & Time
