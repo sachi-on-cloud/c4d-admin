@@ -10,6 +10,7 @@ import Select from 'react-select';
 const DiscountAdd = () => {
   const navigate = useNavigate();
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const initialValues = {
     serviceType: '',
@@ -20,6 +21,8 @@ const DiscountAdd = () => {
     endDate: '',
     isActive: 'true',
     serviceArea: [],
+    image: null,
+    cabType: [],
   };
 
   useEffect(() => {
@@ -45,28 +48,60 @@ const DiscountAdd = () => {
     })),
   ];
 
-  const handleSubmit = async (values, { setSubmitting }) => {
-   const payload = {
-  serviceType: values.serviceType?.trim(),
-  percentage:
-    values.percentage !== '' && !isNaN(values.percentage)
-      ? parseFloat(values.percentage)
-      : 0,
-  startDate: values.startDate
-    ? new Date(values.startDate).toISOString().split('T')[0]
-    : undefined,
-  endDate: values.endDate
-    ? new Date(values.endDate).toISOString().split('T')[0]
-    : undefined,
-  isActive: values.isActive,
-  title: values.title,
-  description: values.description,
-  serviceArea: values.serviceArea.includes['All'] ? ['All'] : values.serviceArea,
+  const handleImageUpload = (file,setFieldValue) => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+      if(!file || !validTypes.includes(file.type)) {
+        alert('Only JPEG and PNG images are allowed.');
+        return;
+      }
+
+    setFieldValue('image', file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  const safeDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0];
 };
 
+  const handleSubmit = async (values, { setSubmitting }) => {
+//    const payload = {
+//   serviceType: values.serviceType?.trim(),
+//   percentage:
+//     values.percentage !== '' && !isNaN(values.percentage)
+//       ? parseFloat(values.percentage)
+//       : 0,
+//   startDate: values.startDate
+//     ? new Date(values.startDate).toISOString().split('T')[0]
+//     : undefined,
+//   endDate: values.endDate
+//     ? new Date(values.endDate).toISOString().split('T')[0]
+//     : undefined,
+//   isActive: values.isActive,
+//   title: values.title,
+//   description: values.description,
+//   serviceArea: values.serviceArea.includes['All'] ? ['All'] : values.serviceArea,
+//   image: values.image,
+//   cabType: values.cabType
+// };
+
     try {
-      console.log('POST payload:', payload); 
-      const res = await ApiRequestUtils.post(API_ROUTES.POST_DISCOUNT, payload);
+      const formData = new FormData();
+      formData.append('serviceType', values.serviceType);
+      formData.append('percentage', values.percentage);
+      formData.append('startDate', safeDate(values.startDate));
+      formData.append('endDate', safeDate(values.endDate));
+      formData.append('isActive', values.isActive);
+      formData.append('title', values.title);
+      formData.append('description', values.description);
+      formData.append('image', values.image, values.image.name);
+      formData.append('fileType', values.image?.type || '');
+      formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
+      formData.append('serviceArea', values.serviceArea.includes('All') ? ['All'] : values.serviceArea);
+      formData.append('cabType', values.cabType);
+      console.log('POST payload:', formData); 
+      const res = await ApiRequestUtils.postDocs(API_ROUTES.POST_DISCOUNT, formData);
       console.log('DISCOUNT RESPONSE:', res);
       navigate('/dashboard/user/discountModuleList');
     } catch (err) {
@@ -105,6 +140,36 @@ const DiscountAdd = () => {
                   <option value="ALL">ALL</option>
                 </Field>
                 <ErrorMessage name="serviceType" className="text-red-500 text-sm" component="div" />
+              </div>
+              <div>
+                <label htmlFor="image" className="text-sm font-medium text-gray-700">
+                  Image
+                </label>
+                {imagePreview && (
+                  <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover mb-2 border" />
+                )}
+                <input
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+                  onChange={(e) => handleImageUpload(e.currentTarget.files[0], setFieldValue)}
+                />
+                <ErrorMessage name="image" component="div" className="text-red-500 text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Car Type</label>
+                <Field
+                  as="select"
+                  name="cabType"
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                >
+                  <option value="">Select Car Type</option>
+                  <option value="Mini">Mini</option>
+                  <option value="Sedan">Sedan</option>
+                  <option value="SUV">Suv</option>
+                  <option value="MUV">Muv</option>
+                  </Field>
               </div>
               <div>
                 <label htmlFor="title" className="text-sm font-medium text-gray-700">Title</label>
