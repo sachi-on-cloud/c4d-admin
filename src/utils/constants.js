@@ -957,7 +957,8 @@ export const API_ROUTES = {
     'POST_QUOTATION_LOG':'/quotation-log',
     'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
     'UPDATE_FOLLOWUP':'/booking/followup',
-    'EXOTEL_CALL_LOGS': '/call-logs'
+    'EXOTEL_CALL_LOGS': '/call-logs',
+    'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
 
 };
 
