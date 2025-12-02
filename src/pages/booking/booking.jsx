@@ -1194,13 +1194,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     {`Booking Details - ${bookingData?.bookingNumber}`}
                                                     {bookingData?.status && getStatusDisplay(bookingData.status)}
                                                     {bookingData?.serviceType &&
-                                                        <div className={`rounded-md text-white text-sm font-semibold mr-2 ${bookingData?.serviceType ? 'bg-gradient-to-r from-[#11021b] to-[#0b3ae4]' : 'bg-gray-400' }`}>
+                                                        <div className={`rounded-md text-white text-sm font-semibold mr-2 ${bookingData?.serviceType ? 'bg-red-300' : 'bg-gray-400' }`}>
                                                             <Typography className='font-semibold text-sm px-1 py-1 text-white'>
                                                                 {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}
                                                             </Typography>
                                                         </div>}
                                                     {bookingData?.isPremiumService &&
-                                                    <div className={`rounded-md text-white text-sm font-semibold ${bookingData?.isPremiumService ? 'bg-gradient-to-r from-[#11021b] to-[#7e0ad1]' : 'bg-gray-400'}`}>
+                                                    <div className={`rounded-md text-white text-sm font-semibold ${bookingData?.isPremiumService ? 'bg-deep-purple-700' : 'bg-gray-400'}`}>
                                                         <Typography className='font-semibold text-sm px-1 py-1 text-white'>
                                                             {bookingData?.isPremiumService ? "PREMIUM" : ""}
                                                         </Typography>
