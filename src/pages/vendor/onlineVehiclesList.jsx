@@ -48,7 +48,7 @@ export function OnlineVehiclesList({ id = 0 }) {
     itemsPerPage: 15,
   });
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const driverType = typeFilter[0] === 'All' ? undefined : typeFilter[0];
+  const driverType = typeFilter[0] === 'All' ? "All" : typeFilter[0];
 
   const checkPresence = async (driverId, vehicleId, all) => {
     try {
@@ -194,7 +194,7 @@ export function OnlineVehiclesList({ id = 0 }) {
 
   const filteredVehicles = vehicleList.filter((v) => {
     if (typeFilter[0] === 'All') return true;
-    return (v.type?.toUpperCase() ?? '') === typeFilter[0];
+    return (v.type?.toUpperCase() || '') === typeFilter[0];
   });
 
   const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
