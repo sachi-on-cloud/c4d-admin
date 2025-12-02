@@ -1374,7 +1374,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                        <div className="flex justify-center items-center mb-4">
                 <h2 className="text-2xl font-bold text-center text-blue-700">Receipt</h2>
                 
-                {/* Edit Toggle Button */}
+                { bookingDetails?.serviceType !== 'AUTO' && (
                 <button
                     onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
                     className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
@@ -1388,7 +1388,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                     ) : (
                         <PencilIcon className="w-5 h-5" />
                     )}
-                </button>
+                </button>)}
             </div>
                         <div className="mt-4 space-y-2">
                         {/* <div className="mt-3">
@@ -1429,13 +1429,13 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                     </Typography>
                                 </div>
                                 )}
-                                 {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.bookingType !== "DROP ONLY" && (
+                                 {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" && (
                                         <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Total Hours:</Typography>
                                         <Typography>{bookingDetails?.totalHours}</Typography>
                                         </div>
                                     )}
-                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
+                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
                                     <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Estimate km:</Typography>
                                     <Typography>
@@ -1453,7 +1453,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                      <Typography> {Number(bookingDetails?.extraKMs).toFixed(2)}</Typography>     
                                 </div>
                                 }
-                               {bookingDetails?.serviceType !== 'RIDES'&&  <div className="flex justify-between">
+                               {bookingDetails?.serviceType !== 'RIDES'&& bookingDetails?.serviceType !== 'AUTO' && <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total KM:</Typography>
                                     <Typography>
                                         {bookingDetails?.endKM && bookingDetails?.startKM ? (bookingDetails.endKM - bookingDetails.startKM).toFixed(2): "0.00"}
