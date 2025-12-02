@@ -1297,9 +1297,9 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                 <Card className="my-6 w-full p-4">
                     <div className="border rounded-xl w-full max-w-3xl mx-auto p-6 shadow-lg">
                        <div className="flex justify-center items-center mb-4">
-                <h2 className="text-2xl font-bold text-center text-blue-700">Receipt</h2>
+                <h2 className="text-2xl mr-2 font-bold text-center text-blue-700">Receipt</h2>
                 
-                {/* Edit Toggle Button */}
+                {bookingDetails?.serviceType !== 'RIDES'&& (
                 <button
                     onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
                     className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
@@ -1314,6 +1314,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                         <PencilIcon className="w-5 h-5" />
                     )}
                 </button>
+            )}
             </div>
                         <div className="mt-4 space-y-2">
                         {/* <div className="mt-3">
