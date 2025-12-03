@@ -81,6 +81,7 @@ const DiscountView = () => {
                   <th className="py-3 px-5 text-left">End Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
                   <th className="py-3 px-5 text-left">Image</th>
+                  <th className="py-3 px-5 text-left">Premium</th>
                   <th className="py-3 px-5 text-left">Cab Type</th>
                   <th className="py-3 px-5 text-left">City</th>
                   <th className="py-3 px-5 text-left">Actions</th>
@@ -123,6 +124,7 @@ const DiscountView = () => {
                           </div>
                         )}
                       </td>
+                      <td className="py-3 px-5">{item.isPremium ? 'Premium' : 'Not Premium'}</td>
                       <td className="py-3 px-5">{item.cabType}</td>
                       <td className="py-3 px-5">
                         {item.serviceArea && item.serviceArea.length > 0 ? (
