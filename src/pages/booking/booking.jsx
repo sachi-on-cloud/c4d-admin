@@ -1251,7 +1251,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingData?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingData?.serviceType == 'PARCEL' ? 'Parcel' : 'Outstation'}
                                                             </Typography>
                                                         </div>}
-                                                    {bookingData?.isPremiumService &&
+                                                    {bookingData?.isPremiumService === true &&
                                                     <div className={`rounded-md text-white text-sm font-semibold ${bookingData?.isPremiumService ? 'bg-deep-purple-700' : 'bg-gray-400'}`}>
                                                         <Typography className='font-semibold text-sm px-1 py-1 text-white'>
                                                             {bookingData?.isPremiumService ? "PREMIUM" : ""}

@@ -11,6 +11,7 @@ const DiscountAdd = () => {
   const navigate = useNavigate();
   const [serviceAreas, setServiceAreas] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
+  const [premiumServicesMap, setPremiumServicesMap] = useState({})
 
   const initialValues = {
     serviceType: '',
@@ -22,7 +23,9 @@ const DiscountAdd = () => {
     isActive: 'true',
     serviceArea: [],
     image: null,
-    cabType: [],
+    cabType: '',
+    premiumCabType: '',
+    isPremium: false,
   };
 
   useEffect(() => {
@@ -31,6 +34,10 @@ const DiscountAdd = () => {
         const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST,{
           type: 'Service Area',
         });
+        if (response.premiumServices) {
+          setPremiumServicesMap(response.premiumServices);
+          // console.log("Premium Services Map Loaded:", response.premiumServices);
+        }
         console.log('GEO MARKINGS RESPONSE:', response);
         setServiceAreas(response?.data);
       } catch (error) {
@@ -99,10 +106,14 @@ const DiscountAdd = () => {
       formData.append('fileType', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
       formData.append('serviceArea', values.serviceArea.includes('All') ? ['All'] : values.serviceArea);
-      formData.append('cabType', values.cabType);
-      console.log('POST payload:', formData); 
+      const finalCabType = values.isPremium
+        ? values.premiumCabType
+        : values.cabType;
+      formData.append('cabType', finalCabType);
+      formData.append('isPremium', values.isPremium);
+      // console.log('POST payload:', formData); 
       const res = await ApiRequestUtils.postDocs(API_ROUTES.POST_DISCOUNT, formData);
-      console.log('DISCOUNT RESPONSE:', res);
+      // console.log('DISCOUNT RESPONSE:', res);
       navigate('/dashboard/user/discountModuleList');
     } catch (err) {
       console.error('API Error:', err.response?.data || err.message);
@@ -111,6 +122,10 @@ const DiscountAdd = () => {
       setSubmitting(false);
     }
   };
+
+const getCurrentPremiumOptions = (currentServiceType) => {
+  return premiumServicesMap[currentServiceType] || [];
+};
 
   return (
     <div className="p-4 mx-auto">
@@ -157,6 +172,55 @@ const DiscountAdd = () => {
                 />
                 <ErrorMessage name="image" component="div" className="text-red-500 text-sm" />
               </div>
+              <div className="mt-3 flex gap-3">
+                <div className="w-full col-span-2">
+                  <label className="flex items-center space-x-2 cursor-pointer select-none">
+                    <Field
+                      type="checkbox"
+                      name="isPremium"
+                      className="h-5 w-5 text-primary-600 rounded"
+                      onChange={(e) => {
+                        setFieldValue('isPremium', e.target.checked);
+                        if (e.target.checked) {
+                          setFieldValue('cabType', '');
+                        } else {
+                          setFieldValue('premiumCabType', '');
+                        }
+                    }}
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Enable Premium Service
+                    </span>
+                  </label>
+                  {values.isPremium && (
+                    <div className="col-span-2 mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm font-semibold text-blue-900 mb-3">
+                        Select Premium Car Type:
+                      </p>
+                      {getCurrentPremiumOptions(values.serviceType).length > 0 ? (
+                        <div className="w-full  md:grid-cols-4">
+                          {getCurrentPremiumOptions(values.serviceType).map((premium, index) => (
+                            <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                              <Field
+                                type="radio"
+                                name="premiumCabType"
+                                value={premium.carType}
+                                className="h-4 w-4 text-primary-600"
+                              />
+                              <span className="text-gray-800 font-medium">{premium.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-600 italic">
+                          No premium options configured for {values.serviceType}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {values.isPremium === false && (
               <div>
                 <label className="text-sm font-medium text-gray-700">Car Type</label>
                 <Field
@@ -171,6 +235,7 @@ const DiscountAdd = () => {
                   <option value="MUV">Muv</option>
                   </Field>
               </div>
+              )}
               <div>
                 <label htmlFor="title" className="text-sm font-medium text-gray-700">Title</label>
                 <Field type="text" name="title" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
