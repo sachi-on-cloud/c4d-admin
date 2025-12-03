@@ -4,6 +4,7 @@ import {
   RectangleStackIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
+import { Feature } from "@/utils/constants";
 import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
@@ -112,7 +113,10 @@ import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
 import TripDetailsEdit from "./pages/TripDetails/edit";
 import DetailsTrip from "./pages/TripDetails/details";
-
+import CombineView from "./pages/CustomerNotification/view";
+import Combineadd from "./pages/CustomerNotification/add";
+import CombineEdit from "./pages/CustomerNotification/edit";
+import ExotelCallsList from "./components/Exotel";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -233,6 +237,31 @@ export const routes = [
         display: true,
         permission: "Marketing",
       },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "customer notification",
+        path: "/vendors/customerNotificationList",
+        element: <CombineView />,
+        display: true,
+        permission: "Marketing",
+      },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "customer notification add",
+        path: "/vendors/customerNotificationList/add",
+        element: <Combineadd />,
+        display: true,
+        permission: "Marketing",
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Customer notification edit",
+        path: "/vendors/customerNotificationList/edit/:id",
+        element: <CombineEdit />,
+        display: true,  
+        permission: "Marketing",
+      },
+      
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
@@ -604,11 +633,12 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Auto Bookings",
-        path: "/booking/list/Auto",
+        path: "/Auto",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.AUTO} />,
         display: false,
         permission: "All bookings",
       },
+      ...(Feature.parcel ? [
       {
         icon: <UserIcon {...icon} />,
         name: "Parcel Bookings",
@@ -617,6 +647,7 @@ export const routes = [
         display: false,
         permission: "All bookings",
       },
+      ]: []),
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -937,7 +968,8 @@ export const routes = [
         display: true,
         permission: "Trip Master",
       },
-            {
+      ...(Feature.parcel ? [
+      {
         icon: <UserIcon {...icon} />,
         name: "bike",
         path: "/vendors/account/parcel/allVehicles/add",
@@ -1009,6 +1041,15 @@ export const routes = [
         element: <ParcelMasterPriceEdit />,
         display: true,
         permission:"Users"
+      },
+      ]: []),
+      {
+        icon: <UserIcon {...icon} />,
+        name: "exotel calls",
+        path: "/users/exotel-calls/list",
+        element: <ExotelCallsList />,
+        display: false,
+        permission: "Calls",
       },
     ],
   },

@@ -163,13 +163,15 @@ export const ApiRequestUtils = {
             return data;
         }
     },
-    fetchExcelDownload: async (apiRoute, custID = 0) => {
+    fetchExcelDownload: async (apiRoute, custID = 0, params = {}) => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No authentication token found');
 
         const headers = {
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'token': token,
+            // 'ngrok-skip-browser-warning' : true,
+                // 'ngrok-skip-browser-warning': '69420',
         };
 
         if (custID !== 0) {
@@ -178,6 +180,7 @@ export const ApiRequestUtils = {
 
         const response = await axios.get(getBaseUrl() + apiRoute, {
             headers,
+            params,          
             responseType: 'blob',
         });
 

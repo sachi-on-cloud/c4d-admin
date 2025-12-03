@@ -15,6 +15,10 @@ export const getBaseUrl = () => {
     return constants.url + '/api/customer/dev';
 }
 
+export const Feature = {
+    parcel:false
+}
+
 export const GENDER = {
     MALE: 'Male',
     FEMALE: 'Female',
@@ -957,6 +961,7 @@ export const API_ROUTES = {
     'PARCEL_PRICE_EDIT':'/update-parcel-package',
     'GET_PARCEL_CAB_BY_ID':'/parcel/', 
     'UPDATE_PARCEL_CAB':'/update/admin/parcel',
+    'GET_BIKE_PACKAGE':'/get-parcel-driver',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
     'GET_TRIP_REPORTS':'/get-trips-report',
@@ -969,7 +974,16 @@ export const API_ROUTES = {
     'BANNER_POSITION_UPDATE': '/banner/position/update',
     'DISTANCE_CHECKING': '/get-distance',
     'CITY_LIMIT_CHECKING':'/check-location',
-    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export',
+    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
+    'POST_QUOTATION_LOG':'/quotation-log',
+    'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
+    'EXOTEL_CALL_LOGS': '/call-logs',
+    'GET_CUSTOMER_NOTIFICATION':'/notification-messages',
+    'POST_CUSTOMER_NOTIFICATION':'/notification-messages',
+    'UPDATE_FOLLOWUP':'/booking/followup',
+    'EXOTEL_CALL_LOGS': '/call-logs',
+    'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
+
 };
 
 export const KYC_PROCESS = {
@@ -1009,6 +1023,7 @@ export const BOOKING_STATUS = {
     STARTED: 'STARTED',
     ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
     END_OTP:'END_OTP',
+    PAYMENT_REQUESTED:'PAYMENT_REQUESTED',
     ENDED: 'ENDED',
 };
 
@@ -1065,14 +1080,16 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
-    'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
-    'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
-    'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
+    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
+    'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
+    'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors','Autos'],
+    'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification','Autos'],
 };
 
 export const PERMISSION_OPTIONS = [
     { name: 'Home', id: 'Home' },
+    { name: 'Calls', id: 'Calls'},
+     { name: 'Autos', id: 'Autos'},
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
@@ -1258,7 +1275,7 @@ export const WHATSAPP_BOOKING_CANCELLED=`
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-export const BOOKING_TERMS_AND_CONDITIONS = "Price mighty vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
+export const BOOKING_TERMS_AND_CONDITIONS = "Price might vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
 export const ColorStyles = {
     sidenavColors: "bg-primary-200",
     bgColor: "bg-primary",

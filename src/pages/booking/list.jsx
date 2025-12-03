@@ -17,15 +17,15 @@ import {
     Tab,
     TabPanel,
 } from "@material-tailwind/react";
-import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync } from 'react-icons/fa';
+import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, BOOKING_STATUS, ColorStyles, Feature } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
-export function BookingsList({ customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
+export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -34,6 +34,7 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
     const [tripCoordinatorFilter, setTripCoordinatorFilter] = useState(['All']);
+    const [zoneFilter, setZoneFilter] = useState(['All']);
     const [showPickedBooking, setShowPickedBooking] = useState(0);
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
     const [pagination, setPagination] = useState({
@@ -53,6 +54,17 @@ export function BookingsList({ customerId = 0, searchBookingId = '', bookingStag
     const [customDateFrom, setCustomDateFrom] = useState('');
     const [customDateTo, setCustomDateTo] = useState('');
     const [isManualDateFilter, setIsManualDateFilter] = useState(false);
+    const [effectiveSearchId, setEffectiveSearchId] = useState(searchBookingId);
+    const [onlineDrivers, setOnlineDrivers] = useState([]);
+    const [selectedHour, setSelectedHour] = useState(moment().hour()); 
+    const [selectedDriver, setSelectedDriver] = useState(null); 
+    const [selectedTime, setSelectedTime] = useState(moment().format(' hh:mm A')); 
+    const [totalDriverCount, setTotalDriverCount] = useState(0);
+    const [showDriverHours, setShowDriverHours] = useState(false);
+    const [isCustomDatePopoverOpen, setIsCustomDatePopoverOpen] = useState(false);
+    const [followupLoading, setFollowupLoading] = useState({});
+    
+
 useEffect(() => {
   const storedUser = localStorage.getItem('loggedInUser');
   if (storedUser) {
@@ -62,6 +74,41 @@ useEffect(() => {
     console.warn('No loggedInUser found in localStorage');
   }
 }, []);
+
+useEffect(() => {
+  if (onlineDrivers.length > 0) {
+    const driverData = onlineDrivers.find(driver => {
+      const driverTime = moment(driver.date_time).hour();
+      return driverTime === selectedHour;
+    });
+    setSelectedDriver(driverData || { count: 0 });
+    // Keep initial time as 12:08 unless a box is clicked
+  } else {
+    setSelectedDriver({ count: 0 });
+  }
+}, [onlineDrivers, selectedHour]);
+    useEffect(() => {
+        const stored = localStorage.getItem('bookingSearchId') || '';
+        const newEffective = searchBookingId || stored;
+        setEffectiveSearchId(newEffective);
+        if (newEffective) {
+            localStorage.setItem('bookingSearchId', newEffective);
+        } else if (!searchBookingId) {
+            localStorage.removeItem('bookingSearchId');
+        }
+    }, [searchBookingId]);
+    const handleToggleDriverHours = () => {
+  setShowDriverHours(true);
+};
+    
+    const handleHourSelect = (hour) => {
+  setSelectedHour(hour);
+  const driverData = onlineDrivers.find(driver => moment(driver.date_time).hour() === hour);
+  setSelectedDriver(driverData || { count: 0 });
+  setSelectedTime(driverData ? moment(driverData.date_time).format(' hh:mm A') : moment().format(' hh:mm A'));
+  setShowDriverHours(false); // Hide the popup after selection
+};
+
 const handleTabChange = (value) => {
     if (typeof value !== 'string') {
         console.warn('Unexpected value in handleTabChange:', value);
@@ -71,14 +118,23 @@ const handleTabChange = (value) => {
         // console.log('Tab changed to:', value);
         setActiveTab(value);
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
-        setStatusFilter(['All']); // Reset status filter
+       setStatusFilter(['All']); // Reset status filter
         setSourceFilter(['All']); // Reset source filter
         // setStatusFilter(['All']); // Reset filters to avoid filtering out data
         // setServiceTypeFilter(['All']);
         // setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
-    }
-};
+                setCustomDateFrom('');
+                setCustomDateTo('');
+                setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : value === 'CUSTOM_DATE' ? 'Custom date' : 'All');
+
+            if (value === 'CUSTOM_DATE') {
+                setIsCustomDatePopoverOpen(true);
+            } else {
+                setIsCustomDatePopoverOpen(false);
+            }
+        }
+    };
 
     const handleFilterChange = (filterType, value) => {
         if (filterType === 'status') {
@@ -118,6 +174,18 @@ const handleTabChange = (value) => {
         }         
         else if (filterType === 'tripCoordinator') {
             setTripCoordinatorFilter(prev => {
+                if (value === 'All') {
+                    return ['All'];
+                } else {
+                    const newFilter = prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+                    return newFilter.length === 0 ? ['All'] : newFilter;
+                }
+            });
+        }
+        else if (filterType === 'zone') {
+            setZoneFilter(prev => {
                 if (value === 'All') {
                     return ['All'];
                 } else {
@@ -177,6 +245,8 @@ const handleTabChange = (value) => {
             status: statusFilter,
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
+            tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
+            zone: zoneFilter.includes('All') ? ['All'] : zoneFilter,
         };
         
         // Calculate startDate and endDate based on dateFilter
@@ -191,10 +261,10 @@ const handleTabChange = (value) => {
             const today = moment().format('YYYY-MM-DD');
             startDate = today;
             endDate = today;
-        } else if (dateFilter === 'Tomorrow') {
+        } else if (dateFilter === 'Future') {
             const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
             startDate = tomorrow;
-            endDate = tomorrow;
+            endDate = "";
         } else if (dateFilter === 'Last 7 days') {
             startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
             endDate = moment().format('YYYY-MM-DD');
@@ -209,7 +279,7 @@ const handleTabChange = (value) => {
             'page': page,
             'limit': pagination.itemsPerPage,
             'filterType': JSON.stringify(filterType),
-            'bookingNumber': searchBookingId,
+            'bookingNumber': effectiveSearchId,
         };
         
         // Add date parameters if they exist
@@ -230,21 +300,26 @@ const handleTabChange = (value) => {
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
                 setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+                setOnlineDrivers(data?.onlineDrivers || []);
+                setTotalDriverCount(data?.totalDrivers || 0);
                 setSelectedBookingId(null);
             } 
             else {
                 setBookingsList([]);
+                setOnlineDrivers([]);
                 setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
             }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
+            setOnlineDrivers([]);
             setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
+        setOnlineDrivers([]);
         setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
     } finally {
         setLoading(false);
@@ -283,6 +358,11 @@ const handleTabChange = (value) => {
                 }
             };
   
+             useEffect(() => {
+                    if (onRegisterRefresh) {
+                    onRegisterRefresh(() => handleRefresh);
+                    }
+                }, [onRegisterRefresh]);
     useEffect(() => {
         // Skip automatic API call if we're in the middle of a manual date filter operation
         if (isManualDateFilter) {
@@ -296,7 +376,7 @@ const handleTabChange = (value) => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, searchBookingId, bookingStage, type, pagination.currentPage, activeTab,statusFilter,sourceFilter,tripCoordinatorFilter, dateFilter, customDateFrom, customDateTo]);
+    }, [customerId, effectiveSearchId, bookingStage, type, pagination.currentPage, activeTab, statusFilter, sourceFilter, tripCoordinatorFilter, zoneFilter, dateFilter, customDateFrom, customDateTo]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -410,10 +490,10 @@ const handleTabChange = (value) => {
     ];
     const tabs = [
         { label: 'All Bookings', value:'ALL_BOOKINGS'},
-        { label: 'Past', value:'PAST'},
+        // { label: 'Past', value:'PAST'},
         { label: 'Today', value: 'TODAY' },
-        { label: 'Tomorrow', value: 'TOMORROW' },
-        { label: 'All Future Bookings', value: 'REMAINING' },
+        { label: 'Future', value: 'REMAINING' },
+        { label: 'Custom date', value: 'CUSTOM_DATE' },
     ];
 
     const handleRefresh = () => {
@@ -424,60 +504,37 @@ const handleTabChange = (value) => {
         setStatusFilter(['All']);
         setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
-        setDateFilter('All'); // Reset to All as default
+        setServiceTypeFilter(['All']);
+        setZoneFilter(['All']);
+        setDateFilter('All');
         setCustomDateFrom('');
         setCustomDateTo('');
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
-        
-        // Force API call with Today's date
-        // const today = moment().format('YYYY-MM-DD');
-        triggerFilteredAPICall('', '', 1);
+        setEffectiveSearchId('');
+        localStorage.removeItem('bookingSearchId');
+        triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], ['All'], '');
     };
 
-    // Date filtering implementation
-    const handleDateFilter = () => {
-        // console.log('Date filter applied:', {
-        //     filter: dateFilter,
-        //     customFrom: customDateFrom,
-        //     customTo: customDateTo
-        // });
-        
-        // Set manual filter flag to prevent useEffect conflicts
-        setIsManualDateFilter(true);
-        
-        // Reset pagination when applying date filter
-        setPagination((prev) => ({ ...prev, currentPage: 1 }));
-        
-        // Calculate dates based on current filter
-        let startDate = '';
-        let endDate = '';
-        if (dateFilter === 'All') {
-            const all = moment().format('YYYY-MM-DD');
-            startDate = '';
-            endDate = '';
-        }
-        else if (dateFilter === 'Today') {
-            const today = moment().format('YYYY-MM-DD');
-            startDate = today;
-            endDate = today;
-        } else if (dateFilter === 'Tomorrow') {
-            const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
-            startDate = tomorrow;
-            endDate = tomorrow;
-        } else if (dateFilter === 'Last 7 days') {
-            startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
-            endDate = moment().format('YYYY-MM-DD');
-        } else if (dateFilter === 'Custom date') {
-            startDate = customDateFrom;
-            endDate = customDateTo;
-        }
-        
-        // Use the direct API call function to avoid state timing issues
-        triggerFilteredAPICall(startDate, endDate, 1);
-    };
+//     // Date filtering implementation
+//    const handleDateFilter = () => {
+//     console.log('Date filter applied:', {
+//         filter: dateFilter,
+//         customFrom: customDateFrom,
+//         customTo: customDateTo
+//     });
+    
+//     if (dateFilter === 'Custom date' && (!customDateFrom || !customDateTo)) {
+//         console.warn('Please select both From and To dates');
+//         return;
+//     }
+    
+//     setIsManualDateFilter(true);
+//     setPagination((prev) => ({ ...prev, currentPage: 1 }));
+//     triggerFilteredAPICall(customDateFrom, customDateTo, 1);
+// };
 
     // Function to trigger API call with specific dates (bypasses state timing issues)
-    const triggerFilteredAPICall = async (startDate, endDate, page = 1) => {
+   const triggerFilteredAPICall = async (startDate, endDate, page = 1, statusFilterParam = statusFilter, sourceFilterParam = sourceFilter, tripCoordinatorFilterParam = tripCoordinatorFilter, serviceTypeFilterParam = serviceTypeFilter, zoneFilterParam = zoneFilter, effectiveSearchIdParam = effectiveSearchId) => {
         setLoading(true);
         
         // Clear existing data to show loading state
@@ -486,9 +543,11 @@ const handleTabChange = (value) => {
         try {
             const filterType = {
                 type: activeTab,
-                status: statusFilter,
-                source: sourceFilter,
-                tripCoordinator: tripCoordinatorFilter,
+                status: statusFilterParam,
+                source: sourceFilterParam,
+                tripCoordinator: tripCoordinatorFilterParam,
+                tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
+                zone: zoneFilterParam.includes('All') ? ["All"] : zoneFilterParam,
             };
             
             const queryParams = {
@@ -497,7 +556,7 @@ const handleTabChange = (value) => {
                 'page': page,
                 'limit': pagination.itemsPerPage,
                 'filterType': JSON.stringify(filterType),
-                'bookingNumber': searchBookingId,
+                'bookingNumber': effectiveSearchIdParam,
             };
             
             // Add date parameters
@@ -540,158 +599,183 @@ const handleTabChange = (value) => {
         }
     };
 
+    const handleFollowupClick = async (bookingId, currentFollowup) => {
+        const nextStatus = currentFollowup === 'NONE' ? 'FOLLOWUP' : currentFollowup === 'FOLLOWUP' ? 'FOLLOWUP_COMPLETED' : 'FOLLOWUP_COMPLETED';
+        try {
+            setFollowupLoading((prev) => ({ ...prev, [bookingId]: true }));
+            const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_FOLLOWUP, { bookingId, followup: nextStatus, userId });
+            if (response?.success) {
+                await getBookingsList(pagination.currentPage);
+            } else {
+                console.error('Follow-up update failed:', response?.message);
+            }
+        } catch (error) {
+            console.error('Error updating follow-up:', error);
+        } finally {
+            setFollowupLoading((prev) => ({ ...prev, [bookingId]: false }));
+        }
+    };
+
+    function getFollowup(status) {
+        switch (status) {
+            case 'NONE': return 'Call Back';
+            case 'FOLLOWUP': return 'Call Back Complete';
+            case 'FOLLOWUP_COMPLETED': return 'Call Back Completed';
+            default: return 'Call Back';
+        }
+    }
 
     return (
         <div className="flex flex-col bg-white rounded-xl shadow-lg" >
-            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <FaCalendarAlt className="text-primary w-5 h-5" />
-                        <Typography variant="h6" className="text-gray-800 font-semibold">
-                            Date Filter
-                        </Typography>
-                    </div>
-                    
-                    {/* Date Filter Options */}
-                    <div className="flex flex-wrap gap-3">
-                        {['All','Today', 'Tomorrow', 'Last 7 days', 'Custom date'].map((option) => (
-                            <label key={option} className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="dateFilter"
-                                    value={option}
-                                    checked={dateFilter === option}
-                                    onChange={(e) => {
-                                        const selectedFilter = e.target.value;
-                                        setDateFilter(selectedFilter);
-                                        
-                                        // Auto-trigger API call for non-custom date options
-                                        if (selectedFilter !== 'Custom date') {
-                                            // Set manual filter flag to prevent useEffect conflicts
-                                            setIsManualDateFilter(true);
-                                            
-                                            // Reset pagination and trigger API with the new filter value directly
-                                            setPagination((prev) => ({ ...prev, currentPage: 1 }));
-                                            
-                                            // Manually calculate dates and call API immediately
-                                            let startDate = '';
-                                            let endDate = '';
-
-                                            if (selectedFilter === 'All') {
-                                                const all = moment().format('YYYY-MM-DD');
-                                                startDate = '';
-                                                endDate = '';
-                                            }
-                                            else if (selectedFilter === 'Today') {
-                                                const today = moment().format('YYYY-MM-DD');
-                                                startDate = today;
-                                                endDate = today;
-                                            } else if (selectedFilter === 'Tomorrow') {
-                                                const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
-                                                startDate = tomorrow;
-                                                endDate = tomorrow;
-                                            } else if (selectedFilter === 'Last 7 days') {
-                                                startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
-                                                endDate = moment().format('YYYY-MM-DD');
-                                            }
-                                            
-                                            // Call API immediately with calculated dates
-                                            triggerFilteredAPICall(startDate, endDate);
-                                        }
-                                    }}
-                                    className="text-primary"
-                                />
-                                <Typography variant="small" className="text-gray-700">
-                                    {option}
-                                </Typography>
-                            </label>
-                        ))}
-                    </div>
-
-                    {/* Custom Date Inputs */}
-                    {dateFilter === 'Custom date' && (
-                        <div className="flex items-center gap-3 ml-4">
-                            <div className="flex items-center gap-2">
-                                <Typography variant="small" className="text-gray-600">
-                                    From:
-                                </Typography>
-                                <input
-                                    type="date"
-                                    value={customDateFrom}
-                                    onChange={(e) => setCustomDateFrom(e.target.value)}
-                                    className="px-3 py-1 border border-gray-300 rounded-md text-sm"
-                                    max={customDateTo || undefined}
-                                />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Typography variant="small" className="text-gray-600">
-                                    To:
-                                </Typography>
-                                <input
-                                    type="date"
-                                    value={customDateTo}
-                                    onChange={(e) => setCustomDateTo(e.target.value)}
-                                    className="px-3 py-1 border border-gray-300 rounded-md text-sm"
-                                    min={customDateFrom || undefined}
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Search Button */}
-                    <Button
-                        size="sm"
-                        className="bg-primary text-white hover:bg-primary-600 flex items-center gap-2"
-                        onClick={handleDateFilter}
-                        disabled={dateFilter === 'Custom date' && (!customDateFrom || !customDateTo)}
-                    >
-                        <FaFilter className="w-4 h-4" />
-                        Search
-                    </Button>
-                </div>
-            </div>
-
             {/* Status Cards Section */}
-            <div className="w-full px-4 py-6 md:px-6 lg:px-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
-                    {[
-                    { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-blue-300 to-blue-800' },
-                    { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-400 border border-white border-2', bgColor: 'bg-gradient-to-br from-yellow-300 to-yellow-800' },
-                    { key: 'confirmedCount', label: 'Confirmed', icon: FaCheckCircle, color: 'bg-red-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-red-400 to-red-800' },
-                    { key: 'endedCount', label: 'Ended', icon: FaCheckCircle, color: 'bg-green-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-green-400 to-green-800' },
-                    { key: 'supportCount', label: 'Support Cancelled', icon: FaClipboardList, color: 'bg-purple-500 border border-white border-2', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-800' },
-                    ].map((item, index) => {
-                    const IconComponent = item.icon;
-                    return (
-                        <div
-                        key={index}
-                        className={`p-4 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center ${item.bgColor}`}
+            <div className="w-full px-4 py-3 md:px-6 lg:px-8">
+                <div className="relative">
+                    {/* Booking Status Count Section */}
+                    <div className="absolute top-0  right-0 flex gap-4 justify-end">
+                        
+                        <button
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-2 rounded-lg text-sm shadow-lg"
+                            onClick={() => {
+                                handleRefresh();
+                            }}
                         >
-                        <Typography variant="small" className="text-white font-medium mb-2">
-                            {item.label}
-                        </Typography>
-                        <div className="flex flex-row items-center justify-between w-full space-x-4">
-                            <div className="w-1/2">
-                            <Typography variant="h3" className="font-bold text-white text-xl md:text-2xl">
-                                {counts[item.key]}
+                            <span className="flex items-center gap-2">
+                                <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+                                Refresh
+                            </span>
+                        </button>
+                    </div>
+                
+                    {/* Status Cards Grid */}
+                        <div className="grid grid-cols-1 py-12 sm:grid-cols-2 md:grid-cols-7 gap-2">
+                            {[
+                                { key: 'totalBookingCount', label: 'Total Bookings', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
+                                { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-50 text-yellow-900', chipColor: 'bg-yellow-600 text-white' },
+                                { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-50 text-purple-900', chipColor: 'bg-purple-600 text-white' },
+                                { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-50 text-green-900', chipColor: 'bg-green-600 text-white' },
+                                { key: 'supportCount', label: 'Support Cancelled', icon: FaExclamationTriangle, color: 'bg-red-50 text-red-900', chipColor: 'bg-red-600 text-white' },
+                            ].map((item, index) => {
+                                const IconComponent = item.icon;
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`p-2 rounded-lg shadow-md flex flex-col items-center justify-center min-w-[80px] ${item.color}`}
+                                    >
+                                        <Typography variant="small" className="text-xs font-medium mb-1 text-center w-full">
+                                            {item.label}
+                                        </Typography>
+                                        <div className="flex items-center justify-center w-full">
+                                            <Typography variant="h6" className="font-bold text-2xl">
+                                                {counts[item.key]}
+                                            </Typography>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        <div className="bg-gradient-to-r from-blue-100 to-blue-100 text-blue-900 p-2 rounded-lg shadow-md flex flex-col items-center justify-center min-w-[120px]">
+                            <div className="flex items-center justify-center mb-1 w-full">
+                            <Typography variant="small" className="font-bold text-xs text-blue-900">
+                                    Total Drivers
                             </Typography>
+                        </div>
+                            <div className='flex gap-2 items-center'>
+                                <Typography variant="h3" className="font-bold text-2xl text-blue-900">{totalDriverCount}</Typography>
+                                {/* <FaUsers className="w-5 h-5 mr-2 text-blue-900" /> */}
                             </div>
-                            <div className={`flex justify-center items-center w-12 h-12 md:w-14 md:h-14 rounded-full ${item.color}`}>
-                            <IconComponent className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                            
+                    {/* Hourly Online Drivers Section */}
+                    {/* <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                        <div className="flex justify-between items-center mb-2">
+                            <Typography variant="h6" className="text-gray-900 text-sm">
+                                Hourly Online Drivers
+                            </Typography>
+                            <Button
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm"
+                                onClick={handleToggleDriverHours}
+                            >
+                                Select Slot
+                            </Button>
+                        </div> */}
+                        </div>
+                        <div className="bg-gradient-to-r from-green-100 to-green-100 text-green-900 p-2 rounded-lg text-center flex flex-col items-end min-w-[120px]">
+                            <div className="flex items-center justify-center w-full">
+                                <Typography variant="small" className="font-bold text-xs text-green-900">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+                                {/* <FaSync className="w-4 h-4 mr-2 text-green-900" /> */}
+                            </div>
+                            <div className="flex items-center justify-center w-full">
+                                <Typography variant="h3" className="font-bold text-2xl text-green-900">{selectedDriver?.count || 0}</Typography>
+                            </div>
+                            {/* <Typography variant="small" className="mt-1 font-medium text-xs text-green-900">Updated: {selectedTime}</Typography> */}
+                        </div>
+                    </div>
+                </div>                    
+                        {/* {showDriverHours && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl ml-36">
+                                    <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+                                        {Array.from({ length: 24 }, (_, i) => {
+                                            const startHour = i;
+                                            const endHour = (i + 1) % 24;
+                                            const timeRange = `${String(startHour).padStart(2, '0')}:00 - ${String(endHour).padStart(2, '0')}:00`;
+                                            const driverCount = onlineDrivers.find(driver => {
+                                                const driverTime = moment(driver.date_time).hour();
+                                                return driverTime === startHour;
+                                            });
+
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    className={`bg-gray-100 text-gray-800 p-2 rounded text-center cursor-pointer ${selectedHour === i ? 'border-2 border-black' : ''}`}
+                                                    onClick={() => handleHourSelect(i)}
+                                                >
+                                                    <Typography variant="small" className="text-xs font-bold mb-1">
+                                                        {timeRange}
+                                                    </Typography>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="flex justify-end mt-4">
+                                        <Button
+                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+                                            onClick={() => setShowDriverHours(false)}
+                                        >
+                                            Close
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )} */}
+                        {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
+                            <div className="bg-blue-400 bg-gradient-to-br from-blue-500 to-blue-800 text-white p-2 rounded-lg text-center flex flex-col items-center">
+                                <div className="flex items-center mb-1">
+                                    <FaUsers className="w-6 h-6 mr-1 text-white" />
+                                    <Typography variant="small" className="text-white font-bold text-xs">
+                                        Total Drivers
+                                    </Typography>
+                                </div>
+                                <Typography variant="h3" className="font-bold text-xl">{totalDriverCount}</Typography>
+                            </div>
+                            <div className="bg-green-600 bg-gradient-to-br from-green-600 to-green-800 text-white p-2 rounded-lg text-center flex flex-col items-center">
+                                <div className="flex items-center">
+                                    <FaSync className="w-5 h-5 mr-1 text-white" />
+                                    <Typography variant="small" className="font-bold text-xs">Online at {String(selectedHour).padStart(2, '0')}:00</Typography>
+                                </div>
+                                <Typography variant="h3" className="font-bold text-xl">{selectedDriver?.count || 0}</Typography>
+                                <Typography variant="small" className="mt-1 font-medium text-xs text-white">Last Updated: {selectedTime}</Typography>
                             </div>
                         </div>
-                        </div>
-                    );
-                    })}
+                    </div>
                 </div>
-                </div>
-            <div className='px-3 py-3'>
+            </div > */}
+            </div>
+            {/* <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
                     {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : type == 'AUTO' ? 'Auto' : type == 'PARCEL' ? 'Parcel' : 'Bookings'}
                 </Typography>
-            </div>
+            </div> */}
             <Card>
-                <div className='absolute right-10 -top-10'>
+                {/* <div className='absolute right-10 -top-10'>
                     <button
                         className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-2xl flex items-center gap-2"
                         onClick={handleRefresh}
@@ -699,34 +783,83 @@ const handleTabChange = (value) => {
                         <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
                         <span>Refresh</span>
                     </button>
-                </div>
-                <CardBody>
+                </div> */}
+                <CardBody className='pt-0'>
                     <Tabs  value={activeTab} >
-                        <TabsHeader className="bg-gray-300 z-0">
+                        <TabsHeader className="bg-gray-300 z-0 mb-4">
+                    <div className="flex w-full items-center">
+                        <div className="flex w-full">
                             {tabs.map(({ label, value }) => (
                                 <Tab
                                     key={value}
                                     value={value}
-                                    onClick={() => {
-                                        // console.log('Tab clicked:', value);
-                                        handleTabChange(value);
-                                    }}
-                                    className='cursor-pointer'
+                                    onClick={() => handleTabChange(value)}
+                                    className='cursor-pointer flex-1 text-center'
                                 >
+                    <div className="flex items-center">
                                     <Typography variant="small" className="font-bold">
                                         {label}
                                     </Typography>
-                                    
-                                </Tab>
-                            ))}
+                        {value === 'CUSTOM_DATE' && (
+                            <Popover placement="bottom-start" open={isCustomDatePopoverOpen}>
+                                <PopoverHandler>
+                                    <div className="flex items-center cursor-pointer ml-2">
+                                        <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                                    </div>
+                                </PopoverHandler>
+                                <PopoverContent className="p-4 z-10 bg-white shadow-lg rounded-lg">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <Typography variant="small" className="text-gray-600">
+                                                From:
+                                            </Typography>
+                                            <input
+                                                type="date"
+                                                value={customDateFrom}
+                                                onChange={(e) => setCustomDateFrom(e.target.value)}
+                                                onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                                                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                                                // max={customDateTo || undefined}
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Typography variant="small" className="text-gray-600">
+                                                To:
+                                            </Typography>
+                                            <input
+                                                type="date"
+                                                value={customDateTo}
+                                                onChange={(e) => setCustomDateTo(e.target.value)}
+                                                onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                                                className="px-3 py-1 ml-4 border border-gray-300 rounded-md text-sm"
+                                                // min={customDateFrom || undefined}
+                                            />
+                                        </div>
+                                        {/* <Button
+                                            size="sm"
+                                            className="bg-primary text-white hover:bg-primary-600 flex items-center gap-2"
+                                            onClick={handleDateFilter}
+                                            disabled={!customDateFrom || !customDateTo}
+                                        >
+                                            <FaFilter className="w-4 h-4" />
+                                            Apply
+                                        </Button> */}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                                )}
+                    </div>
+                </Tab>
+            ))}
+        </div>
+                            </div>
                         </TabsHeader>
-                        <TabsBody  className='overflow-x-scroll px-0 pt-0 pb-2'>
-                            {/* <Typography variant="small" className="mt-2 text-blue-gray-600">
-                                Total Bookings: {pagination.totalItems}
-                            </Typography> */}
-                            {tabs.map(({ value }) => (
-                                <TabPanel key={value} value={value}>
-                                    {loading ? (
+                        <TabsBody className='overflow-x-scroll px-0 pt-0 pb-2'>
+
+
+
+                            
+                            {loading ? (
                     <div className="flex justify-center items-center h-screen">
                         <Spinner className="h-12 w-12" />
                     </div>
@@ -740,7 +873,7 @@ const handleTabChange = (value) => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Co-Ordinator", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Zone", "Status","Trip Owner", "Follow Up", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
@@ -774,17 +907,33 @@ const handleTabChange = (value) => {
                                                                 )
                                                             )}
                                                         </th>
+                                                    ) : el === "Zone" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'Vellore', label: 'Vellore' },
+                                                                { value: 'Thiruvannamalai', label: 'Thiruvannamalai' },
+                                                                { value: 'Chennai', label: 'Chennai' },
+                                                                { value: 'Kanchipuram', label: 'Kanchipuram' },
+                                                            ]}
+                                                            selectedFilters={zoneFilter}
+                                                            onFilterChange={(value) => handleFilterChange('zone', value)}
+                                                        />
                                                     ) : el === "Status" ? (
                                                         <FilterPopover
                                                             title={el}
                                                             options={[
                                                                 { value: 'All', label: 'All' },
                                                                 { value: 'QUOTED', label: 'Quoted' },
+                                                                { value: 'BOOKING_ACCEPTED', label: 'Driver Accepted' },
                                                                 { value: 'CONFIRMED', label: 'Booking Confirmed' },
                                                                 { value: 'REQUEST_DRIVER', label: 'Request Driver' },
                                                                 { value: 'STARTED', label: 'Started' },
                                                                 { value: 'ENDED', label: 'Ended' },
-                                                                { value: 'CUSTOMER_CANCELLED', label: 'Cancelled' },
+                                                                { value: 'CUSTOMER_CANCELLED', label: 'Customer Cancelled' },
+                                                                { value: 'SUPPORT_CANCELLED', label: 'Support Cancelled' },
+                                                                { value: 'COMPLETED', label: 'Completed' },
                                                             ]}
                                                             selectedFilters={statusFilter}
                                                             onFilterChange={(value) => handleFilterChange('status', value)}
@@ -843,7 +992,7 @@ const handleTabChange = (value) => {
                                                             //                    <DateRangeFilter onFilterChange={(values) => handleFilterChange('dateRange', values)} />
                                                             //                 }
                                                             //             />
-                                                                el === "Trip Co-Ordinator" ? (
+                                                                el === "Trip Owner" ? (
                                                                     <FilterPopover
                                                                         title={el}
                                                                         options={tripCoordinatorOptions}
@@ -872,7 +1021,7 @@ const handleTabChange = (value) => {
                                                 <Button
                                                 className={`${ColorStyles.bgStatusColor} text-white w-28 mt-14`}
                                                 onClick={() => {
-                                                    onRequestDriverHandler(selectedBookingForReassign, 'REQUEST_ALL');
+                                                    onRequestDriverHandler(selectedBookingForReassign, 'DRIVER');
                                                     setShowReassignModal(false);
                                                     setSelectedBookingForReassign(null);
                                                 }}
@@ -895,10 +1044,15 @@ const handleTabChange = (value) => {
                                         )}
                                         {bookingsList
                                             .filter(booking =>
-                                                (statusFilter.includes('All') || statusFilter.includes(booking.status)) &&
+                                                (statusFilter.includes('All') ||
+                                                (statusFilter.includes('COMPLETED') && booking.status === 'ENDED'  && booking.tripStatus === true) ||
+                                                (statusFilter.includes('ENDED') && booking.status === 'ENDED' && booking.tripStatus === false) ||
+                                                (statusFilter.includes(booking.status) && booking.status !== 'ENDED'))
+                                                &&
                                                 (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
                                                 (sourceFilter.includes('All') || sourceFilter.includes(booking.source)) &&
-                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id))
+                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id)) &&
+                                                (zoneFilter.includes('All') || zoneFilter.includes(booking.zone))
                                             )
                                             .map((data, key) => {
                                                const isSelected = data.id === selectedBookingId;
@@ -969,6 +1123,11 @@ const handleTabChange = (value) => {
                                                                 {moment(data?.created_at).format('DD-MM-YYYY / hh:mm A')}
                                                             </Typography>
                                                         </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.zone ? data?.zone : '-'}
+                                                            </Typography>
+                                                        </td>
                                                         {/* <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                             {data?.ownership === "ASSIGNED_TO_SUPPORT" ? (
@@ -1019,7 +1178,7 @@ const handleTabChange = (value) => {
                                                             <Chip
                                                                 variant="ghost"
                                                                 // color={"blue"}
-                                                                value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status}
+                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "BOOKING_ACCEPTED" ? "DRIVER_ACCEPTED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Call Back Completed" : data?.status}
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
                                                                     data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
@@ -1057,6 +1216,29 @@ const handleTabChange = (value) => {
                                                                 )}
                                                                 </Button>
                                                             )}
+                                                        </td>
+                                                        <td className={className}>
+                                                            <button
+                                                                className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-sm px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
+                                                                    ? 'bg-blue-500'
+                                                                    : (data?.followup || 'NONE') === 'FOLLOWUP'
+                                                                        ? 'bg-yellow-600'
+                                                                        : 'bg-green-600'
+                                                                    } ${data?.userId && data?.User && data?.status === 'QUOTED' && !followupLoading[data.id] && (data?.followup || 'NONE') !== 'FOLLOWUP_COMPLETED' ? '' : 'bg-blue-gray-100'}`}
+                                                                onClick={() => handleFollowupClick(data.id, (data?.followup || 'NONE'))}
+                                                                disabled={
+                                                                    !(data?.userId && data?.User && data?.status === 'QUOTED') ||
+                                                                    followupLoading[data.id] ||
+                                                                    (data?.followup || 'NONE') === 'FOLLOWUP_COMPLETED'
+                                                                }
+                                                            >
+                                                                {/* {followupLoading[data.id] ? (
+                                                                    <Spinner className="h-6 w-6" />
+                                                                ) : (
+                                                                    <FaPhone className="w-6 h-6 rotate-90" />
+                                                                )} */}
+                                                                {getFollowup(data?.followup || 'NONE')}
+                                                            </button>
                                                          </td>
                                                         
                                                         <td className={className}>
@@ -1069,21 +1251,25 @@ const handleTabChange = (value) => {
                                                                     End Trip
                                                                 </Button>
                                                             } */}
-                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                                {['RIDES', 'RENTAL', 'DRIVER','AUTO'].includes(data?.serviceType) && ([ 'CONFIRMED','REQUEST_DRIVER'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType =="DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && 
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Request {data?.serviceType === "AUTO"
+                                                                    Request {
+                                                                    data?.serviceType === "AUTO"
                                                                                 ? "Auto"
-                                                                                : data?.serviceType === "DRIVER"
+                                                                                : 
+                                                                                data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                // : data?.serviceType === "PARCEL"
+                                                                                // ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {(['INITIATED', 'QUOTED', 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES"  || data?.serviceType == "RENTAL"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                            {([ 'CONFIRMED', 'QUOTED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER" || data?.serviceType == "AUTO"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
@@ -1094,6 +1280,8 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
+                                                                                ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
@@ -1111,6 +1299,8 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
+                                                                                ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
@@ -1125,6 +1315,7 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL" ? "Bike"
                                                                                 : "Cab"}
                                                                    
                                                                 </Button>
@@ -1159,8 +1350,6 @@ const handleTabChange = (value) => {
                                 </div>
                             </>
                         )}
-                                </TabPanel>
-                            ))}
                         </TabsBody>
                     </Tabs>
                     </CardBody>

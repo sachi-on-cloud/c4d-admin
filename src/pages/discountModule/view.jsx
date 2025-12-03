@@ -74,11 +74,15 @@ const DiscountView = () => {
                 <tr>
                   <th className="py-3 px-5 text-left">Service Type</th>
                   <th className="py-3 px-5 text-left">Title</th>
+                  <th className="py-3 px-5 text-left">Coupon Code</th>
                   <th className="py-3 px-5 text-left">Description</th>
                   <th className="py-3 px-5 text-left">Percentage</th>
                   <th className="py-3 px-5 text-left">Start Date</th>
                   <th className="py-3 px-5 text-left">End Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
+                  <th className="py-3 px-5 text-left">Image</th>
+                  <th className="py-3 px-5 text-left">Premium</th>
+                  <th className="py-3 px-5 text-left">Cab Type</th>
                   <th className="py-3 px-5 text-left">City</th>
                   <th className="py-3 px-5 text-left">Actions</th>
                 </tr>
@@ -93,6 +97,11 @@ const DiscountView = () => {
                     <tr key={index} className="border-b">
                       <td className="py-3 px-5">{serviceTypeLabels[item.serviceType] || item.serviceType}</td>
                       <td className="py-3 px-5">{item.title || '-'}</td>
+                      <td className="py-3 px-5 font-semibold">
+                        <div className=' text-green-600'>
+                            {item.couponCode || '-'}
+                        </div>
+                        </td>
                       <td className="py-3 px-5">{item.description || '-'}</td>
                       <td className="py-3 px-5">{item.percentage}%</td>
                       <td className="py-3 px-5">{moment(item.startDate).format('DD-MM-YYYY ')}</td>
@@ -102,6 +111,21 @@ const DiscountView = () => {
                           ? <span className="text-green-600 font-semibold">Active</span>
                           : <span className="text-red-600 font-semibold">Inactive</span>}
                       </td>
+                      <td className="py-3 px-5">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt="discount"
+                            className="w-32 h-auto rounded-md"
+                          />
+                        ) : (
+                          <div className="w-32  bg-gray-200 border-2 border-dashed rounded-md flex items-center justify-center  h-20">
+                            <span className="text-gray-500 text-xs">No Image</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-5">{item.isPremium ? 'Premium' : 'Not Premium'}</td>
+                      <td className="py-3 px-5">{item.cabType}</td>
                       <td className="py-3 px-5">
                         {item.serviceArea && item.serviceArea.length > 0 ? (
                           item.serviceArea.map((area, index) => (
