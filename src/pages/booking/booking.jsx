@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, Feature } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -112,7 +112,7 @@ const Booking = (props) => {
       setServiceAreas(filteredAreas);
       if (response.premiumServices) {
       setPremiumServicesMap(response.premiumServices);
-      console.log("Premium Services Map Loaded:", response.premiumServices);
+    //   console.log("Premium Services Map Loaded:", response.premiumServices);
     }
     //   console.log('Available service areas:', filteredAreas);
     } catch (error) {
@@ -127,7 +127,7 @@ const Booking = (props) => {
   useEffect(() => {
     if (selectedAreaId) {
       const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
-      const newServices = selectedArea ? selectedArea.services : [];
+      const newServices = (selectedArea ? selectedArea.services : []).filter(services => Feature.parcel || services !== 'PARCEL');
       setServices(newServices);
     //   console.log('Services for selected area:', newServices);
       setCurrentServiceType('');
@@ -1248,7 +1248,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     {bookingData?.serviceType &&
                                                         <div className={`rounded-md text-white text-sm font-semibold mr-2 ${bookingData?.serviceType ? 'bg-red-300' : 'bg-gray-400' }`}>
                                                             <Typography className='font-semibold text-sm px-1 py-1 text-white'>
-                                                                {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : 'Outstation'}
+                                                                {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingData?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingData?.serviceType == 'PARCEL' ? 'Parcel' : 'Outstation'}
                                                             </Typography>
                                                         </div>}
                                                     {bookingData?.isPremiumService &&

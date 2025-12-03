@@ -12,7 +12,7 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, BOOKING_TERMS_AND_CONDITIONS  } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS, BOOKING_TERMS_AND_CONDITIONS, Feature  } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
@@ -378,7 +378,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                     {(
                         (bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP") ||
                         (bookingDetails.ownership === "ASSIGNED_TO_SUPPORT" &&
-                            (bookingDetails.serviceType === "AUTO" || bookingDetails.serviceType === "PARCEL"))
+                            (bookingDetails.serviceType === "AUTO" || (Feature.parcel && bookingDetails.serviceType === "PARCEL")))
                     ) && (
                     <Button
                         color="green"
@@ -414,7 +414,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                     )
                 }
 
-                {bookingDetails?.status === 'QUOTED' && bookingDetails?.serviceType !== 'PARCEL' && (
+                {bookingDetails?.status === 'QUOTED' && (Feature.parcel && bookingDetails?.serviceType !== 'PARCEL') && (
                     <Button
                         color="black"
                         variant="outlined"
@@ -670,7 +670,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
 
                     </CardBody>
                 </Card>
-            {(bookingDetails?.serviceType === 'PARCEL') && (
+            {(Feature.parcel && bookingDetails?.serviceType === 'PARCEL') && (
                 <Card className="mb-2">
                     <CardBody>
                         <div className="flex justify-between mb-2">
@@ -688,7 +688,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                     {bookingDetails?.deliveryDetails?.senderPhone}
                                 </Typography>
                             </div>
-                            {bookingDetails?.serviceType == "PARCEL" &&
+                            {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Order Type:</Typography>
                                 <Typography>{bookingDetails?.orderType}</Typography>
@@ -822,9 +822,9 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Type:</Typography>
-                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : 'Outstation'}</Typography>
+                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</Typography>
                             </div>
-                            {bookingDetails?.serviceType == "PARCEL" &&
+                            {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Delivery Type:</Typography>
                                 <Typography>
@@ -907,27 +907,27 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                             <Typography>{bookingDetails?.Cab?.carType}</Typography>
                         </div>
                     )}
-                            {bookingDetails?.carType && bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
+                            {bookingDetails?.carType && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
+                            {bookingDetails?.serviceType != 'RIDES' && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Luggage:</Typography>
                                     <Typography>{bookingDetails.luggage || '0'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType != 'PARCEL' && bookingDetails?.serviceType !='AUTO' &&
+                            {bookingDetails?.serviceType != 'RIDES' && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Seater Capacity:</Typography>
                                     <Typography>{bookingDetails.seaterCapacity || '0'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' && bookingDetails?.serviceType != 'PARCEL' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Package:</Typography>
                                     <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
@@ -961,7 +961,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                     <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
                                 </div>
                             }
-                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'PARCEL' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
+                                {bookingDetails?.serviceType != 'RIDES' && (Feature.parcel && bookingDetails?.serviceType !== 'PARCEL') && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total Distance:</Typography>
                                     <Typography>{(Number(bookingDetails?.totalDistanceKilometer))} Kms</Typography>

@@ -26,7 +26,7 @@ import {
   UserGroupIcon,
   MegaphoneIcon,
 } from '@heroicons/react/24/solid';
-import { API_ROUTES, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
@@ -291,7 +291,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Rides", path: "/dashboard/booking/list/rides" },
                       { label: "Rentals", path: "/dashboard/booking/list/rentals" },
                       
-                      { label: "Parcel", path:"/dashboard/booking/list/Parcel"}
+                      ...(Feature.parcel ? 
+                        [{ label: "Parcel", path:"/dashboard/booking/list/Parcel"}] 
+                        : []),
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -397,14 +399,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
-                      {
+                       ...(Feature.parcel ? [{
                         label: "Bike",
                         isSubMenu: true,
                         subItems: [
                           { label: "Bike Owner", path:"/dashboard/vendors/account/parcel/list" },
                           { label: "Bike List", path: "/dashboard/vendors/account/parcel" },
                         ],
-                      },
+                      }] : []),
                       {
                         label: "Auto",
                         isSubMenu: true,

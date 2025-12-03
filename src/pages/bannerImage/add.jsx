@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select'; // Assuming react-select is used
-import { ColorStyles, API_ROUTES } from '@/utils/constants';
+import { ColorStyles, API_ROUTES, Feature } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 
 // Debounce function (same as in Booking page)
@@ -281,7 +281,7 @@ const AddBanner = () => {
                     'AUTO',
                     'RIDES',
                     'DRIVER',
-                    'PARCEL',
+                     ...(Feature.parcel ? ['PARCEL']: []),
                     'RENTAL_HOURLY_PACKAGE',
                     'EMERGENCY_CONTACT',
                     'REFER_AND_EARN'

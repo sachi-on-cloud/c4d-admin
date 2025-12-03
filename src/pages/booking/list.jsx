@@ -19,7 +19,7 @@ import {
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, BOOKING_STATUS, ColorStyles, Feature } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
@@ -1280,7 +1280,7 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : data?.serviceType === "PARCEL"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
                                                                                 ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
@@ -1299,7 +1299,7 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : data?.serviceType === "PARCEL"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
                                                                                 ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
@@ -1315,8 +1315,7 @@ const handleTabChange = (value) => {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : data?.serviceType === "PARCEL"
-                                                                                ? "Bike"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL" ? "Bike"
                                                                                 : "Cab"}
                                                                    
                                                                 </Button>
