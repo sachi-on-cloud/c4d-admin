@@ -1248,7 +1248,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     {bookingData?.serviceType &&
                                                         <div className={`rounded-md text-white text-sm font-semibold mr-2 ${bookingData?.serviceType ? 'bg-red-300' : 'bg-gray-400' }`}>
                                                             <Typography className='font-semibold text-sm px-1 py-1 text-white'>
-                                                                {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingData?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingData?.serviceType == 'PARCEL' ? 'Parcel' : 'Outstation'}
+                                                                {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingData?.serviceType == 'AUTO' ? 'Auto' :  'Outstation'}
                                                             </Typography>
                                                         </div>}
                                                     {bookingData?.isPremiumService === true &&
@@ -2184,9 +2184,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </Typography>
                                                                         </>
                                                                         } */}
-                                                                        {(values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
+                                                                        {(quoteDetails.amount?.isPremiumFare !== true) && (values?.serviceType === 'RIDES' || values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
                                                                             <>
-                                                                        <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                            <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount?.carType || ''}
                                                                         </Typography>   
