@@ -414,7 +414,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                     )
                 }
 
-                {bookingDetails?.status === 'QUOTED' && (Feature.parcel && bookingDetails?.serviceType !== 'PARCEL') && (
+                {bookingDetails?.status === 'QUOTED' && (
                     <Button
                         color="black"
                         variant="outlined"
@@ -907,27 +907,27 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                             <Typography>{bookingDetails?.Cab?.carType}</Typography>
                         </div>
                     )}
-                            {bookingDetails?.carType && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') && bookingDetails?.serviceType !='AUTO' &&
+                            {bookingDetails?.carType  && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Car Type:</Typography>
                                     <Typography>{bookingDetails?.carType}</Typography>
                                 </div>
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') && bookingDetails?.serviceType !='AUTO' &&
+                            {bookingDetails?.serviceType != 'RIDES'  && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Luggage:</Typography>
                                     <Typography>{bookingDetails.luggage || '0'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') && bookingDetails?.serviceType !='AUTO' &&
+                            {bookingDetails?.serviceType != 'RIDES'  && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Seater Capacity:</Typography>
                                     <Typography>{bookingDetails.seaterCapacity || '0'}</Typography>
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' && (Feature.parcel && bookingDetails?.serviceType != 'PARCEL') &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' &&
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Package:</Typography>
                                     <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
@@ -961,7 +961,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                     <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
                                 </div>
                             }
-                                {bookingDetails?.serviceType != 'RIDES' && (Feature.parcel && bookingDetails?.serviceType !== 'PARCEL') && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
+                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Total Distance:</Typography>
                                     <Typography>{(Number(bookingDetails?.totalDistanceKilometer))} Kms</Typography>
