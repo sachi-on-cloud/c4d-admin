@@ -1299,22 +1299,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                        <div className="flex justify-center items-center mb-4">
                 <h2 className="text-2xl mr-2 font-bold text-center text-blue-700">Receipt</h2>
                 
-                {bookingDetails?.serviceType !== 'RIDES'&& (
-                <button
-                    onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
-                    className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
-                        }`}
-                    title={isEditingAdditionalCharges ? "Save Changes" : "Edit Additional Charges"}
-                >
-                    {isEditingAdditionalCharges ? (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                    ) : (
-                        <PencilIcon className="w-5 h-5" />
-                    )}
-                </button>
-            )}
+               
             </div>
                         <div className="mt-4 space-y-2">
                         {/* <div className="mt-3">
@@ -1524,25 +1509,36 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                 
                                 
                                     {/* Additional Charges Section */}
-{bookingDetails?.serviceType !== "RIDES" && (
-  <>
-    {/* Calculate total additional charges */}
-    {(() => {
-      const hasAnyCharge = Object.values(additionalCharges).some(val => val > 0);
-      const totalExtra = Object.values(additionalCharges).reduce((a, b) => a + b, 0);
 
-      // Hide entire section if no charges in view mode
-      if (!hasAnyCharge && !isEditingAdditionalCharges) return null;
-
-      return (
-        <>
+         {bookingDetails?.serviceType !== 'RIDES' &&  (
+            <>
           <hr className="my-1 border border-gray-400" />
           <div className="flex justify-between items-center mb-2">
-            <Typography variant="h6" className="font-semibold text-blue-700">
-              Additional Charges {isEditingAdditionalCharges && "(Editing)"}
+              
+            <Typography variant="h6" className="font-semibold text-blue-700 mr-2">
+              Additional Charges 
             </Typography>
+              
+               
+                  {bookingDetails?.serviceType !== 'RIDES' && (
+                <button
+                    onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
+                    className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                        }`}
+                    title={isEditingAdditionalCharges ? "Save Changes" : "Edit Additional Charges"}
+                >
+                    {isEditingAdditionalCharges ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                    ) : (
+                        <PencilIcon className="w-5 h-5" />
+                    )}
+                </button>)}
+                
           </div>
-
+</>
+)}
           {/* View Mode: Show only non-zero */}
           {!isEditingAdditionalCharges ? (
             <>
@@ -1571,12 +1567,27 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
               </div>
             ))
           )}
+          {(() => {
+      const hasAnyCharge = Object.values(additionalCharges).some(val => val > 0);
+      const totalExtra = Object.values(additionalCharges).reduce((a, b) => a + b, 0);
 
+      // Hide entire section if no charges in view mode
+      if (!hasAnyCharge && !isEditingAdditionalCharges) return null; 
+
+       return ( 
+       
+            <>
+            
           <hr className="my-4 border border-gray-400" />
           <div className="flex justify-between text-lg font-bold">
             <span className="text-green-700">Final Amount:</span>
             <span className="text-green-700">₹ {finalAmountAfterExtras}</span>
           </div>
+          </>
+          )
+        
+      
+     })()} 
 
           {/* Edit/Save Buttons */}
           {isEditingAdditionalCharges && (
@@ -1585,15 +1596,11 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                 Cancel
               </Button>
               <Button size="sm" color="green" onClick={() => { handleRecalculateAndSaveExtraCharges(); setIsEditingAdditionalCharges(false); }} disabled={loading}>
-                {loading ? "Saving..." : "Recalculate"}
+                Submit
               </Button>
             </div>
           )}
-        </>
-      );
-    })()}
-  </>
-)}
+     
             </div>
         </div>
         </div>
