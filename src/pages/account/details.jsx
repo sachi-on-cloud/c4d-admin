@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, Feature } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
 import { Button } from '@material-tailwind/react';
@@ -60,7 +60,9 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             <option value="">Select Type</option>
                                             <option value="Individual">Owner Cum Driver</option>
                                             <option value="Company">Travels</option>
+                                             {...(Feature.parcel ? [
                                             <option value="Parcel">Bike</option>
+                                            ]: [])}
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>

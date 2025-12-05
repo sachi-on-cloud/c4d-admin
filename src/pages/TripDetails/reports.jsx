@@ -363,7 +363,8 @@ useEffect(() => {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <>
-              <table className="w-full border-collapse">
+            <div className="min-w-[700px]">
+              <table className="w-full border-collapse table-fixed">
                 <thead>
                   <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
@@ -407,6 +408,7 @@ useEffect(() => {
                   )}
                 </tbody>
               </table>
+              </div>
               {trips.length > 0 && (
                 <div className="flex items-center justify-center mt-4">
                   <Button

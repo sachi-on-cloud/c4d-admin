@@ -26,13 +26,14 @@ import {
   UserGroupIcon,
   MegaphoneIcon,
 } from '@heroicons/react/24/solid';
-import { API_ROUTES, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
   { name: "Calls", path: "/dashboard/users/exotel-calls/list", permission: "Calls"},
-  { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
+  { name: "All Records", path: "/dashboard/booking/list", permission: "All bookings" },
+  { name: "Auto Records", path:"/dashboard/Auto", permission: "Autos" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Trip Master" },
@@ -202,19 +203,26 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         />
                       ) : null}
 
-                      {name === "Calls" && (
+                      {name === "Calls" ? (
                         <img
                           src="/img/calls.png"
                           alt="Calls"
                           className="h-6 w-6 rounded-full"
                         />
-                      )}
+                      ): null}
 
-                      {name === "All Bookings" ? (
+                      {name === "All Records" ? (
                         <DocumentTextIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       )
                         : (null)}
+                         {name === "Auto Records" ? (
+                        <img
+                          src="/img/auto.png"
+                          alt="Autos"
+                          className="h-6 w-6 rounded-full"
+                        />
+                      ): null}
                       {name === "Customers" ? (
 
                         <UserGroupIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
@@ -275,15 +283,17 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   )}
                 </NavLink>
 
-                {!miniSidenav && name === "All Bookings" && openSubMenu === "All Bookings" && (
+                {!miniSidenav && name === "All Records" && openSubMenu === "All Records" && (
                   <ul className="ml-0">
                     {[
                       { label: "All", path: "/dashboard/booking/list" },
                       { label: "Drivers", path: "/dashboard/booking/list/actingDriver" },
                       { label: "Rides", path: "/dashboard/booking/list/rides" },
                       { label: "Rentals", path: "/dashboard/booking/list/rentals" },
-                      { label: "Auto", path:"/dashboard/booking/list/Auto"},
-                      { label: "Parcel", path:"/dashboard/booking/list/Parcel"}
+                      
+                      ...(Feature.parcel ? 
+                        [{ label: "Parcel", path:"/dashboard/booking/list/Parcel"}] 
+                        : []),
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -322,13 +332,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                                 {label === "Auto" && (
-                                <img
-                                  src="/img/auto.png"
-                                  alt="Auto List"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
+                                
                                {label === "Parcel" && (
                                 <img
                                   src="/img/Parcel_driver.png"
@@ -395,14 +399,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
-                      {
+                       ...(Feature.parcel ? [{
                         label: "Bike",
                         isSubMenu: true,
                         subItems: [
                           { label: "Bike Owner", path:"/dashboard/vendors/account/parcel/list" },
                           { label: "Bike List", path: "/dashboard/vendors/account/parcel" },
                         ],
-                      },
+                      }] : []),
                       {
                         label: "Auto",
                         isSubMenu: true,

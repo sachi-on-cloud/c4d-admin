@@ -14,7 +14,7 @@ import {
     Spinner,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES } from "@/utils/constants";
+import { API_ROUTES, Feature } from "@/utils/constants";
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import ConfirmBooking from './confirmBooking';
@@ -299,7 +299,7 @@ export function SearchDrivers(props) {
                 } catch (error) {
                     console.error("Error in sendDriverRequest for AUTO:", error);
                 }
-            } else if (props.bookingData.serviceType === 'PARCEL' && props.bookingData.requestType === 'REQUEST_ALL') {
+            } else if ((Feature.parcel && props.bookingData.serviceType === 'PARCEL') && props.bookingData.requestType === 'REQUEST_ALL') {
                 setLoadingRides(true);
                 try {
                     let data = {
@@ -359,7 +359,7 @@ export function SearchDrivers(props) {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
                     });
-                } else if (props.bookingData.serviceType === 'PARCEL') {
+                } else if (Feature.parcel && props.bookingData.serviceType === 'PARCEL') {
                     setLoadingRides(false);
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BIKE_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
@@ -799,8 +799,7 @@ export function SearchDrivers(props) {
                                 <Typography variant="h6" color="white">
                                     {`Loading ${props.bookingData.serviceType=== "AUTO"
                                         ? "Autos"
-                                        : props.bookingData.serviceType=== "PARCEL"
-                                            ? "Bikes"
+                                        : Feature.parcel && props.bookingData.serviceType=== "PARCEL" ? "Bikes"
                                             : "Cabs"
                                         }...`}
                                 </Typography>
@@ -828,9 +827,9 @@ export function SearchDrivers(props) {
                                     <thead>
                                         <tr>
                                             {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : "Cab Name", "Driver Name", "Phone Number", "Current Address",
-                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Cab Type"] : []), 
-                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Local Count"] : []),
-                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Outstation Count"] : []), "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
+                                            ...(props.bookingData?.serviceType !== "AUTO" && (Feature.parcel && props.bookingData?.serviceType !== "PARCEL") ? ["Cab Type"] : []), 
+                                            ...(props.bookingData?.serviceType !== "AUTO" && (Feature.parcel && props.bookingData?.serviceType !== "PARCEL") ? ["Local Count"] : []),
+                                            ...(props.bookingData?.serviceType !== "AUTO" && (Feature.parcel && props.bookingData?.serviceType !== "PARCEL") ? ["Outstation Count"] : []), "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
                                                     <th
                                                         key={el}
                                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -898,7 +897,8 @@ export function SearchDrivers(props) {
                                                                 {(Shifts?.[0]?.curAddress?.name || curAddress?.name) || curAddress}
                                                             </Typography>
                                                         </td>
-                                                        {props.bookingData.serviceType !== "AUTO" && props.bookingData.serviceType !== "PARCEL" && (                                                     <>
+                                                        {props.bookingData.serviceType !== "AUTO" && (Feature.parcel && props.bookingData.serviceType !== "PARCEL") && (
+                                                            <>
                                                             <td className={className}>
                                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                     {carType}
@@ -976,7 +976,8 @@ export function SearchDrivers(props) {
                         ) : (
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
-                                    {`No ${props.bookingData.serviceType === "AUTO" ? "Autos" : props.bookingData.serviceType == "PARCEL" ? "Bikes" : "Cabs"} Near By`}
+                                    {`No ${props.bookingData.serviceType === "AUTO" ? "Autos" 
+                                    : Feature.parcel && props.bookingData.serviceType == "PARCEL" ? "Bikes" : "Cabs"} Near By`}
                                 </Typography>
                             </CardHeader>
                             )
@@ -990,7 +991,7 @@ export function SearchDrivers(props) {
                         >
                             {props?.bookingData?.serviceType === "AUTO"
                                 ? "Assign Auto Later"
-                                : props?.bookingData?.serviceType === "PARCEL"
+                                : Feature.parcel && props?.bookingData?.serviceType === "PARCEL"
                                     ? "Assign Bike Later"
                                     : "Assign Cab Later"
                             }

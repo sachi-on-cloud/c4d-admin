@@ -16,7 +16,7 @@ import {
 } from '@material-tailwind/react';
 import { FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, Feature } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
@@ -48,7 +48,7 @@ export function OnlineVehiclesList({ id = 0 }) {
     itemsPerPage: 15,
   });
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const driverType = typeFilter[0] === 'All' ? undefined : typeFilter[0];
+  const driverType = typeFilter[0] === 'All' ? "All" : typeFilter[0];
 
   const checkPresence = async (driverId, vehicleId, all) => {
     try {
@@ -194,7 +194,7 @@ export function OnlineVehiclesList({ id = 0 }) {
 
   const filteredVehicles = vehicleList.filter((v) => {
     if (typeFilter[0] === 'All') return true;
-    return (v.type?.toUpperCase() ?? '') === typeFilter[0];
+    return (v.type?.toUpperCase() || '') === typeFilter[0];
   });
 
   const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
@@ -412,7 +412,9 @@ export function OnlineVehiclesList({ id = 0 }) {
                           { value: 'All', label: 'All' },
                           { value: 'CAB', label: 'Cab' },
                           { value: 'AUTO', label: 'Auto' },
-                          { value: 'PARCEL', label: 'Bike' },
+                           ...(Feature.parcel ? [
+                          { value: 'PARCEL', label: 'Bike' }
+                           ]:[]),
                         ]}
                         selectedFilters={typeFilter}
                         onFilterChange={handleFilterChange}
