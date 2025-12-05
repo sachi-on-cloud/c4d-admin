@@ -1300,10 +1300,18 @@ const ConfirmBooking = (props) => {
                     </CardBody>
                 </Card>  
             }*/}
-            {amount && (
-                <Card className="my-6">
-                    <div className="border rounded-xl bg-gray-200 p-4">
-                        <h2 className="text-2xl font-bold text-center">Receipt</h2>
+            
+         {amount && (bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === 'PAYMENT_REQUESTED') &&(
+ 
+  
+                <Card className="my-6 w-full p-4">
+                    <div className="border rounded-xl w-full max-w-3xl mx-auto p-6 shadow-lg">
+                       <div className="flex justify-center items-center mb-4">
+                <h2 className="text-2xl mr-2 font-bold text-center text-blue-700">Receipt</h2>
+                
+               
+            </div>
+                        <div className="mt-4 space-y-2">
                         {/* <div className="mt-3">
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Company Name: </Typography>
@@ -1484,13 +1492,110 @@ const ConfirmBooking = (props) => {
                                      <Typography>{bookingDetails?.extraNightChargePrice}</Typography>     
                                 </div>
                                 }
+                          
+
                                 
                                 
-                        </div>
-                    </div>
-                </Card>
-            )}
+                                
+                                    {/* Additional Charges Section */}
+
+         {bookingDetails?.serviceType !== 'RIDES' &&  bookingDetails?.serviceType !== 'AUTO' && (
             <>
+          <hr className="my-1 border border-gray-400" />
+          <div className="flex justify-between items-center mb-2">
+              
+            <Typography variant="h6" className="font-semibold text-blue-700 mr-2">
+              Additional Charges 
+            </Typography>
+              
+               
+                  {bookingDetails?.serviceType !== 'RIDES'&&  bookingDetails?.serviceType !== 'AUTO' && (
+                <button
+                    onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
+                    className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                        }`}
+                    title={isEditingAdditionalCharges ? "Save Changes" : "Edit Additional Charges"}
+                >
+                    {isEditingAdditionalCharges ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                    ) : (
+                        <PencilIcon className="w-5 h-5" />
+                    )}
+                </button>)}
+                
+          </div>
+</>
+)}
+          {/* View Mode: Show only non-zero */}
+          {!isEditingAdditionalCharges ? (
+            <>
+              {additionalCharges.permit > 0 && <div className="flex justify-between my-1"><span className="font-bold">Permit Charge:</span> <b className=" text-gray-700">₹ {additionalCharges.permit}</b></div>}
+              {additionalCharges.toll > 0 && <div className="flex justify-between my-1"><span className="font-bold">Toll Charge:</span> <b className="text-gray-700">₹ {additionalCharges.toll}</b></div>}
+              {additionalCharges.parking > 0 && <div className="flex justify-between my-1"><span className="font-bold">Parking Charge:</span> <b className="text-gray-700">₹ {additionalCharges.parking}</b></div>}
+              {additionalCharges.hill > 0 && <div className="flex justify-between my-1"><span className="font-bold">Hill Charge:</span> <b className="text-gray-700">₹ {additionalCharges.hill}</b></div>}
+            </>
+          ) : (
+            /* Edit Mode: Show all 4 fields */
+            ["permit", "toll", "parking", "hill"].map((type) => (
+              <div key={type} className="flex justify-between items-center my-2">
+                <span className="text-gray-600 font-medium">
+                  {type.charAt(0).toUpperCase() + type.slice(1)} Charge:
+                </span>
+                <div className="flex items-center gap-2">
+                 
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-24 p-1 text-center border border-gray-500 rounded  focus:ring-gray-700"
+                    value={additionalCharges[type] || ""}
+                    onChange={(e) => setAdditionalCharges(prev => ({ ...prev, [type]: +e.target.value || 0 }))}
+                  />
+                </div>
+              </div>
+            ))
+          )}
+          {(() => {
+      const hasAnyCharge = Object.values(additionalCharges).some(val => val > 0);
+      const totalExtra = Object.values(additionalCharges).reduce((a, b) => a + b, 0);
+
+      // Hide entire section if no charges in view mode
+      if (!hasAnyCharge && !isEditingAdditionalCharges) return null; 
+
+       return ( 
+       
+            <>
+            
+          <hr className="my-4 border border-gray-400" />
+          <div className="flex justify-between text-lg font-bold">
+            <span className="text-green-700">Final Amount:</span>
+            <span className="text-green-700">₹ {finalAmountAfterExtras}</span>
+          </div>
+          </>
+          )
+        
+      
+     })()} 
+
+          {/* Edit/Save Buttons */}
+          {isEditingAdditionalCharges && (
+            <div className="flex justify-end gap-3 mt-4">
+              <Button size="sm" variant="outlined" onClick={() => setIsEditingAdditionalCharges(false)}>
+                Cancel
+              </Button>
+              <Button size="sm" color="green" onClick={() => { handleRecalculateAndSaveExtraCharges(); setIsEditingAdditionalCharges(false); }} disabled={loading}>
+                Submit
+              </Button>
+            </div>
+          )}
+     
+            </div>
+        </div>
+        </div>
+    </Card>
+            )   }
+                        <>
                 <div className="">
                     {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
                         <Card>
