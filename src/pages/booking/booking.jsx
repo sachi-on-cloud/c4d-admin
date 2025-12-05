@@ -84,7 +84,8 @@ const Booking = (props) => {
     const [quoteDetails, setQuoteDetails] = useState(null);
     const [bookingType, setBookingType] = useState(props.typeProp || '');
     const [discountDetails, setDiscountDetails] = useState(null);
-
+    const [driverEndLocation, setDriverEndLocation] = useState(null);
+    const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
     const [editBookingView, setEditBookingView] = useState(false);
     const [distanceExceedModal, setDistanceExceedModal] = useState(false);
     const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
@@ -295,6 +296,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             pickupLong: values?.pickupLocation?.lng,
             driverStartLat: values?.driverPickUpLocation?.lat,
             driverStartLong: values?.driverPickUpLocation?.lng,
+            driverEndLat: values?.driverEndLocation?.lat || null,
+        driverEndLong: values?.driverEndLocation?.lng || null,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
@@ -404,6 +407,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             driverStartLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
+        //     driverEndLat: values?.driverEndLocation?.lat || null,
+        // driverEndLong: values?.driverEndLocation?.lng || null,
             zone: actualZone,
             isPremiumService : val?.isPremiumService ? true : false
         };
@@ -455,6 +460,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         seaterCapacity:'',
         sourceType: '',
         isPremiumService : '',
+        driverEndAddress: '',
+    driverEndLocation: null,
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -586,6 +593,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             driverStartAddress: {
                 name: values.driverPickUpAddress,
             },
+            driverEndLat: values.driverEndLocation?.lat || null,
             source: 'Call',
             carType: values.carType,
             sourceType: values.sourceType,
@@ -650,6 +658,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             driverStartAddress: {
                 name: values.driverPickUpAddress,
             },
+            driverEndLat: values.driverEndLocation?.lat || null,
             zone: actualZone, 
             isPremiumService : values?.isPremiumService ? true : false,
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -722,6 +731,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
             driverStartAddress: {
                 name:values.driverPickUpAddress,
             },
+          driverEndLat: values.driverEndLocation?.lat || null,
+driverEndLong: values.driverEndLocation?.lng || null,
+driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } : null,
             source: 'Call',
             sourceType: values.sourceType,
             ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
@@ -855,6 +867,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     setPickupSuggestions(data?.data);
                 } else if (type === 'driver') {
                     setDriverSuggestions(data?.data);
+                }else if (type === 'driverEnd') {
+                    setDriverEndSuggestions(data?.data);  // New
                 } else {
                     setDropSuggestions(data?.data);
                 }
@@ -862,6 +876,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 setPickupSuggestions([]);
                 setDriverSuggestions([]);
                 setDropSuggestions([]);
+                setDriverEndSuggestions([]);
             }
         } catch (error) {
             console.error('Error searching locations:', error);
@@ -873,6 +888,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setPickupSuggestions([]);
             setDriverSuggestions([]);
             setDropSuggestions([]);
+            setDriverEndSuggestions([]);
         }
     };
 
@@ -913,7 +929,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setFieldValue("driverPickUpLocation", location);
             setDriverPickUpLocation(location);
             setDriverSuggestions([]);
-        } else {
+        }else if (type === 'driverEnd') {  // NEW
+            setFieldValue("driverEndAddress", address);
+            setFieldValue("driverEndLocation", location);
+            setDriverEndLocation(location);
+            setDriverEndSuggestions([]);
+        } 
+        else {
             setFieldValue("dropAddress", address);
             setFieldValue("dropLocation", location);
             setDropLocation(location);
@@ -2003,6 +2025,75 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 </ul>
                                                             )}
                                                         </div>)}
+                                                        
+                                                    {/* Driver Ending Point - Show only for Drop-only trips */}
+                                                   {values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation" && (
+    <div className="p-2 space-y-2">
+        <label className="block text-sm font-medium text-black-700">
+            Driver Ending Point 
+        </label>
+
+         {/* Checkbox to copy from starting point */}
+        <div className="flex items-center gap-3 mb-2">
+            <input
+                type="checkbox"
+                id="sameAsStart"
+                checked={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
+                onChange={(e) => {
+                    if (e.target.checked) {
+                        // Copy starting point to ending point
+                        setFieldValue("driverEndAddress", values.driverPickUpAddress);
+                        setFieldValue("driverEndLocation", values.driverPickUpLocation); // if you store lat/lng too
+                        setFieldValue("driverEndSuggestions([])", []); // Clear suggestions
+                    } else {
+                        // Clear ending point when unchecked
+                        setFieldValue("driverEndAddress", "");
+                        setFieldValue("driverEndLocation", null);
+                    }
+                }}
+            />
+            <label htmlFor="sameAsStart" className="text-sm text-gray-700 cursor-pointer">
+                Same as Driver Starting Point
+            </label>
+        </div>
+
+        {/* Ending point input - disabled when checkbox is checked */}
+        <Field
+            type="text"
+            name="driverEndAddress"
+            className="p-2 w-full rounded-xl border-2 border-gray-300"
+            placeholder="Where should driver go after dropping customer?"
+            disabled={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
+            onChange={(e) => {
+                setFieldValue("driverEndAddress", e.target.value);
+                setFieldValue("driverEndLocation", null);
+                searchLocations(e.target.value, false, 'driverEnd');
+            }}
+        />
+
+        {driverEndSuggestions.length > 0 && (
+            <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto z-10">
+                {driverEndSuggestions.map((suggestion, index) => (
+                    <li
+                        key={index}
+                        className="p-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => {
+                            handleSelectLocation(suggestion, false, 'driverEnd', setFieldValue, values);
+                            // Uncheck the "same as start" when user selects different location
+                            if (suggestion !== values.driverPickUpAddress) {
+                                document.getElementById('sameAsStart').checked = false;
+                            }
+                        }}
+                    >
+                        {suggestion}
+                    </li>
+                ))}
+            </ul>
+        )}
+
+        <ErrorMessage name="driverEndAddress" component="div" className="text-red-500 text-sm" />
+    </div>
+)}
                                                 </div>
                                               {values.serviceType == 'DRIVER' && values.packageTypeSelected !== 'Outstation' && quoteDetails && (
                                                     <Card className="my-6">
@@ -2145,10 +2236,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <Typography>                                                                            
                                                                             {((quoteDetails.amount?.estimatedDistance)
                                                                             - 
-                                                                            Number(quoteDetails.amount?.driverWithin)) 
+                                                                            Number(quoteDetails.amount?.driverWithin)
+                                                                        ) 
                                                                             + 
-                                                                            (Number(quoteDetails.amount?.baseKm))
-                                                                            } Kms + {quoteDetails.amount?.driverWithin} Kms
+                                                                            (Number(quoteDetails.amount?.baseKm)) 
+                                                                            } Kms + {Number(quoteDetails.amount?.driverWithin).toFixed(2)} Kms
                                                                         </Typography></>)}
                                                                         { values?.serviceType === 'RIDES' && ( <>
                                                                         
@@ -2331,7 +2423,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • For Every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
-                                                                • A Driver starting  Points <span className="font-bold text-black">{quoteDetails.amount?.driverWithin || ''}</span> Kms.
+                                                                • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2) || ''}</span> Kms.
                                                             </Typography>
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
@@ -2372,7 +2464,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • For every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.  
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • A Driver starting  Points <span className="font-bold text-black">{quoteDetails.amount?.driverWithin || '2'}</span> Kms.
+                                                                • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2)|| '2'}</span> Kms.
                                                             </Typography>
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
@@ -2401,7 +2493,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
-                                                {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
+                                                {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
