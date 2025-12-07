@@ -1227,11 +1227,13 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
 }
 {/* Editable Driver Ending Point - Only for Outstation Rental */}
 {bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" && (
-  <div className="p-4  rounded-lg ">
+  <div className="  rounded-lg ">
     <div className="flex justify-between items-center mb-3">
       <Typography variant="h6" color="gray" className="font-semibold">
         Driver Ending Point
       </Typography>
+     <Typography>{bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}</Typography>
+  
       <Button
         size="sm"
         color={isEditingDriverEnd ? "green" : "blue"}
@@ -1255,7 +1257,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
         ) : (
           <>
             <PencilIcon className="h-4 w-4" />
-            Edit Location
+        
           </>
         )}
       </Button>
@@ -1320,15 +1322,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
     ) : (
       /* View Mode */
       <div className="space-y-2 text-sm">
-        {/* <Typography className="font-medium">
-          {bookingDetails?.driverEndAddress?.name || "Not set"}
-        </Typography>
-        {bookingDetails?.driverEndLat && bookingDetails?.driverEndLong && (
-          <Typography color="gray" className="text-xs">
-            ({parseFloat(bookingDetails.driverEndLat).toFixed(6)}, {parseFloat(bookingDetails.driverEndLong).toFixed(6)})
-          </Typography>
-        )}
-        */}
+       
       </div>
     )}
   </div>
