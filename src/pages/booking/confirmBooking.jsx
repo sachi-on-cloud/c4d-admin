@@ -125,52 +125,78 @@ const ConfirmBooking = (props) => {
             setLoading(false);
         }
     };
+    const buildAmountSummary = (booking = {}, overrideTotal = 0) => {
+        const extraHours = Number(booking?.extraHours) || 0;
+        const extraHourPrice = Number(booking?.extraHourPrice) || 0;
+
+        return {
+            price: Number(booking?.price) || 0,
+            extraPrice: booking?.extraPrice !== undefined ? Number(booking?.extraPrice) || 0 : extraHours * extraHourPrice,
+            total: Number(booking?.endPayment || booking?.totalPrice || overrideTotal) || 0,
+            extraHours,
+            extraHourPrice,
+            extraKMs: Number(booking?.extraKMs) || 0,
+            extraKMPrice: Number(booking?.extraKMPrice) || 0,
+            extraNightCharge: Number(booking?.extraNightCharge) || 0,
+            extraNightChargePrice: Number(booking?.extraNightChargePrice) || 0,
+        };
+    };
     const getBookingById = async (bookingId, customerId) => {
         setLoading(true);
+        try {
         const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         // console.log("BOOKING DATA", data);
         if (data?.success) {
-           setBookingDetails({ ...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark,customerBookingCount: data?.customerBookingCount, lastBookingCreatedAt: data?.lastBookingCreatedAt });
+                let bookingPayload = {...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark,customerBookingCount: data?.customerBookingCount, lastBookingCreatedAt: data?.lastBookingCreatedAt};
             if(data?.data?.status === BOOKING_STATUS.END_OTP){
+                    try {
                 const finalPrice = await ApiRequestUtils.get(API_ROUTES.GET_BOOKINGDETAILS_FINAL_PAYMENT + bookingId);
+                        const bookingPaymentDetails = finalPrice?.data?.bookingDetails;
+                        const gstDetails = finalPrice?.data?.gstDetails;
+                        const gstSummary = gstDetails?.details;
                 setFinalPaymentPrices({
-                    amountAfterGST: finalPrice?.data?.gstDetails?.details?.amountAfterGst,
-                    customerWalledUsed: finalPrice?.data?.gstDetails?.details?.walletAmountUsed,
-                    driverWalletAdded: Number(finalPrice?.data?.gstDetails?.details?.walletAmountUsed) + Number(finalPrice?.data?.gstDetails?.details?.discountAmount),
-                    discountAmount: finalPrice?.data?.gstDetails?.details?.discountAmount,
-                })
-            }
-            if (data?.data?.status == BOOKING_STATUS.ENDED || data?.data?.status == BOOKING_STATUS.PAYMENT_REQUESTED) {
-                setAmount({
-                    price: data?.data?.price,
-                    extraPrice: data?.data.extraHours * data?.data.extraHourPrice || 0,
-                    total: data?.data.endPayment,
-                    extraHours: data?.data.extraHours,
-                    extraHourPrice: data?.data.extraHourPrice,
-                    extraKMs: data?.data.extraKMs,
-                    extraKMPrice: data?.data.extraKMPrice,
-                    extraNightCharge: data?.data?.extraNightCharge,
-                    extraNightChargePrice: data?.data?.extraNightChargePrice,
-                });
+                    amountAfterGST: gstSummary?.amountAfterGst || 0,
+                    customerWalledUsed: gstSummary?.walletAmountUsed || 0,
+                    driverWalletAdded: Number(gstSummary?.walletAmountUsed || 0) + Number(gstSummary?.discountAmount || 0),
+                    discountAmount: gstSummary?.discountAmount || 0,
+                        });
+                        if (bookingPaymentDetails) {
+                            bookingPayload = {...bookingPayload,...bookingPaymentDetails};
+                        }
+                        if (gstDetails) {
+                            bookingPayload.paymentDetails = gstDetails;
+                        }
+                        
+                        setAmount(buildAmountSummary(bookingPaymentDetails || bookingPayload, gstSummary?.amountAfterGst || 0));
+                    } catch (err) {
+                        console.error("Error fetching final payment details:", err);
+                        setAmount(buildAmountSummary(bookingPayload));
+                    }
+                } else if (bookingPayload?.status == BOOKING_STATUS.ENDED || bookingPayload?.status == BOOKING_STATUS.PAYMENT_REQUESTED) {
+                    setAmount(buildAmountSummary(bookingPayload));
                 setCustomerFeedback({
-                    rating: data?.data?.CustomerFeedbacks?.[0]?.rating,
-                    comment: data?.data?.CustomerFeedbacks?.[0]?.comments,
+                    rating: bookingPayload?.CustomerFeedbacks?.[0]?.rating,
+                    comment: bookingPayload?.CustomerFeedbacks?.[0]?.comments,
 
                 });
 
                 setDriverFeedback({
-                    rating: data?.data?.Feedbacks?.[0]?.rating,
-                    comment: data?.data?.Feedbacks?.[0]?.message,
+                    rating: bookingPayload?.Feedbacks?.[0]?.rating,
+                    comment: bookingPayload?.Feedbacks?.[0]?.message,
                 });
                 setPaymentDetails({
-                    paymentCollected: data?.data?.paymentCollected,
-                    paymentMethod: data?.data?.paymentMethod,
-                    paymentStatus: data?.data?.paymentStatus,
+                    paymentCollected: bookingPayload?.paymentCollected,
+                    paymentMethod: bookingPayload?.paymentMethod,
+                    paymentStatus: bookingPayload?.paymentStatus,
                     enable: true
                 })
             } else {
                 setAmount();
             }
+                setBookingDetails(bookingPayload);
+            }
+        } catch (err) {
+            console.error("Error fetching booking data:", err);
         }
         setLoading(false);
     };
@@ -362,6 +388,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
     };
 
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
+    const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
     return (
         <div className="container mx-auto">
             {showDetails &&(
@@ -1366,7 +1393,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                 </Card>  
             }*/}
             
-         {amount && (bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === 'PAYMENT_REQUESTED') &&(
+         {shouldShowReceipt &&(
  
   
                 <Card className="my-6 w-full p-4">
@@ -1557,10 +1584,12 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                 </> : ""
                             }
                                 <hr className="my-2 border border-gray-400" />
+                                {bookingDetails?.totalPrice > 0 &&
                                  <div className="flex justify-between">
                                         <Typography color="gray" variant="h6">Final Trip Fare:</Typography>
                                         <Typography className="font-bold">₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
                                     </div>
+                                }
                             {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
                                     <div className="flex justify-between">
                                         <Typography color="red" variant="h6">Discount Applied:</Typography>
