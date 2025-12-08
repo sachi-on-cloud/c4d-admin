@@ -2141,14 +2141,14 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             ₹ {quoteDetails.amount?.kilometerPriceVal}
                                                                         </Typography></>)}
                                                                         {values?.serviceType !== 'DRIVER' && ( <>
-                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer {quoteDetails.amount?.driverWithin > 0 && (<> + Driver Km For Pickup Location </>)}</Typography>
                                                                         <Typography>                                                                            
                                                                             {((quoteDetails.amount?.estimatedDistance)
                                                                             - 
                                                                             Number(quoteDetails.amount?.driverWithin)) 
                                                                             + 
                                                                             (Number(quoteDetails.amount?.baseKm))
-                                                                            } Kms + {quoteDetails.amount?.driverWithin} Kms
+                                                                            } Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)} 
                                                                         </Typography></>)}
                                                                         { values?.serviceType === 'RIDES' && ( <>
                                                                         
@@ -2407,7 +2407,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     </Button>
                                                 }
 
-                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation &&
+                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation && values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
