@@ -2004,7 +2004,7 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                 type="text"
                                                                 name="driverPickUpAddress"
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter driver pickup location (Optional)"
+                                                                placeholder="Enter driver pickup location "
                                                                 onChange={(e) => {
                                                                     setFieldValue("driverPickUpAddress", e.target.value);
                                                                     setFieldValue("driverPickUpLocation", null);
@@ -2028,13 +2028,14 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                         
                                                     {/* Driver Ending Point - Show only for Drop-only trips */}
                                                    {values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation" && (
-    <div className="p-2 space-y-2">
+    <div className=" p-2 space-y-2">
+        <div className='flex '>
         <label className="block text-sm font-medium text-black-700">
             Driver Ending Point 
         </label>
 
          {/* Checkbox to copy from starting point */}
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center ml-3 gap-2 mb-2">
             <input
                 type="checkbox"
                 id="sameAsStart"
@@ -2055,6 +2056,7 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
             <label htmlFor="sameAsStart" className="text-sm text-gray-700 cursor-pointer">
                 Same as Driver Starting Point
             </label>
+        </div>
         </div>
 
         {/* Ending point input - disabled when checkbox is checked */}
@@ -2242,6 +2244,14 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                             (Number(quoteDetails.amount?.baseKm)) 
                                                                             } Kms + {Number(quoteDetails.amount?.driverWithin).toFixed(2)} Kms
                                                                         </Typography></>)}
+                                                                         { values?.serviceType === 'RENTAL' &&  ( <>
+                                                                        
+                                                                        <Typography color="gray" variant="h6">Drop Location to Driver End Point(KM)</Typography>
+                                                                             
+                                                                        <Typography>
+                                                                           {Number(quoteDetails.amount?.driverEndPoint).toFixed(2)} Kms
+                                                                        </Typography>
+                                                                        </>)}
                                                                         { values?.serviceType === 'RIDES' && ( <>
                                                                         
                                                                         <Typography color="gray" variant="h6">Estimate Time</Typography>
@@ -2493,7 +2503,12 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                 )}
                                                 {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
-                                                {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation &&
+                                                {(values?.serviceType=="RENTAL" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+                                                 {values.serviceType == 'RENTAL_DROP_TAXI' && values.dropLocation && values.pickupLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>

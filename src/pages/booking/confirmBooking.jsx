@@ -219,6 +219,12 @@ const [selectedDriverEndLocation, setSelectedDriverEndLocation] = useState(null)
         }
 
     }, []);
+    useEffect(() => {
+  if (isEditingDriverEnd) {
+    setDriverEndAddress("");                
+    setDriverEndSuggestions([]);
+  }
+}, [isEditingDriverEnd]);
 
     useEffect(() => {
         if (props.bookingData) {
@@ -1226,7 +1232,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
   </div>
 }
 {/* Editable Driver Ending Point - Only for Outstation Rental */}
-{bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" && (
+{bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" &&  (
   <div className="  rounded-lg ">
     <div className="flex justify-between items-center mb-3">
       <Typography variant="h6" color="gray" className="font-semibold">
@@ -1236,32 +1242,27 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
   
       <Button
         size="sm"
-        color={isEditingDriverEnd ? "green" : "blue"}
-        variant={isEditingDriverEnd ? "filled" : "outlined"}
+        color="blue"
         onClick={() => {
-          if (isEditingDriverEnd) {
-            // Save
-            handleSaveDriverEndLocation();
-          } else {
-            // Enter Edit Mode + Pre-fill current value
+          
             setDriverEndAddress(bookingDetails?.driverEndAddress?.name || "");
             setDriverEndSuggestions([]);
             setIsEditingDriverEnd(true);
           }
-        }}
-        className="flex items-center gap-2"
+        }
+        className="flex items-center gap-2 p-1"
         disabled={loading}
       >
-        {isEditingDriverEnd ? (
-          <>Save</>
-        ) : (
-          <>
+        
+          
             <PencilIcon className="h-4 w-4" />
         
-          </>
-        )}
+         
       </Button>
+       
+ 
     </div>
+   
 
     {isEditingDriverEnd ? (
       <div className="space-y-3">
@@ -1316,6 +1317,16 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
             }}
           >
             Cancel
+          </Button>
+           <Button
+            size="sm"
+            variant="outlined"
+            color="green"
+            onClick={() => {
+              handleSaveDriverEndLocation();
+            }}
+          >
+            Save
           </Button>
         </div>
       </div>
