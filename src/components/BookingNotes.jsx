@@ -389,9 +389,6 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                     {log.type === "booking"
                         ? log?.createdBy?.name || "System"
                         : log?.followupCreatedBy?.name || "System"}
-                    {log.type === "booking"
-                        ? log?.createdBy?.name || "System"
-                        : log?.followupCreatedBy?.name || "System"}
                   </span>
                   <span className="text-sm text-gray-500 ml-auto">
                     {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
