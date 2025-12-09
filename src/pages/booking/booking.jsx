@@ -2508,6 +2508,11 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                         Check Estimated Price
                                                     </Button>
                                                 }
+                                                 {(values?.serviceType=="DRIVER" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation  &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
                                                  {values.serviceType == 'RENTAL_DROP_TAXI' && values.dropLocation && values.pickupLocation &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
