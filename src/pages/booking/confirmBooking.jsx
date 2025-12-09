@@ -31,6 +31,10 @@ const ConfirmBooking = (props) => {
     const [driverFeedback, setDriverFeedback] = useState();
     const [showDetails, setShowDetails] = useState(true);
     const [finalPaymentPirces, setFinalPaymentPrices] = useState({});
+    const [isEditingDriverEnd, setIsEditingDriverEnd] = useState(false);
+const [driverEndAddress, setDriverEndAddress] = useState("");
+const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
+const [selectedDriverEndLocation, setSelectedDriverEndLocation] = useState(null);
     const [isEditingAdditionalCharges, setIsEditingAdditionalCharges] = useState(false);
     const [additionalPaymentDetails, setAdditionalPaymentDetails] = useState({
         tripType: "",
@@ -241,6 +245,12 @@ const ConfirmBooking = (props) => {
         }
 
     }, []);
+    useEffect(() => {
+  if (isEditingDriverEnd) {
+    setDriverEndAddress("");                
+    setDriverEndSuggestions([]);
+  }
+}, [isEditingDriverEnd]);
 
     useEffect(() => {
         if (props.bookingData) {
@@ -271,6 +281,71 @@ const ConfirmBooking = (props) => {
             [name]: value,
         }));
     };
+    const searchDriverEndLocations = async (query) => {
+  if (query.length < 3) {
+    setDriverEndSuggestions([]);
+    return;
+  }
+  try {
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, { address: query });
+    if (data?.success && data?.data) {
+      setDriverEndSuggestions(data.data);
+    } else {
+      setDriverEndSuggestions([]);
+    }
+  } catch (err) {
+    console.error("Error searching driver end location:", err);
+    setDriverEndSuggestions([]);
+  }
+};
+
+const handleSelectDriverEndLocation = async (address) => {
+  try {
+    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
+    if (data?.success) {
+      setDriverEndAddress(address);
+      setSelectedDriverEndLocation({ lat: data.data.lat, lng: data.data.lng });
+      setDriverEndSuggestions([]);
+    }
+  } catch (err) {
+    console.error("Error getting lat/long:", err);
+    Swal.fire("Error", "Could not get location coordinates", "error");
+  }
+};
+
+const handleSaveDriverEndLocation = async () => {
+  if (!selectedDriverEndLocation) {
+    Swal.fire("Error", "Please select a valid location", "error");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const payload = {
+      bookingId: bookingDetails.id,
+      driverEndLat: selectedDriverEndLocation.lat,
+      driverEndLong: selectedDriverEndLocation.lng,
+    };
+
+    const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER_END_LOCATION, payload);
+
+    if (response?.success) {
+      Swal.fire("Success", "Driver ending point updated successfully!", "success");
+      setIsEditingDriverEnd(false);
+      setDriverEndAddress("");
+      setSelectedDriverEndLocation(null);
+      // Refresh booking details
+      getBookingById(bookingDetails.id, bookingDetails.customerId);
+    } else {
+      Swal.fire("Error", response?.message || "Failed to update", "error");
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Something went wrong!", "error");
+  } finally {
+    setLoading(false);
+  }
+};
     const handleRecalculateAndSaveExtraCharges = async () => {
     // Prevent if no changes or booking ended already
     if (!bookingDetails?.id) return;
@@ -1183,6 +1258,113 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
     <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
   </div>
 }
+{/* Editable Driver Ending Point - Only for Outstation Rental */}
+{bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" &&  (
+  <div className="  rounded-lg ">
+    <div className="flex justify-between items-center mb-3">
+      <Typography variant="h6" color="gray" className="font-semibold">
+        Driver Ending Point
+      </Typography>
+     <Typography>{bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}</Typography>
+  
+      <Button
+        size="sm"
+        color="blue"
+        onClick={() => {
+          
+            setDriverEndAddress(bookingDetails?.driverEndAddress?.name || "");
+            setDriverEndSuggestions([]);
+            setIsEditingDriverEnd(true);
+          }
+        }
+        className="flex items-center gap-2 p-1"
+        disabled={loading}
+      >
+        
+          
+            <PencilIcon className="h-4 w-4" />
+        
+         
+      </Button>
+       
+ 
+    </div>
+   
+
+    {isEditingDriverEnd ? (
+      <div className="space-y-3">
+        {/* Search Input */}
+        <div className="relative">
+          <input
+            type="text"
+            value={driverEndAddress}
+            onChange={(e) => {
+              const query = e.target.value;
+              setDriverEndAddress(query);
+              if (query.length > 2) {
+                searchDriverEndLocations(query);
+              } else {
+                setDriverEndSuggestions([]);
+              }
+            }}
+            placeholder="Search driver ending location..."
+            className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+          />
+
+          {/* Suggestions Dropdown */}
+          {driverEndSuggestions.length > 0 && (
+            <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+              {driverEndSuggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0"
+                  onClick={() => {
+                    handleSelectDriverEndLocation(suggestion);
+                  }}
+                >
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+       
+
+        <div className="flex gap-3">
+          <Button
+            size="sm"
+            variant="outlined"
+            color="gray"
+            onClick={() => {
+              setIsEditingDriverEnd(false);
+              setDriverEndAddress("");
+              setDriverEndSuggestions([]);
+              setSelectedDriverEndLocation(null);
+            }}
+          >
+            Cancel
+          </Button>
+           <Button
+            size="sm"
+            variant="outlined"
+            color="green"
+            onClick={() => {
+              handleSaveDriverEndLocation();
+            }}
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+    ) : (
+      /* View Mode */
+      <div className="space-y-2 text-sm">
+       
+      </div>
+    )}
+  </div>
+)}
                             {bookingDetails?.status !== "QUOTED" &&  <>
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Start OTP: </Typography>

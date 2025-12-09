@@ -983,6 +983,7 @@ export const API_ROUTES = {
     'UPDATE_FOLLOWUP':'/booking/followup',
     'EXOTEL_CALL_LOGS': '/call-logs',
     'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
+    'UPDATE_DRIVER_END_LOCATION':'/driver/end-location',
 
 };
 
