@@ -39,6 +39,9 @@ const EditBooking = (props) => {
     const [serviceAreaLoading, setServiceAreaLoading] = useState(false);
     const [packagesLoading, setPackagesLoading] = useState(false);
     const [premiumServicesMap, setPremiumServicesMap] = useState({})
+    const [driverEndLocation, setDriverEndLocation] = useState(null);
+const [driverEndAddress, setDriverEndAddress] = useState('');
+const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
 
     const fetchData = async () => {
     try {
@@ -227,6 +230,10 @@ useEffect(() => {
             lat: bookingData.driverStartLat,
             lng: bookingData.driverStartLong
         } : null,
+        driverEndAddress: bookingData?.driverEndAddress?.name || '',
+    driverEndLocation: bookingData?.driverEndLat && bookingData?.driverEndLong 
+        ? { lat: bookingData.driverEndLat, lng: bookingData.driverEndLong } 
+        : null,
         luggage: '',
         seaterCapacity: '',
         sourceType: bookingData?.sourceType || '',
@@ -343,6 +350,13 @@ useEffect(() => {
                     lng: bookingData.driverStartLong
                 });
             }
+            if (bookingData.driverEndLat && bookingData.driverEndLong) {
+            setDriverEndLocation({
+                lat: bookingData.driverEndLat,
+                lng: bookingData.driverEndLong
+            });
+            setDriverEndAddress(bookingData.driverEndAddress?.name || '');
+        }
         }
     }, [bookingData, serviceAreas]);
 
@@ -404,6 +418,9 @@ useEffect(() => {
                 } else if (type === 'driver') {
                     setDriverSuggestions(data?.data);
                 }
+                else if (type === 'driverEnd') {
+                    setDriverEndSuggestions(data?.data);
+                }
                 else {
                     setDropSuggestions(data?.data);
                 }
@@ -412,6 +429,7 @@ useEffect(() => {
             setPickupSuggestions([]);
             setDriverSuggestions([]);
             setDropSuggestions([]);
+            setDriverEndSuggestions([]);
         }
     };
 
@@ -456,6 +474,12 @@ useEffect(() => {
                 setDriverPickUpLocation(location);
                 setDriverSuggestions([]);
             }
+            else if (type === 'driverEnd') {
+            setFieldValue("driverEndAddress", address);
+            setFieldValue("driverEndLocation", location);
+            setDriverEndLocation(location);
+            setDriverEndSuggestions([]);
+        }
             else {
                 setFieldValue("dropAddress", address);
                 setFieldValue("dropLocation", location);
@@ -549,6 +573,9 @@ useEffect(() => {
                 pickupAddress: {
                     name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
                 },
+               driverEndLat : values.driverEndLocation?.lat || null,
+                driverEndLong : values.driverEndLocation?.lng || null,
+                driverEndAddress : values.driverEndAddress ? { name: values.driverEndAddress } : null,
                 dropLat: null,
                 dropLong: null,
                 dropAddress: null,
@@ -1121,7 +1148,36 @@ useEffect(() => {
                                                     </ul>
                                                 )}
                                             </div>)}
-
+                                          {(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' ) && (
+                                            <div className="p-2 space-y-2">
+                                                <label className="block text-sm font-medium text-black-700">
+                                                    Driver Ending Point
+                                                </label>
+                                                <Field
+                                                    type="text"
+                                                    name="driverEndAddress"
+                                                    className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                    placeholder="Enter driver pickup location (Optional)"
+                                                     onChange={(e) => {
+                                                        setFieldValue("driverEndAddress", e.target.value);
+                                                        setFieldValue("driverEndLocation", null);
+                                                        searchLocations(e.target.value, false, 'driverEnd');
+                                                    }}
+                                                                                        />
+                                                                                    {driverEndSuggestions.length > 0 && (
+                                                    <ul className="border rounded-lg bg-white mt-2 max-h-48 overflow-y-auto">
+                                                        {driverEndSuggestions.map((suggestion, index) => (
+                                                            <li
+                                                                key={index}
+                                                                className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                onClick={() => handleSelectLocation(suggestion, false, 'driverEnd', setFieldValue, values)}
+                                                            >
+                                                                {suggestion}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>)}
 
                                         {/* Add luggage and seater capacity fields */}
                                         {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (

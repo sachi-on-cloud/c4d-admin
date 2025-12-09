@@ -982,6 +982,7 @@ export const API_ROUTES = {
     'POST_CUSTOMER_NOTIFICATION':'/notification-messages',
     'UPDATE_FOLLOWUP':'/booking/followup',
     'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
+    'UPDATE_DRIVER_END_LOCATION':'/driver/end-location',
 
 };
 
