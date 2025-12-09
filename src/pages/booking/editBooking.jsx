@@ -1151,7 +1151,7 @@ useEffect(() => {
                                           {(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' ) && (
                                             <div className="p-2 space-y-2">
                                                 <label className="block text-sm font-medium text-black-700">
-                                                    Driver Ending Point
+                                                    Cab Ending Point
                                                 </label>
                                                 <Field
                                                     type="text"
@@ -1329,7 +1329,15 @@ useEffect(() => {
                                                                         </Typography>
                                                                     </>
                                                                 }
-                                                                <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                 <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                </Typography>
+                                                                 <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.amount?.gst_amount}
+                                                                </Typography>
+                                                                <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
                                                                     ₹ {quoteDetails.amount?.estimatedPrice}
                                                                 </Typography>
@@ -1617,7 +1625,15 @@ useEffect(() => {
                                                                         </Typography>
                                                                     </>
                                                                 )}
-                                                                <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                   <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                </Typography>
+                                                                 <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.amount?.gst_amount}
+                                                                </Typography>
+                                                                <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
                                                                     ₹ {quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice}
                                                                 </Typography>
@@ -1884,10 +1900,19 @@ useEffect(() => {
                                                             </Typography>
                                                         </>
                                                     )}
-                                                    <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                    <Typography>
-                                                        ₹ {quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice}
-                                                    </Typography>
+                                                    
+                                                       <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                </Typography>
+                                                                 <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.amount?.gst_amount}
+                                                                </Typography>
+                                                                <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice}
+                                                                </Typography>
                                                     {quoteDetails.discount?.percentage > 0 && (
                                                         <>
                                                             <Typography color="gray" variant="h6">Discount Applied</Typography>

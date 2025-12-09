@@ -1084,7 +1084,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                             {/* need to add logic for price */}
                             {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Estimated Price:</Typography>
+                                    <Typography color="gray" variant="h6">Estimated Price (Incl Tax):</Typography>
                                     <Typography>
                                         ₹ {
                                             bookingDetails?.serviceType === 'DRIVER' && bookingDetails?.packageType === 'Local'
@@ -1254,7 +1254,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                             </div>
                          { bookingDetails?.packageType !== 'Local' &&   bookingDetails?.serviceType !== 'DRIVER' &&
   <div className="flex justify-between">
-    <Typography color="gray" variant="h6">Driver Starting Points: </Typography>
+    <Typography color="gray" variant="h6">Cab Starting Points: </Typography>
     <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
   </div>
 }
@@ -1263,7 +1263,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
   <div className="  rounded-lg ">
     <div className="flex justify-between items-center mb-3">
       <Typography variant="h6" color="gray" className="font-semibold">
-        Driver Ending Point
+        Cab Ending Point
       </Typography>
      <Typography>{bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}</Typography>
   

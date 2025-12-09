@@ -1998,7 +1998,7 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
-                                                                Driver Starting Point 
+                                                            Cab Starting Point 
                                                             </label>
                                                             <Field
                                                                 type="text"
@@ -2031,7 +2031,7 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
     <div className=" p-2 space-y-2">
         <div className='flex '>
         <label className="block text-sm font-medium text-black-700">
-            Driver Ending Point 
+            Cab Ending Point 
         </label>
 
          {/* Checkbox to copy from starting point */}
@@ -2137,6 +2137,18 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                             })()}
                                                                         </Typography>
                                                                         </div>
+                                                                         <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">TAX Amount:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.gst_amount || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                             <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Final Estimate Fare:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.fare_after_gst || ''}
+                                                                                </Typography>
+                                                                            </div>
                                                                     </div>
                                                                     </div>
                                                                 </Card>
@@ -2176,6 +2188,17 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                                             default: return "";
                                                                                         }
                                                                                     })()}
+                                                                                </Typography>
+                                                                            </div>
+                                                                              <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">TAX Amount:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.gst_amount || ''}
+                                                                                </Typography>
+                                                                            </div>  <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Final Estimate Price:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.fare_after_gst|| ''}
                                                                                 </Typography>
                                                                             </div>
                                                                             {quoteDetails.discount?.percentage > 0 && (
@@ -2302,7 +2325,15 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                             </Typography>
                                                                         </>
                                                                         }
-                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                        </Typography>
+                                                                         <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                        <Typography>
+                                                                            ₹ {quoteDetails.amount?.gst_amount}
+                                                                        </Typography>
+                                                                        <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount?.estimatedPrice}
                                                                         </Typography>
@@ -2395,6 +2426,9 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                     ) : '';
                                                                 })()}</span> will be charged.
                                                             </Typography>
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • The estimated price includes  <span className="font-bold text-black">{values.gst_percentage|| '5'}%</span> tax.
+                                                            </Typography>
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • For every extra kilometer <span className="font-bold text-black">₹{(() => {
                                                                     const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
@@ -2408,6 +2442,9 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • Night charge of <span className="font-bold text-black">₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''}</span> will be charged after {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • If the driver’s start or end point is under 2 km, no charge is added; charges apply only when it is above 2 km.
                                                             </Typography>
                                                         </div>
                                                         <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
@@ -2431,10 +2468,17 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
                                                                 • For Every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.
+                                                            </Typography> 
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • For every additional 15 minutes <span className="font-bold text-black">₹{quoteDetails.amount?.fareBreakdown?.extraHours?.rate || ''}</span> will be charged.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
                                                                 • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2) || ''}</span> Kms.
                                                             </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                            </Typography>
+
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>
@@ -2450,6 +2494,9 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                     • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
+                                                             <Typography className=" text-sm text-gray-700">
+                                                                • If the driver’s start or end point is under 2 km, no charge is added; charges apply only when it is above 2 km.
+                                                            </Typography>
                                                         </div>
                                                         <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
                                                             <Typography
@@ -2473,6 +2520,9 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • For every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.  
                                                             </Typography>
+                                                               <Typography className="text-sm text-gray-700">
+                                                                • For every additional 15 minutes <span className="font-bold text-black">₹{quoteDetails.amount?.fareBreakdown?.extraHours?.rate || ''}</span> will be charged.
+                                                            </Typography>
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2)|| '2'}</span> Kms.
                                                             </Typography>
@@ -2481,6 +2531,9 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                 • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>.
                                                             </Typography>
                                                             )}
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                            </Typography>
                                                             {quoteDetails.amount?.extraNightCharge > 0 && (
                                                              <Typography className="text-sm text-gray-700">
                                                                 • Night Charge of <span className="font-bold text-black">₹ {quoteDetails.amount?.extraNightCharge}</span> applies if the trip extends past{' '}.
@@ -2491,6 +2544,9 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                     • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
+                                                             <Typography className=" text-sm text-gray-700">
+                                                                • If the driver’s start or end point is under 2 km, no charge is added; charges apply only when it is above 2 km.
+                                                            </Typography>
                                                         </div>
                                                         <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
                                                             <Typography
