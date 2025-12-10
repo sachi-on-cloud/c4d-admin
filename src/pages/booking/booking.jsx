@@ -705,7 +705,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             // fromDate: values.fromDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType || "AUTO",
+            serviceType: values.serviceType,
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
             acType: values?.acType?.toUpperCase(),
@@ -1907,7 +1907,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     </div>
                                                 )}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                                                 <Field
