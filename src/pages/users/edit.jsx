@@ -20,10 +20,10 @@ const UserEdit = () => {
     const handleRoleChange = (selectedOption, setFieldValue) => {
         const selectedRole = selectedOption?.value || '';
         setRole(selectedRole);
-        setFieldValue('role', selectedRole);        // Only set default permissions if no user permissions are loaded
-        if (!userVal.permission) {
-        setFieldValue('permission', ROLE_PERMISSIONS[selectedRole] || [])
-        }
+        setFieldValue('role', selectedRole);
+
+       
+        setFieldValue('permission', ROLE_PERMISSIONS[selectedRole] || []);
     };
 
     useEffect(() => {

@@ -10,7 +10,15 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [noteType, setNoteType] = useState('')
   const [items, setItems] = useState([]);
   const [bookingLogs, setBookingLogs] = useState([]);
-  const [errorMessage, setErrorMessage] = useState(''); 
+  const [bookingFollowupLogs,setBookingFollowupLogs] = useState([]);
+     const [quotationLogs, setQuotationLogs] = useState([]);
+  const [bookingExtraCharges, setBookingExtraCharges] = useState([]); 
+  const [errorMessage, setErrorMessage] = useState('');
+  const [tripDetailsLogs, setTripDetailsLogs] = useState([]);
+  const [tripFare, setTripFare] = useState(0);
+  const [fuelCost, setFuelCost] = useState(0);
+  const [tollCost, setTollCost] = useState(0);
+  const [permitCost, setPermitCost] = useState(0);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -20,6 +28,8 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         console.warn('No bookingId provided, falling back to notesData');
         setItems(fallbackNotes);
         setBookingLogs([]);
+        setQuotationLogs([]);
+        setBookingFollowupLogs([]);
         return;
       }
 
@@ -32,15 +42,47 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           setItems(Array.isArray(data?.data?.notes) ? data.data.notes : []);
           // Set bookingLogs, ensuring it's an array
           setBookingLogs(Array.isArray(data?.data?.bookingLog) ? data.data.bookingLog : []);
+          setQuotationLogs(Array.isArray(data?.data?.quotationLog) ? data?.data?.quotationLog : []);
+          setBookingFollowupLogs(Array.isArray(data?.data?.bookingFollowupLog) ? data?.data?.bookingFollowupLog : []);
+          setBookingExtraCharges(Array.isArray(data?.data?.bookingExtraCharges) ? data.data.bookingExtraCharges : []);
+
+          const tripMaster = data.data.tripMaster || {};
+          setTripFare(tripMaster.tripFare || 0);
+          setFuelCost(tripMaster.fuelCost || 0);
+          setTollCost(tripMaster.tollCost || 0);
+          setPermitCost(tripMaster.permitCost || 0);
+          
+          // Initialize tripDetailsLogs with user name from tripMaster only if tripMaster exists
+          if (tripMaster && Object.keys(tripMaster).length > 0) {
+            setTripDetailsLogs([{ 
+              id: 1, 
+              createdBy: tripMaster?.createdBy?.name || tripMaster?.User?.name || 'System', 
+              created_at: new Date().toISOString(), 
+              tripFare: tripMaster.tripFare || 0, 
+              fuelCost: tripMaster.fuelCost || 0, 
+              tollCost: tripMaster.tollCost || 0, 
+              permitCost: tripMaster.permitCost || 0 
+            }]);
+          } else {
+            setTripDetailsLogs([]);
+          }
         } else {
           console.warn('API call failed, falling back to notesData:', data?.message);
           setItems(fallbackNotes);
           setBookingLogs([]);
+          setQuotationLogs([]);
+          setTripDetailsLogs([]);
+          setBookingFollowupLogs([]);
+          setBookingExtraCharges([]);
         }
       } catch (error) {
         console.error('Error fetching notes:', error);
         setItems(fallbackNotes);
         setBookingLogs([]);
+        setQuotationLogs([]);
+        setTripDetailsLogs([]);
+        setBookingFollowupLogs([]);
+        setBookingExtraCharges([]);
       }
     };
 
@@ -76,6 +118,8 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         setItems(Array.isArray(data?.data?.notes) ? data.data.notes : []);
         // Set bookingLogs, ensuring it's an array
         setBookingLogs(Array.isArray(data?.data?.bookingLog) ? data.data.bookingLog : []);
+        setQuotationLogs(Array.isArray(data?.data?.quotationLog) ? data?.data?.quotationLog : []);
+        setBookingFollowupLogs(Array.isArray(data?.data?.bookingFollowupLog) ? data?.data?.bookingFollowupLog : []);
       }
     } catch (error) {
       console.error('Error adding comment:', error);
@@ -152,46 +196,229 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           </ul>
         )}
       </div>
+     {tripDetailsLogs.length > 0 && (
+  <>
+    <div className='py-5'>
+      <Typography className="text-xl font-semibold text-blue-gray-600">
+        Trip Details Log
+      </Typography>
+    </div>
+    
+    <div className="flex-1">
+      {tripDetailsLogs.length > 0 ? (
+        <ul className="space-y-3">
+          {tripDetailsLogs.map((log) => (
+            <li
+              key={log?.id}
+              className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <UserIcon className="h-5 w-5 text-gray-600" />
+                <span className="text-sm font-medium text-gray-800">
+                  {log?.createdBy || 'System'}
+                </span>
+                <span className="text-sm text-gray-500 ml-auto">
+                  {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
+                </span>
+              </div>
+              <p className="text-base text-gray-700">
+                Trip Fare: ₹{log?.tripFare || '0'} | Fuel Cost: ₹{log?.fuelCost || '0'} | Toll Cost: ₹{log?.tollCost || '0'} | Permit Cost: ₹{log?.permitCost || '0'}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center text-gray-500 text-base mt-5">No trip details logs yet.</p>
+      )}
+    </div>
+  </>
+)}
       <div className='py-5'>
         <Typography className="text-xl font-semibold text-blue-gray-600">
-          Booking Status Log</Typography>
+          Extra Booking Charges Log
+        </Typography>
       </div>
-      <div className="flex-1">
-        {bookingLogs.length === 0 ? (
-          <p className="text-center text-gray-500 text-base mt-5">No activity logs yet.</p>
+      <div className="flex-1 mb-5">
+        {bookingExtraCharges.length === 0 ? (
+          <p className="text-center text-gray-500 text-base mt-5">No extra charges yet.</p>
         ) : (
           <ul className="space-y-3">
-            {bookingLogs.map((log) => (
+            {bookingExtraCharges.map((charge) => (
               <li
-                key={log?.id}
+                key={charge.id}
                 className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <UserIcon className="h-5 w-5 text-gray-600" />
                   <span className="text-sm font-medium text-gray-800">
-                    {log?.createdBy?.name || 'System'}
+                    {charge.User?.name || charge.user?.name || 'System'}
+                  </span>
+                  <span className="text-sm text-gray-500 ml-auto">
+                    {moment(charge.created_at).format('DD-MM-YYYY / hh:mm A')}
+                  </span>
+                </div>
+                <div className="text-base text-gray-700 space-y-1 ">
+                   {charge.newValues?.permitCharge !== undefined && (
+                  <span>
+                    <span className="font-bold text-green-700">Permit Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.permitCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.permitCharge} </span>|
+                  </span>
+                )} 
+                 {charge.newValues?.hillStationCharge !== undefined && (
+                  <span>
+                    <span className="font-bold text-green-700">Hill Station Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.hillStationCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.hillStationCharge} </span>|
+                  </span>
+                )} 
+
+
+                  {charge.newValues?.tollCharge !== undefined && (
+                    <span>
+                    <span className="font-bold text-green-700">Toll Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.tollCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.tollCharge} </span>|
+                  </span>
+                  )} 
+                  {charge.newValues?.parkingCharge !== undefined && (
+                   <span>
+                    <span className="font-bold text-green-700">Parking Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.parkingCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.parkingCharge} </span>
+                  </span>
+                  )} 
+                 
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+  
+      <div className='py-5'>
+        <Typography className="text-xl font-semibold text-blue-gray-600">
+          Check Estimate Price Log
+        </Typography>
+      </div>
+      <div className="flex-1 mb-5">
+        {quotationLogs.length === 0 ? (
+          <p className="text-center text-gray-500">No estimate logs yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {quotationLogs.map((log) => (
+              <li key={log.id} className="bg-white rounded-lg p-3 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-800">
+                    {log?.User?.name || 'System'}
+                  </span>
+                  <span className="text-sm text-gray-500 ml-auto">
+                    {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
+                  </span>
+                </div>
+              <div className="text-base text-gray-700 flex items-center gap-2">
+              <span>
+              <span className="font-bold">Service Type:</span> {log?.serviceType === 'RENTAL_DROP_TAXI' ? ' Drop Taxi' : log?.serviceType === 'HOURLY_PACKAGE' ? ' Hourly Package' : log?.serviceType === 'OUTSTATION' ? ' Outstation' : log?.serviceType ==='RIDES' ? ' Local Rides' : log?.serviceType === 'DRIVER' ? ' Acting Driver' : log?.serviceType || 'N/A'} |{' '}
+                {log?.startDate != null && (
+                  <>
+              <span className="font-bold">Start Date:</span> {log?.startDate ? moment(log?.startDate).format('DD-MM-YYYY / hh:mm A') : 'N/A'} |{' '}
+                  </>
+                )}
+               {log?.endDate != null && (
+                <>
+              <span className="font-bold">End Date:</span> {log?.endDate ? moment(log?.endDate).format('DD-MM-YYYY / hh:mm A') : 'N/A'} |{' '}
+              </>
+               )}
+              <span className="font-bold">Pickup:</span> {log?.pickupAddress?.name || 'N/A'} |{' '}
+              {log?.dropAddress && Object.keys(log.dropAddress).length > 0 && (
+                <>
+              <span className="font-bold">Drop:</span> {log?.dropAddress?.name || 'N/A'} |{' '}
+                </>
+              )}
+              <span className="font-bold">Cab Type:</span> {log?.cabType || 'N/A'} |{' '}
+              <span className="font-bold">Estimate Price:</span> ₹{log?.amount || 'N/A'} |{' '}
+              {log?.discount > 0 && (
+                <>
+                  <span className="font-bold">Discount Applied:</span> {log?.discount || 'N/A'}% |{' '}
+                  <span className="font-bold">Total Estimate Fare:</span> ₹{log?.discountAmount || 'N/A'} 
+                </>
+              )}
+            
+              {/* {log?.packageId && ` | <span className="font-bold">Package ID:</span> ${log?.packageId}`} */}
+            </span>
+  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+    Estimated
+  </span>
+</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className='py-5'>
+        <Typography className="text-xl font-semibold text-blue-gray-600">
+          Booking Status Log
+        </Typography>
+      </div>
+      <div className="flex-1">
+        {bookingLogs.length === 0 && bookingFollowupLogs.length === 0 ? (
+          <p className="text-center text-gray-500 text-base mt-5">No activity logs yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {[...bookingLogs.map((log) => ({ ...log, type: "booking" })),
+              ...bookingFollowupLogs.map((log) => ({ ...log, type: "followup" })),
+            ]
+              .map((log) => (
+              <li
+                key={`${log.type}-${log.id}`}
+                className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-800">
+                    {log.type === "booking"
+                        ? log?.createdBy?.name || "System"
+                        : log?.followupCreatedBy?.name || "System"}
+                    {log.type === "booking"
+                        ? log?.createdBy?.name || "System"
+                        : log?.followupCreatedBy?.name || "System"}
                   </span>
                   <span className="text-sm text-gray-500 ml-auto">
                     {moment(log?.created_at).format('DD-MM-YYYY / hh:mm A')}
                   </span>
                 </div>
                 <div className="text-base text-gray-700 flex items-center gap-2">
-                  <span>
+              <span>
+                {log.type === "booking" ? (
+                  <>
                     Customer Trip Status changed from{' '}
-                    <span className="font-medium text-primary-600">{log?.old_status || 'N/A'}</span>{' '}
+                    <span className="font-medium text-primary-600">{
+                    log?.old_status === 'BOOKING_ACCEPTED' ? 'DRIVER_ACCEPTED' : log?.old_status || 'N/A'}</span>{' '}
                     to{' '}
-                    <span className="font-medium text-green-600">{log?.new_status || 'N/A'}</span>
-                  </span>
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      log?.new_status === 'Confirmed'
-                        ? 'bg-green-100 text-green-800'
-                        : log?.new_status === 'Cancelled'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {/* {log?.new_status || 'N/A'} */}
+                    <span className="font-medium text-green-600">{log?.new_status === 'BOOKING_ACCEPTED' ? 'DRIVER_ACCEPTED' : log?.new_status || 'N/A'}</span>
+                        </>
+                      ) : (
+                        <>
+                          Follow-up Status changed from{" "}
+                          <span className="font-medium text-primary-600">
+                            {log?.previousStatus === "NONE" ? "QUOTED" : log?.previousStatus || "N/A"}
+                          </span>{" "}
+                          to{" "}
+                          <span className="font-medium text-green-600">
+                            {log?.newStatus === "NONE" ? "QUOTED" : log?.newStatus || "N/A"}
+                          </span>
+                  </>
+                )}
                   </span>
                 </div>
               </li>

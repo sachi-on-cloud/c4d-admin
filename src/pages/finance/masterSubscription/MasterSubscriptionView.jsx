@@ -120,7 +120,7 @@ export function MasterSubscriptionView() {
                                     {masterSubscriptionList.map((masterSubscription, index) => (
                                         <tr key={index} className="text-sm">
                                             <td className="border-b border-blue-gray-50 py-3 px-5 text-black">
-                                            {masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : "Acting_Driver"}
+                                            {masterSubscription.serviceType === 'RIDES_RENTAL_CABS' ? (<div>Rides/Rental Cabs</div>) : masterSubscription.serviceType === "AUTO" ? (<div>Autos</div>): "Acting_Driver"}
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div onClick={() => navigate(`/dashboard/finance/master-subscription/details/${masterSubscription.id}`)}>

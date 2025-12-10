@@ -68,27 +68,27 @@ export function CustomerView() {
     }
   };
 
-  const handleExportExcel = async () => {
-    try {
-      setLoading(true);
-      const response = await ApiRequestUtils.fetchExcelDownload(API_ROUTES.EXPORT_EXCEL_CUSTOMER_DETAILS);
-      const blob = new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
+  // const handleExportExcel = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await ApiRequestUtils.fetchExcelDownload(API_ROUTES.EXPORT_EXCEL_CUSTOMER_DETAILS);
+  //     const blob = new Blob([response.data], {
+  //       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  //     });
 
-      let filename = 'customers.xlsx';
-      if (response.headers['content-disposition']) {
-        const match = response.headers['content-disposition'].match(/filename="(.+)"/);
-        if (match && match[1]) filename = match[1];
-      }
+  //     let filename = 'customers.xlsx';
+  //     if (response.headers['content-disposition']) {
+  //       const match = response.headers['content-disposition'].match(/filename="(.+)"/);
+  //       if (match && match[1]) filename = match[1];
+  //     }
 
-      saveAs(blob, filename);
-    } catch (err) {
-      console.error('Export error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     saveAs(blob, filename);
+  //   } catch (err) {
+  //     console.error('Export error:', err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
 
   const getCustomers = useCallback(
@@ -178,14 +178,14 @@ export function CustomerView() {
                 <Typography variant="h6" color="white">
                   Customers List
                 </Typography>
-                <Button
+                {/* <Button
                   size="sm"
                   className='bg-red-500 text-white'
                   onClick={handleExportExcel}
                   disabled={loading}
                 >
                   {loading ? 'Exporting...' : 'Export to Excel'}
-                </Button>
+                </Button> */}
               </div>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

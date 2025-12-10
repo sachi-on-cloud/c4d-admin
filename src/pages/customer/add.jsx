@@ -36,7 +36,7 @@ const CustomerAdd = (props) => {
 
     const validationSchema = Yup.object({
         salutation: Yup.string().required('Salutation is required'),
-        firstName: Yup.string().required('Name is required'),
+        firstName: Yup.string().required('Name is required').matches(/^[a-zA-Z\s]+$/, 'Only letters are allowed'),
         source: Yup.string().required('source is required'),
         // sourceType: Yup.string().required('Source type is required'), // New validation
         ...(isEditMode

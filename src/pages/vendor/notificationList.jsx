@@ -4,7 +4,13 @@ import {
   CardHeader,
   CardBody,
   Typography,
+  Button,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Checkbox,
 } from '@material-tailwind/react';
+import { FaFilter } from 'react-icons/fa';
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { useNavigate } from 'react-router-dom';
@@ -13,19 +19,139 @@ import moment from "moment";
 export function NotificationList() {
   const navigate = useNavigate();
   const [notification, setNotificationItems] = useState([]);
+  const [appFilter, setAppFilter] = useState(['All']); // State for app filter
+  const [cityFilter, setCityFilter] = useState(['All']); // State for city filter
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 15,
+  });
+
+  const fetchNotificationList = async (page = 1, showLoader = true) => {
+    try {
+      // Prepare filterType object for the API payload
+      const filterType = {
+        app: appFilter,
+        city: cityFilter,
+      };
+
+      // Prepare query parameters and payload
+      const queryParams = {
+        page: page,
+        limit: pagination.itemsPerPage,
+      };
+
+      // Assume the API expects filterType as part of the query or body
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_NOTIFICATION, {
+        ...queryParams,
+        filterType: JSON.stringify(filterType), // Stringify filterType for query param
+      });
+
+      if (data?.success) {
+        setNotificationItems(data?.data || []);
+        setPagination({
+          currentPage: page,
+          totalPages: data?.pagination?.totalPages || 1,
+          totalItems: data?.pagination?.totalItems || 0,
+          itemsPerPage: data?.pagination?.itemsPerPage || 15,
+        });
+      }
+    } catch (err) {
+      console.error('API error:', err);
+    }
+  };
 
   useEffect(() => {
-    const fetchNotificationList = async () => {
-      try {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_NOTIFICATION); 
-        setNotificationItems(data.data || []); 
-      } catch (err) {
-        console.error('API error:', err);
-      }
-    };
+    fetchNotificationList(pagination.currentPage, true);
+  }, [pagination.currentPage, pagination.itemsPerPage, appFilter, cityFilter]);
 
-    fetchNotificationList();
-  }, []);
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchNotificationList(page, true);
+    }
+  };
+
+  const handleAppFilterChange = (value) => {
+    setAppFilter((prev) => {
+      if (value === 'All') {
+        return ['All'];
+      } else {
+        const newFilter = prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev.filter((item) => item !== 'All'), value];
+        return newFilter.length === 0 ? ['All'] : newFilter;
+      }
+    });
+  };
+
+  const handleCityFilterChange = (value) => {
+    setCityFilter((prev) => {
+      if (value === 'All') {
+        return ['All'];
+      } else {
+        const newFilter = prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev.filter((item) => item !== 'All'), value];
+        return newFilter.length === 0 ? ['All'] : newFilter;
+      }
+    });
+  };
+
+  const generatePageButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <Button
+          key={i}
+          size="sm"
+          variant={i === pagination.currentPage ? 'filled' : 'outlined'}
+          className={`mx-1 ${ColorStyles.bgColor} text-white`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return buttons;
+  };
+
+  // FilterPopover component for App and City filters
+  const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <div className="flex items-center cursor-pointer">
+        
+            {title}
+       
+          <FaFilter className="text-gray-700 text-xs" />
+        </div>
+      </PopoverHandler>
+      <PopoverContent className="p-2 z-10">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center mb-2">
+            <Checkbox
+              color="blue"
+              checked={selectedFilters.includes(option.value)}
+              onChange={() => onFilterChange(option.value)}
+            />
+            <Typography color="blue-gray" className="font-medium ml-2">
+              {option.label}
+            </Typography>
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -52,9 +178,39 @@ export function NotificationList() {
               <tr>
                 {/* <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Title</th> */}
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Type</th>
-                <th className="border-b border-blue-gray-50 py-3 px-5 text-left">App</th>
+                <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                  <div className="flex items-center justify-between">
+                  
+                    <FilterPopover
+                      title={<span className="text-base font-semibold text-gray-700">App</span>}
+                      options={[
+                        { value: 'ALL', label: 'All' },
+                        { value: 'CUSTOMER', label: 'Customer' },
+                        { value: 'DRIVER', label: 'Driver' },
+                      ]}
+                      selectedFilters={appFilter}
+                      onFilterChange={(value) => handleAppFilterChange(value)}
+                    />
+                  </div>
+                </th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Message</th>
-                <th className="border-b border-blue-gray-50 py-3 px-5 text-left">City</th>
+                <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                  <div className="flex items-center justify-between">
+                   
+                    <FilterPopover
+                      title={<span className="text-base font-semibold text-gray-700">City</span>}
+                      options={[
+                        { value: 'All', label: 'All' },
+                        { value: 'Chennai', label: 'Chennai' },
+                        { value: 'Vellore', label: 'Vellore' },
+                        { value: 'Thiruvannamalai', label: 'Thiruvannamalai' },
+                        { value: 'Kanchipuram', label: 'Kanchipuram' },
+                      ]}
+                      selectedFilters={cityFilter}
+                      onFilterChange={(value) => handleCityFilterChange(value)}
+                    />
+                  </div>
+                </th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Created Date</th>
               </tr>
             </thead>
@@ -66,9 +222,11 @@ export function NotificationList() {
                   </td>
                 </tr>
               ) : (
-                notification.map((item, index) => (
-                  <tr key={item.id || index} className="border-b border-blue-gray-50">
-                    {/* <td className="py-3 px-5">{item.title || '-'}</td> */}
+                notification
+                  .filter((item) => appFilter.includes('All') || appFilter.includes(item.app))
+                  .filter((item) => cityFilter.includes('All') || cityFilter.includes(item.city))
+                  .map((item, index) => (
+                    <tr key={item.id || index} className="border-b border-blue-gray-50">
                     <td className="py-3 px-5">{item.type || '-'}</td>
                     <td className="py-3 px-5">{item.app || '-'}</td>
                     <td className="py-3 px-5">{item.message || '-'}</td>
@@ -79,6 +237,29 @@ export function NotificationList() {
               )}
             </tbody>
           </table>
+          {notification.length > 0 && (
+            <div className="flex items-center justify-center mt-4">
+              <Button
+                size="sm"
+                variant="text"
+                disabled={pagination.currentPage === 1}
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                className="mx-1"
+              >
+                {'<'}
+              </Button>
+              {generatePageButtons()}
+              <Button
+                size="sm"
+                variant="text"
+                disabled={pagination.currentPage === pagination.totalPages}
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                className="mx-1"
+              >
+                {'>'}
+              </Button>
+            </div>
+          )}
         </CardBody>
       </Card>
     </div>

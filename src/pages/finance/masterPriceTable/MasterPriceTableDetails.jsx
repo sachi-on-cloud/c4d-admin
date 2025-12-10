@@ -7,6 +7,7 @@ import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import MasterPriceLog from './MasterPriceLog';
 import RidesPeakHourTableDetails from './RidesPeakHourTableDetails';
+import PremiumPriceDetails from '@/components/PremiumPriceDetails';
 
 const PriceDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
@@ -14,6 +15,7 @@ const PriceDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [peakHours, setPeakHours] = useState([])
+    const [premiumConfig ,setPremiumConfig] = useState({});
 
     useEffect(() => {
         fetchGeoData();
@@ -56,6 +58,7 @@ const PriceDetails = () => {
                     zone: data?.data?.zone || '',
                 });
                 setPeakHours(data.data.peakHours);
+                setPremiumConfig(data.data.premiumConfig);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -68,103 +71,134 @@ const PriceDetails = () => {
 
     return (
         <div className="p-4 mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Pricing Details</h2>
+            <h2 className="text-2xl font-bold mb-4">Rides Pricing Details</h2>
             <Formik initialValues={initialValues} enableReinitialize>
                 {() => (
                     <Form className="space-y-7">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Zone</label>
-                                <Field type="text" name="zone" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <Field type="text" name="zone" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
-                                <Field type="number" name="baseFare" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare Sedan</label>
-                                <Field type="number" name="baseFareSedan" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                            <label className="text-sm font-medium text-gray-700">Base Fare SUV</label>
-                                <Field type="number" name="baseFareSuv" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare MUV</label>
-                                <Field type="number" name="baseFareMVP" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km Mini</label>
-                                <Field type="number" name="ratePerKm" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km Sedan</label>
-                                <Field type="number" name="ratePerKmSedan" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km SUV</label>
-                                <Field type="number" name="ratePerKmSuv" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km MUV</label>
-                                <Field type="number" name="ratePerKmMVP" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
+                            {/* <div>
                                 <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
-                                <Field type="number" name="ratePerMin" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <Field type="number" name="ratePerMin" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min</label>
-                                <Field type="number" name="additionalMin" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
-                            </div>
+                                <label className="text-sm font-medium text-gray-700">Additional Min Charge</label>
+                                <Field type="number" name="additionalMin" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
+                            </div> */}
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
-                                <Field type="string" name="status" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Parameter</label>
-                                <Field type="text" name="rateParameter" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <Field type="text" name="status" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100 font-semibold" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
-                                <Field type="number" name="surchargePercentage" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
-                                <div className="flex items-center">
-                                    <Field
-                                        type="time"
-                                        name="nightHoursFrom"
-                                        min="22:00"
-                                        max="23:59"
-                                        className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
-                                        disabled
-                                    />
-                                    <span className="px-3 py-2 bg-gray-100 border-t border-b border-gray-300">to</span>
-                                    <Field
-                                        type="time"
-                                        name="nightHoursTo"
-                                        min="05:00"
-                                        max="08:00"
-                                        className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
-                                        disabled
-                                    />
-                                </div>
+                                <Field type="number" name="surchargePercentage" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>
-                                <Field type="number" name="nightCharge" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <Field type="number" name="nightCharge" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Cancellation Mins</label>
-                                <Field type="number" name="cancellationMins" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <Field type="number" name="cancellationMins" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
-                                <Field type="number" name="cancellationCharge" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                                <Field type="number" name="cancellationCharge" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
+                            </div>
+                            <div className="lg:col-span-2">
+                                <label className="text-sm font-medium text-gray-700">Night Hours</label>
+                                <div className="flex items-center gap-3 mt-1">
+                                    <Field type="time" name="nightHoursFrom" disabled className="p-3 rounded-md border-gray-300 bg-gray-100" />
+                                    <span className="text-gray-600">to</span>
+                                    <Field type="time" name="nightHoursTo" disabled className="p-3 rounded-md border-gray-300 bg-gray-100" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Your Requested Table - Base Fare + Rate Per Km */}
+                        <div className="mt-10">
+                            <div className="overflow-x-auto rounded-lg shadow border border-gray-300">
+                                <table className="min-w-full">
+                                    <thead className="bg-blue-600">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Car Type</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Base Fare</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Rate Per Km</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Rate Per Min</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Additional Min Charge</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y ">
+                                        <tr className="hover:bg-gray-50">
+                                            <td className="px-6  font-medium text-gray-800">MINI</td>
+                                            <td className="px-6 py-1 ">
+                                                <Field type="number" name="baseFare" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKm" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                             <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-gray-50 hover:bg-gray-100">
+                                            <td className="px-6 py-1 font-medium text-gray-800">SEDAN</td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="baseFareSedan" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKmSedan" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                            <td className="px-6 py-1 font-medium text-gray-800">SUV</td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="baseFareSuv" disabled className=" p-1 rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKmSuv" disabled className=" p-1 rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-gray-50 hover:bg-gray-100">
+                                            <td className="px-6 py-1 font-medium text-gray-800">MUV</td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="baseFareMVP" disabled className=" p-1 rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKmMVP" disabled className=" p-1 rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" disabled className=" p-1  rounded-md bg-gray-50" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                         <RidesPeakHourTableDetails priceData={peakHours}/>
+                        <PremiumPriceDetails premiumData={premiumConfig}/>
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back

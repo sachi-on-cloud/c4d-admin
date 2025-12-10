@@ -291,15 +291,17 @@ useEffect(() => {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    <th onClick={() => handleSort('created_at')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer flex items-center">
-                      <Typography variant="small" className="text-[11px] font-bold uppercase text-black">Created Date</Typography>
+                    <th onClick={() => handleSort('created_at')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
+                      <div className="flex items-center gap-1">
+                        <Typography variant="small" className="text-[11px] font-bold uppercase text-black">Created Date</Typography>
                       {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 mx-1 justify-center items-center text-black" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
+                      </div>
                     </th>
                     {/* <th onClick={() => handleSort('firstName')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
                       {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th> */}
-                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status"].map((el) => (
+                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status","Last Online Date and Time"].map((el) => (
                       <th
                       key={el}
                       className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -381,7 +383,7 @@ useEffect(() => {
                       (subscriptionStatusFilter.includes('All') || subscriptionStatusFilter.includes(driver?.subscriptionStatus)) && 
                       (documentTypeFilter.includes('All') || documentTypeFilter.includes(driver?.documentStatus?.status) )
                     ).map(
-                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus}, key) => {
+                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus, Shifts}, key) => {
                         const className = `py-3 px-5 ${key === drivers.length - 1
                           ? ""
                           : "border-b border-blue-gray-50"
@@ -459,6 +461,13 @@ useEffect(() => {
                                 value={documentStatus?.status}
                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                               />
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
+                                {Shifts?.[0]?.created_at
+                                  ? moment(Shifts[0].created_at).format("DD-MM-YYYY HH:mm")
+                                  : "-"}
+                              </Typography>
                             </td>
                             <div>
                             </div>
