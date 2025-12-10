@@ -602,6 +602,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             }),
             serviceType:values.serviceType,
             zone: actualZone,  
+            landmark: values.landmark || '',
             fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             isPremiumService : values?.isPremiumService ? true : false
         }
@@ -660,6 +661,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             },
             driverEndLat: values.driverEndLocation?.lat || null,
             zone: actualZone, 
+            landMark: values.landMark || '',
             isPremiumService : values?.isPremiumService ? true : false,
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
         };
@@ -732,8 +734,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 name:values.driverPickUpAddress,
             },
           driverEndLat: values.driverEndLocation?.lat || null,
-driverEndLong: values.driverEndLocation?.lng || null,
-driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } : null,
+            driverEndLong: values.driverEndLocation?.lng || null,
+            driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } : null,
             source: 'Call',
             sourceType: values.sourceType,
             ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
@@ -741,6 +743,7 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
             }),
             luggage: values.luggage,
             seaterCapacity:values.seaterCapacity,
+            landmark: values.landmark || '',
             period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
             serviceType: values.serviceType || mappedServiceType,
             zone: actualZone,
@@ -1615,44 +1618,8 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                     </div>
                                                 )}
                                                 
-                                                {/* Source Type Field for all services */}
-                                                {values.serviceType && (
-                                                    <div className="space-y-2 mb-4">
-                                                        <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
-                                                        <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
-                                                            <option value="">Select Source Type</option>
-                                                            <option value="Facebook">Facebook</option>
-                                                            <option value="Instagram">Instagram</option>
-                                                            <option value="Influencer Reels">Influencer Reels</option>
-                                                            <option value="WhatsApp">WhatsApp</option>
-                                                            <option value="Google">Google</option>
-                                                            <option value="YouTube">YouTube</option>
-                                                            <option value="Justdial">Justdial</option>
-                                                            <option value="Paper Notice">Paper Notice</option>
-                                                            <option value="On Field">On Field</option>
-                                                            <option value="Existing Customer">Existing Customer</option>
-                                                            <option value="Referral">Referral</option>
-                                                            <option value="Reddit">Reddit</option>
-                                                            <option value="Offline Ads">Offline Ads</option>
-                                                            <option value="Others">Others</option>
-                                                        </Field>
-                                                       {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
-                                                            <Field
-                                                                type="text"
-                                                                name="otherSourceType"
-                                                                placeholder="Please specify the source"
-                                                                className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
-                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
-                                                            />
-                                                            )}
-
-                                                        <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
-                                                {values.sourceType === "Others" && (
-                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
-                                                )}
-                                                </div>
-                                                )}
-
+                                               
+                                                
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
                                                     {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="flex-1 mb-2">
@@ -1748,7 +1715,11 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                         else if (values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE') {
                                                                             return item.serviceType === 'RENTAL' || item.serviceType === 'RENTAL_HOURLY_PACKAGE' && item.type === 'Local';
                                                                         }
-                                                                        return values.packageTypeSelected === item.type;
+                                                                        const isLocal = values.packageTypeSelected === 'Local';
+
+                                                                        if (isLocal) {
+                                                                        return item.type === 'Local' && [2, 4, 6, 8].includes(item.period);
+                                                                        }
                                                                     })
                                                                     .map((item) => (
                                                                         <option key={item.id} value={item.id}>
@@ -1901,17 +1872,32 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
+                                                      <div className="relative">
                                                         <Field
-                                                            type="text"
-                                                            name="pickupAddress"
-                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                            placeholder="Enter pickup location"
-                                                            onChange={(e) => {
-                                                                setFieldValue("pickupAddress", e.target.value);
-                                                                setFieldValue("pickupLocation", null);
-                                                                searchLocations(e.target.value, true);
-                                                            }}
+                                                        type="text"
+                                                        name="pickupAddress"
+                                                        className="p-2 w-full rounded-xl border-2 border-gray-300 pr-10"
+                                                        placeholder="Enter pickup location"
+                                                        onChange={(e) => {
+                                                            setFieldValue("pickupAddress", e.target.value);
+                                                            setFieldValue("pickupLocation", null);
+                                                            searchLocations(e.target.value, true);
+                                                        }}
                                                         />
+                                                        {values.pickupAddress && (
+                                                        <button
+                                                            type="button"
+                                                            className="absolute right-3 top-2 text-gray-500 hover:text-black"
+                                                            onClick={() => {
+                                                            setFieldValue("pickupAddress", "");
+                                                            setFieldValue("pickupLocation", null);
+                                                           
+                                                            }}
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                        )}
+                                                    </div>
                                                         {pickupSuggestions.length > 0 && (
                                                             <ul className="border rounded-lg bg-white mt-2">
                                                                 {pickupSuggestions.map((suggestion, index) => (
@@ -1932,6 +1918,7 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                         {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
+                                                                <div className="relative">
                                                                 <Field
                                                                     type="text"
                                                                     name="dropAddress"
@@ -1943,6 +1930,19 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                         searchLocations(e.target.value, false);
                                                                     }}
                                                                 />
+                                                                  {values.dropAddress && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="absolute right-3 top-4 text-gray-500 hover:text-black"
+                                                                        onClick={() => {
+                                                                        setFieldValue("dropAddress", "");
+                                                                        setFieldValue("dropLocation", null);
+                                                                        }}
+                                                                    >
+                                                                        ✕
+                                                                    </button>
+                                                                    )}
+                                                                </div>
                                                                 {dropSuggestions.length > 0 && (
                                                                     <ul className="border rounded-lg bg-white mt-2">
                                                                         {dropSuggestions.map((suggestion, index) => (
@@ -2000,6 +2000,7 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                             <label className="block text-sm font-medium text-black-700">
                                                             Cab Starting Point 
                                                             </label>
+                                                            <div className="relative">
                                                             <Field
                                                                 type="text"
                                                                 name="driverPickUpAddress"
@@ -2011,6 +2012,20 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                                     searchLocations(e.target.value, false,'driver');
                                                                 }}
                                                             />
+                                                              {values.driverPickUpAddress && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="absolute right-3 top-2 text-gray-500 hover:text-black"
+                                                                    onClick={() => {
+                                                                    setFieldValue("driverPickUpAddress", "");
+                                                                    setFieldValue("driverPickUpLocation", null);
+                                                                   
+                                                                    }}
+                                                                >
+                                                                    ✕
+                                                                </button>
+                                                                )}
+                                                            </div>
                                                             {driverSuggestions.length > 0 && (
                                                                 <ul className="border rounded-lg bg-white mt-2">
                                                                     {driverSuggestions.map((suggestion, index) => (
@@ -2028,75 +2043,143 @@ driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } :
                                                         
                                                     {/* Driver Ending Point - Show only for Drop-only trips */}
                                                    {values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation" && (
-    <div className=" p-2 space-y-2">
-        <div className='flex '>
-        <label className="block text-sm font-medium text-black-700">
-            Cab Ending Point 
-        </label>
+                                                    <div className=" p-2 space-y-2">
+                                                        <div className='flex '>
+                                                        <label className="block text-sm font-medium text-black-700">
+                                                            Cab Ending Point 
+                                                        </label>
 
-         {/* Checkbox to copy from starting point */}
-        <div className="flex items-center ml-3 gap-2 mb-2">
-            <input
-                type="checkbox"
-                id="sameAsStart"
-                checked={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
-                onChange={(e) => {
-                    if (e.target.checked) {
-                        // Copy starting point to ending point
-                        setFieldValue("driverEndAddress", values.driverPickUpAddress);
-                        setFieldValue("driverEndLocation", values.driverPickUpLocation); // if you store lat/lng too
-                        setFieldValue("driverEndSuggestions([])", []); // Clear suggestions
-                    } else {
-                        // Clear ending point when unchecked
-                        setFieldValue("driverEndAddress", "");
-                        setFieldValue("driverEndLocation", null);
-                    }
-                }}
-            />
-            <label htmlFor="sameAsStart" className="text-sm text-gray-700 cursor-pointer">
-                Same as Driver Starting Point
-            </label>
-        </div>
-        </div>
+                                                        {/* Checkbox to copy from starting point */}
+                                                        <div className="flex items-center ml-3 gap-2 mb-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="sameAsStart"
+                                                                checked={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) {
+                                                                        // Copy starting point to ending point
+                                                                        setFieldValue("driverEndAddress", values.driverPickUpAddress);
+                                                                        setFieldValue("driverEndLocation", values.driverPickUpLocation); // if you store lat/lng too
+                                                                        setFieldValue("driverEndSuggestions([])", []); // Clear suggestions
+                                                                    } else {
+                                                                        // Clear ending point when unchecked
+                                                                        setFieldValue("driverEndAddress", "");
+                                                                        setFieldValue("driverEndLocation", null);
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <label htmlFor="sameAsStart" className="text-sm text-gray-700 cursor-pointer">
+                                                                Same as Driver Starting Point
+                                                            </label>
+                                                        </div>
+                                                        </div>
 
-        {/* Ending point input - disabled when checkbox is checked */}
-        <Field
-            type="text"
-            name="driverEndAddress"
-            className="p-2 w-full rounded-xl border-2 border-gray-300"
-            placeholder="Where should driver go after dropping customer?"
-            disabled={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
-            onChange={(e) => {
-                setFieldValue("driverEndAddress", e.target.value);
-                setFieldValue("driverEndLocation", null);
-                searchLocations(e.target.value, false, 'driverEnd');
-            }}
-        />
+                                                        {/* Ending point input - disabled when checkbox is checked */}
+                                                        <div className="relative">
+                                                        <Field
+                                                            type="text"
+                                                            name="driverEndAddress"
+                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                            placeholder="Where should driver go after dropping customer?"
+                                                            disabled={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
+                                                            onChange={(e) => {
+                                                                setFieldValue("driverEndAddress", e.target.value);
+                                                                setFieldValue("driverEndLocation", null);
+                                                                searchLocations(e.target.value, false, 'driverEnd');
+                                                            }}
+                                                        />
+                                                         {values.driverEndAddress && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="absolute right-3 top-2 text-gray-500 hover:text-black"
+                                                                    onClick={() => {
+                                                                    setFieldValue("driverEndAddress", "");
+                                                                    setFieldValue("driverEndLocation", null);
+                                                                   
+                                                                    }}
+                                                                >
+                                                                    ✕
+                                                                </button>
+                                                                )}
+                                                            </div>
 
-        {driverEndSuggestions.length > 0 && (
-            <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto z-10">
-                {driverEndSuggestions.map((suggestion, index) => (
-                    <li
-                        key={index}
-                        className="p-2 cursor-pointer hover:bg-gray-100"
-                        onClick={() => {
-                            handleSelectLocation(suggestion, false, 'driverEnd', setFieldValue, values);
-                            // Uncheck the "same as start" when user selects different location
-                            if (suggestion !== values.driverPickUpAddress) {
-                                document.getElementById('sameAsStart').checked = false;
-                            }
-                        }}
-                    >
-                        {suggestion}
-                    </li>
-                ))}
-            </ul>
-        )}
+                                                        {driverEndSuggestions.length > 0 && (
+                                                            <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto z-10">
+                                                                {driverEndSuggestions.map((suggestion, index) => (
+                                                                    <li
+                                                                        key={index}
+                                                                        className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                        onClick={() => {
+                                                                            handleSelectLocation(suggestion, false, 'driverEnd', setFieldValue, values);
+                                                                            // Uncheck the "same as start" when user selects different location
+                                                                            if (suggestion !== values.driverPickUpAddress) {
+                                                                                document.getElementById('sameAsStart').checked = false;
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {suggestion}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
 
-        <ErrorMessage name="driverEndAddress" component="div" className="text-red-500 text-sm" />
-    </div>
-)}
+                                                        <ErrorMessage name="driverEndAddress" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
+                                                 {/* Source Type Field for all services */}
+                                                {values.serviceType && (
+                                                    <div className="p-2 space-y-2 ">
+                                                        <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
+                                                        <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                                            <option value="">Select Source Type</option>
+                                                            <option value="Facebook">Facebook</option>
+                                                            <option value="Instagram">Instagram</option>
+                                                            <option value="Influencer Reels">Influencer Reels</option>
+                                                            <option value="WhatsApp">WhatsApp</option>
+                                                            <option value="Google">Google</option>
+                                                            <option value="YouTube">YouTube</option>
+                                                            <option value="Justdial">Justdial</option>
+                                                            <option value="Paper Notice">Paper Notice</option>
+                                                            <option value="On Field">On Field</option>
+                                                            <option value="Existing Customer">Existing Customer</option>
+                                                            <option value="Referral">Referral</option>
+                                                            <option value="Reddit">Reddit</option>
+                                                            <option value="Offline Ads">Offline Ads</option>
+                                                            <option value="Others">Others</option>
+                                                        </Field>
+                                                       {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                            <Field
+                                                                type="text"
+                                                                name="otherSourceType"
+                                                                placeholder="Please specify the source"
+                                                                className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                            />
+                                                            )}
+
+                                                        <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                {values.sourceType === "Others" && (
+                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                                )}
+                                                    </div>
+                                                )}
+                                                {values.serviceType && (
+                                                    <div className="p-2 space-y-2 ">
+                                                        <label htmlFor="landmark" className="text-sm font-medium text-gray-700">
+                                                            Landmark (Optional) 
+                                                        </label>
+                                                        <Field
+                                                            type="text"
+                                                            name="landmark"
+                                                            placeholder="Enter nearby landmark (helps driver find easily)"
+                                                            className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                     focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                        />
+                                                        <ErrorMessage name="landmark" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
                                                 </div>
+                                                
                                               {values.serviceType == 'DRIVER' && values.packageTypeSelected !== 'Outstation' && quoteDetails && (
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">

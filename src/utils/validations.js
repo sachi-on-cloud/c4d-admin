@@ -110,6 +110,10 @@ dropAddress: Yup.string().when('serviceType', {
     then: () => Yup.string().required('Drop Address is required'),
     otherwise: () => Yup.string(),
 }),
+landmark: Yup.string()
+    .nullable()
+    .max(100, 'Landmark should not exceed 100 characters')
+    .trim(),
 
 });
 

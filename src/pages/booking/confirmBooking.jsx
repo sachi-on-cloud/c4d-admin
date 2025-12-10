@@ -17,7 +17,6 @@ import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 import TextBoxWithList from "@/components/BookingNotes";
-import LandMarkBookingNotes from "@/components/LandMarkNotes";
 import Swal from "sweetalert2";
 import { PencilIcon } from "@heroicons/react/24/solid";
 
@@ -32,9 +31,9 @@ const ConfirmBooking = (props) => {
     const [showDetails, setShowDetails] = useState(true);
     const [finalPaymentPirces, setFinalPaymentPrices] = useState({});
     const [isEditingDriverEnd, setIsEditingDriverEnd] = useState(false);
-const [driverEndAddress, setDriverEndAddress] = useState("");
-const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
-const [selectedDriverEndLocation, setSelectedDriverEndLocation] = useState(null);
+    const [driverEndAddress, setDriverEndAddress] = useState("");
+    const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
+    const [selectedDriverEndLocation, setSelectedDriverEndLocation] = useState(null);
     const [isEditingAdditionalCharges, setIsEditingAdditionalCharges] = useState(false);
     const [additionalPaymentDetails, setAdditionalPaymentDetails] = useState({
         tripType: "",
@@ -1294,118 +1293,118 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                 </Typography>
                             </div>
                          { bookingDetails?.packageType !== 'Local' &&   bookingDetails?.serviceType !== 'DRIVER' &&
-  <div className="flex justify-between">
-    <Typography color="gray" variant="h6">Cab Starting Points: </Typography>
-    <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
-  </div>
-}
-{/* Editable Driver Ending Point - Only for Outstation Rental */}
-{bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" &&  (
-  <div className="  rounded-lg ">
-    <div className="flex justify-between items-center mb-3">
-      <Typography variant="h6" color="gray" className="font-semibold">
-        Cab Ending Point
-      </Typography>
-     <Typography>{bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}</Typography>
-  
-      <Button
-        size="sm"
-        color="blue"
-        onClick={() => {
-          
-            setDriverEndAddress(bookingDetails?.driverEndAddress?.name || "");
-            setDriverEndSuggestions([]);
-            setIsEditingDriverEnd(true);
-          }
-        }
-        className="flex items-center gap-2 p-1"
-        disabled={loading}
-      >
-        
-          
-            <PencilIcon className="h-4 w-4" />
-        
-         
-      </Button>
-       
- 
-    </div>
-   
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Cab Starting Points: </Typography>
+                                <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
+                            </div>
+                            }
+                            {/* Editable Driver Ending Point - Only for Outstation Rental */}
+                            {bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" &&  (
+                            <div className="  rounded-lg ">
+                                <div className="flex justify-between items-center mb-3">
+                                <Typography variant="h6" color="gray" className="font-semibold">
+                                    Cab Ending Point
+                                </Typography>
+                                <Typography>{bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}</Typography>
+                            
+                                <Button
+                                    size="sm"
+                                    color="blue"
+                                    onClick={() => {
+                                    
+                                        setDriverEndAddress(bookingDetails?.driverEndAddress?.name || "");
+                                        setDriverEndSuggestions([]);
+                                        setIsEditingDriverEnd(true);
+                                    }
+                                    }
+                                    className="flex items-center gap-2 p-1"
+                                    disabled={loading}
+                                >
+                                    
+                                    
+                                        <PencilIcon className="h-4 w-4" />
+                                    
+                                    
+                                </Button>
+                                
+                            
+                                </div>
+                            
 
-    {isEditingDriverEnd ? (
-      <div className="space-y-3">
-        {/* Search Input */}
-        <div className="relative">
-          <input
-            type="text"
-            value={driverEndAddress}
-            onChange={(e) => {
-              const query = e.target.value;
-              setDriverEndAddress(query);
-              if (query.length > 2) {
-                searchDriverEndLocations(query);
-              } else {
-                setDriverEndSuggestions([]);
-              }
-            }}
-            placeholder="Search driver ending location..."
-            className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:outline-none"
-          />
+                                {isEditingDriverEnd ? (
+                                <div className="space-y-3">
+                                    {/* Search Input */}
+                                    <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={driverEndAddress}
+                                        onChange={(e) => {
+                                        const query = e.target.value;
+                                        setDriverEndAddress(query);
+                                        if (query.length > 2) {
+                                            searchDriverEndLocations(query);
+                                        } else {
+                                            setDriverEndSuggestions([]);
+                                        }
+                                        }}
+                                        placeholder="Search driver ending location..."
+                                        className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:outline-none"
+                                    />
 
-          {/* Suggestions Dropdown */}
-          {driverEndSuggestions.length > 0 && (
-            <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-60 overflow-y-auto">
-              {driverEndSuggestions.map((suggestion, index) => (
-                <li
-                  key={index}
-                  className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0"
-                  onClick={() => {
-                    handleSelectDriverEndLocation(suggestion);
-                  }}
-                >
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                                    {/* Suggestions Dropdown */}
+                                    {driverEndSuggestions.length > 0 && (
+                                        <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                                        {driverEndSuggestions.map((suggestion, index) => (
+                                            <li
+                                            key={index}
+                                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0"
+                                            onClick={() => {
+                                                handleSelectDriverEndLocation(suggestion);
+                                            }}
+                                            >
+                                            {suggestion}
+                                            </li>
+                                        ))}
+                                        </ul>
+                                    )}
+                                    </div>
 
-       
+                                
 
-        <div className="flex gap-3">
-          <Button
-            size="sm"
-            variant="outlined"
-            color="gray"
-            onClick={() => {
-              setIsEditingDriverEnd(false);
-              setDriverEndAddress("");
-              setDriverEndSuggestions([]);
-              setSelectedDriverEndLocation(null);
-            }}
-          >
-            Cancel
-          </Button>
-           <Button
-            size="sm"
-            variant="outlined"
-            color="green"
-            onClick={() => {
-              handleSaveDriverEndLocation();
-            }}
-          >
-            Save
-          </Button>
-        </div>
-      </div>
-    ) : (
-      /* View Mode */
-      <div className="space-y-2 text-sm">
-       
-      </div>
-    )}
-  </div>
-)}
+                                    <div className="flex gap-3">
+                                    <Button
+                                        size="sm"
+                                        variant="outlined"
+                                        color="gray"
+                                        onClick={() => {
+                                        setIsEditingDriverEnd(false);
+                                        setDriverEndAddress("");
+                                        setDriverEndSuggestions([]);
+                                        setSelectedDriverEndLocation(null);
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outlined"
+                                        color="green"
+                                        onClick={() => {
+                                        handleSaveDriverEndLocation();
+                                        }}
+                                    >
+                                        Save
+                                    </Button>
+                                    </div>
+                                </div>
+                                ) : (
+                                /* View Mode */
+                                <div className="space-y-2 text-sm">
+                                
+                                </div>
+                                )}
+                            </div>
+                            )}
                             {bookingDetails?.status !== "QUOTED" &&  <>
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Start OTP: </Typography>
@@ -1420,7 +1419,15 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                     {bookingDetails?.endOtp || "Not Added"}
                                 </Typography>
                             </div>)}
-                        </>}
+                            
+                            </>}
+                              {bookingDetails?.landmark != "" && (
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">LandMark: </Typography>
+                                <Typography>
+                                {bookingDetails?.landmark || "Not Added"}
+                                </Typography>
+                            </div>)}
                         </div>
                     </CardBody>
                 </Card>
@@ -1988,19 +1995,9 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                             <Option value="NOT PAID">NOT PAID</Option>
                                         </Select>
                                     </div>
-                                </div>
-
-                            </CardBody>
-                        </Card>
-                    }
-                </div>
-          {showDetails && bookingDetails?.status === 'ENDED' && (bookingDetails?.tripStatus === false) && (
-    <Card className="mt-4">
-        <CardBody>
-            <div className="flex justify-between mb-2">
-                <Typography variant="h5">TripMaster Details</Typography>
-            </div>
-            <hr className="my-2" />
+                                      {showDetails && bookingDetails?.status === 'ENDED' && (bookingDetails?.tripStatus === false) && (
+    <>
+           
             <div className="space-y-2">
                 {/* Trip Type */}
                 <div className="grid grid-cols-6 gap-x-4">
@@ -2015,64 +2012,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                         <Option value="External">External</Option>
                     </Select>
                 </div>
-                {/* Toll Cost */}
-                <div className="grid grid-cols-6 gap-x-4">
-                    <Typography color="gray" variant="h6">Toll Cost:</Typography>
-                    <Input
-                        type="number"
-                        value={additionalPaymentDetails.tollCost || ""}
-                        onChange={(e) => handleAdditionalChange("tollCost", e.target.value)}
-                        placeholder="Enter Toll Cost"
-                        disabled={bookingDetails?.tripStatus === true}
-                    />
-                </div>
-                {/* Permit Cost */}
-                <div className="grid grid-cols-6 gap-x-4">
-                    <Typography color="gray" variant="h6">Permit Cost:</Typography>
-                    <Input
-                        type="number"
-                        value={additionalPaymentDetails.permitCost || ""}
-                        onChange={(e) => handleAdditionalChange("permitCost", e.target.value)}
-                        placeholder="Enter Permit Cost"
-                        disabled={bookingDetails?.tripStatus === true}
-                    />
-                </div>
-                {/* Fuel Cost */}
-                <div className="grid grid-cols-6 gap-x-4">
-                    <Typography color="gray" variant="h6">Fuel Cost:</Typography>
-                    <Input
-                        type="number"
-                        value={additionalPaymentDetails.fuelCost || ""}
-                        onChange={(e) => handleAdditionalChange("fuelCost", e.target.value)}
-                        placeholder="Enter Fuel Cost"
-                        disabled={bookingDetails?.tripStatus === true}
-                    />
-                </div>
-                {/* Trip Fare */}
-                <div className="grid grid-cols-6 gap-x-4">
-                    <Typography color="gray" variant="h6">Trip Fare:</Typography>
-                    <Input
-                        type="number"
-                        value={additionalPaymentDetails.tripFare || ""}
-                        onChange={(e) => handleAdditionalChange("tripFare", e.target.value)}
-                        placeholder="Enter Trip Fare"
-                        disabled={bookingDetails?.tripStatus === true}
-                    />
-                </div>
-                {/* Notes */}
-                <div className="col-span-2">
-                    <Typography color="gray" variant="h6" className="mb-1">
-                        Notes
-                    </Typography>
-                    <textarea
-                        name="notes"
-                        value={additionalPaymentDetails.notes || ""}
-                        onChange={(e) => handleAdditionalChange("notes", e.target.value)}
-                        placeholder="Enter notes..."
-                        className="p-2 w-full border rounded-md h-20"
-                        disabled={bookingDetails?.tripStatus === true}
-                    />
-                </div>
+               
             </div>
             <div className="mt-4">
                <Button
@@ -2108,14 +2048,14 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
             totalKm: parseFloat(totalKm),
             fuelType: additionalPaymentDetails.fuelType || 'CNG', // Use dynamic fuelType if available
             fuelCost: additionalPaymentDetails.fuelCost ? parseFloat(additionalPaymentDetails.fuelCost) : 0,
-            tripFare: additionalPaymentDetails.tripFare ? parseFloat(additionalPaymentDetails.tripFare) : 0,
+            tripFare: finalAmountAfterExtras ? parseFloat(finalAmountAfterExtras) : 0,
             notes: additionalPaymentDetails.notes || '',
             startLat: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0,
             startLong: bookingDetails?.startLong ? parseFloat(bookingDetails.startLong) : 0,
             endLat: bookingDetails?.endLat ? parseFloat(bookingDetails.endLat) : 0,
             endLong: bookingDetails?.endLong ? parseFloat(bookingDetails.endLong) : 0,
-            toll: additionalPaymentDetails.tollCost ? parseFloat(additionalPaymentDetails.tollCost) : 0,
-            permit: additionalPaymentDetails.permitCost ? parseFloat(additionalPaymentDetails.permitCost) : 0,
+            toll: bookingDetails?.extraCharges?.tollCharge ? parseFloat(bookingDetails?.extraCharges?.tollCharge) : 0,
+            permit:  bookingDetails?.extraCharges?.permitCharge ? parseFloat(bookingDetails?.extraCharges?.permitCharge) : 0,
             tripType: additionalPaymentDetails.tripType || 'Internal',
             latitude: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0, // Included for compatibility
             userId: loggedInUserId || null, 
@@ -2202,10 +2142,17 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
     Complete
 </Button>
             </div>
-        </CardBody>
-    </Card>
-)}
-                {showDetails && <LandMarkBookingNotes addNotes={LandMarkNotes} landmark={bookingDetails?.landmark} />}
+            </>)}
+            
+   
+                                </div>
+
+                            </CardBody>
+                        </Card>
+                    }
+                </div>
+        
+              
                 {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} bookingId={bookingDetails?.id} />}
             </>
         </div>
