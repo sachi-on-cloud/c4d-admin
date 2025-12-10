@@ -283,13 +283,24 @@ const handleSelectDriverEndLocation = async (address) => {
     }
   } catch (err) {
     console.error("Error getting lat/long:", err);
-    Swal.fire("Error", "Could not get location coordinates", "error");
+    Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: "Could not get location coordinates",
+    timer: 1500,
+  });
   }
 };
 
 const handleSaveDriverEndLocation = async () => {
   if (!selectedDriverEndLocation) {
-    Swal.fire("Error", "Please select a valid location", "error");
+
+    Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: "Please select a valid location",
+    timer: 1500,
+  });
     return;
   }
 
@@ -304,18 +315,36 @@ const handleSaveDriverEndLocation = async () => {
     const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_DRIVER_END_LOCATION, payload);
 
     if (response?.success) {
-      Swal.fire("Success", "Driver ending point updated successfully!", "success");
+    
+      Swal.fire({
+    icon: "success",
+    title: "success",
+    text: "Driver ending point updated successfully!",
+    timer: 1500,
+  });
       setIsEditingDriverEnd(false);
       setDriverEndAddress("");
       setSelectedDriverEndLocation(null);
       // Refresh booking details
       getBookingById(bookingDetails.id, bookingDetails.customerId);
     } else {
-      Swal.fire("Error", response?.message || "Failed to update", "error");
+      
+      Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: response?.message || "Failed to update",
+    timer: 1500,
+  });
     }
   } catch (err) {
     console.error(err);
-    Swal.fire("Error", "Something went wrong!", "error");
+    
+    Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: "Something went wrong!",
+    timer: 1500,
+  });
   } finally {
     setLoading(false);
   }
@@ -349,11 +378,23 @@ const handleSaveDriverEndLocation = async () => {
             });
             getBookingById(bookingDetails.id, bookingDetails.customerId);
         } else {
-            Swal.fire("Error", response?.message || "Failed to update charges", "error");
+            
+              Swal.fire({
+                icon: "error",
+                title: response?.message || "Failed to update charges",
+                timer: 1500,
+                
+            });
         }
     } catch (err) {
         console.error("Error updating extra charges:", err);
-        Swal.fire("Error", "Something went wrong!", "error");
+       
+          Swal.fire({
+                icon: "error",
+                title: "Something went wrong!",
+                timer: 1500,
+              
+            });
     } finally {
         setLoading(false);
     }
