@@ -1276,6 +1276,7 @@ export const WHATSAPP_BOOKING_CANCELLED=`
     ${COMPANY_NAME} Team`;
 
 export const BOOKING_TERMS_AND_CONDITIONS = "Price might vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
+export const BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES ="The price shown before confirming your ride is an approximate fare calculated using distance and travel time. Actual charges may differ due to factors like GPS signal quality, map accuracy, traffic conditions, network issues, or other technical limitations."
 export const ColorStyles = {
     sidenavColors: "bg-primary-200",
     bgColor: "bg-primary",

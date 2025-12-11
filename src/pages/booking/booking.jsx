@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, Feature } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, Feature, BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -343,7 +343,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     });
     return data;
 };
-    const getQuoteRides = async (val, setFieldValue) => {
+   const getQuoteRides = async (val, setFieldValue) => {
     let checkDistance = true;
     let checkCityLimit = true;
 
@@ -383,7 +383,22 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     const zoneData = await zoneCheckUpFun(val);
     //  console.log("secondZone",zoneData)
     if (!zoneData.success || !zoneData.serviceArea) {
-        setZoneErrorModal({ show: true, text: zoneData.error || 'Service not available in this area.', title: zoneData.title || 'Oops!' });
+        const errorText = (() => {
+            if (val.serviceType === 'RIDES') {
+                return "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+            } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
+                return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+            } else if (val.serviceType === 'RENTAL') {
+                return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+            }
+            return zoneData.error || 'Service not available in this area.';
+        })();
+        
+        setZoneErrorModal({ 
+            show: true, 
+            text: errorText, 
+            title: zoneData.title || 'Oops!' 
+        });
         setFieldValue?.('pickupAddress', '');
         setIsButtonDisabled(false);
         return;
@@ -557,7 +572,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
             let actualZone = '';
             if (values.serviceType === 'RIDES') {
                 if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
-                    setZoneErrorModal({ show: true, text: zoneCheckUp.error || 'Service not available in this area.', title: zoneCheckUp.title || 'Oops!' });
+                    const errorText = "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+                    setZoneErrorModal({ show: true, text: errorText, title: zoneCheckUp.title || 'Oops!' });
                     setIsButtonDisabled(false);
                     return;
                 }
@@ -633,7 +649,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
             let actualZone = '';
             if (values.serviceType === 'AUTO') {
                 if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
-                    setZoneErrorModal({ show: true, text: zoneCheckUp.error || 'Service not available in this area.', title: zoneCheckUp.title || 'Oops!' });
+                    const errorText = "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+                    setZoneErrorModal({ show: true, text: errorText, title: zoneCheckUp.title || 'Oops!' });
                     setIsButtonDisabled(false);
                     return;
                 }
@@ -918,9 +935,20 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     getPackageListDetails(currentServiceType, newArea.name);
                 }
             } else {
+                const errorText = (() => {
+                    if (values.serviceType === 'RIDES') {
+                        return "Selected locations are outside the service area. Please choose a nearby pickup location to continue.";
+                    } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
+                        return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+                    } else if (values.serviceType === 'RENTAL') {
+                        return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+                    }
+                    return zoneData.error || 'Service not available in this area.';
+                })();
+                
                 setZoneErrorModal({ 
                     show: true, 
-                    text: zoneData.error || 'Service not available in this area.', 
+                    text: errorText, 
                     title: zoneData.title || 'Oops!' 
                 });
                 setFieldValue("pickupAddress", "");
@@ -2590,6 +2618,23 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         </div>
                                                     </div>
                                                 )}
+                                                {(values.serviceType == 'RIDES' || values.serviceType == 'AUTO') && quoteDetails &&(
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                     <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className="text-center text-sm text-gray-700"
+                                                            >
+                                                                
+                                                                
+                                                                
+                                                                {BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES}
+                                                            </Typography>
+                                                        </div>
+                                                        </div>
+                                                )}
 
                                                  {values.serviceType == 'RENTAL' && quoteDetails && (
                                                     <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
@@ -2829,10 +2874,22 @@ const sendQuotationLogs = async (bookingId, userId) => {
                         </div>
                     </div>
                 )}
-                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content="You can choose Outstation within 300km only for the DropTaxi service."/>
-                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
+              
+                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content="Booking not available for the selected route. Try outstation service."/>
+                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 15 km are allowed only through DropTaxi or Outstation service." />
                 <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
-                {/* <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); formikActions.setFieldValue?.('pickupAddress', ''); }} title={zoneErrorModal.title} content={zoneErrorModal.text} /> */}
+                
+                {zoneErrorModal.show && (
+                  <DistanceExceedModal 
+                    isVisible={zoneErrorModal.show} 
+                    onClose={() => { 
+                      setZoneErrorModal({ show: false }); 
+                      formikActions.setFieldValue?.('pickupAddress', ''); 
+                    }} 
+                    title={zoneErrorModal.title} 
+                    content={zoneErrorModal.text}
+                  />
+                )}
             </div>
         </div>
     );
