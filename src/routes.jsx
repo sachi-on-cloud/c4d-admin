@@ -9,6 +9,7 @@ import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
 import { PriceList } from "@/pages/public/price";
+import { RentalTariffRateCard } from "@/pages/public/rentalRateCard";
 
 import { CustomerView } from "@/pages/customer";
 import { AccountView } from "@/pages/account";
@@ -1085,6 +1086,11 @@ export const routes = [
       {
         path: "/rate-card",
         element: <PriceList />,
+        display: false
+      },
+      {
+        path: "/rental-rate-card",
+        element: <RentalTariffRateCard />,
         display: false
       },
     ],
