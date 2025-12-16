@@ -146,6 +146,9 @@ const DiscountEdit = () => {
         formData.append('image', values.image);
         formData.append('fileType', values.image?.type || '');
         formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
+      } else {
+        formData.append('fileType', '');
+        formData.append('extImage', '');
       }
       const finalCabType = values.isPremium
         ? (values.premiumCabType || '')
@@ -296,6 +299,7 @@ const DiscountEdit = () => {
                     ) : (
                       <p className="text-gray-600 italic">No premium options for {values.serviceType}</p>
                     )}
+                    <ErrorMessage name="premiumCabType" component="div" className="text-red-500 text-sm mt-3" />
                   </div>
                 )}
               </div>
@@ -313,6 +317,7 @@ const DiscountEdit = () => {
                   <option value="SUV">Suv</option>
                   <option value="MUV">Muv</option>
                 </Field>
+                <ErrorMessage name="cabType" component="div" className="text-red-500 text-sm" />
               </div>
               )}
               <div>
