@@ -73,6 +73,157 @@ const ConfirmBooking = (props) => {
     const handleAdditionalChange = (field, value) => {
         setAdditionalPaymentDetails((prev) => ({ ...prev, [field]: value }));
     };
+    const hasOnConfirm = typeof props?.onConfirm === "function";
+    const hasSetIsOpen = typeof props?.setIsOpen === "function";
+    const hasOnEdit = typeof props?.onEdit === "function";
+    const hasOnAssignDriver = typeof props?.onAssignDriver === "function";
+    const triggerParentRefresh = () => {
+        if (hasOnConfirm) {
+            props.onConfirm();
+        }
+    };
+    const closeOrNavigateBack = () => {
+        if (hasSetIsOpen) {
+            props.setIsOpen(false);
+        } else {
+            navigate("/dashboard/booking");
+        }
+    };
+    const handleEditAction = (booking) => {
+        if (!booking?.id) return;
+
+        if (hasOnEdit) {
+            props.onEdit(booking);
+        } else {
+            navigate("/dashboard/booking", {
+                state: {
+                    ...(location.state || {}),
+                    editBooking: booking,
+                },
+            });
+        }
+    };
+    const handleAssignDriverAction = (booking) => {
+        if (hasOnAssignDriver) {
+            props.onAssignDriver(booking);
+        }
+    };
+    // const renderStatusBadge = (status) => {
+    //     const statusLower = status?.toLowerCase();
+    //     switch (statusLower) {
+    //         case 'started':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
+    //                     On Trip
+    //                 </span>
+    //             );
+    //         case 'ended':
+    //             if (bookingDetails?.tripStatus === true) {
+    //                 return (
+    //                     <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+    //                         Completed
+    //                     </span>
+    //                 );
+    //             }
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+    //                     ENDED
+    //                 </span>
+    //             );
+    //         case 'customer_cancelled':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+    //                     Cancelled
+    //                 </span>
+    //             );
+    //         case 'cancelled':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
+    //                     Customer Cancelled
+    //                 </span>
+    //             );
+    //         case 'initiated':
+    //             if (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) {
+    //                 return (
+    //                     <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+    //                         Booked
+    //                     </span>
+    //                 );
+    //             }
+    //             return null;
+    //         case 'quoted':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
+    //                     QUOTED
+    //                 </span>
+    //             );
+    //         case 'confirmed':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+    //                     CONFIRMED
+    //                 </span>
+    //             );
+    //         case 'request_driver':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-orange-600 rounded-md text-sm font-medium">
+    //                     REQUEST DRIVER
+    //                 </span>
+    //             );
+    //         case 'booking_accepted':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+    //                     DRIVER ACCEPTED
+    //                 </span>
+    //             );
+    //         case 'end_otp':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-gray-600 rounded-md text-sm font-medium">
+    //                     END OTP
+    //                 </span>
+    //             );
+    //         case 'driver_on_the_way':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
+    //                     DRIVER ON THE WAY
+    //                 </span>
+    //             );
+    //         case 'driver_reached':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-yellow-600 rounded-md text-sm font-medium">
+    //                     DRIVER REACHED
+    //                 </span>
+    //             );
+    //         case 'payment_requested':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-green-600 rounded-md text-sm font-medium">
+    //                     PAYMENT REQUESTED
+    //                 </span>
+    //             );
+    //         case 'support_cancelled':
+    //             return (
+    //                 <span className="mx-3 px-2 py-1 text-white bg-primary rounded-md text-sm font-medium">
+    //                     SUPPORT CANCELLED
+    //                 </span>
+    //             );
+    //         default:
+    //             return null;
+    //     }
+    // };
+    const getServiceTypeLabel = () => {
+        if (bookingDetails?.serviceType === 'DRIVER') return 'ACTING DRIVER';
+        if (bookingDetails?.serviceType === 'RIDES') return 'Local Rides';
+        if (bookingDetails?.packageType === 'Local') return 'Hourly Package';
+        if (bookingDetails?.bookingType === 'DROP ONLY') return 'Drop Taxi';
+        if (bookingDetails?.serviceType === 'AUTO') return 'Auto';
+        return 'Outstation';
+    };
+    const formatStatus = (status = '') => {
+        return status
+            .toLowerCase()
+            .split('_')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
       const minsToHHMM = (totalMins)=> {
         const hrs = Math.floor(totalMins / 60);
         const mins = Math.round(totalMins % 60);          // round to nearest minute
@@ -124,7 +275,7 @@ const ConfirmBooking = (props) => {
         // console.log("CONFIRM BOOKING", data);
         if (data?.success) {
             //navigate("/dashboard/booking");
-            props.onConfirm()
+            triggerParentRefresh();
             setLoading(false);
         }
     };
@@ -262,8 +413,8 @@ const ConfirmBooking = (props) => {
     }, [props.bookingData]);
 
     const onBackPressHandler = async () => {
-        props.onConfirm()
-        props.setIsOpen(false)
+        triggerParentRefresh();
+        closeOrNavigateBack();
     };
 
     const [showCancelReason, setShowCancelReason] = useState(false);
@@ -446,8 +597,8 @@ const handleSaveDriverEndLocation = async () => {
         // console.log("CANCELBOKING", data);
 
         if (data?.success) {
-            props.onConfirm();
-            props.setIsOpen(false);
+            triggerParentRefresh();
+            closeOrNavigateBack();
         }
     };
      const baseTripFare = Number
@@ -462,21 +613,40 @@ const totalExtraCharges =
     // const taxAmount = Number(bookingDetails?.paymentDetails?.details?.gstAmount || 0);
 
 const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
+const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value) => Number(value) > 0);
+    const contextBooking = props?.bookingData || bookingDetails;
+    const contextServiceType = contextBooking?.serviceType;
+    const contextBookingId = contextBooking?.id || paramsPassed?.bookingId;
+    const contextCustomerId = contextBooking?.customerId || paramsPassed?.customerId || bookingDetails?.customerId;
+
+    const refreshCurrentBookingData = () => {
+        if (contextBookingId && contextCustomerId) {
+            getBookingById(contextBookingId, contextCustomerId);
+        }
+    };
 
     const addNotes = async (text) => {
         setLoading(true);
-        text.bookingId = props.bookingData.id
+        if (!contextBookingId) {
+            setLoading(false);
+            return;
+        }
+        text.bookingId = contextBookingId;
         const response = await ApiRequestUtils.post(API_ROUTES.ADD_NOTES_BOOKING, text);
         if (response?.success) {
-            getBookingById(props.bookingData.id, props.bookingData.customerId);
+            refreshCurrentBookingData();
         }
     };
      const LandMarkNotes = async (text) => {
         setLoading(true);
-        text.bookingId = props.bookingData.id
+        if (!contextBookingId) {
+            setLoading(false);
+            return;
+        }
+        text.bookingId = contextBookingId;
         const response = await ApiRequestUtils.update(API_ROUTES.UPDATE_LANDMARK, text);
         if (response?.success) {
-            getBookingById(props.bookingData.id, props.bookingData.customerId);
+            refreshCurrentBookingData();
         }
     };
 
@@ -505,28 +675,53 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
     return (
-        <div className="container mx-auto">
-            {showDetails &&(
-            <div className="grid grid-cols-5 gap-2 my-2">
-                {/* <Button
-                        color="blue"
-                        ripple="light"
-                        fullWidth
-                        onClick={onBackPressHandler}
-                    >
-                        Back
-                    </Button> */}
+        <div className="container mx-auto px-4 md:px-6">
+            {bookingDetails && (
+                <div className="rounded-2xl px-4 sm:px-6 py-4 mb-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <Button
+                            variant="text"
+                            color="black"
+                            className="flex items-center gap-2 bg-white"
+                            onClick={onBackPressHandler}
+                        >
+                            ← Back
+                        </Button>
 
+                        <p className="text-2xl font-bold text-gray-900 break-words">
+                            {`Booking #${bookingDetails?.bookingNumber || ''}`}
+                        </p>
+
+
+                        {bookingDetails?.status && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                                {formatStatus(bookingDetails?.status)}
+                            </span>
+                        )}
+                        {bookingDetails?.serviceType && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-rose-100 text-rose-800">
+                                {getServiceTypeLabel()}
+                            </span>
+                        )}
+                        {bookingDetails?.isPremiumService && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-purple-600 text-white">
+                                Premium
+                            </span>
+                        )}
+                    
+                    </div>           
+                    {showDetails && (
+                <div className="w-full lg:w-auto flex flex-wrap justify-start lg:justify-end gap-3">
                     {(
                         (bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP") ||
                         (bookingDetails.ownership === "ASSIGNED_TO_SUPPORT" &&
                             (bookingDetails.serviceType === "AUTO" || (Feature.parcel && bookingDetails.serviceType === "PARCEL")))
                     ) && (
                     <Button
-                        color="green"
+                        color="white"
                         variant="outlined"
                         ripple="dark"
-                        fullWidth
+                        className="px-6 bg-green-600"
                         onClick={() => {
                             handleBookingAction(BOOKING_STATUS.CONFIRMED);
                         }}
@@ -542,10 +737,10 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                             {!showCancelReason && (bookingDetails?.status == 'QUOTED' || bookingDetails?.status == 'INITIATED' || bookingDetails?.status == 'DRIVER_ON_THE_WAY' || bookingDetails?.status == 'DRIVER_REACHED' || bookingDetails?.status == 'REQUEST_DRIVER' || bookingDetails?.status == 'CONFIRMED' || bookingDetails?.status == 'BOOKING_ACCEPTED') &&
                                 (
                                     <Button
-                                        color="red"
+                                        color="white"
                                         variant="outlined"
                                         ripple="dark"
-                                        fullWidth
+                                        className="px-6 bg-red-900"
                                         onClick={() => setShowCancelReason(true)}
                                     >
                                         Cancel
@@ -558,11 +753,11 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
 
                 {bookingDetails?.status === 'QUOTED' && (
                     <Button
-                        color="black"
+                        color="white"
                         variant="outlined"
                         ripple="dark"
-                        fullWidth
-                        onClick={() => { props.onEdit(bookingDetails) }}
+                        className="px-6 bg-gray-600"
+                        onClick={() => { handleEditAction(bookingDetails); }}
                     >
                         Edit
                     </Button>
@@ -609,33 +804,33 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                         </Button>
                     )} */}
 
-                {bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
+                {hasOnAssignDriver && bookingDetails.status === 'ASSIGNED_TO_SUPPORT' &&
                     bookingDetails?.pickupAddress &&
                     !bookingDetails?.Driver?.id &&
                     !bookingDetails?.Cab?.id && (
                         <Button
-                            color="black"
+                            color="white"
                             variant="outlined"
                             ripple="light"
-                            fullWidth
-                            onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            className="px-6 bg-gray-600"
+                            onClick={() => { handleAssignDriverAction(bookingDetails); }}
                         >
-                            {props.bookingData.serviceType === "CAB"
+                            {contextServiceType === "CAB"
                                 ? "Assign Cab"
                                 : "Assign Captain"}
                         </Button>
                     )}
 
-                {['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(bookingDetails.status) &&
+                {hasOnAssignDriver && ['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(bookingDetails.status) &&
                     (bookingDetails?.Driver?.id || bookingDetails?.Cab?.id) && (
                         <Button
-                            color="black"
+                            color="white"
                             variant="outlined"
                             ripple="light"
-                            fullWidth
-                            onClick={() => { props.onAssignDriver(bookingDetails); }}
+                            className="px-6 bg-gray-600"
+                            onClick={() => { handleAssignDriverAction(bookingDetails); }}
                         >
-                            {props.bookingData.serviceType !== "DRIVER"
+                            {contextServiceType !== "DRIVER"
                                 ? "Choose Another Cab"
                                 : "Choose Another Captain"}
                         </Button>
@@ -701,8 +896,11 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                     } */}
             </div>
         )}
+                </div>
+            )}
+            <div className="flex flex-col lg:flex-row justify-end items-stretch gap-3 mb-4 w-full">
             {showCancelReason && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 space-y-2 w-full lg:max-w-xl">
                     <select
                         name="cancelBy"
                         value={cancelData.cancelBy}
@@ -722,7 +920,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                         placeholder="Enter cancellation reason..."
                         className="border border-gray-300 px-2 py-1 rounded-md w-full"
                     />
-                    <div className="flex items-center space-x-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0">
                         <label className="font-medium">Cancellation Charge Applicable:</label>
                         <label className="inline-flex items-center space-x-2">
                             <input
@@ -745,9 +943,10 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                             <span>No</span>
                         </label>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                         <Button
                             color="red"
+                            className="w-full sm:w-auto"
                             onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED, cancelData)}
                             disabled={!cancelData.cancelReason.trim() || !cancelData.cancelBy || !cancelData.cancelCharge}
                         >
@@ -756,6 +955,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                         <Button
                             color="gray"
                             variant="outlined"
+                            className="w-full sm:w-auto"
                             onClick={() => setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "" })}
                         >
                             Cancel
@@ -763,240 +963,197 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                     </div>
                 </div>
             )}
+        </div>
             {showDetails && (
-            <div className="grid grid-cols-2 gap-4">
-                <Card className="mb-2">
-                    <CardBody>
-                        <div className="border  p-2 rounded-md my-2 flex items-end gap-4 bg-gradient-to-r from-pink-300 to-orange-400">
-                        <Typography color="white" className="font-bold text-sm">
-                        Total Enquiry Count: {bookingDetails?.customerBookingCount || 'N/A'}
-                    </Typography>
-                    <Typography color="white" className="font-bold text-sm">
-                        Last Enquired Date: {bookingDetails?.lastBookingCreatedAt
-                            ? moment(bookingDetails?.lastBookingCreatedAt).format('DD-MM-YYYY')
-                            : 'N/A'}
-                    </Typography>
-                    <Typography color="white" className="font-bold text-sm text-center">
-                        
-                    </Typography> 
-                    </div>
-                        <div className="flex justify-between mb-2">
-                            <Typography variant="h5">Customer Details </Typography>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <Card className="mb-4 rounded-2xl shadow-sm border border-gray-100">
+                    <CardBody className="space-y-4">
+                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
+                            <span>Customer Info</span>
                         </div>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Name:</Typography>
-                                <Typography>{bookingDetails?.Customer?.firstName}</Typography>
+                        <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Name:</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.Customer?.firstName || 'N/A'}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Phone Number:</Typography>
-                                <Typography>
-                                    {bookingDetails?.Customer?.phoneNumber}
-                                </Typography>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Phone:</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.Customer?.phoneNumber || 'N/A'}</span>
+                            </div>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Rating:</span>
+                                <span className="text-gray-900 font-medium flex items-center gap-1">
+                                    <span className="text-yellow-500">★</span>
+                                    {customerFeedback?.rating}
+                                </span>
+                                 <span className="italic">
+                                        {customerFeedback?.comment || 'N/A'}
+                                    </span>
+                            </div>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Total Enquiries:</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.customerBookingCount || 'N/A'}</span>
                             </div>
                         </div>
-                        <div className="mt-6">
-                            <Typography variant="h6" className="mb-2">Customer Feedback</Typography>
-                            {customerFeedback ? (
-                                <div className="text-sm">
-                                    <div className="text-yellow-500 text-2xl">
-                                        {"★".repeat(Math.round(customerFeedback.rating)) + "☆".repeat(5 - Math.round(customerFeedback.rating))}
-                                    </div>
-                                    <div className="italic">"{customerFeedback.comment}"</div>
-                                </div>
-                            ) : (
-                                <Typography>No feedback given.</Typography>
-                            )}
-                        </div>
-
+                        {bookingDetails?.lastBookingCreatedAt && (
+                            <p className="text-xs text-gray-500">
+                                Last enquiry: {moment(bookingDetails.lastBookingCreatedAt).format('DD-MM-YYYY')}
+                            </p>
+                        )}
                     </CardBody>
                 </Card>
             {(Feature.parcel && bookingDetails?.serviceType === 'PARCEL') && (
-                <Card className="mb-2">
-                    <CardBody>
-                        <div className="flex justify-between mb-2">
-                            <Typography variant="h5">Parcel Details </Typography>
+                <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <CardBody className="space-y-4">
+                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
+                            <span>Parcel Details</span>
                         </div>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Sender Name:</Typography>
-                                <Typography>{bookingDetails?.deliveryDetails?.senderName}</Typography>
+                        <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <p className="text-gray-500 font-semibold">Sender Name:</p>
+                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.senderName || '-'}</p>
                             </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Phone Number:</Typography>
-                                <Typography>
-                                    {bookingDetails?.deliveryDetails?.senderPhone}
-                                </Typography>
+                            <div>
+                                <p className="text-gray-500 font-semibold">Phone:</p>
+                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.senderPhone || '-'}</p>
                             </div>
-                            {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Order Type:</Typography>
-                                <Typography>{bookingDetails?.orderType}</Typography>
+                            <div>
+                                <p className="text-gray-500 font-semibold">Receiver Name:</p>
+                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.receiverName || '-'}</p>
                             </div>
-                            }
-                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Receiver Name:</Typography>
-                                <Typography>
-                                    {bookingDetails?.deliveryDetails?.receiverName}
-                                </Typography>
+                            <div>
+                                <p className="text-gray-500 font-semibold">Receiver Phone:</p>
+                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.receiverPhone || '-'}</p>
                             </div>
-                             <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Receiver Phone:</Typography>
-                                <Typography>
-                                    {bookingDetails?.deliveryDetails?.receiverPhone}
-                                </Typography>
+                            <div>
+                                <p className="text-gray-500 font-semibold">Order Type:</p>
+                                <p className="text-gray-900 font-medium">{bookingDetails?.orderType || '-'}</p>
                             </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Delivery Instructions:</Typography>
-                                <Typography>
-                                    {bookingDetails?.deliveryDetails?.deliveryInstructions}
-                                </Typography>
+                            <div>
+                                <p className="text-gray-500 font-semibold">Instructions:</p>
+                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.deliveryInstructions || '-'}</p>
                             </div>
-                           <div className="flex justify-between items-center">
-                                <Typography color="gray" variant="h6">
-                                    Delivery Audio:
-                                </Typography>
-                                {audioUrl ? (
-                                    <audio controls muted>
-                                        <source src={audioUrl} type="audio/mp4" />
-                                        Your browser does not support the audio element.
-                                    </audio>
-                                ) : (
-                                    <Typography>No audio available</Typography>
-                                )}
-                            </div>
-                        </div>                
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <p className="text-gray-500 font-semibold">Delivery Audio:</p>
+                            {audioUrl ? (
+                                <audio controls muted className="flex-1">
+                                    <source src={audioUrl} type="audio/mp4" />
+                                    Your browser does not support the audio element.
+                                </audio>
+                            ) : (
+                                <p className="text-sm text-gray-500">No audio available</p>
+                            )}
+                        </div>
                     </CardBody>
                 </Card>
-                )}
+            )}
 
-                {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED" || bookingDetails?.status == "CUSTOMER_CANCELLED") &&
-                    <Card className="mb-2">
-                        <CardBody>
-                            <div className="flex justify-between mb-2">
-                                <Typography variant="h5">Cancellation Reason</Typography>
+            {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED" || bookingDetails?.status == "CUSTOMER_CANCELLED") &&
+                <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <CardBody className="space-y-3">
+                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
+                            <span>Cancellation Reason</span>
+                        </div>
+                        <div className="text-sm text-gray-700">
+                            <p><span className="font-semibold text-gray-500">Reason:</span> {bookingDetails?.cancelReason || '-'}</p>
+                            <p><span className="font-semibold text-gray-500">Cancel Requested By:</span> {bookingDetails?.cancelRequestedBy || 'Customer'}</p>
+                        </div>
+                    </CardBody>
+                </Card>
+            }
+                {bookingDetails?.Driver?.id && (
+                    <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
+                        <CardBody className="space-y-4">
+                            <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
+                                <span>Driver Details</span>
                             </div>
-                            <hr className="my-2" />
-                            <div className="space-y-2">
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Reason:</Typography>
-                                    <Typography>{bookingDetails?.cancelReason}</Typography>
-                                </div>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
-                                    <Typography>{bookingDetails?.cancelRequestedBy || 'Customer'}</Typography>
-                                </div>
-                            </div>
-                        </CardBody>
-                    </Card>
-                }
-                {bookingDetails?.Driver?.id &&
-                    <Card className="mb-2">
-                        <CardBody>
-                            <div className="flex justify-between mb-2">
-                                <Typography variant="h5">Driver Details </Typography>
-                            </div>
-                            <hr className="my-2" />
-                            <div className="space-y-2">
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Name:</Typography>
-                                    <Typography>{bookingDetails?.Driver?.firstName}</Typography>
-                                </div>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Phone Number:</Typography>
-                                    <Typography>
-                                        {bookingDetails?.Driver?.phoneNumber}
-                                    </Typography>
-                                </div>
-                                {bookingDetails?.Cab?.name != '' && bookingDetails?.Cab?.name !=null && 
-                                (
-                                    <>
-                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Cab Name:</Typography>
-                                    <Typography>
-                                        {bookingDetails?.Cab?.name || ''}
-                                    </Typography>
-                                </div>
-                               
-                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Car Type:</Typography>
-                                    <Typography>
-                                        {bookingDetails?.Cab?.carType || ''}
-                                    </Typography>
-                                </div>
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Car Number:</Typography>
-                                    <Typography>
-                                        {bookingDetails?.Cab?.carNumber}
-                                    </Typography>
-                                </div>
-                                </> )}
-                            </div>
-                            <div className="mt-6">
-                                <Typography variant="h6" className="mt-4 mb-2">Driver Feedback</Typography>
-                                {driverFeedback ? (
-                                    <div className="text-sm">
-                                        <div className="text-yellow-500 text-2xl">
-                                            {"★".repeat(Math.round(driverFeedback.rating)) + "☆".repeat(5 - Math.round(driverFeedback.rating))}
-                                        </div>
-                                        <div className="italic">"{driverFeedback.comment}"</div>
+                            <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                                {/* <div className="flex items-center gap-3 col-span-2"> */}
+                                    {/* <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold">
+                                        {bookingDetails?.Driver?.firstName?.[0] || 'D'}
+                                    </div> */}
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Name:</span>
+                                        <span className="text-gray-900 font-medium">{bookingDetails?.Driver?.firstName || 'N/A'}</span>
                                     </div>
-                                ) : (
-                                    <Typography>No feedback given.</Typography>
-                                )}
+                                {/* </div> */}
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Phone:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails?.Driver?.phoneNumber || 'N/A'}</span>
+                                </div>
+                                {bookingDetails?.serviceType !=='AUTO' && (
+                                    <>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Vehicle Number:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails?.Cab?.carNumber || '-'}</span>
+                                </div>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Model:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails?.Cab?.name || bookingDetails?.Cab?.carType || '-'}</span>
+                                </div>
+                                </>)}
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Rating:</span>
+                                    <span className="text-gray-900 font-medium flex items-center gap-1">
+                                        <span className="text-yellow-500">★</span>
+                                        {driverFeedback?.rating}
+                                    </span>
+                                     <span className="italic">
+                                        {driverFeedback?.comment || 'N/A'}
+                                    </span>
+                                </div>
                             </div>
-
                         </CardBody>
                     </Card>
-                }
+                )}
             </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
-                <Card className="mb-2">
-                    <CardBody>
-                        <div className="flex justify-between mb-2">
-                            <Typography variant="h5">Ride Details</Typography>
+           
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <CardBody className="space-y-5">
+                        <div className="flex items-center justify-between">
+                            <span className="text-lg font-semibold text-gray-900">Ride Details</span>
                             <Typography variant="h6" color="green"><a target="_blank" href={Utils.generateWhatsAppMessage(bookingDetails)}>Share on Whatsapp</a></Typography>
                         </div>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Service Type:</Typography>
-                                <Typography>{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</Typography>
+                        <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Service Type:</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</span>
                             </div>
                             {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Delivery Type:</Typography>
-                                <Typography>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Delivery Type:</span>
+                                <span className="text-gray-900 font-medium">
                                     {bookingDetails?.deliveryType === 'DOOR_DELIVERY' ? "Door Delivery" : ""}
-                                </Typography>
+                                </span>
                             </div>
                             }
                             {bookingDetails?.source !== "Mobile App" &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Source Type:</Typography>
-                                 <Typography>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Source Type:</span>
+                                 <span className="text-gray-900 font-medium">
                                     {bookingDetails?.sourceType}
-                                </Typography>
+                                </span>
                             </div>
                             }
                             {(bookingDetails?.sourceType == 'Others' || bookingDetails?.sourceType == 'Offline Ads') && 
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Specification:</Typography>
-                                 <Typography>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Specification:</span>
+                                 <span className="text-gray-900 font-medium">
                                     {bookingDetails?.otherSourceType}
-                                </Typography>
+                                </span>
                             </div>
                              }
 
                             {bookingDetails?.source !== "Mobile App" &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Service Area:</Typography>
-                                <Typography>{bookingDetails?.zone}</Typography>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Service Area:</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.zone}</span>
                             </div>
                             }
+                            
                             {/* {bookingDetails?.zone > 0 &&
                             <div className="flex justify-between">
                                 <Typography color="gray" variant="h6">Service Area:</Typography>
@@ -1006,107 +1163,106 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                             {/* {bookingDetails?.serviceType !='RIDES' && <div className="flex justify-between">
                             <Typography color="gray" variant="h6">Package Type:</Typography>
                             <Typography>{bookingDetails.packageType}</Typography>
-                        </div>} */}
-                        {(
+                            </div>} */}
+                            {/* {(
                             bookingDetails?.serviceType === 'DRIVER' || 
                             (bookingDetails?.serviceType === 'RENTAL' && 
                             bookingDetails?.packageType === 'Outstation' && 
                             bookingDetails?.bookingType !== 'Hourly Package')
-                        ) && (
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Booking Type:</Typography>
-                                <Typography>{bookingDetails?.bookingType}</Typography>
+                            ) && (
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Booking Type:</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.bookingType}</span>
                             </div>
-                        )}
-                      {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType =='Local') && 
-                        <div className="flex justify-between">
-                        <Typography color="gray" variant="h6">KM:</Typography>
-                        <Typography>
-                        {bookingDetails?.packageType === 'Local' ? `${bookingDetails?.Package?.kilometer} Km` : ''}
-                        </Typography>
-                        </div>
-                        }
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Start Date:</Typography>
-                                <Typography>{moment(bookingDetails.fromDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                            )} */}
+                            {(bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType =='Local') && 
+                            <div className="flex flex-col-2 gap-2">
+                            <span className="text-gray-500 font-semibold">KM:</span>
+                            <span className="text-gray-900 font-medium">
+                            {bookingDetails?.packageType === 'Local' ? `${bookingDetails?.Package?.kilometer} Km` : ''}
+                            </span>
+                            </div>
+                            }
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Start Date:</span>
+                                <span className="text-gray-900 font-medium">{moment(bookingDetails.fromDate).format("DD-MM-YYYY / hh:mm A")}</span>
                             </div>
                             {bookingDetails?.toDate &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">End Date:</Typography>
-                                    <Typography>{moment(bookingDetails.toDate).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">End Date:</span>
+                                    <span className="text-gray-900 font-medium">{moment(bookingDetails.toDate).format("DD-MM-YYYY / hh:mm A")}</span>
                                 </div>
                             }
                             {bookingDetails?.packageType == "Outstation" &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">AC Type:</Typography>
-                                    <Typography>{bookingDetails?.acType}</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">AC Type:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails?.acType}</span>
                                 </div>
                             }
-                         {bookingDetails?.Cab?.carType && bookingDetails?.serviceType === 'RIDES' && (bookingDetails?.status === "STARTED" || bookingDetails?.status === "ENDED") && (
-                        <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Cab Type:</Typography>
-                            <Typography>{bookingDetails?.Cab?.carType}</Typography>
-                        </div>
-                    )}
+                                {bookingDetails?.Cab?.carType && bookingDetails?.serviceType === 'RIDES' && (bookingDetails?.status === "STARTED" || bookingDetails?.status === "ENDED") && (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Cab Type:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails?.Cab?.carType}</span>
+                                </div>
+                            )}
                             {bookingDetails?.carType  && bookingDetails?.serviceType !='AUTO' &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Car Type:</Typography>
-                                    <Typography>{bookingDetails?.carType}</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Car Type:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails?.carType}</span>
+                                </div>
+                            }
+                            {bookingDetails?.serviceType != 'RIDES'  && bookingDetails?.serviceType !='AUTO' &&
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Luggage:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails.luggage || '0'}</span>
                                 </div>
                                 
                             }
                             {bookingDetails?.serviceType != 'RIDES'  && bookingDetails?.serviceType !='AUTO' &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Luggage:</Typography>
-                                    <Typography>{bookingDetails.luggage || '0'}</Typography>
-                                </div>
-                                
-                            }
-                            {bookingDetails?.serviceType != 'RIDES'  && bookingDetails?.serviceType !='AUTO' &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Seater Capacity:</Typography>
-                                    <Typography>{bookingDetails.seaterCapacity || '0'}</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Seater Capacity:</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails.seaterCapacity || '0'}</span>
                                 </div>
                                 
                             }
                             {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Package:</Typography>
-                                    <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Package:</span>
+                                    <span className="text-gray-900 font-medium">{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
                                             ${bookingDetails?.packageType === "Outstation" ? bookingDetails.totalDays ? bookingDetails?.totalDays + ' Days' : bookingDetails?.value?.differenceDays + ' Days' :
-                                            bookingDetails?.packageType === "Local" ? "hours" : ""}`}</Typography>
+                                            bookingDetails?.packageType === "Local" ? "hours" : ""}`}</span>
                                 </div>
                             }
                             {bookingDetails?.serviceType == 'DRIVER' && 
-                              <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">KM:</Typography>
-                                    <Typography>{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.kilometer+ ' Km' : ''}
-                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails?.value?.travelDistance + ' Km':''}`}</Typography>
+                              <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">KM:</span>
+                                    <span className="text-gray-900 font-medium">{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.kilometer+ ' Km' : ''}
+                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails?.value?.travelDistance + ' Km':''}`}</span>
                                 </div>
                             }
                            
                             {bookingDetails?.value?.baseFare > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Base Fare:</Typography>
-                                    <Typography>₹ {bookingDetails?.value?.baseFare}</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Base Fare:</span>
+                                    <span className="text-gray-900 font-medium">₹ {bookingDetails?.value?.baseFare}</span>
                                 </div>
                             }
                             {bookingDetails?.value?.kilometerPriceVal > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Per KM Rate:</Typography>
-                                    <Typography>₹ {bookingDetails?.value?.kilometerPriceVal}</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Per KM Rate:</span>
+                                    <span className="text-gray-900 font-medium">₹ {bookingDetails?.value?.kilometerPriceVal}</span>
                                 </div>
                             }
                             {bookingDetails?.value?.estimatedDistance > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total Distance:</Typography>
-                                    <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Total Distance:</span>
+                                    <span className="text-gray-900 font-medium">{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</span>
                                 </div>
                             }
                                 {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total Distance:</Typography>
-                                    <Typography>{(Number(bookingDetails?.totalDistanceKilometer))} Kms</Typography>
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Total Distance:</span>
+                                    <span className="text-gray-900 font-medium">{(Number(bookingDetails?.totalDistanceKilometer))} Kms</span>
                                 </div>
                             }
                             {/* {(bookingDetails?.serviceType == 'RENTAL' && bookingDetails?.packageType == 'Outstation' && bookingDetails?.bookingType == 'ROUND TRIP') &&
@@ -1121,11 +1277,13 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                     <Typography>{bookingDetails?.value?.displayTime}</Typography>
                                 </div>
                             } */}
+                                    {/* </div> */}
                             {/* need to add logic for price */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && <>
-                               <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Estimated Price (Incl Tax):</Typography>
-                                    <Typography>
+                    {/* <div className="grid sm:grid-cols-2 gap-4 text-sm">                                         */}
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && (                            
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
+                                    <span className="text-gray-900 font-medium">
                                         ₹ {
                                             bookingDetails?.serviceType === 'DRIVER' && bookingDetails?.packageType === 'Local'
                                                 ? bookingDetails?.carType === "Sedan"
@@ -1147,194 +1305,201 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                                     )
                                                     : bookingDetails?.value?.estimatedPrice
                                         }
-                                    </Typography>
+                                    </span>
                                 </div>
-                              {bookingDetails?.offerPrice > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
-                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
-                                </div>}
-                                 {bookingDetails?.totalPrice > 0 &&
-                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total Price:</Typography>
-                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
-                                </div>}
-                                {bookingDetails?.discount?.percentage > 0 && (
-                                <>
-                                    <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
-                                    <Typography>{bookingDetails?.discount?.percentage} %</Typography>
+                            )}
+                                {bookingDetails?.offerPrice > 0 && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Driver Accepted Price:</span>
+                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.offerPrice}</span>
                                     </div>
-                            {bookingDetails?.status !== 'PAYMENT_REQUESTED' && 
-                                    <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
-                                    <Typography className="font-roboto-medium text-lg text-gray-900">
-                                        ₹ {(() => {
-                                        let basePrice;
-                                        const discountPercentage = bookingDetails?.discount?.percentage || 0;
-
-                                        if (bookingDetails?.packageType === 'Local') {
-                                            if (bookingDetails?.serviceType === 'RENTAL') {
-                                            const carType = bookingDetails?.carType?.toUpperCase();
-                                            basePrice = carType === 'MINI' ? bookingDetails?.Package?.price :
-                                                        carType === 'SUV' ? bookingDetails?.Package?.priceSuv :
-                                                        carType === 'MUV' ? bookingDetails?.Package?.priceMVP :
-                                                        carType === 'SEDAN' ? bookingDetails?.Package?.priceSedan : 
-                                                        bookingDetails?.Package?.price;
-                                            } else if (bookingDetails?.serviceType === 'DRIVER') {
-                                            basePrice = bookingDetails?.carType?.toUpperCase() === 'MUV'
-                                                ? bookingDetails?.Package?.priceMVP
-                                                : bookingDetails?.Package?.price;
-                                            }
-                                        } else {
-                                            basePrice = bookingDetails?.value?.estimatedPrice;
-                                        }
-
-                                        return basePrice && basePrice !== 'N/A'
-                                            ? (basePrice - (basePrice * discountPercentage / 100)).toFixed(2)
-                                            : 'N/A';
-                                        })()}
-                                    </Typography>
-                                    </div>
-                                    }
-                            {bookingDetails?.status === 'PAYMENT_REQUESTED' && 
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total Incl (TAX) : </Typography>
-                                    <Typography className="font-roboto-medium text-lg text-gray-900">
-                                        ₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}
-                                    </Typography>
-                                    </div>
-                                    }
-                                </>
                                 )}
+                                {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.totalPrice > 0 && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Total Price:</span>
+                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.totalPrice}</span>
+                                    </div>
+                                )}
+                                {bookingDetails?.discount?.percentage > 0 && (
+                                    <>
+                                        <div className="flex flex-col-2 gap-2">
+                                            <span className="text-gray-500 font-semibold">Discount Applied:</span>
+                                            <span className="text-gray-900 font-medium">{bookingDetails?.discount?.percentage} %</span>
+                                        </div>
+                                        {bookingDetails?.status !== 'PAYMENT_REQUESTED' && (
+                                            <div className="flex flex-col-2 gap-2">
+                                                <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
+                                                <span className="text-gray-900 font-medium">
+                                                    ₹ {(() => {
+                                                        let basePrice;
+                                                        const discountPercentage = bookingDetails?.discount?.percentage || 0;
 
-                                </>
-                            }
+                                                        if (bookingDetails?.packageType === 'Local') {
+                                                            if (bookingDetails?.serviceType === 'RENTAL') {
+                                                                const carType = bookingDetails?.carType?.toUpperCase();
+                                                                basePrice = carType === 'MINI' ? bookingDetails?.Package?.price :
+                                                                    carType === 'SUV' ? bookingDetails?.Package?.priceSuv :
+                                                                    carType === 'MUV' ? bookingDetails?.Package?.priceMVP :
+                                                                    carType === 'SEDAN' ? bookingDetails?.Package?.priceSedan :
+                                                                    bookingDetails?.Package?.price;
+                                                            } else if (bookingDetails?.serviceType === 'DRIVER') {
+                                                                basePrice = bookingDetails?.carType?.toUpperCase() === 'MUV'
+                                                                    ? bookingDetails?.Package?.priceMVP
+                                                                    : bookingDetails?.Package?.price;
+                                                            }
+                                                        } else {
+                                                            basePrice = bookingDetails?.value?.estimatedPrice;
+                                                        }
 
-                            {bookingDetails?.status === BOOKING_STATUS.ENDED && <>
-                                {bookingDetails?.offerPrice > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Driver Accepted Price:</Typography>
-                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.offerPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.offerPrice : bookingDetails?.offerPrice}</Typography>
-                                </div>
-                                }
-                                {bookingDetails?.totalPrice > 0 &&
-                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Price:</Typography>
-                                    {/* <Typography>₹ {bookingDetails?.Cab ? bookingDetails?.Cab?.Prices[0]?.baseFare : bookingDetails?.Driver ? bookingDetails?.Package?.price : bookingDetails?.Package?.baseFare ? bookingDetails?.Package?.baseFare : bookingDetails?.Package?.price}</Typography> */}
-                                    <Typography>₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
-                                </div>
-                                }
-                                {bookingDetails?.paymentDetails?.details?.discountPercentage > 0 && 
-                                 <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Discount Applied :</Typography>
-                                    <Typography>{bookingDetails?.paymentDetails?.details?.discountPercentage} %</Typography>
-                                </div>
-                                }
-                               
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total Incl (Tax):</Typography>
-                                    <Typography className="font-bold">₹ {amount?.total}</Typography>
-                                </div>
+                                                        return basePrice && basePrice !== 'N/A'
+                                                            ? (basePrice - (basePrice * discountPercentage / 100)).toFixed(2)
+                                                            : 'N/A';
+                                                    })()}
+                                                </span>
+                                            </div>
+                                        )}
+                                        {bookingDetails?.status === 'PAYMENT_REQUESTED' && (
+                                            <div className="flex flex-col-2 gap-2">
+                                                <span className="text-gray-500 font-semibold">Total Incl (TAX):</span>
+                                                <span className="text-gray-900 font-medium">
+                                                    ₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                                {bookingDetails?.status === BOOKING_STATUS.ENDED && (
+                                    <>
+                            
+                                {bookingDetails?.totalPrice > 0 && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Price:</span>
+                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.totalPrice}</span>
+                                    </div>
+                                )}
                                 
-                                 </>
-
-                            }
-                            {/* {bookingDetails?.status !== BOOKING_STATUS.INITIATED && <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Price:</Typography>
-                            <Typography>₹ {bookingDetails?.Driver ? bookingDetails?.Driver?.Prices[0]?.price : bookingDetails?.Cab?.Prices[0]?.price}</Typography>
-                        </div>} */}
-                            {/* <div className="flex justify-between">
-                            <Typography color="gray" variant="h6">Car:</Typography>
-                            <Typography>{bookingDetails?.Car?.nickName}</Typography>
-                        </div> */}
-                        {bookingDetails?.status === BOOKING_STATUS.END_OTP &&
-                            <>
-                                {finalPaymentPirces.discountAmount > 0 && <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Customer Discount Applied:</Typography>
-                                    <Typography>₹ {finalPaymentPirces.discountAmount}</Typography>
-                                </div>}
-                                {finalPaymentPirces.customerWalledUsed > 0 && <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Customer Wallet Points Used:</Typography>
-                                    <Typography>{finalPaymentPirces.customerWalledUsed}</Typography>
-                                </div>}
-                                {finalPaymentPirces.driverWalletAdded > 0 && <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Driver Wallet Points Added:</Typography>
-                                    <Typography>{finalPaymentPirces.driverWalletAdded}</Typography>
-                                </div>}
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total (Incl. Tax)</Typography>
-                                    <Typography>₹ {finalPaymentPirces.amountAfterGST}</Typography>
+                                
+                                {bookingDetails?.paymentDetails?.details?.discountPercentage > 0 && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Discount Applied:</span>
+                                        <span className="text-gray-900 font-medium">{bookingDetails?.paymentDetails?.details?.discountPercentage} %</span>
                                 </div>
-                            </>
-                        }
-                        </div>
+                                )} 
+                                                               
+                            <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Total Incl (Tax):</span>
+                                    <span className="text-gray-900 font-semibold">₹ {amount?.total}</span>
+                                </div>
+                        </>)}
+                         {bookingDetails?.status === BOOKING_STATUS.END_OTP && (
+                            <div className="">
+                                {finalPaymentPirces.discountAmount > 0 && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Customer Discount Applied:</span>
+                                        <span className="text-gray-900 font-medium">₹ {finalPaymentPirces.discountAmount}</span>
+                                    </div>
+                                )}
+                                {finalPaymentPirces.customerWalledUsed > 0 && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Customer Wallet Points Used:</span>
+                                        <span className="text-gray-900 font-medium">{finalPaymentPirces.customerWalledUsed}</span>
+                                    </div>
+                                )}
+                                {finalPaymentPirces.driverWalletAdded > 0 && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Driver Wallet Points Added:</span>
+                                        <span className="text-gray-900 font-medium">{finalPaymentPirces.driverWalletAdded}</span>
+                                    </div>
+                                )}
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Total (Incl. Tax):</span>
+                                    <span className="text-gray-900 font-semibold">₹ {finalPaymentPirces.amountAfterGST}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>                            
+
+                        
+                       
+                    
                     </CardBody>
                 </Card>
 
-                <Card className="mb-2">
-                    <CardBody>
-                        <div className="flex justify-between mb-2">
-                            <Typography variant="h5">Location Details </Typography>
+                <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <CardBody className="space-y-5">
+                        <div className="flex items-center justify-between">
+                            <span className="text-lg font-semibold text-gray-900">Location Details</span>
                         </div>
-                        <hr className="my-2" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Pickup: </Typography>
-                                <Typography>{bookingDetails?.pickupAddress?.name}</Typography>
+                        <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Pickup:</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.pickupAddress?.name}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Drop-off: </Typography>
-                                <Typography>
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Drop-off:</span>
+                                <span className="text-gray-900 font-medium">
                                     {bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name || "Not Added"}
-                                </Typography>
+                                </span>
                             </div>
-                         { bookingDetails?.packageType !== 'Local' &&   bookingDetails?.serviceType !== 'DRIVER' &&
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Cab Starting Points: </Typography>
-                                <Typography>{bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}</Typography>
-                            </div>
-                            }
-                            {/* Editable Driver Ending Point - Only for Outstation Rental */}
-                            {bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" &&  (
-                            <div className="  rounded-lg ">
-                                <div className="flex justify-between items-center mb-3">
-                                <Typography variant="h6" color="gray" className="font-semibold">
-                                    Cab Ending Point
-                                </Typography>
-                                <Typography>{bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}</Typography>
-                            
+                            {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'DRIVER' && (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">{bookingDetails?.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Points:</span>
+                                    <span className="text-gray-900 font-medium">
+                                        {bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}
+                                    </span>
+                                </div>
+                            )}
+                            {bookingDetails?.status !== "QUOTED" && (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Start OTP:</span>
+                                    <span className="text-gray-900 font-medium">
+                                        {bookingDetails?.startOtp || "Not Added"}
+                                    </span>
+                                </div>
+                            )}
+                            {bookingDetails?.status !== "QUOTED" && bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">End OTP:</span>
+                                    <span className="text-gray-900 font-medium">
+                                        {bookingDetails?.endOtp || "Not Added"}
+                                    </span>
+                                </div>
+                            )}
+                            {bookingDetails?.landmark !== "" && (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">LandMark:</span>
+                                    <span className="text-gray-900 font-medium">
+                                        {bookingDetails?.landmark || "Not Added"}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                        {bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.packageType === "Outstation" && (
+                            <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-4">
+                                <div className="flex justify-between items-center gap-4">
+                                    <div className="flex gap-2 text-sm">
+                                        <p className="text-gray-500 font-semibold">Cab Ending Point</p>
+                                        <p className="text-gray-900 font-medium">
+                                            {bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}
+                                        </p>
+                                    </div>
                                 <Button
                                     size="sm"
                                     color="blue"
                                     onClick={() => {
-                                    
                                         setDriverEndAddress(bookingDetails?.driverEndAddress?.name || "");
                                         setDriverEndSuggestions([]);
                                         setIsEditingDriverEnd(true);
-                                    }
-                                    }
-                                    className="flex items-center gap-2 p-1"
+                                        }}
+                                    className="flex items-center gap-2 px-3 py-2"
                                     disabled={loading}
                                 >
-                                    
-                                    
                                         <PencilIcon className="h-4 w-4" />
-                                    
-                                    
                                 </Button>
-                                
-                            
                                 </div>
-                            
-
-                                {isEditingDriverEnd ? (
+                                {isEditingDriverEnd && (
                                 <div className="space-y-3">
-                                    {/* Search Input */}
-                                    <div className="relative">
+                                <div className="relative">
                                     <input
                                         type="text"
                                         value={driverEndAddress}
@@ -1350,8 +1515,6 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                         placeholder="Search driver ending location..."
                                         className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:outline-none"
                                     />
-
-                                    {/* Suggestions Dropdown */}
                                     {driverEndSuggestions.length > 0 && (
                                         <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                                         {driverEndSuggestions.map((suggestion, index) => (
@@ -1368,9 +1531,6 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                         </ul>
                                     )}
                                     </div>
-
-                                
-
                                     <div className="flex gap-3">
                                     <Button
                                         size="sm"
@@ -1397,41 +1557,535 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                     </Button>
                                     </div>
                                 </div>
-                                ) : (
-                                /* View Mode */
-                                <div className="space-y-2 text-sm">
-                                
-                                </div>
                                 )}
                             </div>
                             )}
-                            {bookingDetails?.status !== "QUOTED" &&  <>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Start OTP: </Typography>
-                                <Typography>
-                                    {bookingDetails?.startOtp || "Not Added"}
-                                </Typography>
-                            </div>
-                            {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && (
-                             <div className="flex justify-between ">
-                                <Typography color="gray" variant="h6">End OTP: </Typography>
-                                <Typography>
-                                    {bookingDetails?.endOtp || "Not Added"}
-                                </Typography>
-                            </div>)}
-                            
-                            </>}
-                              {bookingDetails?.landmark != "" && (
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">LandMark: </Typography>
-                                <Typography>
-                                {bookingDetails?.landmark || "Not Added"}
-                                </Typography>
-                            </div>)}
-                        </div>
                     </CardBody>
                 </Card>
             </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 pb-2">
+                {shouldShowReceipt && (
+                    <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="border rounded-xl w-full  mx-auto p-6 shadow-lg">
+                        <div className="flex justify-center items-center mb-4">
+                            <h2 className="text-2xl mr-2 font-bold text-center text-blue-700">Receipt</h2>
+
+
+                        </div>
+                        <hr className="border border-black" />
+                        <div className="space-y-2">
+                            {/* <div className="mt-3">
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Company Name: </Typography>
+                                <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
+                            </div>
+                            <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">GST Number: </Typography>
+                                <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
+                            </div>
+                        </div> */}
+
+                            <div className="mt-4">
+                                {/* <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Package:</Typography>
+                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Local" ? "hr" : ""
+                                    }`}</Typography>
+                            </div> */}
+                            {/* { bookingDetails?.serviceType !== "RIDES" && bookingDetails?.packageType !== 'Local' && bookingDetails?.bookingType !=="DROP ONLY" &&(
+                                <div className="flex justify-between">
+                                <Typography color="gray" variant="h6">Estimate Hrs:</Typography>
+                                <Typography>{bookingDetails?.value?.displayTime || '0'}</Typography>
+                                </div>
+                            )} */}
+                            {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs:</Typography>
+                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium"> {minsToHHMM(bookingDetails.extraHours)}
+                                    </Typography>
+                                </div>
+                            )}
+                            {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs  : </Typography>
+                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium">
+                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} hrs : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} mins`}
+                                    </Typography>
+                                </div>
+                                )}
+                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" && (
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
+                                        <Typography className="text-sm text-black font-medium">{bookingDetails?.totalHours}</Typography>
+                                    </div>
+                                )}
+                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
+                                    <div className="flex justify-between my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate km:</Typography>
+                                    <Typography className="text-sm text-black font-medium">
+                                        {(
+                                        Number(bookingDetails?.value?.distanceEstimated) +
+                                        Number(bookingDetails?.value?.driverWithin)
+                                        ).toFixed(1)} km
+                                    </Typography>
+                                    </div>
+
+                                }
+                                {bookingDetails?.extraKMs > 0 &&
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra KMs:</Typography>
+                                    <Typography className="text-sm text-black font-medium"> {Number(bookingDetails?.extraKMs).toFixed(2)}</Typography>
+                                </div>
+                                }
+                                {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total KM:</Typography>
+                                    <Typography className="text-sm text-black font-medium">
+                                        {bookingDetails?.endKM && bookingDetails?.startKM ? (bookingDetails.endKM - bookingDetails.startKM).toFixed(2) : "0.00"}
+                                    </Typography>
+                                </div>}
+                                {bookingDetails?.serviceType === 'AUTO' &&
+                                <>
+                                    {bookingDetails?.value?.estimatedDistance > 0 &&
+                                        <div className="flex justify-between  my-1">
+                                            <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total KM:</Typography>
+                                            <Typography className="text-sm text-black font-medium">{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
+                                        </div>
+                                    }
+                                </>}
+
+                                {/* <div className="flex justify-between">
+                                <Typography color="gray" variant="sm">Total:</Typtext-sm ography>
+                                <Typography style={{
+                                    fontWeight: 'bold'
+                                }}>₹ {amount?.total}</Typography>
+                            </div> */}
+                                {/* Amount After Gst:  */}
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Start Time:</Typography>
+                                    <Typography className="text-sm text-black font-medium">{moment(bookingDetails.startTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>moment{bookingDetails.startTime}</Typography> */}
+                                </div>
+
+
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">End Time:</Typography>
+                                    <Typography className="text-sm text-black font-medium">{moment(bookingDetails.endedTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
+                                    {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
+                                </div>
+
+                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && <>
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Start KM:</Typography>
+                                    <Typography className="text-sm text-black font-medium">{bookingDetails?.startKM}</Typography>
+                                </div>
+
+
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">End KM:</Typography>
+                                    <Typography className="text-sm text-black font-medium">{bookingDetails?.endKM}</Typography>
+                                </div>
+
+
+                                </>
+                                }
+
+
+                                {/* {bookingDetails?.extraHourPrice >0 &&
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="sm">Extra Hrs:<text-sm /Typography>
+                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
+                                </div>
+                                } */}
+
+
+                                {bookingDetails?.extraKMPrice > 0 &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Per KM Price:</Typography>
+                                        <Typography className="text-sm text-black font-medium">{bookingDetails?.extraKMPrice}</Typography>
+                                    </div>
+                                }
+                                {bookingDetails?.extraNightChargePrice > 0 &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra KM Price:</Typography>
+                                        <Typography className="text-sm text-black font-medium">{bookingDetails?.extraNightChargePrice}</Typography>
+                                    </div>
+                                }
+                                {bookingDetails?.extraHourPrice > 0 &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs Price (For Each 15 Mins):</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.extraHourPrice}</Typography>
+                                    </div>
+                                }
+                                {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
+                                    <>
+                                        {/* <div className="flex justify-between">
+                                        <Typography color="gray" variant="sm">Base Fare:<text-sm /Typography>
+                                        <Typography>₹ {amount?.price}</Typography>
+                                    </div> */}
+                                        {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails.extraHours} x ${amount.extraHourPrice})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.extraPrice}</Typography>
+                                            </div>)}
+                                        {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails.extraHours)} x ${amount.extraHourPrice})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.extraPrice}</Typography>
+                                            </div>)}
+                                        {amount.extraKMs > 0 &&
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">  {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">
+                                                    ₹ {(amount?.extraKMs * amount?.extraKMPrice).toFixed(2)}
+                                                </Typography>
+                                            </div>
+                                        }
+                                        {amount.extraNightCharge > 0 &&
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {amount?.extraNightCharge}</Typography>
+                                            </div>
+                                        }
+                                    </> : ""
+                                }
+                                <hr className="my-2 border border-gray-400" />
+                                {bookingDetails?.totalPrice > 0 &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className=" text-gray-500 text-sm font-semibold">Final Trip Fare:</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
+                                    </div>
+                                }
+                                {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="red" variant="sm" className="text-sm text-gray-500 font-semibold">Discount Applied:</Typography>
+                                        <Typography color="red" variant="sm" className="text-sm text-black font-medium"> - ₹ {bookingDetails?.paymentDetails?.details?.discountAmount}</Typography>
+                                    </div>
+                                }
+                                {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography variant="sm" className="text-sm  text-red-400 font-semibold">Wallet Points Used:</Typography>
+                                        <Typography variant="sm" className="text-sm  text-red-400">- ₹ {bookingDetails?.paymentDetails?.details?.walletAmountUsed}</Typography>
+                                    </div>
+                                }
+                                {/* Amount After Gst:  */}
+
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">TAX:</Typography>
+                                    <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.paymentDetails?.details?.gstAmount}</Typography>
+                                </div>
+
+                                <hr className="my-1 border border-gray-400" />
+                                {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="green" variant="sm" className="text-sm text-gray-500  font-semibold">Total:</Typography>
+                                        <Typography color="green" className="font-medium text-sm text-black">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
+                                    </div>
+                                }
+
+
+
+
+
+                                {/* Additional Charges Section */}
+
+                                {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && (
+                                    <>
+                                        <hr className="my-1 border border-gray-400" />
+                                        <div className="flex justify-between items-center mb-2">
+
+                                            <Typography variant="sm" className="text-sm font-semibold text-blue-700 mr-2">
+                                                Additional Charges
+                                            </Typography>
+
+
+                                            {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && (
+                                                <button
+                                                    onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
+                                                    className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                                                        }`}
+                                                    title={isEditingAdditionalCharges ? "Save Changes" : "Edit Additional Charges"}
+                                                >
+                                                    {isEditingAdditionalCharges ? (
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    ) : (
+                                                        <PencilIcon className="w-5 h-5" />
+                                                    )}
+                                                </button>)}
+
+                                        </div>
+                                    </>
+                                )}
+                                {/* View Mode: Show only non-zero */}
+                                {!isEditingAdditionalCharges ? (
+                                    <>
+                                        {additionalCharges.permit > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Permit Charge:</span> <b className=" text-black">₹ {additionalCharges.permit}</b></div>}
+                                        {additionalCharges.toll > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Toll Charge:</span> <b className="text-black">₹ {additionalCharges.toll}</b></div>}
+                                        {additionalCharges.parking > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Parking Charge:</span> <b className="text-black">₹ {additionalCharges.parking}</b></div>}
+                                        {additionalCharges.hill > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Hill Charge:</span> <b className="text-black">₹ {additionalCharges.hill}</b></div>}
+                                    </>
+                                ) : (
+                                    /* Edit Mode: Show all 4 fields */
+                                    ["permit", "toll", "parking", "hill"].map((type) => (
+                                        <div key={type} className="flex justify-between items-center my-2">
+                                            <span className="text-gray-600 font-medium">
+                                                {type.charAt(0).toUpperCase() + type.slice(1)} Charge:
+                                            </span>
+                                            <div className="flex items-center gap-2">
+
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    className="w-24 p-1 text-center border border-gray-500 rounded  focus:ring-gray-700"
+                                                    value={additionalCharges[type] || ""}
+                                                    onChange={(e) => setAdditionalCharges(prev => ({ ...prev, [type]: +e.target.value || 0 }))}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                                {(() => {
+                                    const hasAnyCharge = Object.values(additionalCharges).some(val => val > 0);
+                                    const totalExtra = Object.values(additionalCharges).reduce((a, b) => a + b, 0);
+
+                                    // Hide entire section if no charges in view mode
+                                    if (!hasAnyCharge && !isEditingAdditionalCharges) return null;
+
+                                    return (
+
+                                        <>
+
+                                            <hr className="my-4 border border-gray-400" />
+                                            <div className="flex justify-between text-lg font-bold">
+                                                <span className="text-green-700 font-semibold">Final Amount:</span>
+                                                <span className="text-green-700">₹ {finalAmountAfterExtras}</span>
+                                            </div>
+                                        </>
+                                    )
+
+
+                                })()}
+
+                                {/* Edit/Save Buttons */}
+                                {isEditingAdditionalCharges && (
+                                    <div className="flex justify-end gap-3 mt-4">
+                                        <Button size="sm" variant="outlined" onClick={() => setIsEditingAdditionalCharges(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button size="sm" color="green" onClick={() => { handleRecalculateAndSaveExtraCharges(); setIsEditingAdditionalCharges(false); }} disabled={loading}>
+                                            Submit
+                                        </Button>
+                                    </div>
+                                )}
+
+                            </div>
+                        </div>
+                        </div>
+                    </Card>
+                )                          
+             }
+                    {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
+                        <Card>
+                            <CardBody>
+                                <div className="flex justify-between mb-2">
+                                    <Typography variant="h5">Payment Details</Typography>
+                                </div>
+                                <hr className="my-2" />
+                                <div className="space-y-2">
+                                    {/* Payment Collected */}
+                                    <div className="flex flex-col-2 gap-2">
+                                        <Typography color="gray" variant="h6" className="">Collected By:</Typography>
+                                        <Select
+                                            value={paymentDetails.paymentCollected}
+                                            onChange={(value) => handleChange("paymentCollected", value)}
+                                            disabled={bookingDetails?.status === 'ENDED'}
+                                        >
+                                            <Option value="C4D">C4D</Option>
+                                            <Option value="DRIVER">DRIVER</Option>
+                                        </Select>
+                                    </div>
+                                    {/* Payment Method */}
+                                    <div className="flex flex-col-2 gap-6">
+                                        <Typography color="gray" variant="h6">Method:</Typography>
+                                        <Select
+                                            value={paymentDetails.paymentMethod}
+                                            onChange={(value) => handleChange("paymentMethod", value)}
+                                            disabled={bookingDetails?.status === 'ENDED'}
+                                        >
+                                            <Option value="CASH">CASH</Option>
+                                            <Option value="ONLINE">ONLINE</Option>
+                                        </Select>
+                                    </div>
+                                    {/* Payment Status */}
+                                    <div className="flex flex-col-2 gap-8">
+                                        <Typography color="gray" variant="h6">Status:</Typography>
+                                        <Select
+                                            value={paymentDetails.paymentStatus}
+                                            onChange={(value) => handleChange("paymentStatus", value)}
+                                            disabled={bookingDetails?.status === 'ENDED'}
+                                        >
+                                            <Option value="PAID">PAID</Option>
+                                            <Option value="NOT PAID">NOT PAID</Option>
+                                        </Select>
+                                    </div>
+                            {showDetails && bookingDetails?.status === 'ENDED' && (bookingDetails?.tripStatus === false) && (
+                                <>
+
+            <div className="space-y-2">
+                {/* Trip Type */}
+                <div className="grid grid-cols-6 gap-x-4">
+                    <Typography color="gray" variant="h6">Trip Type:</Typography>
+                    <Select
+                        label="Select Trip Type"
+                        value={additionalPaymentDetails.tripType || ""}
+                        onChange={(value) => handleAdditionalChange("tripType", value)}
+                        disabled={bookingDetails?.tripStatus === true}
+                    >
+                        <Option value="Internal">Internal</Option>
+                        <Option value="External">External</Option>
+                    </Select>
+                </div>
+            </div>
+<div className="mt-4">
+<Button
+    color="green"
+    onClick={async () => {
+        setLoading(true);
+
+        // Retrieve userId from local storage
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
+        const loggedInUserId = loggedInUser.id || 0;
+
+        // Calculate totalKm
+        const startKm = bookingDetails?.startKM ? parseFloat(bookingDetails.startKM) : 0;
+        const endKm = bookingDetails?.endKM ? parseFloat(bookingDetails.endKM) : 0;
+        const totalKm = (endKm - startKm).toFixed(1);
+
+        // Construct tripDetails payload
+        const tripDetails = {
+            bookingId: bookingDetails?.id || null,
+            bookingNumber: bookingDetails?.bookingNumber || null,
+            cabId: bookingDetails?.Cab?.id || null,
+            driverId: bookingDetails?.Driver?.id || null,
+            customerId: bookingDetails?.Customer?.id || null,
+            tripDate: moment().format('YYYY-MM-DD'),
+            vehicleNumber: bookingDetails?.Cab?.carNumber || null,
+            driverName: bookingDetails?.Driver?.firstName || null,
+            startAddress: bookingDetails?.pickupAddress?.name ? { address: bookingDetails.pickupAddress.name } : null,
+            endAddress: (bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name)
+                ? { address: bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name }
+                : null,
+            startKm: startKm,
+            endKm: endKm,
+            totalKm: parseFloat(totalKm),
+            fuelType: additionalPaymentDetails.fuelType || 'CNG', // Use dynamic fuelType if available
+            fuelCost: additionalPaymentDetails.fuelCost ? parseFloat(additionalPaymentDetails.fuelCost) : 0,
+            tripFare: finalAmountAfterExtras ? parseFloat(finalAmountAfterExtras) : 0,
+            notes: additionalPaymentDetails.notes || '',
+            startLat: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0,
+            startLong: bookingDetails?.startLong ? parseFloat(bookingDetails.startLong) : 0,
+            endLat: bookingDetails?.endLat ? parseFloat(bookingDetails.endLat) : 0,
+            endLong: bookingDetails?.endLong ? parseFloat(bookingDetails.endLong) : 0,
+            toll: bookingDetails?.extraCharges?.tollCharge ? parseFloat(bookingDetails?.extraCharges?.tollCharge) : 0,
+            permit: bookingDetails?.extraCharges?.permitCharge ? parseFloat(bookingDetails?.extraCharges?.permitCharge) : 0,
+            tripType: additionalPaymentDetails.tripType || 'Internal',
+            latitude: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0, // Included for compatibility
+            userId: loggedInUserId || null,
+        };
+
+        // Validate required fields
+        const requiredFields = [
+            'bookingId',
+            'bookingNumber',
+            'tripDate',
+            'vehicleNumber',
+            'driverName',
+            'startAddress',
+            'endAddress',
+            'startKm',
+            'endKm',
+            // 'totalKm',
+            'fuelType',
+            'tripFare',
+            'tripType',
+            'userId', // Add userId to required fields if it's mandatory
+        ];
+
+        const missingFields = requiredFields.filter(field =>
+            !tripDetails[field] ||
+            tripDetails[field] === null ||
+            (typeof tripDetails[field] === 'object' && !tripDetails[field]?.address)
+        );
+
+                                    if (missingFields.length > 0) {
+                                        console.error("Missing required fields:", missingFields);
+                                        Swal.fire({
+                                            position: "center",
+                                            icon: "error",
+                                            title: `Please provide the following required fields: ${missingFields.join(', ')}`,
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        });
+            setLoading(false);
+            return;
+        }
+
+        // Log the payload for debugging
+        // console.log("Trip Details to be sent:", JSON.stringify(tripDetails, null, 2));
+
+        try {
+            const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, tripDetails);
+            // console.log("API Response:", response);
+
+            if (response?.success) {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Trip details added successfully",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                if (props.onConfirm) props.onConfirm();
+                props.setIsOpen(false);
+            } else {
+                console.error("API Error:", response?.message || "Unknown error");
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: `Failed to add trip details: ${response?.message || "Unknown error"}`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        } catch (err) {
+            console.error("Submission error:", err);
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Failed to add trip details. Please try again.",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } finally {
+            setLoading(false);
+        }
+    }}
+>
+    Complete
+</Button>
+</div>
+                                </>)}
+
+
+                        </div>
+
+                    </CardBody>
+                </Card>
+            }                            
+            </div>
+
             {/* {(bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.sourceType === null && bookingDetails?.source === 'Mobile App' && bookingDetails?.packageType !== 'Local' && (bookingDetails?.Cab?.carType || bookingDetails?.value?.carType)
             ) && (
                     <div className="bg-white p-6 mt-6 mb-8 rounded-2xl shadow-lg border border-gray-100">
@@ -1544,8 +2198,8 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                         <div className='flex gap-x-5'>
                             <div className=''>
                                 <Formik>
-                                    <div className="grid grid-cols-2 gap-4 items-center">
-                                        <div className="flex flex-col">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                                        <div className="flex flex-col-2 gap-2">
                                             <label htmlFor="dateVal" className="text-sm font-medium text-gray-700">
                                                 Select Date
                                             </label>
@@ -1559,7 +2213,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                                 value={dateVal}
                                             />
                                         </div>
-                                        <div className="flex flex-col">
+                                        <div className="flex flex-col-2 gap-2">
                                             <label htmlFor="rideTime" className="text-sm font-medium text-gray-700">
                                                 Select Time
                                             </label>
@@ -1581,7 +2235,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                         </div>
 
                                         {bookingDetails?.serviceType !== 'CAR_WASH' &&
-                                            <div className="flex flex-col">
+                                            <div className="flex flex-col-2 gap-2">
                                                 <label htmlFor="kms" className="text-sm font-medium text-gray-700">
                                                     Distance (KM)
                                                 </label>
@@ -1606,7 +2260,7 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                                             </div>
                                         }
                                         {bookingDetails.status == BOOKING_STATUS.STARTED && (
-                                            <div className="flex flex-col">
+                                            <div className="flex flex-col-2 gap-2">
                                                 <label htmlFor="kms" className="text-sm font-medium text-white">
                                                     Distance (KM)
                                                 </label>
@@ -1622,543 +2276,11 @@ const finalAmountAfterExtras =  Math.round(baseTripFare+ totalExtraCharges );
                     </CardBody>
                 </Card>  
             }*/}
-            
-         {shouldShowReceipt &&(
- 
-  
-                <Card className="my-6 w-full p-4">
-                    <div className="border rounded-xl w-full max-w-3xl mx-auto p-6 shadow-lg">
-                       <div className="flex justify-center items-center mb-4">
-                <h2 className="text-2xl mr-2 font-bold text-center text-blue-700">Receipt</h2>
-                
-               
-            </div>
-                        <div className="mt-4 space-y-2">
-                        {/* <div className="mt-3">
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Company Name: </Typography>
-                                <Typography color="gray" variant="small">{COMPANY_NAME}</Typography>
-                            </div>
-                            <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">GST Number: </Typography>
-                                <Typography color="gray" variant="small">{GST_NUMBER}</Typography>
-                            </div>
-                        </div> */}
-                        <hr className="my-2 border border-black" />
-                        <div className="mt-4">
-                            {/* <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Package:</Typography>
-                                <Typography>{`${bookingDetails?.Package?.period} ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Local" ? "hr" : ""
-                                    }`}</Typography>
-                            </div> */}
-                            {/* { bookingDetails?.serviceType !== "RIDES" && bookingDetails?.packageType !== 'Local' && bookingDetails?.bookingType !=="DROP ONLY" &&(
-                                <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Estimate Hrs:</Typography>
-                                <Typography>{bookingDetails?.value?.displayTime || '0'}</Typography>
-                                </div>
-                            )} */}
-                            {bookingDetails?.extraHours > 0 &&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
-                                <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                <Typography color="gray" variant="h6"> {minsToHHMM(bookingDetails.extraHours)} 
-                                </Typography>
-                                </div>
-                            )}
-                            {bookingDetails?.extraHours >0 &&  (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local")&&(
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs  : </Typography>
-                                    <Typography color="gray" variant="h6">
-                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} hrs : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} mins`}
-                                    </Typography>
-                                </div>
-                                )}
-                                 {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" && (
-                                        <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Total Hours:</Typography>
-                                        <Typography>{bookingDetails?.totalHours}</Typography>
-                                        </div>
-                                    )}
-                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
-                                    <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Estimate km:</Typography>
-                                    <Typography>
-                                        {(
-                                        Number(bookingDetails?.value?.distanceEstimated) +
-                                        Number(bookingDetails?.value?.driverWithin)
-                                        ).toFixed(1)} km
-                                    </Typography>
-                                    </div>
-                                    
-                                }
-                                {bookingDetails?.extraKMs > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra KMs:</Typography>
-                                     <Typography> {Number(bookingDetails?.extraKMs).toFixed(2)}</Typography>     
-                                </div>
-                                }
-                               {bookingDetails?.serviceType !== 'RIDES'&& bookingDetails?.serviceType !== 'AUTO' && <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Total KM:</Typography>
-                                    <Typography>
-                                        {bookingDetails?.endKM && bookingDetails?.startKM ? (bookingDetails.endKM - bookingDetails.startKM).toFixed(2): "0.00"}
-                                    </Typography>
-                                    </div>}
-                                     {bookingDetails?.serviceType === 'AUTO' &&
-                                <>
-                                    {bookingDetails?.value?.estimatedDistance > 0 &&
-                                        <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">Total KM:</Typography>
-                                            <Typography>{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
-                                        </div>
-                                    }
-                                </>}
-                           
-                            {/* <div className="flex justify-between">
-                                <Typography color="gray" variant="h6">Total:</Typography>
-                                <Typography style={{
-                                    fontWeight: 'bold'
-                                }}>₹ {amount?.total}</Typography>
-                            </div> */}
-                            {/* Amount After Gst:  */}
-                               
-                               
-                                
-                                 
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Start Time:</Typography>
-                                    <Typography>{moment(bookingDetails.startTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
-                                    {/* <Typography>moment{bookingDetails.startTime}</Typography> */}
-                                </div>
-                                
-                                 
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">End Time:</Typography>
-                                     <Typography>{moment(bookingDetails.endedTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
-                                    {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
-                                </div>
-                                
-                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && <> 
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Start KM:</Typography>
-                                    <Typography>{bookingDetails?.startKM}</Typography>
-                                </div>
-                                
-                                
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">End KM:</Typography>
-                                    <Typography>{bookingDetails?.endKM}</Typography>
-                                </div>
-
-                                   
-                                </>
-                                }
-                                 
-                            
-                                 {/* {bookingDetails?.extraHourPrice >0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs:</Typography>
-                                     <Typography>{bookingDetails?.extraHourPrice}</Typography>     
-                                </div>
-                                } */}
-                               
-                               
-                                 {bookingDetails?.extraKMPrice > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Per KM Price:</Typography>
-                                     <Typography>{bookingDetails?.extraKMPrice}</Typography>     
-                                </div>
-                                }
-                                {bookingDetails?.extraNightChargePrice > 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra KM Price:</Typography>
-                                     <Typography>{bookingDetails?.extraNightChargePrice}</Typography>     
-                                </div>
-                                } 
-                                 {bookingDetails?.extraHourPrice> 0 &&
-                                <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">Extra Hrs Price (For Each 15 Mins):</Typography>
-                                     <Typography>₹ {bookingDetails?.extraHourPrice}</Typography>     
-                                </div>
-                                }
-                                {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
-                                <>
-                                    {/* <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Base Fare:</Typography>
-                                        <Typography>₹ {amount?.price}</Typography>
-                                    </div> */}
-                                    {bookingDetails?.extraHours >0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local")&&( 
-                                        <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                            } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails.extraHours} x ${amount.extraHourPrice})`}</Typography>
-                                        <Typography>₹ {bookingDetails?.extraPrice}</Typography>
-                                    </div>)}
-                                     {bookingDetails?.extraHours >0&&(bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" ||(bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
-                                         <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">{`Extra fare after ${bookingDetails?.Package?.period
-                                            } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails.extraHours)} x ${amount.extraHourPrice})`}</Typography>
-                                        <Typography>₹ {bookingDetails?.extraPrice}</Typography>
-                                    </div>)}
-                                    {amount.extraKMs > 0 &&
-                                        <div className="flex justify-between">
-                                    <Typography color="gray" variant="h6">  {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
-                                        <Typography>
-                                            ₹ {(amount?.extraKMs * amount?.extraKMPrice).toFixed(2)}
-                                       </Typography>
-                                        </div>
-                                    }
-                                    {amount.extraNightCharge > 0 &&
-                                        <div className="flex justify-between">
-                                            <Typography color="gray" variant="h6">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
-                                            <Typography>₹ {amount?.extraNightCharge}</Typography>
-                                        </div>
-                                    }
-                                </> : ""
-                            }
-                                <hr className="my-2 border border-gray-400" />
-                                {bookingDetails?.totalPrice > 0 &&
-                                 <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">Final Trip Fare:</Typography>
-                                        <Typography className="font-bold">₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
-                                    </div>
-                                }
-                            {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
-                                    <div className="flex justify-between">
-                                        <Typography color="red" variant="h6">Discount Applied:</Typography>
-                                        <Typography color="red" variant="h6"> - ₹ {bookingDetails?.paymentDetails?.details?.discountAmount}</Typography>
-                                    </div>
-                                }
-                                  {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
-                                        <div className="flex justify-between">
-                                            <Typography  variant="h6" className=" text-red-400">Wallet Points Used:</Typography>
-                                            <Typography variant="h6" className=" text-red-400">- ₹ {bookingDetails?.paymentDetails?.details?.walletAmountUsed}</Typography>
-                                        </div>
-                                 }
-                                   {/* Amount After Gst:  */}
-                              
-                              <div className="flex justify-between">
-                                        <Typography color="gray" variant="h6">TAX:</Typography>
-                                        <Typography className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.gstAmount}</Typography>
-                                    </div>
-
-                            <hr className="my-1 border border-gray-400" />
-                            {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
-                                    <div className="flex justify-between">
-                                        <Typography color="green" variant="h6">Total:</Typography>
-                                        <Typography color="green" className="font-bold">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
-                                    </div>
-                                }
-                          
-
-                                
-                                
-                                
-                                    {/* Additional Charges Section */}
-
-         {bookingDetails?.serviceType !== 'RIDES' &&  bookingDetails?.serviceType !== 'AUTO' && (
             <>
-          <hr className="my-1 border border-gray-400" />
-          <div className="flex justify-between items-center mb-2">
-              
-            <Typography variant="h6" className="font-semibold text-blue-700 mr-2">
-              Additional Charges 
-            </Typography>
-              
-               
-                  {bookingDetails?.serviceType !== 'RIDES'&&  bookingDetails?.serviceType !== 'AUTO' && (
-                <button
-                    onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
-                    className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
-                        }`}
-                    title={isEditingAdditionalCharges ? "Save Changes" : "Edit Additional Charges"}
-                >
-                    {isEditingAdditionalCharges ? (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                    ) : (
-                        <PencilIcon className="w-5 h-5" />
-                    )}
-                </button>)}
-                
-          </div>
-</>
-)}
-          {/* View Mode: Show only non-zero */}
-          {!isEditingAdditionalCharges ? (
-            <>
-              {additionalCharges.permit > 0 && <div className="flex justify-between my-1"><span className="font-bold">Permit Charge:</span> <b className=" text-gray-700">₹ {additionalCharges.permit}</b></div>}
-              {additionalCharges.toll > 0 && <div className="flex justify-between my-1"><span className="font-bold">Toll Charge:</span> <b className="text-gray-700">₹ {additionalCharges.toll}</b></div>}
-              {additionalCharges.parking > 0 && <div className="flex justify-between my-1"><span className="font-bold">Parking Charge:</span> <b className="text-gray-700">₹ {additionalCharges.parking}</b></div>}
-              {additionalCharges.hill > 0 && <div className="flex justify-between my-1"><span className="font-bold">Hill Charge:</span> <b className="text-gray-700">₹ {additionalCharges.hill}</b></div>}
-            </>
-          ) : (
-            /* Edit Mode: Show all 4 fields */
-            ["permit", "toll", "parking", "hill"].map((type) => (
-              <div key={type} className="flex justify-between items-center my-2">
-                <span className="text-gray-600 font-medium">
-                  {type.charAt(0).toUpperCase() + type.slice(1)} Charge:
-                </span>
-                <div className="flex items-center gap-2">
-                 
-                  <input
-                    type="number"
-                    min="0"
-                    className="w-24 p-1 text-center border border-gray-500 rounded  focus:ring-gray-700"
-                    value={additionalCharges[type] || ""}
-                    onChange={(e) => setAdditionalCharges(prev => ({ ...prev, [type]: +e.target.value || 0 }))}
-                  />
-                </div>
-              </div>
-            ))
-          )}
-          {(() => {
-      const hasAnyCharge = Object.values(additionalCharges).some(val => val > 0);
-      const totalExtra = Object.values(additionalCharges).reduce((a, b) => a + b, 0);
-
-      // Hide entire section if no charges in view mode
-      if (!hasAnyCharge && !isEditingAdditionalCharges) return null; 
-
-       return ( 
-       
-            <>
-            
-          <hr className="my-4 border border-gray-400" />
-          <div className="flex justify-between text-lg font-bold">
-            <span className="text-green-700">Final Amount:</span>
-            <span className="text-green-700">₹ {finalAmountAfterExtras}</span>
-          </div>
-          </>
-          )
-        
-      
-     })()} 
-
-          {/* Edit/Save Buttons */}
-          {isEditingAdditionalCharges && (
-            <div className="flex justify-end gap-3 mt-4">
-              <Button size="sm" variant="outlined" onClick={() => setIsEditingAdditionalCharges(false)}>
-                Cancel
-              </Button>
-              <Button size="sm" color="green" onClick={() => { handleRecalculateAndSaveExtraCharges(); setIsEditingAdditionalCharges(false); }} disabled={loading}>
-                Submit
-              </Button>
-            </div>
-          )}
-     
-            </div>
-        </div>
-        </div>
-    </Card>
-            )   }
-                        <>
-                <div className="">
-                    {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
-                        <Card>
-                            <CardBody>
-                                <div className="flex justify-between mb-2">
-                                    <Typography variant="h5">Payment Details</Typography>
-                                </div>
-                                <hr className="my-2" />
-                                <div className="space-y-2">
-                                    {/* Payment Collected */}
-                                    <div className="grid grid-cols-6 gap-x-4">
-                                        <Typography color="gray" variant="h6" className="">Collected By:</Typography>
-                                        <Select
-                                            value={paymentDetails.paymentCollected}
-                                            onChange={(value) => handleChange("paymentCollected", value)}
-                                            disabled={bookingDetails?.status === 'ENDED'}
-                                        >
-                                            <Option value="C4D">C4D</Option>
-                                            <Option value="DRIVER">DRIVER</Option>
-                                        </Select>
-                                    </div>
-                                    {/* Payment Method */}
-                                    <div className="grid grid-cols-6 gap-x-4">
-                                        <Typography color="gray" variant="h6">Method:</Typography>
-                                        <Select
-                                            value={paymentDetails.paymentMethod}
-                                            onChange={(value) => handleChange("paymentMethod", value)}
-                                            disabled={bookingDetails?.status === 'ENDED'}
-                                        >
-                                            <Option value="CASH">CASH</Option>
-                                            <Option value="ONLINE">ONLINE</Option>
-                                        </Select>
-                                    </div>
-                                    {/* Payment Status */}
-                                    <div className="grid grid-cols-6 gap-x-4">
-                                        <Typography color="gray" variant="h6">Status:</Typography>
-                                        <Select
-                                            value={paymentDetails.paymentStatus}
-                                            onChange={(value) => handleChange("paymentStatus", value)}
-                                            disabled={bookingDetails?.status === 'ENDED'}
-                                        >
-                                            <Option value="PAID">PAID</Option>
-                                            <Option value="NOT PAID">NOT PAID</Option>
-                                        </Select>
-                                    </div>
-                                      {showDetails && bookingDetails?.status === 'ENDED' && (bookingDetails?.tripStatus === false) && (
-    <>
-           
-            <div className="space-y-2">
-                {/* Trip Type */}
-                <div className="grid grid-cols-6 gap-x-4">
-                    <Typography color="gray" variant="h6">Trip Type:</Typography>
-                    <Select
-                        label="Select Trip Type"
-                        value={additionalPaymentDetails.tripType || ""}
-                        onChange={(value) => handleAdditionalChange("tripType", value)}
-                        disabled={bookingDetails?.tripStatus === true}
-                    >
-                        <Option value="Internal">Internal</Option>
-                        <Option value="External">External</Option>
-                    </Select>
-                </div>
-               
-            </div>
-            <div className="mt-4">
-               <Button
-    color="green"
-    onClick={async () => {
-        setLoading(true);
-
-        // Retrieve userId from local storage
-          const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
-    const loggedInUserId = loggedInUser.id || 0; 
-
-        // Calculate totalKm
-        const startKm = bookingDetails?.startKM ? parseFloat(bookingDetails.startKM) : 0;
-        const endKm = bookingDetails?.endKM ? parseFloat(bookingDetails.endKM) : 0;
-        const totalKm = (endKm - startKm).toFixed(1);
-
-        // Construct tripDetails payload
-        const tripDetails = {
-            bookingId: bookingDetails?.id || null,
-            bookingNumber: bookingDetails?.bookingNumber || null,
-            cabId: bookingDetails?.Cab?.id || null,
-            driverId: bookingDetails?.Driver?.id || null,
-            customerId: bookingDetails?.Customer?.id || null,
-            tripDate: moment().format('YYYY-MM-DD'),
-            vehicleNumber: bookingDetails?.Cab?.carNumber || null,
-            driverName: bookingDetails?.Driver?.firstName || null,
-            startAddress: bookingDetails?.pickupAddress?.name ? { address: bookingDetails.pickupAddress.name } : null,
-            endAddress: (bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name) 
-                ? { address: bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name } 
-                : null,
-            startKm: startKm,
-            endKm: endKm,
-            totalKm: parseFloat(totalKm),
-            fuelType: additionalPaymentDetails.fuelType || 'CNG', // Use dynamic fuelType if available
-            fuelCost: additionalPaymentDetails.fuelCost ? parseFloat(additionalPaymentDetails.fuelCost) : 0,
-            tripFare: finalAmountAfterExtras ? parseFloat(finalAmountAfterExtras) : 0,
-            notes: additionalPaymentDetails.notes || '',
-            startLat: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0,
-            startLong: bookingDetails?.startLong ? parseFloat(bookingDetails.startLong) : 0,
-            endLat: bookingDetails?.endLat ? parseFloat(bookingDetails.endLat) : 0,
-            endLong: bookingDetails?.endLong ? parseFloat(bookingDetails.endLong) : 0,
-            toll: bookingDetails?.extraCharges?.tollCharge ? parseFloat(bookingDetails?.extraCharges?.tollCharge) : 0,
-            permit:  bookingDetails?.extraCharges?.permitCharge ? parseFloat(bookingDetails?.extraCharges?.permitCharge) : 0,
-            tripType: additionalPaymentDetails.tripType || 'Internal',
-            latitude: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0, // Included for compatibility
-            userId: loggedInUserId || null, 
-        };
-
-        // Validate required fields
-        const requiredFields = [
-            'bookingId',
-            'bookingNumber',
-            'tripDate',
-            'vehicleNumber',
-            'driverName',
-            'startAddress',
-            'endAddress',
-            'startKm',
-            'endKm',
-            // 'totalKm',
-            'fuelType',
-            'tripFare',
-            'tripType',
-            'userId', // Add userId to required fields if it's mandatory
-        ];
-
-        const missingFields = requiredFields.filter(field => 
-            !tripDetails[field] || 
-            tripDetails[field] === null || 
-            (typeof tripDetails[field] === 'object' && !tripDetails[field]?.address)
-        );
-
-                                    if (missingFields.length > 0) {
-                                        console.error("Missing required fields:", missingFields);
-                                        Swal.fire({
-                                            position: "center",
-                                            icon: "error",
-                                            title: `Please provide the following required fields: ${missingFields.join(', ')}`,
-                                            showConfirmButton: false,
-                                            timer: 1500
-                                        });
-            setLoading(false);
-            return;
-        }
-
-        // Log the payload for debugging
-        // console.log("Trip Details to be sent:", JSON.stringify(tripDetails, null, 2));
-
-        try {
-            const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, tripDetails);
-            // console.log("API Response:", response);
-
-            if (response?.success) {
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Trip details added successfully",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                if (props.onConfirm) props.onConfirm();
-                props.setIsOpen(false);
-            } else {
-                console.error("API Error:", response?.message || "Unknown error");
-                Swal.fire({
-                    position: "center",
-                    icon: "error",
-                    title: `Failed to add trip details: ${response?.message || "Unknown error"}`,
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-        } catch (err) {
-            console.error("Submission error:", err);
-            Swal.fire({
-                position: "center",
-                icon: "error",
-                title: "Failed to add trip details. Please try again.",
-                showConfirmButton: false,
-                timer: 1500
-            });
-        } finally {
-            setLoading(false);
-        }
-    }}
->
-    Complete
-</Button>
-            </div>
-            </>)}
-            
-   
-                                </div>
-
-                            </CardBody>
-                        </Card>
-                    }
-                </div>
-        
-              
                 {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} bookingId={bookingDetails?.id} />}
             </>
         </div>
     );
 };
 
-export default ConfirmBooking;
-                               
-                                 
+export default ConfirmBooking;                                                    

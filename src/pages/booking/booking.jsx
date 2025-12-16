@@ -100,6 +100,7 @@ const Booking = (props) => {
     const [currentPackageType, setCurrentPackageType] = useState('');
     const [dropTaxiDistanceExceedModal, setDropTaxiDistanceExceedModal] = useState(false);
     const [quotationLogs, setQuotationLogs] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
     const loggedInUserId = loggedInUser.id || 0;
      const [refreshFn, setRefreshFn] = useState(null);
@@ -152,6 +153,23 @@ const Booking = (props) => {
     const navigate = useNavigate();
     const location = useLocation();
     const params = location.state;
+
+    useEffect(() => {
+        if (params?.editBooking) {
+            const bookingToEdit = params.editBooking;
+            setBookingData(bookingToEdit);
+            setEditBooking(bookingToEdit);
+            setBookingStage(0);
+            setBookingView(false);
+            setEditBookingView(true);
+            setShowQuickCreateCustomer(false);
+            setIsOpen(true);
+
+            const { editBooking: _ignoredEditBooking, ...rest } = params;
+            const nextState = Object.keys(rest || {}).length ? rest : undefined;
+            navigate(location.pathname, { replace: true, state: nextState });
+        }
+    }, [params, navigate, location.pathname]);
 
     const getPackageListDetails = useCallback(async (serviceType, zone) => {
   try {
@@ -260,8 +278,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
                startDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || '',
            }),
          
-        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&&  values?.packageTypeSelected != 'Local')&& 
-        { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || ' '}
+        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&& values?.serviceType != 'AUTO' && values?.packageTypeSelected != 'Local')&& 
+        { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || null}
          ),
 
          serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'DROP TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || mappedServiceType,
@@ -690,6 +708,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             if (data?.success) {
                 setIsOpen(false);
                 setBookingData(data?.data);
+                await sendQuotationLogs(data?.data?.id, loggedInUserId);
             } 
         } catch (error) {
             console.error('Error in onAutoSubmitHandler:', {
@@ -823,12 +842,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
     };
 
     const onSelectBooking = (data) => {
-        //console.log('selecting booking', data);
-        setBookingStage(4);
-        setBookingData(data);
-        setBookingView(true);
-        setEditBooking();
-        setEditBookingView(false);
+        navigate("/dashboard/confirm-booking", {
+            state: {
+                bookingId: data?.id,
+                customerId: data?.customerId || data?.Customer?.id || 0,
+            },
+        });
+                // console.log('selecting booking', data);
+        // setBookingStage(4);
+        // setBookingData(data);
+        // setBookingView(true);
+        // setEditBooking();
+        // setEditBookingView(false);
     };
 
     const onConfirmBooking = () => {
@@ -1152,9 +1177,6 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 return null;
         }
     };
-
-    // modal data
-    const [isOpen, setIsOpen] = useState(false);
 
     const serviceDisplayNames = {
         DRIVER: "Acting Driver",
@@ -2026,7 +2048,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
-                                                            Cab Starting Point 
+                                                            {values.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Point 
                                                             </label>
                                                             <div className="relative">
                                                             <Field

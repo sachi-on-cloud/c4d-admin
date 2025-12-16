@@ -438,8 +438,9 @@ const handleTabChange = (value) => {
 
     const handleBookingSelect = (data) => {
         setSelectedBookingId(data.id);
+        if (onSelectBooking) {
         onSelectBooking(data);
-        setIsOpen(true)
+        }
     }
 
     const formatDate = (date) => {
@@ -1070,7 +1071,7 @@ const handleTabChange = (value) => {
                                                             <div className="flex items-center">
                                                                 <div onClick={() => {
                                                                     handleBookingSelect(data);
-                                                                    setIsOpen(true);
+                                                                    // setIsOpen(true);
                                                                 }}>
                                                                     <Typography
                                                                         variant="small"
