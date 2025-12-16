@@ -784,6 +784,16 @@ export const VERSION_CONTROL_EDIT=Yup.object({
 
   export const DISCOUNT_ADD_SCHEMA = Yup.object({
     percentage: Yup.mixed().required('Percentage is required'),
+    cabType: Yup.string().when('isPremium', {
+        is: false,
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    premiumCabType: Yup.string().when('isPremium', {
+        is: true,
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
     startDate: Yup.string().required('Start date is required'),
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
@@ -804,6 +814,16 @@ export const VERSION_CONTROL_EDIT=Yup.object({
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     discountId: Yup.number().required('Discount ID is required'),
     percentage: Yup.mixed().required('Percentage is required'),
+    cabType: Yup.string().when('isPremium', {
+        is: false,
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    premiumCabType: Yup.string().when('isPremium', {
+        is: true,
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
     startDate: Yup.string().required('Start date is required'),
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),

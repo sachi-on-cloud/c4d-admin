@@ -102,9 +102,14 @@ const DiscountAdd = () => {
       formData.append('isActive', values.isActive);
       formData.append('title', values.title);
       formData.append('description', values.description);
+      if (values.image) {
       formData.append('image', values.image, values.image.name);
       formData.append('fileType', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
+      } else {
+        formData.append('fileType', '');
+        formData.append('extImage', '');
+      }
       formData.append('serviceArea', values.serviceArea.includes('All') ? ['All'] : values.serviceArea);
       const finalCabType = values.isPremium
         ? values.premiumCabType
@@ -216,6 +221,7 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                           No premium options configured for {values.serviceType}
                         </p>
                       )}
+                      <ErrorMessage name="premiumCabType" className="text-red-500 text-sm mt-2 inline-block" component="div" />
                     </div>
                   )}
                 </div>
@@ -234,6 +240,7 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                   <option value="SUV">Suv</option>
                   <option value="MUV">Muv</option>
                   </Field>
+                <ErrorMessage name="cabType" className="text-red-500 text-sm" component="div" />
               </div>
               )}
               <div>
