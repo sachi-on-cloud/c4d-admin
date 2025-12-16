@@ -19,6 +19,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [fuelCost, setFuelCost] = useState(0);
   const [tollCost, setTollCost] = useState(0);
   const [permitCost, setPermitCost] = useState(0);
+  const [activeTab, setActiveTab] = useState('notes');
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -126,11 +127,31 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
     }
   };
 
+  const tabs = [
+    { id: 'notes', label: 'Notes' },
+    { id: 'extra', label: 'Extra Booking Charges Log' },
+    { id: 'estimates', label: 'Check Estimate Price Log' },
+    { id: 'status', label: 'Booking Status Log' },
+  ];
+
   return (
     <div className="flex-1 p-4 bg-gray-100">
-      <div>
-        <Typography className="text-xl font-semibold text-blue-gray-600">Notes</Typography>
+      <div className="border-b border-gray-200 mb-6">
+        <div className="flex flex-wrap gap-6 text-sm font-medium text-gray-600">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-2 transition-colors ${activeTab === tab.id ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'hover:text-blue-600'}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {activeTab === 'notes' && (
+        <>
       <div className='pt-2'>
         <label htmlFor="noteType" className="text-sm font-medium text-gray-700">
          Please select a Notes Type
@@ -233,11 +254,16 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
     </div>
   </>
 )}
-      <div className='py-5'>
+        </>
+      )}
+
+      {activeTab === 'extra' && (
+        <>
+      {/* <div className='py-5'>
         <Typography className="text-xl font-semibold text-blue-gray-600">
           Extra Booking Charges Log
         </Typography>
-      </div>
+      </div> */}
       <div className="flex-1 mb-5">
         {bookingExtraCharges.length === 0 ? (
           <p className="text-center text-gray-500 text-base mt-5">No extra charges yet.</p>
@@ -303,13 +329,16 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           </ul>
         )}
       </div>
+        </>
+      )}
 
-  
-      <div className='py-5'>
+{activeTab === 'estimates' && (
+  <>
+      {/* <div className='py-5'>
         <Typography className="text-xl font-semibold text-blue-gray-600">
           Check Estimate Price Log
         </Typography>
-      </div>
+      </div> */}
       <div className="flex-1 mb-5">
         {quotationLogs.length === 0 ? (
           <p className="text-center text-gray-500">No estimate logs yet.</p>
@@ -365,11 +394,16 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           </ul>
         )}
       </div>
-      <div className='py-5'>
+  </>
+)}
+
+{activeTab === 'status' && (
+  <>
+      {/* <div className='py-5'>
         <Typography className="text-xl font-semibold text-blue-gray-600">
           Booking Status Log
         </Typography>
-      </div>
+      </div> */}
       <div className="flex-1">
         {bookingLogs.length === 0 && bookingFollowupLogs.length === 0 ? (
           <p className="text-center text-gray-500 text-base mt-5">No activity logs yet.</p>
@@ -423,6 +457,8 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           </ul>
         )}
       </div>
+  </>
+)}
     </div>
   );
 };
