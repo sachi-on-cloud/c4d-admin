@@ -11,6 +11,7 @@ const DiscountAdd = () => {
   const navigate = useNavigate();
   const [serviceAreas, setServiceAreas] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
+  const [dashboardOfferImgPreview, setDashboardOfferImgPreview] = useState(null);
   const [premiumServicesMap, setPremiumServicesMap] = useState({})
 
   const initialValues = {
@@ -25,6 +26,7 @@ const DiscountAdd = () => {
     isActive: 'true',
     serviceArea: [],
     image: null,
+    dashboardOfferImg: null,
     cabType: '',
     premiumCabType: '',
     isPremium: false,
@@ -80,7 +82,22 @@ const DiscountAdd = () => {
   const date = new Date(dateStr);
   return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0];
 };
+const handleDashboardOfferImgUpload = (file, setFieldValue) => {
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  if (!file || !validTypes.includes(file.type)) {
+    alert('Only JPEG and PNG images are allowed.');
+    return;
+  }
+  setFieldValue('dashboardOfferImg', file);
+  setDashboardOfferImgPreview(URL.createObjectURL(file));
+  setFieldValue('removeDashboardOfferImg', false);
+};
 
+const handleDashboardOfferImgClear = (setFieldValue) => {
+  setFieldValue('dashboardOfferImg', null);
+  setDashboardOfferImgPreview(null);
+  setFieldValue('removeDashboardOfferImg', true);
+};
   const handleSubmit = async (values, { setSubmitting }) => {
 //    const payload = {
 //   serviceType: values.serviceType?.trim(),
@@ -138,6 +155,18 @@ const DiscountAdd = () => {
       if (values.removeImage) {
         formData.append('imageUrl', '');
       }
+      if (values.dashboardOfferImg) {
+  formData.append('dashboardOfferImg', values.dashboardOfferImg, values.dashboardOfferImg.name);
+  formData.append('dashboardFileType', values.dashboardOfferImg?.type || '');
+  formData.append('dashboardExtImage', values.dashboardOfferImg?.name?.split('.').pop()?.toLowerCase() || '');
+} else {
+  formData.append('dashboardFileType', '');
+  formData.append('dashboardExtImage', '');
+}
+
+if (values.removeDashboardOfferImg) {
+  formData.append('dashboardImageUrl', '');  
+}
       const finalCabType = values.isPremium
         ? values.premiumCabType
         : values.cabType;
@@ -191,7 +220,7 @@ const getCurrentPremiumOptions = (currentServiceType) => {
               </div>
               <div>
                 <label htmlFor="image" className="text-sm font-medium text-gray-700">
-                  Image
+                  Estimate Summary Image
                 </label>
                 {imagePreview && (
                   <div className="mb-2 flex items-center gap-3">
@@ -214,6 +243,29 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 />
                 <ErrorMessage name="image" component="div" className="text-red-500 text-sm" />
               </div>
+              <div>
+  <label className="text-sm font-medium text-gray-700">Dashboard Offer Image</label>
+  {dashboardOfferImgPreview && (
+    <div className="mb-2 flex items-center gap-3">
+      <img src={dashboardOfferImgPreview} alt="Dashboard Offer Preview" className="w-32 h-32 object-cover border rounded-md" />
+      <button
+        type="button"
+        className="px-3 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50"
+        onClick={() => handleDashboardOfferImgClear(setFieldValue)}
+      >
+        Remove
+      </button>
+    </div>
+  )}
+  <input
+    name="dashboardOfferImg"
+    type="file"
+    accept="image/*"
+    className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+    onChange={(e) => handleDashboardOfferImgUpload(e.currentTarget.files[0], setFieldValue)}
+  />
+  <ErrorMessage name="dashboardOfferImg" component="div" className="text-red-500 text-sm" />
+</div>
               <div className="mt-3 flex gap-3">
                 <div className="w-full col-span-2">
                   <label className="flex items-center space-x-2 cursor-pointer select-none">
