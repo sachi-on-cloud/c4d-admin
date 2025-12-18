@@ -304,17 +304,14 @@ export function MasterPriceView() {
                                         "Zone",
                                         "Service Type",
                                         "Trip Type",
+                                        "Base Hours",
+                                        "Base KM",
                                         "Base Fare",
-                                        "1 day trip Up to 300KM - Drop only",
-                                        "1 day trip Up to 300KM - Round Trip",
-                                        "1 day trip Above 300 KM - Drop only",
-                                        "1 day trip Above 300 KM - Round Trip",
                                         "Additional Hours",
-                                        "Night Hours (10PM TO 6AM)",
-                                        "Night Charges (10PM TO 6AM)",
-                                        "Cancellation Charge",
-                                        "Cancellation Time (In Mins)",
-                                        "Additional Kms"
+                                        "Extra KM ",
+                                        "Food Charges",
+                                        "After 10:00p.m to Before 4.00a.m",
+                                        "Drop only"
                                     ]
                                         .map((el, index) => (
                                             <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left pb-4 ${ColorStyles.bgColor}`}>
@@ -330,21 +327,32 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {outstationPackageList.map(({ id, zone,serviceType, type, price, dropPrice,dropPriceAbove,extraHourPrice, extraPrice,additionalMinCharge, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
-                                    const className = `py-3 px-5 ${key === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
-                                    return (
-                                        <tr key={id}>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {zone}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {serviceType}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
+    {outstationPackageList.map((item, index) => {
+        const { 
+            id, zone, serviceType,type,period, kilometer,  
+            dropPrice, price, additionalMinCharge,dropPriceAbove, 
+            nightHoursFrom, nightHoursTo, nightCharge, cancelCharge,
+            cancelMins, extraKmPrice 
+        } = item;
+
+        const className = `py-3 px-5 ${index === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+
+        return (
+            <tr key={id}>
+                {/* Zone */}
+                <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        {zone}
+                    </Typography>
+                </td>
+
+                {/* Service Type */}
+                <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        {serviceType}
+                    </Typography>
+                </td>
+                <td className={className}>
                                                 <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
                                                 <Typography variant="small"
                                                             color="blue"
@@ -354,78 +362,67 @@ export function MasterPriceView() {
                                                 </div>
                                                 
                                             </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {baseFare}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {dropPrice} extra
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {price}
-                                                </Typography>
-                                            </td>
                                              <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {dropPriceAbove} extra
-                                                </Typography>
-                                            </td>
-                                              <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {baseFare} extra
-                                                </Typography>
-                                            </td>
-                                            {/* <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {extraPrice}
-                                                </Typography>
-                                            </td> */}
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {additionalMinCharge}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                {/* {nighthours} */}
-                                                {nightHoursFrom && nightHoursTo ? `${nightHoursFrom} - ${nightHoursTo}` : ""}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {nightCharge}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {cancelCharge}
-                                                </Typography>
-                                            </td>
-                                            {/* <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {extrahours}
-                                                </Typography>
-                                            </td> */}
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {cancelMins}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {extraKmPrice}
-                                                </Typography>
-                                            </td>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        {period}
+                    </Typography>
+                </td>
 
-                                        </tr>
-                                    );
+                {/* Trip Type - clickable */}
+                <td className={className}>
+                    <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
+                        <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer">
+                            {kilometer}  
+                        </Typography>
+                    </div>
+                </td>
 
-                                })}
-                            </tbody>
+              
+                <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        ₹{price}
+                    </Typography>
+                </td>
+                <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        ₹{additionalMinCharge}
+                    </Typography>
+                </td>
+
+
+               
+                <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        ₹{extraKmPrice}
+                    </Typography>
+                </td>
+                 <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        {dropPriceAbove}
+                    </Typography>
+                </td>
+
+                
+               
+
+                
+                <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        ₹{nightCharge}
+                    </Typography>
+                </td>
+                <td className={className}>
+                    <Typography className="text-xs font-semibold text-blue-gray-900">
+                        ₹{dropPrice}
+                    </Typography>
+                </td>
+
+                {/* Drop only */}
+               
+            </tr>
+        );
+    })}
+</tbody>
                         </table>
                     </CardBody>
                 </Card>
