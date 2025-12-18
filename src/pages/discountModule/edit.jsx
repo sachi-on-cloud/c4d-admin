@@ -64,7 +64,7 @@ const DiscountEdit = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  // புதிய Dashboard Offer Img handlers
+
   const handleDashboardOfferImgUpload = (file, setFieldValue) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (!file || !validTypes.includes(file.type)) {
@@ -119,7 +119,7 @@ const DiscountEdit = () => {
             image: null,
             imageUrl: discountFromState.imageUrl || '',
             dashboardOfferImg: null,                    
-            dashboardImageUrl: discountFromState.dashboardImageUrl || '', 
+            dashboardImageUrl: discountFromState.dashboardOfferImg || '',
             serviceArea: discountFromState.serviceArea
               ? discountFromState.serviceArea === 'All'
                 ? ['All']
@@ -161,7 +161,7 @@ const DiscountEdit = () => {
             image: null,
             imageUrl: data.imageUrl || '',
             dashboardOfferImg: null,                    
-            dashboardImageUrl: data.dashboardImageUrl || '', 
+            dashboardImageUrl: data.dashboardOfferImg || '',
             serviceArea: data.serviceArea
               ? data.serviceArea === 'All'
                 ? ['All']
@@ -173,7 +173,7 @@ const DiscountEdit = () => {
             removeDashboardOfferImg: false,
           });
           setImagePreview(data.imageUrl || null);
-          setDashboardOfferImgPreview(data.dashboardImageUrl || null);
+          setDashboardOfferImgPreview(data.dashboardOfferImg || null);
         }
       } catch (err) {
         console.error('Failed to load discount:', err);
