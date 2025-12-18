@@ -11,21 +11,26 @@ const DiscountAdd = () => {
   const navigate = useNavigate();
   const [serviceAreas, setServiceAreas] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
+  const [dashboardOfferImgPreview, setDashboardOfferImgPreview] = useState(null);
   const [premiumServicesMap, setPremiumServicesMap] = useState({})
 
   const initialValues = {
     serviceType: '',
     title: '',
     description: '',
+    discountType: '',
     percentage: '',
+    amount: '',
     startDate: '',
     endDate: '',
     isActive: 'true',
     serviceArea: [],
     image: null,
+    dashboardOfferImg: null,
     cabType: '',
     premiumCabType: '',
     isPremium: false,
+    removeImage: false,
   };
 
   useEffect(() => {
@@ -65,13 +70,34 @@ const DiscountAdd = () => {
 
     setFieldValue('image', file);
     setImagePreview(URL.createObjectURL(file));
+    setFieldValue('removeImage', false);
   }
+  const handleImageClear = (setFieldValue) => {
+    setFieldValue('image', null);
+    setImagePreview(null);
+    setFieldValue('removeImage', true);
+  };
 
   const safeDate = (dateStr) => {
   const date = new Date(dateStr);
   return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0];
 };
+const handleDashboardOfferImgUpload = (file, setFieldValue) => {
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  if (!file || !validTypes.includes(file.type)) {
+    alert('Only JPEG and PNG images are allowed.');
+    return;
+  }
+  setFieldValue('dashboardOfferImg', file);
+  setDashboardOfferImgPreview(URL.createObjectURL(file));
+  setFieldValue('removeDashboardOfferImg', false);
+};
 
+const handleDashboardOfferImgClear = (setFieldValue) => {
+  setFieldValue('dashboardOfferImg', null);
+  setDashboardOfferImgPreview(null);
+  setFieldValue('removeDashboardOfferImg', true);
+};
   const handleSubmit = async (values, { setSubmitting }) => {
 //    const payload = {
 //   serviceType: values.serviceType?.trim(),
@@ -94,9 +120,24 @@ const DiscountAdd = () => {
 // };
 
     try {
+      const hasAmount = Number(values.amount) > 0;
+      const hasPercentage = Number(values.percentage) > 0;
+      let discountType = values.discountType;
+
+      if (hasAmount && !hasPercentage) {
+        discountType = 'IsAmount';
+      } else if (hasPercentage && !hasAmount) {
+        discountType = 'percentage';
+      }
+
       const formData = new FormData();
       formData.append('serviceType', values.serviceType);
-      formData.append('percentage', values.percentage);
+      formData.append('discountType', discountType);
+      if ((discountType || '').toLowerCase() === 'percentage') {
+        formData.append('percentage', values.percentage || '');
+      } else if ((discountType || '').toLowerCase() === 'isamount') {
+        formData.append('amount', values.amount || '');
+      }
       formData.append('startDate', safeDate(values.startDate));
       formData.append('endDate', safeDate(values.endDate));
       formData.append('isActive', values.isActive);
@@ -111,6 +152,21 @@ const DiscountAdd = () => {
         formData.append('extImage', '');
       }
       formData.append('serviceArea', values.serviceArea.includes('All') ? ['All'] : values.serviceArea);
+      if (values.removeImage) {
+        formData.append('imageUrl', '');
+      }
+      if (values.dashboardOfferImg) {
+  formData.append('dashboardOfferImg', values.dashboardOfferImg, values.dashboardOfferImg.name);
+  formData.append('dashboardFileType', values.dashboardOfferImg?.type || '');
+  formData.append('dashboardExtImage', values.dashboardOfferImg?.name?.split('.').pop()?.toLowerCase() || '');
+} else {
+  formData.append('dashboardFileType', '');
+  formData.append('dashboardExtImage', '');
+}
+
+if (values.removeDashboardOfferImg) {
+  formData.append('dashboardImageUrl', '');  
+}
       const finalCabType = values.isPremium
         ? values.premiumCabType
         : values.cabType;
@@ -143,6 +199,7 @@ const getCurrentPremiumOptions = (currentServiceType) => {
         {({ isSubmitting, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+              <Field type="hidden" name="removeImage" />
               <div>
                 <label className="text-sm font-medium text-gray-700">Service Type</label>
                 <Field
@@ -163,10 +220,19 @@ const getCurrentPremiumOptions = (currentServiceType) => {
               </div>
               <div>
                 <label htmlFor="image" className="text-sm font-medium text-gray-700">
-                  Image
+                  Estimate Summary Image
                 </label>
                 {imagePreview && (
-                  <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover mb-2 border" />
+                  <div className="mb-2 flex items-center gap-3">
+                    <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover border rounded-md" />
+                    <button
+                      type="button"
+                      className="px-3 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50"
+                      onClick={() => handleImageClear(setFieldValue)}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 )}
                 <input
                   name="image"
@@ -177,6 +243,29 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 />
                 <ErrorMessage name="image" component="div" className="text-red-500 text-sm" />
               </div>
+              <div>
+  <label className="text-sm font-medium text-gray-700">Dashboard Offer Image</label>
+  {dashboardOfferImgPreview && (
+    <div className="mb-2 flex items-center gap-3">
+      <img src={dashboardOfferImgPreview} alt="Dashboard Offer Preview" className="w-32 h-32 object-cover border rounded-md" />
+      <button
+        type="button"
+        className="px-3 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50"
+        onClick={() => handleDashboardOfferImgClear(setFieldValue)}
+      >
+        Remove
+      </button>
+    </div>
+  )}
+  <input
+    name="dashboardOfferImg"
+    type="file"
+    accept="image/*"
+    className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+    onChange={(e) => handleDashboardOfferImgUpload(e.currentTarget.files[0], setFieldValue)}
+  />
+  <ErrorMessage name="dashboardOfferImg" component="div" className="text-red-500 text-sm" />
+</div>
               <div className="mt-3 flex gap-3">
                 <div className="w-full col-span-2">
                   <label className="flex items-center space-x-2 cursor-pointer select-none">
@@ -249,6 +338,32 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 <ErrorMessage name="title" className="text-red-500 text-sm" component="div" />
               </div>
               <div>
+                <label className="text-sm font-medium text-gray-700">Discount Type</label>
+                <select
+                  name="discountType"
+                  value={values.discountType}
+                  onChange={(e) => {
+                    const selectedType = e.target.value;
+                    setFieldValue('discountType', selectedType);
+                    if ((selectedType || '').toLowerCase() === 'percentage') {
+                      setFieldValue('amount', '');
+                    } else if ((selectedType || '').toLowerCase() === 'isamount') {
+                      setFieldValue('percentage', '');
+                    } else {
+                      setFieldValue('percentage', '');
+                      setFieldValue('amount', '');
+                    }
+                  }}
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm bg-white"
+                >
+                  <option value="">Select Discount Type</option>
+                  <option value="percentage">Percentage (%)</option>
+                  <option value="IsAmount">Amount (₹)</option>
+                </select>
+                <ErrorMessage name="discountType" className="text-red-500 text-sm" component="div" />
+              </div>
+              {(values.discountType || '').toLowerCase() === 'percentage' ? (
+              <div>
                 <label className="text-sm font-medium text-gray-700">Discount Percentage (%)</label>
                 <Field
                   type="number"
@@ -257,6 +372,17 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 />
                 <ErrorMessage name="percentage" className="text-red-500 text-sm" component="div" />
               </div>
+              ) : (values.discountType || '').toLowerCase() === 'isamount' ? (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Discount Amount (₹)</label>
+                  <Field
+                    type="number"
+                    name="amount"
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                  />
+                  <ErrorMessage name="amount" className="text-red-500 text-sm" component="div" />
+                </div>
+              ) : null}
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Start Date & Time</label>

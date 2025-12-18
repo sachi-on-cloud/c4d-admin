@@ -783,7 +783,8 @@ export const VERSION_CONTROL_EDIT=Yup.object({
  
 
   export const DISCOUNT_ADD_SCHEMA = Yup.object({
-    percentage: Yup.mixed().required('Percentage is required'),
+    percentage: Yup.mixed().notRequired(),
+    amount: Yup.mixed().notRequired(),
     cabType: Yup.string().when('isPremium', {
         is: false,
         then: (schema) => schema.required('Car Type is required'),
@@ -813,7 +814,8 @@ export const VERSION_CONTROL_EDIT=Yup.object({
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     discountId: Yup.number().required('Discount ID is required'),
-    percentage: Yup.mixed().required('Percentage is required'),
+    percentage: Yup.mixed().notRequired(),
+    amount: Yup.mixed().notRequired(),
     cabType: Yup.string().when('isPremium', {
         is: false,
         then: (schema) => schema.required('Car Type is required'),

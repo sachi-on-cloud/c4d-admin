@@ -17,6 +17,7 @@ const DiscountEdit = () => {
   const [serviceAreas, setServiceAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState(null);
+  const [dashboardOfferImgPreview, setDashboardOfferImgPreview] = useState(null); 
   const [premiumServicesMap, setPremiumServicesMap] = useState({});
   const [alert, setAlert] = useState(null);
 
@@ -59,8 +60,30 @@ const DiscountEdit = () => {
 
     setFieldValue('image', file);
     setFieldValue('imageUrl', '');
+    setFieldValue('removeImage', false);
     setImagePreview(URL.createObjectURL(file));
-  }
+  };
+
+
+  const handleDashboardOfferImgUpload = (file, setFieldValue) => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!file || !validTypes.includes(file.type)) {
+      alert('Only JPEG and PNG images are allowed.');
+      return;
+    }
+    setFieldValue('dashboardOfferImg', file);
+    setFieldValue('dashboardImageUrl', '');
+    setFieldValue('removeDashboardOfferImg', false);
+    setDashboardOfferImgPreview(URL.createObjectURL(file));
+  };
+
+  const handleDashboardOfferImgClear = (setFieldValue) => {
+    setFieldValue('dashboardOfferImg', null);
+    setFieldValue('dashboardImageUrl', '');
+    setDashboardOfferImgPreview(null);
+    setFieldValue('removeDashboardOfferImg', true);
+  };
+
   const getCurrentPremiumOptions = (serviceType) => {
     return premiumServicesMap[serviceType] || [];
   };
@@ -71,45 +94,86 @@ const DiscountEdit = () => {
     const fetchDiscount = async () => {
       try {
         if (discountFromState) {
+          const initialDiscountType = (() => {
+            if (discountFromState.discountType) {
+              const lower = discountFromState.discountType.toLowerCase();
+              if (lower === 'isamount' || lower === 'amount' || lower === 'flat') return 'IsAmount';
+              if (lower === 'percentage' || lower === 'percent') return 'percentage';
+            }
+            return Number(discountFromState.amount) > 0 ? 'IsAmount' : 'percentage';
+          })();
           setInitialValues({
             discountId: discountFromState.discountId || discountFromState.id,
+            discountType: initialDiscountType,
             percentage: discountFromState.percentage || '',
+            amount:discountFromState.amount || '',
             startDate: formatDateOnly(discountFromState.startDate),
             endDate: formatDateOnly(discountFromState.endDate),
             serviceType: discountFromState.serviceType || '',
             title: discountFromState.title || '',
             description: discountFromState.description || '',
             isActive: discountFromState.isActive ? 'true' : 'false',
-            cabType: discountFromState.cabType || '',
+            cabType: discountFromState.isPremium ? '' : discountFromState.cabType || '',
+            premiumCabType: discountFromState.isPremium ? discountFromState.cabType || '' : '',
+            isPremium: discountFromState.isPremium || false,
             image: null,
             imageUrl: discountFromState.imageUrl || '',
-            serviceArea: discountFromState.serviceArea ? (discountFromState.serviceArea === 'All' ? ['All'] : Array.isArray(discountFromState.serviceArea) ? discountFromState.serviceArea : [discountFromState.serviceArea]) : [],
-            cabType: discountFromState.isPremium ? discountFromState.cabType : discountFromState.cabType,           
-            premiumCabType: discountFromState.isPremium ? discountFromState.cabType : '',    
-            isPremium: discountFromState.isPremium,
+            dashboardOfferImg: null,                    
+            dashboardImageUrl: discountFromState.dashboardOfferImg || '',
+            serviceArea: discountFromState.serviceArea
+              ? discountFromState.serviceArea === 'All'
+                ? ['All']
+                : Array.isArray(discountFromState.serviceArea)
+                ? discountFromState.serviceArea
+                : [discountFromState.serviceArea]
+              : [],
+            removeImage: false,
+            removeDashboardOfferImg: false,            
           });
-          setImagePreview(discountFromState.imageUrl || null)
+
+          setImagePreview(discountFromState.imageUrl || null);
+          setDashboardOfferImgPreview(discountFromState.dashboardImageUrl || null); 
         } else {
           const res = await ApiRequestUtils.get(`${API_ROUTES.GET_DISCOUNT}/${id}`);
           const data = res?.data;
+          const fetchedType = (() => {
+            if (data.discountType) {
+              const lower = data.discountType.toLowerCase();
+              if (lower === 'isamount' || lower === 'amount' || lower === 'flat') return 'IsAmount';
+              if (lower === 'percentage' || lower === 'percent') return 'percentage';
+            }
+            return Number(data.amount) > 0 ? 'IsAmount' : 'percentage';
+          })();
           setInitialValues({
             discountId: data.discountId || data.id,
+            discountType: fetchedType,
             percentage: data.percentage || '',
+            amount: data.amount || '',
             startDate: formatDateOnly(data.startDate),
             endDate: formatDateOnly(data.endDate),
             serviceType: data.serviceType || '',
             isActive: data.isActive ? 'true' : 'false',
             title: data.title || '',
             description: data.description || '',
-            cabType: data.cabType || '',
+            cabType: data.isPremium ? '' : data.cabType || '',
+            premiumCabType: data.isPremium ? data.cabType || '' : '',
+            isPremium: data.isPremium || false,
             image: null,
             imageUrl: data.imageUrl || '',
-            serviceArea: data.serviceArea ? (data.serviceArea === 'All' ? ['All'] : Array.isArray(data.serviceArea) ? data.serviceArea : [data.serviceArea]) : [],
-            cabType: data.isPremium ? '' : data.cabType,           
-            premiumCabType: data.isPremium ? data.cabType : '',    
-            isPremium: data.isPremium,
+            dashboardOfferImg: null,                    
+            dashboardImageUrl: data.dashboardOfferImg || '',
+            serviceArea: data.serviceArea
+              ? data.serviceArea === 'All'
+                ? ['All']
+                : Array.isArray(data.serviceArea)
+                ? data.serviceArea
+                : [data.serviceArea]
+              : [],
+            removeImage: false,
+            removeDashboardOfferImg: false,
           });
           setImagePreview(data.imageUrl || null);
+          setDashboardOfferImgPreview(data.dashboardOfferImg || null);
         }
       } catch (err) {
         console.error('Failed to load discount:', err);
@@ -129,12 +193,33 @@ const DiscountEdit = () => {
   };
 
 
+  const handleImageClear = (setFieldValue) => {
+    setFieldValue('image', null);
+    setFieldValue('imageUrl', '');
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
+      const hasAmount = Number(values.amount) > 0;
+      const hasPercentage = Number(values.percentage) > 0;
+      let discountType = values.discountType;
+
+      if (hasAmount && !hasPercentage) {
+        discountType = 'IsAmount';
+      } else if (hasPercentage && !hasAmount) {
+        discountType = 'percentage';
+      }
+
       const formData = new FormData();
       formData.append('discountId', Number(values.discountId));
       formData.append('serviceType', values.serviceType);
-      formData.append('percentage', values.percentage);
+      formData.append('discountType', discountType);
+      if ((discountType || '').toLowerCase() === 'percentage') {
+        formData.append('percentage', values.percentage || '');
+      } else if ((discountType || '').toLowerCase() === 'isamount') {
+        formData.append('amount', values.amount || '');
+      }
       formData.append('startDate', safeDate(values.startDate));
       formData.append('endDate', safeDate(values.endDate));
       formData.append('isActive', values.isActive);
@@ -142,14 +227,32 @@ const DiscountEdit = () => {
       formData.append('description', values.description);
 
       formData.append('serviceArea', values.serviceArea.includes('All') ? ['All'] : values.serviceArea);
+      if (values.removeImage) {
+        formData.append('imageUrl', '');
+      }
       if (values.image) {
         formData.append('image', values.image);
         formData.append('fileType', values.image?.type || '');
         formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
       } else {
         formData.append('fileType', '');
+        formData.append('imageUrl', '');
         formData.append('extImage', '');
       }
+
+     
+      if (values.removeDashboardOfferImg) {
+        formData.append('dashboardImageUrl', '');
+      }
+      if (values.dashboardOfferImg) {
+        formData.append('dashboardOfferImg', values.dashboardOfferImg);
+        formData.append('dashboardFileType', values.dashboardOfferImg?.type || '');
+        formData.append('dashboardExtImage', values.dashboardOfferImg?.name?.split('.').pop()?.toLowerCase() || '');
+      } else {
+        formData.append('dashboardFileType', '');
+        formData.append('dashboardExtImage', '');
+      }
+
       const finalCabType = values.isPremium
         ? (values.premiumCabType || '')
         : (values.cabType || '');
@@ -201,6 +304,8 @@ const DiscountEdit = () => {
         {({ isSubmitting, isValid, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+              <Field type="hidden" name="removeImage" />
+              <Field type="hidden" name="removeDashboardOfferImg" />
               <Field type="hidden" name="discountId" />
 
               <div>
@@ -222,38 +327,61 @@ const DiscountEdit = () => {
                 <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Image</label>
-                {imagePreview && !values.image && values.imageUrl && (
-                  <div className="mt-2">
-                    <p className="text-xs text-gray-500 mb-1">Current Image:</p>
+                <label htmlFor="image" className="text-sm font-medium text-gray-700">Estimate Summary Image</label>
+                {(imagePreview || values.imageUrl) && (
+                  <div className="flex items-center gap-3 mb-2">
                     <img
-                      src={imagePreview}
-                      alt="Current"
-                      className="w-32 h-32 object-cover border rounded-md"
+                      src={imagePreview || values.imageUrl}
+                      alt="discount"
+                      className="w-32 h-32 object-cover rounded-md border"
                     />
+                    <button
+                      type="button"
+                      className="px-3 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50"
+                      onClick={() => handleImageClear(setFieldValue)}
+                    >
+                      Remove
+                    </button>
                   </div>
                 )}
-                {values.image && (
-                  <div className="mt-2">
-                    <p className="text-xs text-green-600 font-medium mb-1">New Image Preview:</p>
-                    <img
-                      src={imagePreview}
-                      alt="New preview"
-                      className="w-32 h-32 object-cover border-2 border-green-500 rounded-md"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Will replace current image</p>
-                  </div>
-                )}
-
                 <input
+                  name="image"
                   type="file"
                   accept="image/jpeg,image/png,image/gif"
                   className="mt-3 p-2 w-full rounded-md border border-gray-300 shadow-sm text-sm"
                   onChange={(e) => handleImageUpload(e.currentTarget.files[0], setFieldValue)}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Leave blank to keep current image
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Leave blank to keep current image</p>
+              </div>
+
+             
+              <div>
+                <label className="text-sm font-medium text-gray-700">Dashboard Offer Image</label>
+                {(dashboardOfferImgPreview || values.dashboardImageUrl) && (
+                  <div className="flex items-center gap-3 mb-2">
+                    <img
+                      src={dashboardOfferImgPreview || values.dashboardImageUrl}
+                      alt="dashboard offer"
+                      className="w-32 h-32 object-cover rounded-md border"
+                    />
+                    <button
+                      type="button"
+                      className="px-3 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50"
+                      onClick={() => handleDashboardOfferImgClear(setFieldValue)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+                <input
+                  name="dashboardOfferImg"
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif"
+                  className="mt-3 p-2 w-full rounded-md border border-gray-300 shadow-sm text-sm"
+                  onChange={(e) => handleDashboardOfferImgUpload(e.currentTarget.files[0], setFieldValue)}
+                />
+                <p className="text-xs text-gray-500 mt-1">Leave blank to keep current image</p>
+                <ErrorMessage name="dashboardOfferImg" component="div" className="text-red-500 text-sm" />
               </div>
               <div className="md:col-span-2">
                 <label className="flex items-center space-x-3 cursor-pointer text-lg font-medium">
@@ -325,7 +453,33 @@ const DiscountEdit = () => {
                 <Field type="text" name="title" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                 <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
               </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Discount Type</label>
+                <select
+                  name="discountType"
+                  value={values.discountType}
+                  onChange={(e) => {
+                    const selectedType = e.target.value;
+                    setFieldValue('discountType', selectedType);
+                    if ((selectedType || '').toLowerCase() === 'percentage') {
+                      setFieldValue('amount', '');
+                    } else if ((selectedType || '').toLowerCase() === 'isamount') {
+                      setFieldValue('percentage', '');
+                    } else {
+                      setFieldValue('amount', '');
+                      setFieldValue('percentage', '');
+                    }
+                  }}
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm bg-white"
+                >
+                  <option value="">Select Discount Type</option>
+                  <option value="percentage">Percentage (%)</option>
+                  <option value="IsAmount">Amount (₹)</option>
+                </select>
+                <ErrorMessage name="discountType" component="div" className="text-red-500 text-sm" />
+              </div>
 
+              {(values.discountType || '').toLowerCase() === 'percentage' ? (
               <div>
                 <label className="text-sm font-medium text-gray-700">Discount Percentage (%)</label>
                 <Field
@@ -335,6 +489,29 @@ const DiscountEdit = () => {
                 />
                 <ErrorMessage name="percentage" component="div" className="text-red-500 text-sm" />
               </div>
+              ) : (values.discountType || '').toLowerCase() === 'isamount' ? (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Discount Amount (₹)</label>
+                  <Field name="amount">
+                    {({ field }) => (
+                      <input
+                        {...field}
+                        type="number"
+                        className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(e);
+                          const numeric = parseFloat(value);
+                          if (!isNaN(numeric) && numeric > 0) {
+                            setFieldValue('discountType', 'IsAmount');
+                          }
+                        }}
+                      />
+                    )}
+                  </Field>
+                  <ErrorMessage name="amount" component="div" className="text-red-500 text-sm" />
+                </div>
+              ) : null}
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Start Date</label>

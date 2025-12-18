@@ -76,7 +76,7 @@ const DiscountView = () => {
                   <th className="py-3 px-5 text-left">Title</th>
                   <th className="py-3 px-5 text-left">Coupon Code</th>
                   <th className="py-3 px-5 text-left">Description</th>
-                  <th className="py-3 px-5 text-left">Percentage</th>
+                  <th className="py-3 px-5 text-left">Discount Type</th>
                   <th className="py-3 px-5 text-left">Start Date</th>
                   <th className="py-3 px-5 text-left">End Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
@@ -103,7 +103,17 @@ const DiscountView = () => {
                         </div>
                         </td>
                       <td className="py-3 px-5">{item.description || '-'}</td>
-                      <td className="py-3 px-5">{item.percentage}%</td>
+                      <td className="py-3 px-5">
+                        {(() => {
+                          const normalizedType = (item.discountType || (Number(item.amount) > 0 ? 'IsAmount' : 'percentage'))?.toLowerCase();
+                          if (normalizedType === 'isamount' || normalizedType === 'amount' || normalizedType === 'flat') {
+                            const value = item.amount ?? item.flatAmount ?? item.discountValue ?? 0;
+                            return value ? `₹${value}` : '-';
+                          }
+                          const percent = item.percentage ?? item.discountValue ?? 0;
+                          return percent !== null && percent !== undefined && percent !== '' ? `${percent}%` : '-';
+                        })()}
+                      </td>
                       <td className="py-3 px-5">{moment(item.startDate).format('DD-MM-YYYY ')}</td>
                       <td className="py-3 px-5">{moment(item.endDate).format('DD-MM-YYYY ')}</td>
                       <td className="py-3 px-5">
