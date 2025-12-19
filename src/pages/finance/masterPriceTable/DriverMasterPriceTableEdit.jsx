@@ -183,13 +183,7 @@ const DriverMasterPriceTableEdit = () => {
                                     <label className="text-sm font-medium text-gray-700">Trip Type</label>
                                     <Field type="text" name="type" disabled className="p-2 w-full rounded-md border-gray-300 shadow-sm bg-gray-200" />
                             </div>
- {values?.type === 'Outstation' &&
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Base Fare</label>
-                                        <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                        <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
-                                    </div>
-                                }   
+ 
 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Hours</label>
@@ -215,31 +209,18 @@ const DriverMasterPriceTableEdit = () => {
                         </div>
 
                         {/* Editable Table */}
+                         {values?.type === 'Local' && (
                         <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-md">
                             <table className="min-w-full bg-white border border-gray-300 text-center">
                                 <thead>
                                     <tr className="bg-blue-600 text-white">
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Package </th>
-                                         {values?.type != 'Outstation' && <>
-                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Price</th>
-                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Price(MUV)</th>
-                                    </>}
-                                     {values?.type === 'Outstation' && <>
-                                        <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Round Trip Price</th>
-                                        <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Round Trip Price(MUV)</th>
-                                    </>}
+                                        <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Price</th>
+                                        <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Price(MUV)</th>
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Kilometer</th>
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Additional Mins</th>
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Additional Mins Price</th>
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Extra KM Price</th>
-
-                                        {values?.type === 'Outstation' && (
-                                            <>
-                                                <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Drop Only Charge</th>
-                                                <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Drop Price Above 300</th>
-                                            </>
-                                        )}
-
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Free Waiting (mins)</th>
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Waiting Charge</th>
                                         <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Night Charge</th>
@@ -256,14 +237,6 @@ const DriverMasterPriceTableEdit = () => {
                                         <td className="px-2 py-3 border"><Field type="number" name="additionalMinCharge" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="extraPrice" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="extraKmPrice" className="w-full text-center border rounded p-1" /></td>
-
-                                        {values?.type === 'Outstation' && (
-                                            <>
-                                                <td className="px-2 py-3 border"><Field type="number" name="dropPrice" className="w-full text-center border rounded p-1" /></td>
-                                                <td className="px-2 py-3 border"><Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-1" /></td>
-                                            </>
-                                        )}
-
                                         <td className="px-2 py-3 border"><Field type="number" name="waitingMins" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="waitingCharge" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="nightCharge" className="w-full text-center border rounded p-1" /></td>
@@ -273,6 +246,44 @@ const DriverMasterPriceTableEdit = () => {
                                 </tbody>
                             </table>
                         </div>
+                         )}
+                         {values?.type === 'Outstation' && (
+                            <div className="mt-8 overflow-x-auto rounded-lg border border-gray-300 shadow-sm">
+                            <table className="min-w-full bg-white border border-gray-300 text-center">
+                            <thead className="text-center">
+                                <tr className="bg-blue-600">
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Base Hours</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Base KM</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Base Fare</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra hour charge</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra KM rate</th>
+                                   
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Food Charges</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Night Charges</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Drop-only charge</th>
+                                   
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr className="bg-white hover:bg-gray-50 transition-all text-center text-gray-800 font-medium">
+                                    
+                                    <td className="px-2 py-3 border"><Field type="number" name="period" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="kilometer" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="price" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="additionalMinCharge" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="dropPrice" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="nightCharge" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="dropPrice" className="w-full text-center border rounded p-1" /></td>
+                                   
+                                </tr>
+                            </tbody>
+                            </table>
+
+
+                            </div>
+                        )}
 
                        
 

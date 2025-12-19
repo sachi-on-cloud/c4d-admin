@@ -292,143 +292,139 @@ export function MasterPriceView() {
     };
 
     const renderOutstationPriceTable = () => {
-        return (
-            <div className='my-6'>
-                <h3 className="text-3xl font-bold mb-4 ml-2">Outstation</h3>
-                <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
-                        <table className="w-full min-w-[640px] table-auto">
-                            <thead>
-                                <tr>
-                                    {[
-                                        "Zone",
-                                        "Service Type",
-                                        "Trip Type",
-                                        "Base Hours",
-                                        "Base KM",
-                                        "Base Fare",
-                                        "Additional Hours",
-                                        "Extra KM ",
-                                        "Food Charges",
-                                        "After 10:00p.m to Before 4.00a.m",
-                                        "Drop only"
-                                    ]
-                                        .map((el, index) => (
-                                            <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left pb-4 ${ColorStyles.bgColor}`}>
-                                                <Typography
-                                                    variant="small"
-                                                    className="text-[11px] font-bold uppercase text-white"
-                                                >
-                                                    {el}
-                                                </Typography>
-                                            </th>
-                                        ))
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>
-    {outstationPackageList.map((item, index) => {
-        const { 
-            id, zone, serviceType,type,period, kilometer,  
-            dropPrice, price, additionalMinCharge,dropPriceAbove, 
-            nightHoursFrom, nightHoursTo, nightCharge, cancelCharge,
-            cancelMins, extraKmPrice 
-        } = item;
+    const filteredOutstationList = outstationPackageList
+        .filter(item => item.type === "Outstation" && item.period !== "1")
+        .sort((a, b) => {
+            const periodA = parseInt(a.period, 10);
+            const periodB = parseInt(b.period, 10);
+            return periodA - periodB; 
+        });
 
-        const className = `py-3 px-5 ${index === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+    return (
+        <div className='my-6'>
+            <h3 className="text-3xl font-bold mb-4 ml-2">Outstation</h3>
+            <Card>
+                <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
+                    <table className="w-full min-w-[640px] table-auto">
+                        <thead>
+                            <tr>
+                                {[
+                                    "Zone",
+                                    "Service Type",
+                                    "Trip Type",
+                                    "Base Hours",
+                                    "Base KM",
+                                    "Base Fare",
+                                    "Extra hour charge",
+                                    "Extra KM rate",
+                                    "Food Charges",
+                                    "Night Charges",
+                                    "Drop-only charge"
+                                ].map((el, index) => (
+                                    <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left pb-4 ${ColorStyles.bgColor}`}>
+                                        <Typography
+                                            variant="small"
+                                            className="text-[11px] font-bold uppercase text-white"
+                                        >
+                                            {el}
+                                        </Typography>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredOutstationList.map((item, index) => {
+                                const { 
+                                    id, zone, serviceType, type, period, kilometer,  
+                                    dropPrice, price, additionalMinCharge, dropPriceAbove, 
+                                    nightCharge, extraKmPrice 
+                                } = item;
 
-        return (
-            <tr key={id}>
-                {/* Zone */}
-                <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        {zone}
-                    </Typography>
-                </td>
+                                const isLast = index === filteredOutstationList.length - 1;
+                                const className = `py-3 px-5 ${isLast ? "" : "border-b border-blue-gray-50"}`;
 
-                {/* Service Type */}
-                <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        {serviceType}
-                    </Typography>
-                </td>
-                <td className={className}>
-                                                <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
-                                                <Typography variant="small"
-                                                            color="blue"
-                                                            className="font-semibold underline cursor-pointer">
+                                return (
+                                    <tr key={id}>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {zone}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {serviceType}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <div >
+                                                <Typography className="text-xs font-semibold text-blue-gray-900" >
                                                     {type}
                                                 </Typography>
-                                                </div>
-                                                
-                                            </td>
-                                             <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        {period}
-                    </Typography>
-                </td>
+                                            </div>
+                                        </td>
+                                        <td className={className}>
+                                            <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
+                                            <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer" >
+                                                {period}
+                                            </Typography>
+                                            </div>
+                                        </td>
+                                        <td className={className}>
+                                            <div >
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {kilometer || '-'}
+                                                </Typography>
+                                            </div>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {price || '0'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {additionalMinCharge || '-'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {dropPrice || '-'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {dropPriceAbove || '-'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {nightCharge || '0'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {dropPrice || '-'}
+                                            </Typography>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
 
-                {/* Trip Type - clickable */}
-                <td className={className}>
-                    <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
-                        <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer">
-                            {kilometer}  
-                        </Typography>
-                    </div>
-                </td>
-
-              
-                <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        ₹{price}
-                    </Typography>
-                </td>
-                <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        ₹{additionalMinCharge}
-                    </Typography>
-                </td>
-
-
-               
-                <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        ₹{extraKmPrice}
-                    </Typography>
-                </td>
-                 <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        {dropPriceAbove}
-                    </Typography>
-                </td>
-
-                
-               
-
-                
-                <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        ₹{nightCharge}
-                    </Typography>
-                </td>
-                <td className={className}>
-                    <Typography className="text-xs font-semibold text-blue-gray-900">
-                        ₹{dropPrice}
-                    </Typography>
-                </td>
-
-                {/* Drop only */}
-               
-            </tr>
-        );
-    })}
-</tbody>
-                        </table>
-                    </CardBody>
-                </Card>
-            </div>
-        )
-    };
+                            {/* If no data after filter, show a message */}
+                            {filteredOutstationList.length === 0 && (
+                                <tr>
+                                    <td colSpan="11" className="py-8 text-center text-gray-500">
+                                        <Typography>No Outstation packages found (excluding 1-day trips)</Typography>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </CardBody>
+            </Card>
+        </div>
+    );
+};
 
     const renderRidesTable = () => {
         return (

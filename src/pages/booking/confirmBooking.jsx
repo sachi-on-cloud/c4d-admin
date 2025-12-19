@@ -564,13 +564,6 @@ const handleSaveDriverEndLocation = async () => {
         }
     } catch (err) {
         console.error("Error updating extra charges:", err);
-       
-          Swal.fire({
-                icon: "error",
-                title: "Something went wrong!",
-                timer: 1500,
-              
-            });
     } finally {
         setLoading(false);
     }
