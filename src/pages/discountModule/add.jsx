@@ -315,7 +315,7 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                   )}
                 </div>
               </div>
-              {values.isPremium === false && (
+              {values?.serviceType !== 'AUTO' && values.isPremium === false && (
               <div>
                 <label className="text-sm font-medium text-gray-700">Car Type</label>
                 <Field

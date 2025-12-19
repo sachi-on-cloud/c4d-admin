@@ -564,13 +564,6 @@ const handleSaveDriverEndLocation = async () => {
         }
     } catch (err) {
         console.error("Error updating extra charges:", err);
-       
-          Swal.fire({
-                icon: "error",
-                title: "Something went wrong!",
-                timer: 1500,
-              
-            });
     } finally {
         setLoading(false);
     }
@@ -675,7 +668,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
     return (
-        <div className="container mx-auto px-4 md:px-6">
+        <div className="container mx-auto px-2 md:px-6">
             {bookingDetails && (
                 <div className="rounded-2xl px-4 sm:px-6 py-4 mb-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
                     <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
@@ -685,10 +678,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             className="flex items-center gap-2 bg-white"
                             onClick={onBackPressHandler}
                         >
-                            ← Back
+                            Back
                         </Button>
 
-                        <p className="text-2xl font-bold text-gray-900 break-words">
+                        <p className="text-2xl font-bold text-gray-900">
                             {`Booking #${bookingDetails?.bookingNumber || ''}`}
                         </p>
 
@@ -721,7 +714,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         color="white"
                         variant="outlined"
                         ripple="dark"
-                        className="px-6 bg-green-600"
+                        className="px-2 bg-green-600"
                         onClick={() => {
                             handleBookingAction(BOOKING_STATUS.CONFIRMED);
                         }}
@@ -740,7 +733,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         color="white"
                                         variant="outlined"
                                         ripple="dark"
-                                        className="px-6 bg-red-900"
+                                        className="px-2 bg-red-900"
                                         onClick={() => setShowCancelReason(true)}
                                     >
                                         Cancel
@@ -756,7 +749,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         color="white"
                         variant="outlined"
                         ripple="dark"
-                        className="px-6 bg-gray-600"
+                        className="px-4 bg-gray-600"
                         onClick={() => { handleEditAction(bookingDetails); }}
                     >
                         Edit
