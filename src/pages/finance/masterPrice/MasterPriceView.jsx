@@ -388,7 +388,7 @@ export function MasterPriceView() {
                                         </td>
                                         <td className={className}>
                                             <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                {dropPrice || '-'}
+                                                {extraKmPrice || '-'}
                                             </Typography>
                                         </td>
                                         <td className={className}>
