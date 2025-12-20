@@ -283,7 +283,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
                startDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || '',
            }),
          
-        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&& values?.serviceType != 'AUTO' && values?.packageTypeSelected != 'Local')&& 
+        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&& values?.serviceType != 'AUTO' && values?.packageTypeSelected != 'Local' &&(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') && !(values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Drop Only'))&& 
         { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || null}
          ),
 
@@ -786,8 +786,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
             serviceType: values.serviceType || "AUTO",
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
-            acType: values?.acType?.toUpperCase(),
-            transmissionType: values.transmissionType,
+            // acType: values?.acType?.toUpperCase(),
+            ...(values.acType ? { acType: values.acType.toUpperCase() } : {}),
+            // transmissionType: values.transmissionType,
+            ...(values.transmissionType ? { transmissionType: values.transmissionType } : {}),
             carType: values.carType,
             fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             pickupLat: values.pickupLocation.lat,
@@ -2574,10 +2576,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount?.kilometerPriceVal}
                                                                         </Typography></>)}
-                                                                        {values?.serviceType !== 'DRIVER' || values?.serviceType !== 'AUTO' && ( <>
+                                                                        {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'AUTO' && ( <>
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer {quoteDetails.amount?.driverWithin > 0 && (<> + Driver Km For Pickup Location </>)}</Typography>
                                                                         <Typography>                                                                            
-                                                                            {(quoteDetails.amount?.estimatedDistance)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)} 
+                                                                            {(quoteDetails.amount?.estimatedDistance > 0 ?  quoteDetails.amount?.estimatedDistance : quoteDetails.amount?.distanceEstimated)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)} 
                                                                         </Typography></>)}
                                                                          {values?.serviceType === 'AUTO' && ( 
                                                                             <>
