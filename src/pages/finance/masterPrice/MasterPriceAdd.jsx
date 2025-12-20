@@ -265,7 +265,7 @@ export function MasterPriceAdd() {
                                         </td>
                                         
                                         <td className="px-2 py-3 border">
-                                            <Field type="number" name="dropPrice" className="w-full text-center border rounded p-2" />
+                                            <Field type="number" name="extraKmPrice" className="w-full text-center border rounded p-2" />
                                         </td>
 
                                         <td className="px-2 py-3 border">

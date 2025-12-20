@@ -240,7 +240,7 @@ export function MasterPriceDetailsAndEdit() {
                                     <td className="px-4 py-4 border border-gray-300">{values.kilometer || "-"}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values.price || "-"}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values.additionalMinCharge || "-"}</td>
-                                    <td className="px-4 py-4 border border-gray-300">{values.dropPrice || '-'}</td>
+                                    <td className="px-4 py-4 border border-gray-300">{values.extraKmPrice || '-'}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values.dropPriceAbove || "-"}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values. nightCharge || "-"}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values.dropPrice || "-"}</td>

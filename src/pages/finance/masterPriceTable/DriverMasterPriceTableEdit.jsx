@@ -272,7 +272,7 @@ const DriverMasterPriceTableEdit = () => {
                                         <td className="px-2 py-3 border"><Field type="number" name="kilometer" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="price" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="additionalMinCharge" className="w-full text-center border rounded p-1" /></td>
-                                        <td className="px-2 py-3 border"><Field type="number" name="dropPrice" className="w-full text-center border rounded p-1" /></td>
+                                        <td className="px-2 py-3 border"><Field type="number" name="extraKmPrice" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="nightCharge" className="w-full text-center border rounded p-1" /></td>
                                         <td className="px-2 py-3 border"><Field type="number" name="dropPrice" className="w-full text-center border rounded p-1" /></td>
