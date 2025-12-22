@@ -16,7 +16,7 @@ export const getBaseUrl = () => {
 }
 
 export const Feature = {
-    parcel:false
+    parcel: false
 }
 
 export const GENDER = {
@@ -812,7 +812,7 @@ export const API_ROUTES = {
     'UPDATE_BOOKING': '/update-booking',
     'UPDATE_RIDES_BOOKING': '/edit-rides-booking',
     'CANCEL_ADMIN_BOOKING': "/booking-cancel",
-    'CHECK_PRESENCE' : '/check-presence',
+    'CHECK_PRESENCE': '/check-presence',
     'ADD_LOCATION': '/add-location',
     'GET_BOOKING_BY_ID': '/booking',
     'GET_CONFIRMATION_BOOKING_BY_ID': '/bookingConfirmation',
@@ -915,6 +915,7 @@ export const API_ROUTES = {
     'CONFIRM_RENTAL_BOOKING': '/confirm-rental-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
+    'RENTAL_OUTSTATION_TARIFFS': '/rental/outstation/tariffs',
     'GEO_MARKINGS_DELETE': '/geo-markings',
     'GET_CAR_TYPE': '/car-type/',
     'POST_NOTIFICATION_ADD': '/send-notification',
@@ -925,65 +926,90 @@ export const API_ROUTES = {
     'DRIVER_WALLET': '/getDriverWalletTransactions',
     'CAB_WALLET': '/getCabWalletTransactions',
     'ADD_NOTES_BOOKING': '/add-notes',
-    'GET_NOTES_BOOKING':'/get-notes',
+    'GET_NOTES_BOOKING': '/get-notes',
     'GET_ALL_VEHICLESLIST': '/admin/cabs',
     'PUT_OWNER_SHIP': '/update-booking-ownership',
     'DRIVER_NOTIFY': '/notify',
-    'GET_DRIVER_NOTIFY':'/get-notify-contents',
-    'UPDATE_DRIVER_NOTIFY':'/update-notify',
-    'GET_VERSIONCONTROL':'/get-current-version',
-    'PUT_VERSIONCONTROL':'/update-current-version',
-    'GET_DISCOUNT':'/all-discount',
-    'POST_DISCOUNT':'/add-discount',
-    'PUT_DISCOUNT':'/update-discount',
-    'GET_GST':'/list-gst',
-    'PUT_GST':'/update-gst',
-    'POST_GST':'/add-gst',
-    'GET_BANNER':'/banner',
-    'POST_BANNER':'/banner/add',
-    'UPDATE_BANNER':'/banner/update',
-    'GET_TESTIMOINAL':'/testimonial',
-    'POST_TESTIMOINAL':'/testimonial/add',
-    'UPDATE_TESTIMONIAL':'/testimonial/update',
-    'GET_AUTO_LIST':"/admin/autos",
-    'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
-    'POST_AUTO_SEARCH':'/search/auto',
-    'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
-    'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
+    'GET_DRIVER_NOTIFY': '/get-notify-contents',
+    'UPDATE_DRIVER_NOTIFY': '/update-notify',
+    'GET_VERSIONCONTROL': '/get-current-version',
+    'PUT_VERSIONCONTROL': '/update-current-version',
+    'GET_DISCOUNT': '/all-discount',
+    'POST_DISCOUNT': '/add-discount',
+    'PUT_DISCOUNT': '/update-discount',
+    'GET_GST': '/list-gst',
+    'PUT_GST': '/update-gst',
+    'POST_GST': '/add-gst',
+    'GET_BANNER': '/banner',
+    'POST_BANNER': '/banner/add',
+    'UPDATE_BANNER': '/banner/update',
+    'GET_TESTIMOINAL': '/testimonial',
+    'POST_TESTIMOINAL': '/testimonial/add',
+    'UPDATE_TESTIMONIAL': '/testimonial/update',
+    'UPDATE_LANDMARK': '/update-landmark',
+    'GET_BOOKINGDETAILS_FINAL_PAYMENT': '/bookingPaymentDetails/',
+    'GET_TRIP_REPORTS': '/get-trips-report',
+    'ADD_TRIP_DETAILS': '/add-trip',
+    'GET_DRIVER_TRIP_DETAILS': '/get-trips',
+    'GET_BOOKING_ENDED_DETAILS': '/booking-number',
+    'SEARCH_BOOKINGS_BY_NUMBER': '/admin/customer/search',
+    'GET_TRIP_BY_ID': '/trip/',
+    'UPDATE_TRIP_DETAILS': '/update-trip',
+    'GET_DRIVER_NOTIFY': '/get-notify-contents',
+    'UPDATE_DRIVER_NOTIFY': '/update-notify',
+    'GET_VERSIONCONTROL': '/get-current-version',
+    'PUT_VERSIONCONTROL': '/update-current-version',
+    'GET_DISCOUNT': '/all-discount',
+    'POST_DISCOUNT': '/add-discount',
+    'PUT_DISCOUNT': '/update-discount',
+    'GET_GST': '/list-gst',
+    'PUT_GST': '/update-gst',
+    'POST_GST': '/add-gst',
+    'GET_BANNER': '/banner',
+    'POST_BANNER': '/banner/add',
+    'UPDATE_BANNER': '/banner/update',
+    'GET_TESTIMOINAL': '/testimonial',
+    'POST_TESTIMOINAL': '/testimonial/add',
+    'UPDATE_TESTIMONIAL': '/testimonial/update',
+    'GET_AUTO_LIST': "/admin/autos",
+    'ADD_NEW_AUTO_BOOKING': '/add-auto-booking',
+    'POST_AUTO_SEARCH': '/search/auto',
+    'ADD_NEW_AUTO_DETAILS': '/register/admin/auto',
+    'CREATE_PARCEL_ADMIN': '/register/admin/parcel',
     'GET_ALL_PARCEL': '/admin/parcel',
-    'UPDATE_LANDMARK':'/update-landmark',
-    'GET_AUTO_PACKAGE':'/get-autos',
-    'GET_AUTO_BY_ID':'/auto/',
-    'UPDATE_AUTO_DETAILS':'/update/admin/auto',
-    'AUTO_PACKAGE_LIST':'/auto-package-list',
-    'AUTO_PRICE_EDIT':'/update-auto-package',
-    'PARCEL_PACKAGE_LIST':'/parcel-package-list',
-    'PARCEL_PRICE_EDIT':'/update-parcel-package',
-    'GET_PARCEL_CAB_BY_ID':'/parcel/', 
-    'UPDATE_PARCEL_CAB':'/update/admin/parcel',
-    'GET_BIKE_PACKAGE':'/get-parcel-driver',
-    'UPDATE_LANDMARK':'/update-landmark',
-    'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
-    'GET_TRIP_REPORTS':'/get-trips-report',
-    'ADD_TRIP_DETAILS':'/add-trip',
-    'GET_DRIVER_TRIP_DETAILS':'/get-trips',
-    'GET_BOOKING_ENDED_DETAILS':'/booking-number',
-    'SEARCH_BOOKINGS_BY_NUMBER':'/admin/customer/search',
-    'GET_TRIP_BY_ID':'/trip/',
-    'UPDATE_TRIP_DETAILS':'/update-trip',
+    'UPDATE_LANDMARK': '/update-landmark',
+    'GET_AUTO_PACKAGE': '/get-autos',
+    'GET_AUTO_BY_ID': '/auto/',
+    'UPDATE_AUTO_DETAILS': '/update/admin/auto',
+    'AUTO_PACKAGE_LIST': '/auto-package-list',
+    'AUTO_PRICE_EDIT': '/update-auto-package',
+    'PARCEL_PACKAGE_LIST': '/parcel-package-list',
+    'PARCEL_PRICE_EDIT': '/update-parcel-package',
+    'GET_PARCEL_CAB_BY_ID': '/parcel/',
+    'UPDATE_PARCEL_CAB': '/update/admin/parcel',
+    'GET_BIKE_PACKAGE': '/get-parcel-driver',
+    'UPDATE_LANDMARK': '/update-landmark',
+    'GET_BOOKINGDETAILS_FINAL_PAYMENT': '/bookingPaymentDetails/',
+    'GET_TRIP_REPORTS': '/get-trips-report',
+    'ADD_TRIP_DETAILS': '/add-trip',
+    'GET_DRIVER_TRIP_DETAILS': '/get-trips',
+    'GET_BOOKING_ENDED_DETAILS': '/booking-number',
+    'SEARCH_BOOKINGS_BY_NUMBER': '/admin/customer/search',
+    'GET_TRIP_BY_ID': '/trip/',
+    'UPDATE_TRIP_DETAILS': '/update-trip',
     'BANNER_POSITION_UPDATE': '/banner/position/update',
     'DISTANCE_CHECKING': '/get-distance',
-    'CITY_LIMIT_CHECKING':'/check-location',
-    'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
-    'POST_QUOTATION_LOG':'/quotation-log',
-    'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
+    'CITY_LIMIT_CHECKING': '/check-location',
+    'EXPORT_EXCEL_CUSTOMER_DETAILS': '/admin/customers/export',
+    'POST_QUOTATION_LOG': '/quotation-log',
+    'EXPORT_EXCEL_TRIP_DETAILS': '/admin/trips/export',
     'EXOTEL_CALL_LOGS': '/call-logs',
-    'GET_CUSTOMER_NOTIFICATION':'/notification-messages',
-    'POST_CUSTOMER_NOTIFICATION':'/notification-messages',
-    'UPDATE_FOLLOWUP':'/booking/followup',
+    'GET_CUSTOMER_NOTIFICATION': '/notification-messages',
+    'POST_CUSTOMER_NOTIFICATION': '/notification-messages',
+    'UPDATE_FOLLOWUP': '/booking/followup',
     'EXOTEL_CALL_LOGS': '/call-logs',
-    'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
-    'UPDATE_DRIVER_END_LOCATION':'/driver/end-location',
+    'UPDATE_EXTRA_CHARGES': '/booking/extra-charges',
+    'UPDATE_DRIVER_END_LOCATION': '/driver/end-location',
 
 };
 
@@ -1023,8 +1049,8 @@ export const BOOKING_STATUS = {
     IN_PROGRESS: 'IN PROGRESS',
     STARTED: 'STARTED',
     ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
-    END_OTP:'END_OTP',
-    PAYMENT_REQUESTED:'PAYMENT_REQUESTED',
+    END_OTP: 'END_OTP',
+    PAYMENT_REQUESTED: 'PAYMENT_REQUESTED',
     ENDED: 'ENDED',
 };
 
@@ -1081,20 +1107,20 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
-    'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
-    'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors','Autos'],
-    'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification','Autos'],
+    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master', 'Finance', 'Document verification', 'Marketing', 'Users', 'Autos'],
+    'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification', 'Autos'],
+    'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors', 'Autos'],
+    'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification', 'Autos'],
 };
 
 export const PERMISSION_OPTIONS = [
     { name: 'Home', id: 'Home' },
-    { name: 'Calls', id: 'Calls'},
-     { name: 'Autos', id: 'Autos'},
+    { name: 'Calls', id: 'Calls' },
+    { name: 'Autos', id: 'Autos' },
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
-    { name:'Trip Master',id:'Trip Master'},
+    { name: 'Trip Master', id: 'Trip Master' },
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
     { name: 'Marketing', id: 'Marketing' },
@@ -1145,7 +1171,7 @@ export const WHATSAPP_FARE_QUOTATION_TEMPLATE =
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-export const  WHATSAPP_BOOKING_CONFIRMED_TEMPLATE=
+export const WHATSAPP_BOOKING_CONFIRMED_TEMPLATE =
     `${COMPANY_NAME} 
     Booking ID: \${bookingNumber}
 
@@ -1170,7 +1196,7 @@ export const  WHATSAPP_BOOKING_CONFIRMED_TEMPLATE=
    Warm regards,
    ${COMPANY_NAME} Team`;
 
-export const  WHATSAPP_BOOKING_ACCEPTED=
+export const WHATSAPP_BOOKING_ACCEPTED =
     `${COMPANY_NAME}
     Booking ID: \${bookingNumber}
 
@@ -1191,7 +1217,7 @@ export const  WHATSAPP_BOOKING_ACCEPTED=
     Warm regards,
     ${COMPANY_NAME} Team`;
 
-export const WHATSAPP_TRIP_STARTED=`
+export const WHATSAPP_TRIP_STARTED = `
      ${COMPANY_NAME}  
      Booking ID: \${bookingNumber}
 
@@ -1212,7 +1238,7 @@ export const WHATSAPP_TRIP_STARTED=`
     ${COMPANY_NAME} Team`
 
 
-export const  WHATSAPP_TRIP_COMPLETED=`
+export const WHATSAPP_TRIP_COMPLETED = `
      ${COMPANY_NAME}  
      Booking ID: \${bookingNumber}
 
@@ -1237,9 +1263,9 @@ export const  WHATSAPP_TRIP_COMPLETED=`
 
      Warm regards,
     ${COMPANY_NAME} Team`
-    
-    
-export const WHATSAPP_BOOKING_CANCELLED=`
+
+
+export const WHATSAPP_BOOKING_CANCELLED = `
      ${COMPANY_NAME}  
      Booking ID: \${bookingNumber}
 
@@ -1255,8 +1281,8 @@ export const WHATSAPP_BOOKING_CANCELLED=`
      Warm regards,
     ${COMPANY_NAME} Team`
 
-    export const WHATSAPP_DRIVER_REACHED=
-     `${COMPANY_NAME}
+export const WHATSAPP_DRIVER_REACHED =
+    `${COMPANY_NAME}
     Booking ID: \${bookingNumber}
 
     Hello \${customerName},
