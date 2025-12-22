@@ -246,7 +246,7 @@ export const routes = [
         display: true,
         permission: "Marketing",
       },
-        {
+      {
         icon: <UserIcon {...icon} />,
         name: "customer notification add",
         path: "/vendors/customerNotificationList/add",
@@ -254,15 +254,15 @@ export const routes = [
         display: true,
         permission: "Marketing",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "Customer notification edit",
         path: "/vendors/customerNotificationList/edit/:id",
         element: <CombineEdit />,
-        display: true,  
+        display: true,
         permission: "Marketing",
       },
-      
+
       {
         icon: <UserIcon {...icon} />,
         name: "drivers",
@@ -327,30 +327,30 @@ export const routes = [
         display: false,
         permission: "Vendors",
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "Auto View",
         path: "/vendors/account/autoView/add",
         element: <AutoAdd />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
       {
         icon: <UserIcon {...icon} />,
-        
+
         name: "Auto Add",
         path: "/vendors/account/autoview",
         element: <AutoView />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "Auto details",
         path: "/vendors/account/autoView/details/:id",
         element: <AutoDetails />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
       {
         icon: <UserIcon {...icon} />,
@@ -358,15 +358,15 @@ export const routes = [
         path: "/vendors/account/autoDetails/details/:id",
         element: <DetailsAuto />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "Auto details",
         path: "/vendors/account/autoDetails/details/edit/:id",
         element: <EditAuto />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
       {
         icon: <UserIcon {...icon} />,
@@ -374,23 +374,23 @@ export const routes = [
         path: "/vendors/account/autoView/details/add",
         element: <AutoForm />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "Auto Form",
         path: "/vendors/account/autoList",
         element: <AutoDetailsList />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
-       {
+      {
         icon: <UserIcon {...icon} />,
         name: "Auto Edit",
         path: "/vendors/account/autoView/details/edit/:id",
         element: <AutoEdit />,
         display: true,
-        permission:"Vendors"
+        permission: "Vendors"
       },
       {
         icon: <UserIcon {...icon} />,
@@ -408,7 +408,7 @@ export const routes = [
         display: false,
         permission: "Vendors",
       },
-      
+
       {
         icon: <UserIcon {...icon} />,
         name: "GST List",
@@ -542,7 +542,7 @@ export const routes = [
         display: true,
         permission: "Vendors",
       },
-     
+
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -640,15 +640,15 @@ export const routes = [
         permission: "All bookings",
       },
       ...(Feature.parcel ? [
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel Bookings",
-        path: "/booking/list/Parcel",
-        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.PARCEL} />,
-        display: false,
-        permission: "All bookings",
-      },
-      ]: []),
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel Bookings",
+          path: "/booking/list/Parcel",
+          element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.PARCEL} />,
+          display: false,
+          permission: "All bookings",
+        },
+      ] : []),
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -791,7 +791,7 @@ export const routes = [
         path: "/users/master-price/auto-edit/:id",
         element: <AutoMasterPriceEdit />,
         display: true,
-        permission:"Users"
+        permission: "Users"
       },
       {
         icon: <UserIcon {...icon} />,
@@ -970,80 +970,89 @@ export const routes = [
         permission: "Trip Master",
       },
       ...(Feature.parcel ? [
-      {
-        icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/add",
-        element: <ParcelCabAdd />,
-        display: true,
-        permission:"Vendors"
-      },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "bike",
+          path: "/vendors/account/parcel/allVehicles/add",
+          element: <ParcelCabAdd />,
+          display: true,
+          permission: "Vendors"
+        },
+
+        {
+          icon: <UserIcon {...icon} />,
+          name: "bike",
+          path: "/vendors/account/parcel/allVehicles/details/:id",
+          element: <ParcelCabDetails />,
+          display: true,
+          permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "bike",
+          path: "/vendors/account/parcel/allVehicles/details/edit/:id",
+          element: <ParcelCabEdit />,
+          display: true,
+          permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel",
+          path: "/vendors/account/parcel",
+          element: <ParcelView />,
+          display: true,
+          permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel add",
+          path: "/vendors/account/parcel/add",
+          element: <ParcelAdd />,
+          display: true,
+          permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel details",
+          path: "/vendors/account/parcel/details/:id",
+          element: <ParcelDetails />,
+          display: true,
+          permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel list",
+          path: "/vendors/account/parcel/list",
+          element: <ParcelDetailsList />,
+          display: true,
+          permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel edit",
+          path: "/vendors/account/parcel/edit/:id",
+          element: <ParcelEdit />,
+          display: true,
+          permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel Master Price Edit",
+          path: "/users/master-price/parcel-edit/:id",
+          element: <ParcelMasterPriceEdit />,
+          display: true,
+          permission: "Users"
+        },
+      ] : []),
 
       {
         icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/details/:id",
-        element: <ParcelCabDetails />,
+        name: "Rate Card",
+        path: "/rental-rate-card",
+        element: <RentalTariffRateCard />,
         display: true,
-        permission:"Vendors"
+        permission: "Home"
       },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "bike",
-        path: "/vendors/account/parcel/allVehicles/details/edit/:id",
-        element: <ParcelCabEdit />,
-        display: true,
-        permission:"Vendors"
-      },
-            {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel",
-        path: "/vendors/account/parcel",
-        element: <ParcelView />,
-        display: true,
-        permission:"Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel add",
-        path: "/vendors/account/parcel/add",
-        element: <ParcelAdd />,
-        display: true,
-        permission:"Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel details",
-        path: "/vendors/account/parcel/details/:id",
-        element: <ParcelDetails />,
-        display: true,
-        permission:"Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel list",
-        path: "/vendors/account/parcel/list",
-        element: <ParcelDetailsList />,
-        display: true,
-        permission:"Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel edit",
-        path: "/vendors/account/parcel/edit/:id",
-        element: <ParcelEdit />,
-        display: true,
-        permission:"Vendors"
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "Parcel Master Price Edit",
-        path: "/users/master-price/parcel-edit/:id",
-        element: <ParcelMasterPriceEdit />,
-        display: true,
-        permission:"Users"
-      },
-      ]: []),
       {
         icon: <UserIcon {...icon} />,
         name: "exotel calls",
@@ -1051,6 +1060,28 @@ export const routes = [
         element: <ExotelCallsList />,
         display: false,
         permission: "Calls",
+      },
+    ],
+  },
+  {
+    title: "rate card",
+    layout: "dashboard",
+    pages: [
+      {
+        icon: <ServerStackIcon {...icon} />,
+        name: "rate card",
+        path: "/rate-card",
+        element: <PriceList />,
+        display: true,
+        permission: "Home",
+      },
+      {
+        icon: <ServerStackIcon {...icon} />,
+        name: "rental rate card",
+        path: "/rental-rate-card",
+        element: <RentalTariffRateCard />,
+        display: true,
+        permission: "Home",
       },
     ],
   },
@@ -1086,11 +1117,6 @@ export const routes = [
       {
         path: "/rate-card",
         element: <PriceList />,
-        display: false
-      },
-      {
-        path: "/rental-rate-card",
-        element: <RentalTariffRateCard />,
         display: false
       },
     ],

@@ -20,8 +20,23 @@ const RATE_COLUMNS = new Set([
   'nonAcDropOnlyRate',
   'nonAcRoundTripRate',
 ]);
-
 const DEFAULT_ZONE = 'Vellore';
+const HOURS_COLUMN_WIDTH = 110;
+const KILOMETERS_COLUMN_WIDTH = 120;
+const HEADER_ROW_HEIGHT = 44;
+
+const STICKY_STYLES = {
+  hours: {
+    left: 0,
+    minWidth: HOURS_COLUMN_WIDTH,
+    width: HOURS_COLUMN_WIDTH,
+  },
+  kilometers: {
+    left: HOURS_COLUMN_WIDTH,
+    minWidth: KILOMETERS_COLUMN_WIDTH,
+    width: KILOMETERS_COLUMN_WIDTH,
+  },
+};
 
 const toDisplayValue = (value) => {
   const numeric = Number(value);
@@ -44,7 +59,7 @@ export function RentalTariffRateCard() {
 
   const fetchServiceAreas = useCallback(async () => {
     try {
-      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS, { type: 'Service Area' });
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, { type: 'Service Area' });
       const areas = Array.isArray(response?.data)
         ? response.data.filter((area) => area?.type === 'Service Area')
         : [];
@@ -100,13 +115,26 @@ export function RentalTariffRateCard() {
   const tableHeadings = useMemo(() => (
     <>
       <tr>
-        <th rowSpan={2} className="border border-black px-4 py-2 bg-red-100">Hours</th>
-        <th rowSpan={2} className="border border-black px-4 py-2 bg-primary-100">KM</th>
+        <th
+          rowSpan={2}
+          className="border border-black px-4 py-2 bg-red-100 sticky left-0 z-40"
+          style={{ ...STICKY_STYLES.hours, zIndex: 60 }}
+        >
+          Hours
+        </th>
+        <th
+          rowSpan={2}
+          className="border border-black px-4 py-2 bg-primary-100 sticky z-30"
+          style={{ ...STICKY_STYLES.kilometers, zIndex: 58 }}
+        >
+          KM
+        </th>
         {CAR_TYPES.map((car) => (
           <th
             key={`group-${car}`}
             colSpan={FIELD_CONFIG.length}
-            className="border border-black px-4 py-2 bg-primary-200 text-center"
+            className="border border-black px-4 py-2 bg-primary-200 text-center sticky"
+            style={{ zIndex: 55 }}
           >
             {car}
           </th>
@@ -114,14 +142,23 @@ export function RentalTariffRateCard() {
       </tr>
       <tr>
         {CAR_TYPES.map((car) => (
-          FIELD_CONFIG.map((field) => (
-            <th
-              key={`${car}-${field.key}`}
-              className={`border border-black px-4 py-2 ${RATE_COLUMNS.has(field.key) ? 'bg-emerald-100' : 'bg-orange-100'}`}
-            >
-              {field.label}
-            </th>
-          ))
+          FIELD_CONFIG.map((field) => {
+            const isRateColumn = RATE_COLUMNS.has(field.key);
+            const stickyStyle = {
+              top: HEADER_ROW_HEIGHT,
+              zIndex: 54,
+              backgroundColor: isRateColumn ? '#d1fae5' : '#ffedd5',
+            };
+            return (
+              <th
+                key={`${car}-${field.key}`}
+                className={`border border-black px-4 py-2 sticky ${isRateColumn ? 'bg-emerald-100' : 'bg-orange-100'}`}
+                style={stickyStyle}
+              >
+                {field.label}
+              </th>
+            );
+          })
         ))}
       </tr>
     </>
@@ -143,11 +180,11 @@ export function RentalTariffRateCard() {
               <Typography variant="h6" color="white">
                 Rental Outstation Tariff Rate Card
               </Typography>
-              {/*meta?.zone && (
+              {meta?.zone && (
                 <Typography variant="small" className="text-white/90">
                   Zone: {meta.zone} {meta?.packageId ? `(Package #${meta.packageId})` : ''}
                 </Typography>
-              )*/}
+              )}
             </div>
             <div className="flex w-full flex-col gap-2 text-white lg:w-72">
               <label className="text-xs uppercase tracking-wide">
@@ -169,7 +206,7 @@ export function RentalTariffRateCard() {
         </CardHeader>
         <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
           {loading && (
-            <div className="p-6 text-center text-sm text-blue-gray-500">Loading rate card�</div>
+            <div className="p-6 text-center text-sm text-blue-gray-500">Loading rate card...</div>
           )}
           {error && !loading && (
             <div className="p-6 text-center text-sm text-red-500">{error}</div>
@@ -178,27 +215,39 @@ export function RentalTariffRateCard() {
             <div className="p-6 text-center text-sm text-blue-gray-500">No tariff data available.</div>
           )}
           {!loading && !error && hasData && (
-            <table className="w-full min-w-[640px] table-auto border-collapse">
-              <thead>{tableHeadings}</thead>
-              <tbody>
-                {tariffs.map((row) => (
-                  <tr key={`${row?.hours ?? 'h'}-${row?.kilometers ?? 'k'}`}>
-                    <td className="border border-black px-4 py-2 bg-red-100">{row?.hours ?? '-'}</td>
-                    <td className="border border-black px-4 py-2">{row?.kilometers ?? '-'}</td>
-                    {CAR_TYPES.map((car) => (
-                      FIELD_CONFIG.map((field) => (
-                        <td
-                          key={`${row?.hours ?? 'h'}-${row?.kilometers ?? 'k'}-${car}-${field.key}`}
-                          className="border border-black px-4 py-2"
-                        >
-                          {renderCell(row, car, field.key)}
-                        </td>
-                      ))
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="max-h-[70vh] overflow-y-auto">
+              <table className="w-full min-w-[640px] table-auto border-collapse">
+                <thead class="sticky top-0 z-40">{tableHeadings}</thead>
+                <tbody>
+                  {tariffs.map((row) => (
+                    <tr key={`${row?.hours ?? 'h'}-${row?.kilometers ?? 'k'}`}>
+                      <td
+                        className="border border-black px-4 py-2 bg-red-100 sticky left-0 z-20"
+                        style={STICKY_STYLES.hours}
+                      >
+                        {row?.hours ?? '-'}
+                      </td>
+                      <td
+                        className="border border-black px-4 py-2 bg-primary-100 sticky z-10"
+                        style={STICKY_STYLES.kilometers}
+                      >
+                        {row?.kilometers ?? '-'}
+                      </td>
+                      {CAR_TYPES.map((car) => (
+                        FIELD_CONFIG.map((field) => (
+                          <td
+                            key={`${row?.hours ?? 'h'}-${row?.kilometers ?? 'k'}-${car}-${field.key}`}
+                            className="border border-black px-4 py-2"
+                          >
+                            {renderCell(row, car, field.key)}
+                          </td>
+                        ))
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardBody>
       </Card>
