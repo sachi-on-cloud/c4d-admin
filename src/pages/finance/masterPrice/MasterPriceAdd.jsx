@@ -50,15 +50,15 @@ export function MasterPriceAdd() {
             const masterpriceList = {
                 serviceType: values.serviceType,
                 type: values.type,
-                period: values.period,
+                period: values.period ,
                 price: values.price,
-                priceMVP: values.priceMVP,
+                priceMVP: values.priceMVP || 0,
                 dropPrice: values.dropPrice,
                 nightCharge: values.nightCharge,
-                cancelCharge: values.cancelCharge,
+                cancelCharge: values.cancelCharge ,
                 cancelMins: Utils.convertMinutesToTimeFormat(values.cancelMins),
                 waitingMins: Utils.convertMinutesToTimeFormat(values.waitingMins),
-                waitingCharge: values.waitingCharge,
+                waitingCharge: values.waitingCharge || 0,
                 nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo),
                 extraPrice: values.extraPrice,
@@ -69,7 +69,7 @@ export function MasterPriceAdd() {
                 zone: values.zone,
             };
             if (values.type === 'Outstation') {
-                masterpriceList['baseFare'] = values.baseFare;
+                masterpriceList['baseFare'] = values.baseFare || 0;
                 masterpriceList['kilometer'] = values.kilometer;
                 masterpriceList['extraKmPrice'] = values.extraKmPrice;
             }
@@ -187,7 +187,7 @@ export function MasterPriceAdd() {
                                 <tbody>
                                     <tr className="hover:bg-gray-50">
                                         <td className="px-2 py-3 border">
-                                            <Field type="number" name="period" className="w-full text-center border rounded p-2" placeholder="8" />
+                                            <Field type="number" name="period" className="w-full text-center border rounded p-2"  />
                                             <ErrorMessage name="period" component="div" className="text-red-500 text-xs" />
                                         </td>
                                         <td className="px-2 py-3 border">
