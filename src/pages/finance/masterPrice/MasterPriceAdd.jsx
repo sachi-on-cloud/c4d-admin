@@ -64,6 +64,7 @@ export function MasterPriceAdd() {
                 extraPrice: values.extraPrice,
                 kilometer: values.kilometer,
                 dropPriceAbove: values.dropPriceAbove,
+                additionalMinCharge: values.additionalMinCharge || 0,
                 status: 1,
                 extraKmPrice:values.extraKmPrice,
                 zone: values.zone,
@@ -250,7 +251,7 @@ export function MasterPriceAdd() {
                                 <tbody>
                                     <tr className="hover:bg-gray-50">
                                         <td className="px-2 py-3 border">
-                                            <Field type="number" name="period" className="w-full text-center border rounded p-2" placeholder="8" />
+                                            <Field type="number" name="period" className="w-full text-center border rounded p-2"  />
                                             <ErrorMessage name="period" component="div" className="text-red-500 text-xs" />
                                         </td>
                                          <td className="px-2 py-3 border">
