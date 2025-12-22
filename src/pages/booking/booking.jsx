@@ -330,11 +330,11 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         const isRoundTripCustom =
             isDriverOutstation &&
             values?.tripType === 'Round Trip' &&
-            values?.packageSelected === 'custome_date';
+            values?.packageSelected === 'custom_date';
         if (!isDriverOutstation || isRoundTripCustom) {
             quoteData.toDate = moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();
         }
-        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && values?.packageSelected && values?.packageSelected !== 'custome_date') {
+        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && values?.packageSelected && values?.packageSelected !== 'custom_date') {
             quoteData.packageType = 'Outstation';
             quoteData.packageId = Number(values.packageSelected);
             quoteData.period = Number(values.packageSelected);
@@ -769,14 +769,14 @@ const sendQuotationLogs = async (bookingId, userId) => {
 
         const period =
             values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation'
-                ? (values.packageSelected && values.packageSelected !== 'custome_date' ? Number(values.packageSelected) : '')
+                ? (values.packageSelected && values.packageSelected !== 'custom_date' ? Number(values.packageSelected) : '')
                 : (values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'DRIVER'
                     ? selectedPackage?.period || ''
                     : '');
 
         const bookingData = {
             carId: values?.carSelected?.id,
-            packageId: values?.packageSelected === "0" || values?.packageSelected === "custome_date" ? 0 : Number(values?.packageSelected),
+            packageId: values?.packageSelected === "0" || values?.packageSelected === "custom_date" ? 0 : Number(values?.packageSelected),
             packageType: values?.packageTypeSelected,
             date: values?.rideDate,
             time: values?.rideTime,
@@ -1723,7 +1723,91 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 
                                                
-                                                
+                                                                                                {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && (
+                                                    <div className="flex-1 mb-4">
+                                                        <div>
+                                                            <Typography variant="h6" className="mb-2">
+                                                                Choose a package
+                                                            </Typography>
+                                                            <Field
+                                                                as="select"
+                                                                disabled={bookingStage === 1}
+                                                                name="packageSelected"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                                value={values.packageSelected}
+                                                                onChange={(e) => {
+                                                                    const selectedId = e.target.value;
+                                                                    setFieldValue('packageSelected', selectedId);
+                                                                    if (selectedId === 'custom_date') {
+                                                                        setRange({});
+                                                                        return;
+                                                                    }
+
+                                                                    const selectedPackage = packageTypeSelectedData.find(
+                                                                        (pkg) => pkg.id === Number(selectedId)
+                                                                    );
+
+                                                                    if (selectedPackage) {
+                                                                        const period = Number(selectedPackage.period) || 0;
+
+                                                                        
+                                                                        let baseMoment;
+                                                                        let baseDateStr = values.rideDate;
+                                                                        let baseTimeStr = values.rideTime;
+
+                                                                        if (values.rideDate && values.rideTime) {
+                                                                            baseMoment = moment(`${values.rideDate} ${values.rideTime}`, 'YYYY-MM-DD HH:mm');
+                                                                        } else {
+                                                                            baseMoment = moment();
+                                                                            baseDateStr = baseMoment.format('YYYY-MM-DD');
+                                                                            baseTimeStr = baseMoment.format('HH:mm');
+                                                                            setFieldValue('rideDate', baseDateStr);
+                                                                            setFieldValue('rideTime', baseTimeStr);
+                                                                        }
+
+                                                                        
+                                                                        if (values.tripType === 'Round Trip' && period > 0) {
+                                                                            const start = baseMoment.toDate();
+
+                                                                            
+                                                                            const extraType = (selectedPackage.extraCabType || '').toString().toLowerCase();
+                                                                            let endMoment;
+                                                                            if (extraType.includes('hour')) {
+                                                                                
+                                                                                const hours = parseInt(extraType, 10) || period;
+                                                                                endMoment = baseMoment.clone().add(hours, 'hours');
+                                                                            } else {
+                                                                                
+                                                                                endMoment = baseMoment.clone().add(period, 'days');
+                                                                            }
+
+                                                                            const end = endMoment.toDate();
+                                                                            const endDateStr = endMoment.format('YYYY-MM-DD');
+                                                                            const endTimeStr = endMoment.format('HH:mm');
+
+                                                                            setFieldValue('fromDate', baseDateStr);
+                                                                            setFieldValue('toDate', endDateStr);
+                                                                            setFieldValue('toTime', endTimeStr);
+                                                                            setRange({ startDate: start, endDate: end });
+                                                                        }
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <option value="">Select Package</option>
+                                                                {packageTypeSelectedData
+                                                                    .filter((item) => item.serviceType === 'DRIVER' && item.type === 'Outstation' && !(item.extraCabType === '0' || item.extraCabType === 0))
+                                                                    .map((item) => {
+                                                                        const label = item.extraCabType === '0' || item.extraCabType === 0 ? '1 Day' : (item.extraCabType || `${item.period} Days`);
+                                                                        return (
+                                                                            <option key={item.id} value={item.id}> {label} </option>
+                                                                        );
+                                                                    })}
+                                                                    <option value="custom_date">Custom Date</option>
+                                                            </Field>
+                                                            <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
+                                                        </div>
+                                                    </div>
+                                                )}
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
                                                     {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="flex-1 mb-2">
@@ -1760,7 +1844,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         </div>
                                                     )}
 
-                                                    {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && values.packageSelected === 'custome_date')) && (
+                                                    {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && values.packageSelected === 'custom_date')) && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Return Date & Time
@@ -1844,91 +1928,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         </div>
                                                     </div>
                                                 }
-                                                {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && (
-                                                    <div className="flex-1 mb-4">
-                                                        <div>
-                                                            <Typography variant="h6" className="mb-2">
-                                                                Choose a package
-                                                            </Typography>
-                                                            <Field
-                                                                as="select"
-                                                                disabled={bookingStage === 1}
-                                                                name="packageSelected"
-                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
-                                                                value={values.packageSelected}
-                                                                onChange={(e) => {
-                                                                    const selectedId = e.target.value;
-                                                                    setFieldValue('packageSelected', selectedId);
-                                                                    if (selectedId === 'custome_date') {
-                                                                        setRange({});
-                                                                        return;
-                                                                    }
 
-                                                                    const selectedPackage = packageTypeSelectedData.find(
-                                                                        (pkg) => pkg.id === Number(selectedId)
-                                                                    );
-
-                                                                    if (selectedPackage) {
-                                                                        const period = Number(selectedPackage.period) || 0;
-
-                                                                        
-                                                                        let baseMoment;
-                                                                        let baseDateStr = values.rideDate;
-                                                                        let baseTimeStr = values.rideTime;
-
-                                                                        if (values.rideDate && values.rideTime) {
-                                                                            baseMoment = moment(`${values.rideDate} ${values.rideTime}`, 'YYYY-MM-DD HH:mm');
-                                                                        } else {
-                                                                            baseMoment = moment();
-                                                                            baseDateStr = baseMoment.format('YYYY-MM-DD');
-                                                                            baseTimeStr = baseMoment.format('HH:mm');
-                                                                            setFieldValue('rideDate', baseDateStr);
-                                                                            setFieldValue('rideTime', baseTimeStr);
-                                                                        }
-
-                                                                        
-                                                                        if (values.tripType === 'Round Trip' && period > 0) {
-                                                                            const start = baseMoment.toDate();
-
-                                                                            
-                                                                            const extraType = (selectedPackage.extraCabType || '').toString().toLowerCase();
-                                                                            let endMoment;
-                                                                            if (extraType.includes('hour')) {
-                                                                                
-                                                                                const hours = parseInt(extraType, 10) || period;
-                                                                                endMoment = baseMoment.clone().add(hours, 'hours');
-                                                                            } else {
-                                                                                
-                                                                                endMoment = baseMoment.clone().add(period, 'days');
-                                                                            }
-
-                                                                            const end = endMoment.toDate();
-                                                                            const endDateStr = endMoment.format('YYYY-MM-DD');
-                                                                            const endTimeStr = endMoment.format('HH:mm');
-
-                                                                            setFieldValue('fromDate', baseDateStr);
-                                                                            setFieldValue('toDate', endDateStr);
-                                                                            setFieldValue('toTime', endTimeStr);
-                                                                            setRange({ startDate: start, endDate: end });
-                                                                        }
-                                                                    }
-                                                                }}
-                                                            >
-                                                                <option value="">Select Package</option>
-                                                                <option value="custome_date">Custome Date</option>
-                                                                {packageTypeSelectedData
-                                                                    .filter((item) => item.serviceType === 'DRIVER' && item.type === 'Outstation' && !(item.extraCabType === '0' || item.extraCabType === 0))
-                                                                    .map((item) => {
-                                                                        const label = item.extraCabType === '0' || item.extraCabType === 0 ? '1 Day' : (item.extraCabType || `${item.period} Days`);
-                                                                        return (
-                                                                            <option key={item.id} value={item.id}> {label} </option>
-                                                                        );
-                                                                    })}
-                                                            </Field>
-                                                            <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
-                                                        </div>
-                                                    </div>
-                                                )}
 
                                                 {/* {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && (
                                     <div className="space-y-4 mb-4">

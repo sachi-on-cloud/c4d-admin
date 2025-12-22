@@ -915,6 +915,7 @@ export const API_ROUTES = {
     'CONFIRM_RENTAL_BOOKING': '/confirm-rental-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
+    'RENTAL_OUTSTATION_TARIFFS': '/rental/outstation/tariffs',
     'GEO_MARKINGS_DELETE': '/geo-markings',
     'GET_CAR_TYPE': '/car-type/',
     'POST_NOTIFICATION_ADD': '/send-notification',
