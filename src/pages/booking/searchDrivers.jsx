@@ -476,7 +476,7 @@ export function SearchDrivers(props) {
                 packageId: props?.bookingData?.packageId,
                 // from: 'WEBPORTAL',
                 shiftId: fullData?.Shifts[0]?.id,
-                cabId:fullData.Shifts[0].CabId,
+                cabId:fullData.Shifts[0].cabId,
                 offerPrice: fullData.offerPrice || null,
                 estimatedDistance: fullData.estimatedDistance || null,
                 estimatedMin: fullData.estimatedMin || null,
@@ -785,7 +785,7 @@ export function SearchDrivers(props) {
                                                 No Response
                                             </Typography>
                                             <Typography color="gray" className="mb-6 max-w-sm">
-                                                No driver accepted the request in 30 seconds.
+                                                No driver accepted the request in 15 seconds.
                                             </Typography>
                                             <Button color="blue" onClick={() => props?.onNext()}>
                                                 Assign Manually

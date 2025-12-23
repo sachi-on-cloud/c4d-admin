@@ -313,6 +313,7 @@ const ConfirmBooking = (props) => {
                     customerWalledUsed: gstSummary?.walletAmountUsed || 0,
                     driverWalletAdded: Number(gstSummary?.walletAmountUsed || 0) + Number(gstSummary?.discountAmount || 0),
                     discountAmount: gstSummary?.discountAmount || 0,
+                    amountBeforeGst:gstSummary?.amountBeforeGst || 0,
                         });
                         if (bookingPaymentDetails) {
                             bookingPayload = {...bookingPayload,...bookingPaymentDetails};
@@ -1623,6 +1624,19 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </div>
 
                                 }
+                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && <>
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Start KM:</Typography>
+                                    <Typography className="text-sm text-black font-medium">{bookingDetails?.startKM}</Typography>
+                                </div>
+
+
+                                <div className="flex justify-between  my-1">
+                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">End KM:</Typography>
+                                    <Typography className="text-sm text-black font-medium">{bookingDetails?.endKM}</Typography>
+                                </div>
+                                </>
+                                }
                                 {bookingDetails?.extraKMs > 0 &&
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra KMs:</Typography>
@@ -1664,23 +1678,6 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <Typography className="text-sm text-black font-medium">{moment(bookingDetails.endedTime).format("DD-MM-YYYY / hh:mm A")}</Typography>
                                     {/* <Typography>{bookingDetails?.endedTime}</Typography> */}
                                 </div>
-
-                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && <>
-                                <div className="flex justify-between  my-1">
-                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Start KM:</Typography>
-                                    <Typography className="text-sm text-black font-medium">{bookingDetails?.startKM}</Typography>
-                                </div>
-
-
-                                <div className="flex justify-between  my-1">
-                                    <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">End KM:</Typography>
-                                    <Typography className="text-sm text-black font-medium">{bookingDetails?.endKM}</Typography>
-                                </div>
-
-
-                                </>
-                                }
-
 
                                 {/* {bookingDetails?.extraHourPrice >0 &&
                                 <div className="flex justify-between">
@@ -1743,6 +1740,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </> : ""
                                 }
                                 <hr className="my-2 border border-gray-400" />
+                                {finalPaymentPirces.amountBeforeGst > 0 && (
+                                    <div className="flex justify-between  my-1">
+                                        <span className="text-sm text-gray-500 font-semibold">Amount Before Gst:</span>
+                                        <span className="text-sm text-gray-900 font-medium">₹ {finalPaymentPirces.amountBeforeGst}</span>
+                                    </div>
+                                )}
                                 {bookingDetails?.totalPrice > 0 &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className=" text-gray-500 text-sm font-semibold">Final Trip Fare:</Typography>
@@ -1771,8 +1774,8 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <hr className="my-1 border border-gray-400" />
                                 {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
                                     <div className="flex justify-between  my-1">
-                                        <Typography color="green" variant="sm" className="text-sm text-gray-500  font-semibold">Total:</Typography>
-                                        <Typography color="green" className="font-medium text-sm text-black">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</Typography>
+                                        <span className="text-gray-500 font-semibold">Total:</span>
+                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</span>
                                     </div>
                                 }
 
