@@ -476,7 +476,7 @@ export function SearchDrivers(props) {
                 packageId: props?.bookingData?.packageId,
                 // from: 'WEBPORTAL',
                 shiftId: fullData?.Shifts[0]?.id,
-                cabId:fullData.Shifts[0].CabId,
+                cabId:fullData.Shifts[0].cabId,
                 offerPrice: fullData.offerPrice || null,
                 estimatedDistance: fullData.estimatedDistance || null,
                 estimatedMin: fullData.estimatedMin || null,
