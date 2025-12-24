@@ -693,7 +693,7 @@ export function SearchDrivers(props) {
                                                                     ) : (
                                                                         <Typography
                                                                             className="text-xs font-semibold text-primary-900 underline cursor-pointer"
-                                                                            onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                            onClick={() => {checkPresence(props?.bookingData?.serviceType === 'DRIVER'? id : Drivers[0]?.id )                                                                            }}
                                                                         >
                                                                             Check Status
                                                                         </Typography>
@@ -703,7 +703,7 @@ export function SearchDrivers(props) {
                                                         <td className={className}>
                                                             {status === "ACTIVE" && <Button
                                                                 as="a"
-                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id) }}
+                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? id : Drivers[0]?.id) }}
                                                                 className="text-xs font-semibold text-white bg-primary"
                                                             >
                                                                 {props?.bookingData?.serviceType !== "DRIVER" ? "Assign Cab" : "Assign Captain"}
