@@ -176,7 +176,8 @@ useEffect(() => {
             bookingType: values?.tripType?.toUpperCase(),
             packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
+            // carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
+            carType: values?.carType,
             pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
             pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
             driverStartLat: values?.driverPickUpLocation?.lat,
@@ -406,9 +407,7 @@ useEffect(() => {
                 return calculateDistance?.data?.showAlert;
             } else if (values.serviceType === "AUTO") {
                 // Backend returns kilometer for AUTO; apply 15 km limit
-                const km = Number(calculateDistance?.data?.kilometer || 0);
-                const limitKm = 15;
-                return km <= limitKm;
+                return calculateDistance?.data?.showAlert;
             } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
                 const distance = calculateDistance?.data?.estimatedDistance || 0;
                 return distance <= 300;
