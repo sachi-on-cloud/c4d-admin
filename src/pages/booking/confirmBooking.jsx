@@ -40,6 +40,7 @@ const ConfirmBooking = (props) => {
         tollCost: "",
         permitCost: "",
         fuelCost: "",
+        fuelType: "",
         tripFare: "",
         notes: "",
     });
@@ -1931,6 +1932,40 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
 
             <div className="space-y-2">
                 {/* Trip Type */}
+                 <div className="flex justify-between mb-2 mt-2">
+                <Typography variant="h5">TripMaster Details</Typography>
+            </div>
+             <hr className="my-2 mb-4" />
+               <div className="grid grid-cols-6 gap-x-4">
+                             <Typography color="gray" variant="h6" className="mb-1">
+                               Fuel Type 
+                             </Typography>
+                             <Select
+                               label="Enter Fuel Type"
+                               name="fuelType"
+                               value={additionalPaymentDetails.fuelType}
+                               onChange={(value) => handleAdditionalChange('fuelType', value)}
+                             >
+                               <Option value="CNG">CNG</Option>
+                               <Option value="PETROL">Petrol</Option>
+                               <Option value="DIESEL">Diesel</Option>
+                               <Option value="GAS">Gas</Option>
+                               <Option value="ELECTRIC">Electric</Option>
+                               <Option value="NONE">None</Option>
+                             </Select>
+                           </div>
+                {/* Fuel Cost */}
+                <div className="grid grid-cols-6 gap-x-4">
+                    <Typography color="gray" variant="h6">Fuel Cost:</Typography>
+                    <Input
+                        type="number"
+                        value={additionalPaymentDetails.fuelCost || ""}
+                        onChange={(e) => handleAdditionalChange("fuelCost", e.target.value)}
+                        placeholder="Enter Fuel Cost"
+                        disabled={bookingDetails?.tripStatus === true}
+                    />
+                </div>
+
                 <div className="grid grid-cols-6 gap-x-4">
                     <Typography color="gray" variant="h6">Trip Type:</Typography>
                     <Select
@@ -1943,6 +1978,20 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         <Option value="External">External</Option>
                     </Select>
                 </div>
+                 {/* Notes */}
+                {/* <div className="col-span-2">
+                    <Typography color="gray" variant="h6" className="mb-1">
+                        Notes
+                    </Typography>
+                    <textarea
+                        name="notes"
+                        value={additionalPaymentDetails.notes || ""}
+                        onChange={(e) => handleAdditionalChange("notes", e.target.value)}
+                        placeholder="Enter notes..."
+                        className="p-2 w-full border rounded-md h-12"
+                        disabled={bookingDetails?.tripStatus === true}
+                    />
+                </div> */}
             </div>
 <div className="mt-4">
 <Button
@@ -2043,10 +2092,20 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                     showConfirmButton: false,
                     timer: 1500
                 });
-                if (props.onConfirm) props.onConfirm();
-                props.setIsOpen(false);
+
+                // Refresh parent if needed
+                if (typeof props?.onConfirm === "function") {
+                    props.onConfirm();
+                }
+
+                // Close modal or navigate back
+                if (typeof props?.setIsOpen === "function") {
+                    props.setIsOpen(false); 
+                } else {
+                    navigate("/dashboard/booking"); 
+                }
+
             } else {
-                console.error("API Error:", response?.message || "Unknown error");
                 Swal.fire({
                     position: "center",
                     icon: "error",
