@@ -2390,7 +2390,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹{(() => {
+                                                                            ₹ {Math.round(() => {
                                                                             const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                             if (!selectedPackage) return "";
 
@@ -2432,7 +2432,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                                 <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                                     {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
-                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
                                                                             </Typography>
                                                                         </div>
 
@@ -2442,13 +2442,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <div className='flex justify-between'>                                                             
                                                                                     <Typography color="gray" variant="h6">Discount Applied:</Typography>
                                                                                     <Typography>
-                                                                                        ₹ {quoteDetails.discount?.amount}
+                                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
                                                                                     </Typography>
                                                                                     </div>
                                                                                 <div className='flex justify-between'> 
                                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                                 <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount) }
+                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount) }
                                                                             </Typography>
                                                                             </div>
                                                                                 
@@ -2481,7 +2481,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Package Price:</Typography>
                                                                                 <Typography>
-                                                                                    ₹{(() => {
+                                                                                    ₹ {Math.round(() => {
                                                                                         const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                                         if (!selectedPackage) return "";
                                                                                         switch (quoteDetails.amount?.carType?.toUpperCase()) {
@@ -2521,7 +2521,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                         <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
                                                                                         <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                                             {/* ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)} */}
-                                                                                            ₹ {(() => {
+                                                                                            ₹ {Math.round(() => {
                                                                                                 const carType = quoteDetails?.amount?.carType?.toUpperCase();
                                                                                                 const pkg = quoteDetails?.amount?.packageDetails;
                                                                                                 const price = carType === 'MINI' ? Number(pkg?.price) :
@@ -2544,13 +2544,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <div className='flex justify-between'>                                                                        
                                                                                     <Typography color="gray" variant="h6">Discount Applied:</Typography>
                                                                                     <Typography>
-                                                                                        ₹ {quoteDetails.discount?.amount}
+                                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
                                                                                     </Typography>
                                                                                 </div> 
                                                                                     <div className='flex justify-between'>
                                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                                 <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.discount?.amount) }
+                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - ( quoteDetails.discount?.amount) }
                                                                             </Typography>
                                                                             </div>
                                                                                 
@@ -2574,7 +2574,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.kilometerPriceVal}
+                                                                            ₹ {Math.round(quoteDetails.amount?.kilometerPriceVal)}
                                                                         </Typography></>)}
                                                                         {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'AUTO' && values?.serviceType !=='RIDES' &&( <>
                                                                         <Typography color="gray" variant="h6">Pick up to Drop  Kilometer {quoteDetails.amount?.driverWithin > 0 && (<> + Driver Km For Pickup Location </>)}</Typography>
@@ -2618,7 +2618,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                       
                                                                         <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.baseFare}
+                                                                            ₹ {Math.round(quoteDetails.amount?.baseFare)}
                                                                         </Typography>
                                                                         
                                                                         {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
@@ -2641,21 +2641,21 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                                             <Typography>
-                                                                                ₹  {quoteDetails.amount?.rideSurchargeAmount}
+                                                                                ₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}
                                                                             </Typography>
                                                                         </>
                                                                         }
                                                                          <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                            ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                         </Typography>
                                                                          <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.gst_amount}
+                                                                            ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                         </Typography>
                                                                         <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.estimatedPrice}
+                                                                            ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
                                                                         </Typography>
                                                                         {quoteDetails.discount?.percentage > 0 && <>
                                                                         
@@ -2666,7 +2666,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                                 <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                                     {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
-                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
                                                                             </Typography>
 
                                                                         </>}
@@ -2674,11 +2674,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <>                                                                                
                                                                                     <Typography color="gray" variant="h6">Discount Applied:</Typography>
                                                                                     <Typography>
-                                                                                        ₹ {quoteDetails.discount?.amount}
+                                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
                                                                                     </Typography>
                                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                                 <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.discount?.amount) }
+                                                                                    ₹ { Math.round((quoteDetails.amount?.estimatedPrice) - ( quoteDetails.discount?.amount)) }
                                                                             </Typography>
                                                                                 
                                                                             </>)}                                                                                                                                                                                                                    
@@ -2759,7 +2759,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • The estimated price includes  <span className="font-bold text-black">{values.gst_percentage|| '5'}%</span> tax.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • For every extra kilometer <span className="font-bold text-black">₹{(() => {
+                                                                • For every extra kilometer <span className="font-bold text-black">₹ {Math.round(() => {
                                                                     const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                     return selectedPackage ? (
                                                                         values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
@@ -2770,7 +2770,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 })()}</span> will be charged.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • Night charge of <span className="font-bold text-black">₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''}</span> will be charged after {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                                • Night charge of <span className="font-bold text-black">₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''}</span> will be charged after {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • If the driver’s start or end point is under 2 km, no charge is added; charges apply only when it is above 2 km.
@@ -2796,10 +2796,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Toll, parking, permit charges, and state taxes are excluded.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
-                                                                • For Every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.
+                                                                • For Every extra kilometer <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraKmPrice || '')}</span> will be charged.
                                                             </Typography> 
                                                              <Typography className="text-sm text-gray-700">
-                                                                • For every additional 15 minutes <span className="font-bold text-black">₹{quoteDetails.amount?.fareBreakdown?.extraHours?.rate || ''}</span> will be charged.
+                                                                • For every additional 15 minutes <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.fareBreakdown?.extraHours?.rate || '')}</span> will be charged.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
                                                                 • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2) || ''}</span> Kms.
@@ -2810,17 +2810,17 @@ const sendQuotationLogs = async (bookingId, userId) => {
 
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>
+                                                                • Driver charge <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.driverCharge || '0')}</span>
                                                             </Typography>
                                                             )}
                                                             {quoteDetails.amount?.extraNightCharge > 0 && (
                                                              <Typography className="text-sm text-gray-700">
-                                                                • Night Charge of <span className="font-bold text-black">₹{quoteDetails.amount?.extraNightCharge}</span> applies if the trip extends past{' '}
+                                                                • Night Charge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraNightCharge)}</span> applies if the trip extends past{' '}
                                                             </Typography>
                                                             )}                                                            
                                                             {quoteDetails.amount?.rideSurchargeAmount > 0 && (
                                                                 <Typography className=" text-sm text-gray-700">
-                                                                    • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
+                                                                    • A surcharge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
                                                              <Typography className=" text-sm text-gray-700">
@@ -2864,17 +2864,17 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Toll, parking, permit charges, and state taxes are excluded.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • For every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.  
+                                                                • For every extra kilometer <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraKmPrice || '')}</span> will be charged.  
                                                             </Typography>
                                                                <Typography className="text-sm text-gray-700">
-                                                                • For every additional 15 minutes <span className="font-bold text-black">₹{quoteDetails.amount?.fareBreakdown?.extraHours?.rate || ''}</span> will be charged.
+                                                                • For every additional 15 minutes <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.fareBreakdown?.extraHours?.rate || '')}</span> will be charged.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2)|| '2'}</span> Kms.
                                                             </Typography>
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>.
+                                                                • Driver charge <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.driverCharge || '0')}</span>.
                                                             </Typography>
                                                             )}
                                                              <Typography className="text-sm text-gray-700">
@@ -2882,12 +2882,12 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             </Typography>
                                                             {quoteDetails.amount?.extraNightCharge > 0 && (
                                                              <Typography className="text-sm text-gray-700">
-                                                                • Night Charge of <span className="font-bold text-black">₹ {quoteDetails.amount?.extraNightCharge}</span> applies if the trip extends past{' '}.
+                                                                • Night Charge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraNightCharge)}</span> applies if the trip extends past{' '}.
                                                             </Typography>
                                                             )}
                                                             {quoteDetails.amount?.rideSurchargeAmount > 0 && (
                                                                 <Typography className=" text-sm text-gray-700">
-                                                                    • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
+                                                                    • A surcharge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
                                                              <Typography className=" text-sm text-gray-700">

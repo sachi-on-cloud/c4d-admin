@@ -1305,7 +1305,7 @@ useEffect(() => {
                                                                 <Typography>
                                                                     {values.packageSelected && values.packageTypeSelected === 'Local' ? (
                                                                         values.serviceType === 'DRIVER' ? (
-                                                                            `₹${(() => {
+                                                                            `₹${Math.round(() => {
                                                                                 const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                                 if (!selectedPackage) return "N/A";
                                                                                 switch (values.carType?.toUpperCase()) {
@@ -1320,7 +1320,7 @@ useEffect(() => {
                                                                                 }
                                                                             })()}`
                                                                         ) : values.serviceType === 'RENTAL' ? (
-                                                                            `₹${(() => {
+                                                                            `₹${Math.round(() => {
                                                                                 const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                                 if (!selectedPackage) return "N/A";
                                                                                 switch (values.carType?.toUpperCase()) {
@@ -1368,7 +1368,7 @@ useEffect(() => {
                                                                     <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal}
+                                                                            ₹ {Math.round(quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal)}
                                                                         </Typography></>)}
                                                                 {values?.serviceType !== 'DRIVER' && (<>
                                                                     <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
@@ -1378,7 +1378,7 @@ useEffect(() => {
                                                                 
                                                                 <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.value?.baseKm || quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.baseFare}
+                                                                    ₹   {Math.round(quoteDetails.amount?.baseFare)}
                                                                 </Typography>
 
                                                                 {(quoteDetails.amount?.isPremiumFare !== true) && (values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
@@ -1394,21 +1394,21 @@ useEffect(() => {
                                                                     <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                                         <Typography>
-                                                                            ₹  {quoteDetails.amount?.rideSurchargeAmount}
+                                                                            ₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}
                                                                         </Typography>
                                                                     </>
                                                                 }
                                                                  <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                    ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                 </Typography>
                                                                  <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.gst_amount}
+                                                                    ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                 </Typography>
                                                                 <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.estimatedPrice}
+                                                                    ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
                                                                 </Typography>
                                                                 {quoteDetails.discount?.percentage > 0 && <>
 
@@ -1419,7 +1419,7 @@ useEffect(() => {
                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                     <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                         {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
-                                                                        ₹ {(quoteDetails.amount?.estimatedPrice) - (quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage / 100)}
+                                                                        ₹ {Math.round(quoteDetails.amount?.estimatedPrice) - (quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage / 100)}
                                                                     </Typography>
 
                                                                 </>}
@@ -1427,11 +1427,11 @@ useEffect(() => {
 
                                                                     <Typography color="gray" variant="h6">Discount Applied</Typography>
                                                                     <Typography>
-                                                                    ₹ {quoteDetails.discount?.amount}
+                                                                    ₹ {Math.round(quoteDetails.discount?.amount)}
                                                                     </Typography>
                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                     <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                        ₹ {(quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount)}
+                                                                        ₹ {Math.round(quoteDetails.amount?.estimatedPrice) - Math.round(quoteDetails.discount?.amount)}
                                                                     </Typography>
 
                                                                 </>}
@@ -1736,7 +1736,7 @@ useEffect(() => {
                                                                 )}
                                                                 <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal}
+                                                                    ₹ {Math.round(quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal)}
                                                                 </Typography>
                                                                 <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                 <Typography>
@@ -1760,7 +1760,7 @@ useEffect(() => {
                                                                  
                                                                 <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare}
+                                                                    ₹ {Math.round(quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare)}
                                                                 </Typography>
                                                                 
 
@@ -1768,21 +1768,21 @@ useEffect(() => {
                                                                     <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount}
+                                                                            ₹ {Math.round(quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount)}
                                                                         </Typography>
                                                                     </>
                                                                 )}
                                                                    <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                    ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                 </Typography>
                                                                  <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.gst_amount}
+                                                                    ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                 </Typography>
                                                                 <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice}
+                                                                    ₹ {Math.round(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice)}
                                                                 </Typography>
                                                                 {quoteDetails.discount?.percentage > 0 && (
                                                                     <>
@@ -1792,18 +1792,18 @@ useEffect(() => {
                                                                         </Typography>
                                                                         <Typography color="gray" variant="h6">Total Estimated Fare</Typography>
                                                                         <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                            ₹ {(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100)}
+                                                                            ₹ {Math.round((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100))}
                                                                         </Typography>
                                                                     </>
                                                                 )}
                                                                 {quoteDetails.discount?.amount > 0 && <>
                                                                     <Typography color="gray" variant="h6">Discount Applied</Typography>
                                                                     <Typography>
-                                                                        ₹ {quoteDetails.discount?.amount}
+                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
                                                                     </Typography>
                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                     <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                        ₹ {(quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount)}
+                                                                        ₹ {Math.round((quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount))}
                                                                     </Typography>
                                                                 </>}
                                                             </div>
@@ -2036,7 +2036,7 @@ useEffect(() => {
                                                     )}
                                                     <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                     <Typography>
-                                                        ₹ {quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal}
+                                                        ₹ {Math.round(quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal)}
                                                     </Typography>
                                                     <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                     <Typography>
@@ -2044,7 +2044,7 @@ useEffect(() => {
                                                     </Typography>
                                                     <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                     <Typography>
-                                                        ₹ {quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare}
+                                                        ₹ {Math.round(quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare)}
                                                     </Typography>
                                                     
 
@@ -2052,22 +2052,22 @@ useEffect(() => {
                                                         <>
                                                             <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                             <Typography>
-                                                                ₹ {quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount}
+                                                                ₹ {Math.round(quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount)}
                                                             </Typography>
                                                         </>
                                                     )}
                                                     
                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.fare_before_gst}
+                                                                    ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                 </Typography>
                                                                  <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.gst_amount}
+                                                                    ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                 </Typography>
                                                                 <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice}
+                                                                    ₹ {Math.round(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice)}
                                                                 </Typography>
                                                     {quoteDetails.discount?.percentage > 0 && (
                                                         <>
@@ -2077,7 +2077,7 @@ useEffect(() => {
                                                             </Typography>
                                                             <Typography color="gray" variant="h6">Total Estimated Fare</Typography>
                                                             <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                ₹ {(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100)}
+                                                                ₹ {Math.round((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100))}
                                                             </Typography>
                                                         </>
                                                     )}
@@ -2085,11 +2085,11 @@ useEffect(() => {
 
                                                                     <Typography color="gray" variant="h6">Discount Applied</Typography>
                                                                     <Typography>
-                                                                        ₹ {quoteDetails.discount?.amount}
+                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
                                                                     </Typography>
                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                     <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                        ₹ {(quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount)}
+                                                                        ₹ {Math.round((quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount))}
                                                                     </Typography>
 
                                                                 </>}
