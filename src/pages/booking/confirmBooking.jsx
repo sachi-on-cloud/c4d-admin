@@ -1131,7 +1131,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </span>
                             </div>
                             }
-                            {bookingDetails?.source !== "Mobile App" &&
+                            {bookingDetails?.sourceType &&
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Source Type:</span>
                                  <span className="text-gray-900 font-medium">
@@ -1575,8 +1575,8 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                 {shouldShowReceipt && (
                     <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
                         <div className="p-4">
-                        <div className="mb-2">
-                            <span className="mr-2 font-semibold text-lg  text-gray-900">Receipt</span>
+                        <div className="flex justify-center items-center mb-2">
+                            <span className="mr-2 font-semibold text-lg text-center text-gray-900">Receipt</span>
                         </div>
                         <hr className="my-2" />
                         <div className="space-y-2">

@@ -707,6 +707,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             dropAddress: {
                 name: values.dropAddress,
             },
+            bookingType: 'DROP ONLY',
             sourceType: values.sourceType,
             driverStartLat: values.driverPickUpLocation?.lat,
             driverStartLong: values.driverPickUpLocation?.lng,

@@ -634,6 +634,7 @@ useEffect(() => {
                 pickupAddress: {
                     name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
                 },
+                carType: values?.carType,
                 sourceType: values?.sourceType,
                 ...((values?.sourceType === "Others" || values?.sourceType === "Offline Ads") && {
              otherSourceType: values?.otherSourceType?.trim() || null
@@ -1544,6 +1545,48 @@ useEffect(() => {
                                                 </div>
                                             </>
                                         )}
+                                        {values.serviceType && (
+                                            <div className="space-y-2 mb-4">
+                                                <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">
+                                                    Source Type <span className="text-red-500">*</span>
+                                                </label>
+                                                <Field
+                                                    as="select"
+                                                    name="sourceType"
+                                                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                >
+                                                    <option value="">Select Source Type</option>
+                                                    <option value="Facebook">Facebook</option>
+                                                    <option value="Instagram">Instagram</option>
+                                                    <option value="Influencer Reels">Influencer Reels</option>
+                                                    <option value="WhatsApp">WhatsApp</option>
+                                                    <option value="Google">Google</option>
+                                                    <option value="YouTube">YouTube</option>
+                                                    <option value="Justdial">Justdial</option>
+                                                    <option value="Paper Notice">Paper Notice</option>
+                                                    <option value="On Field">On Field</option>
+                                                    <option value="Existing Customer">Existing Customer</option>
+                                                    <option value="Referral">Referral</option>
+                                                    <option value="Reddit">Reddit</option>
+                                                    <option value="Offline Ads">Offline Ads</option>
+                                                    <option value="Others">Others</option>
+                                                </Field>
+                                                {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                    <Field
+                                                        type="text"
+                                                        name="otherSourceType"
+                                                        placeholder="Please specify the source"
+                                                        className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                    />
+                                                )}
+
+                                                <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                {values.sourceType === "Others" && (
+                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             <div className="flex-1 mb-2">
@@ -1662,7 +1705,7 @@ useEffect(() => {
                                                                 </Typography>
                                                                 <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                 <Typography>
-                                                                    {(quoteDetails.amount?.estimatedDistance)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)}
+                                                                    {(quoteDetails.amount?.estimatedDistance).toFixed(1)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)}
                                                                 </Typography>
                                                                     {values?.serviceType === 'RIDES' && (<>
 
