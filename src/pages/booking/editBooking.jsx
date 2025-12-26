@@ -634,6 +634,12 @@ useEffect(() => {
                 pickupAddress: {
                     name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
                 },
+                driverStartLat: values.driverPickUpLocation?.lat,
+                driverStartLong: values.driverPickUpLocation?.lng,
+                driverStartAddress: {
+                    name: values.driverPickUpAddress,
+                },
+                carType: values?.carType,
                 sourceType: values?.sourceType,
                 ...((values?.sourceType === "Others" || values?.sourceType === "Offline Ads") && {
              otherSourceType: values?.otherSourceType?.trim() || null
@@ -642,7 +648,8 @@ useEffect(() => {
                 zone: values?.zone,
                 isPremiumService : values?.isPremiumService ? true : false
             }
-            console.log("DADADAD", data)
+            
+            // console.log("DADADAD", data)
             data.dropLat = values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat
             data.dropLong = values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong
             data.dropAddress = {
@@ -1544,6 +1551,48 @@ useEffect(() => {
                                                 </div>
                                             </>
                                         )}
+                                        {values.serviceType && (
+                                            <div className="space-y-2 mb-4">
+                                                <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">
+                                                    Source Type <span className="text-red-500">*</span>
+                                                </label>
+                                                <Field
+                                                    as="select"
+                                                    name="sourceType"
+                                                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                >
+                                                    <option value="">Select Source Type</option>
+                                                    <option value="Facebook">Facebook</option>
+                                                    <option value="Instagram">Instagram</option>
+                                                    <option value="Influencer Reels">Influencer Reels</option>
+                                                    <option value="WhatsApp">WhatsApp</option>
+                                                    <option value="Google">Google</option>
+                                                    <option value="YouTube">YouTube</option>
+                                                    <option value="Justdial">Justdial</option>
+                                                    <option value="Paper Notice">Paper Notice</option>
+                                                    <option value="On Field">On Field</option>
+                                                    <option value="Existing Customer">Existing Customer</option>
+                                                    <option value="Referral">Referral</option>
+                                                    <option value="Reddit">Reddit</option>
+                                                    <option value="Offline Ads">Offline Ads</option>
+                                                    <option value="Others">Others</option>
+                                                </Field>
+                                                {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                    <Field
+                                                        type="text"
+                                                        name="otherSourceType"
+                                                        placeholder="Please specify the source"
+                                                        className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                    />
+                                                )}
+
+                                                <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                {values.sourceType === "Others" && (
+                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             <div className="flex-1 mb-2">
@@ -1635,6 +1684,35 @@ useEffect(() => {
                                         </ul>
                                     )}
                                 </div>
+                                </div>
+                                <div className="flex-1 p-2 space-y-2">
+                                    <label className="block text-sm font-medium text-black-700">
+                                        Cab Starting Point
+                                    </label>
+                                    <Field
+                                        type="text"
+                                        name="driverPickUpAddress"
+                                        className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                        placeholder="Enter driver pickup location (Optional)"
+                                        onChange={(e) => {
+                                            setFieldValue("driverPickUpAddress", e.target.value);
+                                            setFieldValue("driverPickUpLocation", null);
+                                            searchLocations(e.target.value, false, 'driver');
+                                        }}
+                                    />
+                                    {driverSuggestions.length > 0 && (
+                                        <ul className="border rounded-lg bg-white mt-2">
+                                            {driverSuggestions.map((suggestion, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="p-2 cursor-pointer hover:bg-gray-100"
+                                                    onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue, values)}
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                             </div>
                                             {/* Quote details for RIDES */}
                                             {quoteDetails &&
@@ -1662,7 +1740,7 @@ useEffect(() => {
                                                                 </Typography>
                                                                 <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
                                                                 <Typography>
-                                                                    {(quoteDetails.amount?.estimatedDistance)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)}
+                                                                    {(quoteDetails.amount?.estimatedDistance).toFixed(1)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)}
                                                                 </Typography>
                                                                     {values?.serviceType === 'RIDES' && (<>
 
