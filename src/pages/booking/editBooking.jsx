@@ -634,6 +634,11 @@ useEffect(() => {
                 pickupAddress: {
                     name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
                 },
+                driverStartLat: values.driverPickUpLocation?.lat,
+                driverStartLong: values.driverPickUpLocation?.lng,
+                driverStartAddress: {
+                    name: values.driverPickUpAddress,
+                },
                 carType: values?.carType,
                 sourceType: values?.sourceType,
                 ...((values?.sourceType === "Others" || values?.sourceType === "Offline Ads") && {
@@ -643,7 +648,8 @@ useEffect(() => {
                 zone: values?.zone,
                 isPremiumService : values?.isPremiumService ? true : false
             }
-            console.log("DADADAD", data)
+            
+            // console.log("DADADAD", data)
             data.dropLat = values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat
             data.dropLong = values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong
             data.dropAddress = {
@@ -1678,6 +1684,35 @@ useEffect(() => {
                                         </ul>
                                     )}
                                 </div>
+                                </div>
+                                <div className="flex-1 p-2 space-y-2">
+                                    <label className="block text-sm font-medium text-black-700">
+                                        Cab Starting Point
+                                    </label>
+                                    <Field
+                                        type="text"
+                                        name="driverPickUpAddress"
+                                        className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                        placeholder="Enter driver pickup location (Optional)"
+                                        onChange={(e) => {
+                                            setFieldValue("driverPickUpAddress", e.target.value);
+                                            setFieldValue("driverPickUpLocation", null);
+                                            searchLocations(e.target.value, false, 'driver');
+                                        }}
+                                    />
+                                    {driverSuggestions.length > 0 && (
+                                        <ul className="border rounded-lg bg-white mt-2">
+                                            {driverSuggestions.map((suggestion, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="p-2 cursor-pointer hover:bg-gray-100"
+                                                    onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue, values)}
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                             </div>
                                             {/* Quote details for RIDES */}
                                             {quoteDetails &&
