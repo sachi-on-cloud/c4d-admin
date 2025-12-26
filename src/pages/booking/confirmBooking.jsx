@@ -1251,7 +1251,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             {bookingDetails?.value?.kilometerPriceVal > 0 && shouldShowQuotePricing(bookingDetails) && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Per KM Rate:</span>
-                                    <span className="text-gray-900 font-medium">₹ {bookingDetails?.value?.kilometerPriceVal}</span>
+                                    <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.value?.kilometerPriceVal)}</span>
                                 </div>
                             )}
                             {bookingDetails?.value?.estimatedDistance > 0 &&
@@ -1291,7 +1291,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
-                                        ₹ {
+                                        ₹ {Math.round(
                                             bookingDetails?.serviceType === 'DRIVER' && bookingDetails?.packageType === 'Local'
                                                 ? bookingDetails?.carType === "Sedan"
                                                     ? bookingDetails?.Package?.price
@@ -1311,7 +1311,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                                     : bookingDetails?.Package?.price 
                                                     )
                                                     : bookingDetails?.value?.estimatedPrice
-                                        }
+                                        )}
                                     </span>
                                 </div>
                             )}
@@ -1324,7 +1324,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.totalPrice > 0 && (
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Total Price:</span>
-                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.totalPrice}</span>
+                                        <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.totalPrice)}</span>
                                     </div>
                                 )}
                                 {bookingDetails?.discount?.percentage > 0 && shouldShowQuotePricing(bookingDetails) && (
@@ -1337,7 +1337,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <div className="flex flex-col-2 gap-2">
                                                 <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                                 <span className="text-gray-900 font-medium">
-                                                    ₹ {(() => {
+                                                    ₹ {Math.round(() => {
                                                         let basePrice;
                                                         const discountPercentage = bookingDetails?.discount?.percentage || 0;
 
@@ -1369,7 +1369,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <div className="flex flex-col-2 gap-2">
                                                 <span className="text-gray-500 font-semibold">Total Incl (TAX):</span>
                                                 <span className="text-gray-900 font-medium">
-                                                    ₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}
+                                                    ₹ {Math.round(bookingDetails?.paymentDetails?.details?.amountAfterGst)}
                                                 </span>
                                             </div>
                                         )}
@@ -1381,7 +1381,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.totalPrice > 0 && (
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Price:</span>
-                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.totalPrice}</span>
+                                        <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.totalPrice)}</span>
                                     </div>
                                 )}
                                 
@@ -1395,7 +1395,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                                
                             <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Incl (Tax):</span>
-                                    <span className="text-gray-900 font-semibold">₹ {amount?.total}</span>
+                                    <span className="text-gray-900 font-semibold">₹ {Math.round(amount?.total)}</span>
                                 </div>
                         </>)}
                          {bookingDetails?.status === BOOKING_STATUS.END_OTP && (
@@ -1404,7 +1404,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {finalPaymentPirces.discountAmount > 0 && (
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Customer Discount Applied:</span>
-                                        <span className="text-gray-900 font-medium">₹ {finalPaymentPirces.discountAmount}</span>
+                                        <span className="text-gray-900 font-medium">₹ {Math.round(finalPaymentPirces.discountAmount)}</span>
                                     </div>
                                 )}
                             </div>
@@ -1422,7 +1422,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 )}
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total (Incl. Tax):</span>
-                                    <span className="text-gray-900 font-semibold">₹ {finalPaymentPirces.amountAfterGST}</span>
+                                    <span className="text-gray-900 font-semibold">₹ {Math.round(finalPaymentPirces.amountAfterGST)}</span>
                                 </div>
                         </>)}
                     </div>                            
@@ -1702,19 +1702,19 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.extraKMPrice > 0 &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Per KM Price:</Typography>
-                                        <Typography className="text-sm text-black font-medium">{bookingDetails?.extraKMPrice}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraKMPrice)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.extraNightChargePrice > 0 &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra KM Price:</Typography>
-                                        <Typography className="text-sm text-black font-medium">{bookingDetails?.extraNightChargePrice}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraNightChargePrice)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.extraHourPrice > 0 &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs Price (For Each 15 Mins):</Typography>
-                                        <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.extraHourPrice}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraHourPrice)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
@@ -1727,26 +1727,26 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
                                                     } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails.extraHours} x ${amount.extraHourPrice})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.extraPrice}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraPrice)}</Typography>
                                             </div>)}
                                         {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
                                                     } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails.extraHours)} x ${amount.extraHourPrice})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.extraPrice}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraPrice)}</Typography>
                                             </div>)}
                                         {amount.extraKMs > 0 &&
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">  {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
                                                 <Typography className="text-sm text-black font-medium">
-                                                    ₹ {(amount?.extraKMs * amount?.extraKMPrice).toFixed(2)}
+                                                    ₹ {Math.round(amount?.extraKMs * amount?.extraKMPrice)}
                                                 </Typography>
                                             </div>
                                         }
                                         {amount.extraNightCharge > 0 &&
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {amount?.extraNightCharge}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {Math.round(amount?.extraNightCharge)}</Typography>
                                             </div>
                                         }
                                     </> : ""
@@ -1755,39 +1755,41 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {finalPaymentPirces.amountBeforeGst > 0 && (
                                     <div className="flex justify-between  my-1">
                                         <span className="text-sm text-gray-500 font-semibold">Amount Before Gst:</span>
-                                        <span className="text-sm text-gray-900 font-medium">₹ {finalPaymentPirces.amountBeforeGst}</span>
+                                        <span className="text-sm text-gray-900 font-medium">₹ {Math.round(finalPaymentPirces.amountBeforeGst)}</span>
                                     </div>
                                 )}
                                 {bookingDetails?.totalPrice > 0 &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className=" text-gray-500 text-sm font-semibold">Final Trip Fare:</Typography>
-                                        <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.serviceType == 'DRIVER' ? bookingDetails?.totalPrice : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ? bookingDetails?.totalPrice : bookingDetails?.totalPrice}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.serviceType == 'DRIVER' ? Math.round(bookingDetails?.totalPrice) : (bookingDetails?.packageType == 'Local' && bookingDetails?.serviceType == 'RENTAL') ?  Math.round(bookingDetails?.totalPrice) :  Math.round(bookingDetails?.totalPrice))}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.paymentDetails?.details?.discountAmount !== 0 && bookingDetails?.paymentDetails?.details?.discountAmount &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="red" variant="sm" className="text-sm text-gray-500 font-semibold">Discount Applied:</Typography>
-                                        <Typography color="red" variant="sm" className="text-sm text-black font-medium"> - ₹ {bookingDetails?.paymentDetails?.details?.discountAmount}</Typography>
+                                        <Typography color="red" variant="sm" className="text-sm text-black font-medium"> - ₹ {Math.round(bookingDetails?.paymentDetails?.details?.discountAmount)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
                                     <div className="flex justify-between  my-1">
                                         <Typography variant="sm" className="text-sm  text-red-400 font-semibold">Wallet Points Used:</Typography>
-                                        <Typography variant="sm" className="text-sm  text-red-400">- ₹ {bookingDetails?.paymentDetails?.details?.walletAmountUsed}</Typography>
+                                        <Typography variant="sm" className="text-sm  text-red-400">- ₹ {Math.round(bookingDetails?.paymentDetails?.details?.walletAmountUsed)}</Typography>
                                     </div>
                                 }
                                 {/* Amount After Gst:  */}
 
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">TAX:</Typography>
-                                    <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.paymentDetails?.details?.gstAmount}</Typography>
+                                    <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.paymentDetails?.details?.gstAmount)}</Typography>
                                 </div>
 
                                 <hr className="my-2" />
                                 {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
                                     <div className="flex justify-between  my-1">
                                         <span className="text-gray-500 font-semibold">Total:</span>
-                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.paymentDetails?.details?.amountAfterGst}</span>
+                                        <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.paymentDetails?.details?.amountAfterGst)
+                                            
+                                            }</span>
                                     </div>
                                 }
 
@@ -1868,7 +1870,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <hr className="my-2" />
                                             <div className="flex justify-between text-lg font-bold">
                                                 <span className="text-green-700 font-semibold">Final Amount:</span>
-                                                <span className="text-green-700">₹ {finalAmountAfterExtras}</span>
+                                                <span className="text-green-700">₹ {Math.round(finalAmountAfterExtras)}</span>
                                             </div>
                                         </>
                                     )

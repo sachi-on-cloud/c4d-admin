@@ -293,7 +293,7 @@ export function MasterPriceView() {
 
     const renderOutstationPriceTable = () => {
     const filteredOutstationList = outstationPackageList
-        .filter(item => item.type === "Outstation" && item.period !== "1")
+        // .filter(item => item.type === "Outstation" && item.period !== "1")
         .sort((a, b) => {
             const periodA = parseInt(a.period, 10);
             const periodB = parseInt(b.period, 10);
