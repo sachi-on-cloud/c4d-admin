@@ -1200,12 +1200,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">{bookingDetails?.acType}</span>
                                 </div>
                             }
-                                {bookingDetails?.Cab?.carType && bookingDetails?.serviceType === 'RIDES' && (bookingDetails?.status === "STARTED" || bookingDetails?.status === "ENDED") && (
+                                {/* {bookingDetails?.Cab?.carType && bookingDetails?.serviceType === 'RIDES' && (bookingDetails?.status === "STARTED" || bookingDetails?.status === "ENDED") && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Cab Type:</span>
                                     <span className="text-gray-900 font-medium">{bookingDetails?.Cab?.carType}</span>
                                 </div>
-                            )}
+                            )} */}
                             {bookingDetails?.carType  && bookingDetails?.serviceType !='AUTO' &&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Car Type:</span>
