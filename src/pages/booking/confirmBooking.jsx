@@ -214,7 +214,7 @@ const ConfirmBooking = (props) => {
         if (bookingDetails?.serviceType === 'DRIVER') return 'ACTING DRIVER';
         if (bookingDetails?.serviceType === 'RIDES') return 'Local Rides';
         if (bookingDetails?.packageType === 'Local') return 'Hourly Package';
-        if (bookingDetails?.bookingType === 'DROP ONLY') return 'Drop Taxi';
+        if (bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.bookingType === 'DROP ONLY') return 'Drop Taxi';
         if (bookingDetails?.serviceType === 'AUTO') return 'Auto';
         return 'Outstation';
     };
@@ -1121,7 +1121,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         <div className="grid sm:grid-cols-2 gap-4 text-sm">
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Service Type:</span>
-                                <span className="text-gray-900 font-medium">{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : bookingDetails?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.bookingType == "DROP ONLY") ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</span>
                             </div>
                             {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
                             <div className="flex flex-col-2 gap-2">
@@ -1337,7 +1337,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <div className="flex flex-col-2 gap-2">
                                                 <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                                 <span className="text-gray-900 font-medium">
-                                                    ₹ {Math.round(() => {
+                                                    ₹ {Math.round((() => {
                                                         let basePrice;
                                                         const discountPercentage = bookingDetails?.discount?.percentage || 0;
 
@@ -1361,7 +1361,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                         return basePrice && basePrice !== 'N/A'
                                                             ? (basePrice - (basePrice * discountPercentage / 100)).toFixed(2)
                                                             : 'N/A';
-                                                    })()}
+                                                    })())}
                                                 </span>
                                             </div>
                                         )}
