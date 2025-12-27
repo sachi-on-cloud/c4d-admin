@@ -1305,40 +1305,38 @@ useEffect(() => {
                                                                 <Typography>
                                                                     {values.packageSelected && values.packageTypeSelected === 'Local' ? (
                                                                         values.serviceType === 'DRIVER' ? (
-                                                                            `₹${Math.round(() => {
-                                                                                const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                                if (!selectedPackage) return "N/A";
-                                                                                switch (values.carType?.toUpperCase()) {
-                                                                                    case "MINI":
-                                                                                    case "SEDAN":
-                                                                                    case "SUV":
-                                                                                        return selectedPackage.price || "N/A";
-                                                                                    case "MUV":
-                                                                                        return selectedPackage.priceMVP || "N/A";
-                                                                                    default:
-                                                                                        return "N/A";
-                                                                                }
+                                                                        `₹${(() => {
+                                                                            const selectedPackage = packageTypeSelectedData.find((pkg) => pkg.id === Number(values.packageSelected));
+                                                                            if (!selectedPackage) return 'N/A';
+                                                                            const raw =
+                                                                            ['MINI', 'SEDAN', 'SUV'].includes(values.carType?.toUpperCase())
+                                                                                ? selectedPackage.price
+                                                                                : values.carType?.toUpperCase() === 'MUV'
+                                                                                ? selectedPackage.priceMVP
+                                                                                : null;
+
+                                                                            const num = Number(raw);
+                                                                            if (!Number.isFinite(num)) return 'N/A';
+                                                                            return Math.round(num);
                                                                             })()}`
                                                                         ) : values.serviceType === 'RENTAL' ? (
-                                                                            `₹${Math.round(() => {
-                                                                                const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                                if (!selectedPackage) return "N/A";
-                                                                                switch (values.carType?.toUpperCase()) {
-                                                                                    case "MINI":
-                                                                                        return selectedPackage.price || "N/A";
-                                                                                    case "SEDAN":
-                                                                                        return selectedPackage.priceSedan || "N/A";
-                                                                                    case "SUV":
-                                                                                        return selectedPackage.priceSuv || "N/A";
-                                                                                    case "MUV":
-                                                                                        return selectedPackage.priceMVP || "N/A";
-                                                                                    default:
-                                                                                        return "N/A";
-                                                                                }
-                                                                            })()}`
-                                                                        ) : "N/A"
-                                                                    ) : "N/A"}
-                                                                </Typography>
+                                                                        `₹${(() => {
+                                                                            const selectedPackage = packageTypeSelectedData.find((pkg) => pkg.id === Number(values.packageSelected));
+                                                                            if (!selectedPackage) return 'N/A';
+                                                                            const car = values.carType?.toUpperCase();
+                                                                            const raw = car === 'MINI'  ? selectedPackage.price : 
+                                                                                        car === 'SEDAN' ? selectedPackage.priceSedan : 
+                                                                                        car === 'SUV'   ? selectedPackage.priceSuv :
+                                                                                        car === 'MUV'   ? selectedPackage.priceMVP :
+                                                                            null;
+
+                                                                            const num = Number(raw);
+                                                                            if (!Number.isFinite(num)) return 'N/A';
+                                                                            return Math.round(num);
+                                                                        })()}`
+                                                                        ) : 'N/A'
+                                                                    ) : 'N/A'}
+                                                                    </Typography>
                                                             </div>
                                                         </>
                                                     </div>

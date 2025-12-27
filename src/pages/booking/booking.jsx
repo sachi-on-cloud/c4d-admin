@@ -2390,22 +2390,32 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹ {Math.round(() => {
-                                                                            const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                            ₹ {(() => {
+                                                                            const selectedPackage = packageTypeSelectedData.find((pkg) => pkg.id === Number(values.packageSelected));
                                                                             if (!selectedPackage) return "";
 
+                                                                                let amount = 0;
                                                                             switch (values.carType?.toUpperCase()) {
                                                                                 case "MINI":
-                                                                                return selectedPackage.price || "";
+                                                                                        amount = Number(selectedPackage.price || 0);
+                                                                                        break;
                                                                                 case "SEDAN":
-                                                                                return selectedPackage.price || "";
+                                                                                        amount = Number(selectedPackage.price || 0);
+                                                                                        break;
                                                                                 case "SUV":
-                                                                                return selectedPackage.price || "";
+                                                                                        amount = Number(selectedPackage.price || 0);
+                                                                                        break;
                                                                                 case "MUV":
-                                                                                return selectedPackage.priceMVP || "";
+                                                                                        amount = Number(selectedPackage.priceMVP || 0);
+                                                                                        break;
                                                                                 default:
                                                                                 return "";
                                                                             }
+
+                                                                                if (!amount || Number.isNaN(amount)) {
+                                                                                    return "";
+                                                                                }
+                                                                                return Math.round(amount);
                                                                             })()}
                                                                         </Typography>
                                                                         </div>
@@ -2481,17 +2491,17 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Package Price:</Typography>
                                                                                 <Typography>
-                                                                                    ₹ {Math.round(() => {
+                                                                                    ₹ {Math.round((() => {
                                                                                         const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                                        if (!selectedPackage) return "";
+                                                                                        if (!selectedPackage) return 0;
                                                                                         switch (quoteDetails.amount?.carType?.toUpperCase()) {
-                                                                                            case "MINI": return selectedPackage.price || "";
-                                                                                            case "SEDAN": return selectedPackage.priceSedan || "";
-                                                                                            case "SUV": return selectedPackage.priceSuv || "";
-                                                                                            case "MUV": return selectedPackage.priceMVP || "";
-                                                                                            default: return "";
+                                                                                            case "MINI": return selectedPackage.price || 0;
+                                                                                            case "SEDAN": return selectedPackage.priceSedan || 0;
+                                                                                            case "SUV": return selectedPackage.priceSuv || 0;
+                                                                                            case "MUV": return selectedPackage.priceMVP || 0;
+                                                                                            default: return 0;
                                                                                         }
-                                                                                    })()}
+                                                                                        })())}
                                                                                 </Typography>
                                                                             </div>
                                                                               <div className="flex justify-between">
@@ -2521,15 +2531,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                         <Typography color="gray" variant="h6">Total Estimated Fare:</Typography>
                                                                                         <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                                             {/* ₹ {(quoteDetails.amount?.packageDetails?.price) - (quoteDetails.amount?.packageDetails?.price * quoteDetails?.discount?.percentage / 100)} */}
-                                                                                            ₹ {Math.round(() => {
+                                                                                            ₹ {(() => {
                                                                                                 const carType = quoteDetails?.amount?.carType?.toUpperCase();
                                                                                                 const pkg = quoteDetails?.amount?.packageDetails;
                                                                                                 const price = carType === 'MINI' ? Number(pkg?.price) :
                                                                                                             carType === 'MUV' ? Number(pkg?.priceMVP) :
                                                                                                             carType === 'SUV' ? Number(pkg?.priceSuv) :
                                                                                                             carType === 'SEDAN' ? Number(pkg?.priceSedan) : 0;
-                                                                                                return price ? (price - (price * (Number(quoteDetails?.discount?.percentage) || 0) / 100)).toFixed(2) : 'N/A';
+                                                                                                if (!price) return 'N/A';
+                                                                                                const discounted = price - (price * (Number(quoteDetails?.discount?.percentage) || 0) / 100);
+                                                                                                return Math.round(discounted);
                                                                                             })()}
+
                                                                                             {/* {(() => {
                                                                                                 const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
                                                                                                 const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;
@@ -2666,7 +2679,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                                 <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                                     {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
-                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                                    ₹ {quoteDetails?.amount?.estimatedPrice ? Math.round(Number(quoteDetails.amount?.estimatedPrice) -Number(quoteDetails.amount.estimatedPrice) * (Number(quoteDetails.discount?.percentage || 0) / 100)): ""}
                                                                             </Typography>
 
                                                                         </>}
@@ -2759,14 +2772,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • The estimated price includes  <span className="font-bold text-black">{values.gst_percentage|| '5'}%</span> tax.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • For every extra kilometer <span className="font-bold text-black">₹ {Math.round(() => {
+                                                                • For every extra kilometer <span className="font-bold text-black">₹ {(() => {
                                                                     const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                    return selectedPackage ? (
+                                                                if (!selectedPackage) return '';
+                                                                const price =
                                                                         values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
                                                                             values.carType === 'Sedan' ? selectedPackage.extraKilometerPriceSedan :
                                                                                 values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
-                                                                                    selectedPackage.extraKilometerPriceMVP
-                                                                    ) : '';
+                                                                                    selectedPackage.extraKilometerPriceMVP;
+                                                                return Math.round(Number(price || 0));
                                                                 })()}</span> will be charged.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
