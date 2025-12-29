@@ -222,6 +222,15 @@ const ConfirmBooking = (props) => {
          if (status === 'BOOKING_ACCEPTED') {
                 return 'Driver Accepted';
             }
+ 
+
+        if (status === 'ENDED' &&  bookingDetails?.tripStatus === true) {
+            return (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold">
+                    Completed
+                </span>
+            );
+        }
         return status
             .toLowerCase()
             .split('_')
