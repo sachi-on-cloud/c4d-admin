@@ -2388,7 +2388,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                     {quoteDetails.amount?.carType || ''}
                                                                                 </Typography>
                                                                             </div>
-                                                                        <div className="flex justify-between">
+                                                                        {/* <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
                                                                             ₹ {(() => {
@@ -2419,11 +2419,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                 return Math.round(amount);
                                                                             })()}
                                                                         </Typography>
-                                                                        </div>
+                                                                        </div> */}
                                                                          <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">TAX Amount:</Typography>
                                                                                 <Typography>
-                                                                                    {quoteDetails.amount?.gst_amount || ''}
+                                                                                     ₹ {Math.round(quoteDetails.amount?.gst_amount || '')}
                                                                                 </Typography>
                                                                             </div>
                                                                              <div className="flex justify-between">
@@ -2508,10 +2508,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                               <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">TAX Amount:</Typography>
                                                                                 <Typography>
-                                                                                    {quoteDetails.amount?.gst_amount || ''}
+                                                                                   ₹ {Math.round(quoteDetails.amount?.gst_amount || '')}
                                                                                 </Typography>
                                                                             </div>  <div className="flex justify-between">
-                                                                                <Typography color="gray" variant="h6">Final Estimate Price:</Typography>
+                                                                                <Typography color="gray" variant="h6">Estimate Fare:</Typography>
                                                                                 <Typography>
                                                                                     {quoteDetails.amount?.fare_after_gst|| ''}
                                                                                 </Typography>
@@ -2659,10 +2659,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             </Typography>
                                                                         </>
                                                                         }
-                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
-                                                                        <Typography>
-                                                                            ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
-                                                                        </Typography>
+                                                                
                                                                          <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                         <Typography>
                                                                             ₹ {Math.round(quoteDetails.amount?.gst_amount)}
