@@ -506,12 +506,14 @@ const handleSaveDriverEndLocation = async () => {
 
     if (response?.success) {
     
-      Swal.fire({
-    icon: "success",
-    title: "success",
-    text: "Driver ending point updated successfully!",
-    timer: 1500,
-  });
+   Swal.fire({
+//   icon: "success",
+  title: "Success",
+  text: "The price and total kilometers will be updated when the trip ends.",
+  width: 450,
+  confirmButtonColor: "#1976d2" 
+});
+
       setIsEditingDriverEnd(false);
       setDriverEndAddress("");
       setSelectedDriverEndLocation(null);
@@ -1197,6 +1199,19 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <span className="text-gray-500 font-semibold">Start Date:</span>
                                 <span className="text-gray-900 font-medium">{moment(bookingDetails.fromDate).format("DD-MM-YYYY / hh:mm A")}</span>
                             </div>
+                              {bookingDetails?.value?.baseFare > 0 &&  bookingDetails?.serviceType === 'AUTO' &&  (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Base Fare:</span>
+                                    <span className="text-gray-900 font-medium">₹ {bookingDetails?.value?.baseFare}</span>
+                                </div>
+                            )}
+                              {  bookingDetails?.serviceType === 'AUTO' &&  (
+                             <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Per KM Rate:</span>
+                                    <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.value?.kilometerPriceVal)}</span>
+                                </div>
+                                )}
+                                 
                             {bookingDetails?.toDate &&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">End Date:</span>
@@ -1269,6 +1284,39 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</span>
                                 </div>
                             }
+                             {  bookingDetails?.serviceType === 'AUTO' &&  (
+                                    
+                             <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
+                                    <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.value?.estimatedPrice)}</span>
+                                </div>
+                                
+                                )}
+                                 {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' &&  (
+                                    
+                                        <div className="flex flex-col-2 gap-2">
+                                            <span className="text-gray-500 font-semibold">Discount Applied:</span>
+                                            <span className="text-gray-900 font-medium">{bookingDetails?.discount?.percentage} %</span>
+                                        </div>
+                                        )}
+                                         {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' && (
+                                          <div className="flex flex-col-2 gap-2">  
+                                        <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
+                                                <span className="text-gray-900 font-medium">₹ { Math.round(bookingDetails?.value?.estimatedPrice) - ( bookingDetails?.value?.estimatedPrice * bookingDetails?.discount?.percentage/100) }</span>
+                                            </div>
+                                        )}
+                                         {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && (
+                                             <div  className="flex flex-col-2 gap-2">                                                                       
+                                            <span className="text-gray-500 font-semibold">Discount Applied:</span>
+                                            <span className="text-gray-900 font-medium">₹ {bookingDetails?.discount?.amount} </span>
+                                            </div>
+                                        )}
+                                        {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && (
+                                          <div className="flex flex-col-2 gap-2">  
+                                        <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
+                                                <span className="text-gray-900 font-medium">₹ { Math.round((bookingDetails?.value?.estimatedPrice) - ( bookingDetails?.discount?.amount)) }</span>
+                                            </div>
+                                        )}
                                 {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
@@ -1482,7 +1530,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </span>
                                 </div>
                             )}
-                            {bookingDetails?.landmark !== "" && (
+                            {bookingDetails?.landmark !== null && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">LandMark:</span>
                                     <span className="text-gray-900 font-medium">
