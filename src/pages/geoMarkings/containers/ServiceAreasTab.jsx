@@ -15,12 +15,15 @@ const ServiceAreasTab = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [serviceAreas, setServiceAreas] = useState([]);
   const [updatedServiceAreas, setUpdatedServiceAreas] = useState([]);  // Local copy for updates
+  const [zones, setZones] = useState([]);      
+  const [zoneAlertOpen, setZoneAlertOpen] = useState(false);        
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, item: null });
 
   useEffect(() => {
     fetchServiceAreas();
+    fetchZones();                                      
   }, []);
 
   const fetchServiceAreas = async () => {
@@ -37,6 +40,19 @@ const ServiceAreasTab = () => {
       setError(err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchZones = async () => {                      
+    try {
+      const response = await ApiRequestUtils.get(
+        `${API_ROUTES.GEO_MARKINGS_LIST}?type=Zone`
+      );
+      if (response?.success) {
+        setZones(response.data || []);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -103,6 +119,19 @@ const ServiceAreasTab = () => {
     setShowForm(true);
     setCoordinates(updatedServiceAreas[index].coordinates); // Use updatedServiceAreas
     setTimeout(() => setShowDrawingManager(true), 500);
+  };
+
+  const handleDeleteClick = (area) => {              
+    const hasZone = zones.some(
+      (zone) => zone.parent_id === area.id
+    );
+
+     if (hasZone) {
+    setZoneAlertOpen(true); 
+    return;
+  }
+
+    setDeleteDialog({ open: true, item: area });
   };
 
   const handleDelete = async () => {
@@ -249,7 +278,7 @@ const ServiceAreasTab = () => {
                   <IconButton
                     color="red"
                     variant="text"
-                    onClick={() => setDeleteDialog({ open: true, item: area })}
+                    onClick={() => handleDeleteClick(area)} 
                   >
                     <TrashIcon className="h-4 w-4" />
                   </IconButton>
@@ -259,6 +288,23 @@ const ServiceAreasTab = () => {
           ))}
         </div>
       )}
+      <Dialog
+  open={zoneAlertOpen}
+  handler={() => setZoneAlertOpen(false)}
+>
+
+  <DialogBody className='text-black'>
+    To proceed with deletion, please ensure that the associated zone is deleted first.
+  </DialogBody>
+  <DialogFooter>
+    <Button
+      color="red"
+      onClick={() => setZoneAlertOpen(false)}
+    >
+      OK
+    </Button>
+  </DialogFooter>
+</Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialog.open} handler={() => setDeleteDialog({ open: false, item: null })}>
