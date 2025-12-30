@@ -335,7 +335,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         if (!isDriverOutstation || isRoundTripCustom) {
             quoteData.toDate = moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();
         }
-        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && values?.packageSelected && values?.packageSelected !== 'custom_date') {
+        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation'  && values?.packageSelected !== 'custom_date') {
             quoteData.packageType = 'Outstation';
             quoteData.packageId = Number(values.packageSelected);
             quoteData.period = Number(values.packageSelected);
@@ -1724,7 +1724,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 
                                                
-                                                                                                {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && (
+                                                                                                {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation'  && (
                                                     <div className="flex-1 mb-4">
                                                         <div>
                                                             <Typography variant="h6" className="mb-2">
@@ -1845,7 +1845,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         </div>
                                                     )}
 
-                                                    {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && values.packageSelected === 'custom_date')) && (
+                                                    {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.packageSelected === 'custom_date')) && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Return Date & Time
@@ -2664,7 +2664,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <Typography>
                                                                             ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                         </Typography>
-                                                                        <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
+                                                                        <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
                                                                             ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
                                                                         </Typography>
