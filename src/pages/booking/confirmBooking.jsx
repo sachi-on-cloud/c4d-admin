@@ -506,12 +506,14 @@ const handleSaveDriverEndLocation = async () => {
 
     if (response?.success) {
     
-      Swal.fire({
-    icon: "success",
-    title: "success",
-    text: "Driver ending point updated successfully!",
-    timer: 1500,
-  });
+   Swal.fire({
+//   icon: "success",
+  title: "Success",
+  text: "The price and total kilometers will be updated when the trip ends.",
+  width: 450,
+  confirmButtonColor: "#1976d2" 
+});
+
       setIsEditingDriverEnd(false);
       setDriverEndAddress("");
       setSelectedDriverEndLocation(null);
