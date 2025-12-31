@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Button, Card, Typography, CircularProgress, Spinner } from "@material-tailwind/react";
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
+import * as Yup from 'yup';
 import moment from 'moment';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
@@ -42,6 +43,11 @@ const EditBooking = (props) => {
     const [driverEndLocation, setDriverEndLocation] = useState(null);
 const [driverEndAddress, setDriverEndAddress] = useState('');
 const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
+
+const EDIT_BOOKING_SCHEMA = Yup.object().shape({
+  sourceType: Yup.string().required('Source Type is required'),
+});
+
 
     const fetchData = async () => {
     try {
@@ -310,7 +316,7 @@ useEffect(() => {
 
         const quoteDate = {
             serviceType: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : values.serviceType || mappedServiceType,
-            bookingType: values?.tripType ? values.tripType.toUpperCase() : '',
+            bookingType: values?.serviceType === 'AUTO' ? 'DROP ONLY' : (values.tripType?.toUpperCase() || ''),
             serviceFor: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : values.serviceType,
             packageType: 'Local',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -673,7 +679,8 @@ useEffect(() => {
                 },
                 fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
                 isPremiumService : values?.isPremiumService ? true : false,
-                sourceType: values?.sourceType,
+                car_Type: values?.carType || '',
+                sourceType: values?.sourceType|| '',
                 ...((values?.sourceType === "Others" || values?.sourceType === "Offline Ads") && {
                 otherSourceType: values?.otherSourceType?.trim() || null
             }),
@@ -702,6 +709,7 @@ useEffect(() => {
             <Formik
                 initialValues={initialValues}
                 onSubmit={editSubmit}
+                validationSchema={EDIT_BOOKING_SCHEMA}
                 enableReinitialize
             >
                 {({ handleSubmit, setFieldValue, values, dirty, isValid }) => {
