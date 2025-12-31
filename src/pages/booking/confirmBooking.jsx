@@ -1510,7 +1510,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">{bookingDetails?.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Points:</span>
                                     <span className="text-gray-900 font-medium">
-                                        {bookingDetails?.driverStartAddress?.name || `${bookingDetails?.value?.driverWithin} km`}
+                                        {bookingDetails?.driverStartAddress?.name || `${Number(bookingDetails?.value?.driverWithin).toFixed(2)} km`}
                                     </span>
                                 </div>
                             )}
@@ -1543,11 +1543,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-4">
                                 <div className="flex justify-between items-center gap-4">
                                     <div className="flex gap-2 text-sm">
-                                        <p className="text-gray-500 font-semibold">Cab Ending Point</p>
+                                        <p className="text-gray-500 font-semibold">Cab Ending Point:</p>
                                         <p className="text-gray-900 font-medium">
                                             {bookingDetails?.driverEndAddress?.name || `${bookingDetails?.value?.driverEndPoint} km`}
                                         </p>
                                     </div>
+                                    {bookingDetails?.status !== "ENDED" && (
                                 <Button
                                     size="sm"
                                     color="blue"
@@ -1561,6 +1562,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 >
                                         <PencilIcon className="h-4 w-4" />
                                 </Button>
+                                    )}
                                 </div>
                                 {isEditingDriverEnd && (
                                 <div className="space-y-3">
@@ -1860,13 +1862,16 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <>
                                         <hr className="my-2" />
                                         <div className="flex justify-between items-center mb-2">
-
-                                            <Typography variant="sm" className="text-sm font-semibold text-blue-700 mr-2">
+                                  {(
+                                    (bookingDetails?.status === "ENDED" &&  Object.values(additionalCharges).some(val => val > 0)) || bookingDetails?.status === "END_OTP") && (
+                                            <Typography
+                                                variant="sm"
+                                                className="text-sm font-semibold text-blue-700 mr-2"
+                                            >
                                                 Additional Charges
                                             </Typography>
-
-
-                                            {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && (
+                                            )}
+                                            {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.status !== 'ENDED' && (
                                                 <button
                                                     onClick={() => setIsEditingAdditionalCharges(!isEditingAdditionalCharges)}
                                                     className={`p-2 rounded-full transition-all ${isEditingAdditionalCharges ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'

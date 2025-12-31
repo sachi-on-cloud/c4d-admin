@@ -1166,7 +1166,7 @@ useEffect(() => {
                                         {(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' || values.serviceType === 'RIDES') && (
                                             <div className="p-2 space-y-2">
                                                 <label className="block text-sm font-medium text-black-700">
-                                                    Driver Starting Point
+                                                    Cab Starting Point
                                                 </label>
                                                 <Field
                                                     type="text"
@@ -1377,10 +1377,12 @@ useEffect(() => {
                                                                             ₹ {Math.round(quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal)}
                                                                         </Typography></>)}
                                                                 {values?.serviceType !== 'DRIVER' && (<>
-                                                                    <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                    <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Locationn</Typography>
                                                                     <Typography>
-                                                                        {(quoteDetails.amount?.estimatedDistance)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)} 
-                                                                    </Typography></>)}
+                                                                        {Number(quoteDetails.amount?.estimatedDistance).toFixed(1)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)} 
+                                                                    </Typography>
+                                                                    
+                                                                    </>)}
                                                                 
                                                                 <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.value?.baseKm || quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                 <Typography>
