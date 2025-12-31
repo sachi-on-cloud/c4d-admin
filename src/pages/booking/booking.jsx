@@ -99,6 +99,7 @@ const Booking = (props) => {
     const [currentServiceType, setCurrentServiceType] = useState('');
     const [currentPackageType, setCurrentPackageType] = useState('');
     const [dropTaxiDistanceExceedModal, setDropTaxiDistanceExceedModal] = useState(false);
+    const [dropTaxiModalContent, setDropTaxiModalContent] = useState("Booking not available for the selected route. Try outstation service.");
     const [quotationLogs, setQuotationLogs] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
@@ -557,9 +558,18 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         } else if (values.serviceType === "AUTO") {
             return calculateDistance?.data?.showAlert;
         } else if (values.serviceType ==='RENTAL_DROP_TAXI') {
-            // Check if distance exceeds 300 km for DropTaxi
-            const distance = calculateDistance?.data?.estimatedDistance || 0;
-            return distance <= 300; // Return false if distance > 300 km
+                const rawDistance = calculateDistance?.data?.estimatedDistance || calculateDistance?.data?.kilometer;
+                const distance = rawDistance ? parseFloat(rawDistance) : 0;
+                const showAlert = calculateDistance?.data?.showAlert;
+                if (distance > 300) {
+                    setDropTaxiModalContent("Booking not available for the selected route. Try outstation service.");
+                    return false;
+                }
+                if (showAlert === false) {
+                    setDropTaxiModalContent("Try our Local Ride, it s faster and more affordable for short distances!");
+                    return false;
+                }
+                return true;
         }
     }
     return true;
@@ -3107,7 +3117,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     </div>
                 )}
               
-                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content="Booking not available for the selected route. Try outstation service."/>
+                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content={dropTaxiModalContent}/>
                 <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 15 km are allowed only through DropTaxi or Outstation service." />
                 <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
                 
