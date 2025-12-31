@@ -257,7 +257,7 @@ export function SearchDrivers(props) {
                 try {
                     let data = {
                         bookingId: props.bookingData.id,
-                        distance: 0, // Adjust if distance is available in bookingData
+                        distance: 1, // Adjust if distance is available in bookingData
                         customerId: props.bookingData.CustomerId
                     };
                     let requestDriver = await ApiRequestUtils.post('/search/auto', data);
