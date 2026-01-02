@@ -25,12 +25,14 @@ import {
   DocumentCheckIcon,
   UserGroupIcon,
   MegaphoneIcon,
+  UsersIcon
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
+  { name: "Leads", path: "/dashboard/leads", permission: "Home", end: true },
   { name: "Rate Card", path: "/dashboard/rental-rate-card", permission: "Home", end: true },
   { name: "Calls", path: "/dashboard/users/exotel-calls/list", permission: "Calls" },
   { name: "All Records", path: "/dashboard/booking/list", permission: "All bookings" },
@@ -203,6 +205,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           className={`h-6 w-6 text-black`}
                         />
                       ) : null}
+                      {name === "Leads" ? (
+                         <UsersIcon className="h-6 w-6 text-black" />
+                      ): null}
 
                       {name === "Rate Card" ? (
                         <img
@@ -279,7 +284,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         </Tooltip>
                       )}
 
-                      {!miniSidenav && name !== "Home" && name !== 'Calls' && name !== 'Rate Card' && (
+                      {!miniSidenav && name !== "Home" && name !== 'Calls' && name !== 'Rate Card' && name !== 'Leads' && (
                         <div className="ml-auto">
                           {isActive ? (
                             <ChevronUpIcon className="w-5 h-5" />

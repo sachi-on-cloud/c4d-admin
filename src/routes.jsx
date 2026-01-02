@@ -118,6 +118,7 @@ import CombineView from "./pages/CustomerNotification/view";
 import Combineadd from "./pages/CustomerNotification/add";
 import CombineEdit from "./pages/CustomerNotification/edit";
 import ExotelCallsList from "./components/Exotel";
+import { LeadsView } from "./pages/public/leads";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -1050,6 +1051,14 @@ export const routes = [
         name: "Rate Card",
         path: "/rental-rate-card",
         element: <RentalTariffRateCard />,
+        display: true,
+        permission: "Home"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Leads",
+        path: "/leads",
+        element: <LeadsView/>,
         display: true,
         permission: "Home"
       },

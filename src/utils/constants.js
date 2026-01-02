@@ -986,6 +986,7 @@ export const API_ROUTES = {
     'EXOTEL_CALL_LOGS': '/call-logs',
     'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
     'UPDATE_DRIVER_END_LOCATION':'/driver/end-location',
+    'GET_WEBSITE_LEADS': '/website-leads',
 
 };
 
