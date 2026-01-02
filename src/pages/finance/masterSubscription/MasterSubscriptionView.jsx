@@ -165,7 +165,11 @@ export function MasterSubscriptionView() {
                                     {masterSubscriptionList.map((group, index) => (
                                         <>
                                             <tr key={group.id || index} className="text-sm">
-                                                <td className="border-b border-blue-gray-50 py-3 px-5 text-black">
+                                                <td className="border-b border-blue-gray-50 py-3 px-5 text-blue-600 underline cursor-pointer"
+                                                    onClick={() =>
+                                                        navigate(`/dashboard/finance/master-subscription/details/${group.id}`)
+                                                    }
+                                                >
                                                     {group.serviceType === 'RIDES_RENTAL_CABS'
                                                         ? <div>Rides/Rental Cabs</div>
                                                         : group.serviceType === "AUTO"
