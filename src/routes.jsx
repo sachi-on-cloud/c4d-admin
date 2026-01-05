@@ -1125,7 +1125,7 @@ export const routes = [
       },
       {
         path: "/rate-card",
-        element: <PriceList />,
+        element: <RentalTariffRateCard />,
         display: false
       },
     ],

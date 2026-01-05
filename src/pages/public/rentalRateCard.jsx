@@ -173,7 +173,7 @@ export function RentalTariffRateCard() {
       <Card>
         <CardHeader
           variant="gradient"
-          className="mt-8 p-6 w-full bg-primary-500"
+          className="mt-8 mx-0 p-6 w-full bg-primary-500"
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-1">
