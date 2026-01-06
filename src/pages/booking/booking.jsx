@@ -2927,39 +2927,39 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
-                                                {(values?.serviceType=="RENTAL" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation &&
+                                                {(values?.serviceType=="RENTAL" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {(values?.serviceType=="DRIVER" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation  &&
+                                                 {(values?.serviceType=="DRIVER" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation  && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {values.serviceType == 'RENTAL_DROP_TAXI' && values.dropLocation && values.pickupLocation &&
+                                                 {values.serviceType == 'RENTAL_DROP_TAXI' && values.dropLocation && values.pickupLocation && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
 
-                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation && values.carType &&
+                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation && values.carType && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
 
-                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected &&
+                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Local' && values.pickupLocation && values.packageSelected &&
+                                                {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Local' && values.pickupLocation && values.packageSelected && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation &&
+                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
