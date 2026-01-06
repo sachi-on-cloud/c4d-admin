@@ -85,6 +85,13 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     //     then: () => Yup.string().required('Cab type is required'),
     //     otherwise: () => Yup.string(),
     // }),
+    sourceType: Yup.string().required('Source Type is required'),
+    otherSourceType: Yup.string().when('sourceType', {
+        is: (val) => val === 'Others' || val === 'Offline Ads',
+        then: (schema) => schema.required('Please specify the source'),
+        otherwise: (schema) => schema.notRequired(),
+        }),
+
     carType: Yup.string().when('serviceType', {
         is: (val) => val === 'DRIVER' || val === 'CAB',
         then: () => Yup.string().required('Car Type is required'),
