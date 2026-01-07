@@ -603,6 +603,13 @@ useEffect(() => {
                 pickupAddress: {
                     name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
                 },
+                driverStartLat: values.driverPickUpLocation?.lat || bookingData?.driverStartLat || null,
+                driverStartLong: values.driverPickUpLocation?.lng || bookingData?.driverStartLong || null,
+                driverStartAddress: values.driverPickUpAddress
+                    ? { name: values.driverPickUpAddress }
+                    : bookingData?.driverStartAddress
+                        ? { name: bookingData.driverStartAddress.name }
+                        : null,
                driverEndLat : values.driverEndLocation?.lat || null,
                 driverEndLong : values.driverEndLocation?.lng || null,
                 driverEndAddress : values.driverEndAddress ? { name: values.driverEndAddress } : null,

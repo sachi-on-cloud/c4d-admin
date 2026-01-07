@@ -2239,6 +2239,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     ))}
                                                                 </ul>
                                                             )}
+                                                            <ErrorMessage name="driverPickUpAddress" component="div" className="text-red-500 text-sm" />
                                                         </div>)}
                                                         
                                                     {/* Driver Ending Point - Show only for Drop-only trips */}

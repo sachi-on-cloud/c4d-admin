@@ -117,6 +117,22 @@ dropAddress: Yup.string().when('serviceType', {
     then: () => Yup.string().required('Drop Address is required'),
     otherwise: () => Yup.string(),
 }),
+    driverPickUpAddress: Yup.string().when('serviceType', {
+        is: (val) => ['RENTAL', 'RENTAL_DROP_TAXI'].includes(val),
+        then: () =>
+            Yup.string().test(
+                'driver-pickup-suggestion-selected',
+                'Please select the starting point from suggestions',
+                function (value) {
+                    const { driverPickUpLocation } = this.parent;
+                    if (!value) {
+                        return true;
+                    }
+                    return !!driverPickUpLocation;
+                }
+            ),
+        otherwise: () => Yup.string(),
+    }),
 landmark: Yup.string()
     .nullable()
     .max(100, 'Landmark should not exceed 100 characters')
