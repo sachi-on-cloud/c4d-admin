@@ -212,6 +212,7 @@ const ConfirmBooking = (props) => {
     const [showCancelReason, setShowCancelReason] = useState(false);
     const [cancelData, setCancelData] = useState({
         cancelReason: "",
+        customReason: "",
         cancelBy: "",
         cancelCharge: "",
     });
@@ -232,6 +233,11 @@ const ConfirmBooking = (props) => {
             bookingId: bookingDetails?.id,
             ...(actionType === BOOKING_STATUS.CANCELLED && {
                 cancelReason: cancelData.cancelReason,
+                ...(cancelData.cancelReason === "Other Reason" &&
+      cancelData.cancelReason?.trim() && {
+        customReason: cancelData.customReason || null,
+      }),
+
                 cancelRequestedBy: cancelData.cancelBy,
                 isCancelChargeApplicable: cancelData.cancelCharge,
             }),
@@ -484,28 +490,79 @@ const ConfirmBooking = (props) => {
             </div>
         )}
             {showCancelReason && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 space-y-4 w-full lg:max-w-xl">
                     <select
                         name="cancelBy"
                         value={cancelData.cancelBy}
                         onChange={handleCancelChange}
-                        className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                        className="border border-gray-300 px-4 py-2 rounded-md w-full"
                     >
                         <option value="">Select who cancelled</option>
                         <option value="SUPPORT_CANCELLED">Cancelled By Support</option>
                         <option value="Customer">Cancelled by Customer</option>
                         <option value="Driver">Cancelled by Driver</option>
                     </select>
+
+    {/* Cancellation Reason - only shown when cancelled by Support */}
+    {cancelData.cancelBy === "SUPPORT_CANCELLED" && (
+      <>
+        <select
+          value={cancelData.cancelReason}
+          onChange={(e) => {
+            const value = e.target.value;
+           setCancelData(prev => ({
+      ...prev,
+      cancelReason: value,
+      cancelCustom: value === "Other Reason" ? "" : value,
+    }));
+          }}
+          className="border border-gray-300 px-4 py-2 rounded-md w-full"
+        >
+          <option value="">Select cancellation reason</option>
+          <option value="No Cabs Available">No Cabs Available</option>
+          <option value="Cab Taking Too Long to Arrive">Cab Taking Too Long to Arrive</option>
+          <option value="Booked by Mistake">Booked by Mistake</option>
+          <option value="Wrong Service Selected">Wrong Service Selected</option>
+          <option value="Got a Ride Elsewhere">Got a Ride Elsewhere</option>
+          <option value="Change of Plans">Change of Plans</option>
+          <option value="Price Variation">Price Variation</option>
+          <option value="Other Reason">Other Reason</option>
+        </select>
+
+        {/* Custom reason input when "Other Reason" is selected */}
+        {cancelData.cancelReason === "Other Reason" && (
+          <Input
+            type="text"
+            placeholder="Please specify the reason..."
+            value={cancelData.customReason || ""}
+            onChange={(e) =>
+              setCancelData(prev => ({
+                ...prev,
+                // cancelReason: e.target.value,
+                customReason: e.target.value,
+              }))
+            }
+            className="border border-gray-300 px-4 py-2 rounded-md w-full"
+          />
+        )}
+      </>
+    )}
+
+    {/* For Customer/Driver cancelled - free text */}
+                        {(cancelData.cancelBy === "Customer" || cancelData.cancelBy === "Driver") && (
                     <Input
                         type="text"
                         name="cancelReason"
                         value={cancelData.cancelReason}
                         onChange={handleCancelChange}
                         placeholder="Enter cancellation reason..."
-                        className="border border-gray-300 px-2 py-1 rounded-md w-full"
+                        className="border border-gray-300 px-4 py-2 rounded-md w-full"
                     />
-                    <div className="flex items-center space-x-4">
-                        <label className="font-medium">Cancellation Charge Applicable:</label>
+                        )}
+
+    {/* Cancellation Charge Applicable */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0">
+                        <label className="font-medium text-gray-700">Cancellation Charge Applicable:</label>
                         <label className="inline-flex items-center space-x-2">
                             <input
                                 type="radio"
@@ -527,24 +584,36 @@ const ConfirmBooking = (props) => {
                             <span>No</span>
                         </label>
                     </div>
-                    <div className="flex space-x-2">
-                        <Button
-                            color="red"
-                            onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED, cancelData)}
-                            disabled={!cancelData.cancelReason.trim() || !cancelData.cancelBy || !cancelData.cancelCharge}
+
+    {/* Action Buttons */}
+    <div className="flex flex-col sm:flex-row gap-3">
+      <Button
+        color="red"
+        className="w-full sm:w-auto"
+        onClick={() => handleBookingAction(BOOKING_STATUS.CANCELLED)}
+        disabled={
+          !cancelData.cancelBy ||
+          !cancelData.cancelReason?.trim() ||
+          !cancelData.cancelCharge
+        }
                         >
                             Confirm Cancel
                         </Button>
                         <Button
                             color="gray"
                             variant="outlined"
-                            onClick={() => setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "" })}
-                        >
-                            Cancel
+        className="w-full sm:w-auto"
+        onClick={() => {
+          setShowCancelReason(false);
+          setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "", customReason: "" });
+        }}
+      >
+                            Close
                         </Button>
                     </div>
                 </div>
-            )}
+                )}
+
             {showDetails && (
             <div className="grid grid-cols-2 gap-4">
                 <Card className="mb-2">
@@ -607,6 +676,14 @@ const ConfirmBooking = (props) => {
                                     <Typography color="gray" variant="h6">Reason:</Typography>
                                     <Typography>{bookingDetails?.cancelReason}</Typography>
                                 </div>
+                                
+                                     {bookingDetails?.cancelReason === "Other Reason" && (
+                                        <div className="flex justify-between">
+                                         <Typography color="gray" variant="h6">Custom Reason:</Typography>
+                                          <Typography>{bookingDetails?.customReason}</Typography>
+                                           </div>
+                                     )}
+                               
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
                                     <Typography>{bookingDetails?.cancelRequestedBy || 'Customer'}</Typography>
