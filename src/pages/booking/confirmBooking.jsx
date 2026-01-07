@@ -689,6 +689,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
 
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
+    const isDropTaxiBooking = (booking) => (booking?.serviceType === 'RENTAL' && booking?.bookingType === 'DROP ONLY' && booking?.packageType ==='Outstation') || booking?.serviceType === 'RENTAL_DROP_TAXI';
     const isQuotedWithoutCarType = (booking) => booking?.status === BOOKING_STATUS.QUOTED && (booking?.carType === '' || booking?.carType == null);
     const shouldShowQuotePricing = (booking) => !isQuotedWithoutCarType(booking);
     return (
@@ -1347,10 +1348,16 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.value?.kilometerPriceVal)}</span>
                                 </div>
                             )}
-                            {bookingDetails?.value?.estimatedDistance > 0 &&
+                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.value?.estimatedDistance > 0 &&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
                                     <span className="text-gray-900 font-medium">{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</span>
+                                </div>
+                            }
+                            {bookingDetails?.status === BOOKING_STATUS.END_OTP || bookingDetails?.status === BOOKING_STATUS.ENDED &&  bookingDetails?.value?.estimatedDistance > 0 &&
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Total Distance :</span>
+                                    <span className="text-gray-900 font-medium">{bookingDetails?.estimatedDistance.toFixed(1)} Kms</span>
                                 </div>
                             }
                              {  bookingDetails?.serviceType === 'AUTO' &&  (
@@ -1413,7 +1420,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     {/* </div> */}
                             {/* need to add logic for price */}
                     {/* <div className="grid sm:grid-cols-2 gap-4 text-sm">                                         */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && (                            
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && !isDropTaxiBooking(bookingDetails) && (                            
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
