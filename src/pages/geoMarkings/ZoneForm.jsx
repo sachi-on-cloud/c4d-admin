@@ -6,6 +6,7 @@ import {
   Typography,
   Alert,
 } from '@material-tailwind/react';
+import Select from 'react-select';
 
 const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaId }) => {
   const [formData, setFormData] = useState({
@@ -105,15 +106,41 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
             placeholder="Enter zone name"
           />
         </div>
-        <div>
-          <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
-            Description
-          </Typography>
-          <Input
-            type="text"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Enter description"
+
+        {/* Description (SELECT) */}
+        <div className="overflow-visible relative z-50">
+          <label className="text-sm text-gray-700 mb-1 block font-medium">
+            Description <span className="text-red-500">*</span>
+          </label>
+
+          <Select
+            options={[
+              { value: 'City', label: 'City' },
+              { value: 'Prime', label: 'Prime' },
+            ]}
+            value={
+              formData.description
+                ? { value: formData.description, label: formData.description }
+                : null
+            }
+            onChange={(selected) => {
+              setFormData({
+                ...formData,
+                description: selected ? selected.value : '',
+              });
+            }}
+            placeholder="Select description"
+            isClearable={false}
+            menuPortalTarget={document.body}
+            styles={{
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+              control: (base, state) => ({
+                ...base,
+                borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
+                boxShadow: state.isFocused ? '0 0 0 1px #3b82f6' : 'none',
+                '&:hover': { borderColor: '#9ca3af' },
+              }),
+            }}
           />
         </div>
 

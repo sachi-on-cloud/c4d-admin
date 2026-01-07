@@ -12,6 +12,7 @@ const validationSchema = Yup.object({
   message: Yup.string().required('Message is required'),
   type: Yup.string().required('Type is required'),
   app: Yup.string().required('App is required'),
+  timing: Yup.string().required('Timing is required'),
   city: Yup.string()
     .required('City is required')
     .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
@@ -28,6 +29,7 @@ const NotificationListApp = () => {
     message: '',
     type: '',
     app: '',
+    timing: '',
     city:'',
   };
 
@@ -111,6 +113,20 @@ const NotificationListApp = () => {
                       <option value="DRIVER">Driver App</option>
                       </Field>
                   <ErrorMessage name="app" component="div" className="text-red-500 text-sm my-1" />
+                </div>
+                 <div>
+                  <label htmlFor="app" className="text-sm font-medium text-gray-700">Select Time Zone</label>
+                      <Field
+                      as="select"
+                      name="timing"
+                      className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                      >
+                      <option value="">Select Timing</option>
+                      <option value="MORNING">Morning</option>
+                      <option value="AFTERNOON">Afternoon</option>
+                      <option value="EVENING">Evening</option>
+                      </Field>
+                  <ErrorMessage name="timing" component="div" className="text-red-500 text-sm my-1" />
                 </div>
                 <div>
                   <label htmlFor="city" className="text-sm font-medium text-gray-700">Select City</label>
