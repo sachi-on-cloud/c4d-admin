@@ -20,7 +20,8 @@ export function NotificationList() {
   const navigate = useNavigate();
   const [notification, setNotificationItems] = useState([]);
   const [appFilter, setAppFilter] = useState(['All']); // State for app filter
-  const [cityFilter, setCityFilter] = useState(['All']); // State for city filter
+  const [cityFilter, setCityFilter] = useState(['All']);
+  const [timingFilter, setTimingFilter] = useState(['All']); // State for timing filter
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -34,6 +35,7 @@ export function NotificationList() {
       const filterType = {
         app: appFilter,
         city: cityFilter,
+        timing: timingFilter,
       };
 
       // Prepare query parameters and payload
@@ -64,13 +66,25 @@ export function NotificationList() {
 
   useEffect(() => {
     fetchNotificationList(pagination.currentPage, true);
-  }, [pagination.currentPage, pagination.itemsPerPage, appFilter, cityFilter]);
+  }, [pagination.currentPage, pagination.itemsPerPage, timingFilter, appFilter, cityFilter]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
       fetchNotificationList(page, true);
     }
+  };
+   const handleTimingFilterChange = (value) => {
+    setTimingFilter((prev) => {
+      if (value === 'All') {
+        return ['All'];
+      } else {
+        const timingFilter = prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev.filter((item) => item !== 'All'), value];
+        return timingFilter.length === 0 ? ['All'] : timingFilter;
+      }
+    });
   };
 
   const handleAppFilterChange = (value) => {
@@ -178,6 +192,22 @@ export function NotificationList() {
               <tr>
                 {/* <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Title</th> */}
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">Type</th>
+                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                 <div className="flex items-center gap-2">
+                  
+                    <FilterPopover
+                      title={<span className="text-base font-semibold text-gray-700">Time Zone</span>}
+                      options={[
+                        { value: 'ALL', label: 'All' },
+                        { value: 'MORNING', label: 'Morning' },
+                        { value: 'AFTERNOON', label: 'Afternoon' },
+                        { value: 'EVENING', label: 'Evening' },
+                      ]}
+                      selectedFilters={timingFilter}
+                      onFilterChange={(value) => handleTimingFilterChange(value)}
+                    />
+                  </div>
+                </th>
                 <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                   <div className="flex items-center justify-between">
                   
@@ -225,9 +255,11 @@ export function NotificationList() {
                 notification
                   .filter((item) => appFilter.includes('All') || appFilter.includes(item.app))
                   .filter((item) => cityFilter.includes('All') || cityFilter.includes(item.city))
+                  .filter((item) => timingFilter.includes('All') || timingFilter.includes(item.timing))
                   .map((item, index) => (
                     <tr key={item.id || index} className="border-b border-blue-gray-50">
                     <td className="py-3 px-5">{item.type || '-'}</td>
+                     <td className="py-3 px-5">{item.timing || '-'}</td>
                     <td className="py-3 px-5">{item.app || '-'}</td>
                     <td className="py-3 px-5">{item.message || '-'}</td>
                     <td className="py-3 px-5">{item.city || '-'}</td>
