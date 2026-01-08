@@ -40,6 +40,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
   });
 
   const [error, setError] = useState(null);
+  const [servicesError, setServicesError] = useState(null);
   const [quickServiceError, setQuickServiceError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -65,6 +66,15 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
     );
   }, [formData.services]);
 
+  const validateServices = (selected) => {
+    if (!selected || selected.length < 4) {
+      setServicesError('Please select at least 4 Service Types');
+      return false;
+    }
+    setServicesError(null);
+    return true;
+  };
+
   const validateQuickServices = (selected) => {
     if (selected.length !== 4) {
       setQuickServiceError('Please select exactly 4 Quick Services');
@@ -87,7 +97,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
       quickServices: filteredQuick,
       highlightedService: newHighlighted,
     });
-
+    validateServices(newServices);
     validateQuickServices(filteredQuick);
   };
 
@@ -107,7 +117,13 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setServicesError(null);
     setQuickServiceError(null);
+
+    if (!formData.services || formData.services.length < 4) {
+      setServicesError('Please select at least 4 Service Types');
+      return;
+    }
 
     if (formData.quickServices.length !== 4) {
       setQuickServiceError('Please select exactly 4 Quick Services');
@@ -203,8 +219,21 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
             closeMenuOnSelect={false}
             placeholder="Select service types"
             menuPortalTarget={document.body}
-            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            styles={{
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+              control: (base, state) => ({
+                ...base,
+                borderColor: servicesError ? '#ef4444' : state.isFocused ? '#3b82f6' : '#d1d5db',
+                boxShadow: servicesError
+                  ? '0 0 0 1px #ef4444'
+                  : state.isFocused
+                    ? '0 0 0 1px #3b82f6'
+                    : 'none',
+                '&:hover': { borderColor: servicesError ? '#ef4444' : '#9ca3af' },
+              }),
+            }}
           />
+          {servicesError && <p className="text-red-500 text-xs mt-1">{servicesError}</p>}
         </div>
 
         {/* Quick Service */}
@@ -265,7 +294,14 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
         <Button
           type="submit"
           className="mt-4"
-          disabled={isSubmitting || !coordinates || coordinates.length < 3 || formData.quickServices.length !== 4}
+          disabled={
+            isSubmitting ||
+            !coordinates ||
+            coordinates.length < 3 ||
+            formData.quickServices.length !== 4 ||
+            !formData.services ||
+            formData.services.length < 4
+          }
         >
           {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Service Area
         </Button>
