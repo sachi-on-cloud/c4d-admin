@@ -166,13 +166,12 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
-            Name
+            Name <span className="text-red-500">*</span>
           </Typography>
           <Input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
             placeholder="Enter service area name"
           />
         </div>
@@ -300,8 +299,8 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
             coordinates.length < 3 ||
             formData.quickServices.length !== 4 ||
             !formData.services ||
-            formData.services.length < 4
-          }
+             formData.services.length < 4 ||
+            !formData.name.trim()}
         >
           {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Service Area
         </Button>
