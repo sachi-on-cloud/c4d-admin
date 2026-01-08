@@ -184,6 +184,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
               { value: 'City', label: 'City' },
               { value: 'Prime', label: 'Prime' },
             ]}
+            isSearchable={false}
             value={{
               value: formData.description,
               label: formData.description || 'Select description',
@@ -211,6 +212,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
           <Select
             isMulti
             options={serviceTypeOptions}
+            isSearchable={false}
             value={serviceTypeOptions.filter((opt) =>
               formData.services.includes(opt.value)
             )}
@@ -243,6 +245,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
           <Select
             isMulti
             options={availableQuickOptions}
+            isSearchable={false}
             value={availableQuickOptions.filter((opt) =>
               formData.quickServices.includes(opt.value)
             )}
@@ -275,6 +278,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
           </label>
           <Select
             options={availableHighlightedOptions}
+            isSearchable={false}
             value={availableHighlightedOptions.find(opt => opt.value === formData.highlightedService) || null}
             onChange={handleHighlightedChange}
             isClearable
