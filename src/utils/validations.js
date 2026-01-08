@@ -866,6 +866,54 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
         .required('City is required'),
   });
 
+export const CUSTOMER_DISCOUNT_ADD_SCHEMA = Yup.object({
+  serviceType: Yup.string().required('Service type is required'),
+  title: Yup.string().required('Title is required'),
+  description: Yup.string().required('Description is required'),
+  offerType: Yup.string().oneOf(['GENERAL', 'CUSTOM'], 'Offer type is required').required('Offer type is required'),
+  couponCode: Yup.string().required('Coupon code is required'),
+  discountType: Yup.string().oneOf(['percentage', 'IsAmount']).required('Discount type is required'),
+  percentage: Yup.mixed().when('discountType', {
+    is: (val) => (val || '').toLowerCase() === 'percentage',
+    then: (schema) => schema
+      .typeError('Percentage must be a number')
+      .required('Percentage is required')
+      .min(1, 'Percentage must be at least 1')
+      .max(100, 'Percentage cannot exceed 100'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  amount: Yup.mixed().when('discountType', {
+    is: (val) => (val || '').toLowerCase() === 'isamount',
+    then: (schema) => schema
+      .typeError('Amount must be a number')
+      .required('Amount is required')
+      .min(1, 'Amount must be at least 1'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  startDate: Yup.string().required('Start date is required'),
+  endDate: Yup.string()
+    .required('End date is required')
+    .test('end-after-start', 'End date must be after start date', function (value) {
+      const { startDate } = this.parent;
+      if (!startDate || !value) return true;
+      return new Date(value) >= new Date(startDate);
+    }),
+  isActive: Yup.boolean().required('Status is required'),
+  serviceArea: Yup.array().when('offerType', {
+    is: 'GENERAL',
+    then: (schema) =>
+      schema
+        .min(1, 'At least one service area must be selected')
+        .test('all-with-others', 'Cannot select "All" with other cities', (value = []) => {
+          if (value.includes('All')) {
+            return value.length === 1;
+          }
+          return true;
+        }),
+    otherwise: (schema) => schema.optional(),
+  }),
+});
+
    export const GST_EDIT_SCHEMA = Yup.object().shape({
     serviceType: Yup.string().required('Service type is required'),
     name: Yup.string().required('Name is required'),

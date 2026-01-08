@@ -119,6 +119,9 @@ import Combineadd from "./pages/CustomerNotification/add";
 import CombineEdit from "./pages/CustomerNotification/edit";
 import ExotelCallsList from "./components/Exotel";
 import { LeadsView } from "./pages/public/leads";
+import CustomerDiscountView from "./pages/finance/customerDiscount/view";
+import CustomerDiscountAdd from "./pages/finance/customerDiscount/add";
+import CustomerDiscountEdit from "./pages/finance/customerDiscount/edit";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -1045,6 +1048,31 @@ export const routes = [
           permission: "Users"
         },
       ] : []),
+
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Customer Discount View",
+        path: "/users/customer-discount",
+        element: <CustomerDiscountView />,
+        display: true,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Customer Discount Add",
+        path: "/users/customer-discount/add",
+        element: <CustomerDiscountAdd />,
+        display: true,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Customer Discount Edit",
+        path: "/users/customer-discount/edit/:id",
+        element: <CustomerDiscountEdit />,
+        display: false,
+        permission: "Users",
+      },
 
       {
         icon: <UserIcon {...icon} />,

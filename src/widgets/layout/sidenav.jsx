@@ -799,6 +799,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     {[
                       { label: "Users", path: "/dashboard/users" },
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
+                      { label: "Customer Discount",path:"/dashboard/users/customer-discount"},
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
@@ -825,6 +826,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                   src="/img/master_price.png"
                                   alt="Master Price"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+                              {label === "Customer Discount" && (
+                                <img
+                                  src="/img/user.png"
+                                  alt="Customer Discount"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}

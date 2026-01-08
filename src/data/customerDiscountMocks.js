@@ -1,0 +1,72 @@
+export const MOCK_DISCOUNTS = [
+  {
+    id: 1,
+    discountId: 1,
+    serviceType: "RIDES",
+    title: "Rides New User Offer",
+    description: "10% off on first 3 rides",
+    offerType: "CUSTOM",
+    couponCode: "NEWUSER10",
+    discountType: "percentage",
+    percentage: 10,
+    amount: 0,
+    startDate: "2025-01-01",
+    endDate: "2025-03-31",
+    isActive: true,
+    serviceArea: ["All"],
+  },
+  {
+    id: 2,
+    discountId: 2,
+    serviceType: "RENTAL",
+    title: "Outstation Flat 200 Off",
+    description: "₹200 off outstation rides above ₹3000",
+    offerType: "GENERAL",
+    couponCode: "RENTAL200",
+    discountType: "IsAmount",
+    percentage: 0,
+    amount: 200,
+    startDate: "2025-02-01",
+    endDate: "2025-04-30",
+    isActive: true,
+    serviceArea: ["Chennai", "vellore"],
+  },
+  {
+    id: 3,
+    discountId: 3,
+    serviceType: "DRIVER",
+    title: "Weekend Driver Offer",
+    description: "15% off acting driver bookings on weekends",
+    offerType: "CUSTOM",
+    couponCode: "WKND15",
+    discountType: "percentage",
+    percentage: 15,
+    amount: 0,
+    startDate: "2025-01-10",
+    endDate: "2025-06-30",
+    isActive: false,
+    serviceArea: ["Chennai"],
+  },
+];
+
+export const MOCK_CUSTOMER_OFFER_RECORDS = [
+  {
+    customerName: "Arun Kumar",
+    phoneNumber: "9876543210",
+    offerId: 1,
+    offerStatus: null, // not yet availed
+  },
+  {
+    customerName: "Priya S",
+    phoneNumber: "9876501234",
+    offerId: 2,
+    offerStatus: "Availed",
+  },
+  {
+    customerName: "Ravi Raj",
+    phoneNumber: "9876001122",
+    offerId: 3,
+    offerStatus: "Expired",
+  },
+];
+
