@@ -40,6 +40,8 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
   });
 
   const [error, setError] = useState(null);
+  const [nameError, setNameError] = useState(null);
+  const [descriptionError, setDescriptionError] = useState(null);
   const [servicesError, setServicesError] = useState(null);
   const [quickServiceError, setQuickServiceError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -117,31 +119,44 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setNameError(null);
+    setDescriptionError(null);
     setServicesError(null);
     setQuickServiceError(null);
 
+    let hasError = false;
+
+    if (!formData.name.trim()) {
+      setNameError('Name is required');
+      hasError = true;
+    }
+
+    if (!formData.description) {
+      setDescriptionError('Description is required');
+      hasError = true;
+    }
+
     if (!formData.services || formData.services.length < 4) {
       setServicesError('Please select at least 4 Service Types');
-      return;
+      hasError = true;
     }
 
     if (formData.quickServices.length !== 4) {
       setQuickServiceError('Please select exactly 4 Quick Services');
-      return;
+      hasError = true;
     }
 
     if (!coordinates || coordinates.length < 3) {
       setError('Please draw a valid polygon with at least 3 points');
+      hasError = true;
+    }
+    if (hasError) {
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      if (!coordinates || coordinates.length < 3) {
-        throw new Error('Please draw a valid polygon with at least 3 points');
-      }
-
       onSave({
         ...formData,
         coordinates,
@@ -171,9 +186,18 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
           <Input
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, name: e.target.value });
+              if (nameError) {
+                setNameError(null);
+              }
+            }}
             placeholder="Enter service area name"
+            error={!!nameError}
           />
+          {nameError && (
+            <p className="text-red-500 text-xs mt-1">{nameError}</p>
+          )}
         </div>
        <div className="overflow-visible relative z-50">
           <label className="text-sm text-gray-700 mb-1 block font-medium">
@@ -185,12 +209,16 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
               { value: 'Prime', label: 'Prime' },
             ]}
             isSearchable={false}
-            value={{
-              value: formData.description,
-              label: formData.description || 'Select description',
-            }}
+            value={
+              formData.description
+                ? { value: formData.description, label: formData.description }
+                : null
+            }
             onChange={(selected) => {
               setFormData({ ...formData, description: selected ? selected.value : '' });
+              if (selected && descriptionError) {
+                setDescriptionError(null);
+              }
             }}
             placeholder="Select description"
             isClearable={false}
@@ -199,16 +227,29 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
               menuPortal: (base) => ({ ...base, zIndex: 9999 }),
               control: (base, state) => ({
                 ...base,
-                borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
-                boxShadow: state.isFocused ? '0 0 0 1px #3b82f6' : 'none',
-                '&:hover': { borderColor: '#9ca3af' },
+                borderColor: descriptionError
+                  ? '#ef4444'
+                  : state.isFocused
+                    ? '#3b82f6'
+                    : '#d1d5db',
+                boxShadow: descriptionError
+                  ? '0 0 0 1px #ef4444'
+                  : state.isFocused
+                    ? '0 0 0 1px #3b82f6'
+                    : 'none',
+                '&:hover': {
+                  borderColor: descriptionError ? '#ef4444' : '#9ca3af',
+                },
               }),
             }}
           />
+          {descriptionError && (
+            <p className="text-red-500 text-xs mt-1">{descriptionError}</p>
+          )}
         </div>
         {/* Multi-Select Dropdown */}
         <div className="overflow-visible relative z-50">
-          <label className="text-sm text-gray-700 mb-1 block">Service Types</label>
+          <label className="text-sm text-gray-700 mb-1 block">Service Types <span className="text-red-500">*</span></label>
           <Select
             isMulti
             options={serviceTypeOptions}
@@ -297,14 +338,7 @@ const ServiceAreaForm = ({ onSave, initialData = null, coordinates = null }) => 
         <Button
           type="submit"
           className="mt-4"
-          disabled={
-            isSubmitting ||
-            !coordinates ||
-            coordinates.length < 3 ||
-            formData.quickServices.length !== 4 ||
-            !formData.services ||
-             formData.services.length < 4 ||
-            !formData.name.trim()}
+          disabled={isSubmitting}
         >
           {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Service Area
         </Button>
