@@ -512,7 +512,10 @@ export const Utils = {
  
         const inputDate = parsed.toDate();
         const now = new Date();
-        return inputDate.getTime() >= now.getTime();
+        inputDate.setSeconds(0, 0);
+        now.setSeconds(0, 0);
+        const nowMinus2Min = new Date(now.getTime() - 2 * 60 * 1000);
+        return inputDate.getTime() >= nowMinus2Min.getTime();
     },
  
     validateDateTimeRange: ({ startDate, endDate }) => {
