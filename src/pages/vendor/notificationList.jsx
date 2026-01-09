@@ -198,7 +198,7 @@ export function NotificationList() {
                     <FilterPopover
                       title={<span className="text-base font-semibold text-gray-700">Time Zone</span>}
                       options={[
-                        { value: 'ALL', label: 'All' },
+                        { value: 'All', label: 'All' },
                         { value: 'MORNING', label: 'Morning' },
                         { value: 'AFTERNOON', label: 'Afternoon' },
                         { value: 'EVENING', label: 'Evening' },

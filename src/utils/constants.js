@@ -986,6 +986,9 @@ export const API_ROUTES = {
     'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
     'UPDATE_DRIVER_END_LOCATION':'/driver/end-location',
     'GET_WEBSITE_LEADS': '/website-leads',
+    'GET_CUSTOM_ACTIVE_DISCOUNTS':'/discounts/custom-active',
+    'GET_CUSTOM_DISCOUNT_TARGETS':'/discounts/targets',
+    'POST_CUSTOM_DISCOUNT_TARGETS':'/discounts/targets',
 
 };
 

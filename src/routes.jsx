@@ -119,6 +119,8 @@ import Combineadd from "./pages/CustomerNotification/add";
 import CombineEdit from "./pages/CustomerNotification/edit";
 import ExotelCallsList from "./components/Exotel";
 import { LeadsView } from "./pages/public/leads";
+import CustomerDiscountAdd from "./pages/finance/customerDiscount/add";
+import CustomerDiscountList from "./pages/finance/customerDiscount/list";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -969,6 +971,22 @@ export const routes = [
         element: <DetailsTrip />,
         display: true,
         permission: "Trip Master",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Custom Discount",
+        path: "/users/custom-discount/add",
+        element: <CustomerDiscountAdd />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Custom Discount List",
+        path: "/users/custom-discount/list",
+        element: <CustomerDiscountList />,
+        display: false,
+        permission: "Users",
       },
       ...(Feature.parcel ? [
         {

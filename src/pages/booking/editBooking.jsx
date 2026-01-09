@@ -179,6 +179,7 @@ useEffect(() => {
         const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
             serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
+            customerId: values?.customerId,
             bookingType: values?.tripType?.toUpperCase(),
             packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -316,6 +317,7 @@ useEffect(() => {
 
         const quoteDate = {
             serviceType: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : values.serviceType || mappedServiceType,
+            customerId: values?.customerId,
             bookingType: values?.serviceType === 'AUTO' ? 'DROP ONLY' : (values.tripType?.toUpperCase() || ''),
             serviceFor: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : values.serviceType,
             packageType: 'Local',

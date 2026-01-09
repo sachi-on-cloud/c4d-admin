@@ -73,6 +73,7 @@ const DiscountView = () => {
               <thead>
                 <tr>
                   <th className="py-3 px-5 text-left">Service Type</th>
+                  <th className="py-3 px-5 text-left">Offer Type</th>
                   <th className="py-3 px-5 text-left">Title</th>
                   <th className="py-3 px-5 text-left">Coupon Code</th>
                   <th className="py-3 px-5 text-left">Description</th>
@@ -96,6 +97,7 @@ const DiscountView = () => {
                   discounts.map((item, index) => (
                     <tr key={index} className="border-b">
                       <td className="py-3 px-5">{serviceTypeLabels[item.serviceType] || item.serviceType}</td>
+                      <td className="py-3 px-5">{item.offerType || '-'}</td>
                       <td className="py-3 px-5">{item.title || '-'}</td>
                       <td className="py-3 px-5 font-semibold">
                         <div className=' text-green-600'>
