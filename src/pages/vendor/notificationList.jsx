@@ -214,7 +214,7 @@ export function NotificationList() {
                     <FilterPopover
                       title={<span className="text-base font-semibold text-gray-700">App</span>}
                       options={[
-                        { value: 'ALL', label: 'All' },
+                        { value: 'All', label: 'All' },
                         { value: 'CUSTOMER', label: 'Customer' },
                         { value: 'DRIVER', label: 'Driver' },
                       ]}
