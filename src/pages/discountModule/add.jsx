@@ -17,7 +17,9 @@ const DiscountAdd = () => {
   const initialValues = {
     serviceType: '',
     title: '',
+    couponCode: '',
     description: '',
+    offerType: '',
     discountType: '',
     percentage: '',
     amount: '',
@@ -98,7 +100,7 @@ const handleDashboardOfferImgClear = (setFieldValue) => {
   setDashboardOfferImgPreview(null);
   setFieldValue('removeDashboardOfferImg', true);
 };
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
 //    const payload = {
 //   serviceType: values.serviceType?.trim(),
 //   percentage:
@@ -132,6 +134,8 @@ const handleDashboardOfferImgClear = (setFieldValue) => {
 
       const formData = new FormData();
       formData.append('serviceType', values.serviceType);
+      formData.append('offerType', values.offerType);
+      formData.append('couponCode', values.couponCode);
       formData.append('discountType', discountType);
       if ((discountType || '').toLowerCase() === 'percentage') {
         formData.append('percentage', values.percentage || '');
@@ -174,11 +178,27 @@ if (values.removeDashboardOfferImg) {
       formData.append('isPremium', values.isPremium);
       // console.log('POST payload:', formData); 
       const res = await ApiRequestUtils.postDocs(API_ROUTES.POST_DISCOUNT, formData);
-      // console.log('DISCOUNT RESPONSE:', res);
+      // Example error: { success:false, code:400, error:"Coupon code already exists" }
+      if (!res?.success) {
+        const message = res?.error || res?.message || 'Coupon code already exists';
+        setFieldError('couponCode', message);
+        return;
+      }
+      const newDiscountId = res?.data?.discountId || res?.data?.id || res?.discountId || res?.id || null;
+      if (values.offerType === 'CUSTOM') {
+        navigate('/dashboard/users/custom-discount/add', {
+          state: { discountId: newDiscountId },
+        });
+      } else {
       navigate('/dashboard/user/discountModuleList');
+      }
     } catch (err) {
       console.error('API Error:', err.response?.data || err.message);
-      
+      const apiMessage =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err.message;
+      setFieldError('couponCode', apiMessage || 'Failed to create discount');
     } finally {
       setSubmitting(false);
     }
@@ -199,6 +219,19 @@ const getCurrentPremiumOptions = (currentServiceType) => {
         {({ isSubmitting, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Offer Type</label>
+                <Field
+                  as="select"
+                  name="offerType"
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                >
+                  <option value="">Select Offer Type</option>
+                  <option value="GENERAL">GENERAL</option>
+                  <option value="CUSTOM">CUSTOM</option>
+                </Field>
+                <ErrorMessage name="offerType" className="text-red-500 text-sm" component="div" />
+              </div>
               <Field type="hidden" name="removeImage" />
               <div>
                 <label className="text-sm font-medium text-gray-700">Service Type</label>
@@ -336,6 +369,15 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 <label htmlFor="title" className="text-sm font-medium text-gray-700">Title</label>
                 <Field type="text" name="title" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                 <ErrorMessage name="title" className="text-red-500 text-sm" component="div" />
+              </div>
+              <div>
+                <label htmlFor="couponCode" className="text-sm font-medium text-gray-700">Coupon Code</label>
+                <Field
+                  type="text"
+                  name="couponCode"
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                />
+                <ErrorMessage name="couponCode" className="text-red-500 text-sm" component="div" />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Discount Type</label>

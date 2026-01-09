@@ -111,7 +111,9 @@ const DiscountEdit = () => {
             endDate: formatDateOnly(discountFromState.endDate),
             serviceType: discountFromState.serviceType || '',
             title: discountFromState.title || '',
+            couponCode: discountFromState.couponCode || '',
             description: discountFromState.description || '',
+            offerType: discountFromState.offerType || '',
             isActive: discountFromState.isActive ? 'true' : 'false',
             cabType: discountFromState.isPremium ? '' : discountFromState.cabType || '',
             premiumCabType: discountFromState.isPremium ? discountFromState.cabType || '' : '',
@@ -155,6 +157,8 @@ const DiscountEdit = () => {
             isActive: data.isActive ? 'true' : 'false',
             title: data.title || '',
             description: data.description || '',
+            offerType: data.offerType || '',
+            couponCode: data.couponCode || '',
             cabType: data.isPremium ? '' : data.cabType || '',
             premiumCabType: data.isPremium ? data.cabType || '' : '',
             isPremium: data.isPremium || false,
@@ -214,6 +218,8 @@ const DiscountEdit = () => {
       const formData = new FormData();
       formData.append('discountId', Number(values.discountId));
       formData.append('serviceType', values.serviceType);
+      formData.append('offerType', values.offerType);
+      formData.append('couponCode', values.couponCode);
       formData.append('discountType', discountType);
       if ((discountType || '').toLowerCase() === 'percentage') {
         formData.append('percentage', values.percentage || '');
@@ -307,6 +313,20 @@ const DiscountEdit = () => {
               <Field type="hidden" name="removeImage" />
               <Field type="hidden" name="removeDashboardOfferImg" />
               <Field type="hidden" name="discountId" />
+              <div>
+                <label className="text-sm font-medium text-gray-700">Offer Type</label>
+                <Field
+                  as="select"
+                  name="offerType"
+                  disabled
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                >
+                  <option value="">Select Offer Type</option>
+                  <option value="GENERAL">GENERAL</option>
+                  <option value="CUSTOM">CUSTOM</option>
+                </Field>
+                <ErrorMessage name="offerType" component="div" className="text-red-500 text-sm" />
+              </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Service Type</label>
@@ -452,6 +472,15 @@ const DiscountEdit = () => {
                 <label htmlFor="title" className="text-sm font-medium text-gray-700">Title</label>
                 <Field type="text" name="title" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                 <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
+              </div>
+              <div>
+                <label htmlFor="couponCode" className="text-sm font-medium text-gray-700">Coupon Code</label>
+                <Field
+                  type="text"
+                  name="couponCode"
+                  className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                />
+                <ErrorMessage name="couponCode" component="div" className="text-red-500 text-sm" />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Discount Type</label>

@@ -311,6 +311,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
             serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
+            customerId: values?.customerId,
             bookingType: values?.tripType?.toUpperCase(),
             packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -447,6 +448,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
 
         const quoteDate = {
             serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType || mappedServiceType,
+            customerId: val?.customerId?.id,
             bookingType: val?.tripType ? val.tripType.toUpperCase() : '',
             serviceFor: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : val.serviceType,
             packageType:'Local',

@@ -806,6 +806,10 @@ export const VERSION_CONTROL_EDIT=Yup.object({
  
 
   export const DISCOUNT_ADD_SCHEMA = Yup.object({
+    offerType: Yup.string()
+        .oneOf(['GENERAL', 'CUSTOM'], 'Invalid offer type')
+        .required('Offer type is required'),
+    couponCode: Yup.string().required('Coupon code is required'),  
     percentage: Yup.mixed().notRequired(),
     amount: Yup.mixed().notRequired(),
     cabType: Yup.string().when('isPremium', {
@@ -837,6 +841,10 @@ export const VERSION_CONTROL_EDIT=Yup.object({
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     discountId: Yup.number().required('Discount ID is required'),
+    offerType: Yup.string()
+        .oneOf(['GENERAL', 'CUSTOM'], 'Invalid offer type')
+        .required('Offer type is required'),
+    couponCode: Yup.string().required('Coupon code is required'),
     percentage: Yup.mixed().notRequired(),
     amount: Yup.mixed().notRequired(),
     cabType: Yup.string().when('isPremium', {
