@@ -1402,6 +1402,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                 {!showQuickCreateCustomer && !bookingView && <>
                                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                                         initialValues={initialValues}
+                                        validate={Utils.validateRideAndReturnDateTime}
                                         onSubmit={async (values, formikBag) => {
                                             setFormikActions(formikBag); // Store Formik actions for modals
                                             if (values.submitType === "rides") {
@@ -1852,6 +1853,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     }
                                                                 }}
                                                             />
+                                                            <ErrorMessage name="rideDateTime" component="div" className="text-red-500 text-sm" />
                                                         </div>
                                                     )}
 
@@ -1881,6 +1883,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     }
                                                                 }}
                                                             />
+                                                            <ErrorMessage name="returnDateTime" component="div" className="text-red-500 text-sm" />
                                                         </div>
                                                     )}
                                                 </div>

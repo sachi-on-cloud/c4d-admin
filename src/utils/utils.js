@@ -8,6 +8,7 @@ import {
 
 } from "./constants";
 
+
 export const Utils = {
     formatSelectedDate: (date) => {
         const selectedDate = new Date(date);
@@ -466,5 +467,107 @@ export const Utils = {
 
         // Return in hh:mm:ss format
         return `${formattedHours}:${formattedMins}:00`;
-    }
+    },
+
+        getTodayDateInput: () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    },
+ 
+    getNowDateTimeLocalInput: () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    },
+ 
+    isDateOnOrAfterToday: (dateString) => {
+        if (!dateString) return false;
+        const inputDate = new Date(dateString);
+        if (isNaN(inputDate.getTime())) return false;
+ 
+        const today = new Date();
+        inputDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+ 
+        return inputDate.getTime() >= today.getTime();
+    },
+ 
+    isDateTimeOnOrAfterNow: (dateTimeString) => {
+        if (!dateTimeString) return false;
+ 
+        const parsed = moment(
+            dateTimeString,
+            [moment.ISO_8601, "YYYY-MM-DDTHH:mm", "YYYY-MM-DD HH:mm", "DD-MM-YYYY HH:mm"],
+            true
+        );
+ 
+        if (!parsed.isValid()) return false;
+ 
+        const inputDate = parsed.toDate();
+        const now = new Date();
+        inputDate.setSeconds(0, 0);
+        now.setSeconds(0, 0);
+        const nowMinus2Min = new Date(now.getTime() - 2 * 60 * 1000);
+        return inputDate.getTime() >= nowMinus2Min.getTime();
+    },
+ 
+    validateDateTimeRange: ({ startDate, endDate }) => {
+        const errors = {};
+ 
+        if (!startDate) {
+            errors.startDate = 'Start date is required';
+        } else if (!Utils.isDateTimeOnOrAfterNow(startDate)) {
+            errors.startDate = 'Start date & time must be current or in the future.';
+        }
+ 
+        if (!endDate) {
+            errors.endDate = 'End date is required';
+        } else if (!Utils.isDateTimeOnOrAfterNow(endDate)) {
+            errors.endDate = 'End date & time must be current or in the future.';
+        }
+ 
+        return errors;
+    },
+ 
+    validateRideAndReturnDateTime: (values) => {
+        const rideDateTime =
+            values.rideDate && values.rideTime
+                ? `${values.rideDate}T${values.rideTime}`
+                : '';
+ 
+        const hasReturnField =
+            (values.serviceType === 'RENTAL' &&
+                values.packageTypeSelected === 'Outstation' &&
+                values.tripType === 'Round Trip') ||
+            (values.serviceType === 'DRIVER' &&
+                values.packageTypeSelected === 'Outstation' &&
+                values.packageSelected === 'custom_date');
+ 
+        const returnDateTime =
+            hasReturnField && values.toDate && values.toTime
+                ? `${values.toDate}T${values.toTime}`
+                : '';
+ 
+        const rangeErrors = Utils.validateDateTimeRange({
+            startDate: rideDateTime,
+            endDate: hasReturnField ? returnDateTime : undefined,
+        });
+ 
+        const errors = {};
+        if (rangeErrors.startDate) {
+            errors.rideDateTime = rangeErrors.startDate;
+        }
+        if (hasReturnField && rangeErrors.endDate) {
+            errors.returnDateTime = rangeErrors.endDate;
+        }
+ 
+        return errors;
+    },
 };
