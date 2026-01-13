@@ -221,7 +221,7 @@ const ConfirmBooking = (props) => {
     //     }
     // };
     const getServiceTypeLabel = () => {
-        if (bookingDetails?.serviceType === 'DRIVER') return 'ACTING DRIVER';
+        if (bookingDetails?.serviceType === 'DRIVER') {return bookingDetails?.bookingType? `ACTING DRIVER - ${bookingDetails.bookingType}` : 'ACTING DRIVER';}
         if (bookingDetails?.serviceType === 'RIDES') return 'Local Rides';
         if (bookingDetails?.packageType === 'Local') return 'Hourly Package';
         if (bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.bookingType === 'DROP ONLY') return 'Drop Taxi';
@@ -1215,6 +1215,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <span className="text-gray-500 font-semibold">Service Type:</span>
                                 <span className="text-gray-900 font-medium">{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.bookingType == "DROP ONLY") ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</span>
                             </div>
+                            {bookingDetails?.serviceType === 'DRIVER' && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Package Type:</span>
+                                        <span className="text-gray-900 font-medium">{bookingDetails?.bookingType}</span>
+                                    </div>
+                            )}
                             {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Delivery Type:</span>
