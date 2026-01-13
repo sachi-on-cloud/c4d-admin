@@ -64,6 +64,7 @@ const CustomerDiscountList = () => {
               <table className="w-full min-w-[900px] table-auto">
                 <thead>
                   <tr>
+                    <th className="py-3 px-5 text-left">Customer ID</th>
                     <th className="py-3 px-5 text-left">Customer Name</th>
                     <th className="py-3 px-5 text-left">Phone Number</th>
                     <th className="py-3 px-5 text-left">Coupon Code</th>
@@ -76,7 +77,7 @@ const CustomerDiscountList = () => {
                   {items.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="py-4 px-5 text-center text-gray-600"
                       >
                         No records found
@@ -84,6 +85,8 @@ const CustomerDiscountList = () => {
                     </tr>
                   ) : (
                     items.map((item) => {
+                      const customerId =
+                        item.customer?.id || item.customerId || "-";
                       const customerName =
                         item.customer?.firstName ||
                         item.customer?.name ||
@@ -93,6 +96,7 @@ const CustomerDiscountList = () => {
                       const discount = item.discount || {};
                       return (
                         <tr key={`${item.discountId}-${item.customerId}-${item.created_at}`} className="border-b">
+                          <td className="py-3 px-5">{customerId}</td>
                           <td className="py-3 px-5">{customerName}</td>
                           <td className="py-3 px-5">{phone}</td>
                           <td className="py-3 px-5">
@@ -109,7 +113,7 @@ const CustomerDiscountList = () => {
                               : "-"}
                           </td>
                           <td className="py-3 px-5">
-                            {discount.allowedCount ?? "-"}
+                            {discount.allowedCount || "-"}
                           </td>
                         </tr>
                       );

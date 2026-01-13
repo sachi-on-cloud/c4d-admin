@@ -894,4 +894,30 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
       gstNo: Yup.string().required('GST No is required'),
       isActive: Yup.boolean().required('Status is required'),
     });
+export const DriverOfferSchema = Yup.object({
+  title: Yup.string().required("Title is required"),
+//   serviceType: Yup.string().required("Service type is required"),
+//   serviceArea: Yup.string().required("Service area is required"),
+  startDate: Yup.string().required("Start date is required"),
+  endDate: Yup.string()
+    .required("End date is required")
+    .test("end-after-start", "End date cannot be before start date", function (value) {
+      const { startDate } = this.parent;
+      if (!startDate || !value) return true;
+      return new Date(value) >= new Date(startDate);
+    }),
+  tripTarget: Yup.number()
+    .typeError("Trip target must be a number")
+    .integer("Trip target must be an integer")
+    .min(1, "Trip target must be at least 1")
+    .required("Trip target is required"),
+  amount: Yup.number()
+    .typeError("Amount must be a number")
+    .min(0, "Amount cannot be negative")
+    .required("Amount is required"),
+  startMsg: Yup.string().required("Start message is required"),
+  midMsg: Yup.string().required("Mid  message is required"),
+  endMsg: Yup.string().required("End message is required"),
+  status: Yup.mixed().required("Status is required"),
+});
 

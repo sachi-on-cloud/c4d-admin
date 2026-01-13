@@ -990,6 +990,10 @@ export const API_ROUTES = {
     'GET_CUSTOM_ACTIVE_DISCOUNTS':'/discounts/custom-active',
     'GET_CUSTOM_DISCOUNT_TARGETS':'/discounts/targets',
     'POST_CUSTOM_DISCOUNT_TARGETS':'/discounts/targets',
+    'POST_DRIVER_OFFER':'/driver-offers',
+    'GET_DRIVER_OFFER':'/driver-offers',
+    'POST_DRIVER_OFFER_ASSIGN':'/driver-offers/assign',
+    'GET_DRIVER_OFFER_ASSIGN':'/driver-offers/assignments',
 
 };
 
