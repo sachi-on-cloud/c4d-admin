@@ -321,7 +321,7 @@ const ConfirmBooking = (props) => {
     const getBookingById = async (bookingId, customerId) => {
         setLoading(true);
         try {
-        const data = await ApiRequestUtils.get(`${API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID}/${bookingId}?isWebportal=true`,customerId);
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
         // console.log("BOOKING DATA", data);
         if (data?.success) {
                 let bookingPayload = {...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark,customerBookingCount: data?.customerBookingCount, lastBookingCreatedAt: data?.lastBookingCreatedAt};
@@ -1804,17 +1804,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" && (
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
-                                        <Typography className="text-sm text-black font-medium">{bookingDetails?.totalHours}</Typography>
+                                        <Typography className="text-sm text-black font-medium">{bookingDetails?.value?.displayTime === bookingDetails?.value?.hoursEstimated ? bookingDetails?.value?.displayTime : bookingDetails?.value?.totalHours +'Hrs' }</Typography>
                                     </div>
                                 )}
                                 {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
                                     <div className="flex justify-between my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate km:</Typography>
                                     <Typography className="text-sm text-black font-medium">
-                                        {(
-                                        Number(bookingDetails?.value?.distanceEstimated) +
-                                        Number(bookingDetails?.value?.driverWithin)
-                                        ).toFixed(1)} km
+                                        {Number(bookingDetails?.estimatedDistance).toFixed(2)}
                                     </Typography>
                                     </div>
 

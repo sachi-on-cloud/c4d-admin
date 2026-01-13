@@ -297,6 +297,14 @@ useEffect(() => {
                       {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 mx-1 justify-center items-center text-black" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                       </div>
                     </th>
+                    <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                      <Typography
+                        variant="small"
+                        className="text-[11px] font-bold uppercase text-black"
+                      >
+                        ID
+                      </Typography>
+                    </th>
                     {/* <th onClick={() => handleSort('firstName')} className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer">
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
                       {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
@@ -370,7 +378,7 @@ useEffect(() => {
                 <tbody>
                   {loading ? (
                       <tr>
-                        <td colSpan={9} className="py-3 px-5">
+                        <td colSpan={12} className="py-3 px-5">
                           <div className="flex justify-center items-center">
                             <Spinner className="h-12 w-12" />
                           </div>
@@ -395,6 +403,11 @@ useEffect(() => {
                             <td className={className}>
                               <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {moment(created_at).format("DD-MM-YYYY")}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
+                                {id}
                               </Typography>
                             </td>
                             <td className={className}>

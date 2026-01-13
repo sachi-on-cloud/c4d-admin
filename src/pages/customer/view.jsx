@@ -192,7 +192,7 @@ export function CustomerView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name", "Phone Number","Rating", ""].map((el) => (
+                    {["ID","Name", "Phone Number","Rating", ""].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left cursor-pointer"
@@ -230,7 +230,7 @@ export function CustomerView() {
                   
                   {loading ? (
                     <tr>
-                      <td colSpan={4} className="py-3 px-5">
+                      <td colSpan={5} className="py-3 px-5">
                         <div className="flex justify-center items-center">
                           <Spinner className="h-12 w-12" />
                         </div>
@@ -246,6 +246,11 @@ export function CustomerView() {
 
                       return (
                         <tr key={id}>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-black">
+                              {id}
+                            </Typography>
+                          </td>
                           <td className={className}>
                             <div className="flex items-center gap-4">
                               <div onClick={() => navigate(`/dashboard/customers/details/${id}`)}>

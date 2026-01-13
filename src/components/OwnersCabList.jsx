@@ -44,6 +44,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                 <thead>
                                     <tr>
                                         {[
+                                            "Cab ID",
                                             "Cab Name",
                                             "Cab Number",
                                             "Created At",
@@ -77,6 +78,11 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                 <>
                                                     <tr key={id}>
                                                         <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                {id}
+                                                            </Typography>
+                                                        </td>
+                                                        <td className={className}>
                                                             <Typography 
                                                                 className="font-semibold underline cursor-pointer text-primary-900"
                                                                 onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
@@ -96,7 +102,7 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                                {Drivers[0]?.firstName ? Drivers[0]?.firstName : ownerName}
+                                                                {Drivers && Drivers.length > 0 ? `${Drivers[0]?.id ? `DriverId#${Drivers[0].id} - ` : ""}${Drivers[0]?.firstName || "-"}` : ownerName}
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>
