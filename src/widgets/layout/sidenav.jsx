@@ -803,6 +803,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
                       { label: "Custom Discount", path: "/dashboard/users/custom-discount/list" },
+                      { label: "Driver Bonus", path: "/dashboard/users/driver-offer/list" },
                       { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
                       { label: "TAX", path: "/dashboard/user/GSTList" },
                     ].map(({ label, path }) => (
@@ -855,6 +856,12 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 <img
                                 src="/img/custom_discount.png"
                                 alt="Custom Discount"
+                                className="h-6 w-6 rounded-full"
+                              />)}
+                              {label === "Driver Bonus" && (
+                                <img
+                                src="/img/driver.png"
+                                alt="Driver Bonus"
                                 className="h-6 w-6 rounded-full"
                               />)}
                               {label === "Discount Module" && (

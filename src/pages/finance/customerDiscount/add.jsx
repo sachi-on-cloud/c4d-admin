@@ -1,42 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { Button, Card, CardHeader, CardBody, Typography, Alert, Spinner } from "@material-tailwind/react";
+import { Button, Card, CardHeader, CardBody, Typography, Spinner } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const CustomDiscountSchema = Yup.object({
   discountId: Yup.number().required("Discount is required"),
-  phoneNumbers: Yup.string().trim().required("Enter at least one phone number"),
+  customerIdsInput: Yup.string().trim().required("Enter at least one customer ID Separated by comma  eg: 1,234"),
 });
 
 const CustomerDiscountAdd = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [discounts, setDiscounts] = useState([]);
-  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const discountRes = await ApiRequestUtils.get(API_ROUTES.GET_CUSTOM_ACTIVE_DISCOUNTS);
-        const customerRes = await ApiRequestUtils.get(API_ROUTES.GET_ALL_CUSTOMERS);
 
         if (discountRes?.success) {
           console.log("CUSTOM ACTIVE DISCOUNTS RESPONSE:", discountRes);
           setDiscounts(discountRes.data || []);
         }
-        if (customerRes?.success) {
-          setCustomers(customerRes.data || []);
-        }
       } catch (error) {
         console.error("Error loading custom discount data:", error);
-        setAlert({ color: "red", message: "Failed to load discounts or customers." });
       } finally {
         setLoading(false);
       }
@@ -47,40 +40,33 @@ const CustomerDiscountAdd = () => {
 
   const initialValues = {
     discountId: location.state?.discountId || "",
-    phoneNumbers: "",
+    customerIdsInput: "",
   };
 
   const handleSubmit = async (values, formikHelpers) => {
     setSubmitting(true);
-    setAlert(null);
     try {
       const loggedInUser = localStorage.getItem("loggedInUser");
       const parsedUser = loggedInUser ? JSON.parse(loggedInUser) : null;
       const createdBy = parsedUser?.id || 0;
 
-      const rawPhones = (values.phoneNumbers || "")
+      const rawIds = (values.customerIdsInput || "")
         .split(/[\n,]+/)
-        .map((p) => p.replace(/\D/g, "").slice(-10))
-        .filter((p) => p.length === 10);
+        .map((id) => id.trim())
+        .filter((id) => id !== "");
 
-      const uniquePhones = Array.from(new Set(rawPhones));
-
-      const phoneToIdMap = new Map();
-      customers.forEach((c) => {
-        const stored = (c.phoneNumber || c.mobile || "").replace(/\D/g, "").slice(-10);
-        if (stored.length === 10) {
-          phoneToIdMap.set(stored, c.id);
-        }
-      });
-
-      const customerIds = uniquePhones
-        .map((ph) => phoneToIdMap.get(ph))
-        .filter((id) => typeof id === "number");
+      const customerIds = Array.from(
+        new Set(
+          rawIds
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0)
+        )
+      );
 
       if (customerIds.length === 0) {
         formikHelpers.setFieldError(
-          "phoneNumbers",
-          "No customers found for the given phone numbers."
+          "customerIdsInput",
+          "Enter valid numeric customer IDs."
         );
         return;
       }
@@ -98,14 +84,14 @@ const CustomerDiscountAdd = () => {
         return;
       } else {
         formikHelpers.setFieldError(
-          "phoneNumbers",
+          "customerIdsInput",
           res?.message || "Failed to assign custom discount."
         );
       }
     } catch (error) {
       console.error("Error submitting custom discount targets:", error);
       formikHelpers.setFieldError(
-        "phoneNumbers",
+        "customerIdsInput",
         error?.response?.data?.message || "Something went wrong while saving."
       );
     } finally {
@@ -123,13 +109,6 @@ const CustomerDiscountAdd = () => {
 
   return (
     <div className="mb-8 flex flex-col gap-6">
-      {alert && (
-        <div className="mb-2">
-          <Alert color={alert.color} className="py-3 px-6 rounded-xl">
-            {alert.message}
-          </Alert>
-        </div>
-      )}
       <Card>
         <CardHeader variant="gradient" className={`mb-4 p-6 mt-3 rounded-xl ${ColorStyles.bgColor}`}>
           <Typography variant="h6" color="white">
@@ -138,7 +117,7 @@ const CustomerDiscountAdd = () => {
         </CardHeader>
         <CardBody className="pt-0">
           <Formik initialValues={initialValues} validationSchema={CustomDiscountSchema} onSubmit={handleSubmit}>
-            {({ values, setFieldValue }) => (
+            {() => (
               <Form className="grid grid-cols-2 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700">Select Discount</label>
@@ -159,19 +138,19 @@ const CustomerDiscountAdd = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">
-                    Customer Phone Numbers
+                    Customer IDs
                   </label>
-                  <Field name="phoneNumbers">
+                  <Field name="customerIdsInput">
                     {({ field }) => (
                       <textarea
                         {...field}
                         rows={3}
                         className="mt-1 p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
-                        placeholder="Enter one or more phone numbers, separated by comma or new line"
+                        placeholder="Enter one or more customer IDs, separated by comma or new line"
                       />
                     )}
                   </Field>
-                  <ErrorMessage name="phoneNumbers" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage name="customerIdsInput" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
 
                 <div className="md:col-span-2 flex justify-between mt-4">

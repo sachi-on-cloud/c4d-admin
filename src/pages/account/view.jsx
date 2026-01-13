@@ -320,7 +320,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","KYC Status"].map((el) => (
+                    {["Created Date","ID","Account Name","Email","Phone Number","Service Type","Source","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -423,7 +423,7 @@ export function AccountView() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={9} className="py-3 px-5">
+                      <td colSpan={8} className="py-3 px-5">
                         <div className="flex justify-center items-center">
                           <Spinner className="h-12 w-12" />
                         </div>
@@ -448,6 +448,11 @@ export function AccountView() {
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
                               {moment(created_at).format("DD-MM-YYYY")}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {id}
                             </Typography>
                           </td>
                           <td className={className}>

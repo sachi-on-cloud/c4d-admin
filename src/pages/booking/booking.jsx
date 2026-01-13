@@ -88,6 +88,7 @@ const Booking = (props) => {
     const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
     const [editBookingView, setEditBookingView] = useState(false);
     const [distanceExceedModal, setDistanceExceedModal] = useState(false);
+    const [outstationDistanceModal, setOutstationDistanceModal] = useState(false);
     const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
     const [zoneErrorModal, setZoneErrorModal] = useState({ show: false, text: '', title: '' });
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -294,6 +295,19 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
 };
   const getQuoteOutstationDetails = async (values) => {
+        const isRentalOutstationRoundTrip =
+            values?.serviceType === 'RENTAL' &&
+            values?.packageTypeSelected === 'Outstation' &&
+            values?.tripType === 'Round Trip';
+
+        if (isRentalOutstationRoundTrip) {
+            const distanceOk = await calculateDistance(values);
+            if (!distanceOk) {
+                setOutstationDistanceModal(true);
+                return;
+            }
+        }
+
         const zoneData = await zoneCheckUpFun(values);
         // console.log("frist",zoneData)
         let actualZone = '';
@@ -559,6 +573,9 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             return calculateDistance?.data?.showAlert; // Existing logic for RIDES
         } else if (values.serviceType === "AUTO") {
             return calculateDistance?.data?.showAlert;
+        } else if (values.serviceType === "RENTAL" && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') {
+            const showAlert = calculateDistance?.data?.showAlert;
+            return showAlert !== undefined ? showAlert : true;
         } else if (values.serviceType ==='RENTAL_DROP_TAXI') {
                 const rawDistance = calculateDistance?.data?.estimatedDistance || calculateDistance?.data?.kilometer;
                 const distance = rawDistance ? parseFloat(rawDistance) : 0;
@@ -759,11 +776,19 @@ const sendQuotationLogs = async (bookingId, userId) => {
     };
     const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
 
-    // Check distance only for DropTaxi
-    if (values.serviceType === 'RENTAL_DROP_TAXI') {
+    const isRentalOutstationRoundTrip =
+        values.serviceType === 'RENTAL' &&
+        values.packageTypeSelected === 'Outstation' &&
+        values.tripType === 'Round Trip';
+
+    if (values.serviceType === 'RENTAL_DROP_TAXI' || isRentalOutstationRoundTrip) {
         const checkDistance = await calculateDistance(values);
         if (!checkDistance) {
+            if (isRentalOutstationRoundTrip) {
+                setOutstationDistanceModal(true);
+            } else {
             setDropTaxiDistanceExceedModal(true); // Show the DropTaxi distance exceed modal
+            }
             setIsButtonDisabled(false);
             return;
         }
@@ -3128,6 +3153,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
               
                 <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content={dropTaxiModalContent}/>
                 <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 15 km are allowed only through DropTaxi or Outstation service." />
+                <DistanceExceedModal isVisible={outstationDistanceModal} onClose={() => { setOutstationDistanceModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Going a bit far?" content="Try our Local Ride, it’s faster and more affordable for short" />
                 <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
                 
                 {zoneErrorModal.show && (

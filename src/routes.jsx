@@ -121,6 +121,9 @@ import ExotelCallsList from "./components/Exotel";
 import { LeadsView } from "./pages/public/leads";
 import CustomerDiscountAdd from "./pages/finance/customerDiscount/add";
 import CustomerDiscountList from "./pages/finance/customerDiscount/list";
+import DriverOfferList from "./pages/finance/driverOffer/DriverOfferList";
+import DriverOfferAdd from "./pages/finance/driverOffer/add";
+import DriverOfferAssign from "./pages/finance/driverOffer/DriverOfferAssign";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -985,6 +988,30 @@ export const routes = [
         name: "Custom Discount List",
         path: "/users/custom-discount/list",
         element: <CustomerDiscountList />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Bonus List",
+        path: "/users/driver-offer/list",
+        element: <DriverOfferList />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Bonus Add",
+        path: "/users/driver-offer/add",
+        element: <DriverOfferAdd />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Bonus Assign",
+        path: "/users/driver-offer/assign",
+        element: <DriverOfferAssign />,
         display: false,
         permission: "Users",
       },
