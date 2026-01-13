@@ -2204,6 +2204,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
                                                             {values.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Point 
+                                                            {(values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation") && (
+                                                                <span className="text-red-500">*</span>
+                                                            )}
                                                             </label>
                                                             <div className="relative">
                                                             <Field
@@ -2252,7 +2255,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     <div className=" p-2 space-y-2">
                                                         <div className='flex '>
                                                         <label className="block text-sm font-medium text-black-700">
-                                                            Cab Ending Point 
+                                                            Cab Ending Point <span className="text-red-500">*</span>
                                                         </label>
 
                                                         {/* Checkbox to copy from starting point */}
