@@ -374,238 +374,161 @@ const handleNewServiceImageChange = (index, file) => {
         </div>
 
         {/* New Services */}
-        <div className="mt-2">
-          <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
-            New Services
-          </Typography>
-          <div className="overflow-visible relative z-50 mb-3">
-            <Select
-              isMulti
-              options={newServiceNameOptions}
-              value={newServiceNameOptions.filter((opt) =>
-                formData.newServices?.some((s) => s.name === opt.value)
-              )}
-              onChange={handleNewServiceSelectChange}
-              closeMenuOnSelect={false}
-              placeholder="Select new services"
-              menuPortalTarget={document.body}
-              styles={{
-                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                control: (base, state) => ({
-                  ...base,
-                  borderColor: newServicesError
-                    ? '#ef4444'
-                    : state.isFocused
-                    ? '#3b82f6'
-                    : '#d1d5db',
-                  boxShadow: newServicesError
-                    ? '0 0 0 1px #ef4444'
-                    : state.isFocused
-                    ? '0 0 0 1px #3b82f6'
-                    : 'none',
-                  '&:hover': {
-                    borderColor: newServicesError ? '#ef4444' : '#9ca3af',
-                  },
-                }),
-              }}
-            />
-          </div>
-          {newServicesError && (
-            <p className="text-red-500 text-xs mt-1">{newServicesError}</p>
-          )}
-          <div className="space-y-4">
-            {formData.newServices?.map((service, index) => (
-              <div key={index} className="space-y-2">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                  <div>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="mb-1"
-                    >
-                      Name
-                    </Typography>
-                    <Typography variant="small" color="gray">
-                      {service.name}
-                    </Typography>
-                  </div>
-                 <div>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="mb-1"
-                    >
-                      Image
-                    </Typography>
-                    <label className="cursor-pointer block">
-                      <div className={`
-                        border-2  rounded p-2 text-center
-                        ${service.imagePreview ? 'border-blue-500 bg-blue-50/30' : 'border-gray-300 hover:border-black'}
-                      `}>
-                        {service.imagePreview ? (
-                          <img
-                            src={service.imagePreview}
-                            alt="preview"
-                            className="max-h-16 mx-auto object-contain"
-                          />
-                        ) : (
-                          <span className="text-sm text-gray-500">
-                            Click to upload image (PNG, JPG, GIF)
-                          </span>
-                        )}
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg, image/gif"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            handleNewServiceImageChange(index, file);
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                  <div className="flex items-center">
-                    <Switch
-                      color="blue"
-                      checked={service.isUpdate}
-                      onChange={(e) =>
-                        handleNewServiceToggle(index, e.target.checked)
-                      }
-                      label={
-                        service.isUpdate ? 'Status: Active' : 'Status: InActive'
-                      }
-                    />
-                  </div>
+                    <div className="mt-2">
+                <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
+                  New Services
+                </Typography>
+
+                {/* Service Selector */}
+                <div className="overflow-visible relative z-50 mb-3">
+                  <Select
+                    isMulti
+                    options={newServiceNameOptions}
+                    value={newServiceNameOptions.filter((opt) =>
+                      formData.newServices?.some((s) => s.name === opt.value)
+                    )}
+                    onChange={handleNewServiceSelectChange}
+                    closeMenuOnSelect={false}
+                    placeholder="Select new services"
+                    menuPortalTarget={document.body}
+                    styles={{
+                      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                      control: (base, state) => ({
+                        ...base,
+                        // borderColor: newServicesError
+                        //   ? '#ef4444'
+                        //   : state.isFocused
+                        //   ? '#3b82f6'
+                        //   : '#d1d5db',
+                        // boxShadow: newServicesError
+                        //   ? '0 0 0 1px #ef4444'
+                        //   : state.isFocused
+                        //   ? '0 0 0 1px #3b82f6'
+                        //   : 'none',
+                      }),
+                    }}
+                  />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex flex-col">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="mb-1"
+
+                {/* {newServicesError && (
+                  <p className="text-red-500 text-xs mt-1">{newServicesError}</p>
+                )} */}
+
+                {/* Services Cards */}
+                <div className="space-y-4">
+                  {formData.newServices?.map((service, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 bg-white shadow-sm space-y-4"
                     >
-                      Accent Color
-                    </Typography>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={
-                          isValidHexColor(service.accentColor)
-                            ? service.accentColor
-                            : '#000000'
-                        }
-                        onChange={(e) =>
-                          handleNewServiceChange(
-                            index,
-                            'accentColor',
-                            e.target.value
-                          )
-                        }
-                        className="h-10 w-12 p-0 border border-gray-300 rounded"
-                      />
-                      <Input
-                        type="text"
-                        value={service.accentColor || ''}
-                        onChange={(e) =>
-                          handleNewServiceChange(
-                            index,
-                            'accentColor',
-                            e.target.value
-                          )
-                        }
-                        placeholder="#1D4ED8"
-                        className="min-w-0"
-                      />
+                      {/* Header */}
+                      <div className="flex items-center justify-between">
+                        <Typography variant="h6" color="blue-gray">
+                          {service.name}
+                        </Typography>
+
+                        <Switch
+                          color="blue"
+                          checked={service.isUpdate}
+                          onChange={(e) =>
+                            handleNewServiceToggle(index, e.target.checked)
+                          }
+                          label={service.isUpdate ? 'Active' : 'Inactive'}
+                        />
+                      </div>
+
+                      {/* Image */}
+                      <div>
+                        <Typography variant="small" color="blue-gray" className="mb-1">
+                          Service Image
+                        </Typography>
+
+                        <label className="cursor-pointer block w-full md:w-60">
+                          <div
+                            className={`border-2 rounded-md p-3 text-center transition
+                            ${
+                              service.imagePreview
+                                ? 'border-blue-500 bg-blue-50/30'
+                                : 'border-dashed border-gray-300 hover:border-gray-500'
+                            }`}
+                          >
+                            {service.imagePreview ? (
+                              <img
+                                src={service.imagePreview}
+                                alt="preview"
+                                className="max-h-20 mx-auto object-contain"
+                              />
+                            ) : (
+                              <span className="text-xs text-gray-500">
+                                Click to upload (PNG / JPG / GIF)
+                              </span>
+                            )}
+                          </div>
+
+                          <input
+                            type="file"
+                            accept="image/png, image/jpeg, image/jpg, image/gif"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleNewServiceImageChange(index, file);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      {/* Colors */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {[
+                          { label: 'Accent Color', key: 'accentColor', placeholder: '#1D4ED8' },
+                          { label: 'Background Color', key: 'backgroundColor', placeholder: '#EAEEFF' },
+                          { label: 'Pill Color', key: 'pillColor', placeholder: '#1E3A8A' },
+                        ].map((item) => (
+                          <div key={item.key} className="flex flex-col">
+                            <Typography variant="small" color="blue-gray" className="mb-1">
+                              {item.label}
+                            </Typography>
+
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={
+                                  isValidHexColor(service[item.key])
+                                    ? service[item.key]
+                                    : '#000000'
+                                }
+                                onChange={(e) =>
+                                  handleNewServiceChange(
+                                    index,
+                                    item.key,
+                                    e.target.value
+                                  )
+                                }
+                                className="h-10 w-12 border border-gray-300 rounded"
+                              />
+
+                              <Input
+                                type="text"
+                                value={service[item.key] || ''}
+                                onChange={(e) =>
+                                  handleNewServiceChange(
+                                    index,
+                                    item.key,
+                                    e.target.value
+                                  )
+                                }
+                                placeholder={item.placeholder}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="mb-1"
-                    >
-                      Background Color
-                    </Typography>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={
-                          isValidHexColor(service.backgroundColor)
-                            ? service.backgroundColor
-                            : '#000000'
-                        }
-                        onChange={(e) =>
-                          handleNewServiceChange(
-                            index,
-                            'backgroundColor',
-                            e.target.value
-                          )
-                        }
-                        className="h-10 w-12 p-0 border border-gray-300 rounded"
-                      />
-                      <Input
-                        type="text"
-                        value={service.backgroundColor || ''}
-                        onChange={(e) =>
-                          handleNewServiceChange(
-                            index,
-                            'backgroundColor',
-                            e.target.value
-                          )
-                        }
-                        placeholder="#EAEEFF"
-                        className="min-w-0"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="mb-1"
-                    >
-                      Pill Color
-                    </Typography>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={
-                          isValidHexColor(service.pillColor)
-                            ? service.pillColor
-                            : '#000000'
-                        }
-                        onChange={(e) =>
-                          handleNewServiceChange(
-                            index,
-                            'pillColor',
-                            e.target.value
-                          )
-                        }
-                        className="h-10 w-12 p-0 border border-gray-300 rounded"
-                      />
-                      <Input
-                        type="text"
-                        value={service.pillColor || ''}
-                        onChange={(e) =>
-                          handleNewServiceChange(
-                            index,
-                            'pillColor',
-                            e.target.value
-                          )
-                        }
-                        placeholder="#1E3A8A"
-                        className="min-w-0"
-                      />
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
         {/* Quick Service */}
         <div className="overflow-visible relative z-50">
