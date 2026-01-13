@@ -1985,7 +1985,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
 
                                 {/* Additional Charges Section */}
 
-                                {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && (
+                                {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && (
                                     <>
                                         <hr className="my-2" />
                                         <div className="flex justify-between items-center mb-2">
