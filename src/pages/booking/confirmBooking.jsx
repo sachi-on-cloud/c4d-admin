@@ -25,7 +25,17 @@ const ConfirmBooking = (props) => {
     const [dateVal, setDateVal] = useState();
     const [kms, setKms] = useState();
     const [timeVal, setTimeVal] = useState();
-    const [amount, setAmount] = useState();
+    const [amount, setAmount] = useState({
+        price: 0,
+        extraPrice: 0,
+        total: 0,
+        extraHours: 0,
+        extraHourPrice: 0,
+        extraKMs: 0,
+        extraKMPrice: 0,
+        extraNightCharge: 0,
+        extraNightChargePrice: 0,
+    });
     const [customerFeedback, setCustomerFeedback] = useState();
     const [driverFeedback, setDriverFeedback] = useState();
     const [showDetails, setShowDetails] = useState(true);
@@ -311,7 +321,7 @@ const ConfirmBooking = (props) => {
     const getBookingById = async (bookingId, customerId) => {
         setLoading(true);
         try {
-        const data = await ApiRequestUtils.get(API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID + "/" + bookingId, customerId);
+        const data = await ApiRequestUtils.get(`${API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID}/${bookingId}?isWebportal=true`,customerId);
         // console.log("BOOKING DATA", data);
         if (data?.success) {
                 let bookingPayload = {...data?.data, estimatedPrice: data?.estimatedPrice, discount: data?.discount,notesData: data?.notes,landmark: data?.data?.landmark,customerBookingCount: data?.customerBookingCount, lastBookingCreatedAt: data?.lastBookingCreatedAt};
@@ -690,6 +700,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
     const isDropTaxiBooking = (booking) => (booking?.serviceType === 'RENTAL' && booking?.bookingType === 'DROP ONLY' && booking?.packageType ==='Outstation') || booking?.serviceType === 'RENTAL_DROP_TAXI';
+    const isOutstationBooking = (booking) => booking?.serviceType === 'RENTAL' && booking?.packageType === 'Outstation' && booking?.bookingType === 'ROUND TRIP';
     const isQuotedWithoutCarType = (booking) => booking?.status === BOOKING_STATUS.QUOTED && (booking?.carType === '' || booking?.carType == null);
     const shouldShowQuotePricing = (booking) => !isQuotedWithoutCarType(booking);
     return (
@@ -1360,7 +1371,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">{bookingDetails?.estimatedDistance.toFixed(1)} Kms</span>
                                 </div>
                             }
-                             {  bookingDetails?.serviceType === 'AUTO' &&  (
+                             {bookingDetails?.serviceType === 'AUTO' &&  (
                                     
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
@@ -1420,7 +1431,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     {/* </div> */}
                             {/* need to add logic for price */}
                     {/* <div className="grid sm:grid-cols-2 gap-4 text-sm">                                         */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && !isDropTaxiBooking(bookingDetails) && (                            
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && !isDropTaxiBooking(bookingDetails) && !isOutstationBooking(bookingDetails) && (                            
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
@@ -1445,6 +1456,16 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                     )
                                                     : bookingDetails?.value?.estimatedPrice
                                         )}
+                                    </span>
+                                </div>
+                            )}
+                            {/* offerPrice use case for drop taxi and outstation estimated price no gst added */}
+                            {(bookingDetails?.status === BOOKING_STATUS.END_OTP || (bookingDetails?.status === BOOKING_STATUS.ENDED &&(isDropTaxiBooking(bookingDetails) || isOutstationBooking(bookingDetails)))
+                            ) && (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
+                                    <span className="text-gray-900 font-medium">
+                                        ₹ {Math.round(bookingDetails?.offerPrice)}
                                     </span>
                                 </div>
                             )}
