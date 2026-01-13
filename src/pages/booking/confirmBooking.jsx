@@ -1801,7 +1801,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </Typography>
                                 </div>
                                 )}
-                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" && (
+                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" && bookingDetails?.serviceType !== 'DRIVER' && (
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
                                         <Typography className="text-sm text-black font-medium">{bookingDetails?.value?.displayTime === bookingDetails?.value?.hoursEstimated ? bookingDetails?.value?.displayTime : bookingDetails?.value?.totalHours +'Hrs' }</Typography>
