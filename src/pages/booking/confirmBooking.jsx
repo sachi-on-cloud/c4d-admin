@@ -1811,7 +1811,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <div className="flex justify-between my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate km:</Typography>
                                     <Typography className="text-sm text-black font-medium">
-                                        {Number(bookingDetails?.estimatedDistance).toFixed(2)}
+                                        {Math.round(bookingDetails?.estimatedDistance)}
                                     </Typography>
                                     </div>
 

@@ -368,9 +368,9 @@ const DriverOfferList = () => {
                               : "-"}
                           </td>
                           <td className="py-3 px-5">
-                            {item.tripTarget ?? "-"}
+                            {item.tripTarget || "-"}
                           </td>
-                          <td className="py-3 px-5">{item.amount ?? "-"}</td>
+                          <td className="py-3 px-5">{item.amount || "-"}</td>
                           <td className="py-3 px-5">
                             <Chip
                               variant="ghost"
@@ -447,8 +447,8 @@ const DriverOfferList = () => {
                         const serviceArea =
                           row.serviceArea || offer.serviceArea || "-";
                         const tripTarget =
-                          row.tripTarget ?? offer.tripTarget ?? "-";
-                        const amount = row.amount ?? offer.amount ?? "-";
+                          row.tripTarget || offer.tripTarget || "-";
+                        const amount = row.amount || offer.amount || "-";
                         const driverId =
                           row.driverId ||
                           driver.id ||
