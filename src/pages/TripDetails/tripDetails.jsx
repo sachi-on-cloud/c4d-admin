@@ -240,6 +240,7 @@ const TripDetails = () => {
           </div>
         ) : (
           <>
+            <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-100">
@@ -426,6 +427,7 @@ const TripDetails = () => {
                 )}
               </tbody>
             </table>
+            </div>
             {trips.length > 0 && (
               <div className="flex items-center justify-center mt-4">
                 <Button
