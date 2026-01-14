@@ -1317,12 +1317,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">{bookingDetails?.Cab?.carType}</span>
                                 </div>
                             )} */}
-                            {bookingDetails?.carType  && bookingDetails?.serviceType !='AUTO' &&
+                            {bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.carType && bookingDetails?.serviceType !== 'AUTO' && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Car Type:</span>
                                     <span className="text-gray-900 font-medium">{bookingDetails?.carType}</span>
                                 </div>
-                            }
+                            )}
                             {(bookingDetails?.serviceType != 'RIDES'  && bookingDetails?.serviceType !='AUTO') && bookingDetails.luggage > 0 &&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Luggage:</span>
