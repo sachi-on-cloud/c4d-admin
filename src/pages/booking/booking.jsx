@@ -1448,6 +1448,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                             setSearchBookingId('');
                                         }}
                                         validationSchema={BOOKING_DETAILS_SCHEMA}
+                                        validateOnMount={true}
                                         enableReinitialize={true}
                                     >
                                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => {
@@ -1691,7 +1692,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             </div>
                                                         <div className='pt-2'>
                                                         {!values?.isPremiumService && ( <>
-                                                                <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                                <label className="text-sm font-medium text-black-700">Car Type <span className='text-red-500 text-sm'>*</span></label>
                                                                 <div className='pt-3 grid grid-cols-6 gap-3'>
                                                                 {(values?.serviceType === 'DRIVER' || values?.serviceType === 'RENTAL' || values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'RENTAL_DROP_TAXI') && (
                                                                     ['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
@@ -1709,7 +1710,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </label>
                                                                     )))}
                                                                 </div>
-                                                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                                                {['DRIVER', 'RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(values.serviceType) && errors.carType && (
+                                                                    <div className="text-red-500 text-sm mt-1">
+                                                                        {errors.carType}
+                                                                    </div>
+                                                                )}
                                                             </>)}
                                                             </div>
                                                             </div>
@@ -2072,7 +2077,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             {!values.isPremiumService && values.serviceType && ["RIDES"].includes(values.serviceType) && (
                                                                 <>
                                                                 <div className='ml-2'>
-                                                                    <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                                    <label className="text-sm font-medium text-black-700">Car Type <span className='text-red-500 text-sm'>*</span></label>
                                                                 <div className="flex gap-6 mt-2">
                                                                     {['Mini', 'Sedan'].map((carType) => (
                                                                         <label key={carType} className="flex items-center space-x-2 cursor-pointer">
@@ -2089,7 +2094,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </label>
                                                                     ))}
                                                                 </div>
-                                                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                                                {values.serviceType === 'RIDES' && errors.carType && (
+                                                                    <div className="text-red-500 text-sm mt-1">
+                                                                        {errors.carType}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                                 </>
                                                             )}
@@ -2431,7 +2440,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                                 <Typography>
-                                                                                    {quoteDetails.amount?.carType || ''}
+                                                                                    {values.carType || quoteDetails.amount?.carType || ''}
                                                                                 </Typography>
                                                                             </div>
                                                                         {/* <div className="flex justify-between">
@@ -2963,39 +2972,39 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
-                                                {(values?.serviceType=="RENTAL" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation && values.sourceType &&
+                                                {(values?.serviceType=="RENTAL" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation && values.sourceType && values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {(values?.serviceType=="DRIVER" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation  && values.sourceType &&
+                                                 {(values?.serviceType=="DRIVER" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation  && values.sourceType && values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {values.serviceType == 'RENTAL_DROP_TAXI' && values.dropLocation && values.pickupLocation && values.sourceType &&
+                                                 {values.serviceType == 'RENTAL_DROP_TAXI' && values.dropLocation && values.pickupLocation && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
 
-                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation && values.carType && values.sourceType &&
+                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation && values.carType && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
 
-                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected && values.sourceType &&
+                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Local' && values.pickupLocation && values.packageSelected && values.sourceType &&
+                                                {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Local' && values.pickupLocation && values.packageSelected && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation && values.sourceType &&
+                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
