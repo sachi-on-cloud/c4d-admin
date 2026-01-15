@@ -188,6 +188,12 @@ const Booking = (props) => {
     const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
     // console.log('Mapped serviceType:', mappedServiceType);
 
+    // AUTO bookings do not use package list; skip silently
+    if (mappedServiceType === 'AUTO') {
+      setPackageTypeSelectedData([]);
+      return;
+    }
+
     if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
       console.error('Invalid serviceType:', mappedServiceType);
       setPackageTypeSelectedData([]);
@@ -3004,7 +3010,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation && values.sourceType &&  values.carType &&
+                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>

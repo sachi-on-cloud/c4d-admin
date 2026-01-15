@@ -137,6 +137,12 @@ useEffect(() => {
             };
             const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
 
+            // AUTO bookings don't use package-based pricing; skip without logging an error
+            if (mappedServiceType === 'AUTO') {
+                setPackageTypeSelectedData([]);
+                return;
+            }
+
             if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
                 console.error('Invalid serviceType:', mappedServiceType);
                 setPackageTypeSelectedData([]);
@@ -1317,7 +1323,12 @@ useEffect(() => {
                                         </div>
                                         <>
                                                             <div className="flex justify-between">
-
+                                            <Typography color="gray" variant="h6">Car Type:</Typography>
+                                            <Typography>
+                                                {values.carType || bookingData?.carType || ''}
+                                            </Typography>
+                                        </div>
+                                                            <div className="flex justify-between">
                                                                 <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
                                                                     {values.packageSelected && values.packageTypeSelected === 'Local' ? (
