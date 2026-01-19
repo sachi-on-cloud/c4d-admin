@@ -812,13 +812,13 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     couponCode: Yup.string().required('Coupon code is required'),  
     percentage: Yup.mixed().notRequired(),
     amount: Yup.mixed().notRequired(),
-    cabType: Yup.string().when('isPremium', {
-        is: false,
+    cabType: Yup.string().when(['isPremium', 'serviceType'], {
+        is: (isPremium, serviceType) => isPremium === false && serviceType !== 'AUTO',
         then: (schema) => schema.required('Car Type is required'),
         otherwise: (schema) => schema.nullable(),
     }),
-    premiumCabType: Yup.string().when('isPremium', {
-        is: true,
+    premiumCabType: Yup.string().when(['isPremium', 'serviceType'], {
+        is: (isPremium, serviceType) => isPremium === true && serviceType !== 'AUTO',
         then: (schema) => schema.required('Car Type is required'),
         otherwise: (schema) => schema.nullable(),
     }),
