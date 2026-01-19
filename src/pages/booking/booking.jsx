@@ -1401,6 +1401,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                         setEditBooking();
                         setQuoteDetails();
                         setSearchBookingId('')
+                        setShowQuickCreateCustomer(false);
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
                                 <div className='justify-end items-end  absolute -right-6'>
@@ -1414,6 +1415,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 setEditBooking();
                                                 setQuoteDetails();
                                                 setSearchBookingId('');
+                                                setShowQuickCreateCustomer(false);
                                             }
                                         }
                                         className="rounded-3xl  p-2 bg-surface-muted"
