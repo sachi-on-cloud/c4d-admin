@@ -295,7 +295,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || null}
          ),
 
-         serviceType: values?.serviceType === "RENTAL_DROP_TAXI" ? "RENTAL_DROP_TAXI" : values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY_PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || "",
+         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'DROP TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || '',
         cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
@@ -305,11 +305,18 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             values?.serviceType === 'RENTAL' &&
             values?.packageTypeSelected === 'Outstation' &&
             values?.tripType === 'Round Trip';
+        const isDropTaxiOutstation = values?.serviceType === 'RENTAL_DROP_TAXI';
 
-        if (isRentalOutstationRoundTrip) {
+        // For Outstation Round Trip and Drop Taxi: check distance BEFORE estimation
+        if (isRentalOutstationRoundTrip || isDropTaxiOutstation) {
             const distanceOk = await calculateDistance(values);
             if (!distanceOk) {
+                if (isRentalOutstationRoundTrip) {
                 setOutstationDistanceModal(true);
+                } else if (isDropTaxiOutstation) {
+                    setDropTaxiDistanceExceedModal(true);
+                }
+                setIsButtonDisabled(false);
                 return;
             }
         }
@@ -408,15 +415,11 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     if (val.serviceType === 'RIDES' || val.serviceType === 'AUTO') {
         checkDistance = await calculateDistance(val);
         checkCityLimit = await calcluateCityLimit(val);
-    } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
-        checkDistance = await calculateDistance(val); // Check distance for DropTaxi
     }
 
     if (!checkDistance) {
         if (val.serviceType === 'RIDES' || val.serviceType === 'AUTO') {
             setDistanceExceedModal(true);
-        } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
-            setDropTaxiDistanceExceedModal(true); 
         }
         setFieldValue?.('pickupAddress', '');
         setFieldValue?.('dropAddress', '');
@@ -431,7 +434,6 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     }
     
     const serviceTypeMap = {
-      'RENTAL_DROP_TAXI': 'RENTAL',
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
     };
     const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
@@ -3048,20 +3050,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             setFieldValue("submitType", "rides");
                                                             handleSubmit();
                                                         }}
-                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && values.sourceType && quoteDetails)||isButtonDisabled}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer&& quoteDetails )||isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
                                                     </Button>
                                                 }
-                                                 {(values.serviceType == 'AUTO') &&
+                                                {(values.serviceType == 'AUTO') &&
                                                     <Button
                                                         fullWidth
                                                         color="blue"
                                                         onClick={() => {
-                                                            //    handleSubmit();
                                                             setFieldValue("submitType", "auto");
-                                                            // console.log('AUTO Button Clicked, Values:', values);
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)}
@@ -3091,7 +3091,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 (values.packageTypeSelected === "Outstation" && !values.acType) ||
                                                                 (values.packageTypeSelected === "Outstation" && values.tripType === "Round Trip" && !values.toDate) ||
                                                                 validationCheckForDriverRental(values) ||
-                                                        !quoteDetails
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
