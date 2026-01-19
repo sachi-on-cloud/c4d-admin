@@ -349,7 +349,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             driverStartLat: values?.driverPickUpLocation?.lat,
             driverStartLong: values?.driverPickUpLocation?.lng,
             driverEndLat: values?.driverEndLocation?.lat || null,
-        driverEndLong: values?.driverEndLocation?.lng || null,
+            driverEndLong: values?.driverEndLocation?.lng || null,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
@@ -845,12 +845,6 @@ const sendQuotationLogs = async (bookingId, userId) => {
             },
             driverStartLat: values.driverPickUpLocation?.lat,
             driverStartLong: values.driverPickUpLocation?.lng,
-            driverStartAddress: {
-                name:values.driverPickUpAddress,
-            },
-          driverEndLat: values.driverEndLocation?.lat || null,
-            driverEndLong: values.driverEndLocation?.lng || null,
-            driverEndAddress: values.driverEndLocation ? { name: values.driverEndAddress } : null,
             source: 'Call',
             sourceType: values.sourceType,
             ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
@@ -871,7 +865,29 @@ const sendQuotationLogs = async (bookingId, userId) => {
             bookingData.dropAddress= values.dropLocation ? {
                 name: values.dropAddress
             } : null;
+
+            if (values.driverEndLocation) {
+                bookingData.driverEndLat = values.driverEndLocation.lat;
+                bookingData.driverEndLong = values.driverEndLocation.lng;
+                bookingData.driverEndAddress = {
+                    name: values.driverEndAddress,
+                };
+            }
+
+            if (values.driverPickUpAddress) {
+                bookingData.driverStartAddress = {
+                    name: values.driverPickUpAddress,
+                };
+            }
         }
+       if (values.serviceType !== "RENTAL_DROP_TAXI") {
+           if (values.driverEndLocation) {
+               bookingData.driverEndLat = values.driverEndLocation.lat;
+               bookingData.driverEndLong = values.driverEndLocation.lng;
+               bookingData.driverEndAddress = { name: values.driverEndAddress };
+           }
+       }
+
         if (values.toDate && values.toTime) {
             bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()
         };
