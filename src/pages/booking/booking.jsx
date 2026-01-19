@@ -305,11 +305,18 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             values?.serviceType === 'RENTAL' &&
             values?.packageTypeSelected === 'Outstation' &&
             values?.tripType === 'Round Trip';
+        const isDropTaxiOutstation = values?.serviceType === 'RENTAL_DROP_TAXI';
 
-        if (isRentalOutstationRoundTrip) {
+        // For Outstation Round Trip and Drop Taxi: check distance BEFORE estimation
+        if (isRentalOutstationRoundTrip || isDropTaxiOutstation) {
             const distanceOk = await calculateDistance(values);
             if (!distanceOk) {
+                if (isRentalOutstationRoundTrip) {
                 setOutstationDistanceModal(true);
+                } else if (isDropTaxiOutstation) {
+                    setDropTaxiDistanceExceedModal(true);
+                }
+                setIsButtonDisabled(false);
                 return;
             }
         }
@@ -408,15 +415,11 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     if (val.serviceType === 'RIDES' || val.serviceType === 'AUTO') {
         checkDistance = await calculateDistance(val);
         checkCityLimit = await calcluateCityLimit(val);
-    } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
-        checkDistance = await calculateDistance(val); // Check distance for DropTaxi
     }
 
     if (!checkDistance) {
         if (val.serviceType === 'RIDES' || val.serviceType === 'AUTO') {
             setDistanceExceedModal(true);
-        } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
-            setDropTaxiDistanceExceedModal(true); 
         }
         setFieldValue?.('pickupAddress', '');
         setFieldValue?.('dropAddress', '');
@@ -431,7 +434,6 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     }
     
     const serviceTypeMap = {
-      'RENTAL_DROP_TAXI': 'RENTAL',
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
     };
     const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;

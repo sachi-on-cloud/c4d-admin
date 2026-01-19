@@ -11,6 +11,9 @@ import {
   PopoverContent,
   Checkbox,
   Chip,
+  Dialog,
+  DialogHeader,
+  DialogBody,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
@@ -42,7 +45,7 @@ const FilterPopover = ({
         <div key={option.value} className="flex items-center mb-2">
           <Checkbox
             color="blue"
-            checked={selectedFilters.includes(option.value)}
+            checked={selectedFilters === option.value}
             onChange={() => onFilterChange(option.value)}
             className="mr-2"
           />
@@ -65,22 +68,8 @@ const DriverOfferList = () => {
   const [loading, setLoading] = useState(true);
   const [assignments, setAssignments] = useState([]);
   const [assignLoading, setAssignLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState(["All"]);
-  const [serviceTypeFilter, setServiceTypeFilter] = useState(["All"]);
-  const [serviceAreaFilter, setServiceAreaFilter] = useState(["All"]);
-  const [serviceAreas, setServiceAreas] = useState([]);
-
-  const updateFilterArray = (prev, value) => {
-    if (value === "All") {
-      return ["All"];
-    }
-    const withoutAll = prev.filter((item) => item !== "All");
-    const exists = withoutAll.includes(value);
-    const next = exists
-      ? withoutAll.filter((item) => item !== value)
-      : [...withoutAll, value];
-    return next.length === 0 ? ["All"] : next;
-  };
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
   
   const fetchOffers = async (overrideFilters) => {
     try {
@@ -88,21 +77,12 @@ const DriverOfferList = () => {
       const filters =
         overrideFilters || {
           status: statusFilter,
-          serviceType: serviceTypeFilter,
-          serviceArea: serviceAreaFilter,
         };
 
-      const toParam = (arr) =>
-        Array.isArray(arr) && !arr.includes("All") ? arr.join(",") : undefined;
-
       const params = {};
-      const statusParam = toParam(filters.status);
-      const serviceTypeParam = toParam(filters.serviceType);
-      const serviceAreaParam = toParam(filters.serviceArea);
+      const statusParam = filters.status && filters.status !== "All" ? filters.status : undefined;
 
       if (statusParam) params.status = statusParam;
-      if (serviceTypeParam) params.serviceType = serviceTypeParam;
-      if (serviceAreaParam) params.serviceArea = serviceAreaParam;
 
       const res = await ApiRequestUtils.getWithQueryParam(
         API_ROUTES.GET_DRIVER_OFFER,
@@ -154,21 +134,6 @@ const DriverOfferList = () => {
   useEffect(() => {
     fetchOffers();
     fetchAssignments();
-    const fetchGeoData = async () => {
-      try {
-        const response = await ApiRequestUtils.getWithQueryParam(
-          API_ROUTES.GEO_MARKINGS_LIST,
-          { type: "Service Area" }
-        );
-        const filteredAreas =
-          response?.data?.filter((area) => area.type === "Service Area") || [];
-        setServiceAreas(filteredAreas);
-      } catch (error) {
-        console.error("Error fetching GEO_MARKINGS_LIST for service areas:", error);
-        setServiceAreas([]);
-      }
-    };
-    fetchGeoData();
   }, []);
 
   const isOffersTab = activeTab === "offers";
@@ -176,36 +141,16 @@ const DriverOfferList = () => {
 
   const handleFilterChange = (filterType, value) => {
     if (filterType === "status") {
-      setStatusFilter((prev) => {
-        const next = updateFilterArray(prev, value);
+      const next = value;
+      setStatusFilter(next);
         fetchOffers({
           status: next,
-          serviceType: serviceTypeFilter,
-          serviceArea: serviceAreaFilter,
-        });
-        return next;
-      });
-    } else if (filterType === "serviceType") {
-      setServiceTypeFilter((prev) => {
-        const next = updateFilterArray(prev, value);
-        fetchOffers({
-          status: statusFilter,
-          serviceType: next,
-          serviceArea: serviceAreaFilter,
-        });
-        return next;
-      });
-    } else if (filterType === "serviceArea") {
-      setServiceAreaFilter((prev) => {
-        const next = updateFilterArray(prev, value);
-        fetchOffers({
-          status: statusFilter,
-          serviceType: serviceTypeFilter,
-          serviceArea: next,
-        });
-        return next;
       });
     }
+  };
+
+  const handleCompletedTripsClick = (assignment) => {
+    setSelectedAssignment(assignment);
   };
 
   return (
@@ -273,40 +218,6 @@ const DriverOfferList = () => {
                   <thead>
                     <tr>
                       <th className="py-3 px-5 text-left">Title</th>
-                      {/* <th className="py-3 px-5 text-left">
-                        <FilterPopover
-                          title="Service Type"
-                          options={[
-                            { value: "All", label: "All" },
-                            { value: "DRIVER", label: "DRIVER" },
-                            { value: "RIDES", label: "RIDES" },
-                            { value: "RENTAL_HOURLY_PACKAGE", label: "HOURLY PACKAGE"},
-                            { value: "RENTAL_DROP_TAXI", label: "DROP TAXI"},
-                            { value: "RENTAL", label: "OUTSTATION" },
-                            { value: "AUTO", label: "AUTO" },
-                          ]}
-                          selectedFilters={serviceTypeFilter}
-                          onFilterChange={(value) =>
-                            handleFilterChange("serviceType", value)
-                          }
-                        />
-                      </th> */}
-                      {/* <th className="py-3 px-5 text-left">
-                        <FilterPopover
-                          title="Service Area"
-                          options={[
-                            { value: "All", label: "All" },
-                            ...serviceAreas.map((area) => ({
-                              value: area.name,
-                              label: area.name,
-                            })),
-                          ]}
-                          selectedFilters={serviceAreaFilter}
-                          onFilterChange={(value) =>
-                            handleFilterChange("serviceArea", value)
-                          }
-                        />
-                      </th> */}
                       <th className="py-3 px-5 text-left">Start Date</th>
                       <th className="py-3 px-5 text-left">End Date</th>
                       <th className="py-3 px-5 text-left">Trip Target</th>
@@ -315,12 +226,9 @@ const DriverOfferList = () => {
                         <FilterPopover
                           title="Status"
                           options={[
-                            // { value: "All", label: "All" },
-                            // { value: "DRAFT", label: "DRAFT" },
-                            { value: "ACTIVE", label: "ACTIVE" },
-                            { value: "IN_ACTIVE", label: "IN ACTIVE" },
-                            // { value: "ENDED", label: "ENDED" },
-                            // { value: "ARCHIVED", label: "ARCHIVED" },
+                            { value: "All", label: "All" },
+                            { value: "ACTIVE", label: "Active" },
+                            { value: "IN_ACTIVE", label: "In Active" },
                           ]}
                           selectedFilters={statusFilter}
                           onFilterChange={(value) =>
@@ -351,12 +259,6 @@ const DriverOfferList = () => {
                           className="border-b"
                         >
                           <td className="py-3 px-5">{item.title || "-"}</td>
-                          {/* <td className="py-3 px-5">
-                            {item.serviceType || "-"}
-                          </td>
-                          <td className="py-3 px-5">
-                            {item.serviceArea || "-"}
-                          </td> */}
                           <td className="py-3 px-5">
                             {item.startDate
                               ? moment(item.startDate).format("DD-MM-YYYY")
@@ -377,11 +279,7 @@ const DriverOfferList = () => {
                               color={
                                 item.status === "ACTIVE"
                                   ? "green"
-                                  : item.status === "DRAFT"
-                                  ? "amber"
-                                  : item.status === "ENDED"
-                                  ? "blue-gray"
-                                  : item.status === "ARCHIVED"
+                                  : item.status === "IN_ACTIVE"
                                   ? "red"
                                   : "blue-gray"
                               }
@@ -405,12 +303,10 @@ const DriverOfferList = () => {
                   </tbody>
                 </table>
               ) : (
-                <table className="w-full min-w-[1000px] table-auto">
+                <table className="w-full  table-auto">
                   <thead>
                     <tr>
                       <th className="py-3 px-5 text-left">Offer Title</th>
-                      {/* <th className="py-3 px-5 text-left">Service Type</th>
-                      <th className="py-3 px-5 text-left">Service Area</th> */}
                       <th className="py-3 px-5 text-left">Trip Target</th>
                       <th className="py-3 px-5 text-left">completed Trips</th>
                       <th className="py-3 px-5 text-left">Amount</th>
@@ -484,10 +380,20 @@ const DriverOfferList = () => {
                             className="border-b"
                           >
                             <td className="py-3 px-5">{title}</td>
-                            {/* <td className="py-3 px-5">{serviceType}</td>
-                            <td className="py-3 px-5">{serviceArea}</td> */}
                             <td className="py-3 px-5">{tripTarget}</td>
-                            <td className="py-3 px-5">{completedTrips}</td>
+                            <td className="py-3 px-5">
+                              {completedTrips > 0 ? (
+                                <button
+                                  type="button"
+                                  className="text-blue-600 underline"
+                                  onClick={() => handleCompletedTripsClick(row)}
+                                >
+                                  {completedTrips}
+                                </button>
+                              ) : (
+                                completedTrips
+                              )}
+                            </td>
                             <td className="py-3 px-5">{amount}</td>
                             <td className="py-3 px-5">{offerMessage}</td>
                             <td className="py-3 px-5">{driverName}</td>
@@ -528,6 +434,35 @@ const DriverOfferList = () => {
           )}
         </CardBody>
       </Card>
+	      {selectedAssignment && (
+	        <Dialog
+	          open={Boolean(selectedAssignment)}
+	          handler={() => setSelectedAssignment(null)}
+	          size="sm"
+	          className="bg-white rounded-t-3xl"
+	        >
+	          <DialogHeader className="flex justify-between items-center p-4 border-b border-gray-200">
+	            <Typography
+	              variant="h6"
+	              className="text-lg font-roboto-bold text-black"
+	            >
+	              Trip Details
+	            </Typography>
+	            <Button
+	              variant="text"
+	              className="p-2"
+	              onClick={() => setSelectedAssignment(null)}
+	            >
+	              X
+	            </Button>
+	          </DialogHeader>
+	          <DialogBody className="flex-1 flex flex-col justify-left items-left p-4">
+	            <Typography className="text-left text-base text-gray-700">
+	              Booking Number : {(selectedAssignment.bookingIds || []).join(", ")}
+	            </Typography>
+	          </DialogBody>
+	        </Dialog>
+	      )}
     </div>
   );
 };
