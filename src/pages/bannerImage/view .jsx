@@ -42,6 +42,7 @@ const BannerView = () => {
         };
         const queryParams = {
           filterType: JSON.stringify(filterType),
+          status: statusTab === 'active',
         };
       const res = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BANNER, queryParams);
       
@@ -69,7 +70,7 @@ const BannerView = () => {
   };
 
   fetchBanners();
-}, [location.state, typeFilter, zoneFilter]);
+}, [location.state, typeFilter, zoneFilter, statusTab]);
 
   const handleStatusToggle = async (bannerId, newStatus) => {
     try {
@@ -193,14 +194,6 @@ const BannerView = () => {
     (zoneFilter.includes('All') || zoneFilter.includes(item.zone))
   );
 
-  const activeCount = filteredBannerList.filter(item => item.status).length;
-  const inactiveCount = filteredBannerList.filter(item => !item.status).length;
-
-  const displayedBannerList =
-    statusTab === 'active'
-      ? filteredBannerList.filter(item => item.status)
-      : filteredBannerList.filter(item => !item.status);
-
   return (
     <div className="mb-8 flex flex-col gap-12">
       <div className="flex items-center justify-end">
@@ -284,7 +277,7 @@ const BannerView = () => {
                     </td>
                   </tr>
                 ) : (
-                  displayedBannerList.map((item, index) => (
+                  filteredBannerList.map((item, index) => (
                     <tr key={item.id || index} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-5">
                         <img
