@@ -1295,7 +1295,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                              {(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Total Distance:</span>
-                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.totalDistance}</span>
+                                        <span className="text-gray-900 font-medium"> {bookingDetails?.totalDistance} Km</span>
                                     </div>
                                 )} 
                               {  bookingDetails?.serviceType === 'AUTO' &&  (
@@ -1562,7 +1562,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 )}
                                  {bookingDetails?.totalPrice > 0 && bookingDetails?.serviceType === 'DRIVER' && (
                                     <div className="flex flex-col-2 gap-2">
-                                        <span className="text-gray-500 font-semibold">Package Price:</span>
+                                       <span className="text-gray-500 font-semibold"> {bookingDetails?.toDate ? 'Price:' : 'Package Price:'}</span>
                                         <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.totalPrice)}</span>
                                     </div>
                                 )}
