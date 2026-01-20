@@ -1292,6 +1292,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">₹ {bookingDetails?.value?.baseFare}</span>
                                 </div>
                             )}
+                             {(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Total Distance:</span>
+                                        <span className="text-gray-900 font-medium">₹ {bookingDetails?.totalDistance}</span>
+                                    </div>
+                                )} 
                               {  bookingDetails?.serviceType === 'AUTO' &&  (
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Per KM Rate:</span>
@@ -1348,8 +1354,8 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             {bookingDetails?.serviceType == 'DRIVER' && 
                               <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">KM:</span>
-                                    <span className="text-gray-900 font-medium">{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.kilometer+ ' Km' : ''}
-                                            ${bookingDetails?.packageType === "Outstation" ? bookingDetails?.value?.travelDistance + ' Km':''}`}</span>
+                                    <span className="text-gray-900 font-medium">{`${bookingDetails?.packageType == 'Local' ? `${Math.round(bookingDetails?.Package?.kilometer)}` + ' Km' : ''}
+                                            ${bookingDetails?.packageType === "Outstation" ? `${Math.round(bookingDetails?.value?.travelDistance)}` + ' Km':''}`}</span>
                                 </div>
                             }
                            
@@ -1377,7 +1383,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">{bookingDetails?.estimatedDistance.toFixed(1)} Kms</span>
                                 </div>
                             }
-                             {bookingDetails?.serviceType === 'AUTO' &&  (
+                             {bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !="END_OTP" && bookingDetails?.status !== "ENDED" &&(
                                     
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
@@ -1392,7 +1398,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <span className="text-gray-900 font-medium">{bookingDetails?.discount?.percentage} %</span>
                                         </div>
                                         )}
-                                         {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" && (
+                                         {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP" &&(
                                           <div className="flex flex-col-2 gap-2">  
                                         <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                                 <span className="text-gray-900 font-medium">₹ { Math.round(bookingDetails?.value?.estimatedPrice) - ( bookingDetails?.value?.estimatedPrice * bookingDetails?.discount?.percentage/100) }</span>
@@ -1404,7 +1410,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <span className="text-gray-900 font-medium">₹ {bookingDetails?.discount?.amount} </span>
                                             </div>
                                         )}
-                                        {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" &&(
+                                        {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" &&bookingDetails?.status !== "END_OTP" &&(
                                           <div className="flex flex-col-2 gap-2">  
                                         <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                                 <span className="text-gray-900 font-medium">₹ { Math.round((bookingDetails?.value?.estimatedPrice) - ( bookingDetails?.discount?.amount)) }</span>
@@ -1467,7 +1473,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             )}
                             {/* offerPrice use case for drop taxi and outstation estimated price no gst added */}
                             {(bookingDetails?.status === BOOKING_STATUS.END_OTP || (bookingDetails?.status === BOOKING_STATUS.ENDED &&(isDropTaxiBooking(bookingDetails) || isOutstationBooking(bookingDetails)))
-                            ) && (
+                            ) || bookingDetails?.serviceType === 'AUTO' && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
@@ -1481,6 +1487,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <span className="text-gray-900 font-medium">₹ {bookingDetails?.offerPrice}</span>
                                     </div>
                                 )} */}
+                               
                                 {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.totalPrice > 0 && (
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Total Price:</span>
@@ -1547,12 +1554,19 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.status === BOOKING_STATUS.ENDED && (
                                     <>
                             
-                                {bookingDetails?.totalPrice > 0 && bookingDetails?.serviceType !== 'AUTO' && (
+                                {bookingDetails?.totalPrice > 0 && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && (
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Price:</span>
                                         <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.totalPrice)}</span>
                                     </div>
                                 )}
+                                 {bookingDetails?.totalPrice > 0 && bookingDetails?.serviceType === 'DRIVER' && (
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Package Price:</span>
+                                        <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.totalPrice)}</span>
+                                    </div>
+                                )}
+
 
 
                                 {bookingDetails?.paymentDetails?.details?.discountPercentage > 0 && bookingDetails?.serviceType !== 'AUTO' && (
