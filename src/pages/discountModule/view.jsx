@@ -7,17 +7,34 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import moment from 'moment';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 
 const DiscountView = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [discounts, setDiscounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusTab, setStatusTab] = useState('active');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   useEffect(() => {
     const fetchDiscounts = async () => {
       try {
-        const res = await ApiRequestUtils.get(API_ROUTES.GET_DISCOUNT);
+        setLoading(true);
+        let res;
+
+        if (statusTab === 'active') {
+          res = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DISCOUNT, {
+            status: true,
+          });
+        } else if (statusTab === 'inactive') {
+          res = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DISCOUNT, {
+            status: false,
+          });
+        } else {
+          res = await ApiRequestUtils.get(API_ROUTES.GET_DISCOUNT);
+        }
+
         let list = res?.data || [];
 
         // If an updated discount was passed via location.state, patch the list
@@ -36,7 +53,7 @@ const DiscountView = () => {
     };
 
     fetchDiscounts();
-  }, [location.state]);
+  }, [location.state, statusTab]);
   const serviceTypeLabels = {
   ALL:"All Services",
   DRIVER: "Driver",
@@ -46,6 +63,31 @@ const DiscountView = () => {
   RENTAL:"Outstation",
   AUTO:"Auto",
 };
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+
+    setSortConfig({ key, direction });
+  };
+
+  const filteredDiscounts = discounts.filter((item) =>
+    statusTab === 'active' ? item.isActive : !item.isActive
+  );
+
+  const displayedDiscounts =
+    sortConfig.key === 'startDate'
+      ? [...filteredDiscounts].sort((a, b) => {
+          const aDate = a.startDate ? new Date(a.startDate) : new Date(0);
+          const bDate = b.startDate ? new Date(b.startDate) : new Date(0);
+
+          if (aDate < bDate) return sortConfig.direction === 'asc' ? -1 : 1;
+          if (aDate > bDate) return sortConfig.direction === 'asc' ? 1 : -1;
+          return 0;
+        })
+      : filteredDiscounts;
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -64,6 +106,28 @@ const DiscountView = () => {
         </CardHeader>
 
         <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+          <div className="px-6 pb-4 flex items-center justify-between">
+            <div className="inline-flex rounded-full bg-gray-100 p-1">
+              <button
+                type="button"
+                onClick={() => setStatusTab('active')}
+                className={`px-4 py-1 text-sm font-medium rounded-full transition-colors ${
+                  statusTab === 'active' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                Active
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusTab('inactive')}
+                className={`px-4 py-1 text-sm font-medium rounded-full transition-colors ${
+                  statusTab === 'inactive' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                Inactive
+              </button>
+            </div>
+          </div>
           {loading ? (
            <div className="flex justify-center items-center py-10">
            <Spinner className="h-10 w-10" />
@@ -78,7 +142,29 @@ const DiscountView = () => {
                   <th className="py-3 px-5 text-left">Coupon Code</th>
                   <th className="py-3 px-5 text-left">Description</th>
                   <th className="py-3 px-5 text-left">Discount Type</th>
-                  <th className="py-3 px-5 text-left">Start Date</th>
+                  <th className="py-3 px-5 text-left">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('startDate')}
+                      className="flex items-center gap-1"
+                    >
+                      <span>Start Date</span>
+                      <span className="ml-1 flex flex-col">
+                        <ChevronUpIcon
+                          className={`w-4 h-4 ${sortConfig.key === 'startDate' && sortConfig.direction === 'asc'
+                            ? 'text-blue-600'
+                            : 'text-gray-400'
+                            }`}
+                        />
+                        <ChevronDownIcon
+                          className={`w-4 h-4 -mt-1 ${sortConfig.key === 'startDate' && sortConfig.direction === 'desc'
+                            ? 'text-blue-600'
+                            : 'text-gray-400'
+                            }`}
+                        />
+                      </span>
+                    </button>
+                  </th>
                   <th className="py-3 px-5 text-left">End Date</th>
                   <th className="py-3 px-5 text-left">Status</th>
                   <th className="py-3 px-5 text-left">Image</th>
@@ -89,12 +175,16 @@ const DiscountView = () => {
                 </tr>
               </thead>
               <tbody>
-                {discounts.length === 0 ? (
+                {displayedDiscounts.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4">No Discounts Found</td>
+                    <td colSpan="14" className="text-center py-4">
+                      {statusTab === 'active'
+                        ? 'No Active Discounts Found'
+                        : 'No Inactive Discounts Found'}
+                    </td>
                   </tr>
                 ) : (
-                  discounts.map((item, index) => (
+                  displayedDiscounts.map((item, index) => (
                     <tr key={index} className="border-b">
                       <td className="py-3 px-5">{serviceTypeLabels[item.serviceType] || item.serviceType}</td>
                       <td className="py-3 px-5">{item.offerType || '-'}</td>
