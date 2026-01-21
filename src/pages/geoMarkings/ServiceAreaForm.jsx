@@ -11,7 +11,21 @@ import Select from 'react-select';
 
 const ServiceAreaForm = ({
   onSave, initialData = null, coordinates = null ,
-serviceAreaId, }) => {
+}) => {
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result || '';
+        const commaIndex =
+          typeof result === 'string' ? result.indexOf(',') : -1;
+        resolve(
+          commaIndex !== -1 ? result.substring(commaIndex + 1) : result
+        );
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   const initialServiceTypes = initialData?.services || [];
   const initialQuickServices = useMemo(() => {
     return initialData?.quickServices?.filter(qs =>
@@ -36,9 +50,14 @@ serviceAreaId, }) => {
 
   const initialNewServices = useMemo(() => {
     const ns = initialData?.newServices;
-    if (ns && ns.data && Array.isArray(ns.data)) return ns.data;
-    if (Array.isArray(ns)) return ns;
-    return [];
+    let raw = [];
+    if (ns && ns.data && Array.isArray(ns.data)) raw = ns.data;
+    else if (Array.isArray(ns)) raw = ns;
+    return raw.map((service) => {
+      const { imageFile, imagePreview, ...rest } = service || {};
+      const url = (rest.url || rest.image || '').trim();
+      return { ...rest, url, imagePreview: url || undefined };
+    });
   }, [initialData]);
 
   const [formData, setFormData] = useState({
@@ -58,8 +77,6 @@ serviceAreaId, }) => {
   const [newServicesError, setNewServicesError] = useState(null);
 
   const [isSubmittingFull, setIsSubmittingFull] = useState(false);
-  const [isSubmittingNewServices, setIsSubmittingNewServices] = useState(false);
-  const [newServicesMessage, setNewServicesMessage] = useState(null);
 
   const serviceTypeOptions = [
     { value: 'RENTAL_DROP_TAXI', label: 'Drop Taxi' },
@@ -114,7 +131,11 @@ serviceAreaId, }) => {
   const validateNewServices = (services) => {
     const names = (services || []).map((s) => s.name).filter(Boolean);
 
-    if (!names.includes('ROOT CABS')) {
+    const hasRootCabs = names.some((name) => {
+      const normalized = (name || '').toString().trim().toUpperCase();
+      return normalized === 'CABS' || normalized === 'ROOT CABS';
+    });
+    if (!hasRootCabs) {
       setNewServicesError('ROOT CABS is mandatory');
       return false;
     }
@@ -179,6 +200,11 @@ serviceAreaId, }) => {
     );
 
     setFormData((prev) => ({ ...prev, newServices: updated }));
+    if (updated.length > 0) {
+      validateNewServices(updated);
+    } else {
+      setNewServicesError(null);
+    }
   };
 
   const handleNewServiceChange = (index, field, value) => {
@@ -193,82 +219,39 @@ serviceAreaId, }) => {
     setFormData((prev) => ({ ...prev, newServices: updated }));
   };
   const handleNewServiceImageChange = (index, file) => {
-    if (!file) return;
+    if (!file || typeof URL === 'undefined') return;
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      alert('Only JPEG, PNG and GIF images are allowed.');
+      return;
+    }
 
     const updated = [...formData.newServices];
+
+    const prevPreview = updated[index]?.imagePreview;
+    if (prevPreview) {
+      try {
+        URL.revokeObjectURL(prevPreview);
+      } catch {
+        // ignore revoke errors
+      }
+    }
+
+    const ext = file.name?.split('.').pop()?.toLowerCase() || '';
+
     updated[index] = {
       ...updated[index],
       imageFile: file,
-      imagePreview: URL.createObjectURL(file)
+      imagePreview: URL.createObjectURL(file),
+      image: '',
+      extImage: ext,
+      fileTypeImage: file.type || '',
+      url: '',
     };
     setFormData((prev) => ({ ...prev, newServices: updated }));
   };
 
-
-  const handleSaveNewServices = async () => {
-    if (!serviceAreaId) {
-      setNewServicesMessage({
-        type: 'error',
-        text: 'Service Area ID is missing. Please save the main area first.',
-      });
-      return;
-    }
-
-    if (formData.newServices.length === 0) {
-      setNewServicesMessage({
-        type: 'error',
-        text: 'No new services selected',
-      });
-      return;
-    }
-
-    setIsSubmittingNewServices(true);
-    setNewServicesMessage(null);
-
-    try {
-      const formPayload = new FormData();
-
-      const cleanData = formData.newServices.map((service) => ({
-        name: service.name,
-        accentColor: service.accentColor || '#1D4ED8',
-        backgroundColor: service.backgroundColor || '#EAEEFF',
-        pillColor: service.pillColor || '#1E3A8A',
-        isUpdate: !!service.isUpdate,
-        ...(service.url && !service.imageFile ? { extImage: service.url } : {}),
-      }));
-
-      formPayload.append('data', JSON.stringify(cleanData));
-
-      formData.newServices.forEach((service, index) => {
-        if (service.imageFile instanceof File) {
-          formPayload.append(`images[${index}]`, service.imageFile);
-        }
-      });
-
-      const response = await fetch(`/geo-markings/${serviceAreaId}/new-services`, {
-        method: 'update',
-        body: formPayload,
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || 'Failed to update new services');
-      }
-
-      setNewServicesMessage({
-        type: 'success',
-        text: 'New services saved successfully!',
-      });
-    } catch (err) {
-      console.error(err);
-      setNewServicesMessage({
-        type: 'error',
-        text: err.message || 'Failed to save new services',
-      });
-    } finally {
-      setIsSubmittingNewServices(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -304,13 +287,38 @@ serviceAreaId, }) => {
     setIsSubmittingFull(true);
 
     try {
+      const cleanNewServices = await Promise.all(
+        (formData.newServices || []).map(async (service) => {
+          const file =
+            service.imageFile instanceof File ? service.imageFile : null;
+          const extFromFile = file?.name?.split('.').pop()?.toLowerCase() || '';
+
+          let imageValue = service.image || '';
+          if (!imageValue && file) {
+            imageValue = await fileToBase64(file);
+          }
+
+          return {
+            name: service.name,
+            accentColor: service.accentColor || '#1D4ED8',
+            backgroundColor: service.backgroundColor || '#EAEEFF',
+            pillColor: service.pillColor || '#1E3A8A',
+            isUpdate: !!service.isUpdate,
+            image: imageValue,
+            extImage: service.extImage || extFromFile || '',
+            fileTypeImage:
+              service.fileTypeImage || (file ? file.type || '' : ''),
+          };
+        })
+      );
+
       await onSave({
         name: formData.name.trim(),
         description: formData.description,
         services: formData.services,
         quickServices: formData.quickServices,
         highlightedService: formData.highlightedService || null,
-        newServices: { data: formData.newServices },
+        newServices: { data: cleanNewServices },
         coordinates,
       });
     } catch (err) {
@@ -353,45 +361,19 @@ serviceAreaId, }) => {
         </div>
 
         {/* Description */}
-        <div className="relative z-50">
-          <label className="block text-sm text-gray-700 mb-1 font-medium">
+        <div>
+          <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
             Description <span className="text-red-500">*</span>
-          </label>
-          <Select
-            options={[
-              { value: 'City', label: 'City' },
-              { value: 'Prime', label: 'Prime' },
-            ]}
-            value={
-              formData.description
-                ? { value: formData.description, label: formData.description }
-                : null
-            }
-            onChange={(opt) => {
-              setFormData((prev) => ({ ...prev, description: opt?.value || '' }));
-              if (opt && descriptionError) setDescriptionError(null);
+          </Typography>
+          <Input
+            type="text"
+            value={formData.description}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, description: e.target.value }));
+              if (descriptionError) setDescriptionError(null);
             }}
-            placeholder="Select description"
-            menuPortalTarget={document.body}
-            styles={{
-              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-              control: (base, state) => ({
-                ...base,
-                borderColor: descriptionError
-                  ? '#ef4444'
-                  : state.isFocused
-                    ? '#3b82f6'
-                    : '#d1d5db',
-                boxShadow: descriptionError
-                  ? '0 0 0 1px #ef4444'
-                  : state.isFocused
-                  ? '0 0 0 1px #3b82f6'
-                  : 'none',
-                '&:hover': {
-                  borderColor: descriptionError ? '#ef4444' : '#9ca3af',
-                },
-              }),
-            }}
+            placeholder="Enter service area description"
+            error={!!descriptionError}
           />
           {descriptionError && (
             <p className="text-red-500 text-xs mt-1">{descriptionError}</p>
@@ -403,6 +385,9 @@ serviceAreaId, }) => {
           <label className="block text-sm text-gray-700 mb-1">
             Service Types <span className="text-red-500">*</span>
           </label>
+          <Typography variant="small" color="gray" className="mb-1">
+            Select at least 4 service types.
+          </Typography>
           <Select
             isMulti
             options={serviceTypeOptions}
@@ -412,7 +397,7 @@ serviceAreaId, }) => {
             onChange={handleServiceTypeChange}
             closeMenuOnSelect={false}
             placeholder="Select service types"
-            menuPortalTarget={document.body}
+            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
             styles={{
               menuPortal: (base) => ({ ...base, zIndex: 9999 }),
               control: (base, state) => ({
@@ -437,6 +422,9 @@ serviceAreaId, }) => {
           <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
             New Services
           </Typography>
+          <Typography variant="small" color="gray" className="mb-2">
+            Optional. If you add new services, ROOT CABS is mandatory and select at least 2.
+          </Typography>
 
           <div className="relative z-50 mb-4">
             <Select
@@ -448,14 +436,14 @@ serviceAreaId, }) => {
               onChange={handleNewServiceSelectChange}
               closeMenuOnSelect={false}
               placeholder="Select new services"
-              menuPortalTarget={document.body}
+              menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
               styles={{menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
             />
           </div>
 
-                {/* {newServicesError && (
-                  <p className="text-red-500 text-xs mt-1">{newServicesError}</p>
-                )} */}
+          {newServicesError && (
+            <p className="text-red-500 text-xs mt-1">{newServicesError}</p>
+          )}
 
                 {/* Services Cards */}
                 <div className="space-y-4">
@@ -579,6 +567,9 @@ serviceAreaId, }) => {
           <label className="block text-sm text-gray-700 mb-1">
             Quick Service <span className="text-red-500">*</span>
           </label>
+          <Typography variant="small" color="gray" className="mb-1">
+            Select exactly 4 quick services.
+          </Typography>
           <Select
             isMulti
             options={availableQuickOptions}
@@ -594,7 +585,7 @@ serviceAreaId, }) => {
                 : 'Select exactly 4 quick services'
             }
             isDisabled={availableQuickOptions.length === 0}
-            menuPortalTarget={document.body}
+            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
             styles={{
               menuPortal: (base) => ({ ...base, zIndex: 9999 }),
               control: (base, state) => ({
@@ -626,7 +617,7 @@ serviceAreaId, }) => {
                 : 'Select one highlighted service (optional)'
             }
             isDisabled={availableHighlightedOptions.length === 0}
-            menuPortalTarget={document.body}
+            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
             styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
           />
         </div>

@@ -628,6 +628,7 @@ const handleSaveDriverEndLocation = async () => {
     };
      const baseTripFare = Number
     ( bookingDetails?.paymentDetails?.details?.amountAfterGst)
+    const cancelTripFare = Number( bookingDetails?.paymentDetails?.details?.cancelCharge)
 
 
 const totalExtraCharges = 
@@ -2038,6 +2039,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         {additionalCharges.toll > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Toll Charge:</span> <b className="text-black">₹ {additionalCharges.toll}</b></div>}
                                         {additionalCharges.parking > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Parking Charge:</span> <b className="text-black">₹ {additionalCharges.parking}</b></div>}
                                         {additionalCharges.hill > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Hill Charge:</span> <b className="text-black">₹ {additionalCharges.hill}</b></div>}
+                                        {cancelTripFare > 0 && <div className="flex justify-between my-1"><span className="font-semibold text-sm text-gray-500">Cancel Charge:</span> <b className="text-black">₹ {cancelTripFare}</b></div>}
                                     </>
                                 ) : (
                                     /* Edit Mode: Show all 4 fields */
@@ -2073,7 +2075,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <hr className="my-2" />
                                             <div className="flex justify-between text-lg font-bold">
                                                 <span className="text-green-700 font-semibold">Final Amount:</span>
-                                                <span className="text-green-700">₹ {Math.round(finalAmountAfterExtras)}</span>
+                                                <span className="text-green-700">₹ {Math.round(finalAmountAfterExtras) + (cancelTripFare)}</span>
                                             </div>
                                         </>
                                     )
