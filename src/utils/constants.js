@@ -8,7 +8,8 @@ export const constants = {
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou',
-    url_uat: 'https://uat.api.c4d.smartapis.cyou'
+    url_uat: 'https://uat.api.c4d.smartapis.cyou',
+    url_prepod: 'https://c4d-pre-prod-1089104308138.us-central1.run.app',
 };
 
 export const getBaseUrl = () => {
