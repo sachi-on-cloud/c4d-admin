@@ -451,7 +451,7 @@ const DiscountEdit = () => {
                   </div>
                 )}
               </div>
-              {!values.isPremium && (
+              {!values.isPremium && values.serviceType !== 'AUTO' && (
               <div>
                 <label className="text-sm font-medium text-gray-700">Car Type</label>
                 <Field
