@@ -83,6 +83,7 @@ const PriceEdit = () => {
                     cancellationCharge: data.data.cancelCharge,
                     status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
                     zone: data.data.zone || '',
+                    freeExtraMinutes: data.data.freeExtraMinutes || '',
                 });
                 setPeakHours(data.data.peakHours || []);
                 initialPeakHoursRef.current = data.data.peakHours;
@@ -120,6 +121,7 @@ const PriceEdit = () => {
                 kilometerPriceMVP: Number(values.ratePerKmMVP),
                 minCharge: Number(values.ratePerMin),
                 additionalMinCharge: Number(values.additionalMin),
+                freeExtraMinutes: Number(values.freeExtraMinutes),
                 rateParameter: values.rateParameter,
                 surChargePercentage: Number(values.surchargePercentage),
                 nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
@@ -226,6 +228,10 @@ const PriceEdit = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                                 <Field type="number" name="surchargePercentage" className="p-2 w-full rounded-md border-gray-300" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">freeExtraMinutes</label>
+                                <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md border-gray-300" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>

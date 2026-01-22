@@ -600,8 +600,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   <ul className="ml-0">
                     {[
 
-                      { label: "Invoice", path: "/dashboard/finance/invoice" },
-                      { label: "Receipt", path: "/dashboard/finance/receipt" },
+                      { label: "Subscription Invoice", path: "/dashboard/finance/invoice" },
+                      { label: "Booking Receipt", path: "/dashboard/finance/receipt" },
                       { label: "Master Subscription", path: "/dashboard/finance/master-subscription" },
                     ].map(({ label, path }) => (
                       <li key={label}>
@@ -613,14 +613,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 }`}
                               fullWidth
                             >
-                              {label === "Invoice" && (
+                              {label === "Subscription Invoice" && (
                                 <img
                                   src="/img/invoice.png"
                                   alt="Invoice"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                              {label === "Receipt" && (
+                              {label === "Booking Receipt" && (
                                 <img
                                   src="/img/recipt.png"
                                   alt="Receipt"

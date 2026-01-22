@@ -81,6 +81,7 @@ const PriceAdd = () => {
         cancellationCharge: '',
         status: 'ACTIVE',
         zone: '',
+        freeExtraMinutes:''
     };
 
     const onSubmit = async (values, { setSubmitting }) => {
@@ -98,6 +99,7 @@ const PriceAdd = () => {
                 'minCharge': values.ratePerMin,
                 'rateParameter': values.rateParameter,
                 'additionalMinCharge': values.additionalMin,
+                'freeExtraMinutes':values.freeExtraMinutes,
                 'surChargePercentage': values.surchargePercentage,
                 'nightHoursFrom': Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 'nightHoursTo': Utils.formatTimeWithSeconds(values.nightHoursTo),
@@ -193,6 +195,11 @@ const PriceAdd = () => {
                                 </div>
                                 <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
                                 <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="freeExtraMinutes" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>
