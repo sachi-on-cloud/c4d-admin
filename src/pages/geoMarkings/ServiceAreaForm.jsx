@@ -466,6 +466,7 @@ const ServiceAreaForm = ({
                 </div>
 
                       {/* Image */}
+                {!((service.name || '').toString().trim().toUpperCase() === 'CABS' || (service.name || '').toString().trim().toUpperCase() === 'ROOT CABS') && (
                 <div>
                   <Typography variant="small" color="blue-gray" className="mb-2">
                     Service Image
@@ -510,6 +511,7 @@ const ServiceAreaForm = ({
                     />
                   </label>
                 </div>
+                )}
 
                 {/* Colors */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
