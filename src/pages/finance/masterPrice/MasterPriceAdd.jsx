@@ -29,6 +29,7 @@ export function MasterPriceAdd() {
         extraPrice:'',
         kilometer:'',
         dropPriceAbove:'',
+        freeExtraMinutes:'',
     };
 
     const fetchGeoData = async () => {
@@ -65,6 +66,7 @@ export function MasterPriceAdd() {
                 kilometer: values.kilometer,
                 dropPriceAbove: values.dropPriceAbove,
                 additionalMinCharge: values.additionalMinCharge || 0,
+                freeExtraMinutes: values.freeExtraMinutes || 0,
                 status: 1,
                 extraKmPrice:values.extraKmPrice,
                 zone: values.zone,
@@ -161,6 +163,14 @@ export function MasterPriceAdd() {
                                 </div>
                             </div>
                             }
+                            
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <div className="flex items-center gap-2">
+                                     <Field type="number" name="freeExtraMinutes" className="w-full text-center border rounded p-2" />
+                                </div>
+                            </div>
+                            
 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>

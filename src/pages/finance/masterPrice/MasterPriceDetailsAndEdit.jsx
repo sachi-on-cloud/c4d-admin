@@ -43,6 +43,7 @@ export function MasterPriceDetailsAndEdit() {
                 nightCharge: data?.data?.nightCharge || '',
                 cancelMins: Utils.convertTimeFormatToMinutes(data?.data?.cancelMins) || '',
                 cancelCharge: data?.data?.cancelCharge || '',
+                freeExtraMinutes:data?.data?.freeExtraMinutes || 0,
 
                 baseFare:data?.data?.baseFare || '',
                 kilometer:data?.data?.kilometer || '',
@@ -78,6 +79,7 @@ export function MasterPriceDetailsAndEdit() {
                 dropPriceAbove:values.dropPriceAbove,
                 kilometer:values.kilometer || '',
                 zone: values.zone,
+                freeExtraMinutes:values.freeExtraMinutes || 0,
             };
             if (values.type === 'Outstation') {
                 masterpriceList['baseFare'] = values.baseFare;
@@ -163,6 +165,12 @@ export function MasterPriceDetailsAndEdit() {
                                 <Field type="number" name="dropPriceAbove" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
                             </div>
                             }
+                            
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                            </div>
+                            
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
                                 {/* <Select

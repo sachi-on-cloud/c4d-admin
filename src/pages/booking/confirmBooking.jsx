@@ -1217,10 +1217,19 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <span className="text-gray-900 font-medium">{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.bookingType == "DROP ONLY") ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</span>
                             </div>
                             {bookingDetails?.serviceType === 'DRIVER' && (
+                                <>
                                     <div className="flex flex-col-2 gap-2">
-                                        <span className="text-gray-500 font-semibold">Package Type:</span>
+                                        <span className="text-gray-500 font-semibold">Trip Type:</span>
                                         <span className="text-gray-900 font-medium">{bookingDetails?.bookingType}</span>
                                     </div>
+                                    
+                                      <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Period:</span>
+                                        <span className="text-gray-900 font-medium">{bookingDetails?.Package?.extraCabType || '0' ? "Custom Date" : ''}</span>
+                                    </div>
+                                    
+                                    </>
+                                    
                             )}
                             {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
                             <div className="flex flex-col-2 gap-2">

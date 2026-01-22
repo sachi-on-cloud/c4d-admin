@@ -58,6 +58,7 @@ const DriverMasterPriceTableEdit = () => {
                     waitingCharge: data.data.waitingCharge,
                     dropPrice: data.data.dropPrice,
                     additionalMinCharge: data.data.additionalMinCharge,
+                    freeExtraMinutes: data.data.freeExtraMinutes,
 
                     extraPrice: data.data.extraPrice,
                     nightHoursFrom: convertToTimeFormat(data.data.nightHoursFrom) || '00:00',
@@ -102,6 +103,7 @@ const DriverMasterPriceTableEdit = () => {
                 waitingMins: Utils.convertMinutesToTimeFormat(values.waitingMins),
                 waitingCharge: Number(values.waitingCharge),
                 additionalMinCharge: Number(values.additionalMinCharge),
+                freeExtraMinutes: Number(values.freeExtraMinutes),
                 extraPrice: Number(values.extraPrice),
                 extraKmPrice:Number(values.extraKmPrice),
                 dropPrice: Number(values.dropPrice),
@@ -196,6 +198,10 @@ const DriverMasterPriceTableEdit = () => {
                                 <div>
                                     <label className="text-sm font-medium text-gray-700">Food Charges</label>
                                     <Field type="number" name="dropPriceAbove" className="p-2 w-full rounded-md" />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                    <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md" />
                                 </div>
                              {/* Outstation Base Fare */}
                        

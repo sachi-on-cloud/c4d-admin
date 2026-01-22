@@ -56,6 +56,7 @@ const PriceDetails = () => {
                     cancellationCharge: data?.data?.cancelCharge,
                     status: data.data.status == 1 ? "ACTIVE": 'IN_ACTIVE',
                     zone: data?.data?.zone || '',
+                    freeExtraMinutes: data?.data?.freeExtraMinutes || '',
                 });
                 setPeakHours(data.data.peakHours);
                 setPremiumConfig(data.data.premiumConfig);
@@ -95,6 +96,10 @@ const PriceDetails = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                                 <Field type="number" name="surchargePercentage" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>

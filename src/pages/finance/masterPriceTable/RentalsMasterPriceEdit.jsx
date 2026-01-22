@@ -78,6 +78,7 @@ const RentalsMasterPriceEdit = () => {
                     additionalMinChargeMVP:data?.data?.additionalMinChargeMVP || 0,
                     additionalMinChargeSuv:data?.data?.additionalMinChargeSuv || 0,
                     additionalMinChargeSedan:data?.data?.additionalMinChargeSedan || 0,
+                    freeExtraMinutes:data?.data?.freeExtraMinutes || 0,
 
                     kilometerRoundPrice:data?.data?.kilometerRoundPrice || 0,
                     kilometerRoundPriceMVP:data?.data?.kilometerRoundPriceMVP || 0,
@@ -156,6 +157,7 @@ const RentalsMasterPriceEdit = () => {
                 price:Number(values.price),
                 priceMVP:Number(values.priceMVP),
                 priceSuv:Number(values.priceSuv),
+                freeExtraMinutes:Number(values.freeExtraMinutes),
                 priceSedan:Number(values.priceSedan),
                 baseFareMVP:Number(values.baseFareMVP),
                 baseFareSuv:Number(values.baseFareSuv),
@@ -247,6 +249,11 @@ const RentalsMasterPriceEdit = () => {
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
+                            </div>
+                             <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="freeExtraMinutes" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>

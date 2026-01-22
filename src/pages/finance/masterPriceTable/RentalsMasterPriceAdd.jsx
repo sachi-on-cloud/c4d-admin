@@ -102,6 +102,7 @@ useEffect(() => {
         kilometerRoundPriceSedan: '',
 
         // additionalMinCharge Drop and Round Trip
+        freeExtraMinutes:'',
         additionalMinCharge: '',
         additionalMinChargeMVP: '',
         additionalMinChargeSuv: '',
@@ -192,6 +193,7 @@ useEffect(() => {
                 'priceSedan':values?.type !== 'Outstation' ? values.priceSedan : '',
 
                 'additionalMinCharge': Number(values.additionalMinCharge),
+                'freeExtraMinutes': Number(values.freeExtraMinutes),
                 'tollCharge': values?.type === 'Outstation' ? values.tollCharge : 0,
                 'driverCharge': values?.type === 'Outstation' ? values.driverCharge : 0,
                 'nightCharge': Number(values.nightCharge),
@@ -287,6 +289,11 @@ useEffect(() => {
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="freeExtraMinutes" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
