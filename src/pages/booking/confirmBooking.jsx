@@ -1455,7 +1455,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     {/* </div> */}
                             {/* need to add logic for price */}
                     {/* <div className="grid sm:grid-cols-2 gap-4 text-sm">                                         */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO'&&bookingDetails?.serviceType !== 'RIDES' && shouldShowQuotePricing(bookingDetails) && !isDropTaxiBooking(bookingDetails) && !isOutstationBooking(bookingDetails) && (                            
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO'&&bookingDetails?.serviceType !== 'RIDES' && shouldShowQuotePricing(bookingDetails) && !isOutstationBooking(bookingDetails) && (                            
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
@@ -1514,7 +1514,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <span className="text-gray-900 font-medium">{bookingDetails?.discount?.percentage} %</span>
                                         </div>
                                     )}
-                                        {bookingDetails?.status !== 'PAYMENT_REQUESTED' && bookingDetails?.serviceType !== 'AUTO' && (
+                                        {bookingDetails?.status !== 'PAYMENT_REQUESTED'&&bookingDetails?.status !== 'ENDED'&&bookingDetails?.status !== 'END_OTP' && bookingDetails?.serviceType !== 'AUTO' && (
    bookingDetails?.serviceType !== 'RIDES' ||
    (
      bookingDetails?.serviceType === 'RIDES' &&
@@ -1584,10 +1584,16 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.totalPrice)}</span>
                                     </div>
                                 )}
+                                 {bookingDetails?.paymentDetails?.details?.walletAmountUsed !== 0 && bookingDetails?.paymentDetails?.details?.walletAmountUsed &&
+                                    <div className="flex flex-col-2 gap-2">
+                                        <span className="text-gray-500 font-semibold">Wallet Points Used:</span>
+                                        <span className="text-gray-900 font-medium">₹ {Math.round(bookingDetails?.paymentDetails?.details?.walletAmountUsed)}</span>
+                                    </div>
+                                }
 
 
 
-                                {bookingDetails?.paymentDetails?.details?.discountPercentage > 0 && bookingDetails?.serviceType !== 'AUTO' && (
+                                {bookingDetails?.paymentDetails?.details?.discountPercentage > 0 && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.status !=='ENDED' && bookingDetails?.status !== 'END_OTP' && (
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Discount Applied:</span>
                                         <span className="text-gray-900 font-medium">{bookingDetails?.paymentDetails?.details?.discountPercentage} %</span>
@@ -1835,7 +1841,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="sm" className="text-sm text-black font-medium">
-                                        {`${Math.floor(bookingDetails.extraHours).toString().padStart(2, '0')} hrs : ${(Number(String(bookingDetails.extraHours).split('.')[1]?.padStart(2, '0') || '00')).toString().padStart(2, '0')} mins`}
+                                        {minsToHHMM(bookingDetails.extraHours)}
                                     </Typography>
                                 </div>
                                 )}
