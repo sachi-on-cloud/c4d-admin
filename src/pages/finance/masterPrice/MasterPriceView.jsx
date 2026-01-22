@@ -335,7 +335,7 @@ export function MasterPriceView() {
                         <tbody>
                             {filteredOutstationList.map((item, index) => {
                                 const { 
-                                    id, zone, serviceType, type, period, kilometer,  
+                                    id, zone, serviceType, type, period, extraCabType ,kilometer,  
                                     dropPrice, price, additionalMinCharge, dropPriceAbove, 
                                     nightCharge, extraKmPrice 
                                 } = item;
@@ -365,7 +365,7 @@ export function MasterPriceView() {
                                         <td className={className}>
                                             <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
                                             <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer" >
-                                                {period}
+                                                { (period === '1' && extraCabType === '0') ? 'Custom Date' : period}
                                             </Typography>
                                             </div>
                                         </td>
