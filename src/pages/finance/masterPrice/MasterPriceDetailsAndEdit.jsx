@@ -157,6 +157,12 @@ export function MasterPriceDetailsAndEdit() {
                                     />
                                 </div>
                             </div>
+                             {values?.serviceType === 'DRIVER' &&
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Food Charges</label>
+                                <Field type="number" name="dropPriceAbove" disabled className="p-2 w-full rounded-md border-gray-300 bg-gray-200" />
+                            </div>
+                            }
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
                                 {/* <Select
@@ -227,7 +233,7 @@ export function MasterPriceDetailsAndEdit() {
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra hour charge</th>
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra KM rate</th>
                                    
-                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Food Charges</th>
+                                    {/* <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Food Charges</th> */}
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Night Charges</th>
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Drop-only charge</th>
                                    
@@ -241,7 +247,7 @@ export function MasterPriceDetailsAndEdit() {
                                     <td className="px-4 py-4 border border-gray-300">{values.price || "-"}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values.additionalMinCharge || "-"}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values.extraKmPrice || '-'}</td>
-                                    <td className="px-4 py-4 border border-gray-300">{values.dropPriceAbove || "-"}</td>
+                                    {/* <td className="px-4 py-4 border border-gray-300">{values.dropPriceAbove || "-"}</td> */}
                                     <td className="px-4 py-4 border border-gray-300">{values. nightCharge || "-"}</td>
                                     <td className="px-4 py-4 border border-gray-300">{values.dropPrice || "-"}</td>
                                    
