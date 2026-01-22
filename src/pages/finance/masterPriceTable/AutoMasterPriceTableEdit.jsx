@@ -64,6 +64,7 @@ const AutoMasterPriceEdit = () => {
           cancellationMins: Utils.convertTimeFormatToMinutes(priceData.cancelMins) || 0,
           cancellationCharge: priceData.cancelCharge || 0,
           status: priceData.status === "1"? 'ACTIVE' : 'INACTIVE',
+          freeExtraMinutes: priceData.freeExtraMinutes || 0,
         
         });
 
@@ -102,6 +103,7 @@ const AutoMasterPriceEdit = () => {
         status: values.status === 'ACTIVE' ? 1 : 0,
         premiumConfig: premiumConfig || [],
         extraKmPrice: 0,
+        freeExtraMinutes: Number(values.freeExtraMinutes) || 0,
       };
 
       const response = await ApiRequestUtils.post(API_ROUTES.AUTO_PRICE_EDIT, reqBody);
@@ -143,6 +145,11 @@ const AutoMasterPriceEdit = () => {
                 <div>
                     <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                     <Field type="number" name="surchargePercentage"  className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
+                    
+                </div>
+                 <div>
+                    <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                    <Field type="number" name="freeExtraMinutes"  className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                     
                 </div>
                 <div>
