@@ -179,10 +179,10 @@ export function MasterPriceView() {
                                         "Hours",
                                         "Round Trip Rate",
                                         "Drop Only < 50KM",
-                                        "Drop Only < 100KM",
                                         "Round Trip Rate - MUV",
                                         "Night Hours (10PM TO 6AM)",
                                         "Night Charges (10PM TO 6AM)",
+                                        "Food Charges",
                                         "Cancel Charge",
                                         "Extra Hours",
                                         "Cancellation Mins"
@@ -243,11 +243,6 @@ export function MasterPriceView() {
                                                     {dropPrice} Extra
                                                 </Typography>
                                             </td>
-                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {dropPriceAbove} Extra
-                                                </Typography>
-                                            </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {priceMVP}
@@ -262,6 +257,11 @@ export function MasterPriceView() {
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {nightCharge}
+                                                </Typography>
+                                            </td>
+                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {dropPriceAbove}
                                                 </Typography>
                                             </td>
                                             <td className={className}>

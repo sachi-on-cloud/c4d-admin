@@ -153,6 +153,14 @@ export function MasterPriceAdd() {
                                     <Field type="time" name="nightHoursTo" className="p-2 rounded border-gray-300" />
                                 </div>
                             </div>
+                            {values?.serviceType === 'DRIVER' &&
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Food Charges</label>
+                                <div className="flex items-center gap-2">
+                                     <Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-2" />
+                                </div>
+                            </div>
+                            }
 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
@@ -243,7 +251,7 @@ export function MasterPriceAdd() {
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra hour charge</th>
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra KM rate</th>
                                    
-                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Food Charges</th>
+                                    {/* <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Food Charges</th> */}
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Night Charges</th>
                                     <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Drop-only charge</th>
                                     </tr>
@@ -269,9 +277,9 @@ export function MasterPriceAdd() {
                                             <Field type="number" name="extraKmPrice" className="w-full text-center border rounded p-2" />
                                         </td>
 
-                                        <td className="px-2 py-3 border">
+                                        {/* <td className="px-2 py-3 border">
                                             <Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-2" />
-                                        </td>
+                                        </td> */}
                                        
 
                                         <td className="px-2 py-3 border">
