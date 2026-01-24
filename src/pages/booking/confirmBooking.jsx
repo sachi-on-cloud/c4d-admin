@@ -1953,7 +1953,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 }
                                 {bookingDetails?.extraHourPrice > 0 &&
                                     <div className="flex justify-between  my-1">
-                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs Price (For Each 15 Mins):</Typography>
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra hrs price (After first 15 minus):</Typography>
                                         <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraHourPrice)}</Typography>
                                     </div>
                                 }
@@ -1966,14 +1966,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
-                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails.extraHours} x ${amount.extraHourPrice})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraPrice)}</Typography>
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails?.finalFareBreakdown?.extraHours?.minutes} x ${bookingDetails?.finalFareBreakdown?.extraHours?.rate})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.finalFareBreakdown?.extraHours?.charge)}</Typography>
                                             </div>)}
                                         {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
-                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails.extraHours)} x ${amount.extraHourPrice})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraPrice)}</Typography>
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes)} x ${bookingDetails?.finalFareBreakdown?.extraHours?.rate})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.finalFareBreakdown?.extraHours?.charge)}</Typography>
                                             </div>)}
                                         {amount.extraKMs > 0 &&
                                             <div className="flex justify-between  my-1">
@@ -1987,6 +1987,18 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
                                                 <Typography className="text-sm text-black font-medium">₹ {Math.round(amount?.extraNightCharge)}</Typography>
+                                            </div>
+                                        }
+                                         {bookingDetails?.finalFareBreakdown?.foodCharge > 0 &&
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Food Charge</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.finalFareBreakdown?.foodCharge}</Typography>
+                                            </div>
+                                        }
+                                        {bookingDetails?.paymentDetails?.details?.waitingCharge > 0 &&
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Waiting Charge</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.paymentDetails?.details?.waitingCharge}</Typography>
                                             </div>
                                         }
                                     </> : ""
