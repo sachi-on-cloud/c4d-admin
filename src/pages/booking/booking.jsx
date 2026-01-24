@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, Feature, BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -84,20 +84,25 @@ const Booking = (props) => {
     const [quoteDetails, setQuoteDetails] = useState(null);
     const [bookingType, setBookingType] = useState(props.typeProp || '');
     const [discountDetails, setDiscountDetails] = useState(null);
-
+    const [driverEndLocation, setDriverEndLocation] = useState(null);
+    const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
     const [editBookingView, setEditBookingView] = useState(false);
     const [distanceExceedModal, setDistanceExceedModal] = useState(false);
+    const [outstationDistanceModal, setOutstationDistanceModal] = useState(false);
     const [cityLimitExceedModal, setCityLimitExceedModal] = useState(false);
     const [zoneErrorModal, setZoneErrorModal] = useState({ show: false, text: '', title: '' });
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [formikActions, setFormikActions] = useState({});
     const [serviceAreas, setServiceAreas] = useState([]);
+    const [premiumServicesMap, setPremiumServicesMap] = useState({})
     const [services, setServices] = useState([]);
     const [selectedAreaId, setSelectedAreaId] = useState(null);
     const [currentServiceType, setCurrentServiceType] = useState('');
     const [currentPackageType, setCurrentPackageType] = useState('');
     const [dropTaxiDistanceExceedModal, setDropTaxiDistanceExceedModal] = useState(false);
+    const [dropTaxiModalContent, setDropTaxiModalContent] = useState("Booking not available for the selected route. Try outstation service.");
     const [quotationLogs, setQuotationLogs] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
     const loggedInUserId = loggedInUser.id || 0;
      const [refreshFn, setRefreshFn] = useState(null);
@@ -109,6 +114,10 @@ const Booking = (props) => {
       const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
       const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
       setServiceAreas(filteredAreas);
+      if (response.premiumServices) {
+      setPremiumServicesMap(response.premiumServices);
+    //   console.log("Premium Services Map Loaded:", response.premiumServices);
+    }
     //   console.log('Available service areas:', filteredAreas);
     } catch (error) {
       console.error('Error fetching GEO_MARKINGS_LIST:', error);
@@ -122,7 +131,7 @@ const Booking = (props) => {
   useEffect(() => {
     if (selectedAreaId) {
       const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
-      const newServices = selectedArea ? selectedArea.services : [];
+      const newServices = (selectedArea ? selectedArea.services : []).filter(services => Feature.parcel || services !== 'PARCEL');
       setServices(newServices);
     //   console.log('Services for selected area:', newServices);
       setCurrentServiceType('');
@@ -147,15 +156,43 @@ const Booking = (props) => {
     const location = useLocation();
     const params = location.state;
 
+    useEffect(() => {
+        if (params?.editBooking) {
+            const bookingToEdit = params.editBooking;
+            setBookingData(bookingToEdit);
+            setEditBooking(bookingToEdit);
+            setBookingStage(0);
+            setBookingView(false);
+            setEditBookingView(true);
+            setShowQuickCreateCustomer(false);
+            setIsOpen(true);
+
+            const { editBooking: _ignoredEditBooking, ...rest } = params;
+            const nextState = Object.keys(rest || {}).length ? rest : undefined;
+            navigate(location.pathname, { replace: true, state: nextState });
+        }
+    }, [params, navigate, location.pathname]);
+
     const getPackageListDetails = useCallback(async (serviceType, zone) => {
   try {
     // console.log('Fetching packages with:', { serviceType, zone });
+	    if (!serviceType) {
+	      setPackageTypeSelectedData([]);
+	      return;
+	    }
+
     const serviceTypeMap = {
       'RENTAL_DROP_TAXI': 'RENTAL',
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
     };
     const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
     // console.log('Mapped serviceType:', mappedServiceType);
+
+    // AUTO bookings do not use package list; skip silently
+    if (mappedServiceType === 'AUTO') {
+      setPackageTypeSelectedData([]);
+      return;
+    }
 
     if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
       console.error('Invalid serviceType:', mappedServiceType);
@@ -254,16 +291,36 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
                startDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || '',
            }),
          
-        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&&  values?.packageTypeSelected != 'Local')&& 
-        { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || ' '}
+        ...( (values?.serviceType != 'RENTAL_DROP_TAXI' && values?.serviceType != 'RIDES'&& values?.serviceType != 'AUTO' && values?.packageTypeSelected != 'Local' &&(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') && !(values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Drop Only'))&& 
+        { endDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString() || null}
          ),
 
-         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL_DROP_TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY_PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || mappedServiceType,
+         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'DROP TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || '',
         cabType: values?.carType || '', 
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
 };
   const getQuoteOutstationDetails = async (values) => {
+        const isRentalOutstationRoundTrip =
+            values?.serviceType === 'RENTAL' &&
+            values?.packageTypeSelected === 'Outstation' &&
+            values?.tripType === 'Round Trip';
+        const isDropTaxiOutstation = values?.serviceType === 'RENTAL_DROP_TAXI';
+
+        // For Outstation Round Trip and Drop Taxi: check distance BEFORE estimation
+        if (isRentalOutstationRoundTrip || isDropTaxiOutstation) {
+            const distanceOk = await calculateDistance(values);
+            if (!distanceOk) {
+                if (isRentalOutstationRoundTrip) {
+                setOutstationDistanceModal(true);
+                } else if (isDropTaxiOutstation) {
+                    setDropTaxiDistanceExceedModal(true);
+                }
+                setIsButtonDisabled(false);
+                return;
+            }
+        }
+
         const zoneData = await zoneCheckUpFun(values);
         // console.log("frist",zoneData)
         let actualZone = '';
@@ -281,20 +338,37 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
             serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
+            customerId: values?.customerId,
             bookingType: values?.tripType?.toUpperCase(),
             packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
+            // carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
+             carType: values.serviceType === 'DRIVER' ? 'Mini' : values.carType || '',
             pickupLat: values?.pickupLocation?.lat,
             pickupLong: values?.pickupLocation?.lng,
             driverStartLat: values?.driverPickUpLocation?.lat,
             driverStartLong: values?.driverPickUpLocation?.lng,
+            driverEndLat: values?.driverEndLocation?.lat || null,
+            driverEndLong: values?.driverEndLocation?.lng || null,
             dropLat: values?.dropLocation?.lat,
             dropLong: values?.dropLocation?.lng,
             acType: values?.acType?.toUpperCase(),
             zone: actualZone,
+            isPremiumService : values?.isPremiumService ? true : false
         };
+        const isDriverOutstation = values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && values?.serviceType === 'RENTAL';
+        const isRoundTripCustom =
+            isDriverOutstation &&
+            values?.tripType === 'Round Trip' &&
+            values?.packageSelected === 'custom_date';
+        if (!isDriverOutstation || isRoundTripCustom) {
+            quoteData.toDate = moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();
+        }
+        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation'  && values?.packageSelected !== 'custom_date') {
+            quoteData.packageType = 'Outstation';
+            quoteData.packageId = Number(values.packageSelected);
+            quoteData.period = Number(values.packageSelected);
+        }
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
             quoteData.serviceFor = 'RENTAL_DROP_TAXI';
         }
@@ -334,22 +408,18 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     });
     return data;
 };
-    const getQuoteRides = async (val, setFieldValue) => {
+   const getQuoteRides = async (val, setFieldValue) => {
     let checkDistance = true;
     let checkCityLimit = true;
 
-    if (val.serviceType === 'RIDES') {
+    if (val.serviceType === 'RIDES' || val.serviceType === 'AUTO') {
         checkDistance = await calculateDistance(val);
         checkCityLimit = await calcluateCityLimit(val);
-    } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
-        checkDistance = await calculateDistance(val); // Check distance for DropTaxi
     }
 
     if (!checkDistance) {
-        if (val.serviceType === 'RIDES') {
+        if (val.serviceType === 'RIDES' || val.serviceType === 'AUTO') {
             setDistanceExceedModal(true);
-        } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
-            setDropTaxiDistanceExceedModal(true); 
         }
         setFieldValue?.('pickupAddress', '');
         setFieldValue?.('dropAddress', '');
@@ -364,7 +434,6 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     }
     
     const serviceTypeMap = {
-      'RENTAL_DROP_TAXI': 'RENTAL',
       'RENTAL_HOURLY_PACKAGE': 'RENTAL',
     };
     const mappedServiceType = serviceTypeMap[val.serviceType] || val.serviceType;
@@ -374,7 +443,22 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     const zoneData = await zoneCheckUpFun(val);
     //  console.log("secondZone",zoneData)
     if (!zoneData.success || !zoneData.serviceArea) {
-        setZoneErrorModal({ show: true, text: zoneData.error || 'Service not available in this area.', title: zoneData.title || 'Oops!' });
+        const errorText = (() => {
+            if (val.serviceType === 'RIDES') {
+                return "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+            } else if (val.serviceType === 'RENTAL_DROP_TAXI') {
+                return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+            } else if (val.serviceType === 'RENTAL') {
+                return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+            }
+            return zoneData.error || 'Service not available in this area.';
+        })();
+        
+        setZoneErrorModal({ 
+            show: true, 
+            text: errorText, 
+            title: zoneData.title || 'Oops!' 
+        });
         setFieldValue?.('pickupAddress', '');
         setIsButtonDisabled(false);
         return;
@@ -386,11 +470,12 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
 
         const quoteDate = {
             serviceType: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : val.serviceType || mappedServiceType,
-            bookingType: '',
+            customerId: val?.customerId?.id,
+            bookingType: val?.tripType ? val.tripType.toUpperCase() : '',
             serviceFor: val.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : val.serviceType,
             packageType:'Local',
             fromDate: moment(`${val?.rideDate} ${val?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: val.carType || '',
+            carType: val.serviceType === 'DRIVER' ? 'Mini' : val.carType || '',
             period: val.serviceType === 'RENTAL_HOURLY_PACKAGE' || val?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(val.packageSelected))?.period || '' : '',
             pickupLat: val?.pickupLocation?.lat,
             pickupLong: val?.pickupLocation?.lng,
@@ -398,7 +483,10 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             driverStartLong: val?.driverPickUpLocation?.lng,
             dropLat: val?.dropLocation?.lat,
             dropLong: val?.dropLocation?.lng,
+        //     driverEndLat: values?.driverEndLocation?.lat || null,
+        // driverEndLong: values?.driverEndLocation?.lng || null,
             zone: actualZone,
+            isPremiumService : val?.isPremiumService ? true : false
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
         // console.log("QUOTE DATA", data);
@@ -426,7 +514,6 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     }, [params]);
 
     useEffect(() => {
-        getPackageListDetails();
         if (params?.bookingDetails?.packageType === "Outstation" && params?.bookingDetails?.fromDate && params?.bookingDetails?.toDate) {
             setRange({ startDate: params?.bookingDetails?.fromDate, endDate: params?.bookingDetails?.toDate })
         }
@@ -447,6 +534,9 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         luggage:'',
         seaterCapacity:'',
         sourceType: '',
+        isPremiumService : '',
+        driverEndAddress: '',
+    driverEndLocation: null,
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -478,7 +568,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     }
 
     const calculateDistance = async (values) => {
-    let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
+    const calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
         pickupLat: values.pickupLocation.lat,
         pickupLong: values.pickupLocation.lng,
         dropLat: values.dropLocation?.lat,
@@ -489,10 +579,24 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     if (calculateDistance?.success) {
         if (values.serviceType === "RIDES") {
             return calculateDistance?.data?.showAlert; // Existing logic for RIDES
+        } else if (values.serviceType === "AUTO") {
+            return calculateDistance?.data?.showAlert;
+        } else if (values.serviceType === "RENTAL" && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') {
+            const showAlert = calculateDistance?.data?.showAlert;
+            return showAlert !== undefined ? showAlert : true;
         } else if (values.serviceType ==='RENTAL_DROP_TAXI') {
-            // Check if distance exceeds 300 km for DropTaxi
-            const distance = calculateDistance?.data?.estimatedDistance || 0;
-            return distance <= 300; // Return false if distance > 300 km
+                const rawDistance = calculateDistance?.data?.estimatedDistance || calculateDistance?.data?.kilometer;
+                const distance = rawDistance ? parseFloat(rawDistance) : 0;
+                const showAlert = calculateDistance?.data?.showAlert;
+                if (distance > 300) {
+                    setDropTaxiModalContent("Booking not available for the selected route. Try outstation service.");
+                    return false;
+                }
+                if (showAlert === false) {
+                    setDropTaxiModalContent("Try our Local Ride, it s faster and more affordable for short distances!");
+                    return false;
+                }
+                return true;
         }
     }
     return true;
@@ -521,7 +625,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
         }));
         const response = await ApiRequestUtils.post(API_ROUTES.POST_QUOTATION_LOG, updatedLogs);
         if (response?.success) {
-            console.log('Quotation logs sent successfully:', response);
+            // console.log('Quotation logs sent successfully:', response);
             setQuotationLogs([]); // Clear the logs after successful submission
         } else {
             console.error('Failed to send quotation logs:', response?.message);
@@ -542,7 +646,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
             let actualZone = '';
             if (values.serviceType === 'RIDES') {
                 if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
-                    setZoneErrorModal({ show: true, text: zoneCheckUp.error || 'Service not available in this area.', title: zoneCheckUp.title || 'Oops!' });
+                    const errorText = "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+                    setZoneErrorModal({ show: true, text: errorText, title: zoneCheckUp.title || 'Oops!' });
                     setIsButtonDisabled(false);
                     return;
                 }
@@ -578,13 +683,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
             driverStartAddress: {
                 name: values.driverPickUpAddress,
             },
+            driverEndLat: values.driverEndLocation?.lat || null,
             source: 'Call',
+            carType: values.carType,
             sourceType: values.sourceType,
             ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
                 otherSourceType: values.otherSourceType?.trim() || null
             }),
             serviceType:values.serviceType,
             zone: actualZone,  
+            landmark: values.landmark || '',
+            fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            isPremiumService : values?.isPremiumService ? true : false
         }
         let data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_RIDES_BOOKING, bookingData, values.customerId?.id);
         if (data?.success) {
@@ -596,17 +706,76 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setSelectedCustomer(0);
             setSearchBookingId('');
         } else {
-            console.log("Error in creating new booking");
+            // console.log("Error in creating new booking");
             formikBag.setErrors({ submit: 'Failed to create booking. Please try again.' });
         }
     } catch (err) {
-        console.log("ERROR IN RIDES BOOKING", err);
+        // console.log("ERROR IN RIDES BOOKING", err);
         formikBag.setErrors({ submit: 'An error occurred. Please try again.' });
     } finally {
         setIsButtonDisabled(false);
         formikBag.setSubmitting(false); // Ensure form is not stuck in submitting state
     }
 };
+
+ const onAutoSubmitHandler = async (values) => {
+       let zoneCheckUp = await zoneCheckUpFun(values)
+            let actualZone = '';
+            if (values.serviceType === 'AUTO') {
+                if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
+                    const errorText = "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+                    setZoneErrorModal({ show: true, text: errorText, title: zoneCheckUp.title || 'Oops!' });
+                    setIsButtonDisabled(false);
+                    return;
+                }
+                actualZone = zoneCheckUp.serviceArea.name;
+                // console.log("third Zone",actualZone)
+            } else {
+                actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+            }
+        const bookingData = {
+            pickupLat: values.pickupLocation.lat,
+            pickupLong: values.pickupLocation.lng,
+            pickupAddress: {
+                name: values.pickupAddress,
+            },
+            dropLat: values.dropLocation?.lat,
+            dropLong: values.dropLocation?.lng,
+            dropAddress: {
+                name: values.dropAddress,
+            },
+            bookingType: 'DROP ONLY',
+            source: values.source || 'Call',
+            sourceType: values.sourceType,
+            driverStartLat: values.driverPickUpLocation?.lat,
+            driverStartLong: values.driverPickUpLocation?.lng,
+            driverStartAddress: {
+                name: values.driverPickUpAddress,
+            },
+            driverEndLat: values.driverEndLocation?.lat || null,
+            zone: actualZone, 
+            landMark: values.landMark || '',
+            isPremiumService : values?.isPremiumService ? true : false,
+            fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+        };
+
+        try {
+            // console.log('AUTO Booking Payload:', bookingData);
+            const data = await ApiRequestUtils.post(API_ROUTES.ADD_NEW_AUTO_BOOKING, bookingData,values?.customerId?.id,
+       );
+            if (data?.success) {
+                setIsOpen(false);
+                setBookingData(data?.data);
+                await sendQuotationLogs(data?.data?.id, loggedInUserId);
+            } 
+        } catch (error) {
+            console.error('Error in onAutoSubmitHandler:', {
+                error: error.message,
+                stack: error.stack,
+            });
+            alert('An error occurred while creating the AUTO booking. Please try again.');
+        }
+    };
 
    const onSubmitHandler = async (values) => {
     const serviceTypeMap = {
@@ -615,11 +784,19 @@ const sendQuotationLogs = async (bookingId, userId) => {
     };
     const mappedServiceType = serviceTypeMap[values.serviceType] || values.serviceType;
 
-    // Check distance only for DropTaxi
-    if (values.serviceType === 'RENTAL_DROP_TAXI') {
+    const isRentalOutstationRoundTrip =
+        values.serviceType === 'RENTAL' &&
+        values.packageTypeSelected === 'Outstation' &&
+        values.tripType === 'Round Trip';
+
+    if (values.serviceType === 'RENTAL_DROP_TAXI' || isRentalOutstationRoundTrip) {
         const checkDistance = await calculateDistance(values);
         if (!checkDistance) {
+            if (isRentalOutstationRoundTrip) {
+                setOutstationDistanceModal(true);
+            } else {
             setDropTaxiDistanceExceedModal(true); // Show the DropTaxi distance exceed modal
+            }
             setIsButtonDisabled(false);
             return;
         }
@@ -632,21 +809,34 @@ const sendQuotationLogs = async (bookingId, userId) => {
         // console.log('Zone for booking', actualZone);
     }
 
+        const selectedPackage = packageTypeSelectedData.find(
+            (pkg) => pkg.id === Number(values?.packageSelected)
+        );
+
+        const period =
+            values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation'
+                ? (values.packageSelected && values.packageSelected !== 'custom_date' ? Number(values.packageSelected) : '')
+                : (values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'DRIVER'
+                    ? selectedPackage?.period || ''
+                    : '');
+
         const bookingData = {
             carId: values?.carSelected?.id,
-            packageId: values?.packageSelected === "0" ? 0 : Number(values?.packageSelected),
+            packageId: values?.packageSelected === "0" || values?.packageSelected === "custom_date" ? 0 : Number(values?.packageSelected),
             packageType: values?.packageTypeSelected,
             date: values?.rideDate,
             time: values?.rideTime,
             // fromDate: values.fromDate,
             customerId: values.customerId?.id,
             adminBooking: true,
-            serviceType: values.serviceType,
+            serviceType: values.serviceType || "AUTO",
             cabType: values.cabType,
             bookingType: values?.tripType?.toUpperCase(),
-            acType: values?.acType?.toUpperCase(),
-            transmissionType: values.transmissionType,
-            carType: values.carType,
+            // acType: values?.acType?.toUpperCase(),
+            ...(values.acType ? { acType: values.acType.toUpperCase() } : {}),
+            // transmissionType: values.transmissionType,
+            ...(values.transmissionType ? { transmissionType: values.transmissionType } : {}),
+            carType: values.serviceType === 'DRIVER' ? 'Mini' : values.carType || '',
             fromDate: moment(`${values.rideDate} ${values.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             pickupLat: values.pickupLocation.lat,
             pickupLong: values.pickupLocation.lng,
@@ -655,9 +845,6 @@ const sendQuotationLogs = async (bookingId, userId) => {
             },
             driverStartLat: values.driverPickUpLocation?.lat,
             driverStartLong: values.driverPickUpLocation?.lng,
-            driverStartAddress: {
-                name:values.driverPickUpAddress,
-            },
             source: 'Call',
             sourceType: values.sourceType,
             ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
@@ -665,9 +852,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
             }),
             luggage: values.luggage,
             seaterCapacity:values.seaterCapacity,
-            period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
+            landmark: values.landmark || '',
+            period,
             serviceType: values.serviceType || mappedServiceType,
             zone: actualZone,
+            isPremiumService : values?.isPremiumService ? true : false
         };
         if(values.serviceType !== "RENTAL_HOURLY_PACKAGE" )
         {
@@ -676,7 +865,29 @@ const sendQuotationLogs = async (bookingId, userId) => {
             bookingData.dropAddress= values.dropLocation ? {
                 name: values.dropAddress
             } : null;
+
+            if (values.driverEndLocation) {
+                bookingData.driverEndLat = values.driverEndLocation.lat;
+                bookingData.driverEndLong = values.driverEndLocation.lng;
+                bookingData.driverEndAddress = {
+                    name: values.driverEndAddress,
+                };
+            }
+
+            if (values.driverPickUpAddress) {
+                bookingData.driverStartAddress = {
+                    name: values.driverPickUpAddress,
+                };
+            }
         }
+       if (values.serviceType !== "RENTAL_DROP_TAXI") {
+           if (values.driverEndLocation) {
+               bookingData.driverEndLat = values.driverEndLocation.lat;
+               bookingData.driverEndLong = values.driverEndLocation.lng;
+               bookingData.driverEndAddress = { name: values.driverEndAddress };
+           }
+       }
+
         if (values.toDate && values.toTime) {
             bookingData.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString()
         };
@@ -726,12 +937,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
     };
 
     const onSelectBooking = (data) => {
-        //console.log('selecting booking', data);
-        setBookingStage(4);
-        setBookingData(data);
-        setBookingView(true);
-        setEditBooking();
-        setEditBookingView(false);
+        navigate("/dashboard/confirm-booking", {
+            state: {
+                bookingId: data?.id,
+                customerId: data?.customerId || data?.Customer?.id || 0,
+            },
+        });
+                // console.log('selecting booking', data);
+        // setBookingStage(4);
+        // setBookingData(data);
+        // setBookingView(true);
+        // setEditBooking();
+        // setEditBookingView(false);
     };
 
     const onConfirmBooking = () => {
@@ -750,33 +967,50 @@ const sendQuotationLogs = async (bookingId, userId) => {
     const onCancelBookingView = () => { }
 
     const resetPackageValues = (setFieldValue, newServiceType) => {
-        setFieldValue("packageSelected", "");
+        // Clear location-related fields
+        setFieldValue('pickupAddress', '');
+        setFieldValue('pickupLocation', null);
+        setFieldValue('dropAddress', '');
+        setFieldValue('dropLocation', null);
+        setFieldValue('driverPickUpAddress', '');
+        setFieldValue('driverPickUpLocation', null);
+        setFieldValue('driverEndAddress', '');
+        setFieldValue('driverEndLocation', null);
+
+        // Clear vehicle / service-related fields
+        setFieldValue('carType', '');
+        setFieldValue('cabType', '');
+        setFieldValue('luggage', '');
+        setFieldValue('seaterCapacity', '');
+        setFieldValue('acType', '');
+        setFieldValue('transmissionType', '');
+
+        // Clear package selection
+        setFieldValue('packageSelected', '');
 
         if (newServiceType === 'CAR_WASH') {
-            setFieldValue("packageTypeSelected", "CarWash");
+            setFieldValue('packageTypeSelected', 'CarWash');
         } else if (newServiceType === 'DRIVER') {
-            setFieldValue("packageTypeSelected", "Local");
-        }
-        else if (newServiceType === 'RENTAL_HOURLY_PACKAGE') {
-            setFieldValue("packageTypeSelected", "Local");
-            setFieldValue("tripType", "Drop Only");
-        }
-        else if (newServiceType === 'RENTAL') {
-            setFieldValue("packageTypeSelected", "Outstation");
-            setFieldValue("tripType", "Round Trip");
-            setFieldValue("acType", "Ac");
-        }
-        else if (newServiceType === 'RENTAL_DROP_TAXI') {
-            setFieldValue("packageTypeSelected", "Outstation");
-            setFieldValue("tripType", "Drop Only");
-            setFieldValue("acType", "Ac");
-        }
-        else {
-            setFieldValue("packageTypeSelected", "");
+            setFieldValue('packageTypeSelected', 'Local');
+            setFieldValue('tripType', 'Drop Only');
+        } else if (newServiceType === 'RENTAL_HOURLY_PACKAGE') {
+            setFieldValue('packageTypeSelected', 'Local');
+            setFieldValue('tripType', 'Drop Only');
+        } else if (newServiceType === 'RENTAL') {
+            setFieldValue('packageTypeSelected', 'Outstation');
+            setFieldValue('tripType', 'Round Trip');
+            setFieldValue('acType', 'Ac');
+        } else if (newServiceType === 'RENTAL_DROP_TAXI') {
+            setFieldValue('packageTypeSelected', 'Outstation');
+            setFieldValue('tripType', 'Drop Only');
+            setFieldValue('acType', 'Ac');
+        } else {
+            setFieldValue('packageTypeSelected', '');
         }
 
-        setFieldValue("fromDate", "");
-        setFieldValue("toDate", "");
+        // Clear package date range
+        setFieldValue('fromDate', '');
+        setFieldValue('toDate', '');
         setRange({});
         setDatePickerVisible(false);
     };
@@ -790,6 +1024,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     setPickupSuggestions(data?.data);
                 } else if (type === 'driver') {
                     setDriverSuggestions(data?.data);
+                }else if (type === 'driverEnd') {
+                    setDriverEndSuggestions(data?.data);  // New
                 } else {
                     setDropSuggestions(data?.data);
                 }
@@ -797,6 +1033,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                 setPickupSuggestions([]);
                 setDriverSuggestions([]);
                 setDropSuggestions([]);
+                setDriverEndSuggestions([]);
             }
         } catch (error) {
             console.error('Error searching locations:', error);
@@ -808,6 +1045,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setPickupSuggestions([]);
             setDriverSuggestions([]);
             setDropSuggestions([]);
+            setDriverEndSuggestions([]);
         }
     };
 
@@ -834,9 +1072,20 @@ const sendQuotationLogs = async (bookingId, userId) => {
                     getPackageListDetails(currentServiceType, newArea.name);
                 }
             } else {
+                const errorText = (() => {
+                    if (values.serviceType === 'RIDES') {
+                        return "Selected locations are outside the service area. Please choose a nearby pickup location to continue.";
+                    } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
+                        return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+                    } else if (values.serviceType === 'RENTAL') {
+                        return "Selected locations are outside the service area. Please choose a nearby pickup location.";
+                    }
+                    return zoneData.error || 'Service not available in this area.';
+                })();
+                
                 setZoneErrorModal({ 
                     show: true, 
-                    text: zoneData.error || 'Service not available in this area.', 
+                    text: errorText, 
                     title: zoneData.title || 'Oops!' 
                 });
                 setFieldValue("pickupAddress", "");
@@ -848,7 +1097,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setFieldValue("driverPickUpLocation", location);
             setDriverPickUpLocation(location);
             setDriverSuggestions([]);
-        } else {
+        }else if (type === 'driverEnd') {  // NEW
+            setFieldValue("driverEndAddress", address);
+            setFieldValue("driverEndLocation", location);
+            setDriverEndLocation(location);
+            setDriverEndSuggestions([]);
+        } 
+        else {
             setFieldValue("dropAddress", address);
             setFieldValue("dropLocation", location);
             setDropLocation(location);
@@ -1035,16 +1290,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
         }
     };
 
-    // modal data
-    const [isOpen, setIsOpen] = useState(false);
-
     const serviceDisplayNames = {
         DRIVER: "Acting Driver",
         RIDES: "Local Rides",
         RENTAL_DROP_TAXI: "Drop Taxi",
         RENTAL_HOURLY_PACKAGE: "Hourly Package",
         RENTAL: "Outstation",
-        AUTO: "Auto",
+        AUTO : "Auto",
         PARCEL: "Parcel",
     };
 
@@ -1077,8 +1329,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     setSearchBookingId(''); 
                                                     setSelectedCustomer(0);
                                                     setSearchResults([]); 
+                                                    
                                                     localStorage.removeItem('bookingSearchId');
                                                    if (refreshFn) refreshFn();
+                                                   
                                                 }}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
@@ -1147,6 +1401,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                         setEditBooking();
                         setQuoteDetails();
                         setSearchBookingId('')
+                        setShowQuickCreateCustomer(false);
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
                                 <div className='justify-end items-end  absolute -right-6'>
@@ -1160,6 +1415,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 setEditBooking();
                                                 setQuoteDetails();
                                                 setSearchBookingId('');
+                                                setShowQuickCreateCustomer(false);
                                             }
                                         }
                                         className="rounded-3xl  p-2 bg-surface-muted"
@@ -1178,6 +1434,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 <>
                                                     {`Booking Details - ${bookingData?.bookingNumber}`}
                                                     {bookingData?.status && getStatusDisplay(bookingData.status)}
+                                                    {bookingData?.serviceType &&
+                                                        <div className={`rounded-md text-white text-sm font-semibold mr-2 ${bookingData?.serviceType ? 'bg-red-300' : 'bg-gray-400' }`}>
+                                                            <Typography className='font-semibold text-sm px-1 py-1 text-white'>
+                                                                {bookingData?.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingData?.serviceType == "RIDES" ? 'Local Rides' : bookingData?.packageType == "Local" ? 'Hourly Package' : bookingData?.bookingType == "DROP ONLY" ? 'Drop Taxi' : bookingData?.serviceType == 'AUTO' ? 'Auto' :  'Outstation'}
+                                                            </Typography>
+                                                        </div>}
+                                                    {bookingData?.isPremiumService === true &&
+                                                    <div className={`rounded-md text-white text-sm font-semibold ${bookingData?.isPremiumService ? 'bg-deep-purple-700' : 'bg-gray-400'}`}>
+                                                        <Typography className='font-semibold text-sm px-1 py-1 text-white'>
+                                                            {bookingData?.isPremiumService ? "PREMIUM" : ""}
+                                                        </Typography>
+                                                    </div>}
                                                 </>
                                             ) : (bookingStage === 0 ? 'New Booking' :  bookingStage === 1 ? 'New Booking' :  bookingData?.requestType === 'REQUEST_ALL' ? `Request Cab - ${bookingData?.bookingNumber}` :  bookingData?.serviceType === 'RENTAL' ? `Assign Cab - ${bookingData?.bookingNumber}` : `Assign Captain - ${bookingData?.bookingNumber}`)}
                                         </div>
@@ -1187,10 +1455,14 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                 {!showQuickCreateCustomer && !bookingView && <>
                                     {(bookingStage === 0 || bookingStage === 1) && <Formik
                                         initialValues={initialValues}
+                                        validate={Utils.validateRideAndReturnDateTime}
                                         onSubmit={async (values, formikBag) => {
                                             setFormikActions(formikBag); // Store Formik actions for modals
                                             if (values.submitType === "rides") {
                                                 await onRideSubmitHandler(values, formikBag);
+                                            } 
+                                            else if (values.submitType === "auto") {
+                                                await onAutoSubmitHandler(values, formikBag);
                                             } else {
                                                 await onSubmitHandler(values);
                                             }
@@ -1202,9 +1474,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                             setSearchBookingId('');
                                         }}
                                         validationSchema={BOOKING_DETAILS_SCHEMA}
+                                        validateOnMount={true}
                                         enableReinitialize={true}
                                     >
                                        {({ handleSubmit, values, setFieldValue, isValid, dirty, handleChange, errors }) => {
+                                            const getCurrentPremiumOptions = () => {
+                                                return premiumServicesMap[values?.serviceType] || [];
+                                            };
                                                 
                                                     useLuggageAndSeaterLogic(values.carType, setFieldValue);
                                         useEffect(() => {
@@ -1267,6 +1543,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     // console.log('Selected area value:', selectedValue);
                                                                     setFieldValue('serviceTypeArea', selectedValue, false);
                                                                     setSelectedAreaId(selectedValue);
+                                                                    resetPackageValues(setFieldValue, values.serviceType);
 
                                                                     // Fetch new packages for the current serviceType without resetting fields
                                                                     if (values.serviceType) {
@@ -1327,6 +1604,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         setRange({});
                                                                         setFieldValue('fromDate', '');
                                                                         setFieldValue('toDate', '');
+                                                                        if (values.serviceType === 'DRIVER' && values.packageSelected === 'Local') {
+                                                                            setFieldValue('tripType', 'Drop Only');
+                                                                        }
                                                                     }
                                                                 }}
                                                                 disabled={bookingStage === 1}
@@ -1352,7 +1632,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     Outstation
                                                                 </Button>}
                                                         </div>
-                                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageTypeSelected === 'Local') || (values.serviceType === 'RENTAL_DROP_TAXI' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'DRIVER')) && (
+                                                        {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageTypeSelected === 'Local') || (values.serviceType === 'RENTAL_DROP_TAXI' && values.packageTypeSelected === 'Outstation') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation')) && (
                                                             <div className={['RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(values.serviceType) ? 'hidden' : ''}>
                                                                 <Typography className="text-sm font-medium text-black-700">Trip Type</Typography>
                                                                 <div className="grid grid-cols-2 gap-4 mt-2">
@@ -1379,12 +1659,69 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 </div>
                                                             </div>
                                                         )}
-
-                                                        <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                            {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' ? 'visible' : '') && (<div>
-                                                                <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                <div className='flex mt-2 space-x-3'>
+                                                    {(values?.serviceType === 'DRIVER' || values?.serviceType === 'RENTAL' || values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                        <div className="flex gap-2">
+                                                        <div>
+                                                            <div className="mt-3 flex gap-3">
+                                                                {(values?.isPremiumService ||
+                                                                            values?.serviceType === 'RENTAL' ||
+                                                                            values?.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                                                <div className="w-full">
+                                                                                    <label className="flex items-center space-x-2 cursor-pointer select-none">
+                                                                                        <Field
+                                                                                            type="checkbox"
+                                                                                            name="isPremiumService"
+                                                                                            className="h-5 w-5 text-primary-600 rounded"
+                                                                                            onChange={(e) => {
+                                                                                                setFieldValue('isPremiumService', e.target.checked);
+                                                                                                if (!e.target.checked) {
+                                                                                                    setFieldValue('carType', ''); // reset when disabled
+                                                                                                }
+                                                                                            }}
+                                                                                        />
+                                                                                        <span className="text-sm font-medium text-gray-700">Enable Premium Service</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                            )}
+                                                                            </div>
+                                                                                <div>
+                                                                    {values?.isPremiumService && (
+                                                                        <div className="w-full mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                                            <p className="text-sm font-semibold text-blue-900 mb-3">
+                                                                                Premium Options Available:
+                                                                            </p>
+                                                                            {getCurrentPremiumOptions().length > 0 ? (
                                                                 <div className="flex gap-4">
-                                                                    {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
+                                                                                    {getCurrentPremiumOptions().map((premium, index) => (
+                                                                                        <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                                                                                            <Field
+                                                                                                type="radio"
+                                                                                                name="carType"
+                                                                                                value={premium.carType}
+                                                                                                className="h-4 w-4 text-primary-600"
+                                                                                                onChange={(e) => setFieldValue('carType', e.target.value)}
+                                                                                            />
+                                                                                            <span className="text-gray-800 font-medium">
+                                                                                                {premium.label}
+                                                                                            </span>
+                                                                                        </label>
+                                                                                    ))}
+                                                                                </div>
+                                                                            ) : (
+                                                                                <p className="text-sm text-gray-600 italic">
+                                                                                    No premium options available for {values?.serviceType}
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                        <div className='pt-2'>
+                                                        {!values?.isPremiumService && ( <>
+                                                                <label className="text-sm font-medium text-black-700">Car Type <span className='text-red-500 text-sm'>*</span></label>
+                                                                <div className='pt-3 grid grid-cols-6 gap-3'>
+                                                                {(values?.serviceType === 'DRIVER' || values?.serviceType === 'RENTAL' || values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                                    ['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
                                                                         <label key={carType} className="flex items-center space-x-2">
                                                                             <Field
                                                                                 type="radio"
@@ -1397,15 +1734,20 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             />
                                                                             <span className="text-black-700">{carType}</span>
                                                                         </label>
-                                                                    ))}
+                                                                    )))}
                                                                 </div>
-                                                                <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                                                {['DRIVER', 'RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(values.serviceType) && errors.carType && (
+                                                                    <div className="text-red-500 text-sm mt-1">
+                                                                        {errors.carType}
+                                                                    </div>
+                                                                )}
+                                                            </>)}
                                                             </div>
-                                                            )}
+                                                            </div>
                                                             {(values.serviceType === 'DRIVER') && (
-                                                                <div>
+                                                                <div className='pt-4'>
                                                                     <label className="text-sm font-medium text-black-700">Transmission Type</label>
-                                                                    <div className="flex gap-2">
+                                                                    <div className="flex gap-2 pt-3">
                                                                         {['Manual', 'Automatic'].map((transType) => (
                                                                             <label key={transType} className="flex items-center space-x-2">
                                                                                 <Field
@@ -1421,6 +1763,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     <ErrorMessage name="transmissionType" component="div" className="text-red-500 text-sm mt-1" />
                                                                 </div>
                                                             )}
+                                                                </div>
+                                                        )}
                                                         </div>
                                                     </div>
 
@@ -1448,46 +1792,96 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     </div>
                                                 )}
                                                 
-                                                {/* Source Type Field for all services */}
-                                                {values.serviceType && (
-                                                    <div className="space-y-2 mb-4">
-                                                        <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
-                                                        <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
-                                                            <option value="">Select Source Type</option>
-                                                            <option value="Facebook">Facebook</option>
-                                                            <option value="Instagram">Instagram</option>
-                                                            <option value="Influencer Reels">Influencer Reels</option>
-                                                            <option value="WhatsApp">WhatsApp</option>
-                                                            <option value="Google">Google</option>
-                                                            <option value="YouTube">YouTube</option>
-                                                            <option value="Justdial">Justdial</option>
-                                                            <option value="Paper Notice">Paper Notice</option>
-                                                            <option value="On Field">On Field</option>
-                                                            <option value="Existing Customer">Existing Customer</option>
-                                                            <option value="Referral">Referral</option>
-                                                            <option value="Reddit">Reddit</option>
-                                                            <option value="Offline Ads">Offline Ads</option>
-                                                            <option value="Others">Others</option>
-                                                        </Field>
-                                                       {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                               
+                                                                                                {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation'  && (
+                                                    <div className="flex-1 mb-4">
+                                                        <div>
+                                                            <Typography variant="h6" className="mb-2">
+                                                                Choose a package
+                                                            </Typography>
                                                             <Field
-                                                                type="text"
-                                                                name="otherSourceType"
-                                                                placeholder="Please specify the source"
-                                                                className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
-                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
-                                                            />
-                                                            )}
+                                                                as="select"
+                                                                disabled={bookingStage === 1}
+                                                                name="packageSelected"
+                                                                className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                                value={values.packageSelected}
+                                                                onChange={(e) => {
+                                                                    const selectedId = e.target.value;
+                                                                    setFieldValue('packageSelected', selectedId);
+                                                                    if (selectedId === 'custom_date') {
+                                                                        setRange({});
+                                                                        return;
+                                                                    }
 
-                                                        <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
-                                                {values.sourceType === "Others" && (
-                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
-                                                )}
-                                                </div>
-                                                )}
+                                                                    const selectedPackage = packageTypeSelectedData.find(
+                                                                        (pkg) => pkg.id === Number(selectedId)
+                                                                    );
 
+                                                                    if (selectedPackage) {
+                                                                        const period = Number(selectedPackage.period) || 0;
+
+                                                                        
+                                                                        let baseMoment;
+                                                                        let baseDateStr = values.rideDate;
+                                                                        let baseTimeStr = values.rideTime;
+
+                                                                        if (values.rideDate && values.rideTime) {
+                                                                            baseMoment = moment(`${values.rideDate} ${values.rideTime}`, 'YYYY-MM-DD HH:mm');
+                                                                        } else {
+                                                                            baseMoment = moment();
+                                                                            baseDateStr = baseMoment.format('YYYY-MM-DD');
+                                                                            baseTimeStr = baseMoment.format('HH:mm');
+                                                                            setFieldValue('rideDate', baseDateStr);
+                                                                            setFieldValue('rideTime', baseTimeStr);
+                                                                        }
+
+                                                                        
+                                                                        if (values.tripType === 'Round Trip' && period > 0) {
+                                                                            const start = baseMoment.toDate();
+
+                                                                            
+                                                                            const extraType = (selectedPackage.extraCabType || '').toString().toLowerCase();
+                                                                            let endMoment;
+                                                                            if (extraType.includes('hour')) {
+                                                                                
+                                                                                const hours = parseInt(extraType, 10) || period;
+                                                                                endMoment = baseMoment.clone().add(hours, 'hours');
+                                                                            } else {
+                                                                                
+                                                                                endMoment = baseMoment.clone().add(period, 'days');
+                                                                            }
+
+                                                                            const end = endMoment.toDate();
+                                                                            const endDateStr = endMoment.format('YYYY-MM-DD');
+                                                                            const endTimeStr = endMoment.format('HH:mm');
+
+                                                                            setFieldValue('fromDate', baseDateStr);
+                                                                            setFieldValue('toDate', endDateStr);
+                                                                            setFieldValue('toTime', endTimeStr);
+                                                                            setRange({ startDate: start, endDate: end });
+                                                                        }
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <option value="">Select Package</option>
+                                                                {packageTypeSelectedData
+                                                                    .filter((item) => item.serviceType === 'DRIVER' && item.type === 'Outstation' && !(item.extraCabType === '0' || item.extraCabType === 0))
+                                                                    .map((item) => {
+                                                                        const label = item.extraCabType === '0' || item.extraCabType === 0 ? '1 Day' : (item.extraCabType || `${item.period} Days`);
+                                                                        return (
+                                                                            <option key={item.id} value={item.id}> {label} </option>
+                                                                        );
+                                                                    })}
+                                                                    {values.tripType === 'Round Trip' && (
+                                                                    <option value="custom_date">Custom Date</option>
+                                                                    )}
+                                                            </Field>
+                                                            <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
+                                                        </div>
+                                                    </div>
+                                                )}
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (
+                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Pickup Date & Time
@@ -1497,7 +1891,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 name="rideDateTime"
                                                                 disabled={bookingStage === 1}
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                value={values.rideDate ? `${values.rideDate}T${values.rideTime}` : ''}
+                                                                value={values.rideDate && values.rideTime  ? `${values.rideDate}T${values.rideTime}` : ''}
                                                                 min={`${moment().format('YYYY-MM-DD')}T00:00`}
                                                                  onClick={(e) => {
                                                                 if (e.target.showPicker) e.target.showPicker();
@@ -1519,10 +1913,19 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     }
                                                                 }}
                                                             />
+                                                            <ErrorMessage name="rideDateTime" component="div" className="text-red-500 text-sm" />
                                                         </div>
                                                     )}
 
-                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL') && values.packageTypeSelected === "Outstation" && values.tripType === 'Round Trip' && (
+                                                    {(
+                                                        (values.serviceType === 'RENTAL' &&
+                                                            values.packageTypeSelected === 'Outstation' &&
+                                                            values.tripType === 'Round Trip') ||
+                                                        (values.serviceType === 'DRIVER' &&
+                                                            values.packageTypeSelected === 'Outstation' &&
+                                                            values.tripType === 'Round Trip' &&
+                                                            values.packageSelected === 'custom_date')
+                                                    ) && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Return Date & Time
@@ -1532,8 +1935,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 name="returnDateTime"
                                                                 disabled={bookingStage === 1}
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                value={values.toDate ? `${values.toDate}T${values.toTime}` : ''}
-                                                                min={values.rideDate ? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
+                                                                value={values.toDate && values.toTime ? `${values.toDate}T${values.toTime}` : ''}
+                                                                min={values.rideDate && values.rideTime? `${values.rideDate}T${values.rideTime}` : `${moment().format('YYYY-MM-DD')}T00:00`}
                                                                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                                 onChange={(e) => {
                                                                     const selectedDateTime = e.target.value;
@@ -1548,6 +1951,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     }
                                                                 }}
                                                             />
+                                                            <ErrorMessage name="returnDateTime" component="div" className="text-red-500 text-sm" />
                                                         </div>
                                                     )}
                                                 </div>
@@ -1581,7 +1985,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         else if (values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE') {
                                                                             return item.serviceType === 'RENTAL' || item.serviceType === 'RENTAL_HOURLY_PACKAGE' && item.type === 'Local';
                                                                         }
-                                                                        return values.packageTypeSelected === item.type;
+                                                                        const isLocal = values.packageTypeSelected === 'Local';
+
+                                                                        if (isLocal) {
+                                                                        return item.type === 'Local' && [2, 4, 6, 8].includes(item.period);
+                                                                        }
                                                                     })
                                                                     .map((item) => (
                                                                         <option key={item.id} value={item.id}>
@@ -1602,6 +2010,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         </div>
                                                     </div>
                                                 }
+
 
                                                 {/* {(values.serviceType === 'DRIVER' || values.serviceType === 'CAB') && values.packageTypeSelected === "Outstation" && (
                                     <div className="space-y-4 mb-4">
@@ -1655,23 +2064,115 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                         )}
                                     </div>
                                 )} */}
+                                                {(values.serviceType === 'RIDES' || values.serviceType === 'AUTO') &&  (
+                                                    <div className="mt-6">
+                                                        <div className="mt-3 space-y-5">
+                                                            <div className="flex items-center space-x-3 ml-2">
+                                                                <Field
+                                                                    type="checkbox"
+                                                                    name="isPremiumService"
+                                                                    className="h-5 w-5 text-primary-600 rounded focus:ring-primary-500"
+                                                                    onChange={(e) => {
+                                                                        setFieldValue('isPremiumService', e.target.checked);
+                                                                        if (!e.target.checked) {
+                                                                            setFieldValue('carType', '');
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                <span className="text-sm font-medium text-gray-700">Enable Premium Service</span>
+                                                            </div>
+                                                            {values?.isPremiumService && (
+                                                                <div className="w-full mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                                    <p className="text-sm font-semibold text-blue-900 mb-3">
+                                                                        Premium Options Available:
+                                                                    </p>
+                                                                    {getCurrentPremiumOptions().length > 0 ? (
+                                                                        <div className="flex gap-4">
+                                                                            {getCurrentPremiumOptions().map((premium, index) => (
+                                                                                <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                                                                                    <Field
+                                                                                        type="radio"
+                                                                                        name="carType"
+                                                                                        value={premium.carType}
+                                                                                        className="h-4 w-4 text-primary-600"
+                                                                                        onChange={(e) => setFieldValue('carType', e.target.value)}
+                                                                                    />
+                                                                                    <span className="text-gray-800 font-medium">
+                                                                                        {premium.label}
+                                                                                    </span>
+                                                                                </label>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <p className="text-sm text-gray-600 italic">
+                                                                            No premium options available for {values?.serviceType}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                            {!values.isPremiumService && values.serviceType && ["RIDES"].includes(values.serviceType) && (
+                                                                <>
+                                                                <div className='ml-2'>
+                                                                    <label className="text-sm font-medium text-black-700">Car Type <span className='text-red-500 text-sm'>*</span></label>
+                                                                <div className="flex gap-6 mt-2">
+                                                                    {['Mini', 'Sedan'].map((carType) => (
+                                                                        <label key={carType} className="flex items-center space-x-2 cursor-pointer">
+                                                                            <Field
+                                                                                type="radio"
+                                                                                name="carType"
+                                                                                value={carType}
+                                                                                className="h-4 w-4 text-primary-600"
+                                                                                onChange={(e) => {
+                                                                                    setFieldValue('carType', e.target.value);
+                                                                                }}
+                                                                            />
+                                                                            <span className="text-black-700">{carType}</span>
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                                {values.serviceType === 'RIDES' && errors.carType && (
+                                                                    <div className="text-red-500 text-sm mt-1">
+                                                                        {errors.carType}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
                                                 <div className='grid grid-cols-1'>
-                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE') && 
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType == 'AUTO') && 
                                                     (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Customer Pickup Location <span className="text-red-500">*</span>
                                                         </label>
+                                                      <div className="relative">
                                                         <Field
-                                                            type="text"
-                                                            name="pickupAddress"
-                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                            placeholder="Enter pickup location"
-                                                            onChange={(e) => {
-                                                                setFieldValue("pickupAddress", e.target.value);
-                                                                setFieldValue("pickupLocation", null);
-                                                                searchLocations(e.target.value, true);
-                                                            }}
+                                                        type="text"
+                                                        name="pickupAddress"
+                                                        className="p-2 w-full rounded-xl border-2 border-gray-300 pr-10"
+                                                        placeholder="Enter pickup location"
+                                                        onChange={(e) => {
+                                                            setFieldValue("pickupAddress", e.target.value);
+                                                            setFieldValue("pickupLocation", null);
+                                                            searchLocations(e.target.value, true);
+                                                        }}
                                                         />
+                                                        {values.pickupAddress && (
+                                                        <button
+                                                            type="button"
+                                                            className="absolute right-3 top-2 text-gray-500 hover:text-black"
+                                                            onClick={() => {
+                                                            setFieldValue("pickupAddress", "");
+                                                            setFieldValue("pickupLocation", null);
+                                                           
+                                                            }}
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                        )}
+                                                    </div>
                                                         {pickupSuggestions.length > 0 && (
                                                             <ul className="border rounded-lg bg-white mt-2">
                                                                 {pickupSuggestions.map((suggestion, index) => (
@@ -1689,9 +2190,10 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     </div>
                                                 )}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
+                                                                <div className="relative">
                                                                 <Field
                                                                     type="text"
                                                                     name="dropAddress"
@@ -1703,6 +2205,19 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         searchLocations(e.target.value, false);
                                                                     }}
                                                                 />
+                                                                  {values.dropAddress && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="absolute right-3 top-4 text-gray-500 hover:text-black"
+                                                                        onClick={() => {
+                                                                        setFieldValue("dropAddress", "");
+                                                                        setFieldValue("dropLocation", null);
+                                                                        }}
+                                                                    >
+                                                                        ✕
+                                                                    </button>
+                                                                    )}
+                                                                </div>
                                                                 {dropSuggestions.length > 0 && (
                                                                     <ul className="border rounded-lg bg-white mt-2">
                                                                         {dropSuggestions.map((suggestion, index) => (
@@ -1755,22 +2270,40 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <ErrorMessage name="seater" component="div" className="text-red-500 text-sm" />
                                                                     </div>
                                                                 )}
-                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES') && (
+                                                    {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="p-2 space-y-2">
                                                             <label className="block text-sm font-medium text-black-700">
-                                                                Driver Starting Point 
+                                                            {values.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Point 
+                                                            {(values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation") && (
+                                                                <span className="text-red-500">*</span>
+                                                            )}
                                                             </label>
+                                                            <div className="relative">
                                                             <Field
                                                                 type="text"
                                                                 name="driverPickUpAddress"
                                                                 className="p-2 w-full rounded-xl border-2 border-gray-300"
-                                                                placeholder="Enter driver pickup location (Optional)"
+                                                                placeholder="Enter driver pickup location "
                                                                 onChange={(e) => {
                                                                     setFieldValue("driverPickUpAddress", e.target.value);
                                                                     setFieldValue("driverPickUpLocation", null);
                                                                     searchLocations(e.target.value, false,'driver');
                                                                 }}
                                                             />
+                                                              {values.driverPickUpAddress && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="absolute right-3 top-2 text-gray-500 hover:text-black"
+                                                                    onClick={() => {
+                                                                    setFieldValue("driverPickUpAddress", "");
+                                                                    setFieldValue("driverPickUpLocation", null);
+                                                                   
+                                                                    }}
+                                                                >
+                                                                    ✕
+                                                                </button>
+                                                                )}
+                                                            </div>
                                                             {driverSuggestions.length > 0 && (
                                                                 <ul className="border rounded-lg bg-white mt-2">
                                                                     {driverSuggestions.map((suggestion, index) => (
@@ -1784,8 +2317,150 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     ))}
                                                                 </ul>
                                                             )}
+                                                             {values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation" && (
+                                                            <ErrorMessage name="driverPickUpAddress" component="div" className="text-red-500 text-sm" />
+                                                             )}
                                                         </div>)}
+                                                        
+                                                    {/* Driver Ending Point - Show only for Drop-only trips */}
+                                                   {values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation" && (
+                                                    <div className=" p-2 space-y-2">
+                                                        <div className='flex '>
+                                                        <label className="block text-sm font-medium text-black-700">
+                                                            Cab Ending Point <span className="text-red-500">*</span>
+                                                        </label>
+
+                                                        {/* Checkbox to copy from starting point */}
+                                                        <div className="flex items-center ml-3 gap-2 mb-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="sameAsStart"
+                                                                checked={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) {
+                                                                        // Copy starting point to ending point
+                                                                        setFieldValue("driverEndAddress", values.driverPickUpAddress);
+                                                                        setFieldValue("driverEndLocation", values.driverPickUpLocation); // if you store lat/lng too
+                                                                        setFieldValue("driverEndSuggestions([])", []); // Clear suggestions
+                                                                    } else {
+                                                                        // Clear ending point when unchecked
+                                                                        setFieldValue("driverEndAddress", "");
+                                                                        setFieldValue("driverEndLocation", null);
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <label htmlFor="sameAsStart" className="text-sm text-gray-700 cursor-pointer">
+                                                                Same as Driver Starting Point
+                                                            </label>
+                                                        </div>
+                                                        </div>
+
+                                                        {/* Ending point input - disabled when checkbox is checked */}
+                                                        <div className="relative">
+                                                        <Field
+                                                            type="text"
+                                                            name="driverEndAddress"
+                                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                            placeholder="Where should driver go after dropping customer?"
+                                                            disabled={values.driverEndAddress === values.driverPickUpAddress && values.driverPickUpAddress !== ""}
+                                                            onChange={(e) => {
+                                                                setFieldValue("driverEndAddress", e.target.value);
+                                                                setFieldValue("driverEndLocation", null);
+                                                                searchLocations(e.target.value, false, 'driverEnd');
+                                                            }}
+                                                        />
+                                                         {values.driverEndAddress && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="absolute right-3 top-2 text-gray-500 hover:text-black"
+                                                                    onClick={() => {
+                                                                    setFieldValue("driverEndAddress", "");
+                                                                    setFieldValue("driverEndLocation", null);
+                                                                   
+                                                                    }}
+                                                                >
+                                                                    ✕
+                                                                </button>
+                                                                )}
+                                                            </div>
+
+                                                        {driverEndSuggestions.length > 0 && (
+                                                            <ul className="border rounded-lg bg-white mt-2 max-h-40 overflow-y-auto z-10">
+                                                                {driverEndSuggestions.map((suggestion, index) => (
+                                                                    <li
+                                                                        key={index}
+                                                                        className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                        onClick={() => {
+                                                                            handleSelectLocation(suggestion, false, 'driverEnd', setFieldValue, values);
+                                                                            // Uncheck the "same as start" when user selects different location
+                                                                            if (suggestion !== values.driverPickUpAddress) {
+                                                                                document.getElementById('sameAsStart').checked = false;
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {suggestion}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
+
+                                                        <ErrorMessage name="driverEndAddress" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
+                                                 {/* Source Type Field for all services */}
+                                                {values.serviceType && (
+                                                    <div className="p-2 space-y-2 ">
+                                                        <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
+                                                        <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                                            <option value="">Select Source Type</option>
+                                                            <option value="Facebook">Facebook</option>
+                                                            <option value="Instagram">Instagram</option>
+                                                            <option value="Influencer Reels">Influencer Reels</option>
+                                                            <option value="WhatsApp">WhatsApp</option>
+                                                            <option value="Google">Google</option>
+                                                            <option value="YouTube">YouTube</option>
+                                                            <option value="Justdial">Justdial</option>
+                                                            <option value="Paper Notice">Paper Notice</option>
+                                                            <option value="On Field">On Field</option>
+                                                            <option value="Existing Customer">Existing Customer</option>
+                                                            <option value="Referral">Referral</option>
+                                                            <option value="Reddit">Reddit</option>
+                                                            <option value="Offline Ads">Offline Ads</option>
+                                                            <option value="Others">Others</option>
+                                                        </Field>
+                                                       {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                            <Field
+                                                                type="text"
+                                                                name="otherSourceType"
+                                                                placeholder="Please specify the source"
+                                                                className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                            />
+                                                            )}
+
+                                                        <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                {values.sourceType === "Others" && (
+                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                                )}
+                                                    </div>
+                                                )}
+                                                {values.serviceType && (
+                                                    <div className="p-2 space-y-2 ">
+                                                        <label htmlFor="landmark" className="text-sm font-medium text-gray-700">
+                                                            Landmark (Optional) 
+                                                        </label>
+                                                        <Field
+                                                            type="text"
+                                                            name="landmark"
+                                                            placeholder="Enter nearby landmark (helps driver find easily)"
+                                                            className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                     focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                        />
+                                                        <ErrorMessage name="landmark" component="div" className="text-red-500 text-sm" />
+                                                    </div>
+                                                )}
                                                 </div>
+                                                
                                               {values.serviceType == 'DRIVER' && values.packageTypeSelected !== 'Outstation' && quoteDetails && (
                                                     <Card className="my-6">
                                                         <div className="border rounded-xl bg-gray-200 p-4">
@@ -1801,31 +2476,85 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                                 <Typography>
-                                                                                    {quoteDetails.amount?.carType || ''}
+                                                                                    {values.carType || quoteDetails.amount?.carType || ''}
                                                                                 </Typography>
                                                                             </div>
-                                                                        <div className="flex justify-between">
+                                                                        {/* <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹{(() => {
-                                                                            const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
+                                                                            ₹ {(() => {
+                                                                            const selectedPackage = packageTypeSelectedData.find((pkg) => pkg.id === Number(values.packageSelected));
                                                                             if (!selectedPackage) return "";
 
+                                                                                let amount = 0;
                                                                             switch (values.carType?.toUpperCase()) {
                                                                                 case "MINI":
-                                                                                return selectedPackage.price || "";
+                                                                                        amount = Number(selectedPackage.price || 0);
+                                                                                        break;
                                                                                 case "SEDAN":
-                                                                                return selectedPackage.price || "";
+                                                                                        amount = Number(selectedPackage.price || 0);
+                                                                                        break;
                                                                                 case "SUV":
-                                                                                return selectedPackage.price || "";
+                                                                                        amount = Number(selectedPackage.price || 0);
+                                                                                        break;
                                                                                 case "MUV":
-                                                                                return selectedPackage.priceMVP || "";
+                                                                                        amount = Number(selectedPackage.priceMVP || 0);
+                                                                                        break;
                                                                                 default:
                                                                                 return "";
                                                                             }
+
+                                                                                if (!amount || Number.isNaN(amount)) {
+                                                                                    return "";
+                                                                                }
+                                                                                return Math.round(amount);
                                                                             })()}
                                                                         </Typography>
+                                                                        </div> */}
+                                                                         <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">TAX Amount:</Typography>
+                                                                                <Typography>
+                                                                                     ₹ {Math.round(quoteDetails.amount?.gst_amount || '')}
+                                                                                </Typography>
+                                                                            </div>
+                                                                             <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Final Estimate Fare:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.fare_after_gst || ''}
+                                                                                </Typography>
+                                                                            </div>
+                                                                        {quoteDetails.discount?.percentage > 0 && <>
+                                                                        <div className='flex justify-between'>
+                                                                          <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.discount?.percentage} %
+                                                                            </Typography>
                                                                         </div>
+                                                                        <div className='flex justify-between'>
+                                                                            <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                    {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
+                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                            </Typography>
+                                                                        </div>
+
+                                                                        </>}
+                                                                            {quoteDetails.discount?.amount > 0 && (
+                                                                            <>                   
+                                                                            <div className='flex justify-between'>                                                             
+                                                                                    <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                                                                    <Typography>
+                                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
+                                                                                    </Typography>
+                                                                                    </div>
+                                                                                <div className='flex justify-between'> 
+                                                                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount) }
+                                                                            </Typography>
+                                                                            </div>
+                                                                                
+                                                                            </>)}
                                                                     </div>
                                                                     </div>
                                                                 </Card>
@@ -1854,17 +2583,28 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Package Price:</Typography>
                                                                                 <Typography>
-                                                                                    ₹{(() => {
+                                                                                    ₹ {Math.round((() => {
                                                                                         const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                                        if (!selectedPackage) return "";
+                                                                                        if (!selectedPackage) return 0;
                                                                                         switch (quoteDetails.amount?.carType?.toUpperCase()) {
-                                                                                            case "MINI": return selectedPackage.price || "";
-                                                                                            case "SEDAN": return selectedPackage.priceSedan || "";
-                                                                                            case "SUV": return selectedPackage.priceSuv || "";
-                                                                                            case "MUV": return selectedPackage.priceMVP || "";
-                                                                                            default: return "";
+                                                                                            case "MINI": return selectedPackage.price || 0;
+                                                                                            case "SEDAN": return selectedPackage.priceSedan || 0;
+                                                                                            case "SUV": return selectedPackage.priceSuv || 0;
+                                                                                            case "MUV": return selectedPackage.priceMVP || 0;
+                                                                                            default: return 0;
                                                                                         }
-                                                                                    })()}
+                                                                                        })())}
+                                                                                </Typography>
+                                                                            </div>
+                                                                              <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">TAX Amount:</Typography>
+                                                                                <Typography>
+                                                                                   ₹ {Math.round(quoteDetails.amount?.gst_amount || '')}
+                                                                                </Typography>
+                                                                            </div>  <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Estimate Fare:</Typography>
+                                                                                <Typography>
+                                                                                    {quoteDetails.amount?.fare_after_gst|| ''}
                                                                                 </Typography>
                                                                             </div>
                                                                             {quoteDetails.discount?.percentage > 0 && (
@@ -1890,8 +2630,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                                             carType === 'MUV' ? Number(pkg?.priceMVP) :
                                                                                                             carType === 'SUV' ? Number(pkg?.priceSuv) :
                                                                                                             carType === 'SEDAN' ? Number(pkg?.priceSedan) : 0;
-                                                                                                return price ? (price - (price * (Number(quoteDetails?.discount?.percentage) || 0) / 100)).toFixed(2) : 'N/A';
+                                                                                                if (!price) return 'N/A';
+                                                                                                const discounted = price - (price * (Number(quoteDetails?.discount?.percentage) || 0) / 100);
+                                                                                                return Math.round(discounted);
                                                                                             })()}
+
                                                                                             {/* {(() => {
                                                                                                 const packagePrice = Number(quoteDetails.amount?.packageDetails?.price) || 0;
                                                                                                 const discountPercentage = Number(quoteDetails.discount?.percentage) || 0;
@@ -1901,25 +2644,62 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                     </div>
                                                                                 </>
                                                                             )}
+                                                                        {quoteDetails.discount?.amount > 0 && (
+                                                                            <>       
+                                                                            <div className='flex justify-between'>                                                                        
+                                                                                    <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                                                                    <Typography>
+                                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
+                                                                                    </Typography>
+                                                                                </div> 
+                                                                                    <div className='flex justify-between'>
+                                                                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                    ₹ { Math.round(quoteDetails.amount?.estimatedPrice) - ( quoteDetails.discount?.amount) }
+                                                                            </Typography>
+                                                                            </div>
+                                                                                
+                                                                            </>)}
                                                                         </div>
                                                                     ) : (
                                                                     <div className="grid grid-cols-2 justify-between">
+                                                                        {quoteDetails?.amount?.isPremiumFare && (
+                                                                            <>
+                                                                                <Typography color="gray" variant="h6">Car Service</Typography>
+                                                                                <Typography className='font-semibold'> {quoteDetails.amount?.isPremiumFare ? "Premium Car Service" : "Not a Premium Car Services "}</Typography>
+                                                                            </>
+                                                                        )}
+                                                                        {quoteDetails?.amount?.isPremiumFare && (
+                                                                            <>
+                                                                                <Typography color="gray" variant="h6">Premium Car Type</Typography>
+                                                                                <Typography> {quoteDetails.amount?.premiumDetails?.appliedCarType}</Typography>
+                                                                            </>
+                                                                        )}
                                                                           {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.kilometerPriceVal}
+                                                                            ₹ {Math.round(quoteDetails.amount?.kilometerPriceVal)}
                                                                         </Typography></>)}
-                                                                        {values?.serviceType !== 'DRIVER' && ( <>
-                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                        {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'AUTO' && values?.serviceType !=='RIDES' &&( <>
+                                                                        <Typography color="gray" variant="h6">Pick up to Drop  Kilometer {quoteDetails.amount?.driverWithin > 0 && (<> + Driver Km For Pickup Location </>)}</Typography>
                                                                         <Typography>                                                                            
-                                                                            {((quoteDetails.amount?.estimatedDistance)
-                                                                            - 
-                                                                            Number(quoteDetails.amount?.driverWithin)) 
-                                                                            + 
-                                                                            (Number(quoteDetails.amount?.baseKm))
-                                                                            } Kms + {quoteDetails.amount?.driverWithin} Kms
+                                                                            {(quoteDetails.amount?.estimatedDistance > 0 ?  quoteDetails.amount?.estimatedDistance : quoteDetails.amount?.distanceEstimated)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)} 
                                                                         </Typography></>)}
+                                                                         {(values?.serviceType == 'AUTO' || values?.serviceType == 'RIDES') && ( 
+                                                                            <>
+                                                                            <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                            <Typography>
+                                                                                {(quoteDetails.amount?.distanceEstimated)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)}
+                                                                            </Typography></>)}
+                                                                         { values?.serviceType === 'RENTAL' &&  ( <>
+                                                                        
+                                                                        <Typography color="gray" variant="h6">Drop Location to Driver End Point(KM)</Typography>
+                                                                             
+                                                                        <Typography>
+                                                                           {Number(quoteDetails.amount?.driverEndPoint).toFixed(2)} Kms
+                                                                        </Typography>
+                                                                        </>)}
                                                                         { values?.serviceType === 'RIDES' && ( <>
                                                                         
                                                                         <Typography color="gray" variant="h6">Estimate Time</Typography>
@@ -1943,7 +2723,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                       
                                                                         <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.baseFare}
+                                                                            ₹ {Math.round(quoteDetails.amount?.baseFare)}
                                                                         </Typography>
                                                                         
                                                                         {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
@@ -1954,9 +2734,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         </Typography>
                                                                         </>
                                                                         } */}
-                                                                        {(values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
+                                                                        {(quoteDetails.amount?.isPremiumFare !== true) && (values?.serviceType === 'RIDES' || values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
                                                                             <>
-                                                                        <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                            <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                         <Typography>
                                                                             {quoteDetails.amount?.carType || ''}
                                                                         </Typography>   
@@ -1966,13 +2746,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                                             <Typography>
-                                                                                ₹  {quoteDetails.amount?.rideSurchargeAmount}
+                                                                                ₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}
                                                                             </Typography>
                                                                         </>
                                                                         }
+                                                                
+                                                                         <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                        <Typography>
+                                                                            ₹ {Math.round(quoteDetails.amount?.gst_amount)}
+                                                                        </Typography>
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.amount?.estimatedPrice}
+                                                                            ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
                                                                         </Typography>
                                                                         {quoteDetails.discount?.percentage > 0 && <>
                                                                         
@@ -1983,13 +2768,22 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                                 <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                                     {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
-                                                                                    ₹ { (quoteDetails.amount?.estimatedPrice) - ( quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage/100) }
+                                                                                    ₹ {quoteDetails?.amount?.estimatedPrice ? Math.round(Number(quoteDetails.amount?.estimatedPrice) -Number(quoteDetails.amount.estimatedPrice) * (Number(quoteDetails.discount?.percentage || 0) / 100)): ""}
                                                                             </Typography>
 
                                                                         </>}
-                                                                        
-                                                                        
-                                                                        
+                                                                        {quoteDetails.discount?.amount > 0 && (
+                                                                            <>                                                                                
+                                                                                    <Typography color="gray" variant="h6">Discount Applied:</Typography>
+                                                                                    <Typography>
+                                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
+                                                                                    </Typography>
+                                                                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                                <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                                    ₹ { Math.round((quoteDetails.amount?.estimatedPrice) - ( quoteDetails.discount?.amount)) }
+                                                                            </Typography>
+                                                                                
+                                                                            </>)}                                                                                                                                                                                                                    
                                                                         {/* <Typography color="gray" variant="h6">Extra Km Price</Typography>
                                                                         <Typography>
                                                                             ₹ {quoteDetails.amount.extraKmPrice}
@@ -2063,19 +2857,26 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     ) : '';
                                                                 })()}</span> will be charged.
                                                             </Typography>
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • The estimated price includes  <span className="font-bold text-black">{values.gst_percentage|| '5'}%</span> tax.
+                                                            </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • For every extra kilometer <span className="font-bold text-black">₹{(() => {
+                                                                • For every extra kilometer <span className="font-bold text-black">₹ {(() => {
                                                                     const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                    return selectedPackage ? (
+                                                                if (!selectedPackage) return '';
+                                                                const price =
                                                                         values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
                                                                             values.carType === 'Sedan' ? selectedPackage.extraKilometerPriceSedan :
                                                                                 values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
-                                                                                    selectedPackage.extraKilometerPriceMVP
-                                                                    ) : '';
+                                                                                    selectedPackage.extraKilometerPriceMVP;
+                                                                return Math.round(Number(price || 0));
                                                                 })()}</span> will be charged.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • Night charge of <span className="font-bold text-black">₹{packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''}</span> will be charged after {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                                • Night charge of <span className="font-bold text-black">₹ {packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightCharge || ''}</span> will be charged after {convertTimeFormat(packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.nightHoursFrom || '')}.
+                                                            </Typography>
+                                                            <Typography className=" text-sm text-gray-700">
+                                                                • If the driver’s start or end point is under 2 km, no charge is added; charges apply only when it is above 2 km.
                                                             </Typography>
                                                         </div>
                                                         <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
@@ -2098,26 +2899,36 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Toll, parking, permit charges, and state taxes are excluded.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
-                                                                • For Every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.
+                                                                • For Every extra kilometer <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraKmPrice || '')}</span> will be charged.
+                                                            </Typography> 
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • For every additional 15 minutes <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.fareBreakdown?.extraHours?.rate || '')}</span> will be charged.
                                                             </Typography>
                                                             <Typography className="text-sm text-gray-700">
-                                                                • A Driver starting  Points <span className="font-bold text-black">{quoteDetails.amount?.driverWithin || ''}</span> Kms.
+                                                                • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2) || ''}</span> Kms.
                                                             </Typography>
+                                                            <Typography className="text-sm text-gray-700">
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                            </Typography>
+
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>
+                                                                • Driver charge <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.driverCharge || '0')}</span>
                                                             </Typography>
                                                             )}
                                                             {quoteDetails.amount?.extraNightCharge > 0 && (
                                                              <Typography className="text-sm text-gray-700">
-                                                                • Night Charge of <span className="font-bold text-black">₹{quoteDetails.amount?.extraNightCharge}</span> applies if the trip extends past{' '}
+                                                                • Night Charge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraNightCharge)}</span> applies if the trip extends past{' '}
                                                             </Typography>
                                                             )}                                                            
                                                             {quoteDetails.amount?.rideSurchargeAmount > 0 && (
                                                                 <Typography className=" text-sm text-gray-700">
-                                                                    • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
+                                                                    • A surcharge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
+                                                             <Typography className=" text-sm text-gray-700">
+                                                                • If the driver’s start or end point is under 2 km, no charge is added; charges apply only when it is above 2 km.
+                                                            </Typography>
                                                         </div>
                                                         <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
                                                             <Typography
@@ -2127,6 +2938,23 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             </Typography>
                                                         </div>
                                                     </div>
+                                                )}
+                                                {(values.serviceType == 'RIDES' || values.serviceType == 'AUTO') && quoteDetails &&(
+                                                    <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
+                                                        <Typography className="font-roboto-medium text-lg text-gray-900">
+                                                            Things to Know Before You Confirm:
+                                                        </Typography>
+                                                     <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
+                                                            <Typography
+                                                                className="text-center text-sm text-gray-700"
+                                                            >
+                                                                
+                                                                
+                                                                
+                                                                {BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES}
+                                                            </Typography>
+                                                        </div>
+                                                        </div>
                                                 )}
 
                                                  {values.serviceType == 'RENTAL' && quoteDetails && (
@@ -2139,26 +2967,35 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Toll, parking, permit charges, and state taxes are excluded.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • For every extra kilometer <span className="font-bold text-black">₹{quoteDetails.amount?.extraKmPrice || ''}</span> will be charged.  
+                                                                • For every extra kilometer <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraKmPrice || '')}</span> will be charged.  
+                                                            </Typography>
+                                                               <Typography className="text-sm text-gray-700">
+                                                                • For every additional 15 minutes <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.fareBreakdown?.extraHours?.rate || '')}</span> will be charged.
                                                             </Typography>
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • A Driver starting  Points <span className="font-bold text-black">{quoteDetails.amount?.driverWithin || '2'}</span> Kms.
+                                                                • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2)|| '2'}</span> Kms.
                                                             </Typography>
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
-                                                                • Driver charge <span className="font-bold text-black">₹{quoteDetails.amount?.driverCharge || '0'}</span>.
+                                                                • Driver charge <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.driverCharge || '0')}</span>.
                                                             </Typography>
                                                             )}
+                                                             <Typography className="text-sm text-gray-700">
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                            </Typography>
                                                             {quoteDetails.amount?.extraNightCharge > 0 && (
                                                              <Typography className="text-sm text-gray-700">
-                                                                • Night Charge of <span className="font-bold text-black">₹ {quoteDetails.amount?.extraNightCharge}</span> applies if the trip extends past{' '}.
+                                                                • Night Charge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraNightCharge)}</span> applies if the trip extends past{' '}.
                                                             </Typography>
                                                             )}
                                                             {quoteDetails.amount?.rideSurchargeAmount > 0 && (
                                                                 <Typography className=" text-sm text-gray-700">
-                                                                    • A surcharge of <span className="font-bold text-black">₹{quoteDetails.amount?.rideSurchargeAmount}</span> applies for prime locations.
+                                                                    • A surcharge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}</span> applies for prime locations.
                                                                 </Typography>
                                                             )}
+                                                             <Typography className=" text-sm text-gray-700">
+                                                                • If the driver’s start or end point is under 2 km, no charge is added; charges apply only when it is above 2 km.
+                                                            </Typography>
                                                         </div>
                                                         <div className="border border-gray-300 bg-yellow-600 rounded-xl p-2">
                                                             <Typography
@@ -2171,24 +3008,39 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                 {/* <div>Form Errors (Debug):</div><div>{JSON.stringify(errors, null, 2)}</div> */}
 
-                                                {values.packageTypeSelected == 'Outstation' && values.dropLocation && values.pickupLocation &&
+                                                {(values?.serviceType=="RENTAL" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation && values.driverPickUpLocation && values.driverEndLocation && values.sourceType && values.carType &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+                                                 {(values?.serviceType=="DRIVER" && values.packageTypeSelected == 'Outstation') && values.dropLocation && values.pickupLocation  && values.sourceType && values.carType &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+                                                 {values.serviceType == 'RENTAL_DROP_TAXI' && values.dropLocation && values.pickupLocation && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteOutstationDetails(values)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
 
-                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation &&
+                                                {values.serviceType == 'RIDES' && values.dropLocation && values.pickupLocation && values.carType && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
 
-                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected &&
+                                                {values.serviceType == 'RENTAL_HOURLY_PACKAGE' && values.pickupLocation && values.packageSelected && values.sourceType &&  values.carType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
                                                 }
-                                                {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Local' && values.pickupLocation && values.packageSelected &&
+                                                {values.serviceType == 'DRIVER' && values.packageTypeSelected == 'Local' && values.pickupLocation && values.packageSelected && values.sourceType &&  values.carType &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
+                                                 {values.serviceType == 'AUTO' && values.dropLocation && values.pickupLocation && values.sourceType &&
                                                     <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteRides(values, setFieldValue)}>
                                                         Check Estimated Price
                                                     </Button>
@@ -2207,6 +3059,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         !values.rideDate ||
                                                         !values.packageTypeSelected ||
                                                         !values.pickupAddress ||
+                                                        !values.sourceType ||
                                                         (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                         (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                         (values.packageTypeSelected === "Local" && values.tripType === "Round Trip" && !values.dropAddress) ||
@@ -2231,6 +3084,20 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         Continue
                                                     </Button>
                                                 }
+                                                {(values.serviceType == 'AUTO') &&
+                                                    <Button
+                                                        fullWidth
+                                                        color="blue"
+                                                        onClick={() => {
+                                                            setFieldValue("submitType", "auto");
+                                                            handleSubmit();
+                                                        }}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)}
+                                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                                    >
+                                                        Continue
+                                                    </Button>
+                                                }
                                                 <div className='p-3'>
                                                     {values.serviceType == 'RENTAL' &&
                                                         <Button
@@ -2245,13 +3112,14 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !isValid ||
                                                                 !values.rideDate ||
                                                                 !values.packageTypeSelected ||
+                                                                !values.sourceType ||
                                                                 !values.pickupAddress ||
                                                                 (values.packageTypeSelected === "Local" && !values.packageSelected) ||
                                                                 (values.packageTypeSelected === "Outstation" && !values.dropAddress) ||
                                                                 (values.packageTypeSelected === "Outstation" && !values.acType) ||
                                                                 (values.packageTypeSelected === "Outstation" && values.tripType === "Round Trip" && !values.toDate) ||
                                                                 validationCheckForDriverRental(values) ||
-                                                        !quoteDetails
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2270,6 +3138,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !dirty ||
                                                                 !isValid ||
                                                                 !values.rideDate ||
+                                                                !values.sourceType ||
                                                                 !values.packageSelected ||
                                                                 !values.pickupAddress ||
                                                         !quoteDetails
@@ -2291,10 +3160,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 !dirty ||
                                                                 !isValid ||
                                                                 !values.rideDate ||
+                                                                !values.sourceType ||
                                                                 !values.acType ||
                                                                 !values.pickupAddress ||
                                                                 !values.dropAddress ||
-                                                        !quoteDetails
+                                                                !quoteDetails
                                                             }
                                                             className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                         >
@@ -2325,10 +3195,23 @@ const sendQuotationLogs = async (bookingId, userId) => {
                         </div>
                     </div>
                 )}
-                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content="You can choose Outstation within 300km only for the DropTaxi service."/>
-                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
+              
+                <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}}title="Going a bit far?" content={dropTaxiModalContent}/>
+                <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', '');}} title="Going a bit far?" content="Rides above 15 km are allowed only through DropTaxi or Outstation service." />
+                <DistanceExceedModal isVisible={outstationDistanceModal} onClose={() => { setOutstationDistanceModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Going a bit far?" content="Try our Local Ride, it’s faster and more affordable for short" />
                 <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); formikActions.setFieldValue?.('dropAddress', ''); formikActions.setFieldValue?.('pickupAddress', ''); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
-                {/* <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); formikActions.setFieldValue?.('pickupAddress', ''); }} title={zoneErrorModal.title} content={zoneErrorModal.text} /> */}
+                
+                {zoneErrorModal.show && (
+                  <DistanceExceedModal 
+                    isVisible={zoneErrorModal.show} 
+                    onClose={() => { 
+                      setZoneErrorModal({ show: false }); 
+                      formikActions.setFieldValue?.('pickupAddress', ''); 
+                    }} 
+                    title={zoneErrorModal.title} 
+                    content={zoneErrorModal.text}
+                  />
+                )}
             </div>
         </div>
     );

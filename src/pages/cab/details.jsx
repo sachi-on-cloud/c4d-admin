@@ -83,7 +83,7 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
         <>
             <div className="p-4 mx-auto">
                 <div className="flex flex-row justify-between pr-5">
-                    <h2 className="text-2xl font-bold mb-4">Cab Details</h2>
+                    <h2 className="text-2xl font-bold mb-4">Cabs Details</h2>
                     {/* <img src="/img/printing.png" height={30} width={30} alt="" onClick={handlePrintClick} /> */}
                 </div>
                 <Formik

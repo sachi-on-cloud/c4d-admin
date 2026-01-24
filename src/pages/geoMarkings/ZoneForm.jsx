@@ -6,6 +6,7 @@ import {
   Typography,
   Alert,
 } from '@material-tailwind/react';
+import Select from 'react-select';
 
 const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaId }) => {
   const [formData, setFormData] = useState({
@@ -20,6 +21,8 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
     }
   });
   const [error, setError] = useState(null);
+  const [nameError, setNameError] = useState(null);
+  const [descriptionError, setDescriptionError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleConfigChange = (field, value) => {
@@ -40,11 +43,25 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    setIsSubmitting(true);
+    setNameError(null);
+    setDescriptionError(null);
 
-    try {
+    let hasError = false;
+
+    if (!formData.name.trim()) {
+      setNameError('Name is required');
+      hasError = true;
+    }
+
+    if (!formData.description) {
+      setDescriptionError('Description is required');
+      hasError = true;
+    }
+
       if (!coordinates || coordinates.length < 3) {
-        throw new Error('Please draw a valid polygon with at least 3 points');
+      const msg = 'Please draw a valid polygon with at least 3 points';
+      setError(msg);
+      hasError = true;
       }
 
       // Validate percentage fields are between 0 and 100
@@ -56,18 +73,28 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
 
       for (const field of percentageFields) {
         if (formData.config_data[field] < 0 || formData.config_data[field] > 100) {
-          throw new Error(`${field.replace(/_/g, ' ').toUpperCase()} must be between 0 and 100`);
+          setError(`${field.replace(/_/g, ' ').toUpperCase()} must be between 0 and 100`);
+          hasError = true;
         }
       }
 
       // Validate minimum surcharge amounts are not negative
       if (formData.config_data.ride_minimum_surcharge < 0) {
-        throw new Error('Ride minimum surcharge cannot be negative');
+        setError('Ride minimum surcharge cannot be negative');
+        hasError = true;
       }
       if (formData.config_data.rental_minimum_surcharge < 0) {
-        throw new Error('Rental minimum surcharge cannot be negative');
+        setError('Rental minimum surcharge cannot be negative');
+        hasError = true;
       }
 
+    if (hasError) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
       onSave({
         ...formData,
         coordinates,
@@ -95,26 +122,74 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
-            Name
+            Name <span className="text-red-500">*</span>
           </Typography>
           <Input
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
+            onChange={(e) => {
+              setFormData({ ...formData, name: e.target.value });
+              if (nameError) {
+                setNameError(null);
+              }
+            }}
             placeholder="Enter zone name"
+            error={!!nameError}
           />
+          {nameError && (
+            <p className="text-red-500 text-xs mt-1">{nameError}</p>
+          )}
         </div>
-        <div>
-          <Typography variant="small" color="blue-gray" className="mb-2 font-medium">
-            Description
-          </Typography>
-          <Input
-            type="text"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Enter description"
+
+        {/* Description (SELECT) */}
+        <div className="overflow-visible relative z-50">
+          <label className="text-sm text-gray-700 mb-1 block font-medium">
+            Description <span className="text-red-500">*</span>
+          </label>
+
+          <Select
+            options={[
+              { value: 'City', label: 'City' },
+              { value: 'Prime', label: 'Prime' },
+            ]}
+            value={
+              formData.description
+                ? { value: formData.description, label: formData.description }
+                : null
+            }
+            onChange={(selected) => {
+              setFormData({
+                ...formData,
+                description: selected ? selected.value : '',
+              });
+              if (selected && descriptionError) {
+                setDescriptionError(null);
+              }
+            }}
+            placeholder="Select description"
+            isClearable={false}
+            menuPortalTarget={document.body}
+            styles={{
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+              control: (base, state) => ({
+                ...base,
+                borderColor: descriptionError
+                  ? '#ef4444'
+                  : state.isFocused
+                    ? '#3b82f6'
+                    : '#d1d5db',
+                boxShadow: descriptionError
+                  ? '0 0 0 1px #ef4444'
+                  : state.isFocused
+                    ? '0 0 0 1px #3b82f6'
+                    : 'none',
+                '&:hover': { borderColor: descriptionError ? '#ef4444' : '#9ca3af' },
+              }),
+            }}
           />
+          {descriptionError && (
+            <p className="text-red-500 text-xs mt-1">{descriptionError}</p>
+          )}
         </div>
 
         {/* Surcharge Configuration Section */}
@@ -204,7 +279,7 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
         <Button 
           type="submit" 
           className="mt-6"
-          disabled={isSubmitting || !coordinates}
+          disabled={isSubmitting}
         >
           {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Save')} Zone
         </Button>

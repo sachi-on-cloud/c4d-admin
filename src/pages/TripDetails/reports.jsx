@@ -115,6 +115,7 @@ useEffect(() => {
           driverId: driverFilter === 'All Drivers' ? '' : driverFilter,
         };
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_TRIP_REPORTS, params);
+        // console.log("Fetched trip data:", data);
 
         
         if (data.summary) {
@@ -123,7 +124,7 @@ useEffect(() => {
 
         
         const transformedTrips = data.data.map(trip => {
-          console.log("Mapping trip:", trip);
+          // console.log("Mapping trip:", trip);
           const km = parseFloat(trip.totalKm) || 0;
           const endKm = parseFloat(trip.endKm) || 0;
           const startKm = parseFloat(trip.startKm) || 0;
@@ -314,7 +315,7 @@ useEffect(() => {
                 <option value="All Vehicles">All Vehicles</option>
                 {vehicles.map((vehicle) => (
                   <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.name}
+                    {vehicle.Cab?.carNumber || vehicle.carNumber}
                   </option>
                 ))}
               </select>
@@ -362,7 +363,8 @@ useEffect(() => {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <>
-              <table className="w-full border-collapse">
+            <div className="min-w-[700px]">
+              <table className="w-full border-collapse table-fixed">
                 <thead>
                   <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>
@@ -406,6 +408,7 @@ useEffect(() => {
                   )}
                 </tbody>
               </table>
+              </div>
               {trips.length > 0 && (
                 <div className="flex items-center justify-center mt-4">
                   <Button

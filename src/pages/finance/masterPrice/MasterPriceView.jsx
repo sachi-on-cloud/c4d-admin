@@ -1,7 +1,6 @@
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo  } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 import { Utils } from '@/utils/utils';
@@ -10,6 +9,8 @@ import Select from 'react-select';
 export function MasterPriceView() {
     const [localPackageList, setLocalPackageList] = useState([]);
     const [outstationPackageList, setOutstationPackageList] = useState([]);
+    const [autoLocalPackageList, setAutoLocalPackageList] = useState([]);
+    const [parcelLocalPackageList, setParcelLocalPackageList] = useState([]);
     const navigate = useNavigate();
     const [serviceType, setServiceType] = useState("");
     const [ridesData, setRidesData] = useState([]);
@@ -52,13 +53,43 @@ export function MasterPriceView() {
                 }
             } else if (selectedServiceType === 'RIDES') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RIDES_PRICE_TABLE_LIST);
-                    if (data?.success) {
+                setRidesData(data?.data);
+            }
+            else if(selectedServiceType === 'AUTO') {
+                const data = await ApiRequestUtils.get(API_ROUTES.AUTO_PACKAGE_LIST,{
+                    type : "Service area",
+                });
+                 if (data?.success) {
+                        const filteredData = zone
+                            ? data?.data.filter(item => item.zone === zone)
+                            : data?.data;                     
+                     setAutoLocalPackageList(filteredData.filter(item => item.type === "Auto" && item.serviceType === "AUTO"));
+                 }
+                //  console.log("DADADADAD",data)
+            }
+
+             else if(selectedServiceType === 'PARCEL') {
+                const data = await ApiRequestUtils.get(API_ROUTES.PARCEL_PACKAGE_LIST,{
+                    type : "Service area",
+                });
+                    if(data?.success) {
                         const filteredData = zone
                             ? data?.data.filter(item => item.zone === zone)
                             : data?.data;
-                    setRidesData(filteredData);
+                        setParcelLocalPackageList(filteredData.filter(item => item.type === "Parcel" && item.serviceType === "PARCEL"));
                     }
-            } else if (selectedServiceType === 'RENTAL') {
+                    // console.log("DADADADAD",data)
+            } 
+           
+            // else if (selectedServiceType === 'RENTAL') {
+            //         if (data?.success) {
+            //             const filteredData = zone
+            //                 ? data?.data.filter(item => item.zone === zone)
+            //                 : data?.data;
+            //         setRidesData(filteredData);
+            //         }
+            // } 
+            else if (selectedServiceType === 'RENTAL') {
                 const data = await ApiRequestUtils.get(API_ROUTES.RENTALS_PRICE_DETAILS);
                 if(data?.success) {
                         const filteredData = zone
@@ -118,6 +149,19 @@ export function MasterPriceView() {
             navigate('/dashboard/users/master-price/rentals-add');
         }
     };
+    const tierList = useMemo(() => {
+    return parcelLocalPackageList.flatMap((pkg) =>
+      (pkg.parcelPricing || []).map((tier) => ({
+        pkgId: pkg.id,
+        zone: pkg.zone,
+        parcelType: tier.parcelType?.toUpperCase() || "—",
+        baseFare: tier.baseFare || "—",
+        baseKm: tier.baseKm || "—",
+        pickupFreeKm: tier.pickupFreeKm || "—",
+        nightCharge: tier.nightCharge || "—",
+      }))
+    );
+  }, [parcelLocalPackageList]);
 
     const renderLocalPriceTable = () => {
         return (
@@ -135,10 +179,10 @@ export function MasterPriceView() {
                                         "Hours",
                                         "Round Trip Rate",
                                         "Drop Only < 50KM",
-                                        "Drop Only < 100KM",
                                         "Round Trip Rate - MUV",
                                         "Night Hours (10PM TO 6AM)",
                                         "Night Charges (10PM TO 6AM)",
+                                        "Food Charges",
                                         "Cancel Charge",
                                         "Extra Hours",
                                         "Cancellation Mins"
@@ -199,11 +243,6 @@ export function MasterPriceView() {
                                                     {dropPrice} Extra
                                                 </Typography>
                                             </td>
-                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {dropPriceAbove} Extra
-                                                </Typography>
-                                            </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {priceMVP}
@@ -218,6 +257,11 @@ export function MasterPriceView() {
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                     {nightCharge}
+                                                </Typography>
+                                            </td>
+                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                    {dropPriceAbove}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
@@ -248,146 +292,139 @@ export function MasterPriceView() {
     };
 
     const renderOutstationPriceTable = () => {
-        return (
-            <div className='my-6'>
-                <h3 className="text-3xl font-bold mb-4 ml-2">Outstation</h3>
-                <Card>
-                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
-                        <table className="w-full min-w-[640px] table-auto">
-                            <thead>
-                                <tr>
-                                    {[
-                                        "Zone",
-                                        "Service Type",
-                                        "Trip Type",
-                                        "Base Fare",
-                                        "1 day trip Up to 300KM - Drop only",
-                                        "1 day trip Up to 300KM - Round Trip",
-                                        "1 day trip Above 300 KM - Drop only",
-                                        "1 day trip Above 300 KM - Round Trip",
-                                        "Additional Hours",
-                                        "Night Hours (10PM TO 6AM)",
-                                        "Night Charges (10PM TO 6AM)",
-                                        "Cancellation Charge",
-                                        "Cancellation Time (In Mins)",
-                                        "Additional Kms"
-                                    ]
-                                        .map((el, index) => (
-                                            <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left pb-4 ${ColorStyles.bgColor}`}>
-                                                <Typography
-                                                    variant="small"
-                                                    className="text-[11px] font-bold uppercase text-white"
-                                                >
-                                                    {el}
-                                                </Typography>
-                                            </th>
-                                        ))
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {outstationPackageList.map(({ id, zone,serviceType, type, price, dropPrice,dropPriceAbove,extraHourPrice, extraPrice,additionalMinCharge, extraKmPrice,cancelMins, nighthours, nightHoursFrom,nightHoursTo, nightCharge, cancelCharge, extrahours, cancellationMins, baseFare }, key) => {
-                                    const className = `py-3 px-5 ${key === outstationPackageList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
-                                    return (
-                                        <tr key={id}>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {zone}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {serviceType}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
-                                                <Typography variant="small"
-                                                            color="blue"
-                                                            className="font-semibold underline cursor-pointer">
+    const filteredOutstationList = outstationPackageList
+        // .filter(item => item.type === "Outstation" && item.period !== "1")
+        .sort((a, b) => {
+            const periodA = parseInt(a.period, 10);
+            const periodB = parseInt(b.period, 10);
+            return periodA - periodB; 
+        });
+
+    return (
+        <div className='my-6'>
+            <h3 className="text-3xl font-bold mb-4 ml-2">Outstation</h3>
+            <Card>
+                <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
+                    <table className="w-full min-w-[640px] table-auto">
+                        <thead>
+                            <tr>
+                                {[
+                                    "Zone",
+                                    "Service Type",
+                                    "Trip Type",
+                                    "Base Hours",
+                                    "Base KM",
+                                    "Base Fare",
+                                    "Extra hour charge",
+                                    "Extra KM rate",
+                                    "Food Charges",
+                                    "Night Charges",
+                                    "Drop-only charge"
+                                ].map((el, index) => (
+                                    <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left pb-4 ${ColorStyles.bgColor}`}>
+                                        <Typography
+                                            variant="small"
+                                            className="text-[11px] font-bold uppercase text-white"
+                                        >
+                                            {el}
+                                        </Typography>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredOutstationList.map((item, index) => {
+                                const { 
+                                    id, zone, serviceType, type, period, extraCabType ,kilometer,  
+                                    dropPrice, price, additionalMinCharge, dropPriceAbove, 
+                                    nightCharge, extraKmPrice 
+                                } = item;
+
+                                const isLast = index === filteredOutstationList.length - 1;
+                                const className = `py-3 px-5 ${isLast ? "" : "border-b border-blue-gray-50"}`;
+
+                                return (
+                                    <tr key={id}>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {zone}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {serviceType}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <div >
+                                                <Typography className="text-xs font-semibold text-blue-gray-900" >
                                                     {type}
                                                 </Typography>
-                                                </div>
-                                                
-                                            </td>
-                                            <td className={className}>
+                                            </div>
+                                        </td>
+                                        <td className={className}>
+                                            <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
+                                            <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer" >
+                                                { (period === '1' && extraCabType === '0') ? 'Custom Date' : period}
+                                            </Typography>
+                                            </div>
+                                        </td>
+                                        <td className={className}>
+                                            <div >
                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {baseFare}
+                                                    {kilometer || '-'}
                                                 </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {dropPrice} extra
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {price}
-                                                </Typography>
-                                            </td>
-                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {dropPriceAbove} extra
-                                                </Typography>
-                                            </td>
-                                              <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {baseFare} extra
-                                                </Typography>
-                                            </td>
-                                            {/* <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {extraPrice}
-                                                </Typography>
-                                            </td> */}
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {additionalMinCharge}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                {/* {nighthours} */}
-                                                {nightHoursFrom && nightHoursTo ? `${nightHoursFrom} - ${nightHoursTo}` : ""}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {nightCharge}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {cancelCharge}
-                                                </Typography>
-                                            </td>
-                                            {/* <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {extrahours}
-                                                </Typography>
-                                            </td> */}
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {cancelMins}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-900">
-                                                    {extraKmPrice}
-                                                </Typography>
-                                            </td>
+                                            </div>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {price || '0'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {additionalMinCharge || '-'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {extraKmPrice || '-'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {dropPriceAbove || '-'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {nightCharge || '0'}
+                                            </Typography>
+                                        </td>
+                                        <td className={className}>
+                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                {dropPrice || '-'}
+                                            </Typography>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
 
-                                        </tr>
-                                    );
-
-                                })}
-                            </tbody>
-                        </table>
-                    </CardBody>
-                </Card>
-            </div>
-        )
-    };
+                            {/* If no data after filter, show a message */}
+                            {filteredOutstationList.length === 0 && (
+                                <tr>
+                                    <td colSpan="11" className="py-8 text-center text-gray-500">
+                                        <Typography>No Outstation packages found (excluding 1-day trips)</Typography>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </CardBody>
+            </Card>
+        </div>
+    );
+};
 
     const renderRidesTable = () => {
         return (
@@ -844,6 +881,184 @@ export function MasterPriceView() {
             </div>
         );
     };
+    const LocalParcelTable = () => {
+        return (
+            <div className='my-6'>
+                <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {[
+                                        "Zone",
+                                        "Parcel Type",
+                                        "Base Fare",
+                                        "Base Km",
+                                        "Pickup Free Km",
+                                        "Night Charge", 
+                                        "Actions"
+                                    ].map((el, index) => (
+                                        <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-white"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {tierList.map(({ 
+                                    pkgId, 
+                                    zone, 
+                                    parcelType, 
+                                    baseKm, 
+                                    baseFare,
+                                    pickupFreeKm,
+                                    nightCharge }, 
+                                    idx) => {
+                                    const className = `py-3 px-5 ${idx === tierList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+                                    return (
+                                        <tr key={`${pkgId}-${parcelType}`}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">{parcelType}</Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFare}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseKm}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {pickupFreeKm}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {nightCharge}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <button onClick={() => navigate(`/dashboard/users/master-price/parcel-edit/${pkgId}`)} className={`px-3 py-1 rounded-lg text-xs font-semibold  ${ColorStyles.editButton}`} >
+                                                    View / Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
+        const LocalAutoTable = () => {
+        return (
+            <div className='my-6'>
+                <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
+                <Card>
+                    <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 rounded-2xl">
+                        <table className="w-full min-w-[640px] table-auto">
+                            <thead>
+                                <tr>
+                                    {[
+                                        "zone",
+                                        "Type",
+                                        "Base Fare",
+                                        "base Km",
+                                        "Kilometer Rate",
+                                        "Status",
+                                        "Actions"
+                                    ].map((el, index) => (
+                                        <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-white"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {autoLocalPackageList.map(({
+                                    zone,
+                                    id,
+                                    type,
+                                    baseFare,
+                                    baseKm,
+                                    kilometerPrice,
+                                    status
+                                }, key) => {
+                                    const className = `py-3 px-5 ${key === autoLocalPackageList?.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+
+                                    return (
+                                        <tr key={id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {zone}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    <span onClick={() => navigate(`/dashboard/users/master-price/auto-edit/${id}`)} className="cursor-pointer underline text-blue-600">
+                                                        {type.toUpperCase()}
+                                                    </span>
+                                                </Typography>
+                                            </td>
+                                            
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseFare}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseKm}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {kilometerPrice}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {status == 1 ? 'Active' : 'InActive'}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <button onClick={() => navigate(`/dashboard/users/master-price/auto-edit/${id}`)} className={`px-3 py-1 rounded-lg ${ColorStyles.editButton}`}>
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    };
+   
     return (
         <>
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
@@ -873,11 +1088,16 @@ export function MasterPriceView() {
                                     <option value="DRIVER">Acting Driver</option>
                                     <option value="RIDES">Rides</option>
                                     <option value="RENTAL">Rental</option>
+                                    <option value="AUTO">Auto</option>
+                                {(Feature.parcel ? [
+                                    <option value="PARCEL">Parcel</option>
+                                ] : [])}
                                 </select>
                                 {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
                             </div>
                         </div>
                     </div>
+                    {serviceType && serviceType !== 'AUTO' && serviceType !== 'PARCEL' && (
                     <button
                         onClick={onHandleAddNew}
                         className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
@@ -886,6 +1106,7 @@ export function MasterPriceView() {
                     >
                         Add new
                     </button>
+                    )}
                 </div>
             </div>
 
@@ -919,7 +1140,14 @@ export function MasterPriceView() {
                 <div>{renderOutstationRentalsTable()}</div>
             ) : (<>
             </>)}
+            {serviceType === 'AUTO' && autoLocalPackageList && autoLocalPackageList.length > 0 ? (
+                <div>{LocalAutoTable()}</div>
+            ): (<></>)}
+            {serviceType === 'PARCEL' && parcelLocalPackageList && parcelLocalPackageList.length > 0 ? (
+                <div>{LocalParcelTable()}</div>
+            ): (<></>)}
+            
         </>
 
     );
-}
+};

@@ -25,21 +25,26 @@ import {
   DocumentCheckIcon,
   UserGroupIcon,
   MegaphoneIcon,
+  UsersIcon
 } from '@heroicons/react/24/solid';
-import { API_ROUTES, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
-  { name: "Calls", path: "/dashboard/users/exotel-calls/list", permission: "Calls"},
-  { name: "All Bookings", path: "/dashboard/booking/list", permission: "All bookings" },
+  { name: "Leads", path: "/dashboard/leads", permission: "Home", end: true },
+  { name: "Rate Card", path: "/dashboard/rental-rate-card", permission: "Home", end: true },
+  { name: "Calls", path: "/dashboard/users/exotel-calls/list", permission: "Calls" },
+  { name: "All Records", path: "/dashboard/booking/list", permission: "All bookings" },
+  { name: "Auto Records", path: "/dashboard/Auto", permission: "Autos" },
   { name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { name: "Trip Master", path: "/dashboard/tripDetails", permission: "Trip Master" },
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
-  { name: "Marketing", path:"/dashboard/vendors/notificationList", permission: "Marketing" },
+  { name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
+
 ];
 
 export function Sidenav({ brandImg, brandName, routes }) {
@@ -58,6 +63,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [openSubMenu, setOpenSubMenu] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [openBikeSubMenu, setOpenBikeSubMenu] = useState("");
+  const [openAutoSubMenu, setOpenAutoSubMenu] = useState("");
+  const [openNotificationSubMenu, setOpenNotificationSubMenu] = useState("");
 
   const toggleMenu = (menu) => {
     setOpenMenu((prev) => (prev === menu ? null : menu));
@@ -75,29 +83,29 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const toggleSubMenu = (subMenu) => {
     setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
   };
- 
+
   const [userPermissions, setUserPermissions] = useState(null);
- const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState("");
 
   const getPermissions = async () => {
-    try{
+    try {
       const user = localStorage.getItem('loggedInUser');
       const userId = JSON.parse(user);
       const perm = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + userId?.id);
-      if(perm?.success){
+      if (perm?.success) {
         setUserName(perm?.data?.email || "");
         setUserPermissions(perm?.data?.permission);
       }
-    }catch(err){
+    } catch (err) {
       console.log("ERROR IN GET PERMISIIONS", err);
     }
   };
-   
-   
+
+
   useEffect(() => {
     getPermissions();
     // const dataFromStorage = localStorage.getItem('loggedInUser');
-    
+
     // if (dataFromStorage) {
     //   const user = JSON.parse(dataFromStorage);
     //   setUserPermissions(user.permission || []);
@@ -146,7 +154,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 </div>
               </>
             )}
-            
+
           </Typography>
         </Link>
         {/* Collapse toggle (desktop) */}
@@ -197,20 +205,38 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           className={`h-6 w-6 text-black`}
                         />
                       ) : null}
+                      {name === "Leads" ? (
+                         <UsersIcon className="h-6 w-6 text-black" />
+                      ): null}
 
-                      {name === "Calls" && (
+                      {name === "Rate Card" ? (
+                        <img
+                          src="/img/master_price.png"
+                          alt="Rate Card"
+                          className="h-6 w-6 "
+                        />
+                      ) : null}
+
+                      {name === "Calls" ? (
                         <img
                           src="/img/calls.png"
                           alt="Calls"
                           className="h-6 w-6 rounded-full"
                         />
-                      )}
+                      ) : null}
 
-                      {name === "All Bookings" ? (
+                      {name === "All Records" ? (
                         <DocumentTextIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       )
                         : (null)}
+                      {name === "Auto Records" ? (
+                        <img
+                          src="/img/auto.png"
+                          alt="Autos"
+                          className="h-6 w-6 rounded-full"
+                        />
+                      ) : null}
                       {name === "Customers" ? (
 
                         <UserGroupIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
@@ -221,7 +247,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
-                       {name === "Trip Master" ? (
+                      {name === "Trip Master" ? (
                         <BuildingStorefrontIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
@@ -246,6 +272,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           }`} />
                       ) : null}
 
+
                       {!miniSidenav && (
                         <Typography color="inherit" className="font-medium capitalize">
                           {name.toLowerCase()}
@@ -257,7 +284,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         </Tooltip>
                       )}
 
-                      {!miniSidenav && name !== "Home" && name !== 'Calls' && (
+                      {!miniSidenav && name !== "Home" && name !== 'Calls' && name !== 'Rate Card' && name !== 'Leads' && (
                         <div className="ml-auto">
                           {isActive ? (
                             <ChevronUpIcon className="w-5 h-5" />
@@ -270,13 +297,17 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   )}
                 </NavLink>
 
-                {!miniSidenav && name === "All Bookings" && openSubMenu === "All Bookings" && (
+                {!miniSidenav && name === "All Records" && openSubMenu === "All Records" && (
                   <ul className="ml-0">
                     {[
                       { label: "All", path: "/dashboard/booking/list" },
                       { label: "Drivers", path: "/dashboard/booking/list/actingDriver" },
                       { label: "Rides", path: "/dashboard/booking/list/rides" },
                       { label: "Rentals", path: "/dashboard/booking/list/rentals" },
+
+                      ...(Feature.parcel ?
+                        [{ label: "Parcel", path: "/dashboard/booking/list/Parcel" }]
+                        : []),
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -287,31 +318,39 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 }`}
                               fullWidth
                             >
-                                {label === "All" && (
+                              {label === "All" && (
                                 <img
                                   src="/img/all.png"
                                   alt="All"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                             {label === "Drivers" && (
+                              {label === "Drivers" && (
                                 <img
                                   src="/img/driver.png"
                                   alt="Driver"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "Rides" && (
+                              {label === "Rides" && (
                                 <img
                                   src="/img/rides.png"
                                   alt="Rides"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "Rentals" && (
+                              {label === "Rentals" && (
                                 <img
                                   src="/img/rental.png"
                                   alt="Rentals"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )}
+
+                              {label === "Parcel" && (
+                                <img
+                                  src="/img/Parcel_driver.png"
+                                  alt="Bike List"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
@@ -343,15 +382,15 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 }`}
                               fullWidth
                             >
-                                {label === "All" && (
-                                  <div className="space-x-0">
-                                      <img
-                                  src="/img/all.png"
-                                  alt="All"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                                  </div>
-                              
+                              {label === "All" && (
+                                <div className="space-x-0">
+                                  <img
+                                    src="/img/all.png"
+                                    alt="All"
+                                    className="h-6 w-6 rounded-full"
+                                  />
+                                </div>
+
                               )}
                               <Typography
                                 color="inherit"
@@ -374,54 +413,148 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Acting Driver", path: "/dashboard/vendors/account/drivers" },
                       { label: "Vehicles", path: "/dashboard/Vendors/vehicleList" },
                       { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList" },
-                    ].map(({ label, path }) => (
+                      ...(Feature.parcel ? [{
+                        label: "Bike",
+                        isSubMenu: true,
+                        subItems: [
+                          { label: "Bike Owner", path: "/dashboard/vendors/account/parcel/list" },
+                          { label: "Bike List", path: "/dashboard/vendors/account/parcel" },
+                        ],
+                      }] : []),
+                      {
+                        label: "Auto",
+                        isSubMenu: true,
+                        subItems: [
+                          { label: "Auto Owner", path: "/dashboard/Vendors/account/autoview" },
+                          { label: "Auto List", path: "/dashboard/Vendors/account/autoList" },
+                        ],
+                      },
+                    ].map(({ label, path, isSubMenu, subItems }) => (
                       <li key={label}>
-                        <NavLink to={path} end>
-                          {({ isActive }) => (
+                        {isSubMenu ? (
+                          <>
                             <Button
                               variant="text"
-                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1  ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'}
-                                }`}
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1 hover:bg-primary-50`}
                               fullWidth
+                              onClick={() =>
+                                label === "Bike"
+                                  ? setOpenBikeSubMenu(openBikeSubMenu === label ? "" : label)
+                                  : setOpenAutoSubMenu(openAutoSubMenu === label ? "" : label)
+                              }
                             >
-                                {label === "Owners" && (
-                                <img
-                                  src="/img/owners.png"
-                                  alt="Owners"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                                {label === "Acting Driver" && (
-                                <img
-                                  src="/img/acting_driver.png"
-                                  alt="Acting Driver"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                                {label === "Vehicles" && (
-                                <img
-                                  src="/img/vehicles.png"
-                                  alt="Vehicles"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                                 {label === "Online Vehicles List" && (
-                                <img
-                                  src="/img/vehicleslist.png"
-                                  alt="Online Vehicles List"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-
-                              <Typography
-                                color="inherit"
-                                className="font-medium px-3 capitalize"
-                              >
+                              <img
+                                src={label === "Bike" ? "/img/multiple_bike.jpg" : "/img/auto.png"}
+                                alt={label}
+                                className="h-6 w-6 rounded-full"
+                              />
+                              <Typography color="inherit" className="font-medium px-3 capitalize">
                                 {label}
                               </Typography>
                             </Button>
-                          )}
-                        </NavLink>
+                            {(label === "Bike" ? openBikeSubMenu === label : openAutoSubMenu === label) && (
+                              <ul className="ml-4">
+                                {subItems.map(({ label: subLabel, path: subPath }) => (
+                                  <li key={subLabel}>
+                                    <NavLink to={subPath} end>
+                                      {({ isActive }) => (
+                                        <Button
+                                          variant="text"
+                                          className={`flex items-center gap-2 ${miniSidenav ? "justify-center px-0" : "px-8"
+                                            } py-2 rounded-lg capitalize mt-1 ${isActive ? "bg-primary-100" : "hover:bg-primary-50"
+                                            }`}
+                                          fullWidth
+                                        >
+                                          {subLabel === "Bike Owner" && (
+                                            <img
+                                              src="/img/parcel_list.png"
+                                              alt="Bike Owner"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          {subLabel === "Bike List" && (
+                                            <img
+                                              src="/img/Parcel_driver.png"
+                                              alt="Bike List"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          {subLabel === "Auto Owner" && (
+                                            <img
+                                              src="/img/auto_owners.png"
+                                              alt="Auto Owner"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          {subLabel === "Auto List" && (
+                                            <img
+                                              src="/img/auto.png"
+                                              alt="Auto List"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          <Typography
+                                            color="inherit"
+                                            className="font-medium px-3 capitalize"
+                                          >
+                                            {subLabel}
+                                          </Typography>
+                                        </Button>
+                                      )}
+                                    </NavLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <NavLink to={path} end>
+                            {({ isActive }) => (
+                              <Button
+                                variant="text"
+                                className={`flex items-center gap-2 ${miniSidenav ? "justify-center px-0" : "px-8"
+                                  } py-2 rounded-lg capitalize mt-1 ${isActive ? "bg-primary-100" : "hover:bg-primary-50"
+                                  }`}
+                                fullWidth
+                              >
+                                {label === "Owners" && (
+                                  <img
+                                    src="/img/owners.png"
+                                    alt="Owners"
+                                    className="h-6 w-6 rounded-full"
+                                  />
+                                )}
+                                {label === "Acting Driver" && (
+                                  <img
+                                    src="/img/acting_driver.png"
+                                    alt="Acting Driver"
+                                    className="h-6 w-6 rounded-full"
+                                  />
+                                )}
+                                {label === "Vehicles" && (
+                                  <img
+                                    src="/img/vehicles.png"
+                                    alt="Vehicles"
+                                    className="h-6 w-6 rounded-full"
+                                  />
+                                )}
+                                {label === "Online Vehicles List" && (
+                                  <img
+                                    src="/img/vehicleslist.png"
+                                    alt="Online Vehicles List"
+                                    className="h-6 w-6 rounded-full"
+                                  />
+                                )}
+                                <Typography
+                                  color="inherit"
+                                  className="font-medium px-3 capitalize"
+                                >
+                                  {label}
+                                </Typography>
+                              </Button>
+                            )}
+                          </NavLink>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -441,8 +574,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 }`}
                               fullWidth
                             >
-                              {label === "Details"  }
-                               {label === "Reports" 
+                              {label === "Details"}
+                              {label === "Reports"
                                 // <img
                                 //   src="/img/pending_doc.png"
                                 //   alt="Pending Documents"
@@ -462,13 +595,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                     ))}
                   </ul>
                 )}
-            
+
                 {name === "Finance" && openSubMenu === "Finance" && (
                   <ul className="ml-0">
                     {[
-                    
-                      { label: "Invoice", path: "/dashboard/finance/invoice" },
-                      { label: "Receipt", path: "/dashboard/finance/receipt" },
+
+                      { label: "Subscription Invoice", path: "/dashboard/finance/invoice" },
+                      { label: "Booking Receipt", path: "/dashboard/finance/receipt" },
                       { label: "Master Subscription", path: "/dashboard/finance/master-subscription" },
                     ].map(({ label, path }) => (
                       <li key={label}>
@@ -480,21 +613,21 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                 }`}
                               fullWidth
                             >
-                               {label === "Invoice" && (
+                              {label === "Subscription Invoice" && (
                                 <img
                                   src="/img/invoice.png"
                                   alt="Invoice"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                                {label === "Receipt" && (
+                              {label === "Booking Receipt" && (
                                 <img
                                   src="/img/recipt.png"
                                   alt="Receipt"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                                {label === "Master Subscription" && (
+                              {label === "Master Subscription" && (
                                 <img
                                   src="/img/subscription.png"
                                   alt="Master Subscription"
@@ -537,7 +670,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "Pending Documents" && (
+                              {label === "Pending Documents" && (
                                 <img
                                   src="/img/pending_doc.png"
                                   alt="Pending Documents"
@@ -561,57 +694,101 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 {name === "Marketing" && openSubMenu === "Marketing" && (
                   <ul className="ml-0">
                     {[
-                      { label: "All Push Notification", path: "/dashboard/vendors/notificationList" },
-                      { label: "Drivers App Notification", path: "/dashboard/vendors/driverNotificationList" },
+                      {
+                        label: "All Push Notification", isSubMenu: true, subItems: [
+                          { label: "Push Notification", path: "/dashboard/vendors/notificationList" },
+                          { label: "Customer App", path: "/dashboard/vendors/customerNotificationList" },
+                          { label: "Driver App", path: "/dashboard/vendors/driverNotificationList" },
+                        ]
+                      },
                       { label: "Banner Image", path: "/dashboard/user/bannerimgView" },
                       { label: "Testimonial", path: "/dashboard/user/testimonialView" },
-                    ].map(({ label, path }) => (
+                    ].map(({ label, path, isSubMenu, subItems }) => (
                       <li key={label}>
-                        <NavLink to={path} end>
-                          {({ isActive }) => (
+                        {isSubMenu ? (
+                          <>
                             <Button
                               variant="text"
-                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
-                                }`}
+                              className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-7'} py-2 rounded-lg capitalize mt-1 hover:bg-primary-50`}
                               fullWidth
+                              onClick={() => setOpenNotificationSubMenu(openNotificationSubMenu === label ? "" : label)}
                             >
-                              {label === "All Push Notification" && (
-                                <img
-                                  src="/img/push_notification.png"
-                                  alt="All Push Notification"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                                {label === "Drivers App Notification" && (
-                                <img
-                                  src="/img/driver_app_notification.png"
-                                  alt="Drivers App Notification"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                              {label === "Banner Image" && (
-                                <img
-                                  src="/img/banner_img.png"
-                                  alt="Banner Image"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                              {label === "Testimonial" && (
-                                <img
-                                  src="/img/testimonial.png"
-                                  alt="Testimonials Image"
-                                  className="h-6 w-6 rounded-full"
-                                />
-                              )}
-                              <Typography
-                                color="inherit"
-                                className="font-medium px-3 capitalize"
-                              >
+                              <img src="/img/push_notification.png" alt={label} className="h-6 w-6 rounded-full" />
+                              <Typography color="inherit" className="font-medium px-3 capitalize">
                                 {label}
                               </Typography>
                             </Button>
-                          )}
-                        </NavLink>
+                            {openNotificationSubMenu === label && (
+                              <ul className="ml-4">
+                                {subItems.map(({ label: subLabel, path: subPath }) => (
+                                  <li key={subLabel}>
+                                    <NavLink to={subPath} end>
+                                      {({ isActive }) => (
+                                        <Button
+                                          variant="text"
+                                          className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1 ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'} `}
+                                          fullWidth
+                                        >
+                                          {subLabel === "Push Notification" && (
+                                            <img
+                                              src="/img/push_notification.png"
+                                              alt="Push Notification"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          {subLabel === "Customer App" && (
+                                            <img src="/img/customerNotification.png" alt="Combine Message" className="h-6 w-6 rounded-full" />
+                                          )}
+                                          {subLabel === "Driver App" && (
+                                            <img
+                                              src="/img/driver_app_notification.png"
+                                              alt="Drivers App Notification"
+                                              className="h-6 w-6 rounded-full"
+                                            />
+                                          )}
+                                          <Typography color="inherit" className="font-medium px-3 capitalize">
+                                            {subLabel}
+                                          </Typography>
+                                        </Button>
+                                      )}
+                                    </NavLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <NavLink to={path} end>
+                            {({ isActive }) => (
+                              <Button
+                                variant="text"
+                                className={`flex items-center gap-2 ${miniSidenav ? 'justify-center px-0' : 'px-8'} py-2 rounded-lg capitalize mt-1 ${isActive ? 'bg-primary-100' : 'hover:bg-primary-50'} `}
+                                fullWidth
+                              >
+                                {label === "Banner Image" && (
+                                  <img
+                                    src="/img/banner_img.png"
+                                    alt="Banner Image"
+                                    className="h-6 w-6 rounded-full"
+                                  />
+                                )}
+                                {label === "Testimonial" && (
+                                  <img
+                                    src="/img/testimonial.png"
+                                    alt="Testimonials Image"
+                                    className="h-6 w-6 rounded-full"
+                                  />
+                                )}
+                                <Typography
+                                  color="inherit"
+                                  className="font-medium px-3 capitalize"
+                                >
+                                  {label}
+                                </Typography>
+                              </Button>
+                            )}
+                          </NavLink>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -624,7 +801,9 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       { label: "Master Price Table", path: "/dashboard/users/master-price" },
                       { label: "Instant Reward", path: "/dashboard/users/instant-reward" },
                       { label: "GeoMarkings", path: "/dashboard/admin/geo-markings" },
-                       { label: "Version Control", path: "/dashboard/user/versionControlList" },
+                      { label: "Version Control", path: "/dashboard/user/versionControlList" },
+                      { label: "Custom Discount", path: "/dashboard/users/custom-discount/list" },
+                      { label: "Driver Bonus", path: "/dashboard/users/driver-offer/list" },
                       { label: "Discount Module", path: "/dashboard/user/discountModuleList" },
                       { label: "TAX", path: "/dashboard/user/GSTList" },
                     ].map(({ label, path }) => (
@@ -644,43 +823,55 @@ export function Sidenav({ brandImg, brandName, routes }) {
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "Master Price Table" && (
+                              {label === "Master Price Table" && (
                                 <img
                                   src="/img/master_price.png"
                                   alt="Master Price"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "Instant Reward" && (
+                              {label === "Instant Reward" && (
                                 <img
                                   src="/img/reward.png"
                                   alt="Instant Reward"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                                                      
-                               {label === "GeoMarkings" && (
+
+                              {label === "GeoMarkings" && (
                                 <img
                                   src="/img/geo_marking.png"
                                   alt="GeoMarkings"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "Version Control" && (
+                              {label === "Version Control" && (
                                 <img
                                   src="/img/version_control.png"
                                   alt="Version Control"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "Discount Module" && (
+                              {label === "Custom Discount" && (
+                                <img
+                                src="/img/custom_discount.png"
+                                alt="Custom Discount"
+                                className="h-6 w-6 rounded-full"
+                              />)}
+                              {label === "Driver Bonus" && (
+                                <img
+                                src="/img/driver.png"
+                                alt="Driver Bonus"
+                                className="h-6 w-6 rounded-full"
+                              />)}
+                              {label === "Discount Module" && (
                                 <img
                                   src="/img/discount.png"
                                   alt="Version Control"
                                   className="h-6 w-6 rounded-full"
                                 />
                               )}
-                               {label === "TAX" && (
+                              {label === "TAX" && (
                                 <img
                                   src="/img/gst.png"
                                   alt="TAX"

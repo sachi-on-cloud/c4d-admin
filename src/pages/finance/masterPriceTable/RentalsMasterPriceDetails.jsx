@@ -6,11 +6,13 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Utils } from '@/utils/utils';
 import MasterPriceLog from './MasterPriceLog';
+import PremiumPriceDetails from '@/components/PremiumPriceDetails';
 
 const RentalsPriceMasterDetails = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [premiumConfig ,setPremiumConfig] = useState({});
 
     useEffect(() => {
         fetchPriceDetails();
@@ -88,7 +90,9 @@ const RentalsPriceMasterDetails = () => {
                     acExtraKilometerRoundPriceMVP: data?.data?.acExtraKilometerRoundPriceMVP || 0,
                     acExtraKilometerRoundPriceSuv: data?.data?.acExtraKilometerRoundPriceSuv || 0,
                     acExtraKilometerRoundPriceSedan: data?.data?.acExtraKilometerRoundPriceSedan || 0,
+                    freeExtraMinutes: data?.data?.freeExtraMinutes || 0,
                 });
+                setPremiumConfig(data.data.premiumConfig);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -129,6 +133,10 @@ const RentalsPriceMasterDetails = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             {initialValues?.type === 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">Toll Charge</label>
@@ -609,6 +617,9 @@ const RentalsPriceMasterDetails = () => {
     </table>
   </div>
 </div>
+              {initialValues?.type === 'Outstation' &&
+                <PremiumPriceDetails premiumData={premiumConfig} />
+              }
 
 
                         <div className="flex flex-row">

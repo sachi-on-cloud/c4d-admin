@@ -38,9 +38,9 @@ const CustomerCallsLog = ({ customerId }) => {
   };
 
   const getStatusLabel = (CallType, Direction) => {
-    if (CallType === 'completed') return 'Call successful';
-    if (CallType === 'no-answer') return 'No Answer';
-    if (CallType === 'failed') return 'Declined';
+    if (CallType === 'completed') return 'Call was successful';
+    if (CallType === 'incomplete') return 'No user answered';
+    if (CallType === 'client-hangup') return 'Client hung-up during call';
     if (CallType === 'busy') {
       if (Direction === 'incoming') return 'Dropped before connect';
       if (Direction === 'outcoming') return 'Dropped during call';
@@ -50,7 +50,7 @@ const CustomerCallsLog = ({ customerId }) => {
 
   const getStatusColor = (CallType) => {
     if (CallType === 'completed') return 'bg-green-600 text-white';
-    if (CallType === 'failed') return 'bg-red-600 text-white';
+    if (CallType === 'client-hangup') return 'bg-red-600 text-white';
     if (CallType === 'busy') return 'bg-yellow-600 text-white';
     return 'bg-blue-600 text-white';
   };

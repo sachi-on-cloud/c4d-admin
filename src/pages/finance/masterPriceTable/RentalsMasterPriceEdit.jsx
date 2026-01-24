@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef} from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
@@ -7,6 +7,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import Select from 'react-select';
 import { Utils } from '@/utils/utils';
+import PremiumPriceDetailsEdit from '@/components/PremiumPriceDetailsEdit';
 
 
 
@@ -35,6 +36,8 @@ const RentalsMasterPriceEdit = () => {
     const [initialValues, setInitialValues] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [premiumConfig ,setPremiumConfig] = useState({});
+    const initialPremiumRef = useRef({});
 
     useEffect(() => {
         if (id) fetchPriceDetails(id);
@@ -75,6 +78,7 @@ const RentalsMasterPriceEdit = () => {
                     additionalMinChargeMVP:data?.data?.additionalMinChargeMVP || 0,
                     additionalMinChargeSuv:data?.data?.additionalMinChargeSuv || 0,
                     additionalMinChargeSedan:data?.data?.additionalMinChargeSedan || 0,
+                    freeExtraMinutes:data?.data?.freeExtraMinutes || 0,
 
                     kilometerRoundPrice:data?.data?.kilometerRoundPrice || 0,
                     kilometerRoundPriceMVP:data?.data?.kilometerRoundPriceMVP || 0,
@@ -112,6 +116,8 @@ const RentalsMasterPriceEdit = () => {
                     acExtraKilometerRoundPriceSuv: data?.data?.acExtraKilometerRoundPriceSuv || 0,
                     acExtraKilometerRoundPriceSedan: data?.data?.acExtraKilometerRoundPriceSedan || 0,
                 });
+                initialPremiumRef.current = data.data.premiumConfig;
+                setPremiumConfig(data.data.premiumConfig || []);
             }
         } catch (error) {
             console.error("Error fetching price details:", error);
@@ -121,6 +127,10 @@ const RentalsMasterPriceEdit = () => {
     const convertToTimeFormat = (timeString) => {
         return timeString ? timeString.slice(0, 5) : "";
     };
+
+  const hasPremiumConfig = () => {
+    return JSON.stringify(premiumConfig) !== JSON.stringify(initialPremiumRef.current);
+  }
 
     const onSubmit = async (values) => {
         try {
@@ -147,6 +157,7 @@ const RentalsMasterPriceEdit = () => {
                 price:Number(values.price),
                 priceMVP:Number(values.priceMVP),
                 priceSuv:Number(values.priceSuv),
+                freeExtraMinutes:Number(values.freeExtraMinutes),
                 priceSedan:Number(values.priceSedan),
                 baseFareMVP:Number(values.baseFareMVP),
                 baseFareSuv:Number(values.baseFareSuv),
@@ -192,6 +203,7 @@ const RentalsMasterPriceEdit = () => {
                 acExtraKilometerRoundPriceMVP: Number(values.acExtraKilometerRoundPriceMVP),
                 acExtraKilometerRoundPriceSuv: Number(values.acExtraKilometerRoundPriceSuv),
                 acExtraKilometerRoundPriceSedan: Number(values.acExtraKilometerRoundPriceSedan),
+                premiumConfig:premiumConfig,
             };
 
             const response = await ApiRequestUtils.post(API_ROUTES.RENDAL_PRICE_EDIT, reqBody);
@@ -237,6 +249,11 @@ const RentalsMasterPriceEdit = () => {
                                 <label className="text-sm font-medium text-gray-700">Additional KM Rate</label>
                                 <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
+                            </div>
+                             <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="freeExtraMinutes" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
@@ -905,12 +922,14 @@ const RentalsMasterPriceEdit = () => {
     </tbody>
   </table>
 </div>
-                             
+              {(values?.type === 'Outstation') &&
+                <PremiumPriceDetailsEdit initialPremiumData={premiumConfig} onUpdate={(data) => setPremiumConfig(data)} />
+              }
                         <div className="flex flex-row">
                             <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
-                            <Button fullWidth color="blue" type="submit" disabled={!dirty || !isValid} className="my-6 mx-2">
+                            <Button fullWidth color="blue" type="submit" disabled={!(dirty || hasPremiumConfig()) || !isValid} className="my-6 mx-2">
                                 Save Changes
                             </Button>
                         </div>

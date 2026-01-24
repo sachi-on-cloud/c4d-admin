@@ -8,11 +8,16 @@ export const constants = {
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou',
-    url_uat: 'https://uat.api.c4d.smartapis.cyou'
+    url_uat: 'https://uat.api.c4d.smartapis.cyou',
+    url_prepod: 'https://c4d-pre-prod-1089104308138.us-central1.run.app',
 };
 
 export const getBaseUrl = () => {
     return constants.url + '/api/customer/dev';
+}
+
+export const Feature = {
+    parcel:false
 }
 
 export const GENDER = {
@@ -880,8 +885,9 @@ export const API_ROUTES = {
     'GET_PAYABLE_DETAILS': '/invoice-trip-details',
     'REVIEW_PAYMENT_REQUEST': '/update-payment-request',
     'APPROVE_PAYMENT_REQUEST': '/approve-payment-request',
-    'ADD_MASTER_SUBSCRIPTION_ADD': '/admin/plan/create',
-    'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan',
+    'ADD_MASTER_SUBSCRIPTION_ADD': '/admin/plan-group',
+    'GET_MASTER_SUBSCRIPTION_LIST': '/admin/plan-groups',
+    'GET_MASTER_SUBSCRIPTION_DETAIL': '/admin/plan-groups',
     'GET_QUOTE_OUTSTATION': '/get-quote',
     'ACTING_DRIVER_ADD_LOCAL_PACKAGE': '/add-package',
     'ACTING_DRIVER_EDIT_LOCAL_PACKAGE': '/update-package',
@@ -901,7 +907,7 @@ export const API_ROUTES = {
     'RIDES_PRICE_EDIT': '/update-rides-package',
     'MASTERPRICETABLE_LOG': '/package-list/log/',
     'RENDAL_PRICE_EDIT': '/update-rental-package',
-    'MASTER_SUBSCRIPTION_EDIT': '/admin/plan/update',
+    'MASTER_SUBSCRIPTION_EDIT': '/admin/plan-group',
     'CAB_PRICE_TABLE_LOG': '/price-list/log/',
     'GET_RIDES_CAB_DRIVERS': '/assign/driver',
     'GET_RENTAL_CAB_DRIVERS': '/assign/rentalDriver',
@@ -911,6 +917,7 @@ export const API_ROUTES = {
     'CONFIRM_RENTAL_BOOKING': '/confirm-rental-booking',
     'GEO_MARKINGS': '/geo-markings',
     'GEO_MARKINGS_LIST': '/geo-markings/filter',
+    'RENTAL_OUTSTATION_TARIFFS': '/rental/outstation/tariffs',
     'GEO_MARKINGS_DELETE': '/geo-markings',
     'GET_CAR_TYPE': '/car-type/',
     'POST_NOTIFICATION_ADD': '/send-notification',
@@ -941,6 +948,23 @@ export const API_ROUTES = {
     'GET_TESTIMOINAL':'/testimonial',
     'POST_TESTIMOINAL':'/testimonial/add',
     'UPDATE_TESTIMONIAL':'/testimonial/update',
+    'GET_AUTO_LIST':"/admin/autos",
+    'ADD_NEW_AUTO_BOOKING':'/add-auto-booking',
+    'POST_AUTO_SEARCH':'/search/auto',
+    'ADD_NEW_AUTO_DETAILS':'/register/admin/auto',
+    'CREATE_PARCEL_ADMIN' :'/register/admin/parcel',
+    'GET_ALL_PARCEL': '/admin/parcel',
+    'UPDATE_LANDMARK':'/update-landmark',
+    'GET_AUTO_PACKAGE':'/get-autos',
+    'GET_AUTO_BY_ID':'/auto/',
+    'UPDATE_AUTO_DETAILS':'/update/admin/auto',
+    'AUTO_PACKAGE_LIST':'/auto-package-list',
+    'AUTO_PRICE_EDIT':'/update-auto-package',
+    'PARCEL_PACKAGE_LIST':'/parcel-package-list',
+    'PARCEL_PRICE_EDIT':'/update-parcel-package',
+    'GET_PARCEL_CAB_BY_ID':'/parcel/', 
+    'UPDATE_PARCEL_CAB':'/update/admin/parcel',
+    'GET_BIKE_PACKAGE':'/get-parcel-driver',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
     'GET_TRIP_REPORTS':'/get-trips-report',
@@ -956,8 +980,20 @@ export const API_ROUTES = {
     'EXPORT_EXCEL_CUSTOMER_DETAILS':'/admin/customers/export', 
     'POST_QUOTATION_LOG':'/quotation-log',
     'EXPORT_EXCEL_TRIP_DETAILS':'/admin/trips/export',
+    'EXOTEL_CALL_LOGS': '/call-logs',
+    'GET_CUSTOMER_NOTIFICATION':'/notification-messages',
+    'POST_CUSTOMER_NOTIFICATION':'/notification-messages',
     'UPDATE_FOLLOWUP':'/booking/followup',
-    'EXOTEL_CALL_LOGS': '/call-logs'
+    'UPDATE_EXTRA_CHARGES':'/booking/extra-charges',
+    'UPDATE_DRIVER_END_LOCATION':'/driver/end-location',
+    'GET_WEBSITE_LEADS': '/website-leads',
+    'GET_CUSTOM_ACTIVE_DISCOUNTS':'/discounts/custom-active',
+    'GET_CUSTOM_DISCOUNT_TARGETS':'/discounts/targets',
+    'POST_CUSTOM_DISCOUNT_TARGETS':'/discounts/targets',
+    'POST_DRIVER_OFFER':'/driver-offers',
+    'GET_DRIVER_OFFER':'/driver-offers',
+    'POST_DRIVER_OFFER_ASSIGN':'/driver-offers/assign',
+    'GET_DRIVER_OFFER_ASSIGN':'/driver-offers/assignments',
 
 };
 
@@ -998,6 +1034,7 @@ export const BOOKING_STATUS = {
     STARTED: 'STARTED',
     ASSIGNED_TO_SUPPORT: 'ASSIGNED_TO_SUPPORT',
     END_OTP:'END_OTP',
+    PAYMENT_REQUESTED:'PAYMENT_REQUESTED',
     ENDED: 'ENDED',
 };
 
@@ -1007,6 +1044,8 @@ export const BOOKING_SERVICE_TYPE = {
     CAB_BOOKING: 'CAB',
     CAR_WASH: 'CAR_WASH',
     RENTAL: 'RENTAL',
+    AUTO: 'AUTO',
+    PARCEL: 'PARCEL'
 };
 
 export const PUSH_NOTIFICATION_TYPE = {
@@ -1052,15 +1091,16 @@ export const USER_ROLE = [
 
 // Role-based permissions
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],
-    'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification'],
-    'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors'],
-    'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification'],
+    'SUPER_USER': ['Home', "Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
+    'SALES': ['Home', 'All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
+    'SUPPORT': ['Home', 'All bookings', 'Customers', 'Vendors','Autos'],
+    'FINANCE': ['Home', 'All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification','Autos'],
 };
 
 export const PERMISSION_OPTIONS = [
     { name: 'Home', id: 'Home' },
     { name: 'Calls', id: 'Calls'},
+     { name: 'Autos', id: 'Autos'},
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
@@ -1247,6 +1287,7 @@ export const WHATSAPP_BOOKING_CANCELLED=`
     ${COMPANY_NAME} Team`;
 
 export const BOOKING_TERMS_AND_CONDITIONS = "Price might vary at the end of trip closure, based on the other charges like parking, toll, trip extension & so.";
+export const BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES ="The price shown before confirming your ride is an approximate fare calculated using distance and travel time. Actual charges may differ due to factors like GPS signal quality, map accuracy, traffic conditions, network issues, or other technical limitations."
 export const ColorStyles = {
     sidenavColors: "bg-primary-200",
     bgColor: "bg-primary",

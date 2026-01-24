@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
-import { Button, Spinner, Popover, PopoverHandler, PopoverContent, Checkbox, Typography } from '@material-tailwind/react';
-import { FaFilter } from 'react-icons/fa';
+import { Button, Spinner, Popover, PopoverHandler, PopoverContent, Checkbox, Typography, Input } from '@material-tailwind/react';
+import { FaFilter, FaChevronDown } from 'react-icons/fa';
 
 const TripDetails = () => {
   const navigate = useNavigate();
@@ -27,16 +27,37 @@ const TripDetails = () => {
     totalItems: 0,
     itemsPerPage: 10,
   });
-  const [tripTypeFilter, setTripTypeFilter] = useState(['All']); // Filter state for tripType
 
-  const fetchTrips = async (page = 1, showLoader = true) => {
+  
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [tripTypeFilter, setTripTypeFilter] = useState(''); 
+
+ 
+  const [vehicleNumberFilter, setVehicleNumberFilter] = useState('');
+  const [tempVehicleFilter, setTempVehicleFilter] = useState('');
+
+  
+  const [dateFilterOpen, setDateFilterOpen] = useState(false);
+  const [tempFromDate, setTempFromDate] = useState('');
+  const [tempToDate, setTempToDate] = useState('');
+
+  const [availableVehicles, setAvailableVehicles] = useState([]);
+
+  const fetchTrips = async (page = 1, showLoader = false) => {
     if (showLoader) setLoading(true);
     try {
-      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVER_TRIP_DETAILS, {
+      const queryParams = {
         page: page,
         limit: pagination.itemsPerPage,
-      });
-      const tripData = response?.data;
+      };
+      if (fromDate) queryParams.fromDate = fromDate;
+      if (toDate) queryParams.toDate = toDate;
+      if (tripTypeFilter && tripTypeFilter !== 'All') queryParams.tripType = tripTypeFilter;
+      if (vehicleNumberFilter) queryParams.carNumber = vehicleNumberFilter;
+
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVER_TRIP_DETAILS, queryParams);
+      const tripData = response?.data || [];
 
       if (!Array.isArray(tripData)) {
         setError('Unexpected data format from server.');
@@ -51,15 +72,13 @@ const TripDetails = () => {
         return;
       }
 
-      const sortedTrips = [...tripData].sort((a, b) => {
-        const dateA = new Date(a.tripDate);
-        const dateB = new Date(b.tripDate);
-        return dateB - dateA;
-      });
-      setAllTrips(sortedTrips); // Store unfiltered trips
-      setTrips(sortedTrips); // Initially set filtered trips to all trips
+      const sortedTrips = [...tripData].sort((a, b) => new Date(b.tripDate) - new Date(a.tripDate));
+      setAllTrips(sortedTrips);
+      setTrips(sortedTrips);
 
-      // Use backend summary if available
+      const vehicles = [...new Set(tripData.map(t => t.Cab?.carNumber).filter(Boolean))].sort();
+      setAvailableVehicles(vehicles);
+
       if (response.summary) {
         setSummary({
           totalKm: response.summary.totalKm || 0,
@@ -111,21 +130,38 @@ const TripDetails = () => {
   };
 
   useEffect(() => {
-    fetchTrips(pagination.currentPage, true);
-  }, [location, pagination.currentPage, pagination.itemsPerPage]);
+    fetchTrips(1, true);
+  }, [fromDate, toDate, tripTypeFilter, vehicleNumberFilter, pagination.itemsPerPage]);
 
-  // Apply frontend filtering based on tripTypeFilter (client-side, doesn't affect backend summary)
   useEffect(() => {
-    if (tripTypeFilter.includes('All')) {
-      setTrips(allTrips);
-    } else {
-      const filteredTrips = allTrips.filter((trip) =>
-        tripTypeFilter.includes(trip.tripType || 'N/A')
-      );
-      setTrips(filteredTrips);
+    if (pagination.currentPage > 1) {
+      fetchTrips(pagination.currentPage, false);
     }
-    // Do not update summary here - keep backend overall summary unchanged
-  }, [tripTypeFilter, allTrips]);
+  }, [pagination.currentPage]);
+
+  // Sync temp dates when popup opens
+  useEffect(() => {
+    if (dateFilterOpen) {
+      setTempFromDate(fromDate);
+      setTempToDate(toDate);
+    }
+  }, [dateFilterOpen, fromDate, toDate]);
+
+  const applyDateFilter = () => {
+    if (tempFromDate && tempToDate) {
+      setFromDate(tempFromDate);
+      setToDate(tempToDate);
+      setDateFilterOpen(false);
+    }
+  };
+
+  const clearDateFilter = () => {
+    setTempFromDate('');
+    setTempToDate('');
+    setFromDate('');
+    setToDate('');
+    setDateFilterOpen(false);
+  };
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
@@ -158,44 +194,6 @@ const TripDetails = () => {
     }
     return buttons;
   };
-
-  const handleTripTypeFilterChange = (value) => {
-  if (value === 'All') {
-    setTripTypeFilter(['All']);
-  } else {
-    setTripTypeFilter([value]);
-  }
-};
-
-  const FilterPopover = ({ title, options, selectedFilters, onFilterChange }) => (
-  <Popover placement="bottom-start">
-    <PopoverHandler>
-      <div className="flex items-center cursor-pointer">
-        <Typography
-          variant="small"
-          className="font-bold text-[16px] text-grey mr-1"
-        >
-          {title}
-        </Typography>
-        <FaFilter className="text-black text-xs" />
-      </div>
-    </PopoverHandler>
-    <PopoverContent className="p-2">
-      {options.map((option) => (
-        <div key={option.value} className="flex items-center mb-2">
-          <Checkbox
-            color="blue"
-            checked={selectedFilters.includes(option.value)}
-            onChange={() => onFilterChange(option.value)}
-          />
-          <Typography color="blue-gray" className="font-medium ml-2">
-            {option.label}
-          </Typography>
-        </div>
-      ))}
-    </PopoverContent>
-  </Popover>
-);
 
   return (
     <div className="p-5 font-sans">
@@ -242,24 +240,159 @@ const TripDetails = () => {
           </div>
         ) : (
           <>
+            <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="p-2 text-left">Date</th>
-                  <th className="p-2 text-left">Booking Id</th>
+                 
                   <th className="p-2 text-left">
-                    <FilterPopover 
-                      title="Trip Type"
-                      options={[
-                        { value: 'All', label: 'All' },
-                        { value: 'Internal', label: 'Internal' },
-                        { value: 'External', label: 'External' },
-                      ]}
-                      selectedFilters={tripTypeFilter}
-                      onFilterChange={handleTripTypeFilterChange}
-                    />
+                    Date
+                    <Popover open={dateFilterOpen} handler={setDateFilterOpen} placement="bottom-start">
+                      <PopoverHandler>
+                        <button 
+                          onClick={() => setDateFilterOpen(prev => !prev)}
+                          className="ml-2"
+                        >
+                          <FaChevronDown 
+                            className={`text-black text-xs transition-transform duration-200 ${dateFilterOpen ? 'rotate-180' : ''}`} 
+                          />
+                        </button>
+                      </PopoverHandler>
+                      <PopoverContent className="p-5 w-60 z-50 shadow-2xl border border-gray-200 rounded-xl">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-center mt-2">
+                            <label className="text-sm font-medium text-gray-700 mr-2">From </label>
+                             <input
+                              type="date"
+                              value={tempFromDate}
+                              onChange={(e) => setTempFromDate(e.target.value)}
+                                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                              onClick={(e) => e.currentTarget.showPicker?.()}
+                            />
+                          </div>
+                          <div className="flex items-center justify-center mt-2">
+                            <label className="text-sm mr-5 font-medium text-gray-700">To </label>
+                             <input
+                              type="date"
+                              value={tempToDate}
+                              onChange={(e) => setTempToDate(e.target.value)}
+                              onClick={(e) => e.currentTarget.showPicker?.()}
+                               className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                             
+                             
+                            />
+                          </div>
+                          <div className="flex gap-3 pt-1">
+                            <Button
+                              size="sm"
+                              onClick={applyDateFilter}
+                              disabled={!tempFromDate || !tempToDate}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700"
+                            >
+                              Apply
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outlined"
+                              onClick={clearDateFilter}
+                              className="flex-1"
+                            >
+                              Clear
+                            </Button>
+                          </div>
+                          
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </th>
-                  <th className="p-2 text-left">Vehicle Number</th>
+                  <th className="p-2 text-left">Booking Id</th>
+                 <th className="p-2 text-left">
+                    <div className="flex items-center gap-1">
+                      <span>Trip Type</span>
+                      <Popover placement="bottom-start">
+                        <PopoverHandler>
+                          <button className="text-black">
+                            <FaFilter className="text-xs" />
+                          </button>
+                        </PopoverHandler>
+                        <PopoverContent className="p-2 z-50">
+                          {['All', 'Internal', 'External'].map(type => (
+                            <div key={type} className="flex items-center mb-2">
+                              <Checkbox
+                                color="blue"
+                                checked={tripTypeFilter === '' ? type === 'All' : tripTypeFilter === type}
+                                onChange={() => setTripTypeFilter(type === 'All' ? '' : type)}
+                              />
+                              <Typography className="ml-2 text-base text-black">{type}</Typography>
+                            </div>
+                          ))}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </th>
+
+                  {/* Vehicle Number Column with Perfect Filter Alignment */}
+<th className="p-2 text-left">
+  <div className="flex items-center ">
+    <span className="font-medium">Vehicle Number</span>
+    
+    <Popover placement="bottom-start">
+      <PopoverHandler>
+        <button className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-200 transition-colors">
+          <FaFilter className="text-xs text-black" />
+        </button>
+      </PopoverHandler>
+
+      <PopoverContent className="w-66 p-4 z-50 shadow-2xl border border-gray-200">
+        <div className="space-y-4">
+          {/* Search Box */}
+          <div className="flex gap-2">
+            <input
+              
+              placeholder="Ex: TN01AG2277"
+              value={tempVehicleFilter}
+              onChange={(e) => setTempVehicleFilter(e.target.value.toUpperCase())}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setVehicleNumberFilter(tempVehicleFilter.trim());
+                }
+              }}
+              className="uppercase text-black p-2"
+            />
+            <Button
+              size="sm"
+              onClick={() => setVehicleNumberFilter(tempVehicleFilter.trim())}
+              className="whitespace-nowrap"
+            >
+              Apply
+            </Button>
+            {vehicleNumberFilter && (
+              <Button
+                size="sm"
+                variant="outlined"
+                color="red"
+                onClick={() => {
+                  setVehicleNumberFilter('');
+                  setTempVehicleFilter('');
+                }}
+              >
+                X
+              </Button>
+            )}
+          </div>
+
+          {/* No vehicles message */}
+          {availableVehicles.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No vehicles found for the selected date range
+            </div>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  </div>
+</th>
+
                   <th className="p-2 text-left">Driver Name</th>
                   <th className="p-2 text-left">Start Point</th>
                   <th className="p-2 text-left">End Point</th>
@@ -294,6 +427,7 @@ const TripDetails = () => {
                 )}
               </tbody>
             </table>
+            </div>
             {trips.length > 0 && (
               <div className="flex items-center justify-center mt-4">
                 <Button

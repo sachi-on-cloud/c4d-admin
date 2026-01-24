@@ -72,7 +72,7 @@ const GeoMarkings = () => {
       ),
     },
     {
-      label: "Zones",
+      label: "City Limit",
       value: "zones",
       component: (
         <ZonesTab

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Button, Card, Typography, CircularProgress, Spinner } from "@material-tailwind/react";
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
+import * as Yup from 'yup';
 import moment from 'moment';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
@@ -38,6 +39,15 @@ const EditBooking = (props) => {
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [serviceAreaLoading, setServiceAreaLoading] = useState(false);
     const [packagesLoading, setPackagesLoading] = useState(false);
+    const [premiumServicesMap, setPremiumServicesMap] = useState({})
+    const [driverEndLocation, setDriverEndLocation] = useState(null);
+const [driverEndAddress, setDriverEndAddress] = useState('');
+const [driverEndSuggestions, setDriverEndSuggestions] = useState([]);
+
+const EDIT_BOOKING_SCHEMA = Yup.object().shape({
+  sourceType: Yup.string().required('Source Type is required'),
+});
+
 
     const fetchData = async () => {
     try {
@@ -56,6 +66,10 @@ const EditBooking = (props) => {
             const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
             const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
             setServiceAreas(filteredAreas);
+            if (response.premiumServices) {
+      setPremiumServicesMap(response.premiumServices);
+    //   console.log("Premium Services Map Loaded:", response.premiumServices);
+    }
         } catch (error) {
             console.error('Error fetching GEO_MARKINGS_LIST:', error);
         } finally {
@@ -123,6 +137,12 @@ useEffect(() => {
             };
             const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
 
+            // AUTO bookings don't use package-based pricing; skip without logging an error
+            if (mappedServiceType === 'AUTO') {
+                setPackageTypeSelectedData([]);
+                return;
+            }
+
             if (!['DRIVER', 'RENTAL', 'RIDES'].includes(mappedServiceType)) {
                 console.error('Invalid serviceType:', mappedServiceType);
                 setPackageTypeSelectedData([]);
@@ -165,11 +185,12 @@ useEffect(() => {
         const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
             serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
+            customerId: values?.customerId,
             bookingType: values?.tripType?.toUpperCase(),
             packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            toDate: moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
+            // carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
+            carType: values?.serviceType === 'DRIVER' ? 'Mini' : values?.carType,
             pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
             pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
             driverStartLat: values?.driverPickUpLocation?.lat,
@@ -178,12 +199,29 @@ useEffect(() => {
             dropLong: values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong,
             acType: values?.acType?.toUpperCase(),
             zone: actualZone,
-            driverStartLat: values.driverPickUpLocation?.lat,
-            driverStartLong: values.driverPickUpLocation?.lng,
-            driverStartAddress: {
-                name: values.driverPickUpAddress,
-            },
+            isPremiumService : values?.isPremiumService ? true : false
         };
+        const isDriverOutstation = values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation';
+        const isRoundTripCustom =
+            isDriverOutstation &&
+            values?.tripType === 'Round Trip' &&
+            values?.packageSelected === 'custome_date';
+        if (!isDriverOutstation || isRoundTripCustom) {
+            quoteData.toDate = moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();
+        }
+        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && values?.packageSelected && values?.packageSelected !== 'custome_date') {
+            quoteData.packageType = 'Outstation';
+            quoteData.packageId = Number(values.packageSelected);
+            quoteData.period = Number(values.packageSelected);
+        }
+    if(values?.serviceType !== 'DRIVER')
+        {
+            quoteData.driverStartLat= values.driverPickUpLocation?.lat,
+                quoteData.driverStartLong=values.driverPickUpLocation?.lng,
+                    quoteData.driverStartAddress= {
+                name: values.driverPickUpAddress,
+            }
+        }        
         if (values?.serviceType === 'RENTAL_DROP_TAXI') {
             quoteData.serviceFor = 'RENTAL';
         }
@@ -221,9 +259,17 @@ useEffect(() => {
             lat: bookingData.driverStartLat,
             lng: bookingData.driverStartLong
         } : null,
+        driverEndAddress: bookingData?.driverEndAddress?.name || '',
+    driverEndLocation: bookingData?.driverEndLat && bookingData?.driverEndLong 
+        ? { lat: bookingData.driverEndLat, lng: bookingData.driverEndLong } 
+        : null,
         luggage: '',
         seaterCapacity: '',
         sourceType: bookingData?.sourceType || '',
+        ...((bookingData?.sourceType === "Others" || bookingData?.sourceType === "Offline Ads") && {
+             otherSourceType: bookingData?.otherSourceType?.trim() || null
+            }),
+        isPremiumService : bookingData?.isPremiumService || false,
     };
 
 
@@ -232,7 +278,7 @@ useEffect(() => {
         let checkDistance = true;
         let checkCityLimit = true;
 
-        if (values.serviceType === 'RIDES') {
+        if (values.serviceType === 'RIDES' || values.serviceType === 'AUTO') {
             checkDistance = await calculateDistance(values);
             checkCityLimit = await calcluateCityLimit(values);
         } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
@@ -240,7 +286,7 @@ useEffect(() => {
         }
 
         if (!checkDistance) {
-            if (values.serviceType === 'RIDES') {
+            if (values.serviceType === 'RIDES' || values.serviceType === 'AUTO') {
                 setDistanceExceedModal(true);
             } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
                 setDropTaxiDistanceExceedModal(true);
@@ -277,11 +323,12 @@ useEffect(() => {
 
         const quoteDate = {
             serviceType: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : values.serviceType || mappedServiceType,
-            bookingType: '',
+            customerId: values?.customerId,
+            bookingType: values?.serviceType === 'AUTO' ? 'DROP ONLY' : (values.tripType?.toUpperCase() || ''),
             serviceFor: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : values.serviceType,
             packageType: 'Local',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
-            carType: values.carType || '',
+            carType: values.serviceType === 'DRIVER' ? 'Mini' : values.carType || '',
             period: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected))?.period || '' : '',
             pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
             pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
@@ -295,6 +342,8 @@ useEffect(() => {
             driverStartAddress: {
                 name: values.driverPickUpAddress,
             },
+            isPremiumService : values?.isPremiumService ? true : false
+            
         };
         const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
         if (data?.success) {
@@ -331,6 +380,13 @@ useEffect(() => {
                     lng: bookingData.driverStartLong
                 });
             }
+            if (bookingData.driverEndLat && bookingData.driverEndLong) {
+            setDriverEndLocation({
+                lat: bookingData.driverEndLat,
+                lng: bookingData.driverEndLong
+            });
+            setDriverEndAddress(bookingData.driverEndAddress?.name || '');
+        }
         }
     }, [bookingData, serviceAreas]);
 
@@ -351,7 +407,7 @@ useEffect(() => {
     };
 
     const calculateDistance = async (values) => {
-        let calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
+        const calculateDistance = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DISTANCE_CHECKING, {
             pickupLat: values.pickupLocation?.lat || bookingData?.pickupLat,
             pickupLong: values.pickupLocation?.lng || bookingData?.pickupLong,
             dropLat: values?.dropLocation?.lat || bookingData?.dropLat,
@@ -361,6 +417,10 @@ useEffect(() => {
 
         if (calculateDistance?.success) {
             if (values.serviceType === "RIDES") {
+                // Backend returns showAlert flag for RIDES
+                return calculateDistance?.data?.showAlert;
+            } else if (values.serviceType === "AUTO") {
+                // Backend returns kilometer for AUTO; apply 15 km limit
                 return calculateDistance?.data?.showAlert;
             } else if (values.serviceType === 'RENTAL_DROP_TAXI') {
                 const distance = calculateDistance?.data?.estimatedDistance || 0;
@@ -392,6 +452,9 @@ useEffect(() => {
                 } else if (type === 'driver') {
                     setDriverSuggestions(data?.data);
                 }
+                else if (type === 'driverEnd') {
+                    setDriverEndSuggestions(data?.data);
+                }
                 else {
                     setDropSuggestions(data?.data);
                 }
@@ -400,6 +463,7 @@ useEffect(() => {
             setPickupSuggestions([]);
             setDriverSuggestions([]);
             setDropSuggestions([]);
+            setDriverEndSuggestions([]);
         }
     };
 
@@ -444,6 +508,12 @@ useEffect(() => {
                 setDriverPickUpLocation(location);
                 setDriverSuggestions([]);
             }
+            else if (type === 'driverEnd') {
+            setFieldValue("driverEndAddress", address);
+            setFieldValue("driverEndLocation", location);
+            setDriverEndLocation(location);
+            setDriverEndSuggestions([]);
+        }
             else {
                 setFieldValue("dropAddress", address);
                 setFieldValue("dropLocation", location);
@@ -521,8 +591,12 @@ useEffect(() => {
         let data;
         let editBookingData;
         if (values.submitType == "default") {
+            const selectedPackage = packageTypeSelectedData.find(
+                (pkg) => pkg.id === Number(values?.packageSelected)
+            );
+            const period = values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation'? (values?.packageSelected && values?.packageSelected !== 'custome_date' ? Number(values?.packageSelected) : ''): (values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER'? selectedPackage?.period || '' : '');
             data = {
-                packageId: values?.packageSelected === "0" ? 0 : Number(values?.packageSelected),
+                packageId: values?.packageSelected === "0" || values?.packageSelected === "custome_date" ? 0 : Number(values?.packageSelected),
                 packageType: values?.packageTypeSelected,
                 customerId: bookingData?.Customer?.id,
                 bookingId: bookingData?.id,
@@ -530,21 +604,35 @@ useEffect(() => {
                 serviceType: values?.serviceType,
                 bookingType: values?.tripType.toUpperCase(),
                 transmissionType : values?.transmissionType ? values?.transmissionType : bookingData?.transmissionType,
-                carType: values?.carType ? values?.carType : bookingData?.carType,
+                carType: values?.serviceType === 'DRIVER' ? 'Mini' : (values?.carType ? values?.carType : bookingData?.carType),
                 fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
                 pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
                 pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
                 pickupAddress: {
                     name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
                 },
+                driverStartLat: values.driverPickUpLocation?.lat || bookingData?.driverStartLat || null,
+                driverStartLong: values.driverPickUpLocation?.lng || bookingData?.driverStartLong || null,
+                driverStartAddress: values.driverPickUpAddress
+                    ? { name: values.driverPickUpAddress }
+                    : bookingData?.driverStartAddress
+                        ? { name: bookingData.driverStartAddress.name }
+                        : null,
+               driverEndLat : values.driverEndLocation?.lat || null,
+                driverEndLong : values.driverEndLocation?.lng || null,
+                driverEndAddress : values.driverEndAddress ? { name: values.driverEndAddress } : null,
                 dropLat: null,
                 dropLong: null,
                 dropAddress: null,
                 toDate: null,
-                period: values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER' ? packageTypeSelectedData.find(pkg => pkg.id === Number(values?.packageSelected))?.period || '' : '',
+                period,
                 acType: values?.acType.toUpperCase(),
                 sourceType: values?.sourceType,
-                zone: values?.zone
+                ...((values?.sourceType === "Others" || values?.sourceType === "Offline Ads") && {
+             otherSourceType: values?.otherSourceType?.trim() || null
+            }),
+                zone: values?.zone,
+                isPremiumService : values?.isPremiumService ? true : false
             };
             // console.log("DADADA", values)
             if (values.packageTypeSelected == 'Outstation' && values?.tripType?.toUpperCase() == 'ROUND TRIP') {
@@ -567,14 +655,50 @@ useEffect(() => {
                 pickupAddress: {
                     name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
                 },
+                driverStartLat: values.driverPickUpLocation?.lat,
+                driverStartLong: values.driverPickUpLocation?.lng,
+                driverStartAddress: {
+                    name: values.driverPickUpAddress,
+                },
+                carType: values?.carType,
                 sourceType: values?.sourceType,
-                zone: values?.zone
+                ...((values?.sourceType === "Others" || values?.sourceType === "Offline Ads") && {
+             otherSourceType: values?.otherSourceType?.trim() || null
+            }),
+                fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+                zone: values?.zone,
+                isPremiumService : values?.isPremiumService ? true : false
             }
-            console.log("DADADAD", data)
+            
+            // console.log("DADADAD", data)
             data.dropLat = values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat
             data.dropLong = values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong
             data.dropAddress = {
                 name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
+            }
+            
+            editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_RIDES_BOOKING, data);
+        } else if (values.submitType == 'auto') {
+            data = {
+                customerId: bookingData?.Customer?.id,
+                bookingId: bookingData?.id,
+                pickupLat: values?.pickupLocation?.lat ? values?.pickupLocation?.lat : bookingData?.pickupLat,
+                pickupLong: values?.pickupLocation?.lng ? values?.pickupLocation?.lng : bookingData?.pickupLong,
+                pickupAddress: {
+                    name: values?.pickupAddress ? values?.pickupAddress : bookingData?.pickupAddress?.name
+                },
+                dropLat: values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat,
+                dropLong: values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong,
+                dropAddress: {
+                    name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
+                },
+                fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+                isPremiumService : values?.isPremiumService ? true : false,
+                car_Type: values?.carType || '',
+                sourceType: values?.sourceType|| '',
+                ...((values?.sourceType === "Others" || values?.sourceType === "Offline Ads") && {
+                otherSourceType: values?.otherSourceType?.trim() || null
+            }),
             }
             editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_RIDES_BOOKING, data);
         }
@@ -600,9 +724,22 @@ useEffect(() => {
             <Formik
                 initialValues={initialValues}
                 onSubmit={editSubmit}
+                validationSchema={EDIT_BOOKING_SCHEMA}
                 enableReinitialize
             >
                 {({ handleSubmit, setFieldValue, values, dirty, isValid }) => {
+                  const getCurrentPremiumOptions = () => {
+  if (values?.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values?.tripType === 'Drop Only') {
+    return premiumServicesMap['RENTAL_DROP_TAXI'] || [];
+  }
+  if (values?.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values?.tripType === 'Round Trip') {
+    return premiumServicesMap['RENTAL'] || [];
+  }
+  if (values?.serviceType === 'RENTAL_DROP_TAXI') {
+    return premiumServicesMap['RENTAL_DROP_TAXI'] || [];
+  }
+  return premiumServicesMap[values?.serviceType] || [];
+};
                 useLuggageAndSeaterLogic(values.carType, setFieldValue);
                     return(
                     <> {customerData && (
@@ -661,13 +798,14 @@ useEffect(() => {
                                         <option value="DRIVER">Driver</option>
                                         <option value="RENTAL">Rentals</option>
                                         <option value="RIDES">Rides</option>
+                                        <option value="AUTO">Auto</option>
                                     </Field>
                                     <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>
-                                    {bookingData?.serviceType !== "RIDES" && <>
+                                    {bookingData?.serviceType !== "RIDES" && bookingData?.serviceType !== "AUTO" && <>
                             <div className='space-y-3 my-3'>
-                                <div className={['RENTAL', 'DRIVER'].includes(values.serviceType) ? 'hidden' : ''}>
+                                <div className={values.serviceType === 'RENTAL' ? 'hidden' : 'grid grid-cols-2 gap-4 mt-2'}>
                                     <Button
                                         color={values.packageTypeSelected === 'Local' ? 'blue' : 'gray'}
                                         onClick={() => {
@@ -699,7 +837,7 @@ useEffect(() => {
                                         Outstation
                                     </Button>
                                 </div>
-                                <div className={['RENTAL', 'DRIVER'].includes(values.serviceType) ? 'hidden' : ''}>
+                                <div className={(values.serviceType === 'RENTAL' || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Local')) ? 'hidden' : ''}>
                                     <Typography className="text-sm font-medium text-black">Trip Type</Typography>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
                                         {(values?.serviceType !== 'RENTAL') && (<Button
@@ -721,6 +859,66 @@ useEffect(() => {
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-1 mt-2 space-x-3'>
+                                        {(
+                                            values?.isPremiumService ||
+                                            values?.serviceType === 'RENTAL_DROP_TAXI' ||
+                                            (values?.serviceType === 'RENTAL'  && values.packageTypeSelected === 'Outstation' &&
+                                                (values?.tripType === 'Round Trip' || values?.tripType === 'Drop Only'))
+                                        ) && (
+
+                                                <div className="w-full">
+                                                    <label className="flex items-center space-x-2 cursor-pointer select-none">
+                                                        <Field
+                                                            type="checkbox"
+                                                            name="isPremiumService"
+                                                            className="h-5 w-5 text-primary-600 rounded"
+                                                            onChange={(e) => {
+                                                                setFieldValue('isPremiumService', e.target.checked);
+                                                                if (!e.target.checked) {
+                                                                    setFieldValue('carType', ''); // reset when disabled
+                                                                }
+                                                            }}
+                                                        />
+                                                        <span className="text-sm font-medium text-gray-700">Enable Premium Service</span>
+                                                    </label>
+                                                </div>
+                                            )}
+                                            
+                                </div>
+                                    <div>
+                                        {values?.isPremiumService && (
+                                            <div className="w-full mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                <p className="text-sm font-semibold text-blue-900 mb-3">
+                                                    Premium Options Available:
+                                                </p>
+                                                {getCurrentPremiumOptions().length > 0 ? (
+                                                    <div className="flex gap-4">
+                                                        {getCurrentPremiumOptions().map((premium, index) => (
+                                                            <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                                                                <Field
+                                                                    type="radio"
+                                                                    name="carType"
+                                                                    value={premium.carType}
+                                                                    className="h-4 w-4 text-primary-600"
+                                                                    onChange={(e) => setFieldValue('carType', e.target.value)}
+                                                                />
+                                                                <span className="text-gray-800 font-medium">
+                                                                    {premium.label}
+                                                                </span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-gray-600 italic">
+                                                        No premium options available for {values?.serviceType}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                
+                                <div>
+                                    {!values?.isPremiumService && ( <>    
                                     <label className="text-sm font-medium text-black-700">Car Type</label>
                                     <div className="flex gap-4">
                                         {['Mini', 'Sedan', 'SUV', 'MUV'].map((carType) => (
@@ -736,6 +934,7 @@ useEffect(() => {
                                         ))}
                                     </div>
                                     <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                </>)}
                                 </div>
 
 
@@ -779,26 +978,6 @@ useEffect(() => {
                                                     NON AC
                                                 </Button>
                                             </div>
-                                        </div>
-                                    )}
-
-                                        {/* Source Type Field for all services */}
-                                        {values.serviceType && (
-                                            <div className="space-y-2 mb-4">
-                                                <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
-                                                <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
-                                                    <option value="">Select Source Type</option>
-                                                    <option value="Facebook">Facebook</option>
-                                                    <option value="Instagram">Instagram</option>
-                                                    <option value="Influencer Reels">Influencer Reels</option>
-                                                    <option value="WhatsApp">WhatsApp</option>
-                                                    <option value="Google">Google</option>
-                                                    <option value="YouTube">YouTube</option>
-                                                    <option value="Justdial">Justdial</option>
-                                                    <option value="Paper Notice">Paper Notice</option>
-                                                    <option value="On Field">On Field</option>
-                                                </Field>
-                                                <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
                                             </div>
                                         )}
 
@@ -831,7 +1010,7 @@ useEffect(() => {
                                     }}
                                 />
                             </div>
-                            {(values.tripType == 'Round Trip' && values.packageTypeSelected == 'Outstation') && <div className="flex-1 mb-2">
+                            {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && values.packageSelected === 'custome_date')) && ( <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">Return Date & Time</Typography>
                                 <Field
                                     type="datetime-local"
@@ -848,7 +1027,7 @@ useEffect(() => {
                                         setFieldValue('toTime', formattedTime);
                                     }}
                                 />
-                            </div>}
+                            </div>)}
                             </div>
                             {values.packageTypeSelected == 'Local' && <div className="flex-1 mb-4">
                                 <div>
@@ -893,6 +1072,50 @@ useEffect(() => {
                                     <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>}
+                            {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && (
+                                <div className="flex-1 mb-4">
+                                    <div>
+                                        <Typography variant="h6" className="mb-2">
+                                            Choose a package
+                                        </Typography>
+                                        <Field
+                                            as="select"
+                                            name="packageSelected"
+                                            className="p-2 w-full rounded-xl border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                            value={values.packageSelected}
+                                            onChange={(e) => {
+                                                const selectedId = e.target.value;
+                                                setFieldValue('packageSelected', selectedId);
+                                                if (selectedId === 'custome_date') {
+                                                    setFieldValue('fromDate', '');
+                                                    setFieldValue('toDate', '');
+                                                }
+                                            }}
+                                        >
+                                            <option value="">Select Package</option>
+                                            <option value="custome_date">Custome Date</option>
+                                            {packageTypeSelectedData
+                                                .filter(
+                                                    (item) =>
+                                                        item.serviceType === 'DRIVER' &&
+                                                        item.type === 'Outstation' &&
+                                                        !(item.extraCabType === '0' || item.extraCabType === 0)
+                                                )
+                                                .map((item) => {
+                                                    const label =
+                                                        item.extraCabType ||
+                                                        `${item.period} Days`;
+                                                    return (
+                                                        <option key={item.id} value={item.id}>
+                                                            {label}
+                                                        </option>
+                                                    );
+                                                })}
+                                        </Field>
+                                        <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
+                                    </div>
+                                </div>
+                            )}
                              <div className="flex  gap-2 ">
                             <div className="flex-1 p-2 space-y-2">
                                 <label className="block text-sm font-medium text-black-700">
@@ -958,7 +1181,7 @@ useEffect(() => {
                                         {(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' || values.serviceType === 'RIDES') && (
                                             <div className="p-2 space-y-2">
                                                 <label className="block text-sm font-medium text-black-700">
-                                                    Driver Starting Point
+                                                    Cab Starting Point
                                                 </label>
                                                 <Field
                                                     type="text"
@@ -985,7 +1208,36 @@ useEffect(() => {
                                                     </ul>
                                                 )}
                                             </div>)}
-
+                                          {(values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' ) && (
+                                            <div className="p-2 space-y-2">
+                                                <label className="block text-sm font-medium text-black-700">
+                                                    Cab Ending Point
+                                                </label>
+                                                <Field
+                                                    type="text"
+                                                    name="driverEndAddress"
+                                                    className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                    placeholder="Enter driver pickup location (Optional)"
+                                                     onChange={(e) => {
+                                                        setFieldValue("driverEndAddress", e.target.value);
+                                                        setFieldValue("driverEndLocation", null);
+                                                        searchLocations(e.target.value, false, 'driverEnd');
+                                                    }}
+                                                                                        />
+                                                                                    {driverEndSuggestions.length > 0 && (
+                                                    <ul className="border rounded-lg bg-white mt-2 max-h-48 overflow-y-auto">
+                                                        {driverEndSuggestions.map((suggestion, index) => (
+                                                            <li
+                                                                key={index}
+                                                                className="p-2 cursor-pointer hover:bg-gray-100"
+                                                                onClick={() => handleSelectLocation(suggestion, false, 'driverEnd', setFieldValue, values)}
+                                                            >
+                                                                {suggestion}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>)}
 
                                         {/* Add luggage and seater capacity fields */}
                                         {(values.serviceType === 'DRIVER' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI') && (
@@ -1020,6 +1272,43 @@ useEffect(() => {
                                                 </div>
                                             </div>
                                         )}
+                                {/* Source Type Field for all services */}
+                                {values.serviceType && (
+                                    <div className="space-y-2 mb-4">
+                                        <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
+                                        <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                            <option value="">Select Source Type</option>
+                                            <option value="Facebook">Facebook</option>
+                                            <option value="Instagram">Instagram</option>
+                                            <option value="Influencer Reels">Influencer Reels</option>
+                                            <option value="WhatsApp">WhatsApp</option>
+                                            <option value="Google">Google</option>
+                                            <option value="YouTube">YouTube</option>
+                                            <option value="Justdial">Justdial</option>
+                                            <option value="Paper Notice">Paper Notice</option>
+                                            <option value="On Field">On Field</option>
+                                            <option value="Existing Customer">Existing Customer</option>
+                                            <option value="Referral">Referral</option>
+                                            <option value="Reddit">Reddit</option>
+                                            <option value="Offline Ads">Offline Ads</option>
+                                            <option value="Others">Others</option>
+                                        </Field>
+                                        {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                            <Field
+                                                type="text"
+                                                name="otherSourceType"
+                                                placeholder="Please specify the source"
+                                                className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                        focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                            />
+                                        )}
+
+                                        <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                        {values.sourceType === "Others" && (
+                                            <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                        )}
+                                            </div>
+                                        )}
                                         {values.packageSelected && values.packageTypeSelected == 'Local' && (values.serviceType == 'DRIVER' || values.serviceType == 'RENTAL')
                             && <Card className="my-6">
                                 <div className="border rounded-xl bg-gray-200 p-4">
@@ -1034,45 +1323,48 @@ useEffect(() => {
                                         </div>
                                         <>
                                                             <div className="flex justify-between">
-
+                                            <Typography color="gray" variant="h6">Car Type:</Typography>
+                                            <Typography>
+                                                {values.carType || bookingData?.carType || ''}
+                                            </Typography>
+                                        </div>
+                                                            <div className="flex justify-between">
                                                                 <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
                                                                     {values.packageSelected && values.packageTypeSelected === 'Local' ? (
                                                                         values.serviceType === 'DRIVER' ? (
-                                                                            `₹${(() => {
-                                                                                const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                                if (!selectedPackage) return "N/A";
-                                                                                switch (values.carType?.toUpperCase()) {
-                                                                                    case "MINI":
-                                                                                    case "SEDAN":
-                                                                                    case "SUV":
-                                                                                        return selectedPackage.price || "N/A";
-                                                                                    case "MUV":
-                                                                                        return selectedPackage.priceMVP || "N/A";
-                                                                                    default:
-                                                                                        return "N/A";
-                                                                                }
+                                                                        `₹${(() => {
+                                                                            const selectedPackage = packageTypeSelectedData.find((pkg) => pkg.id === Number(values.packageSelected));
+                                                                            if (!selectedPackage) return 'N/A';
+                                                                            const raw =
+                                                                            ['MINI', 'SEDAN', 'SUV'].includes(values.carType?.toUpperCase())
+                                                                                ? selectedPackage.price
+                                                                                : values.carType?.toUpperCase() === 'MUV'
+                                                                                ? selectedPackage.priceMVP
+                                                                                : null;
+
+                                                                            const num = Number(raw);
+                                                                            if (!Number.isFinite(num)) return 'N/A';
+                                                                            return Math.round(num);
                                                                             })()}`
                                                                         ) : values.serviceType === 'RENTAL' ? (
-                                                                            `₹${(() => {
-                                                                                const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
-                                                                                if (!selectedPackage) return "N/A";
-                                                                                switch (values.carType?.toUpperCase()) {
-                                                                                    case "MINI":
-                                                                                        return selectedPackage.price || "N/A";
-                                                                                    case "SEDAN":
-                                                                                        return selectedPackage.priceSedan || "N/A";
-                                                                                    case "SUV":
-                                                                                        return selectedPackage.priceSuv || "N/A";
-                                                                                    case "MUV":
-                                                                                        return selectedPackage.priceMVP || "N/A";
-                                                                                    default:
-                                                                                        return "N/A";
-                                                                                }
-                                                                            })()}`
-                                                                        ) : "N/A"
-                                                                    ) : "N/A"}
-                                                                </Typography>
+                                                                        `₹${(() => {
+                                                                            const selectedPackage = packageTypeSelectedData.find((pkg) => pkg.id === Number(values.packageSelected));
+                                                                            if (!selectedPackage) return 'N/A';
+                                                                            const car = values.carType?.toUpperCase();
+                                                                            const raw = car === 'MINI'  ? selectedPackage.price : 
+                                                                                        car === 'SEDAN' ? selectedPackage.priceSedan : 
+                                                                                        car === 'SUV'   ? selectedPackage.priceSuv :
+                                                                                        car === 'MUV'   ? selectedPackage.priceMVP :
+                                                                            null;
+
+                                                                            const num = Number(raw);
+                                                                            if (!Number.isFinite(num)) return 'N/A';
+                                                                            return Math.round(num);
+                                                                        })()}`
+                                                                        ) : 'N/A'
+                                                                    ) : 'N/A'}
+                                                                    </Typography>
                                                             </div>
                                                         </>
                                                     </div>
@@ -1086,23 +1378,38 @@ useEffect(() => {
                                                     <div className="mt-4">
                                                         <>
                                                             <div className="grid grid-cols-2 justify-between">
-                                                                {values?.serviceType !== 'DRIVER' && (<>
-                                                                    <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
-                                                                    <Typography>
-                                                                        {Math.round(quoteDetails.value?.estimatedDistance || quoteDetails.amount?.estimatedDistance || 0) + (Number(quoteDetails.value?.baseKm || quoteDetails.amount?.baseKm || 0))} Kms + {quoteDetails.value?.driverWithin || quoteDetails.amount?.driverWithin || 0} Kms
-                                                                    </Typography></>)}
+                                                                                                                    {quoteDetails?.amount?.isPremiumFare && (
+                                                        <>
+                                                            <Typography color="gray" variant="h6">Car Service</Typography>
+                                                            <Typography className='font-semibold'> {quoteDetails.amount?.isPremiumFare ? "Premium Car Service" : "Not a Premium Car Services "}</Typography>
+                                                        </>
+                                                    )}
+                                                    {quoteDetails?.amount?.isPremiumFare && (
+                                                        <>
+                                                            <Typography color="gray" variant="h6">Premium Car Type</Typography>
+                                                            <Typography> {quoteDetails.amount?.premiumDetails?.appliedCarType}</Typography>
+                                                        </>
+                                                    )}
                                                                 {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
                                                                     <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal}
+                                                                            ₹ {Math.round(quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal)}
                                                                         </Typography></>)}
+                                                                {values?.serviceType !== 'DRIVER' && (<>
+                                                                    <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Locationn</Typography>
+                                                                    <Typography>
+                                                                        {Number(quoteDetails.amount?.estimatedDistance).toFixed(1)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)} 
+                                                                    </Typography>
+                                                                    
+                                                                    </>)}
+                                                                
                                                                 <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.value?.baseKm || quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.baseFare}
+                                                                    ₹   {Math.round(quoteDetails.amount?.baseFare)}
                                                                 </Typography>
 
-                                                                {(values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
+                                                                {(quoteDetails.amount?.isPremiumFare !== true) && (values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
                                                                     <>
                                                                         <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                         <Typography>
@@ -1115,13 +1422,21 @@ useEffect(() => {
                                                                     <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                                         <Typography>
-                                                                            ₹  {quoteDetails.amount?.rideSurchargeAmount}
+                                                                            ₹ {Math.round(quoteDetails.amount?.rideSurchargeAmount)}
                                                                         </Typography>
                                                                     </>
                                                                 }
-                                                                <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                 <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.amount?.estimatedPrice}
+                                                                    ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
+                                                                </Typography>
+                                                                 <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.amount?.gst_amount)}
+                                                                </Typography>
+                                                                <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
                                                                 </Typography>
                                                                 {quoteDetails.discount?.percentage > 0 && <>
 
@@ -1132,7 +1447,19 @@ useEffect(() => {
                                                                     <Typography color="gray" variant="h6">Total estimated Fare</Typography>
                                                                     <Typography className='font-roboto-medium text-lg text-gray-900'>
                                                                         {/* {quoteDetails.discount?.percentage} % - ₹ {quoteDetails.amount?.estimatedPrice} */}
-                                                                        ₹ {(quoteDetails.amount?.estimatedPrice) - (quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage / 100)}
+                                                                        ₹ {Math.round(quoteDetails.amount?.estimatedPrice) - (quoteDetails.amount?.estimatedPrice * quoteDetails.discount?.percentage / 100)}
+                                                                    </Typography>
+
+                                                                </>}
+                                                                {quoteDetails.discount?.amount > 0 && <>
+
+                                                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                    <Typography>
+                                                                    ₹ {Math.round(quoteDetails.discount?.amount)}
+                                                                    </Typography>
+                                                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                    <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                        ₹ {Math.round(quoteDetails.amount?.estimatedPrice) - Math.round(quoteDetails.discount?.amount)}
                                                                     </Typography>
 
                                                                 </>}
@@ -1183,6 +1510,147 @@ useEffect(() => {
                         </>}
                         {bookingData?.serviceType == "RIDES" &&
                             <>
+                            <div className="mt-6">
+                                    <div className="mt-3 space-y-5">
+                                        <div className="flex items-center space-x-3 ml-2">
+                                            <Field
+                                                type="checkbox"
+                                                name="isPremiumService"
+                                                className="h-5 w-5 text-primary-600 rounded focus:ring-primary-500"
+                                                onChange={(e) => {
+                                                    setFieldValue('isPremiumService', e.target.checked);
+                                                    if (!e.target.checked) {
+                                                        setFieldValue('carType', '');
+                                                    }
+                                                }}
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">Enable Premium Service</span>
+                                        </div>
+                                        {values?.isPremiumService && (
+                                            <div className="w-full mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                <p className="text-sm font-semibold text-blue-900 mb-3">
+                                                    Premium Options Available:
+                                                </p>
+                                                {getCurrentPremiumOptions().length > 0 ? (
+                                                    <div className="flex gap-4">
+                                                        {getCurrentPremiumOptions().map((premium, index) => (
+                                                            <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                                                                <Field
+                                                                    type="radio"
+                                                                    name="carType"
+                                                                    value={premium.carType}
+                                                                    className="h-4 w-4 text-primary-600"
+                                                                    onChange={(e) => setFieldValue('carType', e.target.value)}
+                                                                />
+                                                                <span className="text-gray-800 font-medium">
+                                                                    {premium.label}
+                                                                </span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-gray-600 italic">
+                                                        No premium options available for {values?.serviceType}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+                                        {!values.isPremiumService && (
+                                            <>
+                                                <div className='ml-2'>
+                                                    <label className="text-sm font-medium text-black-700">Car Type</label>
+                                                    <div className="flex gap-6 mt-2">
+                                                        {['Mini', 'Sedan'].map((carType) => (
+                                                            <label key={carType} className="flex items-center space-x-2 cursor-pointer">
+                                                                <Field
+                                                                    type="radio"
+                                                                    name="carType"
+                                                                    value={carType}
+                                                                    className="h-4 w-4 text-primary-600"
+                                                                    onChange={(e) => {
+                                                                        setFieldValue('carType', e.target.value);
+                                                                    }}
+                                                                />
+                                                                <span className="text-black-700">{carType}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                    <ErrorMessage name="carType" component="div" className="text-red-500 text-sm mt-1" />
+                                                </div>
+                                            </>
+                                        )}
+                                        {values.serviceType && (
+                                            <div className="space-y-2 mb-4">
+                                                <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">
+                                                    Source Type <span className="text-red-500">*</span>
+                                                </label>
+                                                <Field
+                                                    as="select"
+                                                    name="sourceType"
+                                                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                >
+                                                    <option value="">Select Source Type</option>
+                                                    <option value="Facebook">Facebook</option>
+                                                    <option value="Instagram">Instagram</option>
+                                                    <option value="Influencer Reels">Influencer Reels</option>
+                                                    <option value="WhatsApp">WhatsApp</option>
+                                                    <option value="Google">Google</option>
+                                                    <option value="YouTube">YouTube</option>
+                                                    <option value="Justdial">Justdial</option>
+                                                    <option value="Paper Notice">Paper Notice</option>
+                                                    <option value="On Field">On Field</option>
+                                                    <option value="Existing Customer">Existing Customer</option>
+                                                    <option value="Referral">Referral</option>
+                                                    <option value="Reddit">Reddit</option>
+                                                    <option value="Offline Ads">Offline Ads</option>
+                                                    <option value="Others">Others</option>
+                                                </Field>
+                                                {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                    <Field
+                                                        type="text"
+                                                        name="otherSourceType"
+                                                        placeholder="Please specify the source"
+                                                        className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                                focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                    />
+                                                )}
+
+                                                <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                                {values.sourceType === "Others" && (
+                                                    <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            <div className="flex-1 mb-2">
+                                <Typography variant="h6" className="mb-2">
+                                    Pickup Date & Time
+                                </Typography>
+                                <Field
+                                    type="datetime-local"
+                                    name="rideDateTime"
+                                    className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                    value={values.rideDate ? `${values.rideDate}T${values.rideTime}` : ''}
+                                    min={`${moment().format('YYYY-MM-DD')}T00:00`}
+                                    onClick={(e) => {
+                                                    if (e.target.showPicker) e.target.showPicker();
+                                                        }}
+                                    onChange={(e) => {
+                                        const selectedDateTime = e.target.value;
+                                        const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
+                                        const formattedTime = moment(selectedDateTime).format('HH:mm');
+
+                                        setFieldValue('rideDate', formattedDate);
+                                        setFieldValue('rideTime', formattedTime);
+
+                                        if (formattedDate !== values.fromDate) {
+                                            setFieldValue('fromDate', '');
+                                            setFieldValue('toDate', '');
+                                        }
+                                    }}
+                                />
+                            </div>
                                 <div className="flex  gap-2 ">
                                     <div className="flex-1 p-2 space-y-2">
                                         <label className="block text-sm font-medium text-black-700">
@@ -1244,6 +1712,35 @@ useEffect(() => {
                                         </ul>
                                     )}
                                 </div>
+                                </div>
+                                <div className="flex-1 p-2 space-y-2">
+                                    <label className="block text-sm font-medium text-black-700">
+                                        Cab Starting Point
+                                    </label>
+                                    <Field
+                                        type="text"
+                                        name="driverPickUpAddress"
+                                        className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                        placeholder="Enter driver pickup location (Optional)"
+                                        onChange={(e) => {
+                                            setFieldValue("driverPickUpAddress", e.target.value);
+                                            setFieldValue("driverPickUpLocation", null);
+                                            searchLocations(e.target.value, false, 'driver');
+                                        }}
+                                    />
+                                    {driverSuggestions.length > 0 && (
+                                        <ul className="border rounded-lg bg-white mt-2">
+                                            {driverSuggestions.map((suggestion, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="p-2 cursor-pointer hover:bg-gray-100"
+                                                    onClick={() => handleSelectLocation(suggestion, false, 'driver', setFieldValue, values)}
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                             </div>
                                             {/* Quote details for RIDES */}
                                             {quoteDetails &&
@@ -1253,31 +1750,67 @@ useEffect(() => {
                                                         <hr className="my-2 border border-black" />
                                                         <div className="mt-4">
                                                             <div className="grid grid-cols-2 justify-between">
-                                                                <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
-                                                                <Typography>
-                                                                    {Math.round((quoteDetails.value?.estimatedDistance || quoteDetails.amount?.estimatedDistance) + (Number(quoteDetails.amount?.baseKm || quoteDetails.value?.baseKm)) || 0)} Kms
-                                                                    +   {quoteDetails.value?.driverWithin || quoteDetails.amount?.driverWithin} Kms
-                                                                </Typography>
-                                                                <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
-                                                                <Typography>
-                                                                    ₹ {quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare}
-                                                                </Typography>
+                                                                {quoteDetails?.amount?.isPremiumFare && (
+                                                                    <>
+                                                                        <Typography color="gray" variant="h6">Car Service</Typography>
+                                                                        <Typography className='font-semibold'> {quoteDetails.amount?.isPremiumFare ? "Premium Car Service" : "Not a Premium Car Services "}</Typography>
+                                                                    </>
+                                                                )}
+                                                                {quoteDetails?.amount?.isPremiumFare && (
+                                                                    <>
+                                                                        <Typography color="gray" variant="h6">Premium Car Type</Typography>
+                                                                        <Typography> {quoteDetails.amount?.premiumDetails?.appliedCarType}</Typography>
+                                                                    </>
+                                                                )}
                                                                 <Typography color="gray" variant="h6">Per Km Rate</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal}
+                                                                    ₹ {Math.round(quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal)}
                                                                 </Typography>
+                                                                <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                                <Typography>
+                                                                    {(quoteDetails.amount?.estimatedDistance).toFixed(1)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)}
+                                                                </Typography>
+                                                                    {values?.serviceType === 'RIDES' && (<>
+
+                                                                        <Typography color="gray" variant="h6">Estimate Time</Typography>
+
+                                                                        <Typography>
+                                                                            {quoteDetails.amount?.displayTime}
+                                                                        </Typography>
+                                                                    </>)}
+                                                                {quoteDetails.amount?.isPremiumFare !== true && (
+                                                                    <>
+                                                                <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                <Typography>
+                                                                    {quoteDetails.amount?.carType || ''}
+                                                                </Typography>
+                                                                </>)}
+                                                                 
+                                                                <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare)}
+                                                                </Typography>
+                                                                
 
                                                                 {(quoteDetails.value?.rideSurchargeAmount > 0 || quoteDetails.amount?.rideSurchargeAmount > 0) && (
                                                                     <>
                                                                         <Typography color="gray" variant="h6">Surcharge Applied</Typography>
                                                                         <Typography>
-                                                                            ₹ {quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount}
+                                                                            ₹ {Math.round(quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount)}
                                                                         </Typography>
                                                                     </>
                                                                 )}
-                                                                <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                   <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
-                                                                    ₹ {quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice}
+                                                                    ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
+                                                                </Typography>
+                                                                 <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.amount?.gst_amount)}
+                                                                </Typography>
+                                                                <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice)}
                                                                 </Typography>
                                                                 {quoteDetails.discount?.percentage > 0 && (
                                                                     <>
@@ -1287,10 +1820,20 @@ useEffect(() => {
                                                                         </Typography>
                                                                         <Typography color="gray" variant="h6">Total Estimated Fare</Typography>
                                                                         <Typography className='font-roboto-medium text-lg text-gray-900'>
-                                                                            ₹ {(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100)}
+                                                                            ₹ {Math.round((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100))}
                                                                         </Typography>
                                                                     </>
                                                                 )}
+                                                                {quoteDetails.discount?.amount > 0 && <>
+                                                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                    <Typography>
+                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
+                                                                    </Typography>
+                                                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                    <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                        ₹ {Math.round((quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount))}
+                                                                    </Typography>
+                                                                </>}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1324,13 +1867,297 @@ useEffect(() => {
                                 </div>
                             </>
                         }
+                        {bookingData?.serviceType == "AUTO" && (
+                            <>
+                                    {values.serviceType && (
+                                        <div className="space-y-2 mb-4">
+                                            <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
+                                            <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                                <option value="">Select Source Type</option>
+                                                <option value="Facebook">Facebook</option>
+                                                <option value="Instagram">Instagram</option>
+                                                <option value="Influencer Reels">Influencer Reels</option>
+                                                <option value="WhatsApp">WhatsApp</option>
+                                                <option value="Google">Google</option>
+                                                <option value="YouTube">YouTube</option>
+                                                <option value="Justdial">Justdial</option>
+                                                <option value="Paper Notice">Paper Notice</option>
+                                                <option value="On Field">On Field</option>
+                                                <option value="Existing Customer">Existing Customer</option>
+                                                <option value="Referral">Referral</option>
+                                                <option value="Reddit">Reddit</option>
+                                                <option value="Offline Ads">Offline Ads</option>
+                                                <option value="Others">Others</option>
+                                            </Field>
+                                            {(values.sourceType === "Offline Ads" || values.sourceType === "Others") && (
+                                                <Field
+                                                    type="text"
+                                                    name="otherSourceType"
+                                                    placeholder="Please specify the source"
+                                                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm 
+                                                        focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 mt-2"
+                                                />
+                                            )}
+
+                                            <ErrorMessage name="sourceType" component="div" className="text-red-500 text-sm" />
+                                            {values.sourceType === "Others" && (
+                                                <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center space-x-3 ml-2">
+                                        <Field
+                                            type="checkbox"
+                                            name="isPremiumService"
+                                            className="h-5 w-5 text-primary-600 rounded focus:ring-primary-500"
+                                            onChange={(e) => {
+                                                setFieldValue('isPremiumService', e.target.checked);
+                                                if (!e.target.checked) {
+                                                    setFieldValue('carType', '');
+                                                }
+                                            }}
+                                        />
+                                        <span className="text-sm font-medium text-gray-700">Enable Premium Service</span>
+                                    </div>
+                                    {values?.isPremiumService && (
+                                        <div className="w-full mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                            <p className="text-sm font-semibold text-blue-900 mb-3">
+                                                Premium Options Available:
+                                            </p>
+                                            {getCurrentPremiumOptions().length > 0 ? (
+                                                <div className="flex gap-4">
+                                                    {getCurrentPremiumOptions().map((premium, index) => (
+                                                        <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                                                            <Field
+                                                                type="radio"
+                                                                name="carType"
+                                                                value={premium.carType}
+                                                                className="h-4 w-4 text-primary-600"
+                                                                onChange={(e) => setFieldValue('carType', e.target.value)}
+                                                            />
+                                                            <span className="text-gray-800 font-medium">
+                                                                {premium.label}
+                                                            </span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-gray-600 italic">
+                                                    No premium options available for {values?.serviceType}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                    <div className="mt-3">
+                                        <Typography variant="h6" className="mb-2">
+                                            Pickup Date & Time
+                                        </Typography>
+                                        <Field
+                                            type="datetime-local"
+                                            name="rideDateTime"
+                                            className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                            value={values.rideDate ? `${values.rideDate}T${values.rideTime}` : ''}
+                                            min={`${moment().format('YYYY-MM-DD')}T00:00`}
+                                            onClick={(e) => {
+                                                if (e.target.showPicker) e.target.showPicker();
+                                            }}
+                                            onChange={(e) => {
+                                                const selectedDateTime = e.target.value;
+                                                const formattedDate = moment(selectedDateTime).format('YYYY-MM-DD');
+                                                const formattedTime = moment(selectedDateTime).format('HH:mm');
+
+                                                setFieldValue('rideDate', formattedDate);
+                                                setFieldValue('rideTime', formattedTime);
+
+                                                if (formattedDate !== values.fromDate) {
+                                                    setFieldValue('fromDate', '');
+                                                    setFieldValue('toDate', '');
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="flex-1 p-2 space-y-2">
+                                            <label className="block text-sm font-medium text-black-700">
+                                                Pickup Location <span className="text-red-500">*</span>
+                                            </label>
+                                            <Field
+                                                type="text"
+                                                name="pickupAddress"
+                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                placeholder="Enter pickup location"
+                                                onChange={(e) => {
+                                                    setFieldValue("pickupAddress", e.target.value);
+                                                    setFieldValue("pickupLocation", null);
+                                                    searchLocations(e.target.value, true);
+                                                }}
+                                            />
+                                            {pickupSuggestions.length > 0 && (
+                                                <ul className="border rounded-lg bg-white mt-2">
+                                                    {pickupSuggestions.map((suggestion, index) => (
+                                                        <li
+                                                            key={index}
+                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                            onClick={() => {
+                                                                handleSelectLocation(suggestion, true, null, setFieldValue, values);
+                                                            }}
+                                                        >
+                                                            {suggestion}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 p-2 space-y-2">
+                                            <label className="block text-sm font-medium text-black-700">
+                                                Drop Location (Delivery Address) <span className="text-red-500">*</span>
+                                            </label>
+                                            <Field
+                                                type="text"
+                                                name="dropAddress"
+                                                className="p-2 w-full rounded-xl border-2 border-gray-300"
+                                                placeholder="Enter delivery address"
+                                                onChange={(e) => {
+                                                    setFieldValue("dropAddress", e.target.value);
+                                                    setFieldValue("dropLocation", null);
+                                                    searchLocations(e.target.value, false);
+                                                }}
+                                            />
+                                            {dropSuggestions.length > 0 && (
+                                                <ul className="border rounded-lg bg-white mt-2">
+                                                    {dropSuggestions.map((suggestion, index) => (
+                                                        <li
+                                                            key={index}
+                                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                                            onClick={() => {
+                                                                handleSelectLocation(suggestion, false, null, setFieldValue, values);
+                                                            }}
+                                                        >
+                                                            {suggestion}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </div>
+                                    </>
+                                )}
+                                {values.serviceType === 'AUTO' && quoteDetails &&
+                                    <Card className="my-6">
+                                        <div className="border rounded-xl bg-gray-200 p-4">
+                                            <h2 className="text-2xl font-bold text-center">Estimated Price Details</h2>
+                                            <hr className="my-2 border border-black" />
+                                            <div className="mt-4">
+                                                <div className="grid grid-cols-2 justify-between">
+                                                    {quoteDetails?.amount?.isPremiumFare && (
+                                                        <>
+                                                            <Typography color="gray" variant="h6">Car Service</Typography>
+                                                            <Typography className='font-semibold'> {quoteDetails.amount?.isPremiumFare ? "Premium Car Service" : "Not a Premium Car Services "}</Typography>
+                                                        </>
+                                                    )}
+                                                    {quoteDetails?.amount?.isPremiumFare && (
+                                                        <>
+                                                            <Typography color="gray" variant="h6">Premium Car Type</Typography>
+                                                            <Typography> {quoteDetails.amount?.premiumDetails?.appliedCarType}</Typography>
+                                                        </>
+                                                    )}
+                                                    <Typography color="gray" variant="h6">Per Km Rate</Typography>
+                                                    <Typography>
+                                                        ₹ {Math.round(quoteDetails.value?.kilometerPriceVal || quoteDetails.amount?.kilometerPriceVal)}
+                                                    </Typography>
+                                                    <Typography color="gray" variant="h6">Pick up to Drop  Kilometer + Driver Km For Pickup Location</Typography>
+                                                    <Typography>
+                                                        {(quoteDetails.amount?.distanceEstimated)} Kms {quoteDetails.amount?.driverWithin > 0 && (<> + {Number(quoteDetails.amount.driverWithin).toFixed(1)} Kms</>)}
+                                                    </Typography>
+                                                    <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
+                                                    <Typography>
+                                                        ₹ {Math.round(quoteDetails.value?.baseFare || quoteDetails.amount?.baseFare)}
+                                                    </Typography>
+                                                    
+
+                                                    {(quoteDetails.value?.rideSurchargeAmount > 0 || quoteDetails.amount?.rideSurchargeAmount > 0) && (
+                                                        <>
+                                                            <Typography color="gray" variant="h6">Surcharge Applied</Typography>
+                                                            <Typography>
+                                                                ₹ {Math.round(quoteDetails.value?.rideSurchargeAmount || quoteDetails.amount?.rideSurchargeAmount)}
+                                                            </Typography>
+                                                        </>
+                                                    )}
+                                                    
+                                                       <Typography color="gray" variant="h6">Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
+                                                                </Typography>
+                                                                 <Typography color="gray" variant="h6">TAX Amount</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.amount?.gst_amount)}
+                                                                </Typography>
+                                                                <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
+                                                                <Typography>
+                                                                    ₹ {Math.round(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice)}
+                                                                </Typography>
+                                                    {quoteDetails.discount?.percentage > 0 && (
+                                                        <>
+                                                            <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                            <Typography>
+                                                                {quoteDetails.discount?.percentage} %
+                                                            </Typography>
+                                                            <Typography color="gray" variant="h6">Total Estimated Fare</Typography>
+                                                            <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                ₹ {Math.round((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) - ((quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice) * quoteDetails.discount?.percentage / 100))}
+                                                            </Typography>
+                                                        </>
+                                                    )}
+                                                    {quoteDetails.discount?.amount > 0 && <>
+
+                                                                    <Typography color="gray" variant="h6">Discount Applied</Typography>
+                                                                    <Typography>
+                                                                        ₹ {Math.round(quoteDetails.discount?.amount)}
+                                                                    </Typography>
+                                                                    <Typography color="gray" variant="h6">Total estimated Fare</Typography>
+                                                                    <Typography className='font-roboto-medium text-lg text-gray-900'>
+                                                                        ₹ {Math.round((quoteDetails.amount?.estimatedPrice) - (quoteDetails.discount?.amount))}
+                                                                    </Typography>
+
+                                                                </>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                }
+                                {bookingData?.serviceType == 'AUTO' &&
+                                                <Button fullWidth className='my-6 mx-2 bg-primary' onClick={() => getQuoteRides(values, setFieldValue)}>
+                                                    Check Estimated Price
+                                                </Button>
+                                }
+                                {bookingData?.serviceType == "AUTO" &&                                 <div className="flex justify-center my-6 gap-4">
+                                <Button
+                                    color="gray"
+                                    onClick={onBackPressHandler}
+                                    className='my-6 mx-2 '
+                                >
+                                    Back
+                                </Button>
+                                <Button
+                                    color="blue"
+                                    onClick={() => {
+                                        setFieldValue("submitType", "auto");
+                                        handleSubmit()
+                                    }}
+                                    disabled={!dirty || !isValid || (!values.pickupAddress && !values.dropAddress)}
+                                    className='my-6 mx-2'
+                                >
+                                    Confirm Booking
+                                </Button>
+                            </div>}
                     </>
                             )
                         }}
                     </Formik>
                 </>)}
             <DistanceExceedModal isVisible={dropTaxiDistanceExceedModal} onClose={() => { setDropTaxiDistanceExceedModal(false); }} title="Going a bit far?" content="You can choose Outstation within 300km only for the DropTaxi service." />
-            <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); }} title="Going a bit far?" content="Rides above 10 km are allowed only through DropTaxi or Outstation service." />
+            <DistanceExceedModal isVisible={distanceExceedModal} onClose={() => { setDistanceExceedModal(false); }} title="Going a bit far?" content="Rides above 15 km are allowed only through DropTaxi or Outstation service." />
             <DistanceExceedModal isVisible={cityLimitExceedModal} onClose={() => { setCityLimitExceedModal(false); }} title="Oops!" content="We currently serve only Vellore, Kanchipuram, Tiruvannamalai. Try another pickup location nearby." />
             <DistanceExceedModal isVisible={zoneErrorModal.show} onClose={() => { setZoneErrorModal({ show: false }); }} title={zoneErrorModal.title} content={zoneErrorModal.text} />
         </div>

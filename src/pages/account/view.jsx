@@ -57,9 +57,21 @@ export function AccountView() {
     if (showLoader) setLoading(true);
     try {
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_ACCOUNTS, {
+        
+      
+        // serviceType: selectedServiceType || undefined,
+        serviceType:"cab",
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
+        filterType: JSON.stringify({
+       
+          status: documentTypeFilter,
+          source: sourceFilter,
+          serviceType: serviceTypeFilter,
+          
+          
+        })
       });
       if (data?.success) {
         setAccounts(data?.data);
@@ -105,7 +117,7 @@ export function AccountView() {
       }, 5000);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate,pagination.currentPage, pagination.search]);
+  }, [location, navigate,pagination.currentPage, pagination.search, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
@@ -149,7 +161,7 @@ export function AccountView() {
       }));
       fetchAccounts(1, searchQuery, false);
     }, 1000),
-    [pagination.itemsPerPage]
+    [pagination.itemsPerPage, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]
   );
   function formatPhoneNumber(phoneNumber) {
     if(phoneNumber){if (phoneNumber.startsWith("+91")) {
@@ -308,7 +320,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","Account Name","Email","Phone Number","Service Type","Source","KYC Status"].map((el) => (
+                    {["Created Date","ID","Account Name","Email","Phone Number","Service Type","Source","KYC Status"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -411,7 +423,7 @@ export function AccountView() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={9} className="py-3 px-5">
+                      <td colSpan={8} className="py-3 px-5">
                         <div className="flex justify-center items-center">
                           <Spinner className="h-12 w-12" />
                         </div>
@@ -436,6 +448,11 @@ export function AccountView() {
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
                               {moment(created_at).format("DD-MM-YYYY")}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {id}
                             </Typography>
                           </td>
                           <td className={className}>

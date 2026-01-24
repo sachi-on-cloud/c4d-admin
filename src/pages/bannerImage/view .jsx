@@ -29,6 +29,8 @@ const BannerView = () => {
   const [positionValues, setPositionValues] = useState([]);
   const [typeFilter, setTypeFilter] = useState(['All']);
   const [zoneFilter, setZoneFilter] = useState(['All']);
+  const [statusTab, setStatusTab] = useState('active');
+  const [positionErrorById, setPositionErrorById] = useState({});
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -40,6 +42,7 @@ const BannerView = () => {
         };
         const queryParams = {
           filterType: JSON.stringify(filterType),
+          status: statusTab === 'active',
         };
       const res = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BANNER, queryParams);
       
@@ -67,7 +70,7 @@ const BannerView = () => {
   };
 
   fetchBanners();
-}, [location.state, typeFilter, zoneFilter]);
+}, [location.state, typeFilter, zoneFilter, statusTab]);
 
   const handleStatusToggle = async (bannerId, newStatus) => {
     try {
@@ -171,10 +174,14 @@ const BannerView = () => {
   { value: 'BACKGROUND', label: 'Background' },
   { value: 'BANNER', label: 'Banner' },
   { value: 'STATS', label: 'Stats' },
+  { value: 'TOP_NEW', label: 'Top New'},
+  { value: 'MIDCAROUSEL', label: 'Mid Carousel'},
+  { value: 'PROMOTION', label: 'Promotion'},
+  { value: 'BOTTOM_NEW', label: 'Bottom New'}
 ];
 
   const zoneOptions = [
-    { value: 'All', label: 'All' },
+    { value: 'All', label: 'All'},
     { value: 'Chennai', label: 'Chennai' },
     { value: 'Thiruvannamali', label: 'Thiruvannamali' },
     { value: 'Vellore', label: 'Vellore' },
@@ -198,12 +205,37 @@ const BannerView = () => {
         </button>
       </div>
 
-      <Card>
+      <Card className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
         <CardHeader className="mb-8 p-6 flex justify-between items-center bg-primary">
           <Typography variant="h6" color="white">Banner List</Typography>
         </CardHeader>
 
-        <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
+        <CardBody className="overflow-x-auto px-0 pt-0 pb-4">
+          <div className="px-6 pb-4 flex items-center justify-between">
+            <div className="inline-flex rounded-full bg-gray-100 p-1">
+              <button
+                type="button"
+                onClick={() => setStatusTab('active')}
+                className={`px-4 py-1 text-sm font-medium rounded-full transition-colors ${
+                  statusTab === 'active' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                Active 
+                {/* ({activeCount}) */}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusTab('inactive')}
+                className={`px-4 py-1 text-sm font-medium rounded-full transition-colors ${
+                  statusTab === 'inactive' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                Inactive 
+                {/* ({inactiveCount}) */}
+              </button>
+            </div>
+          </div>
+
           {loading ? (
             <div className="flex justify-center items-center py-10">
               <Spinner className="h-10 w-10" />
@@ -246,12 +278,12 @@ const BannerView = () => {
                   </tr>
                 ) : (
                   filteredBannerList.map((item, index) => (
-                    <tr key={item.id || index} className="border-b">
+                    <tr key={item.id || index} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-5">
                         <img
                           src={item.imageUrl}
                           alt="banner"
-                          className="w-32 h-auto rounded-md"
+                          className="w-32 h-auto rounded-xl"
                         />
                       </td>
                       <td className="py-3 px-5">{item.type || '-'}</td>
@@ -275,7 +307,7 @@ const BannerView = () => {
                         <div className="flex items-center">
                           <Input
                             type="number"
-                            className="border border-gray-300 rounded-xl w-24"
+                            className="w-12 h-10 border border-gray-300 rounded-md text-center mx-auto"
                             value={item.id === editingPositionId ? (positionValues[item.id] ?? item.position) : item.position}
                             onChange={(e) => handlePositionChange(item.id, e.target.value)}
                             disabled={editingPositionId !== item.id}
@@ -287,6 +319,38 @@ const BannerView = () => {
                             className="ml-2"
                             onClick={() => {
                               if (editingPositionId === item.id) {
+                                const newPositionValue = positionValues[item.id] ?? item.position;
+                                const newPosition = newPositionValue !== undefined && newPositionValue !== null
+                                  ? String(newPositionValue).trim()
+                                  : '';
+
+                                if (newPosition === '') {
+                                  setPositionErrorById(prev => ({
+                                    ...prev,
+                                    [item.id]: 'Position is required',
+                                  }));
+                                  return;
+                                }
+
+                                const isDuplicate = bannerList.some(b =>
+                                  b.id !== item.id &&
+                                  b.type === item.type &&
+                                  String(b.position) === newPosition
+                                );
+
+                                if (isDuplicate) {
+                                  setPositionErrorById(prev => ({
+                                    ...prev,
+                                    [item.id]: `Another ${item.type} banner already uses position ${newPosition}`,
+                                  }));
+                                  return;
+                                }
+
+                                setPositionErrorById(prev => ({
+                                  ...prev,
+                                  [item.id]: '',
+                                }));
+
                                 positionUpdate(item.id);
                               } else {
                                 setEditingPositionId(item.id);
@@ -296,6 +360,11 @@ const BannerView = () => {
                             {editingPositionId === item.id ? 'Update' : 'Edit'}
                           </Button>
                         </div>
+                        {positionErrorById[item.id] && (
+                          <p className="mt-1 text-xs text-red-500 text-center">
+                            {positionErrorById[item.id]}
+                          </p>
+                        )}
                       </td>
                        <td className="py-3 px-5">
                         {item.zone}

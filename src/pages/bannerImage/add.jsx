@@ -1,17 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button } from '@material-tailwind/react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select'; // Assuming react-select is used
-import { ColorStyles, API_ROUTES } from '@/utils/constants';
+import { ColorStyles, API_ROUTES, Feature } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
+
+// Debounce function (same as in Booking page)
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 const AddBanner = () => {
   const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [dropSuggestions, setDropSuggestions] = useState([]);
+  const [dropLocation, setDropLocation] = useState(null); 
 
   const initialValues = {
     fromDate: '',
@@ -21,6 +32,9 @@ const AddBanner = () => {
     type: '',
     image: null,
     zone: '',
+    dropAddress: '',        
+    dropLocation: null,     
+    navigateTo: '',         
   };
 
   const fetchGeoData = async () => {
@@ -56,8 +70,8 @@ const AddBanner = () => {
       .test('fileType', 'Only JPEG or PNG files are allowed', (value) =>
         value ? ['image/jpeg', 'image/png','image/gif'].includes(value.type) : false
       ),
-      fromDate: Yup.string().required('Start Date is required'),
-      toDate: Yup.string().required('End Date is required'),
+      // fromDate: Yup.string().required('Start Date is required'),
+      // toDate: Yup.string().required('End Date is required'),
       zone: Yup.string().required('Zone is required')
   });
 
@@ -72,6 +86,45 @@ const AddBanner = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
+  // Search Locations (same as Booking page)
+  const searchLocations = useCallback(
+    debounce(async (query, setFieldValue) => {
+      if (query.length > 2) {
+        try {
+          const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.SEARCH_ADDRESS, { address: query });
+          if (data?.success && data?.data) {
+            setDropSuggestions(data.data);
+          } else {
+            setDropSuggestions([]);
+          }
+        } catch (error) {
+          console.error('Error searching drop locations:', error);
+          setDropSuggestions([]);
+        }
+      } else {
+        setDropSuggestions([]);
+      }
+    }, 300),
+    []
+  );
+
+  // Handle Location Selection
+  const handleSelectLocation = async (address, setFieldValue) => {
+    try {
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
+      if (data?.success) {
+        const location = { lat: data.data.lat, lng: data.data.lng };
+        setFieldValue('dropAddress', address);
+        setFieldValue('dropLocation', location);
+        setDropLocation(location);
+        setDropSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching lat/lng:', error);
+    }
+  };
+
+  // Submit Handler
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       // console.log('Sending image:', values.image?.name, values.image?.type);
@@ -86,6 +139,14 @@ const AddBanner = () => {
       formData.append('image', values.image, values.image.name);
       formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
+
+      // Append Drop Location
+      formData.append('dropAddress', values.dropAddress||'');
+      formData.append('dropLat', values.dropLocation?.lat || '');
+      formData.append('dropLong', values.dropLocation?.lng || '');
+
+      // NEW FIELD: Append Navigate To
+      formData.append('navigateTo', values.navigateTo.trim());
 
       const response = await ApiRequestUtils.postDocs(API_ROUTES.POST_BANNER, formData);
 
@@ -144,6 +205,10 @@ const AddBanner = () => {
                   <option value="BACKGROUND">Background</option>
                   <option value="BANNER">Banner</option>
                   <option value="STATS">Stats</option>
+                  <option value="TOP_NEW">Top_new</option>
+                  <option value="MIDCAROUSEL">MidCarousel</option>
+                  <option value="PROMOTION">Promotion</option>
+                   <option value="BOTTOM_NEW">Bottom_new</option>
                 </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
               </div>
@@ -163,14 +228,72 @@ const AddBanner = () => {
                 </label>
                 <Select
                   options={ZONE_OPTIONS}
-                  onChange={(selectedOption) => setFieldValue('zone', selectedOption.value)}
+                  onChange={(opt) => setFieldValue('zone', opt.value)}
                   placeholder="Select Zone"
                   className="w-full"
-                  name="zone"
-                />
+                  name="zone" />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
               </div>
 
+              {/* Drop Location (New Field) */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">Drop Location </label>
+                <Field
+                  name="dropAddress"
+                  type="text"
+                  placeholder="Search drop location..."
+                  className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFieldValue('dropAddress', val);
+                    setFieldValue('dropLocation', null);
+                    searchLocations(val, setFieldValue);
+                  }}
+                />
+                {dropSuggestions.length > 0 && (
+                  <ul className="border rounded-md bg-white mt-1 max-h-40 overflow-y-auto z-10">
+                    {dropSuggestions.map((suggestion, idx) => (
+                      <li
+                        key={idx}
+                        className="p-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSelectLocation(suggestion, setFieldValue)}
+                      >
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+               
+              </div>
+
+              {/* NEW FIELD: Navigate To */}
+            <div>
+                <label className="text-sm font-medium text-gray-700">Navigate To</label>
+                <Field
+                  as="select"
+                  name="navigateTo"
+                  className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+                >
+                  <option value="">Select navigation path...</option>
+                  {[
+                    'RENTAL_DROP_TAXI',
+                    'RENTAL',
+                    'AUTO',
+                    'RIDES',
+                    'DRIVER',
+                     ...(Feature.parcel ? ['PARCEL']: []),
+                    'RENTAL_HOURLY_PACKAGE',
+                    'EMERGENCY_CONTACT',
+                    'REFER_AND_EARN'
+                  ].map((option) => (
+                    <option key={option} value={option}>
+                      {option.replaceAll('_', ' ')}
+                    </option>
+                  ))}
+                </Field>
+              </div>
+
+              {/* Image Upload */}
               <div>
                 <label htmlFor="image" className="text-sm font-medium text-gray-700">
                   Image

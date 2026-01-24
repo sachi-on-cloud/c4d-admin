@@ -81,6 +81,7 @@ const PriceAdd = () => {
         cancellationCharge: '',
         status: 'ACTIVE',
         zone: '',
+        freeExtraMinutes:''
     };
 
     const onSubmit = async (values, { setSubmitting }) => {
@@ -98,6 +99,7 @@ const PriceAdd = () => {
                 'minCharge': values.ratePerMin,
                 'rateParameter': values.rateParameter,
                 'additionalMinCharge': values.additionalMin,
+                'freeExtraMinutes':values.freeExtraMinutes,
                 'surChargePercentage': values.surchargePercentage,
                 'nightHoursFrom': Utils.formatTimeWithSeconds(values.nightHoursFrom),
                 'nightHoursTo': Utils.formatTimeWithSeconds(values.nightHoursTo),
@@ -145,56 +147,7 @@ const PriceAdd = () => {
                                 />
                                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare Mini</label>
-                                <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare Sedan</label>
-                                <Field type="number" name="baseFareSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFareSedan" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                            <label className="text-sm font-medium text-gray-700">Base Fare SUV</label>
-                                <Field type="number" name="baseFareSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFareSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Base Fare MUV</label>
-                                <Field type="number" name="baseFareMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="baseFareMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km Mini</label>
-                                <Field type="number" name="ratePerKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="ratePerKm" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km Sedan</label>
-                                <Field type="number" name="ratePerKmSedan" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="ratePerKmSedan" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km SUV</label>
-                                <Field type="number" name="ratePerKmSuv" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="ratePerKmSuv" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Km MUV</label>
-                                <Field type="number" name="ratePerKmMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="ratePerKmMVP" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rate Per Min</label>
-                                <Field type="number" name="ratePerMin" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="ratePerMin" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Min</label>
-                                <Field type="number" name="additionalMin" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="additionalMin" component="div" className="text-red-500 text-sm" />
-                            </div>
+
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
                                 <Select
@@ -244,6 +197,11 @@ const PriceAdd = () => {
                                 <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <Field type="number" name="freeExtraMinutes" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="freeExtraMinutes" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
                                 <label className="text-sm font-medium text-gray-700">Night Charge</label>
                                 <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="nightCharge" component="div" className="text-red-500 text-sm" />
@@ -256,7 +214,88 @@ const PriceAdd = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Cancellation Charge</label>
                                 <Field type="number" name="cancellationCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
-                                <ErrorMessage name="cancellationCharge" component="div" className="text-red-500 text-sm" />
+                                <ErrorMessage name="cancellationCharge" component="div" className="text-red-500 text-xs mt-1" />
+                            </div>
+                        </div>
+
+                        {/* Beautiful Pricing Table - Exact same as Edit page */}
+                        <div className="mt-12">
+                            <div className="overflow-x-auto rounded-lg shadow border border-gray-300">
+                                <table className="min-w-full">
+                                    <thead className="bg-blue-600">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Car Type</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Base Fare</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Rate Per Km</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Rate Per Min</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Additional Min Charge</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        <tr className="hover:bg-gray-50">
+                                            <td className="px-6 py-1 font-medium text-gray-800">MINI</td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="baseFare" className="w-full p-2 border border-gray-300 rounded-md" />
+                                                <ErrorMessage name="baseFare" component="div" className="text-red-500 text-xs mt-1" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKm" className="w-full p-2 border border-gray-300 rounded-md" />
+                                                <ErrorMessage name="ratePerKm" component="div" className="text-red-500 text-xs mt-1" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-gray-50 hover:bg-gray-100">
+                                            <td className="px-6 py-1 font-medium text-gray-800">SEDAN</td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="baseFareSedan" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKmSedan" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                            <td className="px-6 py-1 font-medium text-gray-800">SUV</td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="baseFareSuv" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKmSuv" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-gray-50 hover:bg-gray-100">
+                                            <td className="px-6 py-1 font-medium text-gray-800">MUV</td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="baseFareMVP" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerKmMVP" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="ratePerMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                            <td className="px-6 py-1">
+                                                <Field type="number" name="additionalMin" className="w-full p-2 border border-gray-300 rounded-md" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                         <div className="flex flex-row">

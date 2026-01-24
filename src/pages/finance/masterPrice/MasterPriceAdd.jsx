@@ -29,6 +29,7 @@ export function MasterPriceAdd() {
         extraPrice:'',
         kilometer:'',
         dropPriceAbove:'',
+        freeExtraMinutes:'',
     };
 
     const fetchGeoData = async () => {
@@ -50,26 +51,28 @@ export function MasterPriceAdd() {
             const masterpriceList = {
                 serviceType: values.serviceType,
                 type: values.type,
-                period: values.period,
+                period: values.period ,
                 price: values.price,
-                priceMVP: values.priceMVP,
+                priceMVP: values.priceMVP || 0,
                 dropPrice: values.dropPrice,
                 nightCharge: values.nightCharge,
-                cancelCharge: values.cancelCharge,
-                cancelMins: Utils.convertMinutesToTimeFormat(values.cancelMins),
-                waitingMins: Utils.convertMinutesToTimeFormat(values.waitingMins),
-                waitingCharge: values.waitingCharge,
-                nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom),
-                nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo),
-                extraPrice: values.extraPrice,
+                cancelCharge: values.cancelCharge ||0,
+                cancelMins: Utils.convertMinutesToTimeFormat(values.cancelMins || '00:00:00') ,
+                waitingMins: Utils.convertMinutesToTimeFormat(values.waitingMins ||'00:00:00') ,
+                waitingCharge: values.waitingCharge || 0,
+                nightHoursFrom: Utils.formatTimeWithSeconds(values.nightHoursFrom || '00:00:00') ,
+                nightHoursTo: Utils.formatTimeWithSeconds(values.nightHoursTo || '00:00:00') ,
+                extraPrice: values.extraPrice || 0,
                 kilometer: values.kilometer,
                 dropPriceAbove: values.dropPriceAbove,
+                additionalMinCharge: values.additionalMinCharge || 0,
+                freeExtraMinutes: values.freeExtraMinutes || 0,
                 status: 1,
                 extraKmPrice:values.extraKmPrice,
                 zone: values.zone,
             };
             if (values.type === 'Outstation') {
-                masterpriceList['baseFare'] = values.baseFare;
+                masterpriceList['baseFare'] = values.baseFare || 0;
                 masterpriceList['kilometer'] = values.kilometer;
                 masterpriceList['extraKmPrice'] = values.extraKmPrice;
             }
@@ -141,107 +144,33 @@ export function MasterPriceAdd() {
                                 </Field>
                                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                             </div>
+
+                           
+
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Package</label>
-                                <Field type="number" name="period" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='1' />
-                                <ErrorMessage name="period" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Price</label>
-                                <Field type="number" name="price" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="price" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                    <label className="text-sm font-medium text-gray-700">Kilometer</label>
-                                    <Field type="number" name="kilometer" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                    <ErrorMessage name="kilometer" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Night Hours</label>
+                                <div className="flex items-center gap-2">
+                                    <Field type="time" name="nightHoursFrom" className="p-2 rounded border-gray-300" />
+                                    <span className="px-3">to</span>
+                                    <Field type="time" name="nightHoursTo" className="p-2 rounded border-gray-300" />
                                 </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Price (MUV)</label>
-                                <Field type="number" name="priceMVP" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-sm" />
                             </div>
+                            {values?.serviceType === 'DRIVER' &&
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Free Waiting Time</label>
-                                <Field type="number" name="waitingMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="waitingMins" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            {values?.type === 'Outstation' &&
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Base Fare</label>
-                                    <Field type="number" name="baseFare" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                    <ErrorMessage name="baseFare" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Food Charges</label>
+                                <div className="flex items-center gap-2">
+                                     <Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-2" />
                                 </div>
+                            </div>
                             }
-                            <div>
-                                    <label className="text-sm font-medium text-gray-700">Extra Kilometer Price</label>
-                                    <Field type="number" name="extraKmPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                    <ErrorMessage name="extraKmPrice" component="div" className="text-red-500 text-sm" />
-                                </div>
                             
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Waiting Charges</label>
-                                <Field type="number" name="waitingCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="waitingCharge" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Drop Only</label>
-                                <Field type="number" name="dropPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="dropPrice" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Drop Price Above</label>
-                                <Field type="number" name="dropPriceAbove" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="dropPriceAbove" component="div" className="text-red-500 text-sm" />
+                                <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
+                                <div className="flex items-center gap-2">
+                                     <Field type="number" name="freeExtraMinutes" className="w-full text-center border rounded p-2" />
+                                </div>
                             </div>
                             
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Additional Mins</label>
-                                <Field type="number" name="additionalMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="additionalMins" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Extra Hours</label>
-                                <Field type="number" name="extraPrice" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="extraPrice" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>
-                                <div className="flex items-center">
-                                    <Field
-                                        type="time"
-                                        name="nightHoursFrom"
-                                        min="22:00"
-                                        max="23:59"
-                                        className="p-2 w-full rounded-l-md border-gray-300 shadow-sm"
-                                    />
-                                    <span className="px-3 py-2 bg-gray-100 border-t border-b border-gray-300">to</span>
-                                    <Field
-                                        type="time"
-                                        name="nightHoursTo"
-                                        min="05:00"
-                                        max="08:00"
-                                        className="p-2 w-full rounded-r-md border-gray-300 shadow-sm"
-                                    />
-                                </div>
-                                <ErrorMessage name="nightHoursFrom" component="div" className="text-red-500 text-sm" />
-                                <ErrorMessage name="nightHoursTo" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Night Charges</label>
-                                <Field type="number" name="nightCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="nightCharge" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Cancellation Time</label>
-                                <Field type="number" name="cancelMins" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="cancelMins" component="div" className="text-red-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Cancellation Charges</label>
-                                <Field type="number" name="cancelCharge" className="p-2 w-full rounded-md border-gray-300 shadow-sm" min='0' />
-                                <ErrorMessage name="cancelCharge" component="div" className="text-red-500 text-sm" />
-                            </div>
 
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Status</label>
@@ -253,7 +182,131 @@ export function MasterPriceAdd() {
                                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
-                        <div className='flex flex-row'>
+
+                        {/* Same Beautiful Table as Edit Page */}
+                         {values?.type === 'Local' && ( 
+                        <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-md mt-8">
+                            <table className="min-w-full bg-white border border-gray-300 text-center">
+                                <thead>
+                                    <tr className="bg-blue-600 text-white">
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Package (Hrs/Kms)</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Price</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Price (MUV)</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Kilometer</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Additional Mins</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Additional Mins Price</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Extra KM Price</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Free Waiting (mins)</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Waiting Charge</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Night Charge</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Cancel Mins</th>
+                                        <th className="px-4 py-3 text-xs font-bold uppercase border border-gray-300">Cancel Charge</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="hover:bg-gray-50">
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="period" className="w-full text-center border rounded p-2"  />
+                                            <ErrorMessage name="period" component="div" className="text-red-500 text-xs" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="price" className="w-full text-center border rounded p-2" />
+                                            <ErrorMessage name="price" component="div" className="text-red-500 text-xs" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="priceMVP" className="w-full text-center border rounded p-2" />
+                                            <ErrorMessage name="priceMVP" component="div" className="text-red-500 text-xs" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="kilometer" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="additionalMinCharge" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="extraPrice" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="extraKmPrice" className="w-full text-center border rounded p-2" />
+                                        </td>
+
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="waitingMins" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="waitingCharge" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="nightCharge" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="cancelMins" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="cancelCharge" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         )}
+                          {values?.type === 'Outstation' && ( 
+                        <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-md mt-8">
+                            <table className="min-w-full bg-white border border-gray-300 text-center">
+                                <thead>
+                                    <tr className="bg-blue-600 text-white">
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Base Hours</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Base KM</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Base Fare</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra hour charge</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Extra KM rate</th>
+                                   
+                                    {/* <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Food Charges</th> */}
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Night Charges</th>
+                                    <th className="px-4 py-3  text-xs font-bold text-white uppercase border border-gray-300">Drop-only charge</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="hover:bg-gray-50">
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="period" className="w-full text-center border rounded p-2"  />
+                                            <ErrorMessage name="period" component="div" className="text-red-500 text-xs" />
+                                        </td>
+                                         <td className="px-2 py-3 border">
+                                            <Field type="number" name="kilometer" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="price" className="w-full text-center border rounded p-2" />
+                                            <ErrorMessage name="price" component="div" className="text-red-500 text-xs" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="additionalMinCharge" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="extraKmPrice" className="w-full text-center border rounded p-2" />
+                                        </td>
+
+                                        {/* <td className="px-2 py-3 border">
+                                            <Field type="number" name="dropPriceAbove" className="w-full text-center border rounded p-2" />
+                                        </td> */}
+                                       
+
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="nightCharge" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                        <td className="px-2 py-3 border">
+                                            <Field type="number" name="dropPrice" className="w-full text-center border rounded p-2" />
+                                        </td>
+                                      
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         )}
+
+                        {/* Buttons */}
+                        <div className="flex flex-row mt-10">
                             <Button
                                 fullWidth
                                 onClick={() => navigate('/dashboard/users/master-price')}

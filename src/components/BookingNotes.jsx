@@ -10,14 +10,16 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   const [noteType, setNoteType] = useState('')
   const [items, setItems] = useState([]);
   const [bookingLogs, setBookingLogs] = useState([]);
-  const [bookingFollowupLogs,setBookingFollowupLogs] = useState([])
-    const [quotationLogs, setQuotationLogs] = useState([]);
+  const [bookingFollowupLogs,setBookingFollowupLogs] = useState([]);
+     const [quotationLogs, setQuotationLogs] = useState([]);
+  const [bookingExtraCharges, setBookingExtraCharges] = useState([]); 
   const [errorMessage, setErrorMessage] = useState('');
   const [tripDetailsLogs, setTripDetailsLogs] = useState([]);
   const [tripFare, setTripFare] = useState(0);
   const [fuelCost, setFuelCost] = useState(0);
   const [tollCost, setTollCost] = useState(0);
   const [permitCost, setPermitCost] = useState(0);
+  const [activeTab, setActiveTab] = useState('notes');
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -43,8 +45,8 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           setBookingLogs(Array.isArray(data?.data?.bookingLog) ? data.data.bookingLog : []);
           setQuotationLogs(Array.isArray(data?.data?.quotationLog) ? data?.data?.quotationLog : []);
           setBookingFollowupLogs(Array.isArray(data?.data?.bookingFollowupLog) ? data?.data?.bookingFollowupLog : []);
-          
-          // Extract trip details from tripMaster
+          setBookingExtraCharges(Array.isArray(data?.data?.bookingExtraCharges) ? data.data.bookingExtraCharges : []);
+
           const tripMaster = data.data.tripMaster || {};
           setTripFare(tripMaster.tripFare || 0);
           setFuelCost(tripMaster.fuelCost || 0);
@@ -72,6 +74,7 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           setQuotationLogs([]);
           setTripDetailsLogs([]);
           setBookingFollowupLogs([]);
+          setBookingExtraCharges([]);
         }
       } catch (error) {
         console.error('Error fetching notes:', error);
@@ -79,7 +82,8 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
         setBookingLogs([]);
         setQuotationLogs([]);
         setTripDetailsLogs([]);
-        setBookingFollowupLogs([])
+        setBookingFollowupLogs([]);
+        setBookingExtraCharges([]);
       }
     };
 
@@ -123,11 +127,31 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
     }
   };
 
+  const tabs = [
+    { id: 'notes', label: 'Notes' },
+    { id: 'extra', label: 'Extra Booking Charges Log' },
+    { id: 'estimates', label: 'Check Estimate Price Log' },
+    { id: 'status', label: 'Booking Status Log' },
+  ];
+
   return (
     <div className="flex-1 p-4 bg-gray-100">
-      <div>
-        <Typography className="text-xl font-semibold text-blue-gray-600">Notes</Typography>
+      <div className="border-b border-gray-200 mb-6">
+        <div className="flex flex-wrap gap-6 text-sm font-medium text-gray-600">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-2 transition-colors ${activeTab === tab.id ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'hover:text-blue-600'}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {activeTab === 'notes' && (
+        <>
       <div className='pt-2'>
         <label htmlFor="noteType" className="text-sm font-medium text-gray-700">
          Please select a Notes Type
@@ -230,21 +254,98 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
     </div>
   </>
 )}
-      <div className='py-5'>
+        </>
+      )}
+
+      {activeTab === 'extra' && (
+        <>
+      {/* <div className='py-5'>
+        <Typography className="text-xl font-semibold text-blue-gray-600">
+          Extra Booking Charges Log
+        </Typography>
+      </div> */}
+      <div className="flex-1 mb-5">
+        {bookingExtraCharges.length === 0 ? (
+          <p className="text-center text-gray-500 text-base mt-5">No extra charges yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {bookingExtraCharges.map((charge) => (
+              <li
+                key={charge.id}
+                className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-800">
+                    {charge.User?.name || charge.user?.name || 'System'}
+                  </span>
+                  <span className="text-sm text-gray-500 ml-auto">
+                    {moment(charge.created_at).format('DD-MM-YYYY / hh:mm A')}
+                  </span>
+                </div>
+                <div className="text-base text-gray-700 space-y-1 ">
+                   {charge.newValues?.permitCharge !== undefined && (
+                  <span>
+                    <span className="font-bold text-green-700">Permit Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.permitCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.permitCharge} </span>|
+                  </span>
+                )} 
+                 {charge.newValues?.hillStationCharge !== undefined && (
+                  <span>
+                    <span className="font-bold text-green-700">Hill Station Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.hillStationCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.hillStationCharge} </span>|
+                  </span>
+                )} 
+
+
+                  {charge.newValues?.tollCharge !== undefined && (
+                    <span>
+                    <span className="font-bold text-green-700">Toll Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.tollCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.tollCharge} </span>|
+                  </span>
+                  )} 
+                  {charge.newValues?.parkingCharge !== undefined && (
+                   <span>
+                    <span className="font-bold text-green-700">Parking Charge</span>{' '}
+                    Changed from  
+                    <span className="font-bold"> ₹{charge.previousValues?.parkingCharge ?? 0} </span>
+                    To 
+                    <span className="font-bold"> ₹{charge.newValues.parkingCharge} </span>
+                  </span>
+                  )} 
+                 
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+        </>
+      )}
+
+{activeTab === 'estimates' && (
+  <>
+      {/* <div className='py-5'>
         <Typography className="text-xl font-semibold text-blue-gray-600">
           Check Estimate Price Log
         </Typography>
-      </div>
+      </div> */}
       <div className="flex-1 mb-5">
-        <ul className="space-y-3">
-          {quotationLogs.length === 0 ? (
-            <p className="text-center text-gray-500 text-base mt-5">No estimate logs yet.</p>
-          ) : (
-            quotationLogs.map((log) => (
-              <li
-                key={log.id}
-                className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
-              >
+        {quotationLogs.length === 0 ? (
+          <p className="text-center text-gray-500">No estimate logs yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {quotationLogs.map((log) => (
+              <li key={log.id} className="bg-white rounded-lg p-3 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <UserIcon className="h-5 w-5 text-gray-600" />
                   <span className="text-sm font-medium text-gray-800">
@@ -289,15 +390,20 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
   </span>
 </div>
               </li>
-            ))
-          )}
-        </ul>
+            ))}
+          </ul>
+        )}
       </div>
-      <div className='py-5'>
+  </>
+)}
+
+{activeTab === 'status' && (
+  <>
+      {/* <div className='py-5'>
         <Typography className="text-xl font-semibold text-blue-gray-600">
           Booking Status Log
         </Typography>
-      </div>
+      </div> */}
       <div className="flex-1">
         {bookingLogs.length === 0 && bookingFollowupLogs.length === 0 ? (
           <p className="text-center text-gray-500 text-base mt-5">No activity logs yet.</p>
@@ -351,6 +457,8 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
           </ul>
         )}
       </div>
+  </>
+)}
     </div>
   );
 };

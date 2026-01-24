@@ -63,17 +63,17 @@ export const EDIT_USER_SCHEMA = Yup.object({
 
 export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     packageTypeSelected: Yup.string().when('serviceType', {
-        is: (val) => val !== 'Outstation' && val !== 'RIDES',
+        is: (val) => val !== 'Outstation' && val !== 'RIDES' && val !== 'AUTO' && val !== 'PARCEL',
         then: (schema) => schema.required('Package Type is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
     rideTime: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val !== 'RIDES' && val !== 'AUTO',
         then: (schema) => schema.required('Ride Time is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
     rideDate: Yup.string().when('serviceType', {
-        is: (val) => val !== 'RIDES',
+        is: (val) => val !== 'RIDES' && val !== 'AUTO',
         then: (schema) => schema.required('Ride Date is required'),
         otherwise: (schema) => schema.notRequired(),
     }),
@@ -85,9 +85,16 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
     //     then: () => Yup.string().required('Cab type is required'),
     //     otherwise: () => Yup.string(),
     // }),
+    sourceType: Yup.string().required('Source Type is required'),
+    otherSourceType: Yup.string().when('sourceType', {
+        is: (val) => val === 'Others' || val === 'Offline Ads',
+        then: (schema) => schema.required('Please specify the source'),
+        otherwise: (schema) => schema.notRequired(),
+        }),
+
     carType: Yup.string().when('serviceType', {
-        is: (val) => val === 'DRIVER' || val === 'CAB',
-        then: () => Yup.string().required('Car Type is required'),
+        is: (val) =>['DRIVER', 'RIDES', 'RENTAL', 'RENTAL_HOURLY_PACKAGE', 'RENTAL_DROP_TAXI'].includes(val),
+        then: () => Yup.string().required('Please select a car type'),
         otherwise: () => Yup.string(),
     }),
     transmissionType: Yup.string().when('serviceType', {
@@ -100,16 +107,37 @@ export const BOOKING_DETAILS_SCHEMA = Yup.object().shape({
         then: () => Yup.string().required('Trip Type is required'),
         otherwise: () => Yup.string(),
     }),
-    pickupAddress: Yup.string().when('serviceType', {
-        is: 'RIDES',
-        then: () => Yup.string().required('Pickup Address is required'),
+   pickupAddress: Yup.string().when('serviceType', {
+    is: (val) => ['RIDES', 'AUTO'].includes(val),
+    then: () => Yup.string().required('Pickup Address is required'),
+    otherwise: () => Yup.string(),
+}),
+dropAddress: Yup.string().when('serviceType', {
+    is: (val) => ['RIDES', 'AUTO'].includes(val),
+    then: () => Yup.string().required('Drop Address is required'),
+    otherwise: () => Yup.string(),
+}),
+    driverPickUpAddress: Yup.string().when('serviceType', {
+        is: (val) => ['RENTAL', 'RENTAL_DROP_TAXI'].includes(val),
+        then: () =>
+            Yup.string().test(
+                'driver-pickup-suggestion-selected',
+                'Please select the starting point from suggestions',
+                function (value) {
+                    const { driverPickUpLocation } = this.parent;
+                    if (!value) {
+                        return true;
+                    }
+                    return !!driverPickUpLocation;
+                }
+            ),
         otherwise: () => Yup.string(),
     }),
-    dropAddress: Yup.string().when('serviceType', {
-        is: 'RIDES',
-        then: () => Yup.string().required('Drop Address is required'),
-        otherwise: () => Yup.string(),
-    }),
+landmark: Yup.string()
+    .nullable()
+    .max(100, 'Landmark should not exceed 100 characters')
+    .trim(),
+
 });
 
 
@@ -758,10 +786,10 @@ export const MASTERPRICE_ADD_SCHEME = Yup.object().shape({
     type: Yup.string().required('Type is required'),
     period: Yup.number().required('Period is required'),
     price: Yup.number().required('Price is required'),
-    priceMVP: Yup.number().required('Price MUV is required'),
+    // priceMVP: Yup.number().required('Price MUV is required'),
     dropPrice: Yup.number().required('Drop Price is required'),
     nightCharge: Yup.number().required('Night Charge is required'),
-    cancelCharge: Yup.number().required('Cancel Charge is required'),
+    // cancelCharge: Yup.number().required('Cancel Charge is required'),
     status: Yup.string().required('Status is required'),
     zone: Yup.string().required('Zone is required'),
     // extraPrice: Yup.number().required('Extra Price is required'),
@@ -778,7 +806,22 @@ export const VERSION_CONTROL_EDIT=Yup.object({
  
 
   export const DISCOUNT_ADD_SCHEMA = Yup.object({
-    percentage: Yup.mixed().required('Percentage is required'),
+    offerType: Yup.string()
+        .oneOf(['GENERAL', 'CUSTOM'], 'Invalid offer type')
+        .required('Offer type is required'),
+    couponCode: Yup.string().required('Coupon code is required'),  
+    percentage: Yup.mixed().notRequired(),
+    amount: Yup.mixed().notRequired(),
+    cabType: Yup.string().when(['isPremium', 'serviceType'], {
+        is: (isPremium, serviceType) => isPremium === false && serviceType !== 'AUTO',
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    premiumCabType: Yup.string().when(['isPremium', 'serviceType'], {
+        is: (isPremium, serviceType) => isPremium === true && serviceType !== 'AUTO',
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
     startDate: Yup.string().required('Start date is required'),
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
@@ -798,7 +841,22 @@ export const VERSION_CONTROL_EDIT=Yup.object({
 
 export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     discountId: Yup.number().required('Discount ID is required'),
-    percentage: Yup.mixed().required('Percentage is required'),
+    offerType: Yup.string()
+        .oneOf(['GENERAL', 'CUSTOM'], 'Invalid offer type')
+        .required('Offer type is required'),
+    couponCode: Yup.string().required('Coupon code is required'),
+    percentage: Yup.mixed().notRequired(),
+    amount: Yup.mixed().notRequired(),
+    cabType: Yup.string().when(['isPremium', 'serviceType'], {
+        is: (isPremium, serviceType) => isPremium === false && serviceType !== 'AUTO',
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    premiumCabType: Yup.string().when(['isPremium', 'serviceType'], {
+        is: (isPremium, serviceType) => isPremium === true && serviceType !== 'AUTO',
+        then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
     startDate: Yup.string().required('Start date is required'),
     endDate: Yup.string().required('End date is required'),
     serviceType: Yup.string().required('Service type is required'),
@@ -836,4 +894,30 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
       gstNo: Yup.string().required('GST No is required'),
       isActive: Yup.boolean().required('Status is required'),
     });
+export const DriverOfferSchema = Yup.object({
+  title: Yup.string().required("Title is required"),
+//   serviceType: Yup.string().required("Service type is required"),
+//   serviceArea: Yup.string().required("Service area is required"),
+  startDate: Yup.string().required("Start date is required"),
+  endDate: Yup.string()
+    .required("End date is required")
+    .test("end-after-start", "End date cannot be before start date", function (value) {
+      const { startDate } = this.parent;
+      if (!startDate || !value) return true;
+      return new Date(value) >= new Date(startDate);
+    }),
+  tripTarget: Yup.number()
+    .typeError("Trip target must be a number")
+    .integer("Trip target must be an integer")
+    .min(1, "Trip target must be at least 1")
+    .required("Trip target is required"),
+  amount: Yup.number()
+    .typeError("Amount must be a number")
+    .min(0, "Amount cannot be negative")
+    .required("Amount is required"),
+  startMsg: Yup.string().required("Start message is required"),
+  midMsg: Yup.string().required("Mid  message is required"),
+  endMsg: Yup.string().required("End message is required"),
+  status: Yup.mixed().required("Status is required"),
+});
 

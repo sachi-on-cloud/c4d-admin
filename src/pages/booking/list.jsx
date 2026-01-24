@@ -19,7 +19,7 @@ import {
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, BOOKING_STATUS, ColorStyles, Feature } from "@/utils/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
@@ -34,6 +34,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
     const [tripCoordinatorFilter, setTripCoordinatorFilter] = useState(['All']);
+    const [zoneFilter, setZoneFilter] = useState(['All']);
     const [showPickedBooking, setShowPickedBooking] = useState(0);
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
     const [pagination, setPagination] = useState({
@@ -183,6 +184,18 @@ const handleTabChange = (value) => {
                 }
             });
         }
+        else if (filterType === 'zone') {
+            setZoneFilter(prev => {
+                if (value === 'All') {
+                    return ['All'];
+                } else {
+                    const newFilter = prev.includes(value)
+                        ? prev.filter(item => item !== value)
+                        : [...prev.filter(item => item !== 'All'), value];
+                    return newFilter.length === 0 ? ['All'] : newFilter;
+                }
+            });
+        }
     };
     const FilterPopover = ({ title, options, selectedFilters, onFilterChange, customContent }) => (
         <Popover placement="bottom-start">
@@ -233,6 +246,7 @@ const handleTabChange = (value) => {
             source: sourceFilter,
             tripCoordinator: tripCoordinatorFilter,
             tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
+            zone: zoneFilter.includes('All') ? ['All'] : zoneFilter,
         };
         
         // Calculate startDate and endDate based on dateFilter
@@ -362,7 +376,7 @@ const handleTabChange = (value) => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, effectiveSearchId, bookingStage, type, pagination.currentPage, activeTab, statusFilter, sourceFilter, tripCoordinatorFilter, dateFilter, customDateFrom, customDateTo]);
+    }, [customerId, effectiveSearchId, bookingStage, type, pagination.currentPage, activeTab, statusFilter, sourceFilter, tripCoordinatorFilter, zoneFilter, dateFilter, customDateFrom, customDateTo]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -424,8 +438,9 @@ const handleTabChange = (value) => {
 
     const handleBookingSelect = (data) => {
         setSelectedBookingId(data.id);
+        if (onSelectBooking) {
         onSelectBooking(data);
-        setIsOpen(true)
+        }
     }
 
     const formatDate = (date) => {
@@ -491,13 +506,14 @@ const handleTabChange = (value) => {
         setSourceFilter(['All']);
         setTripCoordinatorFilter(['All']);
         setServiceTypeFilter(['All']);
+        setZoneFilter(['All']);
         setDateFilter('All');
         setCustomDateFrom('');
         setCustomDateTo('');
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
         setEffectiveSearchId('');
         localStorage.removeItem('bookingSearchId');
-        triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], '');
+        triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], ['All'], '');
     };
 
 //     // Date filtering implementation
@@ -519,7 +535,7 @@ const handleTabChange = (value) => {
 // };
 
     // Function to trigger API call with specific dates (bypasses state timing issues)
-   const triggerFilteredAPICall = async (startDate, endDate, page = 1, statusFilterParam = statusFilter, sourceFilterParam = sourceFilter, tripCoordinatorFilterParam = tripCoordinatorFilter, serviceTypeFilterParam = serviceTypeFilter, effectiveSearchIdParam = effectiveSearchId) => {
+   const triggerFilteredAPICall = async (startDate, endDate, page = 1, statusFilterParam = statusFilter, sourceFilterParam = sourceFilter, tripCoordinatorFilterParam = tripCoordinatorFilter, serviceTypeFilterParam = serviceTypeFilter, zoneFilterParam = zoneFilter, effectiveSearchIdParam = effectiveSearchId) => {
         setLoading(true);
         
         // Clear existing data to show loading state
@@ -532,6 +548,7 @@ const handleTabChange = (value) => {
                 source: sourceFilterParam,
                 tripCoordinator: tripCoordinatorFilterParam,
                 tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
+                zone: zoneFilterParam.includes('All') ? ["All"] : zoneFilterParam,
             };
             
             const queryParams = {
@@ -755,7 +772,7 @@ const handleTabChange = (value) => {
             </div>
             {/* <div className='px-3 py-3'>
                 <Typography variant="h5" className='text-gray-900'>
-                    {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : 'Bookings'}
+                    {type == "" ? 'All Bookings' : type == "RENTAL" ? 'Rentals' : type == "RIDES" ? 'Rides' : type == "CAB" ? 'Cab' : type == "CAR_WASH" ? 'Car Wash' : type == 'DRIVER' ? 'Driver' : type == 'AUTO' ? 'Auto' : type == 'PARCEL' ? 'Parcel' : 'Bookings'}
                 </Typography>
             </div> */}
             <Card>
@@ -857,7 +874,7 @@ const handleTabChange = (value) => {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Status","Trip Owner", "Follow Up", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
+                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Zone", "Status","Trip Owner", "Follow Up", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
@@ -891,6 +908,19 @@ const handleTabChange = (value) => {
                                                                 )
                                                             )}
                                                         </th>
+                                                    ) : el === "Zone" ? (
+                                                        <FilterPopover
+                                                            title={el}
+                                                            options={[
+                                                                { value: 'All', label: 'All' },
+                                                                { value: 'Vellore', label: 'Vellore' },
+                                                                { value: 'Thiruvannamalai', label: 'Thiruvannamalai' },
+                                                                { value: 'Chennai', label: 'Chennai' },
+                                                                { value: 'Kanchipuram', label: 'Kanchipuram' },
+                                                            ]}
+                                                            selectedFilters={zoneFilter}
+                                                            onFilterChange={(value) => handleFilterChange('zone', value)}
+                                                        />
                                                     ) : el === "Status" ? (
                                                         <FilterPopover
                                                             title={el}
@@ -1022,7 +1052,8 @@ const handleTabChange = (value) => {
                                                 &&
                                                 (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(booking.serviceType)) &&
                                                 (sourceFilter.includes('All') || sourceFilter.includes(booking.source)) &&
-                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id))
+                                                (tripCoordinatorFilter.includes('All') || tripCoordinatorFilter.includes(booking.User?.id)) &&
+                                                (zoneFilter.includes('All') || zoneFilter.includes(booking.zone))
                                             )
                                             .map((data, key) => {
                                                const isSelected = data.id === selectedBookingId;
@@ -1040,7 +1071,7 @@ const handleTabChange = (value) => {
                                                             <div className="flex items-center">
                                                                 <div onClick={() => {
                                                                     handleBookingSelect(data);
-                                                                    setIsOpen(true);
+                                                                    // setIsOpen(true);
                                                                 }}>
                                                                     <Typography
                                                                         variant="small"
@@ -1093,6 +1124,11 @@ const handleTabChange = (value) => {
                                                                 {moment(data?.created_at).format('DD-MM-YYYY / hh:mm A')}
                                                             </Typography>
                                                         </td>
+                                                        <td className={className}>
+                                                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                                                                {data?.zone ? data?.zone : '-'}
+                                                            </Typography>
+                                                        </td>
                                                         {/* <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                             {data?.ownership === "ASSIGNED_TO_SUPPORT" ? (
@@ -1143,7 +1179,7 @@ const handleTabChange = (value) => {
                                                             <Chip
                                                                 variant="ghost"
                                                                 // color={"blue"}
-                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "BOOKING_ACCEPTED" ? "DRIVER_ACCEPTED" : data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Call Back Completed" : data?.status}
+                                                              value={data?.status == "CONFIRMED" ? "BOOKING CONFIRMED" : data?.status === "BOOKING_ACCEPTED" ? "DRIVER_ACCEPTED": data?.status === "ENDED" && data?.tripStatus === true ? "Completed" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP" ? "Follow Up" : data?.status === "QUOTED" && data?.followup === "FOLLOWUP_COMPLETED" ? "Call Back Completed" : data?.status}
                                                                 className={`py-0.5 px-2 text-[11px] font-medium w-fit ${
                                                                     data?.status === "QUOTED" ? "bg-yellow-600 text-white ":
                                                                     data?.status === "REQUEST_DRIVER" ? "bg-orange-600 text-white" :
@@ -1216,24 +1252,36 @@ const handleTabChange = (value) => {
                                                                     End Trip
                                                                 </Button>
                                                             } */}
-                                                                {([ 'CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType =="DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && 
+                                                                {['RIDES', 'RENTAL','AUTO'].includes(data?.serviceType) && ([ 'CONFIRMED','REQUEST_DRIVER'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType =="DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && 
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onRequestDriverHandler(data, 'REQUEST_ALL')}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Request {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Request {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                // : data?.serviceType === "PARCEL"
+                                                                                // ? "Bike"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {([ 'CONFIRMED', 'QUOTED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) && // need to add permission from redux
+                                                            {([ 'CONFIRMED', 'QUOTED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER" || data?.serviceType == "AUTO"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Assign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
+                                                                                ? "Bike"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
                                                             {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
@@ -1246,7 +1294,13 @@ const handleTabChange = (value) => {
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    ReAssign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    ReAssign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
+                                                                                ? "Bike"
+                                                                                : "Cab"}
                                                                 </Button>
                                                             }
                                                             {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
@@ -1256,7 +1310,12 @@ const handleTabChange = (value) => {
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Assign {data?.serviceType != "DRIVER" ? "Cab" : "Captain"}
+                                                                    Assign {data?.serviceType === "AUTO"
+                                                                                ? "Auto"
+                                                                                : data?.serviceType === "DRIVER"
+                                                                                ? "Captain"
+                                                                                : Feature.parcel && data?.serviceType === "PARCEL" ? "Bike"
+                                                                                : "Cab"}
                                                                    
                                                                 </Button>
                                                             }
