@@ -1210,7 +1210,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             </div>
                         </CardBody>
                     </Card>
-                )}
+                }
             </div>
             )}
            
@@ -2592,8 +2592,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
             <>
                 {showDetails && <TextBoxWithList addNotes={addNotes} notesData={bookingDetails?.notesData} bookingId={bookingDetails?.id} />}
             </>
+            
         </div>
+            )}
+</div>
     );
-};
+}
+
 
 export default ConfirmBooking;                                                    
