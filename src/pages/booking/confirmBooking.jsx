@@ -708,7 +708,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
     return (
         <div className="container mx-auto px-2 md:px-6">
             {bookingDetails && (
-                <div className="rounded-2xl px-4 sm:px-6 py-4 mb-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+                <div>
                     <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                         {showDetails == true && (
                         <Button
