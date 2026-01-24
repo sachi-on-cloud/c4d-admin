@@ -444,6 +444,7 @@ const ConfirmBooking = (props) => {
     const [showCancelReason, setShowCancelReason] = useState(false);
     const [cancelData, setCancelData] = useState({
         cancelReason: "",
+        customReason: "",
         cancelBy: "",
         cancelCharge: "",
         customReason: "",
@@ -604,11 +605,11 @@ const handleSaveDriverEndLocation = async () => {
             bookingId: bookingDetails?.id,
             ...(actionType === BOOKING_STATUS.CANCELLED && {
                 cancelReason: cancelData.cancelReason,
-               ...(cancelData.cancelReason === "Other Reason" &&
+                ...(cancelData.cancelReason === "Other Reason" &&
       cancelData.cancelReason?.trim() && {
         customReason: cancelData.customReason || null,
       }),
-      
+
                 cancelRequestedBy: cancelData.cancelBy,
                 isCancelChargeApplicable: cancelData.cancelCharge,
             }),
@@ -927,23 +928,19 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                     } */}
             </div>
         )}
-                </div>
-            )}
-            <div className="flex flex-col lg:flex-row justify-end items-stretch gap-3 mb-4 w-full">
-           {showCancelReason && (
-  <div className="mt-4 space-y-4 w-full lg:max-w-xl">
-    {/* Who cancelled */}
-    <select
-      name="cancelBy"
-      value={cancelData.cancelBy}
-      onChange={handleCancelChange}
-      className="border border-gray-300 px-4 py-2 rounded-md w-full"
-    >
-      <option value="">Select who cancelled</option>
-      <option value="SUPPORT_CANCELLED">Cancelled By Support</option>
-      <option value="Customer">Cancelled by Customer</option>
-      <option value="Driver">Cancelled by Driver</option>
-    </select>
+            {showCancelReason && (
+                <div className="mt-4 space-y-4 w-full lg:max-w-xl">
+                    <select
+                        name="cancelBy"
+                        value={cancelData.cancelBy}
+                        onChange={handleCancelChange}
+                        className="border border-gray-300 px-4 py-2 rounded-md w-full"
+                    >
+                        <option value="">Select who cancelled</option>
+                        <option value="SUPPORT_CANCELLED">Cancelled By Support</option>
+                        <option value="Customer">Cancelled by Customer</option>
+                        <option value="Driver">Cancelled by Driver</option>
+                    </select>
 
     {/* Cancellation Reason - only shown when cancelled by Support */}
     {cancelData.cancelBy === "SUPPORT_CANCELLED" && (
@@ -991,41 +988,41 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
     )}
 
     {/* For Customer/Driver cancelled - free text */}
-    {(cancelData.cancelBy === "Customer" || cancelData.cancelBy === "Driver") && (
-      <Input
-        type="text"
-        name="cancelReason"
-        value={cancelData.cancelReason}
-        onChange={handleCancelChange}
-        placeholder="Enter cancellation reason..."
-        className="border border-gray-300 px-4 py-2 rounded-md w-full"
-      />
-    )}
+                        {(cancelData.cancelBy === "Customer" || cancelData.cancelBy === "Driver") && (
+                    <Input
+                        type="text"
+                        name="cancelReason"
+                        value={cancelData.cancelReason}
+                        onChange={handleCancelChange}
+                        placeholder="Enter cancellation reason..."
+                        className="border border-gray-300 px-4 py-2 rounded-md w-full"
+                    />
+                        )}
 
     {/* Cancellation Charge Applicable */}
-    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0">
-      <label className="font-medium text-gray-700">Cancellation Charge Applicable:</label>
-      <label className="inline-flex items-center space-x-2">
-        <input
-          type="radio"
-          name="cancelCharge"
-          value="Yes"
-          checked={cancelData.cancelCharge === "Yes"}
-          onChange={handleCancelChange}
-        />
-        <span>Yes</span>
-      </label>
-      <label className="inline-flex items-center space-x-2">
-        <input
-          type="radio"
-          name="cancelCharge"
-          value="No"
-          checked={cancelData.cancelCharge === "No"}
-          onChange={handleCancelChange}
-        />
-        <span>No</span>
-      </label>
-    </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0">
+                        <label className="font-medium text-gray-700">Cancellation Charge Applicable:</label>
+                        <label className="inline-flex items-center space-x-2">
+                            <input
+                                type="radio"
+                                name="cancelCharge"
+                                value="Yes"
+                                checked={cancelData.cancelCharge === "Yes"}
+                                onChange={handleCancelChange}
+                            />
+                            <span>Yes</span>
+                        </label>
+                        <label className="inline-flex items-center space-x-2">
+                            <input
+                                type="radio"
+                                name="cancelCharge"
+                                value="No"
+                                checked={cancelData.cancelCharge === "No"}
+                                onChange={handleCancelChange}
+                            />
+                            <span>No</span>
+                        </label>
+                    </div>
 
     {/* Action Buttons */}
     <div className="flex flex-col sm:flex-row gap-3">
@@ -1038,24 +1035,24 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
           !cancelData.cancelReason?.trim() ||
           !cancelData.cancelCharge
         }
-      >
-        Confirm Cancel
-      </Button>
-      <Button
-        color="gray"
-        variant="outlined"
+                        >
+                            Confirm Cancel
+                        </Button>
+                        <Button
+                            color="gray"
+                            variant="outlined"
         className="w-full sm:w-auto"
         onClick={() => {
           setShowCancelReason(false);
           setCancelData({ cancelReason: "", cancelBy: "", cancelCharge: "", customReason: "" });
         }}
       >
-        Close
-      </Button>
-    </div>
-  </div>
-)}
-        </div>
+                            Close
+                        </Button>
+                    </div>
+                </div>
+                )}
+
             {showDetails && (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <Card className="mb-4 rounded-2xl shadow-sm border border-gray-100">
@@ -1141,26 +1138,39 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                 </Card>
             )}
 
-            {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED" || bookingDetails?.status == "CUSTOMER_CANCELLED") &&
-                <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
-                    <CardBody className="space-y-3">
-                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
-                            <span>Cancellation Reason</span>
-                        </div>
-                        <div className="text-sm text-gray-700">
-                            <p><span className="font-semibold text-gray-500">Reason:</span> {bookingDetails?.cancelReason || '-'}</p>
-                             {bookingDetails?.cancelReason === "Other Reason" && (
-                                <p><span className="font-semibold text-gray-500">Custom Reason:</span>{" "}{bookingDetails.cancelCustom || '-'}</p>)}
-                            <p><span className="font-semibold text-gray-500">Cancel Requested By:</span> {bookingDetails?.cancelRequestedBy || 'Customer'}</p>
-                        </div>
-                    </CardBody>
-                </Card>
-            }
-                {bookingDetails?.Driver?.id && (
-                    <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
-                        <CardBody className="space-y-4">
-                            <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
-                                <span>Driver Details</span>
+                {(bookingDetails?.status == "SUPPORT_CANCELLED" || bookingDetails?.status == "CANCELLED" || bookingDetails?.status == "CUSTOMER_CANCELLED") &&
+                    <Card className="mb-2">
+                        <CardBody>
+                            <div className="flex justify-between mb-2">
+                                <Typography variant="h5">Cancellation Reason</Typography>
+                            </div>
+                            <hr className="my-2" />
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Reason:</Typography>
+                                    <Typography>{bookingDetails?.cancelReason}</Typography>
+                                </div>
+                                
+                                     {bookingDetails?.cancelReason === "Other Reason" && (
+                                        <div className="flex justify-between">
+                                         <Typography color="gray" variant="h6">Custom Reason:</Typography>
+                                          <Typography>{bookingDetails?.customReason}</Typography>
+                                           </div>
+                                     )}
+                               
+                                <div className="flex justify-between">
+                                    <Typography color="gray" variant="h6">Cancel Requested By:</Typography>
+                                    <Typography>{bookingDetails?.cancelRequestedBy || 'Customer'}</Typography>
+                                </div>
+                            </div>
+                        </CardBody>
+                    </Card>
+                }
+                {bookingDetails?.Driver?.id &&
+                    <Card className="mb-2">
+                        <CardBody>
+                            <div className="flex justify-between mb-2">
+                                <Typography variant="h5">Driver Details </Typography>
                             </div>
                             <div className="grid sm:grid-cols-2 gap-4 text-sm">
                                 {/* <div className="flex items-center gap-3 col-span-2"> */}
