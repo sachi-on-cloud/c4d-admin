@@ -1872,7 +1872,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             <option key={item.id} value={item.id}> {label} </option>
                                                                         );
                                                                     })}
+                                                                    {values.tripType === 'Round Trip' && (
                                                                     <option value="custom_date">Custom Date</option>
+                                                                    )}
                                                             </Field>
                                                             <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                                         </div>
@@ -1915,7 +1917,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         </div>
                                                     )}
 
-                                                    {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.packageSelected === 'custom_date')) && (
+                                                    {(
+                                                        (values.serviceType === 'RENTAL' &&
+                                                            values.packageTypeSelected === 'Outstation' &&
+                                                            values.tripType === 'Round Trip') ||
+                                                        (values.serviceType === 'DRIVER' &&
+                                                            values.packageTypeSelected === 'Outstation' &&
+                                                            values.tripType === 'Round Trip' &&
+                                                            values.packageSelected === 'custom_date')
+                                                    ) && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Return Date & Time

@@ -548,6 +548,7 @@ export const Utils = {
                 values.tripType === 'Round Trip') ||
             (values.serviceType === 'DRIVER' &&
                 values.packageTypeSelected === 'Outstation' &&
+                values.tripType === 'Round Trip' &&
                 values.packageSelected === 'custom_date');
  
         const returnDateTime =
