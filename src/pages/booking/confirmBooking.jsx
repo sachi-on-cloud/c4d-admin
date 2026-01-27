@@ -709,7 +709,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
         <div className="container mx-auto px-2 md:px-6">
             {bookingDetails && (
                 <div>
-                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <div className="flex flex-wrap pb-3 items-center gap-3 w-full lg:w-auto">
                         {showDetails == true && (
                         <Button
                             variant="text"
@@ -743,7 +743,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                     
                     </div>           
                     {showDetails && (
-                <div className="w-full lg:w-auto flex flex-wrap justify-start lg:justify-end gap-3">
+                <div className="w-full pb-3 lg:w-auto flex flex-wrap justify-start lg:justify-end gap-3">
                     {(
                         (bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP") ||
                         (bookingDetails.ownership === "ASSIGNED_TO_SUPPORT" &&
