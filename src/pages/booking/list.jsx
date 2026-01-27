@@ -25,6 +25,70 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
+const BOOKING_FILTERS_KEY = 'bookingListFilters';
+
+const isBrowser = () => typeof window !== 'undefined';
+
+const getItemSafe = (key) => {
+    if (!isBrowser()) return null;
+    try {
+        return localStorage.getItem(key);
+    } catch (error) {
+        console.error(`Error getting localStorage key "${key}":`, error);
+        return null;
+    }
+};
+
+const setItemSafe = (key, value) => {
+    if (!isBrowser()) return;
+    try {
+        localStorage.setItem(key, value);
+    } catch (error) {
+        console.error(`Error setting localStorage key "${key}":`, error);
+    }
+};
+
+const loadBookingFilters = ({setActiveTab,setStatusFilter,setServiceTypeFilter,setSourceFilter,setTripCoordinatorFilter,setZoneFilter,setDateFilter,setCustomDateFrom,setCustomDateTo,setPagination,setFiltersLoaded}) => {
+    try {
+        const storedFilters = getItemSafe(BOOKING_FILTERS_KEY);
+        if (!storedFilters) {
+            setFiltersLoaded(true);
+            return;
+        }
+
+        const parsed = JSON.parse(storedFilters);
+
+        if (parsed.activeTab) setActiveTab(parsed.activeTab);
+        if (Array.isArray(parsed.statusFilter)) setStatusFilter(parsed.statusFilter);
+        if (Array.isArray(parsed.serviceTypeFilter)) setServiceTypeFilter(parsed.serviceTypeFilter);
+        if (Array.isArray(parsed.sourceFilter)) setSourceFilter(parsed.sourceFilter);
+        if (Array.isArray(parsed.tripCoordinatorFilter)) setTripCoordinatorFilter(parsed.tripCoordinatorFilter);
+        if (Array.isArray(parsed.zoneFilter)) setZoneFilter(parsed.zoneFilter);
+        if (parsed.dateFilter) setDateFilter(parsed.dateFilter);
+        if (parsed.customDateFrom) setCustomDateFrom(parsed.customDateFrom);
+        if (parsed.customDateTo) setCustomDateTo(parsed.customDateTo);
+        if (typeof parsed.currentPage === 'number') {
+            setPagination((prev) => ({
+                ...prev,
+                currentPage: parsed.currentPage,
+            }));
+        }
+    } catch (error) {
+        console.error('Error loading booking list filters from localStorage:', error);
+    } finally {
+        setFiltersLoaded(true);
+    }
+};
+
+const saveBookingFilters = ({activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,currentPage}) => {
+    try {
+        const filtersToStore = {activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,currentPage};
+        setItemSafe(BOOKING_FILTERS_KEY, JSON.stringify(filtersToStore));
+    } catch (error) {
+        console.error('Error saving booking list filters to localStorage:', error);
+    }
+};
+
 export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
@@ -54,6 +118,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [customDateFrom, setCustomDateFrom] = useState('');
     const [customDateTo, setCustomDateTo] = useState('');
     const [isManualDateFilter, setIsManualDateFilter] = useState(false);
+    const [filtersLoaded, setFiltersLoaded] = useState(false);
     const [effectiveSearchId, setEffectiveSearchId] = useState(searchBookingId);
     const [onlineDrivers, setOnlineDrivers] = useState([]);
     const [selectedHour, setSelectedHour] = useState(moment().hour()); 
@@ -63,10 +128,9 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [showDriverHours, setShowDriverHours] = useState(false);
     const [isCustomDatePopoverOpen, setIsCustomDatePopoverOpen] = useState(false);
     const [followupLoading, setFollowupLoading] = useState({});
-    
 
 useEffect(() => {
-  const storedUser = localStorage.getItem('loggedInUser');
+  const storedUser = getItemSafe('loggedInUser');
   if (storedUser) {
     const userData = JSON.parse(storedUser);     
     setUserId(userData.id); 
@@ -88,13 +152,24 @@ useEffect(() => {
   }
 }, [onlineDrivers, selectedHour]);
     useEffect(() => {
-        const stored = localStorage.getItem('bookingSearchId') || '';
+        loadBookingFilters({setActiveTab,setStatusFilter,setServiceTypeFilter,setSourceFilter,setTripCoordinatorFilter,setZoneFilter,setDateFilter,setCustomDateFrom,setCustomDateTo,setPagination,setFiltersLoaded,
+        });
+    }, []);
+
+    useEffect(() => {
+        if (!filtersLoaded) return;
+            saveBookingFilters({activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,currentPage: pagination.currentPage
+        });
+    }, [filtersLoaded,activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,pagination.currentPage]);
+
+    useEffect(() => {
+        const stored = getItemSafe('bookingSearchId') || '';
         const newEffective = searchBookingId || stored;
         setEffectiveSearchId(newEffective);
         if (newEffective) {
-            localStorage.setItem('bookingSearchId', newEffective);
+            setItemSafe('bookingSearchId', newEffective);
         } else if (!searchBookingId) {
-            localStorage.removeItem('bookingSearchId');
+            setItemSafe('bookingSearchId', '');
         }
     }, [searchBookingId]);
     const handleToggleDriverHours = () => {
@@ -118,12 +193,12 @@ const handleTabChange = (value) => {
         // console.log('Tab changed to:', value);
         setActiveTab(value);
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
-       setStatusFilter(['All']); // Reset status filter
-        setSourceFilter(['All']); // Reset source filter
-        // setStatusFilter(['All']); // Reset filters to avoid filtering out data
-        // setServiceTypeFilter(['All']);
-        // setSourceFilter(['All']);
-        setTripCoordinatorFilter(['All']);
+        // setStatusFilter(['All']); // Reset status filter
+        // setSourceFilter(['All']); // Reset source filter
+        // // setStatusFilter(['All']); // Reset filters to avoid filtering out data
+        // // setServiceTypeFilter(['All']);
+        // // setSourceFilter(['All']);
+        // setTripCoordinatorFilter(['All']);
                 setCustomDateFrom('');
                 setCustomDateTo('');
                 setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : value === 'CUSTOM_DATE' ? 'Custom date' : 'All');
@@ -364,6 +439,9 @@ const handleTabChange = (value) => {
                     }
                 }, [onRegisterRefresh]);
     useEffect(() => {
+        if (!filtersLoaded) {
+            return;
+        }
         // Skip automatic API call if we're in the middle of a manual date filter operation
         if (isManualDateFilter) {
             setIsManualDateFilter(false);
@@ -376,7 +454,7 @@ const handleTabChange = (value) => {
         // }, 10000);
 
         // return () => clearInterval(intervalId);
-    }, [customerId, effectiveSearchId, bookingStage, type, pagination.currentPage, activeTab, statusFilter, sourceFilter, tripCoordinatorFilter, zoneFilter, dateFilter, customDateFrom, customDateTo]);
+    }, [customerId, effectiveSearchId, bookingStage, type, pagination.currentPage, activeTab, statusFilter, sourceFilter, tripCoordinatorFilter, zoneFilter, dateFilter, customDateFrom, customDateTo, filtersLoaded]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= pagination.totalPages) {
@@ -802,7 +880,7 @@ const handleTabChange = (value) => {
                                         {label}
                                     </Typography>
                         {value === 'CUSTOM_DATE' && (
-                            <Popover placement="bottom-start" open={isCustomDatePopoverOpen}>
+                            <Popover placement="bottom-start" open={isCustomDatePopoverOpen} handler={setIsCustomDatePopoverOpen}>
                                 <PopoverHandler>
                                     <div className="flex items-center cursor-pointer ml-2">
                                         <ChevronDownIcon className="w-5 h-5 text-gray-600" />
@@ -830,7 +908,12 @@ const handleTabChange = (value) => {
                                             <input
                                                 type="date"
                                                 value={customDateTo}
-                                                onChange={(e) => setCustomDateTo(e.target.value)}
+                                                onChange={(e) => { const value = e.target.value; 
+                                                    setCustomDateTo(value);
+                                                    if (customDateFrom && value) {
+                                                        setIsCustomDatePopoverOpen(false);
+                                                    }
+                                                }}
                                                 onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                 className="px-3 py-1 ml-4 border border-gray-300 rounded-md text-sm"
                                                 // min={customDateFrom || undefined}
