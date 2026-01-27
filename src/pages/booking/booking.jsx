@@ -129,6 +129,14 @@ const Booking = (props) => {
   }, []);
 
   useEffect(() => {
+    const storedSearchId = localStorage.getItem('bookingSearchId') || '';
+    if (storedSearchId) {
+      setSearchBookingId((prev) => prev || storedSearchId);
+      setSearchText((prev) => prev || storedSearchId);
+    }
+  }, []);
+
+  useEffect(() => {
     if (selectedAreaId) {
       const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
       const newServices = (selectedArea ? selectedArea.services : []).filter(services => Feature.parcel || services !== 'PARCEL');
@@ -500,9 +508,6 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
-         localStorage.removeItem('bookingSearchId');
-        if (refreshFn) refreshFn();
-        
         if (params && params.refreshData) {
             setShowQuickCreateCustomer(false);
         }

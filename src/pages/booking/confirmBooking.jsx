@@ -1438,7 +1438,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                 <span className="text-gray-900 font-medium">₹ { Math.round((bookingDetails?.value?.estimatedPrice) - ( bookingDetails?.discount?.amount)) }</span>
                                             </div>
                                         )}
-                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.packageType != 'Outstation' &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
+                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO'  &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
                                     <span className="text-gray-900 font-medium">{(Number(bookingDetails?.totalDistanceKilometer))} Kms</span>
@@ -1891,8 +1891,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <Typography className="text-sm text-black font-medium"> {Number(bookingDetails?.extraKMs).toFixed(2)}</Typography>
                                 </div>
                                  }
-                                  {bookingDetails?.finalFareBreakdown?.extraKm?.kilometers > 0 && (bookingDetails?.serviceType === 'RIDES' ||
-  bookingDetails?.serviceType === 'AUTO') && (
+                                  {bookingDetails?.finalFareBreakdown?.extraKm?.kilometers > 0  && (
                                 <div className="flex justify-between my-1">
                                     <Typography 
                                     color="gray" 
@@ -1961,9 +1960,9 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraNightChargePrice)}</Typography>
                                     </div>
                                 }
-                                {bookingDetails?.extraHourPrice > 0 &&
+                                {bookingDetails?.extraHours > 0 &&
                                     <div className="flex justify-between  my-1">
-                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra hrs price (After first 15 minus):</Typography>
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra hrs price (After first 15 mins):</Typography>
                                         <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.extraHourPrice)}</Typography>
                                     </div>
                                 }
@@ -1985,14 +1984,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                     } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes)} x ${bookingDetails?.finalFareBreakdown?.extraHours?.rate})`}</Typography>
                                                 <Typography className="text-sm text-black font-medium">₹ {Math.round(bookingDetails?.finalFareBreakdown?.extraHours?.charge)}</Typography>
                                             </div>)}
-                                        {amount.extraKMs > 0 &&
+                                        {/* {amount.extraKMs > 0 &&
                                             <div className="flex justify-between  my-1">
-                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">  {`Extra KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">  {`Extrad KM's Fare: (${Number(amount?.extraKMs).toFixed(2)} x ${Number(amount?.extraKMPrice)})`}</Typography>
                                                 <Typography className="text-sm text-black font-medium">
                                                     ₹ {Math.round(amount?.extraKMs * amount?.extraKMPrice)}
                                                 </Typography>
                                             </div>
-                                        }
+                                        } */}
                                         {amount.extraNightCharge > 0 &&
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
