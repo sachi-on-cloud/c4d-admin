@@ -193,12 +193,12 @@ const handleTabChange = (value) => {
         // console.log('Tab changed to:', value);
         setActiveTab(value);
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
-       setStatusFilter(['All']); // Reset status filter
-        setSourceFilter(['All']); // Reset source filter
-        // setStatusFilter(['All']); // Reset filters to avoid filtering out data
-        // setServiceTypeFilter(['All']);
-        // setSourceFilter(['All']);
-        setTripCoordinatorFilter(['All']);
+        // setStatusFilter(['All']); // Reset status filter
+        // setSourceFilter(['All']); // Reset source filter
+        // // setStatusFilter(['All']); // Reset filters to avoid filtering out data
+        // // setServiceTypeFilter(['All']);
+        // // setSourceFilter(['All']);
+        // setTripCoordinatorFilter(['All']);
                 setCustomDateFrom('');
                 setCustomDateTo('');
                 setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : value === 'CUSTOM_DATE' ? 'Custom date' : 'All');
