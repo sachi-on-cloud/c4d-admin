@@ -89,11 +89,23 @@ const saveBookingFilters = ({activeTab,statusFilter,serviceTypeFilter,sourceFilt
     }
 };
 
+        const getInitialActiveTab = () => {
+            try {
+                const storedFilters = getItemSafe(BOOKING_FILTERS_KEY);
+                if (!storedFilters) return "ALL_BOOKINGS";
+                const parsed = JSON.parse(storedFilters);
+                return parsed.activeTab || "ALL_BOOKINGS";
+            } catch (error) {
+                console.error('Error reading initial activeTab from localStorage:', error);
+                return "ALL_BOOKINGS";
+            }
+        };
+
 export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
-    const [activeTab, setActiveTab] = useState("ALL_BOOKINGS");
+    const [activeTab, setActiveTab] = useState(getInitialActiveTab);
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
@@ -193,12 +205,12 @@ const handleTabChange = (value) => {
         // console.log('Tab changed to:', value);
         setActiveTab(value);
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
-        // setStatusFilter(['All']); // Reset status filter
-        // setSourceFilter(['All']); // Reset source filter
-        // // setStatusFilter(['All']); // Reset filters to avoid filtering out data
-        // // setServiceTypeFilter(['All']);
-        // // setSourceFilter(['All']);
-        // setTripCoordinatorFilter(['All']);
+        // Reset all filters when switching tabs
+        setStatusFilter(['All']);
+        setServiceTypeFilter(['All']);
+        setSourceFilter(['All']);
+        setTripCoordinatorFilter(['All']);
+        setZoneFilter(['All']);
                 setCustomDateFrom('');
                 setCustomDateTo('');
                 setDateFilter(value === 'TODAY' ? 'Today' : value === 'REMAINING' ? 'Future' : value === 'CUSTOM_DATE' ? 'Custom date' : 'All');
