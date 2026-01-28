@@ -153,8 +153,6 @@ useEffect(() => {
 
 // Clear booking search and stored filters once on initial page load (browser hard refresh)
 useEffect(() => {
-  setEffectiveSearchId('');
-  setItemSafe('bookingSearchId', '');
   if (isBrowser()) {
     try {
       localStorage.removeItem(BOOKING_FILTERS_KEY);
