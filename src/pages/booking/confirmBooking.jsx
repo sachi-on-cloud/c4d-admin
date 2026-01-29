@@ -958,12 +958,13 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
         >
           <option value="">Select cancellation reason</option>
           <option value="No Cabs Available">No Cabs Available</option>
+           <option value="Cab Taking Too Long to Arrive">Just checking the price</option>
           <option value="Cab Taking Too Long to Arrive">Cab Taking Too Long to Arrive</option>
           <option value="Booked by Mistake">Booked by Mistake</option>
           <option value="Wrong Service Selected">Wrong Service Selected</option>
           <option value="Got a Ride Elsewhere">Got a Ride Elsewhere</option>
           <option value="Change of Plans">Change of Plans</option>
-          <option value="Price Variation">Price Variation</option>
+          <option value="Price Variation">Price is high</option>
           <option value="Other Reason">Other Reason</option>
         </select>
 
