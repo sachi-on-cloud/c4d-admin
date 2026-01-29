@@ -1871,18 +1871,18 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </Typography>
                                 </div>
                                 )}
-                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" &&bookingDetails?.packageType !== "Local" && bookingDetails?.serviceType !== 'DRIVER' && (
+                                {/* {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" &&bookingDetails?.packageType !== "Local" && bookingDetails?.serviceType !== 'DRIVER' && ( */}
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
-                                         <Typography className="text-sm text-black font-medium">{bookingDetails?.totalHours +'Hrs' }</Typography>
+                                         <Typography className="text-sm text-black font-medium">{bookingDetails?.totalHours +' Hrs' }</Typography>
                                     </div>
-                                )}
-                                 {bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local" && (
+                                {/* // )} */}
+                                 {/* {bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local" && (
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
                                         <Typography className="text-sm text-black font-medium">{ bookingDetails?.totalHours +'Hrs' }</Typography>
                                     </div>
-                                )}
+                                )} */}
                                 {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
                                     <div className="flex justify-between my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate km:</Typography>
@@ -2028,6 +2028,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Waiting Charge</Typography>
                                                 <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.paymentDetails?.details?.waitingCharge}</Typography>
+                                            </div>
+                                        }
+                                        {bookingDetails?.paymentDetails?.details?.cancelCharge  > 0 &&
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Cancellation Charge</Typography>  
+                                                <Typography className="text-sm text-black font-medium">₹ {bookingDetails?.paymentDetails?.details?.cancelCharge}</Typography>
                                             </div>
                                         }
                                     </> : ""
