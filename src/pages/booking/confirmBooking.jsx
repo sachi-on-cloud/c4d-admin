@@ -1399,10 +1399,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </div>
                                 )} 
                             {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.value?.estimatedDistance > 0 &&
+                                (bookingDetails?.serviceType === 'RIDES' || bookingDetails?.serviceType === 'AUTO') && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
                                     <span className="text-gray-900 font-medium">{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</span>
                                 </div>
+                                )
                             }
                             {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED &&  bookingDetails?.estimatedDistance > 0 && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO"&&
                                 <div className="flex flex-col-2 gap-2">
