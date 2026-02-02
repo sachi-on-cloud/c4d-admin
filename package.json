@@ -31,6 +31,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "6.17.0",
     "react-select": "^5.8.3",
+    "recharts": "^3.7.0",
     "sweetalert2": "^11.17.2",
     "yup": "^1.4.0"
   },

@@ -6,6 +6,8 @@ export const constants = {
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
+    // url_dev:'https://unfawning-downy-harrison.ngrok-free.dev',
+    // url_dev:'https://perihelial-ariella-unserious.ngrok-free.dev',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou',
     url_uat: 'https://uat.api.c4d.smartapis.cyou',
@@ -995,6 +997,7 @@ export const API_ROUTES = {
     'GET_DRIVER_OFFER':'/driver-offers',
     'POST_DRIVER_OFFER_ASSIGN':'/driver-offers/assign',
     'GET_DRIVER_OFFER_ASSIGN':'/driver-offers/assignments',
+    'REPORT':'/dashboard/report'
 
 };
 

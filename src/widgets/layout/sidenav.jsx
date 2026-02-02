@@ -31,6 +31,7 @@ import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
+  { name: "Reports", path: "/dashboard/reports", permission: "Users", end: true },
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
   { name: "Leads", path: "/dashboard/leads", permission: "Home", end: true },
   { name: "Rate Card", path: "/dashboard/rental-rate-card", permission: "Home", end: true },
@@ -205,6 +206,11 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           className={`h-6 w-6 text-black`}
                         />
                       ) : null}
+                      {name === "Reports" ? (
+                        <ChartBarIcon
+                          className={`h-6 w-6 text-black`}
+                        />
+                      ) : null}
                       {name === "Leads" ? (
                          <UsersIcon className="h-6 w-6 text-black" />
                       ): null}
@@ -284,7 +290,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         </Tooltip>
                       )}
 
-                      {!miniSidenav && name !== "Home" && name !== 'Calls' && name !== 'Rate Card' && name !== 'Leads' && (
+                      {!miniSidenav && name !== "Home" && name !== 'Calls' && name !== 'Rate Card' && name !== 'Leads' && name !== 'Reports' &&(
                         <div className="ml-auto">
                           {isActive ? (
                             <ChevronUpIcon className="w-5 h-5" />
