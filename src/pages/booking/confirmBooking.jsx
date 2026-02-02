@@ -1713,7 +1713,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     {bookingDetails?.dropAddress?.name || bookingDetails?.endAddress?.name || "Not Added"}
                                 </span>
                             </div>
-                            {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'DRIVER' && (
+                            {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'DRIVER' && (bookingDetails?.driverStartAddress?.name?.trim() || Number(bookingDetails?.value?.driverWithin) > 0) && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">{bookingDetails?.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Points:</span>
                                     <span className="text-gray-900 font-medium">
