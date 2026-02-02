@@ -1415,14 +1415,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 (bookingDetails?.serviceType === 'RIDES' || bookingDetails?.serviceType === 'AUTO') && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
-                                    <span className="text-gray-900 font-medium">{(Number(bookingDetails?.value?.distanceEstimated) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</span>
+                                    <span className="text-gray-900 font-medium">{(Number(bookingDetails?.value?.distanceEstimated || 0) + Number(bookingDetails?.value?.driverWithin || 0)).toFixed(2)} Kms</span>
                                 </div>
                                 )
                             }
                             {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED &&  bookingDetails?.estimatedDistance > 0 && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO"&&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance :</span>
-                                    <span className="text-gray-900 font-medium">{bookingDetails?.estimatedDistance} Kms</span>
+                                    <span className="text-gray-900 font-medium">{Number(bookingDetails?.estimatedDistance || 0).toFixed(2)} Kms</span>
                                 </div>
                             }
                              {(bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES')   && bookingDetails?.status !== "ENDED" &&(
@@ -1455,7 +1455,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <span className="text-gray-900 font-medium">₹ {bookingDetails?.discount?.amount} </span>
                                             </div>
                                         )}
-                                        {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" &&bookingDetails?.status !== "END_OTP" &&(
+                                        {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP" &&(
                                           <div className="flex flex-col-2 gap-2">  
                                         <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                                 <span className="text-gray-900 font-medium">₹ {Number(
@@ -1466,7 +1466,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO'  &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
-                                    <span className="text-gray-900 font-medium">{(Number(bookingDetails?.totalDistanceKilometer)+Number (bookingDetails?.value?.driverWithin ||0))} Kms</span>
+                                    <span className="text-gray-900 font-medium">{(Number(bookingDetails?.totalDistanceKilometer)+Number (bookingDetails?.value?.driverWithin ||0)).toFixed(2)} Kms</span>
                                 </div>
                             }
                             {bookingDetails?.estimatedFareBreakdown?.primeLocation?.charge > 0 && 
@@ -1940,10 +1940,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </Typography>
                                 </div>
                                 )}
-                                 {bookingDetails?.value?.driverWithin !== 0 && bookingDetails?.packageType !== "Local" &&<div className="flex justify-between  my-1">
+                                 {Number(bookingDetails?.value?.driverWithin || 0) > 0 && bookingDetails?.packageType !== "Local" &&<div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Driver to Pickup Distance</Typography>
                                     <Typography className="text-sm text-black font-medium">
-                                        {(bookingDetails?.value?.driverWithin+ 2).toFixed(1)} Km
+                                        {(Number(bookingDetails?.value?.driverWithin || 0)).toFixed(2)} Km
                                     </Typography>
                                 </div>}
                                 {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && <div className="flex justify-between  my-1">
@@ -1957,7 +1957,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 
                                         <div className="flex justify-between  my-1">
                                             <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total KM:</Typography>
-                                            <Typography className="text-sm text-black font-medium">{(Number(bookingDetails?.totalDistanceKilometer) + Number(bookingDetails?.value?.driverWithin)).toFixed(1)} Kms</Typography>
+                                            <Typography className="text-sm text-black font-medium">{(Number(bookingDetails?.totalDistanceKilometer) + Number(bookingDetails?.value?.driverWithin)).toFixed(2)} Kms</Typography>
                                         </div>
                                     
                                  }
@@ -2315,7 +2315,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
         // Calculate totalKm
         const startKm = bookingDetails?.startKM ? parseFloat(bookingDetails.startKM) : 0;
         const endKm = bookingDetails?.endKM ? parseFloat(bookingDetails.endKM) : 0;
-        const totalKm = (endKm - startKm).toFixed(1);
+        const totalKm = (endKm - startKm).toFixed(2);
 
         // Construct tripDetails payload
         const tripDetails = {
