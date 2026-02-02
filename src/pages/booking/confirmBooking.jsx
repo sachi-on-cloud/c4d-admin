@@ -252,6 +252,19 @@ const ConfirmBooking = (props) => {
         const mins = Math.round(totalMins % 60);          // round to nearest minute
         return `${hrs} hrs : ${mins.toString().padStart(2, "0")} mins`;
         };
+    const getTotalDurationMinutes = (startTime, endTime) => {
+        if (!startTime || !endTime) return null;
+
+        const start = moment(startTime);
+        const end = moment(endTime);
+
+        if (!start.isValid() || !end.isValid() || !end.isAfter(start)) {
+            return null;
+        }
+
+        const duration = moment.duration(end.diff(start));
+        return Math.round(duration.asMinutes());
+    };
     const onConfirmPressHandler = async () => {
         setLoading(true);
         let dateTime = dateVal + " " + timeVal;
@@ -447,7 +460,6 @@ const ConfirmBooking = (props) => {
         customReason: "",
         cancelBy: "",
         cancelCharge: "",
-        customReason: "",
     });
 
     const handleCancelChange = (e) => {
@@ -948,10 +960,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
           value={cancelData.cancelReason}
           onChange={(e) => {
             const value = e.target.value;
-           setCancelData(prev => ({
+           setCancelData((prev) => ({
       ...prev,
       cancelReason: value,
-      cancelCustom: value === "Other Reason" ? "" : value,
+      customReason: value === "Other Reason" ? prev.customReason || "" : "",
     }));
           }}
           className="border border-gray-300 px-4 py-2 rounded-md w-full"
@@ -975,7 +987,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
             placeholder="Please specify the reason..."
             value={cancelData.customReason || ""}
             onChange={(e) =>
-              setCancelData(prev => ({
+              setCancelData((prev) => ({
                 ...prev,
                 // cancelReason: e.target.value,
                 customReason: e.target.value,
@@ -1033,7 +1045,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
         disabled={
           !cancelData.cancelBy ||
           !cancelData.cancelReason?.trim() ||
-          !cancelData.cancelCharge
+          !cancelData.cancelCharge || (cancelData.cancelBy === "SUPPORT_CANCELLED" && cancelData.cancelReason === "Other Reason" && !cancelData.customReason?.trim())
         }
                         >
                             Confirm Cancel
@@ -1233,13 +1245,13 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <span className="text-gray-900 font-medium">{bookingDetails?.bookingType}</span>
                                     </div>
                                     
+                                </>                                    
+                            )}
+                            {bookingDetails?.serviceType ==='DRIVER' && bookingDetails?.packageType === 'Outstation' && (
                                       <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Period:</span>
-                                        <span className="text-gray-900 font-medium">{bookingDetails?.Package?.extraCabType || '0' ? "Custom Date" : ''}</span>
+                                        <span className="text-gray-900 font-medium">{(bookingDetails?.Package?.extraCabType === '0' && bookingDetails?.Package?.period === '1')  ? "Custom Date" : bookingDetails?.Package?.period + ' Hrs'}</span>
                                     </div>
-                                    
-                                    </>
-                                    
                             )}
                             {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
                             <div className="flex flex-col-2 gap-2">
@@ -1860,7 +1872,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs:</Typography>
-                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium"> {minsToHHMM(bookingDetails.extraHours)}
+                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium"> {minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails.extraHours)}
                                     </Typography>
                                 </div>
                             )}
@@ -1868,22 +1880,24 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="sm" className="text-sm text-black font-medium">
-                                        {minsToHHMM(bookingDetails.extraHours)}
+                                        {minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails.extraHours)}
                                     </Typography>
                                 </div>
                                 )}
-                                {/* {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== "AUTO" && bookingDetails?.bookingType !== "DROP ONLY" &&bookingDetails?.packageType !== "Local" && bookingDetails?.serviceType !== 'DRIVER' && ( */}
-                                    <div className="flex justify-between  my-1">
+                                {bookingDetails?.estimatedMin > 0 && 
+                                <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate Hours:</Typography>
+                                         <Typography className="text-sm text-black font-medium">{minsToHHMM(bookingDetails?.estimatedMin)}</Typography>
+                                </div>
+                                }
+                       {bookingDetails?.startTime && bookingDetails?.endedTime && getTotalDurationMinutes(bookingDetails.startTime, bookingDetails.endedTime) !== null && (
+                                <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
-                                         <Typography className="text-sm text-black font-medium">{bookingDetails?.totalHours +' Hrs' }</Typography>
-                                    </div>
-                                {/* // )} */}
-                                 {/* {bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local" && (
-                                    <div className="flex justify-between  my-1">
-                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
-                                        <Typography className="text-sm text-black font-medium">{ bookingDetails?.totalHours +'Hrs' }</Typography>
-                                    </div>
-                                )} */}
+                                         <Typography className="text-sm text-black font-medium">
+                                            {minsToHHMM(getTotalDurationMinutes(bookingDetails.startTime, bookingDetails.endedTime))}
+                                        </Typography>
+                                </div>
+                                )}
                                 {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
                                     <div className="flex justify-between my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate km:</Typography>
@@ -1991,7 +2005,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.extraHours > 0 &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra hrs price (After first 15 mins):</Typography>
-                                        <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.extraHourPrice || 0).toFixed(2)}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge  || 0).toFixed(2)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
