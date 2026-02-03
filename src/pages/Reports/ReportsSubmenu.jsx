@@ -89,6 +89,7 @@ export const ReportsSubmenu = ({
                   { key: "daily", label: "Daily" },
                   { key: "weekly", label: "Weekly" },
                   { key: "monthly", label: "Monthly" },
+                  { key: "thismonth", label: "This Month" },
                   { key: "today", label: "Today" },
                   { key: "custom", label: "Custom" },
                 ].map((opt) => (

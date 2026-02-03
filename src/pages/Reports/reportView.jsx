@@ -16,11 +16,7 @@ export const ReportView = () => {
   const [activeTab, setActiveTab] = useState("operations");
   const [type, setType] = useState("daily");
   const [zone, setZone] = useState("All");
-  const [serviceAreas, setServiceAreas] = useState([
-    "Vellore",
-    "Chennai",
-    "kanchipuram",
-  ]);
+  const [serviceAreas, setServiceAreas] = useState([]);
   const [dashboardSummary, setDashboardSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +34,11 @@ export const ReportView = () => {
           return;
         }
 
-        const params = { type, zone };
+        const params = {
+          type,
+          zone,
+          tab: activeTab, // "operations" or "drivers"
+        };
         if (type === "custom") {
           params.startDate = customStartDate;
           params.endDate = customEndDate;
@@ -67,7 +67,7 @@ export const ReportView = () => {
     };
 
     fetchReports();
-  }, [type, zone, customStartDate, customEndDate]);
+  }, [type, zone, activeTab, customStartDate, customEndDate]);
 
   const operationsDashboard = dashboardSummary?.operationsDashboard || {};
   const driverDashboard = dashboardSummary?.driverDashboard || {};
