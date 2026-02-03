@@ -1943,7 +1943,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                  {Number(bookingDetails?.value?.driverWithin || 0) > 0 && bookingDetails?.packageType !== "Local" &&<div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Driver to Pickup Distance</Typography>
                                     <Typography className="text-sm text-black font-medium">
-                                        {(Number(bookingDetails?.value?.driverWithin || 0)).toFixed(2)} Km
+                                        {(Number(bookingDetails?.value?.driverWithin + 2 || 0)).toFixed(2)} Km
                                     </Typography>
                                 </div>}
                                 {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && <div className="flex justify-between  my-1">
