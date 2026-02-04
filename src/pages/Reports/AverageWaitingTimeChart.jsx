@@ -4,16 +4,15 @@ import Chart from "react-apexcharts";
 import { chartsConfig } from "@/configs";
 import { themeColors } from "@/theme/colors";
 
-export const AverageWaitingTimeChart = ({ report = [] }) => {
-  const sorted = [...report].sort((a, b) => new Date(a.day) - new Date(b.day));
-
-  const categories = sorted.map((item) => item.day);
-  const avgEtaValues = sorted.map((item) =>
-    Number(item.average_eta_minutes ?? 0)
-  );
-  const totalBookings = sorted.map((item) =>
-    Number(item.total_bookings ?? 0)
-  );
+export const AverageWaitingTimeChart = ({ summary = {} }) => {
+  const dayValue = summary?.period_start || summary?.period || "";
+  const categories = dayValue ? [dayValue] : [];
+  const avgEtaValues = dayValue
+    ? [Number(summary.average_eta_minutes ?? 0)]
+    : [];
+  const totalBookings = dayValue
+    ? [Number(summary.total_bookings ?? 0)]
+    : [];
 
   const chartConfig = {
     type: "line",

@@ -4,15 +4,12 @@ import Chart from "react-apexcharts";
 import { chartsConfig } from "@/configs";
 import { themeColors } from "@/theme/colors";
 
-export const TripCompletionRate = ({ report = [] }) => {
-  const sorted = [...report].sort(
-    (a, b) => new Date(a.booking_date) - new Date(b.booking_date)
-  );
-
-  const categories = sorted.map((item) => item.booking_date);
-  const completionRates = sorted.map((item) =>
-    Number(item.trip_completion_rate ?? 0)
-  );
+export const TripCompletionRate = ({ summary = {} }) => {
+  const dateValue = summary?.period_start || summary?.period || "";
+  const categories = dateValue ? [dateValue] : [];
+  const completionRates = dateValue
+    ? [Number(summary.trip_completion_rate ?? 0)]
+    : [];
 
   const chartConfig = {
     type: "area",

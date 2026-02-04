@@ -14,8 +14,21 @@ import { themeColors } from "@/theme/colors";
 const COLORS = ["#22C55E", "#A3E635"];
 
 export const DriverRatingDistributionChart = ({
-  data = [],
+  summary = {},
 }) => {
+  const stars = summary?.stars || {};
+  const data = [
+    { key: "5_star", label: "5★" },
+    { key: "4_star", label: "4★" },
+    { key: "3_star", label: "3★" },
+    { key: "2_star", label: "2★" },
+    { key: "1_star", label: "1★" },
+  ]
+    .map(({ key, label }) => ({
+      name: label,
+      value: Number(stars[key]?.trip_count ?? 0),
+    }))
+    .filter((item) => item.value > 0);
   return (
     <Card className="shadow-xl bg-white focus-visible:outline-none">
       <CardHeader

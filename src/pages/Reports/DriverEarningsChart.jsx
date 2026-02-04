@@ -13,7 +13,16 @@ import {
 } from "recharts";
 import { themeColors } from "@/theme/colors";
 
-export const DriverEarningsChart = ({ data = [] }) => {
+export const DriverEarningsChart = ({ summary = {} }) => {
+  const data = [
+    {
+      label: "Summary",
+      total_earnings: Number(summary.total_earnings ?? 0),
+      avg_earnings_per_trip: Number(
+        summary.average_earning_per_trip ?? 0
+      ),
+    },
+  ];
   return (
     <Card className="shadow-xl bg-white focus-visible:outline-none">
       <CardHeader
@@ -42,16 +51,10 @@ export const DriverEarningsChart = ({ data = [] }) => {
             >
               <CartesianGrid strokeDasharray="4 4" stroke="#0F172A" />
               <XAxis
-                dataKey="period"
+                dataKey="label"
                 tick={{ fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(value) =>
-                  new Date(value).toLocaleDateString("en-IN", {
-                    month: "short",
-                    day: "2-digit",
-                  })
-                }
               />
               <YAxis
                 yAxisId="left"
@@ -73,13 +76,6 @@ export const DriverEarningsChart = ({ data = [] }) => {
                   name === "Avg earnings / trip"
                     ? [`₹${value.toFixed(2)}`, name]
                     : [`₹${value}`, name]
-                }
-                labelFormatter={(value) =>
-                  new Date(value).toLocaleDateString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                  })
                 }
               />
               <Legend />

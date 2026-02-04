@@ -11,7 +11,13 @@ import {
 } from "recharts";
 import { themeColors } from "@/theme/colors";
 
-export const DriverChurnRateChart = ({ data = [] }) => {
+export const DriverChurnRateChart = ({ summary = {} }) => {
+  const data = [
+    {
+      label: "Overall",
+      churn_rate_pct: Number(summary.overall_churn_rate_pct ?? 0),
+    },
+  ];
   return (
     <Card className="shadow-xl bg-white focus-visible:outline-none">
       <CardHeader
@@ -40,16 +46,10 @@ export const DriverChurnRateChart = ({ data = [] }) => {
             >
               <CartesianGrid strokeDasharray="4 4" stroke="#111827" />
               <XAxis
-                dataKey="period_label"
+                dataKey="label"
                 tick={{ fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(value) =>
-                  new Date(value).toLocaleDateString("en-IN", {
-                    month: "short",
-                    day: "2-digit",
-                  })
-                }
               />
               <YAxis
                 tick={{ fontSize: 11 }}
@@ -58,16 +58,7 @@ export const DriverChurnRateChart = ({ data = [] }) => {
                 tickLine={false}
                 tickFormatter={(value) => `${value}%`}
               />
-              <Tooltip
-                formatter={(value) => `${value.toFixed(2)}%`}
-                labelFormatter={(value) =>
-                  new Date(value).toLocaleDateString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                  })
-                }
-              />
+              <Tooltip formatter={(value) => `${value.toFixed(2)}%`} />
               <Line
                 type="monotone"
                 dataKey="churn_rate_pct"

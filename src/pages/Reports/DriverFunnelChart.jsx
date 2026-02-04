@@ -11,7 +11,25 @@ import {
 } from "recharts";
 import { themeColors } from "@/theme/colors";
 
-export const DriverFunnelChart = ({ data = [] }) => {
+export const DriverFunnelChart = ({ summary = {} }) => {
+  const data = [
+    {
+      stage: "Signups",
+      value: Number(summary.total_signups ?? 0),
+    },
+    {
+      stage: "Docs Submitted",
+      value: Number(summary.total_document_submitted ?? 0),
+    },
+    {
+      stage: "Verified",
+      value: Number(summary.total_verified ?? 0),
+    },
+    {
+      stage: "First Trip",
+      value: Number(summary.total_first_trip_completed ?? 0),
+    },
+  ].filter((item) => item.value > 0);
   return (
     <Card className="shadow-xl bg-white focus-visible:outline-none">
       <CardHeader

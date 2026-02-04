@@ -8,6 +8,7 @@ import { DriverFunnelChart } from "./DriverFunnelChart";
 import { DriverChurnRateChart } from "./DriverChurnRateChart";
 import { DriverEarningsChart } from "./DriverEarningsChart";
 import { DriverRatingDistributionChart } from "./DriverRatingDistributionChart";
+import { NoShowRateChart } from "./NoShowRateChart";
 import { ReportsSubmenu } from "./ReportsSubmenu";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
@@ -72,68 +73,6 @@ export const ReportView = () => {
   const operationsDashboard = dashboardSummary?.operationsDashboard || {};
   const driverDashboard = dashboardSummary?.driverDashboard || {};
 
-  const driverFunnelData = useMemo(() => {
-    const raw = driverDashboard.driverFunnel;
-    if (!Array.isArray(raw) || raw.length === 0) return undefined;
-    const stages = [
-      { key: "signups", label: "Signups" },
-      { key: "document_submitted", label: "Docs Submitted" },
-      { key: "verified", label: "Verified" },
-      { key: "first_trip_completed", label: "First Trip" },
-    ];
-    return stages.map(({ key, label }) => ({
-      stage: label,
-      value: raw.reduce(
-        (sum, item) => sum + (Number(item?.[key]) || 0),
-        0
-      ),
-    }));
-  }, [driverDashboard.driverFunnel]);
-
-  const driverEarningsAggregated = useMemo(() => {
-    const raw = driverDashboard.driverEarnings;
-    if (!Array.isArray(raw) || raw.length === 0) return undefined;
-
-    // raw is array of arrays; flatten then aggregate per period
-    const flat = raw.flat().filter(Boolean);
-    const byDate = flat.reduce((acc, item) => {
-      const period = item.period;
-      if (!period) return acc;
-      if (!acc[period]) {
-        acc[period] = { period, total_earnings: 0, total_trips: 0 };
-      }
-      acc[period].total_earnings += Number(item.total_earnings || 0);
-      acc[period].total_trips += Number(item.total_trips || 0);
-      return acc;
-    }, {});
-
-    return Object.values(byDate).map((row) => ({
-      ...row,
-      avg_earnings_per_trip:
-        row.total_trips > 0
-          ? Number(row.total_earnings / row.total_trips)
-          : 0,
-    }));
-  }, [driverDashboard.driverEarnings]);
-
-  const driverRatingDistribution = useMemo(() => {
-    const raw = driverDashboard.driverRatings;
-    if (!Array.isArray(raw) || raw.length === 0) return undefined;
-
-    const flat = raw.flat().filter(Boolean);
-    const grouped = flat.reduce((acc, item) => {
-      const rating = item.rating;
-      if (rating == null) return acc;
-      if (!acc[rating]) {
-        acc[rating] = { name: `${rating}★`, value: 0 };
-      }
-      acc[rating].value += Number(item.trip_count || 0);
-      return acc;
-    }, {});
-
-    return Object.values(grouped);
-  }, [driverDashboard.driverRatings]);
-
   return (
     <div className="mt-4 space-y-4">
       <div className="rounded-2xl bg-gradient-to-r from-blue-gray-900 via-blue-800 to-blue-900 px-6 py-4 shadow-sm">
@@ -190,37 +129,36 @@ export const ReportView = () => {
               {activeTab === "operations" && (
                 <div className="mt-4 grid gap-6 lg:grid-cols-2">
                   <TripCompletionRate
-                    report={
-                      operationsDashboard.tripCompletion?.report
-                    }
+                    summary={operationsDashboard.tripCompletion?.summary}
                   />
                   <AverageWaitingTimeChart
-                    report={
-                      operationsDashboard.averageWaitingTime?.report
-                    }
+                    summary={operationsDashboard.averageWaitingTime?.summary}
                   />
                   <DriverAcceptanceRateChart
-                    report={
-                      operationsDashboard.driverAcceptanceRate?.report
-                    }
+                    summary={operationsDashboard.driverAcceptanceRate?.summary}
                   />
                   <DemandSupplyRatioChart
-                    report={
-                      operationsDashboard.demandSupplyRatio?.report
-                    }
+                    summary={operationsDashboard.demandSupplyRatio?.summary}
+                  />
+                  <NoShowRateChart
+                    summary={operationsDashboard.noShowRateData?.summary}
                   />
                 </div>
               )}
 
               {activeTab === "drivers" && (
                 <div className="mt-4 grid gap-6 lg:grid-cols-2">
-                  <DriverFunnelChart data={driverFunnelData} />
-                  <DriverChurnRateChart
-                    data={driverDashboard.driverChurnRate}
+                  <DriverFunnelChart
+                    summary={driverDashboard.driverFunnel?.summary}
                   />
-                  <DriverEarningsChart data={driverEarningsAggregated} />
-                  <DriverRatingDistributionChart
-                    data={driverRatingDistribution}
+                   <DriverChurnRateChart
+                    summary={driverDashboard.driverChurnRate?.summary}
+                  />
+                   <DriverEarningsChart
+                    summary={driverDashboard.driverEarnings?.summary}
+                  />
+                   <DriverRatingDistributionChart
+                    summary={driverDashboard.driverRatings?.summary}
                   />
                 </div>
               )}

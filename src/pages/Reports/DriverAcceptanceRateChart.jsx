@@ -4,11 +4,12 @@ import Chart from "react-apexcharts";
 import { chartsConfig } from "@/configs";
 import { themeColors } from "@/theme/colors";
 
-export const DriverAcceptanceRateChart = ({ report = [] }) => {
-  const categories = report.map((item) => item.period);
-  const acceptanceRates = report.map((item) =>
-    Number(item.acceptance_rate ?? 0)
-  );
+export const DriverAcceptanceRateChart = ({ summary = {} }) => {
+  const periodValue = summary?.period_start || summary?.period || "";
+  const categories = periodValue ? [periodValue] : [];
+  const acceptanceRates = periodValue
+    ? [Number(summary.average_acceptance_rate ?? 0)]
+    : [];
 
   const chartConfig = {
     type: "line",
