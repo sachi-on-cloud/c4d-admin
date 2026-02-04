@@ -16,8 +16,8 @@ const ReceiptPDFLayout = ({
       <div className="border-b-4 border-blue-800 py-6 text-center">
         <div className="inline-flex items-center gap-2 pb-6 bg-blue-800 px-8 py-2 rounded-full text-white font-bold tracking-wide">
           ROOT
-          <span className="text-yellow-400 text-xl">•</span>
-          {bookingDetails?.serviceType === "AUTO" ? "AUTO" : "CABS"}
+          {/* <span className="text-yellow-400 text-xl">•</span> */}
+          {bookingDetails?.serviceType === "AUTO" ? " • AUTO" : " • CABS"}
         </div>
 
         {!(
