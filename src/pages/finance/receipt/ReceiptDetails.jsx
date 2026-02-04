@@ -9,6 +9,7 @@ import moment from 'moment';
 import { themeColors } from "@/theme/colors";
 import { Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
 import ConfirmBooking from "@/pages/booking/confirmBooking";
+import ReceiptPDFLayout from '@/components/ReceiptDownload';
 
 const ReceiptDetails = () => {
     const [receipt, setReceipt] = useState({});
@@ -407,97 +408,20 @@ const ReceiptDetails = () => {
                     </>
                 )}
             </div>
-            <div 
-    ref={pdfRef} 
-    className="fixed -top-[9999px] left-0 w-[800px] bg-white p-12 shadow-2xl font-sans"
-    style={{ transform: 'scale(0.85)', transformOrigin: 'top left' }}
->
-    {/* Simple Root Cabs Receipt - Matching the image exactly */}
-   <div className="flex mb-5">
-  {/* Logo - Left side */}
-  <div >
-    <img
-      src="/img/app_icon_root.png"
-      alt="ROOT CABS"
-      className="h-16 w-16 mr-4 rounded-full ring-2 ring-primary-200"
-    />
-     
-  </div>
-
-  {/* Center content */}
-  <div >
-   <h3 className="text-3xl font-bold text-gray-800">Here’s your receipt for the ride.</h3>
-  </div>
-</div>
-
-
-
-    <div className="space-y-6 text-lg">
-         <div className="flex justify-between">
-            <span className="font-medium">Receipt ID:</span>
-            <span>{receipt.receiptNumber}</span> 
-        </div>
-         <div className="flex justify-between">
-            <span className="font-medium">Booking ID:</span>
-            <span> {bookingDetails?.bookingNumber}</span> 
-        </div>
-        <div className="flex justify-between">
-            <span className="font-medium">Booking Date:</span>
-            <span>{formatDate(bookingDetails?.startTime || receipt.created_at)}</span> 
-        </div>
-        
-        <div className="flex justify-between">
-            <span className="font-medium">Customer Name:</span>
-            <span>{receipt?.Customer?.firstName}</span> 
-        </div>
-       
-
-        <hr className="border-gray-400" />
-
-        <div className="flex justify-between font-bold text-xl">
-            <span>Total</span>
-            <span>Rs. { finalAmountAfterExtras  || "0"}</span>
-        </div>
-
-        <div className="flex justify-between">
-            <span>Payment Method</span>
-            <span className="uppercase">{receipt.paymentType || "ONLINE"}</span>
-        </div>
-
-        <div className="flex justify-between">
-            <span>Status</span>
-            <span className="text-green-600 font-semibold">{bookingDetails?.paymentStatus || " "}</span>
-        </div>
-    </div>
-    <hr className="border-gray-400 mt-10" />
-    
-    <div className="mt-10 space-y-3 text-base text-gray-700">
-        
-        
-        <p className="font-semibold"> Driver Name: {receipt?.Driver?.firstName || "N/A"}</p>
-        <p><strong>License Plate:</strong> {bookingDetails?.Cab?.car_number|| " "}</p>
-        <p><strong>Service:</strong> {
-    bookingDetails?.serviceType === 'DRIVER' ? 'ACTING DRIVER' :
-    bookingDetails?.serviceType === 'RIDES' ? 'Local Rides' :
-    bookingDetails?.packageType === 'Local' ? 'Hourly Package' :
-    bookingDetails?.bookingType === 'DROP ONLY' ? 'Drop Taxi' :
-    bookingDetails?.serviceType === 'AUTO' ? 'Auto' :
-     bookingDetails?.serviceType === 'PARCEL' ? 'Parcel' :
-    'Outstation'
-  } | Kilometers: {Number(bookingDetails?.estimatedDistance || "1").toFixed(2)} | Duration: {bookingDetails?.totalHours ? `${bookingDetails.totalHours} hrs` : minsToHHMM(bookingDetails?.extraHours || 49)}</p>
-        
-        <p className="mt-4">
-            {moment(bookingDetails.startTime).format("hh:mm A")}: {bookingDetails?.pickupFormatAddress?.name || "Not Added"}
-        </p>
-        <p>
-             {moment(bookingDetails.endedTime).format("hh:mm A")}: {bookingDetails?.dropFormatAddress?.name || "Not Added"}
-        </p>
-    </div>
-<hr className="border-gray-400 mt-10" />
-    <div className="text-left text-sm text-gray-500 mt-10">
-        <p>Thank you for riding with us!</p>
-    </div>
-</div>
+                <div
+                ref={pdfRef}
+                className="fixed -top-[9999px] left-0 w-[794px] font-sans"
+                >
+                <ReceiptPDFLayout
+                        receipt={receipt}
+                        bookingDetails={bookingDetails}
+                        additionalCharges={additionalCharges}
+                        finalAmountAfterExtras={finalAmountAfterExtras}
+                        payment={payment}
+                        formatDate={formatDate}
+                        minsToHHMM={minsToHHMM}
+                        />
+                </div>
 
             <div className="flex justify-center gap-6 mt-10">
                 <Button onClick={() => navigate('/dashboard/finance/receipt')} className={`px-8 ${ColorStyles.backButton}`}>
