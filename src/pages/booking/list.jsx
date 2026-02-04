@@ -928,19 +928,19 @@ const handleTabChange = (value) => {
                                             <Typography variant="small" className="text-gray-600">
                                                 To:
                                             </Typography>
-                                            <input
+                                           <input
                                                 type="date"
                                                 value={customDateTo}
-                                                onChange={(e) => { const value = e.target.value; 
-                                                    setCustomDateTo(value);
-                                                    if (customDateFrom && value) {
-                                                        setIsCustomDatePopoverOpen(false);
+                                                onChange={(e) => setCustomDateTo(e.target.value)}
+                                                onBlur={() => {
+                                                    if (customDateFrom && customDateTo) {
+                                                    setIsCustomDatePopoverOpen(false);
                                                     }
                                                 }}
                                                 onClick={(e) => e.target.showPicker && e.target.showPicker()}
                                                 className="px-3 py-1 ml-4 border border-gray-300 rounded-md text-sm"
                                                 // min={customDateFrom || undefined}
-                                            />
+                                                />
                                         </div>
                                         {/* <Button
                                             size="sm"
