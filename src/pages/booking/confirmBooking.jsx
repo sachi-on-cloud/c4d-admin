@@ -2321,7 +2321,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
         const tripDetails = {
             bookingId: bookingDetails?.id || null,
             bookingNumber: bookingDetails?.bookingNumber || null,
-            cabId: bookingDetails?.Cab?.id || null,
+            // cabId: bookingDetails?.Cab?.id || null,
             driverId: bookingDetails?.Driver?.id || null,
             customerId: bookingDetails?.Customer?.id || null,
             tripDate: moment().format('YYYY-MM-DD'),
@@ -2348,13 +2348,16 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
             latitude: bookingDetails?.startLat ? parseFloat(bookingDetails.startLat) : 0, // Included for compatibility
             userId: loggedInUserId || null,
         };
+           if (bookingDetails?.Cab?.id) {
+                        tripDetails.cabId = bookingDetails.Cab.id;
+                      }
 
         // Validate required fields
         const requiredFields = [
             'bookingId',
             'bookingNumber',
             'tripDate',
-            'vehicleNumber',
+            // 'vehicleNumber',
             'driverName',
             'startAddress',
             'endAddress',
