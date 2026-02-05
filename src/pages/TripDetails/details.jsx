@@ -81,7 +81,7 @@ const DetailsTrip = () => {
                   Trip Date
                 </Typography>
                 <Input
-                  value={trip.tripDate || 'N/A'}
+                  value={trip.tripDate || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -91,7 +91,7 @@ const DetailsTrip = () => {
                   Vehicle Number
                 </Typography>
                 <Input
-                  value={trip.Cab?.carNumber || 'N/A'}
+                  value={trip.Cab?.carNumber || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -103,7 +103,7 @@ const DetailsTrip = () => {
                   Driver Name
                 </Typography>
                 <Input
-                  value={trip.Driver?.firstName || 'N/A'}
+                  value={trip.Driver?.firstName || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -113,7 +113,7 @@ const DetailsTrip = () => {
                   Booking ID
                 </Typography>
                 <Input
-                  value={trip.Booking?.bookingNumber|| 'N/A'}
+                  value={trip.Booking?.bookingNumber|| '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -125,7 +125,7 @@ const DetailsTrip = () => {
                   Trip Type
                 </Typography>
                 <Input
-                  value={trip.tripType || 'N/A'}
+                  value={trip.tripType || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -135,7 +135,7 @@ const DetailsTrip = () => {
                   Trip Start Point
                 </Typography>
                 <Input
-                  value={trip.startAddress?.address || trip.startAddress || 'N/A'}
+                  value={trip.startAddress?.address || trip.startAddress || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -147,7 +147,7 @@ const DetailsTrip = () => {
                   Trip End Point
                 </Typography>
                 <Input
-                  value={trip.endAddress?.address || trip.endAddress || 'N/A'}
+                  value={trip.endAddress?.address || trip.endAddress || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -157,7 +157,7 @@ const DetailsTrip = () => {
                   Opening KM
                 </Typography>
                 <Input
-                  value={parseFloat(trip.startKm) || 'N/A'}
+                  value={parseFloat(trip.startKm) || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -183,7 +183,7 @@ const DetailsTrip = () => {
                   Total KM
                 </Typography>
                 <Input
-                  value={((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || 'N/A'}
+                  value={((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -195,7 +195,7 @@ const DetailsTrip = () => {
                   Fuel Type
                 </Typography>
                 <Input
-                  value={trip.fuelType || 'N/A'}
+                  value={trip.fuelType || '-'}
                   readOnly
                   className="w-full bg-gray-100 border-gray-300 rounded-md"
                 />

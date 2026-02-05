@@ -155,7 +155,7 @@ const AddTripDetails = () => {
       'bookingId',
       'bookingNumber',
       'tripDate',
-      'vehicleNumber',
+      // 'vehicleNumber',
       'driverName',
       'startAddress',
       'endAddress',
@@ -176,30 +176,36 @@ const AddTripDetails = () => {
 
     try {
       setLoading(true);
-      const response = await ApiRequestUtils.post(API_ROUTES.ADD_TRIP_DETAILS, {
-        bookingId: formData.bookingId,
-        tripDate: formData.tripDate,
-        latitude: formData.startLat,
-        startLat: formData.startLat,
-        startLong: formData.startLong,
-        startAddress: { address: formData.startAddress },
-        endLat: formData.endLat,
-        endLong: formData.endLong,
-        endAddress: { address: formData.endAddress },
-        startKm: parseFloat(formData.startKm),
-        endKm: parseFloat(formData.endKm),
-        totalKm: parseFloat(formData.totalKm),
-        fuelType: formData.fuelType,
-        fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : 0,
-        tripFare: parseFloat(formData.tripFare),
-        notes: formData.notes,
-        customerId: formData.customerId,
-        cabId: formData.cabId,
-        driverId: formData.driverId,
-        toll: formData.toll ? parseFloat(formData.toll) : 0,
-        permit: formData.permit ? parseFloat(formData.permit) : 0,
-        tripType: formData.tripType, // Added tripType to API payload
-      });
+     const payload = {
+                        bookingId: formData.bookingId,
+                        tripDate: formData.tripDate,
+                        latitude: formData.startLat,
+                        startLat: formData.startLat,
+                        startLong: formData.startLong,
+                        startAddress: { address: formData.startAddress },
+                        endLat: formData.endLat,
+                        endLong: formData.endLong,
+                        endAddress: { address: formData.endAddress },
+                        startKm: parseFloat(formData.startKm),
+                        endKm: parseFloat(formData.endKm),
+                        totalKm: parseFloat(formData.totalKm),
+                        fuelType: formData.fuelType,
+                        fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : 0,
+                        tripFare: parseFloat(formData.tripFare),
+                        notes: formData.notes,
+                        customerId: formData.customerId,
+                        driverId: formData.driverId,
+                        toll: formData.toll ? parseFloat(formData.toll) : 0,
+                        permit: formData.permit ? parseFloat(formData.permit) : 0,
+                        tripType: formData.tripType,
+                      };
+
+
+                      if (formData.cabId) {
+                        payload.cabId = formData.cabId;
+                      }
+
+                      const response = await ApiRequestUtils.post( API_ROUTES.ADD_TRIP_DETAILS, payload);
 
       if (response?.success) {
         setFormData({

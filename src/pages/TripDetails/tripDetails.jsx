@@ -408,20 +408,20 @@ const TripDetails = () => {
                 ) : (
                   trips.map((trip, index) => (
                     <tr key={index}>
-                      <td className="p-2 whitespace-nowrap">{trip.tripDate || 'N/A'}</td>
+                      <td className="p-2 whitespace-nowrap">{trip.tripDate || '-'}</td>
                       <td
                         onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)}
                         className="p-2 text-blue-500 font-semibold underline cursor-pointer"
                       >
-                        {trip.BookingId || 'N/A'}
+                        {trip.BookingId || '-'}
                       </td>
-                      <td className="p-2">{trip.tripType || 'N/A'}</td>
-                      <td className="p-2">{trip.Cab?.carNumber || 'N/A'}</td>
-                      <td className="p-2">{trip.Driver?.firstName || 'N/A'}</td>
-                      <td className="p-2">{trip.startAddress?.address || trip.startAddress || 'N/A'}</td>
-                      <td className="p-2">{trip.endAddress?.address || trip.endAddress || 'N/A'}</td>
-                      <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || 'N/A'}</td>
-                      <td className="p-2">₹{parseFloat(trip.tripFare) || 'N/A'}</td>
+                      <td className="p-2">{trip.tripType || '-'}</td>
+                      <td className="p-2">{trip.Cab?.carNumber || '-'}</td>
+                      <td className="p-2">{trip.Driver?.firstName || '-'}</td>
+                      <td className="p-2">{trip.startAddress?.address || trip.startAddress || '-'}</td>
+                      <td className="p-2">{trip.endAddress?.address || trip.endAddress || '-'}</td>
+                      <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || '-'}</td>
+                      <td className="p-2">₹{parseFloat(trip.tripFare) || '-'}</td>
                     </tr>
                   ))
                 )}
