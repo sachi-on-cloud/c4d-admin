@@ -205,11 +205,11 @@ useEffect(() => {
         const isRoundTripCustom =
             isDriverOutstation &&
             values?.tripType === 'Round Trip' &&
-            values?.packageSelected === 'custome_date';
+            values?.packageSelected === 'custom_date';
         if (!isDriverOutstation || isRoundTripCustom) {
             quoteData.toDate = moment(`${values?.toDate} ${values?.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();
         }
-        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && values?.packageSelected && values?.packageSelected !== 'custome_date') {
+        if (values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && values?.packageSelected && values?.packageSelected !== 'custom_date') {
             quoteData.packageType = 'Outstation';
             quoteData.packageId = Number(values.packageSelected);
             quoteData.period = Number(values.packageSelected);
@@ -594,9 +594,9 @@ useEffect(() => {
             const selectedPackage = packageTypeSelectedData.find(
                 (pkg) => pkg.id === Number(values?.packageSelected)
             );
-            const period = values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation'? (values?.packageSelected && values?.packageSelected !== 'custome_date' ? Number(values?.packageSelected) : ''): (values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER'? selectedPackage?.period || '' : '');
+            const period = values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation'? (values?.packageSelected && values?.packageSelected !== 'custom_date' ? Number(values?.packageSelected) : ''): (values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER'? selectedPackage?.period || '' : '');
             data = {
-                packageId: values?.packageSelected === "0" || values?.packageSelected === "custome_date" ? 0 : Number(values?.packageSelected),
+                packageId: values?.packageSelected === "0" || values?.packageSelected === "custom_date" ? 0 : Number(values?.packageSelected),
                 packageType: values?.packageTypeSelected,
                 customerId: bookingData?.Customer?.id,
                 bookingId: bookingData?.id,
@@ -1010,7 +1010,7 @@ useEffect(() => {
                                     }}
                                 />
                             </div>
-                            {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && values.packageSelected === 'custome_date')) && ( <div className="flex-1 mb-2">
+                            {((values.serviceType === 'RENTAL' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip') || (values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && values.packageSelected === 'custom_date')) && ( <div className="flex-1 mb-2">
                                 <Typography variant="h6" className="mb-2">Return Date & Time</Typography>
                                 <Field
                                     type="datetime-local"
@@ -1072,7 +1072,7 @@ useEffect(() => {
                                     <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                 </div>
                             </div>}
-                            {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && values.tripType === 'Round Trip' && (
+                            {values.serviceType === 'DRIVER' && values.packageTypeSelected === 'Outstation' && (
                                 <div className="flex-1 mb-4">
                                     <div>
                                         <Typography variant="h6" className="mb-2">
@@ -1086,14 +1086,13 @@ useEffect(() => {
                                             onChange={(e) => {
                                                 const selectedId = e.target.value;
                                                 setFieldValue('packageSelected', selectedId);
-                                                if (selectedId === 'custome_date') {
+                                                if (selectedId === 'custom_date') {
                                                     setFieldValue('fromDate', '');
                                                     setFieldValue('toDate', '');
                                                 }
                                             }}
                                         >
                                             <option value="">Select Package</option>
-                                            <option value="custome_date">Custome Date</option>
                                             {packageTypeSelectedData
                                                 .filter(
                                                     (item) =>
@@ -1111,6 +1110,9 @@ useEffect(() => {
                                                         </option>
                                                     );
                                                 })}
+                                            {values.tripType === 'Round Trip' && (
+                                                <option value="custom_date">Custom Date</option>
+                                            )}
                                         </Field>
                                         <ErrorMessage name="packageSelected" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -1403,11 +1405,13 @@ useEffect(() => {
                                                                     </Typography>
                                                                     
                                                                     </>)}
-                                                                
+                                                                {values?.serviceType !== 'DRIVER' && 
+                                                                <>
                                                                 <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.value?.baseKm || quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                 <Typography>
                                                                     ₹   {Math.round(quoteDetails.amount?.baseFare)}
                                                                 </Typography>
+                                                                </>}
 
                                                                 {(quoteDetails.amount?.isPremiumFare !== true) && (values?.serviceType === "RENTAL" || values?.serviceType === "RENTAL_DROP_TAXI" || values?.serviceType === "RENTAL_HOURLY_PACKAGE") && (
                                                                     <>
@@ -1426,6 +1430,35 @@ useEffect(() => {
                                                                         </Typography>
                                                                     </>
                                                                 }
+                                                        {values?.serviceType === 'DRIVER' && (
+                                                        <>
+                                                            <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                            <Typography>
+                                                                ₹ {Number(quoteDetails.amount?.fareBreakdown?.baseFare).toFixed(2)}
+                                                            </Typography>
+                                                            <Typography color="gray" variant="h6">KM</Typography>
+                                                            <Typography>
+                                                                ₹ {Number(quoteDetails?.amount?.distanceEstimated || 0).toFixed(2)}
+                                                            </Typography>
+                                                            {quoteDetails.amount?.fareBreakdown?.dropCharge > 0 && <>
+                                                                <Typography color="gray" variant="h6">Drop Charge</Typography>
+                                                                <Typography>
+                                                                    ₹ {Number(quoteDetails.amount?.fareBreakdown?.dropCharge).toFixed(2)}
+                                                                </Typography>
+                                                            </>}
+                                                            {quoteDetails.amount?.fareBreakdown?.foodCharge > 0 && <>
+                                                                <Typography color="gray" variant="h6">Food Charge</Typography>
+                                                                <Typography>
+                                                                    ₹ {Number(quoteDetails.amount?.fareBreakdown?.foodCharge).toFixed(2)}
+                                                                </Typography>
+                                                            </>}
+                                                            {quoteDetails.amount?.fareBreakdown?.nightCharge > 0 && <>
+                                                                <Typography color="gray" variant="h6">Night Charge</Typography>
+                                                                <Typography>
+                                                                    ₹ {Number(quoteDetails.amount?.fareBreakdown?.nightCharge).toFixed(2)}
+                                                                </Typography>
+                                                            </>}
+                                                            </>)}
                                                                  <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
