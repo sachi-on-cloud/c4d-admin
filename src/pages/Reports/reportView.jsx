@@ -15,7 +15,7 @@ import { API_ROUTES } from "@/utils/constants";
 
 export const ReportView = () => {
   const [activeTab, setActiveTab] = useState("operations");
-  const [type, setType] = useState("daily");
+  const [type, setType] = useState("today");
   const [zone, setZone] = useState("All");
   const [serviceAreas, setServiceAreas] = useState([]);
   const [dashboardSummary, setDashboardSummary] = useState(null);
@@ -44,10 +44,7 @@ export const ReportView = () => {
           params.startDate = customStartDate;
           params.endDate = customEndDate;
         }
-        const response = await ApiRequestUtils.getWithQueryParam(
-          API_ROUTES.REPORT,
-          params
-        );
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.REPORT,params);
         if (response?.success && response?.dashboardSummary) {
           setDashboardSummary(response.dashboardSummary);
           if (
@@ -76,90 +73,46 @@ export const ReportView = () => {
   return (
     <div className="mt-4 space-y-4">
       <div className="rounded-2xl bg-gradient-to-r from-blue-gray-900 via-blue-800 to-blue-900 px-6 py-4 shadow-sm">
-        <Typography
-          variant="h5"
-          className="font-semibold text-white tracking-tight"
-        >
+        <Typography variant="h5" className="font-semibold text-white tracking-tight">
           Root Cabs Operations & Driver Insights
         </Typography>
-        <Typography
-          variant="small"
-          className="mt-1 text-sm text-blue-100"
-        >
-          Monitor trip performance, supply-demand health and driver engagement
-          in one glance.
+        <Typography variant="small" className="mt-1 text-sm text-blue-100">
+          Monitor trip performance, supply-demand health and driver engagement in one glance.
         </Typography>
       </div>
 
       <div className="mt-4">
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <div>
-            <ReportsSubmenu
-              value={activeTab}
-              onChange={setActiveTab}
-              type={type}
-              onTypeChange={setType}
-              onOpenCustomDate={() => setShowDateModal(true)}
-              zone={zone}
-              onZoneChange={setZone}
-              serviceAreas={serviceAreas}
-            />
+            <ReportsSubmenu value={activeTab} onChange={setActiveTab} type={type} onTypeChange={setType} onOpenCustomDate={() => setShowDateModal(true)} zone={zone} onZoneChange={setZone} serviceAreas={serviceAreas} />
           </div>
 
           {isLoading && (
-            <Typography
-              variant="small"
-              className="mt-4 text-sm text-blue-gray-500"
-            >
-              Loading dashboard reports…
-            </Typography>
+            <Typography variant="small" className="mt-4 text-sm text-blue-gray-500"> Loading dashboard reports… </Typography>
           )}
 
           {error && !isLoading && (
-            <Typography
-              variant="small"
-              className="mt-4 text-sm text-red-500"
-            >
-              {error}
-            </Typography>
+            <Typography variant="small"className="mt-4 text-sm text-red-500">{error} </Typography>
           )}
 
           {!isLoading && !error && (
             <>
               {activeTab === "operations" && (
                 <div className="mt-4 grid gap-6 lg:grid-cols-2">
-                  <TripCompletionRate
-                    summary={operationsDashboard.tripCompletion?.summary}
-                  />
-                  <AverageWaitingTimeChart
-                    summary={operationsDashboard.averageWaitingTime?.summary}
-                  />
-                  <DriverAcceptanceRateChart
-                    summary={operationsDashboard.driverAcceptanceRate?.summary}
-                  />
-                  <DemandSupplyRatioChart
-                    summary={operationsDashboard.demandSupplyRatio?.summary}
-                  />
-                  <NoShowRateChart
-                    summary={operationsDashboard.noShowRateData?.summary}
-                  />
+                  <TripCompletionRate summary={operationsDashboard.tripCompletion?.summary} />
+                  <AverageWaitingTimeChart summary={operationsDashboard.averageWaitingTime?.summary} />
+                  <DriverAcceptanceRateChart summary={operationsDashboard.driverAcceptanceRate?.summary} />
+                  <DemandSupplyRatioChart summary={operationsDashboard.demandSupplyRatio?.summary} />
+                  <NoShowRateChart summary={operationsDashboard.noShowRateData?.summary} />
                 </div>
               )}
 
               {activeTab === "drivers" && (
                 <div className="mt-4 grid gap-6 lg:grid-cols-2">
-                  <DriverFunnelChart
-                    summary={driverDashboard.driverFunnel?.summary}
-                  />
-                   <DriverChurnRateChart
-                    summary={driverDashboard.driverChurnRate?.summary}
-                  />
-                   <DriverEarningsChart
-                    summary={driverDashboard.driverEarnings?.summary}
-                  />
-                   <DriverRatingDistributionChart
-                    summary={driverDashboard.driverRatings?.summary}
-                  />
+                  <DriverFunnelChart summary={driverDashboard.driverFunnel?.summary} />
+                   <DriverChurnRateChart summary={driverDashboard.driverChurnRate?.summary} />
+                   <DriverEarningsChart summary={driverDashboard.driverEarnings?.summary} />
+                   <DriverRatingDistributionChart summary={driverDashboard.driverRatings?.summary} />
                 </div>
               )}
             </>
@@ -167,46 +120,27 @@ export const ReportView = () => {
         </div>
       </div>
 
-      <Dialog
-        open={showDateModal}
-        handler={() => setShowDateModal(false)}
-        size="sm"
-      >
+      <Dialog open={showDateModal} handler={() => setShowDateModal(false)} size="sm">
         <DialogHeader>Select Date Range</DialogHeader>
         <DialogBody className="space-y-4">
           <div className="flex flex-col gap-2">
-            <Typography variant="small" className="text-xs font-medium text-blue-gray-600">
-              Start Date
-            </Typography>
-            <Input
-              type="date"
-              value={customStartDate}
-              onChange={(e) => setCustomStartDate(e.target.value)}
-            />
+            <Typography variant="small" className="text-xs font-medium text-blue-gray-600">Start Date</Typography>
+            <Input type="date" value={customStartDate} onChange={(e) => setCustomStartDate(e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <Typography variant="small" className="text-xs font-medium text-blue-gray-600">
-              End Date
-            </Typography>
-            <Input
-              type="date"
-              value={customEndDate}
-              onChange={(e) => setCustomEndDate(e.target.value)}
-            />
+            <Typography variant="small" className="text-xs font-medium text-blue-gray-600">End Date</Typography>
+            <Input type="date" value={customEndDate} onChange={(e) => setCustomEndDate(e.target.value)} />
           </div>
           <div className="mt-4 flex justify-end gap-2">
-            <Button
-              variant="text"
-              size="sm"
+            <Button variant="text" size="sm"
               onClick={() => {
                 setShowDateModal(false);
-                setType("daily");
+                setType("today");
               }}
             >
               Cancel
             </Button>
-            <Button
-              size="sm"
+            <Button size="sm"
               onClick={() => {
                 if (customStartDate && customEndDate) {
                   setShowDateModal(false);

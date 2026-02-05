@@ -6,13 +6,16 @@ import { themeColors } from "@/theme/colors";
 
 export const DemandSupplyRatioChart = ({ summary = {} }) => {
   const slotLabel = summary?.peak_time_slot || "All";
-  const hasSummary =
-    summary && (summary.average_demand_supply_ratio != null);
+  const rawRatio = summary?.average_demand_supply_ratio;
+  const ratioNumber =
+    rawRatio == null ? null : Number(rawRatio);
+  const hasData =
+    slotLabel &&
+    ratioNumber != null &&
+    Number.isFinite(ratioNumber);
 
-  const slots = hasSummary ? [slotLabel] : [];
-  const ratios = hasSummary
-    ? [Number(summary.average_demand_supply_ratio ?? 0)]
-    : [];
+  const slots = hasData ? [slotLabel] : [];
+  const ratios = hasData ? [ratioNumber] : [];
 
   const chartConfig = {
     type: "bar",
@@ -81,7 +84,16 @@ export const DemandSupplyRatioChart = ({ summary = {} }) => {
         >
           Ratio of customer requests to online drivers for each time slot.
         </Typography>
-        <Chart {...chartConfig} />
+        {hasData ? (
+          <Chart {...chartConfig} />
+        ) : (
+          <Typography
+            variant="small"
+            className="mb-4 text-xs text-blue-gray-400"
+          >
+            No data available for the selected period.
+          </Typography>
+        )}
       </CardHeader>
     </Card>
   );

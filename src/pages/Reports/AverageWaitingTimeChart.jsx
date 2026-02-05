@@ -6,13 +6,25 @@ import { themeColors } from "@/theme/colors";
 
 export const AverageWaitingTimeChart = ({ summary = {} }) => {
   const dayValue = summary?.period_start || summary?.period || "";
-  const categories = dayValue ? [dayValue] : [];
-  const avgEtaValues = dayValue
-    ? [Number(summary.average_eta_minutes ?? 0)]
-    : [];
-  const totalBookings = dayValue
-    ? [Number(summary.total_bookings ?? 0)]
-    : [];
+
+  const rawAvgEta = summary?.average_eta_minutes;
+  const rawTotalBookings = summary?.total_bookings;
+
+  const avgEtaNumber =
+    rawAvgEta == null ? null : Number(rawAvgEta);
+  const totalBookingsNumber =
+    rawTotalBookings == null ? null : Number(rawTotalBookings);
+
+  const hasData =
+    !!dayValue &&
+    avgEtaNumber != null &&
+    Number.isFinite(avgEtaNumber) &&
+    totalBookingsNumber != null &&
+    Number.isFinite(totalBookingsNumber);
+
+  const categories = hasData ? [dayValue] : [];
+  const avgEtaValues = hasData ? [avgEtaNumber] : [];
+  const totalBookings = hasData ? [totalBookingsNumber] : [];
 
   const chartConfig = {
     type: "line",
@@ -106,7 +118,16 @@ export const AverageWaitingTimeChart = ({ summary = {} }) => {
         >
           Average ETA (in minutes) for completed trips per day.
         </Typography>
-        <Chart {...chartConfig} />
+        {hasData ? (
+          <Chart {...chartConfig} />
+        ) : (
+          <Typography
+            variant="small"
+            className="mb-4 text-xs text-blue-gray-400"
+          >
+            No data available for the selected period.
+          </Typography>
+        )}
       </CardHeader>
     </Card>
   );

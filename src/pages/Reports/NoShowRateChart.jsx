@@ -20,6 +20,7 @@ export const NoShowRateChart = ({ summary = {} }) => {
       data: categories.length ? [driverRate] : [],
     },
   ];
+  const hasData = categories.length > 0;
 
   const chartConfig = {
     type: "bar",
@@ -94,7 +95,16 @@ export const NoShowRateChart = ({ summary = {} }) => {
         >
           Percentage of confirmed trips where the customer or driver did not show up.
         </Typography>
-        <Chart {...chartConfig} />
+        {hasData ? (
+          <Chart {...chartConfig} />
+        ) : (
+          <Typography
+            variant="small"
+            className="mb-4 text-xs text-blue-gray-400"
+          >
+            No data available for the selected period.
+          </Typography>
+        )}
       </CardHeader>
     </Card>
   );

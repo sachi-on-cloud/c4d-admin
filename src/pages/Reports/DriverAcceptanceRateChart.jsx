@@ -10,6 +10,7 @@ export const DriverAcceptanceRateChart = ({ summary = {} }) => {
   const acceptanceRates = periodValue
     ? [Number(summary.average_acceptance_rate ?? 0)]
     : [];
+  const hasData = categories.length > 0 && acceptanceRates.length > 0;
 
   const chartConfig = {
     type: "line",
@@ -92,7 +93,16 @@ export const DriverAcceptanceRateChart = ({ summary = {} }) => {
         >
           Share of customer requests that drivers accept.
         </Typography>
-        <Chart {...chartConfig} />
+        {hasData ? (
+          <Chart {...chartConfig} />
+        ) : (
+          <Typography
+            variant="small"
+            className="mb-4 text-xs text-blue-gray-400"
+          >
+            No data available for the selected period.
+          </Typography>
+        )}
       </CardHeader>
     </Card>
   );

@@ -7,9 +7,8 @@ import { themeColors } from "@/theme/colors";
 export const TripCompletionRate = ({ summary = {} }) => {
   const dateValue = summary?.period_start || summary?.period || "";
   const categories = dateValue ? [dateValue] : [];
-  const completionRates = dateValue
-    ? [Number(summary.trip_completion_rate ?? 0)]
-    : [];
+  const completionRates = dateValue ? [Number(summary.trip_completion_rate ?? 0)] : [];
+  const hasData = categories.length > 0 && completionRates.length > 0;
 
   const chartConfig = {
     type: "area",
@@ -90,25 +89,14 @@ export const TripCompletionRate = ({ summary = {} }) => {
 
   return (
     <Card className="shadow-xl bg-white focus-visible:outline-none">
-      <CardHeader
-        floated={false}
-        shadow={false}
-        color="white"
-        className="px-4 pt-4 pb-0"
-      >
-        <Typography
-          variant="h6"
-          className="mb-1 text-base font-semibold text-blue-gray-800"
-        >
-          Trip Completion Rate
-        </Typography>
-        <Typography
-          variant="small"
-          className="mb-3 text-sm font-normal text-blue-gray-500"
-        >
-          Daily percentage of completed trips out of total bookings.
-        </Typography>
-        <Chart {...chartConfig} />
+      <CardHeader floated={false} shadow={false} color="white" className="px-4 pt-4 pb-0">
+        <Typography variant="h6" className="mb-1 text-base font-semibold text-blue-gray-800">Trip Completion Rate</Typography>
+        <Typography variant="small" className="mb-3 text-sm font-normal text-blue-gray-500">Daily percentage of completed trips out of total bookings.</Typography>
+        {hasData ? (
+          <Chart {...chartConfig} />
+        ) : (
+          <Typography variant="small" className="mb-4 text-xs text-blue-gray-400">No data available for the selected period.</Typography>
+        )}
       </CardHeader>
     </Card>
   );
