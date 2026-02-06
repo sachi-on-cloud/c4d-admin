@@ -946,7 +946,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "tripdetails reports",
-        path: "/tripDetails/reports",
+        path: "/reports/tripMasterReport",
         element: <Reports />,
         display: true,
         permission: "Trip Master",

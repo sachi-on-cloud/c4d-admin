@@ -43,6 +43,7 @@ const menuItems = [
   { name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { name: "Document Verification", path: "/dashboard/doc-verification", permission: "Document verification" },
   { name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
+   { name: "Reports", path: "/dashboard/reports/tripMasterReport", permission: "Reports" },
   { name: "Admin", path: "/dashboard/users", permission: "Users" },
 
 ];
@@ -264,6 +265,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       ) : null}
                       {name === "Marketing" ? (
                         <MegaphoneIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                          }`} />
+                      ) : null}
+                      {name === "Reports" ? (
+                        <DocumentTextIcon className={`h-6 w-6 rounded-sm text-black ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
                           }`} />
                       ) : null}
 
@@ -563,7 +568,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   <ul className="ml-0">
                     {[
                       { label: "Details", path: "/dashboard/tripDetails" },
-                      { label: "Reports", path: "/dashboard/tripDetails/reports" },
+                      // { label: "Reports", path: "/dashboard/tripDetails/reports" },
                     ].map(({ label, path }) => (
                       <li key={label}>
                         <NavLink to={path} end>
@@ -575,13 +580,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
                               fullWidth
                             >
                               {label === "Details"}
-                              {label === "Reports"
-                                // <img
-                                //   src="/img/pending_doc.png"
-                                //   alt="Pending Documents"
-                                //   className="h-6 w-6 rounded-full"
-                                // />
-                              }
+                              {/* {label === "Reports"
+                                <img
+                                  src="/img/pending_doc.png"
+                                  alt="Pending Documents"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              } */}
                               <Typography
                                 color="inherit"
                                 className="font-medium px-3 capitalize"
@@ -789,6 +794,41 @@ export function Sidenav({ brandImg, brandName, routes }) {
                             )}
                           </NavLink>
                         )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                  {name === "Reports" && openSubMenu === "Reports" && (
+                  <ul className="ml-0">
+                    {[
+                      { label: "TripMaster Reports", path: "/dashboard/reports/tripMasterReport" },
+                     
+                    ].map(({ label, path }) => (
+                      <li key={label}>
+                        <NavLink to={path} end>
+                          {({ isActive }) => (
+                            <Button
+                              variant="text"
+                              className={`flex items-center gap-0 px-8 capitalize mt-1  hover:bg-primary-700 ${isActive ? ColorStyles.sidenavColors : "bg-transparent"
+                                }`}
+                              fullWidth
+                            >
+                              {/* {label === "TripMaster Reports" && (
+                                <img
+                                  src="/img/Reports.jpg"
+                                  alt="TripMaster Reports"
+                                  className="h-6 w-6 rounded-full"
+                                />
+                              )} */}
+                              <Typography
+                                color="inherit"
+                                className="font-medium px-3 capitalize"
+                              >
+                                {label}
+                              </Typography>
+                            </Button>
+                          )}
+                        </NavLink>
                       </li>
                     ))}
                   </ul>
