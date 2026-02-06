@@ -977,6 +977,8 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
           <option value="Got a Ride Elsewhere">Got a Ride Elsewhere</option>
           <option value="Change of Plans">Change of Plans</option>
           <option value="Price Variation">Price is high</option>
+          <option value="Customer Not Reachable">Customer Not Reachable</option>
+          <option value="Moved to Different ID">Moved to Different ID</option>
           <option value="Other Reason">Other Reason</option>
         </select>
 
