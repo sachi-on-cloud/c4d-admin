@@ -151,17 +151,6 @@ useEffect(() => {
   }
 }, []);
 
-// Clear booking search and stored filters once on initial page load (browser hard refresh)
-useEffect(() => {
-  if (isBrowser()) {
-    try {
-      localStorage.removeItem(BOOKING_FILTERS_KEY);
-    } catch (error) {
-      console.error('Error clearing bookingListFilters on hard refresh:', error);
-    }
-  }
-}, []);
-
 useEffect(() => {
   if (onlineDrivers.length > 0) {
     const driverData = onlineDrivers.find(driver => {
