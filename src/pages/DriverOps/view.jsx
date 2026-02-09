@@ -75,8 +75,10 @@ const DriverOpsView = () => {
       setServiceAreas(filteredAreas || []);
 
       if (filteredAreas && filteredAreas.length > 0) {
-        // Default zone to first service area when data is loaded
-        setZone((prev) => prev || filteredAreas[3].name);
+        // Default zone safely: prefer 4th item if it exists, otherwise first
+        const defaultArea =
+          filteredAreas[3] || filteredAreas[0];
+        setZone((prev) => prev || defaultArea.name);
       }
     } catch (err) {
       console.error("Error fetching GEO_MARKINGS_LIST:", err);
