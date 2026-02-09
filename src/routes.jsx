@@ -124,6 +124,7 @@ import CustomerDiscountList from "./pages/finance/customerDiscount/list";
 import DriverOfferList from "./pages/finance/driverOffer/DriverOfferList";
 import DriverOfferAdd from "./pages/finance/driverOffer/add";
 import DriverOfferAssign from "./pages/finance/driverOffer/DriverOfferAssign";
+import DriverOpsView from "./pages/DriverOps/view";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -1115,6 +1116,14 @@ export const routes = [
         display: false,
         permission: "Calls",
       },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Ops",
+        path: "/driver-ops",
+        element: <DriverOpsView />,
+        display: false,
+        permission: "Driver Ops",
+      }
     ],
   },
   {
