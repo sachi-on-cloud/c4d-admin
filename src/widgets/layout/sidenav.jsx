@@ -32,6 +32,7 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
   { name: "Home", path: "/dashboard/booking", permission: "Home", end: true },
+  { name: "Driver Ops", path:"/dashboard/driver-ops" ,permission: "Driver Ops", end:true },
   { name: "Leads", path: "/dashboard/leads", permission: "Home", end: true },
   { name: "Rate Card", path: "/dashboard/rental-rate-card", permission: "Home", end: true },
   { name: "Calls", path: "/dashboard/users/exotel-calls/list", permission: "Calls" },
@@ -206,6 +207,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                           className={`h-6 w-6 text-black`}
                         />
                       ) : null}
+                      {name === "Driver Ops" ? (
+                        <ChartBarIcon className="h-6 w-6 text-black" />
+                      )
+                        : (null)}
                       {name === "Leads" ? (
                          <UsersIcon className="h-6 w-6 text-black" />
                       ): null}
@@ -289,7 +294,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
                         </Tooltip>
                       )}
 
-                      {!miniSidenav && name !== "Home" && name !== 'Calls' && name !== 'Rate Card' && name !== 'Leads' && (
+                      {!miniSidenav && name !== "Home" && name !== 'Calls' && name !== 'Rate Card' && name !== 'Leads' && name !== 'Driver Ops' && (
                         <div className="ml-auto">
                           {isActive ? (
                             <ChevronUpIcon className="w-5 h-5" />
