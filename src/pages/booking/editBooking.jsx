@@ -1463,10 +1463,12 @@ useEffect(() => {
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                 </Typography>
+                                                                {quoteDetails.amount?.gst_amount > 0 && <>(
                                                                  <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                 </Typography>
+                                                                )</>}
                                                                 <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
@@ -1837,10 +1839,12 @@ useEffect(() => {
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                 </Typography>
+                                                                {quoteDetails.amount?.gst_amount > 0 && (<>
                                                                  <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                 </Typography>
+                                                                </>)}
                                                                 <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice)}
@@ -2122,10 +2126,12 @@ useEffect(() => {
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                 </Typography>
+                                                                {quoteDetails.amount?.gst_amount > 0 && (<>
                                                                  <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                 </Typography>
+                                                                </>)}
                                                                 <Typography color="gray" variant="h6">Final Estimated Fare</Typography>
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.value?.estimatedPrice || quoteDetails.amount?.estimatedPrice)}

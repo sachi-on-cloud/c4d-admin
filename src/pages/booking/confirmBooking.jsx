@@ -2094,11 +2094,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </div>
                                 }
                                 {/* Amount After Gst:  */}
-
+                                {bookingDetails?.paymentDetails?.details?.gstAmount > 0 && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">TAX:</Typography>
                                     <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.paymentDetails?.details?.gstAmount || 0).toFixed(2)}</Typography>
                                 </div>
+                                )}
 
                                 <hr className="my-2" />
                                 {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&
