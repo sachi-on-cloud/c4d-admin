@@ -58,13 +58,23 @@ const loadBookingFilters = ({setActiveTab,setStatusFilter,setServiceTypeFilter,s
 
         const parsed = JSON.parse(storedFilters);
 
-        if (parsed.activeTab) setActiveTab(parsed.activeTab);
+        if (parsed.activeTab) {
+            setActiveTab(parsed.activeTab);
+        }
         if (Array.isArray(parsed.statusFilter)) setStatusFilter(parsed.statusFilter);
         if (Array.isArray(parsed.serviceTypeFilter)) setServiceTypeFilter(parsed.serviceTypeFilter);
         if (Array.isArray(parsed.sourceFilter)) setSourceFilter(parsed.sourceFilter);
         if (Array.isArray(parsed.tripCoordinatorFilter)) setTripCoordinatorFilter(parsed.tripCoordinatorFilter);
         if (Array.isArray(parsed.zoneFilter)) setZoneFilter(parsed.zoneFilter);
-        if (parsed.dateFilter) setDateFilter(parsed.dateFilter);
+        // Keep date filter consistent with active tab
+        if (parsed.activeTab === 'CUSTOM_DATE') 
+            {
+                setDateFilter('Custom date');
+            }
+        else if (parsed.dateFilter) 
+            {
+            setDateFilter(parsed.dateFilter);
+        }
         if (parsed.customDateFrom) setCustomDateFrom(parsed.customDateFrom);
         if (parsed.customDateTo) setCustomDateTo(parsed.customDateTo);
         if (typeof parsed.currentPage === 'number') {
@@ -325,6 +335,8 @@ const handleTabChange = (value) => {
     }, [activeTab ,onTypeChange]);
 
     const getBookingsList = async (page = 1) => {
+        // For custom date tab, only hit API when both dates are selected
+        if ((activeTab === 'CUSTOM_DATE' || dateFilter === 'Custom date') && (!customDateFrom || !customDateTo)) {return;}
         setLoading(true);
     try {
         const filterType = {
@@ -339,25 +351,25 @@ const handleTabChange = (value) => {
         // Calculate startDate and endDate based on dateFilter
         let startDate = '';
         let endDate = '';
-        if (dateFilter === 'All') {
-            const all = moment().format('YYY-MM-DD');
-            startDate = "";
-            endDate = "";
-        }
-        else if (dateFilter === 'Today') {
+
+        if (activeTab === 'TODAY' || dateFilter === 'Today') {
             const today = moment().format('YYYY-MM-DD');
             startDate = today;
             endDate = today;
-        } else if (dateFilter === 'Future') {
+        } else if (activeTab === 'REMAINING' || dateFilter === 'Future') {
             const tomorrow = moment().add(1, 'day').format('YYYY-MM-DD');
             startDate = tomorrow;
             endDate = "";
         } else if (dateFilter === 'Last 7 days') {
             startDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
             endDate = moment().format('YYYY-MM-DD');
-        } else if (dateFilter === 'Custom date') {
+        } else if (activeTab === 'CUSTOM_DATE' || dateFilter === 'Custom date') {
             startDate = customDateFrom;
             endDate = customDateTo;
+        } else {
+            // All bookings (no date filter)
+            startDate = '';
+            endDate = '';
         }
         
         const queryParams = {
