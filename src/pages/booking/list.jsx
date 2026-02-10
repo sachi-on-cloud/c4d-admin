@@ -1021,7 +1021,7 @@ const handleTabChange = (value) => {
                                                             options={[
                                                                 { value: 'All', label: 'All' },
                                                                 { value: 'Vellore', label: 'Vellore' },
-                                                                { value: 'Thiruvannamalai', label: 'Thiruvannamalai' },
+                                                                { value: 'Tiruvannamalai', label: 'Tiruvannamalai' },
                                                                 { value: 'Chennai', label: 'Chennai' },
                                                                 { value: 'Kanchipuram', label: 'Kanchipuram' },
                                                             ]}
