@@ -48,12 +48,6 @@ export function LeadsView() {
   }, [searchQuery, sourceFilter]);
 
 
-  useEffect(() => {
-    if (pagination.currentPage !== 1 || pagination.search !== searchQuery.trim()) {
-      fetchLeads(pagination.currentPage, pagination.search, getSelectedSource());
-    }
-  }, [pagination.currentPage, pagination.search, sourceFilter]);
-
   const fetchLeads = async (page = 1, searchQuery = '', source = '') => {
     setLoading(true);
     try {
@@ -87,6 +81,7 @@ export function LeadsView() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination(prev => ({ ...prev, currentPage: page }));
+      fetchLeads(page, searchQuery.trim(), getSelectedSource());
     }
   };
 

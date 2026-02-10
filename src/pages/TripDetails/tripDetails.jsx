@@ -197,8 +197,8 @@ const TripDetails = () => {
 
   return (
     <div className="p-5 font-sans">
-      <h2 className="text-2xl text-primary-400">Trip Master</h2>
-      <div className="flex">
+      <h2 className="text-2xl font-bold text-black">Trip Master Details</h2>
+      {/* <div className="flex">
         <div className="mt-5 flex flex-wrap gap-5">
           <div className="bg-white p-4 rounded-lg shadow-md w-48">
             <div>Today’s KM</div>
@@ -229,10 +229,21 @@ const TripDetails = () => {
             + Add New Trip
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="mt-5 bg-white p-4 rounded-lg shadow-md">
-        <h3 className="text-lg">Recent Trips</h3>
+         <div className="flex justify-between items-center mb-4">
+          <div>
+        <h3 className="text-lg">Recent Trips</h3></div>
+         <div>
+          <button
+            onClick={() => navigate('/dashboard/tripDetails/add')}
+            className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-lg cursor-pointer"
+          >
+            + Add New Trip
+          </button>
+        </div>
+        </div>
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {loading ? (
           <div className="flex justify-center items-center py-4">
@@ -408,20 +419,20 @@ const TripDetails = () => {
                 ) : (
                   trips.map((trip, index) => (
                     <tr key={index}>
-                      <td className="p-2 whitespace-nowrap">{trip.tripDate || 'N/A'}</td>
+                      <td className="p-2 whitespace-nowrap">{trip.tripDate || '-'}</td>
                       <td
                         onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)}
                         className="p-2 text-blue-500 font-semibold underline cursor-pointer"
                       >
-                        {trip.BookingId || 'N/A'}
+                        {trip.BookingId || '-'}
                       </td>
-                      <td className="p-2">{trip.tripType || 'N/A'}</td>
-                      <td className="p-2">{trip.Cab?.carNumber || 'N/A'}</td>
-                      <td className="p-2">{trip.Driver?.firstName || 'N/A'}</td>
-                      <td className="p-2">{trip.startAddress?.address || trip.startAddress || 'N/A'}</td>
-                      <td className="p-2">{trip.endAddress?.address || trip.endAddress || 'N/A'}</td>
-                      <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || 'N/A'}</td>
-                      <td className="p-2">₹{parseFloat(trip.tripFare) || 'N/A'}</td>
+                      <td className="p-2">{trip.tripType || '-'}</td>
+                      <td className="p-2">{trip.Cab?.carNumber || '-'}</td>
+                      <td className="p-2">{trip.Driver?.firstName || '-'}</td>
+                      <td className="p-2">{trip.startAddress?.address || trip.startAddress || '-'}</td>
+                      <td className="p-2">{trip.endAddress?.address || trip.endAddress || '-'}</td>
+                      <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || '-'}</td>
+                      <td className="p-2">₹{parseFloat(trip.tripFare) || '-'}</td>
                     </tr>
                   ))
                 )}

@@ -2479,11 +2479,23 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             </Typography>
                                                             </div>
                                                             <div className="flex justify-between">
+                                                                <Typography color="gray" variant="h6">KM:</Typography>
+                                                                <Typography>
+                                                                    {Number(quoteDetails.amount?.distanceEstimated).toFixed(2) || 0} kms
+                                                                </Typography>
+                                                            </div>
+                                                            <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Car Type:</Typography>
                                                                                 <Typography>
                                                                                     {values.carType || quoteDetails.amount?.carType || ''}
                                                                                 </Typography>
                                                                             </div>
+                                                            <div className="flex justify-between">
+                                                                <Typography color="gray" variant="h6">Base Fare:</Typography>
+                                                                <Typography>
+                                                                    ₹ {quoteDetails.amount?.fareBreakdown?.baseFare}
+                                                            </Typography>
+                                                        </div>
                                                                         {/* <div className="flex justify-between">
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
@@ -2522,6 +2534,14 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                      ₹ {Math.round(quoteDetails.amount?.gst_amount || '')}
                                                                                 </Typography>
                                                                             </div>
+                                                                            {quoteDetails.amount?.fareBreakdown?.nightCharge > 0 && 
+                                                                            <div className="flex justify-between">
+                                                                                <Typography color="gray" variant="h6">Night Charge :</Typography>
+                                                                                <Typography>
+                                                                                     ₹ {(quoteDetails.amount?.fareBreakdown?.nightCharge || 0)}
+                                                                                </Typography>
+                                                                            </div>
+                                                                            }
                                                                              <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Final Estimate Fare:</Typography>
                                                                                 <Typography>
@@ -2725,12 +2745,46 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                           {minsToHHMM(quoteDetails.amount?.distanceEstimated)}
                                                                         </Typography>
                                                                         </>)}
-                                                                      
+                                                                      {values?.serviceType !=='DRIVER' && (
+                                                                        <>
                                                                         <Typography color="gray" variant="h6">Base Fare upto {quoteDetails.amount?.baseKm} Kilometer</Typography>
                                                                         <Typography>
                                                                             ₹ {Math.round(quoteDetails.amount?.baseFare)}
                                                                         </Typography>
-                                                                        
+                                                                        </>)}
+                                                                    {values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation' && (
+                                                                        <>
+                                                                            <Typography color="gray" variant="h6">Car Type:</Typography>
+                                                                            <Typography>
+                                                                                {values.carType || quoteDetails.amount?.carType || ''}
+                                                                            </Typography>
+                                                                            <Typography color="gray" variant="h6">Base Fare</Typography>
+                                                                            <Typography>
+                                                                                ₹ {Number(quoteDetails.amount?.fareBreakdown?.baseFare).toFixed(2)}
+                                                                            </Typography>
+                                                                            <Typography color="gray" variant="h6">KM</Typography>
+                                                                            <Typography>
+                                                                                ₹ {Number(quoteDetails?.amount?.distanceEstimated || 0).toFixed(2)}
+                                                                            </Typography>                                                                            
+                                                                            {quoteDetails.amount?.fareBreakdown?.dropCharge > 0 && <>
+                                                                                <Typography color="gray" variant="h6">Drop Charge</Typography>
+                                                                                <Typography>
+                                                                                    ₹ {Number(quoteDetails.amount?.fareBreakdown?.dropCharge).toFixed(2)}
+                                                                                </Typography>
+                                                                            </>}
+                                                                            {quoteDetails.amount?.fareBreakdown?.foodCharge > 0 && <>
+                                                                                <Typography color="gray" variant="h6">Food Charge</Typography>
+                                                                                <Typography>
+                                                                                    ₹ {Number(quoteDetails.amount?.fareBreakdown?.foodCharge).toFixed(2)}
+                                                                                </Typography>
+                                                                            </>}
+                                                                            {quoteDetails.amount?.fareBreakdown?.nightCharge > 0 && <>
+                                                                                <Typography color="gray" variant="h6">Night Charge</Typography>
+                                                                                <Typography>
+                                                                                    ₹ {Number(quoteDetails.amount?.fareBreakdown?.nightCharge).toFixed(2)}
+                                                                                </Typography>
+                                                                            </>}
+                                                                        </>)}
                                                                         {/* {quoteDetails.amount.driverWithin > 0 && values.serviceType !== 'DRIVER' &&
                                                                         <>
                                                                         <Typography color="gray" variant="h6">Driver Km For Pickup Location</Typography>
