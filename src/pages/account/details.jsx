@@ -60,6 +60,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             <option value="">Select Type</option>
                                             <option value="Individual">Owner Cum Driver</option>
                                             <option value="Company">Travels</option>
+                                            <option value="Auto">Auto</option>
                                              {...(Feature.parcel ? [
                                             <option value="Parcel">Bike</option>
                                             ]: [])}
