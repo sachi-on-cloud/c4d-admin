@@ -27,7 +27,7 @@ const TripTypeDemandTimeOfDayLine = ({ filterParams }) => {
           filterType: filterParams?.filterType,
           zone: filterParams?.zone,
           date: filterParams?.date,
-          serviceTypes: selectedTypes,
+          serviceTypes: JSON.stringify(selectedTypes),
         };
 
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVER_SERVICES_TRIP_DEMAND,params);
@@ -101,7 +101,7 @@ const TripTypeDemandTimeOfDayLine = ({ filterParams }) => {
   })();
 
   const chartConfig = {
-    type: "line",
+    type: "area",
     height: 360,
     options: {
       chart: {
@@ -144,13 +144,25 @@ const TripTypeDemandTimeOfDayLine = ({ filterParams }) => {
           color: "#e5e7eb",
         },
       },
-      colors: ["#c2410c", "#ea580c", "#f97316"], // darker oranges
+      // Darker, saturated palette for stronger lines/areas
+      colors: ["#b91c1c", "#166534", "#1c09ca"],
       stroke: {
         curve: "smooth",
-        width: 3,
+        width: 4,
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          shadeIntensity: 0.9,
+          opacityFrom: 0.85,
+          opacityTo: 0.25,
+          stops: [0, 40, 100],
+        },
       },
       markers: {
-        size: 4,
+        size: 6,
+        strokeWidth: 8,
+        colors: ["#b91c1c", "#166534", "#1c09ca"],
       },
       tooltip: {
         enabled: true,
