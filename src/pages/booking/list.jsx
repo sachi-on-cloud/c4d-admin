@@ -142,6 +142,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [isManualDateFilter, setIsManualDateFilter] = useState(false);
     const [filtersLoaded, setFiltersLoaded] = useState(false);
     const [effectiveSearchId, setEffectiveSearchId] = useState(searchBookingId);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const [onlineDrivers, setOnlineDrivers] = useState([]);
     const [selectedHour, setSelectedHour] = useState(moment().hour()); 
     const [selectedDriver, setSelectedDriver] = useState(null); 
@@ -205,7 +206,21 @@ useEffect(() => {
   setSelectedTime(driverData ? moment(driverData.date_time).format(' hh:mm A') : moment().format(' hh:mm A'));
   setShowDriverHours(false); // Hide the popup after selection
 };
+const fetchServiceAreas = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+            if (response?.success) {
+                const areas = response.data.filter(area => area.type === 'Service Area');
+                setServiceAreas(areas);
+            }
+        } catch (err) {
+            console.error("Failed to load service areas for filter:", err);
+        }
+    };
 
+    useEffect(() => {
+        fetchServiceAreas();
+    }, []);
 const handleTabChange = (value) => {
     if (typeof value !== 'string') {
         console.warn('Unexpected value in handleTabChange:', value);
@@ -1016,18 +1031,18 @@ const handleTabChange = (value) => {
                                                             )}
                                                         </th>
                                                     ) : el === "Zone" ? (
-                                                        <FilterPopover
-                                                            title={el}
-                                                            options={[
-                                                                { value: 'All', label: 'All' },
-                                                                { value: 'Vellore', label: 'Vellore' },
-                                                                { value: 'Tiruvannamalai', label: 'Tiruvannamalai' },
-                                                                { value: 'Chennai', label: 'Chennai' },
-                                                                { value: 'Kanchipuram', label: 'Kanchipuram' },
-                                                            ]}
-                                                            selectedFilters={zoneFilter}
-                                                            onFilterChange={(value) => handleFilterChange('zone', value)}
-                                                        />
+                                                            <FilterPopover
+                                                                title={el}
+                                                                options={[
+                                                                    { value: 'All', label: 'All' },
+                                                                    ...serviceAreas.map(area => ({
+                                                                        value: area.name,
+                                                                        label: area.name
+                                                                    }))
+                                                                ]}
+                                                                selectedFilters={zoneFilter}
+                                                                onFilterChange={(value) => handleFilterChange('zone', value)}
+                                                            />
                                                     ) : el === "Status" ? (
                                                         <FilterPopover
                                                             title={el}
