@@ -1421,10 +1421,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                                 )
                             }
-                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED &&  bookingDetails?.estimatedDistance > 0 && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO"&&
+                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED &&  bookingDetails?.value?.estimatedDistance > 0 && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO"&&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance :</span>
-                                    <span className="text-gray-900 font-medium">{Number(bookingDetails?.estimatedDistance || 0).toFixed(2)} Kms</span>
+                                    <span className="text-gray-900 font-medium">{Number(bookingDetails?.value?.estimatedDistance || 0).toFixed(2)} Kms</span>
                                 </div>
                             }
                              {(bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES')   && bookingDetails?.status !== "ENDED" &&(
@@ -1878,7 +1878,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </Typography>
                                 </div>
                             )}
-                            {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
+                            
+                                {bookingDetails?.estimatedMin > 0 && 
+                                <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate Hours:</Typography>
+                                         <Typography className="text-sm text-black font-medium">{minsToHHMM(bookingDetails?.estimatedMin)}</Typography>
+                                </div>
+                                }
+                                {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="sm" className="text-sm text-black font-medium">
@@ -1886,12 +1893,6 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </Typography>
                                 </div>
                                 )}
-                                {bookingDetails?.estimatedMin > 0 && 
-                                <div className="flex justify-between  my-1">
-                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate Hours:</Typography>
-                                         <Typography className="text-sm text-black font-medium">{minsToHHMM(bookingDetails?.estimatedMin)}</Typography>
-                                </div>
-                                }
                        {bookingDetails?.startTime && bookingDetails?.endedTime && getTotalDurationMinutes(bookingDetails.startTime, bookingDetails.endedTime) !== null && (
                                 <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total Hours:</Typography>
@@ -2007,7 +2008,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 {bookingDetails?.extraHours > 0 &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra hrs price (After first 15 mins):</Typography>
-                                        <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge  || 0).toFixed(2)}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.rate  || 0).toFixed(2)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
@@ -2036,10 +2037,16 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                 </Typography>
                                             </div>
                                         } */}
-                                        {amount.extraNightCharge > 0 &&
+                                        {bookingDetails?.finalFareBreakdown?.nightCharge > 0 &&
                                             <div className="flex justify-between  my-1">
-                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${amount.extraNightCharge})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Number(amount?.extraNightCharge || 0).toFixed(2)}</Typography>
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${bookingDetails?.finalFareBreakdown?.nightCharge})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.nightCharge || 0).toFixed(2)}</Typography>
+                                            </div>
+                                        }
+                                        {bookingDetails?.finalFareBreakdown?.driverCharge > 0 &&
+                                            <div className="flex justify-between  my-1">
+                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Driver Charge: </Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.driverCharge || 0).toFixed(2)}</Typography>
                                             </div>
                                         }
                                          {bookingDetails?.finalFareBreakdown?.foodCharge > 0 &&
@@ -2094,11 +2101,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </div>
                                 }
                                 {/* Amount After Gst:  */}
-
+                                {bookingDetails?.paymentDetails?.details?.gstAmount > 0 && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">TAX:</Typography>
                                     <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.paymentDetails?.details?.gstAmount || 0).toFixed(2)}</Typography>
                                 </div>
+                                )}
 
                                 <hr className="my-2" />
                                 {bookingDetails?.paymentDetails?.details?.amountAfterGst !== 0 && bookingDetails?.paymentDetails?.details?.amountAfterGst &&

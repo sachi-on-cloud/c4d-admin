@@ -8,6 +8,7 @@ import { Button, Spinner } from '@material-tailwind/react';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
 import AutoList from '@/components/AutoList';
+import AutoDriverAccountNotes from '@/components/AutoDriverAccountNotes';
 
 const AutoDetails = ({ btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
@@ -188,6 +189,7 @@ const AutoDetails = ({ btnShow = false, noApprove = false }) => {
                     )}
                 </Formik>
             </div>
+            <AutoDriverAccountNotes accountId={accountVal?.id} />
             {accountVal && !btnShow && <AutoList cabsList={accountVal?.Autos} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
             {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} />}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}

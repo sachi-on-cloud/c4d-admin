@@ -2528,12 +2528,14 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             })()}
                                                                         </Typography>
                                                                         </div> */}
+                                                                        {quoteDetails.amount?.gst_amount > 0 && (
                                                                          <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">TAX Amount:</Typography>
                                                                                 <Typography>
                                                                                      ₹ {Math.round(quoteDetails.amount?.gst_amount || '')}
                                                                                 </Typography>
                                                                             </div>
+                                                                        )}
                                                                             {quoteDetails.amount?.fareBreakdown?.nightCharge > 0 && 
                                                                             <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Night Charge :</Typography>
@@ -2621,12 +2623,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                         })())}
                                                                                 </Typography>
                                                                             </div>
+                                                                            {quoteDetails.amount?.gst_amount > 0 && (
                                                                               <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">TAX Amount:</Typography>
                                                                                 <Typography>
                                                                                    ₹ {Math.round(quoteDetails.amount?.gst_amount || '')}
                                                                                 </Typography>
-                                                                            </div>  <div className="flex justify-between">
+                                                                            </div>
+                                                                            )}
+                                                                            <div className="flex justify-between">
                                                                                 <Typography color="gray" variant="h6">Estimate Fare:</Typography>
                                                                                 <Typography>
                                                                                     {quoteDetails.amount?.fare_after_gst|| ''}
@@ -2809,11 +2814,13 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                             </Typography>
                                                                         </>
                                                                         }
-                                                                
+                                                                    {quoteDetails.amount?.gst_amount > 0 && (
+                                                                        <>
                                                                          <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                         <Typography>
                                                                             ₹ {Math.round(quoteDetails.amount?.gst_amount)}
                                                                         </Typography>
+                                                                    </>)}
                                                                         <Typography color="gray" variant="h6">Estimated Fare</Typography>
                                                                         <Typography>
                                                                             ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
@@ -2916,18 +2923,21 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     ) : '';
                                                                 })()}</span> will be charged.
                                                             </Typography>
+                                                            {quoteDetails?.amount?.fareBreakdown?.gst_percentage > 0 && (
+                                                                <>
                                                              <Typography className="text-sm text-gray-700">
-                                                                • The estimated price includes  <span className="font-bold text-black">{values.gst_percentage|| '5'}%</span> tax.
+                                                                • The estimated price includes  <span className="font-bold text-black">{values.gst_percentage || '0'}%</span> tax.
                                                             </Typography>
+                                                            </>)}
                                                             <Typography className=" text-sm text-gray-700">
                                                                 • For every extra kilometer <span className="font-bold text-black">₹ {(() => {
                                                                     const selectedPackage = packageTypeSelectedData.find(pkg => pkg.id === Number(values.packageSelected));
                                                                 if (!selectedPackage) return '';
                                                                 const price =
-                                                                        values.carType === 'Mini' ? selectedPackage.extraKilometerPrice :
-                                                                            values.carType === 'Sedan' ? selectedPackage.extraKilometerPriceSedan :
-                                                                                values.carType === 'SUV' ? selectedPackage.extraKilometerPriceSuv :
-                                                                                    selectedPackage.extraKilometerPriceMVP;
+                                                                        values.carType === 'Mini' ? selectedPackage.extraKmPrice :
+                                                                            values.carType === 'Sedan' ? selectedPackage.extraKmPrice :
+                                                                                values.carType === 'SUV' ? selectedPackage.extraKmPrice :
+                                                                                    selectedPackage.extraKmPrice;
                                                                 return Math.round(Number(price || 0));
                                                                 })()}</span> will be charged.
                                                             </Typography>
