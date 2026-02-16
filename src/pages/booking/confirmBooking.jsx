@@ -88,6 +88,8 @@ const ConfirmBooking = (props) => {
     const hasSetIsOpen = typeof props?.setIsOpen === "function";
     const hasOnEdit = typeof props?.onEdit === "function";
     const hasOnAssignDriver = typeof props?.onAssignDriver === "function";
+    const fromPath = paramsPassed?.fromPath;
+    const backPath = fromPath || "/dashboard/booking";
     const triggerParentRefresh = () => {
         if (hasOnConfirm) {
             props.onConfirm();
@@ -97,7 +99,7 @@ const ConfirmBooking = (props) => {
         if (hasSetIsOpen) {
             props.setIsOpen(false);
         } else {
-            navigate("/dashboard/booking");
+            navigate(backPath);
         }
     };
     const handleEditAction = (booking) => {
@@ -106,7 +108,7 @@ const ConfirmBooking = (props) => {
         if (hasOnEdit) {
             props.onEdit(booking);
         } else {
-            navigate("/dashboard/booking", {
+            navigate(backPath, {
                 state: {
                     ...(location.state || {}),
                     editBooking: booking,
@@ -2424,7 +2426,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                 if (typeof props?.setIsOpen === "function") {
                     props.setIsOpen(false); 
                 } else {
-                    navigate("/dashboard/booking"); 
+                    navigate(backPath); 
                 }
 
             } else {

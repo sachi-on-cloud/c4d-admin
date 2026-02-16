@@ -28,7 +28,7 @@ export function Dashboard() {
       const userId = JSON.parse(user)?.id;
       const perm = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + userId);
       if(perm?.success){
-        setPermissions(perm?.data?.permission);
+        setPermissions(perm?.data?.permission || []);
       } else {
         console.error("Failed to fetch permissions:", perm?.message);
       }
@@ -63,7 +63,7 @@ export function Dashboard() {
         <aside className={`hidden lg:block ${miniSidenav ? 'w-[4.5rem]' : 'w-72'} h-full bg-blue-gray-100`}></aside>
 
         {/* Main column */}
-        <div className="relative flex min-w-0 flex-col">
+        <div className="relative flex min-w-0 flex-col bg-white sm:bg-blue-gray-100">
           {/* Mobile header: left hamburger, centered app icon */}
           <div className="grid grid-cols-3 items-center px-3 py-2 lg:hidden">
             <div className="flex justify-start">
@@ -95,7 +95,7 @@ export function Dashboard() {
           {/* Collapser moved inside Sidenav header for better aesthetics */}
 
           {/* Existing Topnav */}
-          <Topnav sidenavColor={sidenavColor} sidenavType={sidenavType} />
+          <Topnav sidenavColor={sidenavColor} sidenavType={sidenavType} permissions={permissions} />
 
           {/* Content area */}
           <div className="flex-1 min-w-0 px-4 lg:px-7 pt-4 overflow-y-auto bg-blue-gray-100">
@@ -103,7 +103,7 @@ export function Dashboard() {
               {routes.map(
                 ({ layout, pages }) =>
                   layout === "dashboard" &&
-                  pages.map(({ path, element, permission }) => (
+                  pages.map(({ path, element, permission, superUserOnly }) => (
                     <Route
                       key={path}
                       exact
@@ -113,6 +113,8 @@ export function Dashboard() {
                           element={element}
                           permission={permission}
                           permissions={permissions}
+                          superUserOnly={superUserOnly}
+                          requirePermission={true}
                         />
                       }
                     />

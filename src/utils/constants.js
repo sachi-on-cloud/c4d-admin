@@ -1095,19 +1095,66 @@ export const USER_ROLE = [
     { id: 'FINANCE', role: 'Finance' }
 ];
 
-// Role-based permissions
+// Role-based permissions for main modules (side/top nav)
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home',  'Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing','Reports', 'Users','Autos'],
-    'SALES': ['Home',  'Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
-    'SUPPORT': ['Home',  'Driver Ops','All bookings', 'Customers', 'Vendors','Autos'],
-    'FINANCE': ['Home',  'Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification','Autos'],
+    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
+    'SALES': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
+    'SUPPORT': ['Home','Support','All bookings', 'Customers', 'Vendors','Autos'],
+    'FINANCE': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance','Document verification','Autos'],
+};
+
+export const PERMISSION_GROUPS = {
+    Support: ['Vendors','Document verification','Trip Master'],
+    Users: ['Driver Ops','Trip Master','Calls'],
+};
+
+export const expandPermissionsByGroup = (permissions = []) => {
+    const expanded = new Set(permissions);
+    permissions.forEach((permission) => {
+        const extras = PERMISSION_GROUPS[permission];
+        if (Array.isArray(extras)) {
+            extras.forEach((extra) => expanded.add(extra));
+        }
+    });
+    return Array.from(expanded);
+};
+
+export const applyPermissionSelection = (
+    selectedPermissions = [],
+    changedPermission = null,
+    action = 'select'
+) => {
+    const next = new Set(selectedPermissions);
+    const groups = Object.entries(PERMISSION_GROUPS);
+
+    // Removing a parent should remove all its grouped children.
+    if (action === 'remove' && changedPermission && PERMISSION_GROUPS[changedPermission]) {
+        PERMISSION_GROUPS[changedPermission].forEach((child) => next.delete(child));
+    }
+
+    // Selecting a parent should add all of its grouped children.
+    if (action === 'select' && changedPermission && PERMISSION_GROUPS[changedPermission]) {
+        PERMISSION_GROUPS[changedPermission].forEach((child) => next.add(child));
+    }
+
+    // Selecting a child should ensure its parent is present.
+    if (action === 'select' && changedPermission) {
+        groups.forEach(([parent, children]) => {
+            if (Array.isArray(children) && children.includes(changedPermission)) {
+                next.add(parent);
+            }
+        });
+    }
+
+    return Array.from(next);
 };
 
 export const PERMISSION_OPTIONS = [
     { name: 'Home', id: 'Home' },
+    { name: 'Support', id: 'Support' },
     { name: 'Driver Ops', id: 'Driver Ops' },
     { name: 'Calls', id: 'Calls'},
-     { name: 'Autos', id: 'Autos'},
+    { name: 'Autos', id: 'Autos'},
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
@@ -1115,7 +1162,6 @@ export const PERMISSION_OPTIONS = [
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
     { name: 'Marketing', id: 'Marketing' },
-    { name: 'Reports', id: 'Reports' },
     { name: 'Users', id: 'Users' },
 ];
 

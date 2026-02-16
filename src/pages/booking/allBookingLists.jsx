@@ -152,7 +152,7 @@ const Booking = (props) => {
         }
         if (data?.success) {
             if (params?.bookingDetails) {
-                navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
+                navigate('/dashboard/confirm-booking', { state: { bookingId: params?.bookingDetails?.id, fromPath: location.pathname }});
             } else {
                 setBookingStage(1);
                 setRange({ startDate: new Date(values?.fromDate), endDate: new Date(values?.toDate) })
