@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, USER_ROLE, ROLE_PERMISSIONS, PERMISSION_OPTIONS, STATUS_OPTIONS, ColorStyles } from '@/utils/constants';
+import { API_ROUTES, USER_ROLE, ROLE_PERMISSIONS, PERMISSION_OPTIONS, STATUS_OPTIONS, ColorStyles, expandPermissionsByGroup, applyPermissionSelection } from '@/utils/constants';
 import { Alert, Button } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -19,7 +19,7 @@ const UserAdd = () => {
     const handleRoleChange = (selectedOption, setFieldValue) => {
         const selectedRole = selectedOption?.value || '';
         setFieldValue('role', selectedRole);
-        setFieldValue('permission', ROLE_PERMISSIONS[selectedRole] || [])
+        setFieldValue('permission', expandPermissionsByGroup(ROLE_PERMISSIONS[selectedRole] || []));
         setRole(selectedRole);
     };
     const initialValues = {
@@ -140,15 +140,29 @@ const UserAdd = () => {
                                 <Multiselect
                                     options={PERMISSION_OPTIONS}
                                     displayValue="name"
-                                    selectedValues={PERMISSION_OPTIONS.filter(option => ROLE_PERMISSIONS[role]?.includes(option.id))}
+                                    selectedValues={PERMISSION_OPTIONS.filter((option) =>
+                                        Array.isArray(values.permission) && values.permission.includes(option.id)
+                                    )}
                                     placeholder="Select options"
                                     className="w-full rounded-md border-gray-300"
                                     showCheckbox={true}
-                                    onSelect={(selectedList) => {
-                                        setFieldValue('permission', selectedList.map(item => item.id));
+                                    onSelect={(selectedList, selectedItem) => {
+                                        setFieldValue('permission',applyPermissionSelection(
+                                                selectedList.map((item) => item.id),
+                                                selectedItem?.id,
+                                                'select'
+                                            )
+                                        );
                                     }}
-                                    onRemove={(selectedList) => {
-                                        setFieldValue('permission', selectedList.map(item => item.id));
+                                    onRemove={(selectedList, removedItem) => {
+                                        setFieldValue(
+                                            'permission',
+                                            applyPermissionSelection(
+                                                selectedList.map((item) => item.id),
+                                                removedItem?.id,
+                                                'remove'
+                                            )
+                                        );
                                     }}
                                 />
                             </div>

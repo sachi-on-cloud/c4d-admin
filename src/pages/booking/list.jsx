@@ -606,8 +606,12 @@ const handleTabChange = (value) => {
             .map(str => JSON.parse(str))
             .map(user => ({ value: user.id, label: user.name })),
     ];
+
+    const allTabLabel =
+        type === "" ? "All Bookings" : type === "RENTAL" ? "All Rentals" : type === "RIDES" ? "All Rides" : type === "CAB" ? "All Cab" : type === "DRIVER" ? "All Driver" : type === "AUTO" ? "All Auto" : "All Bookings";
+
     const tabs = [
-        { label: 'All Bookings', value:'ALL_BOOKINGS'},
+        { label: allTabLabel, value:'ALL_BOOKINGS'},
         // { label: 'Past', value:'PAST'},
         { label: 'Today', value: 'TODAY' },
         { label: 'Future', value: 'REMAINING' },

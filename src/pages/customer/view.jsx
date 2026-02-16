@@ -6,7 +6,8 @@ import {
   Typography,
   Button,
   Alert,
-  Spinner
+  Spinner,
+  Chip
 } from "@material-tailwind/react";
 import CustomerSearch from "@/components/CustomerSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
