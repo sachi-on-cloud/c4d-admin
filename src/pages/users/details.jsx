@@ -74,6 +74,12 @@ const UserDetails = () => {
                                         placeholder=""
                                         className="w-full rounded-md border-gray-300 border bg-gray-200"
                                         disable={true}
+                                        style={{
+                                            chips: {
+                                                backgroundColor: '#3b82f6',
+                                                color: 'white',
+                                            },
+                                        }}
                                     />
                                 </div>
                                 <div>

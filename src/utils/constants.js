@@ -1352,4 +1352,45 @@ export const ColorStyles = {
     continueButtonColor: " bg-primary text-white",
     backButton: " text-black border-gray-400 border-2 rounded-xl bg-white",
     editButton: "bg-primary text-white",
-}; 
+};
+
+export const NAV_UI = {
+    colors: {
+        sidebarBg: "bg-[#F3F4F6]",
+        sidebarBorder: "border-[#E2E8F0]",
+        sidebarActiveBg: "bg-[#DFF3EE]",
+        sidebarActiveText: "text-[#0F766E]",
+        sidebarInactiveText: "text-slate-600",
+        topnavContainerBg: "bg-[#F8FAFC]",
+        topnavActiveBg: "border-b-2 border-primary-500 bg-transparent",
+        topnavActiveText: "text-[#0F766E] gap-2",
+        topnavInactiveText: "text-slate-600 border-b-2 border-transparent",
+    },
+    typography: {
+        sidebarLabel: "text-[15px] font-medium tracking-normal normal-case",
+        topnavLabel: "text-[15px] font-medium tracking-normal normal-case",
+    },
+    iconSizes: {
+        sidebar: "h-5 w-5",
+        topnav: "h-[18px] w-[18px]",
+    },
+    radius: {
+        item: "rounded-xl",
+    },
+    spacing: {
+        sidebarButton: "py-3 pb-2",
+        topnavButton: "px-2 py-2",
+        topnavGap: "gap-2",
+    },
+    sidebar: {
+        itemBase: "group flex items-center transition-colors duration-150",
+        itemHover: "hover:bg-[#E9EEF2] hover:text-slate-700",
+    },
+    topnav: {
+        list: "flex items-center gap-6 overflow-x-auto whitespace-nowrap py-0",
+        buttonBase: "flex items-center transition-colors duration-150",
+        buttonHover: "hover:bg-transparent hover:text-primary-600 hover:border-primary-300",
+        nestedList: "ml-2 mt-1 flex items-center gap-2 overflow-x-auto whitespace-nowrap",
+        secondaryList: "mt-1 flex items-center gap-2 overflow-x-auto whitespace-nowrap border-t border-[#E2E8F0] pt-2",
+    },
+};

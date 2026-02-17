@@ -9,7 +9,7 @@ import MarketingSubmenu from "./MarketingSubmenu";
 import AdminSubmenu from "./AdminSubmenu";
 import AllRecordsSubmenu from "./AllRecordsSubmenu";
 import SupportSubmenu from "./SupportSubmenu";
-import { Feature } from "@/utils/constants";
+import { Feature, NAV_UI } from "@/utils/constants";
 export function Topnav({ permissions = [] }) {
   const location = useLocation();
   const path = location.pathname.toLowerCase();
@@ -97,8 +97,8 @@ export function Topnav({ permissions = [] }) {
 
 // topnav.jsx
 return (
-  <div className="mt-3 px-3 sm:mt-4 sm:px-6 bg-blue-gray-100">
-    <div className="rounded-xl border- border-blue-gray-100 bg-white p-2 pb-0 pt-0  shadow-sm">
+  <div className="mt-3 px-3 sm:mt-4 sm:px-6">
+    <div className={`rounded-xl border-t ${NAV_UI.colors.sidebarBorder} ${NAV_UI.colors.topnavContainerBg} p-2 shadow-sm`}>
     {/* First row: high-level Support tabs */}
     {isSupportSection && (
       <div className="mb-2 overflow-x-auto whitespace-nowrap">

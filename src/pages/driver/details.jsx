@@ -334,6 +334,12 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                                 placeholder=""
                                                 className="w-full rounded-xl border-gray-300 bg-gray-200 border"
                                                 disable={true}
+                                                style={{
+                                                    chips: {
+                                                        backgroundColor: '#3b82f6',
+                                                        color: 'white',
+                                                    },
+                                                }}
                                             />
                                         </div> */}
                                     </div>
