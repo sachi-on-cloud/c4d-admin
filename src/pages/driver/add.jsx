@@ -997,6 +997,12 @@ const DriverAdd = () => {
                                                 className="w-full rounded-md border-gray-300"
                                                 showCheckbox={true}
                                                 disable={!isEditable}
+                                                style={{
+                                                    chips: {
+                                                        backgroundColor: '#3b82f6',
+                                                        color: 'white',
+                                                    },
+                                                }}
                                             />
                                         </div> */}
                                         {/* } */}

@@ -145,6 +145,24 @@ const CombineAdd = () => {
                     }}
                     placeholder="Select Service Area"
                     className="mt-1"
+                    styles={{
+                      multiValue: (base) => ({
+                        ...base,
+                        backgroundColor: '#3b82f6',
+                      }),
+                      multiValueLabel: (base) => ({
+                        ...base,
+                        color: '#fff',
+                      }),
+                      multiValueRemove: (base) => ({
+                        ...base,
+                        color: '#fff',
+                        ':hover': {
+                          backgroundColor: '#2563eb',
+                          color: '#fff',
+                        },
+                      }),
+                    }}
                   />
                   <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-xs mt-1" />
               </div>

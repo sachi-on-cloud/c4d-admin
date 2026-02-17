@@ -1,10 +1,18 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Button, Typography } from "@material-tailwind/react";
+import { NAV_UI } from "@/utils/constants";
 
 function CustomersSubmenu() {
+  const getItemClasses = (isActive) =>
+    `${NAV_UI.topnav.buttonBase} ${NAV_UI.spacing.topnavButton} ${NAV_UI.typography.topnavLabel} ${
+      isActive
+        ? `${NAV_UI.colors.topnavActiveBg} ${NAV_UI.colors.topnavActiveText}`
+        : `${NAV_UI.colors.topnavInactiveText} ${NAV_UI.topnav.buttonHover}`
+    }`;
+
   return (
-    <ul className="flex items-center gap-6  overflow-x-auto whitespace-nowrap">
+    <ul className={NAV_UI.topnav.list}>
       {[
         { label: "All", path: "/dashboard/customers", icon: "/img/all.png" },
       ].map(({ label, path, icon }) => (
@@ -13,15 +21,11 @@ function CustomersSubmenu() {
             {({ isActive }) => (
               <Button
                 variant="text"
-                className={`flex items-center gap-2 pb-2 px-0 rounded-none bg-transparent text-sm capitalize border-b-2 ${
-                  isActive
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-blue-gray-600 hover:text-primary-600 hover:border-primary-300"
-                }`}
+                className={getItemClasses(isActive)}
               >
                 <Typography
                   color="inherit"
-                  className="font-medium px-3 capitalize tracking-normal"
+                  className={NAV_UI.typography.topnavLabel}
                 >
                   {label}
                 </Typography>

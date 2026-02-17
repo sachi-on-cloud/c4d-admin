@@ -482,6 +482,24 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                   }}
                   placeholder="Select service Area"
                   className="mt-1"
+                  styles={{
+                    multiValue: (base) => ({
+                      ...base,
+                      backgroundColor: '#3b82f6',
+                    }),
+                    multiValueLabel: (base) => ({
+                      ...base,
+                      color: '#fff',
+                    }),
+                    multiValueRemove: (base) => ({
+                      ...base,
+                      color: '#fff',
+                      ':hover': {
+                        backgroundColor: '#2563eb',
+                        color: '#fff',
+                      },
+                    }),
+                  }}
                 />
                 <ErrorMessage name="serviceArea" className="text-red-500 text-sm mt-1" component="div" />
               </div>

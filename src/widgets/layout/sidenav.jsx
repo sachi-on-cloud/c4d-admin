@@ -27,7 +27,7 @@ import {
   MegaphoneIcon,
   UsersIcon
 } from '@heroicons/react/24/solid';
-import { API_ROUTES, ColorStyles } from "@/utils/constants";
+import { API_ROUTES, NAV_UI } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 
 const menuItems = [
@@ -190,7 +190,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
       className={`${sidenavTypes[sidenavType]} 
   ${openSidenav ? "translate-x-0" : "-translate-x-full"} 
   lg:translate-x-0 fixed inset-y-0 left-0 z-50 my-2 ml-1 h-[calc(100vh-16px)] ${miniSidenav ? 'w-[4.5rem]' : 'w-full max-w-[308px] lg:w-[18rem]'}
-  rounded-xl border border-blue-gray-100 p-2 shadow-sm transition-transform duration-300`}
+  ${NAV_UI.radius.item} border ${NAV_UI.colors.sidebarBorder} ${NAV_UI.colors.sidebarBg} p-2 shadow-sm transition-transform duration-300`}
     >
       <div className={`relative`}>
         <Link to="/" className={`py-5 ${miniSidenav ? 'px-0' : 'px-6'} text-center`}>
@@ -256,100 +256,83 @@ export function Sidenav({ brandImg, brandName, routes }) {
                   <NavLink to={path} end={end}>
                     {({ isActive }) => {
                       const menuActive = isMenuSectionActive(name, isActive);
+                      const menuTextColor = menuActive ? NAV_UI.colors.sidebarActiveText : NAV_UI.colors.sidebarInactiveText;
                       return (
                       <Button
                         variant="text"
-                        className={`group flex items-center gap-3 ${
-                          miniSidenav ? "justify-center px-0" : "px-3"
-                        } capitalize rounded-xl 
-                        ${menuActive ? "bg-primary-100 text-black" : "hover:bg-primary-50"} `}
+                        className={`${NAV_UI.sidebar.itemBase} ${NAV_UI.spacing.sidebarButton} ${NAV_UI.radius.item} ${
+                          miniSidenav ? "justify-center px-0" : "px-3 gap-3"
+                        } ${menuTextColor} ${menuActive ? NAV_UI.colors.sidebarActiveBg : NAV_UI.sidebar.itemHover}`}
                         fullWidth
                       >
                         {name === "Home" ? (
-                          <HomeIcon className={`h-6 w-6 text-black`} />
+                          <HomeIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
                         ) : null}
                        {name === "Support" ? (
                           <UserGroupIcon
-                            className={`h-6 w-6 rounded-sm text-black ${menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                              }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
 
                         {name === "Driver Ops" ? (
-                          <ChartBarIcon className="h-6 w-6 text-black" />
+                          <ChartBarIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
                         ) : null}
                         {name === "Leads" ? (
-                          <UsersIcon className="h-6 w-6 text-black" />
+                          <UsersIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
                         ) : null}
                         {name === "Rate Card" ? (
-                          <img src="/img/master_price.png" alt="Rate Card" className="h-6 w-6 " />
+                          <img src="/img/master_price.png" alt="Rate Card" className={NAV_UI.iconSizes.sidebar} />
                         ) : null}
                         {name === "Calls" ? (
-                          <img src="/img/calls.png" alt="Calls" className="h-6 w-6 rounded-full" />
+                          <img src="/img/calls.png" alt="Calls" className={`${NAV_UI.iconSizes.sidebar} rounded-full`} />
                         ) : null}
                         {name === "All Records" ? (
                           <DocumentTextIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
                         {name === "Auto Records" ? (
-                          <img src="/img/auto.png" alt="Autos" className="h-6 w-6 rounded-full" />
+                          <img src="/img/auto.png" alt="Autos" className={`${NAV_UI.iconSizes.sidebar} rounded-full`} />
                         ) : null}
                         {name === "Customers" ? (
                           <UserGroupIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
                         {name === "Vendors" ? (
                           <BuildingStorefrontIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
                         {name === "Trip Master" ? (
                           <BuildingStorefrontIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
                         {name === "Finance" ? (
                           <ChartBarIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
                         {name === "Document Verification" ? (
                           <DocumentCheckIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
                         {name === "Marketing" ? (
                           <MegaphoneIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
                         {name === "Admin" ? (
                           <UserCircleIcon
-                            className={`h-6 w-6 rounded-sm text-black ${
-                              menuActive ? ColorStyles.sidenavColors : "bg-transparent"
-                            }`}
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
 
                         {!miniSidenav && (
-                          <Typography color="inherit" className="font-medium capitalize">
-                            {name.toLowerCase()}
+                          <Typography color="inherit" className={NAV_UI.typography.sidebarLabel}>
+                            {name}
                           </Typography>
                         )}
                       </Button>

@@ -60,10 +60,10 @@ export function Dashboard() {
     <div className="h-screen bg-gray-50">
       <div className="grid h-full grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)]">
         {/* Sidebar column (desktop persistent, mobile off-canvas handled in component) */}
-        <aside className={`hidden lg:block ${miniSidenav ? 'w-[4.5rem]' : 'w-72'} h-full bg-blue-gray-100`}></aside>
+        <aside className={`hidden lg:block ${miniSidenav ? 'w-[4.5rem]' : 'w-72'} h-full bg-[#F8FAFC]`}></aside>
 
         {/* Main column */}
-        <div className="relative flex min-w-0 flex-col bg-white sm:bg-blue-gray-100">
+        <div className="relative flex min-w-0 flex-col bg-white sm:bg-[#F8FAFC]">
           {/* Mobile header: left hamburger, centered app icon */}
           <div className="grid grid-cols-3 items-center px-3 py-2 lg:hidden">
             <div className="flex justify-start">
@@ -98,7 +98,7 @@ export function Dashboard() {
           <Topnav sidenavColor={sidenavColor} sidenavType={sidenavType} permissions={permissions} />
 
           {/* Content area */}
-          <div className="flex-1 min-w-0 px-4 lg:px-7 pt-4 overflow-y-auto bg-blue-gray-100">
+          <div className="flex-1 min-w-0 px-4 lg:px-7 pt-4 overflow-y-auto bg-[#F8FAFC]">
             <Routes>
               {routes.map(
                 ({ layout, pages }) =>

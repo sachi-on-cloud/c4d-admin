@@ -669,6 +669,12 @@ const getPackageListDetails = async () => {
                                     placeholder="Select options"
                                     className="w-full rounded-md border-gray-300"
                                     showCheckbox={true}
+                                    style={{
+                                        chips: {
+                                            backgroundColor: '#3b82f6',
+                                            color: 'white',
+                                        },
+                                    }}
                                 />
                             </div>
                                 <div>
