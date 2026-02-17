@@ -96,6 +96,7 @@ const DocumentsDetails = () => {
         {type == 'Driver' && <DriverDetails btnShow={true} noApprove={true} />}
         {type == 'Cab' && <CabDetails btnShow={true} noApprove={true} />}
         {type == 'Account' && <AccountDetails btnShow={true} noApprove={true} />}
+        {type == 'Auto' && <AccountDetails btnShow={true} noApprove={true} />}
         {type == 'Register' && <>
           <div className="p-4">
 
