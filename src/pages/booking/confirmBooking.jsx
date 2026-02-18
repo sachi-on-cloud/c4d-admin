@@ -67,6 +67,7 @@ const ConfirmBooking = (props) => {
         paymentStatus: "NOT PAID",
         enable: false // Default value
     });
+    const { hideBackButton = false } = props;
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -723,7 +724,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
             {bookingDetails && (
                 <div>
                     <div className="flex flex-wrap pb-3 items-center gap-3 w-full lg:w-auto">
-                        {showDetails == true && (
+                        {showDetails == true &&  !hideBackButton && (
                         <Button
                             variant="text"
                             color="black"
