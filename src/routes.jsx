@@ -125,6 +125,8 @@ import DriverOfferList from "./pages/finance/driverOffer/DriverOfferList";
 import DriverOfferAdd from "./pages/finance/driverOffer/add";
 import DriverOfferAssign from "./pages/finance/driverOffer/DriverOfferAssign";
 import DriverOpsView from "./pages/DriverOps/view";
+import BookingInvoiceList from "./pages/finance/bookingInvoice/list";
+import BookingInvoiceDetails from "./pages/finance/bookingInvoice/details";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -1124,7 +1126,24 @@ export const routes = [
         element: <DriverOpsView />,
         display: false,
         permission: "Driver Ops",
-      }
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Booking Invoice List",
+        path: "/finance/bookingInvoiceList",
+        element: <BookingInvoiceList />,
+        display: false,
+        permission: "Finance",
+      },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Booking Invoice Details",
+        path: "/finance/bookingInvoice/details/:id",
+        element: <BookingInvoiceDetails />,
+        display: false,
+        permission: "Finance",
+      },
+
     ],
   },
   {

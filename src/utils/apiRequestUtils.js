@@ -185,7 +185,20 @@ export const ApiRequestUtils = {
         });
 
         return response;
-    }
+    },
+   fetchPdfDowload: async (apiRoute) => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No authentication token found');
+
+    const response = await axios.get(getBaseUrl() + apiRoute, {
+        headers: {
+            'token': token,
+        },
+        responseType: 'blob', 
+    });
+
+    return response.data;
+},
 
 
 };
