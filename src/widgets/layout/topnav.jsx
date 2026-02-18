@@ -53,7 +53,7 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/finance/invoice") ||
     path.startsWith("/dashboard/finance/receipt") ||
     path.startsWith("/dashboard/finance/master-subscription")||
-    path.startsWith("/dashboard/finance/bookingInvoiceList");
+    path.startsWith("/dashboard/finance/bookinginvoice");
 
   const isDocVerifiction = 
     path.startsWith("/dashboard/doc-verification") ||

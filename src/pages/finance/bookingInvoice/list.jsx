@@ -140,7 +140,7 @@ export function BookingInvoiceList() {
     };
 
     return (
-        <div className="mb-8 mt-20 flex flex-col gap-12">
+        <div className="mb-8 mt-2 flex flex-col gap-12">
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                     <div className="relative flex-grow max-w-[500px]">
