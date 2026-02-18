@@ -712,6 +712,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
 
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
+    const extraHoursMinutes = Number(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails?.extraHours || 0);
+    const hasExtraHours = extraHoursMinutes > 0;
+    const extraHoursRate = Number(bookingDetails?.finalFareBreakdown?.extraHours?.rate || bookingDetails?.extraHourPrice || 0);
+    const extraHoursCharge = Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge || bookingDetails?.extraPrice || 0);
     const isDropTaxiBooking = (booking) => (booking?.serviceType === 'RENTAL' && booking?.bookingType === 'DROP ONLY' && booking?.packageType ==='Outstation') || booking?.serviceType === 'RENTAL_DROP_TAXI';
     const isOutstationBooking = (booking) => booking?.serviceType === 'RENTAL' && booking?.packageType === 'Outstation' && booking?.bookingType === 'ROUND TRIP';
     const isQuotedWithoutCarType = (booking) => booking?.status === BOOKING_STATUS.QUOTED && (booking?.carType === '' || booking?.carType == null);
@@ -1871,10 +1875,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <Typography>{bookingDetails?.value?.displayTime || '0'}</Typography>
                                 </div>
                             )} */}
-                            {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                            {hasExtraHours && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs:</Typography>
-                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium"> {minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails.extraHours)}
+                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium"> {minsToHHMM(extraHoursMinutes)}
                                     </Typography>
                                 </div>
                             )}
@@ -1885,11 +1889,11 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                          <Typography className="text-sm text-black font-medium">{minsToHHMM(bookingDetails?.estimatedMin)}</Typography>
                                 </div>
                                 }
-                                {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
+                                {hasExtraHours && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="sm" className="text-sm text-black font-medium">
-                                        {minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails.extraHours)}
+                                        {minsToHHMM(extraHoursMinutes)}
                                     </Typography>
                                 </div>
                                 )}
@@ -2005,10 +2009,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.extraNightChargePrice || 0).toFixed(2)}</Typography>
                                     </div>
                                 }
-                                {bookingDetails?.extraHours > 0 &&
+                                {hasExtraHours &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra hrs price (After first 15 mins):</Typography>
-                                        <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.rate  || 0).toFixed(2)}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {extraHoursRate.toFixed(2)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
@@ -2017,17 +2021,17 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <Typography color="gray" variant="sm">Base Fare:<text-sm /Typography>
                                         <Typography>₹ {amount?.price}</Typography>
                                     </div> */}
-                                        {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
+                                        {hasExtraHours && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
-                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails?.finalFareBreakdown?.extraHours?.minutes} x ${bookingDetails?.finalFareBreakdown?.extraHours?.rate})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge || 0).toFixed(2)}</Typography>
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${extraHoursMinutes} x ${extraHoursRate})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {extraHoursCharge.toFixed(2)}</Typography>
                                             </div>)}
-                                        {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                                        {hasExtraHours && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
-                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes)} x ${bookingDetails?.finalFareBreakdown?.extraHours?.rate})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge || 0).toFixed(2)}</Typography>
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(extraHoursMinutes)} x ${extraHoursRate})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {extraHoursCharge.toFixed(2)}</Typography>
                                             </div>)}
                                         {/* {amount.extraKMs > 0 &&
                                             <div className="flex justify-between  my-1">
