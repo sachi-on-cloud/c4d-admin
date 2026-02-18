@@ -447,6 +447,7 @@ const ReceiptDetails = () => {
                             customerId: receipt?.customerId,
                         }}
                         setIsOpen={setIsOpen} onConfirm={setIsOpen}
+                        hideBackButton={true}
                     />
                 </DialogBody>
             </Dialog>

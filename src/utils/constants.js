@@ -999,7 +999,9 @@ export const API_ROUTES = {
     'GET_DRIVER_SERVICES_TRIP_DEMAND':'/drivers/trip-service-counts',
     'INDIVIDUAL_DRIVER_TARGET_ACHIEVEMENT' : '/drivers/target-achievements',
     'GET_DRIVER_AREA_TRIP_HRS' : '/drivers/area-hour-demand',
-    'GET_DRIVER_AREA_TRIP_SHARE' : '/drivers/area-trip-share'
+    'GET_DRIVER_AREA_TRIP_SHARE' : '/drivers/area-trip-share',
+    'GENERATE_INVOICE': '/generate-invoice',
+
 
 };
 

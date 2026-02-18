@@ -15,6 +15,7 @@ function FinanceSubmenu() {
     { label: "Subscription Invoice", path: "/dashboard/finance/invoice", icon: "/img/subscription.png" },
     { label: "Booking Receipt", path: "/dashboard/finance/receipt", icon: "/img/recipt.png" },
     { label: "Master Subscription", path: "/dashboard/finance/master-subscription", icon: "/img/master_price.png" },
+    { label: "Booking Invoice", path: "/dashboard/finance/bookingInvoiceList" },
   ];
 
   return (
