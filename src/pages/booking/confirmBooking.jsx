@@ -720,6 +720,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
     const isOutstationBooking = (booking) => booking?.serviceType === 'RENTAL' && booking?.packageType === 'Outstation' && booking?.bookingType === 'ROUND TRIP';
     const isQuotedWithoutCarType = (booking) => booking?.status === BOOKING_STATUS.QUOTED && (booking?.carType === '' || booking?.carType == null);
     const shouldShowQuotePricing = (booking) => !isQuotedWithoutCarType(booking);
+    const isHourlyShowingPrice = (booking) => booking?.serviceType === 'RENTAL' && booking?.packageType === 'Local';
     const hasPreferredBaseFare = bookingDetails?.finalFareBreakdown?.baseFare !== undefined && bookingDetails?.finalFareBreakdown?.baseFare !== null;
     const preferredBaseFare = Number(bookingDetails?.finalFareBreakdown?.baseFare || 0);
     const fallbackBaseFare = Number(bookingDetails?.value?.fareBreakdown?.baseFare || 0);
@@ -729,6 +730,17 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
     const preferredPerKm = Number(bookingDetails?.finalFareBreakdown?.distanceFare?.rate || 0);
     const fallbackPerkm = Number(bookingDetails?.value?.fareBreakdown?.distanceFare?.rate || 0);
     const perKmShow = hasPreferredPerKm ? preferredPerKm : fallbackPerkm;
+    const hourlyPackageBaseFare = isHourlyShowingPrice(bookingDetails)
+        ? Number(
+            bookingDetails?.carType === "Sedan"
+                ? bookingDetails?.Package?.baseFareSedan
+                : bookingDetails?.carType === "MUV"
+                    ? bookingDetails?.Package?.baseFareMVP
+                    : bookingDetails?.carType === "SUV"
+                        ? bookingDetails?.Package?.baseFareSuv
+                        : bookingDetails?.Package?.baseFare || 0
+        )
+        : 0;
     return (
         <div className="container mx-auto px-2 md:px-6">
             {bookingDetails && (
@@ -1402,13 +1414,21 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                             }
                            
-                            {baseFareToShow > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && (
+                            {baseFareToShow > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && !isHourlyShowingPrice(bookingDetails) && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Base Fare:</span>
                                     <span className="text-gray-900 font-medium">₹ {baseFareToShow}</span>
                                 </div>
                             )}
-                            {perKmShow > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && (
+                            {isHourlyShowingPrice(bookingDetails) && hourlyPackageBaseFare > 0 && (
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Base Fare:</span>
+                                    <span className="text-gray-900 font-medium">₹ {hourlyPackageBaseFare}</span>
+                                </div>
+                            )}
+                        
+
+                            {perKmShow > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && isHourlyShowingPrice(bookingDetails) && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Per KM Rate:</span>
                                     <span className="text-gray-900 font-medium">₹ {perKmShow}</span>
@@ -1440,7 +1460,15 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">{Number(bookingDetails?.value?.estimatedDistance || 0).toFixed(2)} Kms</span>
                                 </div>
                             }
-                             {(bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
+                             {(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
+                                    
+                             <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
+                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.estimatedFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}</span>
+                                </div>
+                                
+                                )}
+                             {!(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
                                     
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
@@ -1545,7 +1573,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
-                                        ₹ {Number(bookingDetails?.finalFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}
+                                        ₹ {Number(bookingDetails?.estimatedFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}
                                     </span>
                                 </div>
                             )}
