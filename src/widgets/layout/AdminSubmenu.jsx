@@ -15,6 +15,7 @@ function AdminSubmenu({ permissions = [] }) {
   const location = useLocation();
   const pathname = location.pathname.toLowerCase();
   const isSuperUser = isSuperUserRole();
+  const isFinanceActive = pathname.startsWith("/dashboard/finance");
 
   const isMainItemActive = (label, path) => {
     const target = path.toLowerCase();
@@ -34,6 +35,13 @@ function AdminSubmenu({ permissions = [] }) {
       return (
         pathname.startsWith("/dashboard/user/gstlist") ||
         pathname.startsWith("/dashboard/user/gst/")
+      );
+    }
+
+    if (label === "Booking Invoice") {
+      return (
+        pathname.startsWith("/dashboard/finance/bookinginvoicelist") ||
+        pathname.startsWith("/dashboard/finance/bookinginvoice/")
       );
     }
 
@@ -58,14 +66,22 @@ function AdminSubmenu({ permissions = [] }) {
     { label: "Trip Master Report", path: "/dashboard/reports/tripMasterReport", requiredPermission: "Trip Master" },
     { label: "Calls", path: "/dashboard/exotel-calls/list", requiredPermission: "Calls" },
   ];
+  const financeSubItems = [
+    { label: "Subscription Invoice", path: "/dashboard/finance/invoice", requiredPermission: "Finance" },
+    { label: "Booking Receipt", path: "/dashboard/finance/receipt", requiredPermission: "Finance" },
+    { label: "Master Subscription", path: "/dashboard/finance/master-subscription", requiredPermission: "Finance" },
+    { label: "Booking Invoice", path: "/dashboard/finance/bookingInvoiceList", requiredPermission: "Finance" },
+  ];
 
   const filteredPrimaryItems = primaryItems.filter(({ requiredPermission }) => permissions.includes(requiredPermission));
   const filteredSecondaryItems = secondaryItems.filter(({ requiredPermission, label }) => {
     if (label === "Trip Master Report" && !isSuperUser) return false;
     return permissions.includes(requiredPermission);
   });
+  const filteredFinanceItems = financeSubItems.filter(({ requiredPermission }) => permissions.includes(requiredPermission));
+  const hasFinanceAccess = filteredFinanceItems.length > 0;
 
-  if (!filteredPrimaryItems.length && !filteredSecondaryItems.length) {
+  if (!filteredPrimaryItems.length && !filteredSecondaryItems.length && !hasFinanceAccess) {
     return null;
   }
 
@@ -109,7 +125,46 @@ function AdminSubmenu({ permissions = [] }) {
             </NavLink>
           </li>
         ))}
+        {hasFinanceAccess && (
+          <li>
+            <NavLink to="/dashboard/finance/invoice" end={false}>
+              <Button
+                variant="text"
+                className={getItemClasses(isFinanceActive)}
+              >
+                <Typography
+                  color="inherit"
+                  className={NAV_UI.typography.topnavLabel}
+                >
+                  Finance
+                </Typography>
+              </Button>
+            </NavLink>
+          </li>
+        )}
       </ul>
+
+      {hasFinanceAccess && isFinanceActive && (
+        <ul className={NAV_UI.topnav.nestedList}>
+          {filteredFinanceItems.map(({ label, path }) => (
+            <li key={label}>
+              <NavLink to={path} end={false}>
+                <Button
+                  variant="text"
+                  className={getItemClasses(isMainItemActive(label, path))}
+                >
+                  <Typography
+                    color="inherit"
+                    className={NAV_UI.typography.topnavLabel}
+                  >
+                    {label}
+                  </Typography>
+                </Button>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

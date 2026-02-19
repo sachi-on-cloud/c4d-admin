@@ -89,7 +89,7 @@ export function Dashboard() {
 
           {/* Actual sidenav (positioned fixed by the component itself) */}
           <div className="fixed top-0 left-0 z-40">
-            <Sidenav routes={routes} brandImg={"/img/logo-ct.png"} />
+            <Sidenav routes={routes} brandImg={"/img/logo-ct.png"} permissions={permissions} />
           </div>
 
           {/* Collapser moved inside Sidenav header for better aesthetics */}

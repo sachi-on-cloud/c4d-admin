@@ -2,22 +2,16 @@ import PropTypes from "prop-types";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
-  Avatar,
   Button,
   IconButton,
   Typography,
-  Spinner,
   Tooltip,
 } from "@material-tailwind/react";
 import { useMaterialTailwindController, setOpenSidenav, setMiniSidenav } from "@/context";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/context/auth";
 import {
-  ChevronDownIcon,
-  ChevronUpIcon,
   HomeIcon,
-  TruckIcon,
-  IdentificationIcon,
   UserCircleIcon,
   DocumentTextIcon,
   BuildingStorefrontIcon,
@@ -45,16 +39,16 @@ const menuItems = [
   { type: "item", name: "All Records", path: "/dashboard/booking/list", permission: "All bookings" },
   { type: "item", name: "Auto Records", path: "/dashboard/Auto", permission: "Autos" },
   { type: "item", name: "Customers", path: "/dashboard/customers", permission: "Customers" },
-  { type: "item", name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance" },
   { type: "item", name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
   {
     type: "item",
     name: "Admin",
     path: "/dashboard/users",
     permission: "Users",
-    permissionsAny: ["Users", "Driver Ops", "Trip Master", "Calls"],
+    permissionsAny: ["Users", "Driver Ops", "Trip Master", "Calls", "Finance"],
     landingRoutes: [
       { permission: "Users", path: "/dashboard/users" },
+      { permission: "Finance", path: "/dashboard/finance/invoice" },
       { permission: "Driver Ops", path: "/dashboard/driver-ops" },
       { permission: "Trip Master", path: "/dashboard/tripDetails" },
       { permission: "Calls", path: "/dashboard/exotel-calls/list" },
@@ -62,7 +56,7 @@ const menuItems = [
   },
 ];
 
-export function Sidenav({ brandImg, brandName, routes }) {
+export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
   //const [loading, setLoading] = useState(false);
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavColor, sidenavType, openSidenav, miniSidenav } = controller;
@@ -76,53 +70,34 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const location = useLocation();
   const currentPath = location.pathname.toLowerCase();
   const { logout } = useAuth();
-  // new entry
-  const [openSubMenu, setOpenSubMenu] = useState(null);
+  const [userName] = useState(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
+      return user?.email || user?.name || "";
+    } catch {
+      return "";
+    }
+  });
 
   const handleSignOut = async (e) => {
     //setLoading(true);
     e.preventDefault();
-    const response = await ApiRequestUtils.post(API_ROUTES.USER_LOGOUT);
+    await ApiRequestUtils.post(API_ROUTES.USER_LOGOUT);
     await logout();
     //setLoading(false);
     navigate("/auth/sign-in");
   }
-  const toggleSubMenu = (subMenu) => {
-    setOpenSubMenu((prev) => (prev === subMenu ? null : subMenu));
-  };
-
-  const [userPermissions, setUserPermissions] = useState(null);
-  const [userName, setUserName] = useState("");
-
-  const getPermissions = async () => {
-    try {
-      const user = localStorage.getItem('loggedInUser');
-      const userId = JSON.parse(user);
-      const perm = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + userId?.id);
-      if (perm?.success) {
-        setUserName(perm?.data?.email || "");
-        setUserPermissions(perm?.data?.permission || []);
-      }
-    } catch (err) {
-      console.log("ERROR IN GET PERMISIIONS", err);
-    }
-  };
-
-
-  useEffect(() => {
-    getPermissions();
-  }, []);
 
   const hasAnyPermission = (permissionList = []) => {
     if (!Array.isArray(permissionList) || permissionList.length === 0) return false;
-    return permissionList.some((permission) => userPermissions.includes(permission));
+    return permissionList.some((permission) => permissions.includes(permission));
   };
 
   const canAccessMenuItem = (item) => {
     if (Array.isArray(item.permissionsAny) && item.permissionsAny.length > 0) {
       return hasAnyPermission(item.permissionsAny);
     }
-    return userPermissions.includes(item.permission);
+    return permissions.includes(item.permission);
   };
 
   const getMenuPath = (item) => {
@@ -130,7 +105,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
       return item.path;
     }
 
-    const firstAllowed = item.landingRoutes.find(({ permission }) => userPermissions.includes(permission));
+    const firstAllowed = item.landingRoutes.find(({ permission }) => permissions.includes(permission));
     return firstAllowed?.path || "/dashboard/unauthorized";
   };
 
@@ -179,10 +154,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
         return false;
     }
   };
-
-  if (userPermissions === null) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <aside
@@ -384,6 +355,7 @@ Sidenav.propTypes = {
   brandImg: PropTypes.string,
   brandName: PropTypes.string,
   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  permissions: PropTypes.arrayOf(PropTypes.string),
 };
 
 Sidenav.displayName = "/src/widgets/layout/sidnave.jsx";
