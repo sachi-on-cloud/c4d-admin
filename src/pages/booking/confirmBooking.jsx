@@ -1355,7 +1355,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                             )}
                             
-                              {perKmShow > 0 &&  bookingDetails?.serviceType === 'AUTO' &&  (
+                              {perKmShow > 0 &&  bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES' ||  (isOutstationBooking || isDropTaxiBooking) && (
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Per KM Rate:</span>
                                     <span className="text-gray-900 font-medium">₹ {perKmShow}</span>
@@ -1475,7 +1475,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
-                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}</span>
+                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.estimatedFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}</span>
                                 </div>
                                 
                                 )}
