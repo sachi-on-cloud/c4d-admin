@@ -63,6 +63,7 @@ function AdminSubmenu({ permissions = [] }) {
     { label: "Driver Ops", path: "/dashboard/driver-ops", requiredPermission: "Driver Ops" },
     { label: "Discount Module", path: "/dashboard/user/discountModuleList", requiredPermission: "Users" },
     { label: "TAX", path: "/dashboard/user/GSTList", requiredPermission: "Users" },
+    { label: "Trip Master Details", path: "/dashboard/tripDetails", requiredPermission: "Trip Master" },
     { label: "Trip Master Report", path: "/dashboard/reports/tripMasterReport", requiredPermission: "Trip Master" },
     { label: "Calls", path: "/dashboard/exotel-calls/list", requiredPermission: "Calls" },
   ];
