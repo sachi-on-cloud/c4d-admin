@@ -759,17 +759,19 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         : bookingDetails?.Package?.baseFare || 0
         )
         : 0;
-const hourlyPackagePerKm = isHourlyShowingPrice(bookingDetails)
-  ? Number(bookingDetails?.estimatedFareBreakdown?.distanceFare?.rate || 0)
-  : Number(
-      bookingDetails?.carType === "Sedan"
-        ? bookingDetails?.Package?.kilometerPriceSedan
-        : bookingDetails?.carType === "MUV"
-          ? bookingDetails?.Package?.kilometerPriceMVP
-          : bookingDetails?.carType === "SUV"
-            ? bookingDetails?.Package?.kilometerPriceSuv
-            : bookingDetails?.Package?.kilometerPrice || 0
+    const packagePerKm = Number(
+        bookingDetails?.carType === "Sedan"
+            ? bookingDetails?.Package?.kilometerPriceSedan
+            : bookingDetails?.carType === "MUV"
+                ? bookingDetails?.Package?.kilometerPriceMVP
+                : bookingDetails?.carType === "SUV"
+                    ? bookingDetails?.Package?.kilometerPriceSuv
+                    : bookingDetails?.Package?.kilometerPrice || 0
     );
+    const estimatedPerKm = Number(bookingDetails?.estimatedFareBreakdown?.distanceFare?.rate || 0);
+    const hourlyPackagePerKm = isHourlyShowingPrice(bookingDetails)
+        ? (estimatedPerKm || packagePerKm)
+        : packagePerKm;
 
 
     return (
@@ -1382,10 +1384,10 @@ const hourlyPackagePerKm = isHourlyShowingPrice(bookingDetails)
                                     <span className="text-gray-900 font-medium">₹ {baseFareToShow}</span>
                                 </div>
                             )}
-                                    {!!hourlyPackagePerKm && (
+                                    {isHourlyShowingPrice(bookingDetails) && hourlyPackagePerKm !== null && hourlyPackagePerKm !== undefined && (
                                         <div className="flex gap-2">
                                             <span className="text-gray-500 font-semibold">Per KM Rate:</span>
-                                            <span className="text-gray-900 font-medium">₹ {hourlyPackagePerKm}</span>
+                                            <span className="text-gray-900 font-medium">₹ {Number(hourlyPackagePerKm).toFixed(2)}</span>
                                         </div>
                                     )}
                             
