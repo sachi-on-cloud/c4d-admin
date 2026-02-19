@@ -1434,7 +1434,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-medium">{Number(bookingDetails?.value?.estimatedDistance || 0).toFixed(2)} Kms</span>
                                 </div>
                             }
-                             {(bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES')   && bookingDetails?.status !== "ENDED" &&(
+                             {(bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
                                     
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
