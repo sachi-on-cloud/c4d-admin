@@ -1547,7 +1547,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     {/* </div> */}
                             {/* need to add logic for price */}
                     {/* <div className="grid sm:grid-cols-2 gap-4 text-sm">                                         */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO'&&bookingDetails?.serviceType !== 'RIDES' && shouldShowQuotePricing(bookingDetails)  && (                            
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails)  && (                            
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
