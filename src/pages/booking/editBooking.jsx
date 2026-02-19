@@ -693,12 +693,20 @@ const getQuoteOutstationDetails = async (values) => {
                 if (values.packageTypeSelected == 'Outstation' && values?.tripType?.toUpperCase() == 'ROUND TRIP') {
                     data.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();
                 }
-                if (!(values.packageTypeSelected == 'Local' && values?.tripType?.toUpperCase() == 'DROP ONLY')) {
+                const isLocalDropOnly = values.packageTypeSelected == 'Local' && values?.tripType?.toUpperCase() == 'DROP ONLY';
+                const isRentalHourlyPackage =
+                    values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ||
+                    (values?.serviceType === 'RENTAL' && values?.packageTypeSelected == 'Local');
+                if (!isLocalDropOnly && !isRentalHourlyPackage) {
                     data.dropLat = values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat
                     data.dropLong = values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong
                     data.dropAddress = values?.dropLocation ? { name: values?.dropAddress } : bookingData?.dropAddress ? {
                         name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
                     } : null
+                } else if (isRentalHourlyPackage) {
+                    delete data.dropLat;
+                    delete data.dropLong;
+                    delete data.dropAddress;
                 }
                 editBookingData = await ApiRequestUtils.update(API_ROUTES.UPDATE_BOOKING, data);
             } else if (values.submitType == 'rides') {
