@@ -2,7 +2,6 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import CustomersSubmenu from "./CustomersSubmenu";
 import VendorsSubmenu from "./VendorsSubmenu";
-import TripMasterSubmenu from "./TripMasterSubmenu";
 import DocumentVerificationSubmenu from "./DocumentVerificationSubmenu";
 import MarketingSubmenu from "./MarketingSubmenu";
 import AdminSubmenu from "./AdminSubmenu";
@@ -44,9 +43,6 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/vendors/account/autoview") ||
     path.startsWith("/dashboard/vendors/account/autolist");
 
-   const isTripMasterSection =
-    path.startsWith("/dashboard/tripdetails") ||
-    path.startsWith("/dashboard/reports/tripmasterreport"); 
   const isDocVerifiction = 
     path.startsWith("/dashboard/doc-verification") ||
     path.startsWith("/dashboard/doc-verification/pending");
@@ -80,7 +76,6 @@ export function Topnav({ permissions = [] }) {
     !isSupportSection &&
     !isCustomersSection &&
     !isVendorsSection &&
-    !isTripMasterSection &&
     !isDocVerifiction &&
     !isMarketingSection &&
     !isAdminSection
@@ -110,12 +105,6 @@ return (
       {isMarketingSection && <MarketingSubmenu />}
       {isAdminSection && <AdminSubmenu permissions={permissions} />}
     </div>
-       {/* Optional Trip Master row: Details / Reports */}
-    {isTripMasterSection && (
-      <div className="mb-2 overflow-x-auto whitespace-nowrap">
-        <TripMasterSubmenu />
-      </div>
-    )}
     </div>
   </div>
 );
