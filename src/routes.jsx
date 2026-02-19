@@ -646,7 +646,7 @@ export const routes = [
         path: "/Auto",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.AUTO} />,
         display: false,
-        permission: "All bookings",
+        permission: "Autos",
       },
       ...(Feature.parcel ? [
         {

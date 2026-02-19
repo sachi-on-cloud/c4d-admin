@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import CustomersSubmenu from "./CustomersSubmenu";
 import VendorsSubmenu from "./VendorsSubmenu";
 import TripMasterSubmenu from "./TripMasterSubmenu";
-import FinanceSubmenu from "./FinanceSubmenu";
 import DocumentVerificationSubmenu from "./DocumentVerificationSubmenu";
 import MarketingSubmenu from "./MarketingSubmenu";
 import AdminSubmenu from "./AdminSubmenu";
@@ -48,13 +47,6 @@ export function Topnav({ permissions = [] }) {
    const isTripMasterSection =
     path.startsWith("/dashboard/tripdetails") ||
     path.startsWith("/dashboard/reports/tripmasterreport"); 
-    
-  const isFinanceSection =
-    path.startsWith("/dashboard/finance/invoice") ||
-    path.startsWith("/dashboard/finance/receipt") ||
-    path.startsWith("/dashboard/finance/master-subscription")||
-    path.startsWith("/dashboard/finance/bookinginvoice");
-
   const isDocVerifiction = 
     path.startsWith("/dashboard/doc-verification") ||
     path.startsWith("/dashboard/doc-verification/pending");
@@ -75,6 +67,7 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/user/discountmodule") ||
     path.startsWith("/dashboard/user/gst") ||
     path.startsWith("/dashboard/driver-ops") ||
+    path.startsWith("/dashboard/finance") ||
     // Also show admin top bar on Trip Master and Calls
     path.startsWith("/dashboard/tripdetails") ||
     path.startsWith("/dashboard/reports/tripmasterreport") ||
@@ -88,7 +81,6 @@ export function Topnav({ permissions = [] }) {
     !isCustomersSection &&
     !isVendorsSection &&
     !isTripMasterSection &&
-    !isFinanceSection &&
     !isDocVerifiction &&
     !isMarketingSection &&
     !isAdminSection
@@ -114,7 +106,6 @@ return (
       {AllRecordsSection && <AllRecordsSubmenu />}
       {isCustomersSection && <CustomersSubmenu />}
       {isVendorsSection && <VendorsSubmenu />}
-      {isFinanceSection && <FinanceSubmenu />}
       {isDocVerifiction && <DocumentVerificationSubmenu />}
       {isMarketingSection && <MarketingSubmenu />}
       {isAdminSection && <AdminSubmenu permissions={permissions} />}
