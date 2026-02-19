@@ -730,6 +730,20 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
     const preferredPerKm = Number(bookingDetails?.finalFareBreakdown?.distanceFare?.rate || 0);
     const fallbackPerkm = Number(bookingDetails?.value?.fareBreakdown?.distanceFare?.rate || 0);
     const perKmShow = hasPreferredPerKm ? preferredPerKm : fallbackPerkm;
+    const shouldShowPerKmRate =
+        perKmShow > 0 &&
+        (
+            bookingDetails?.serviceType === 'AUTO' ||
+            bookingDetails?.serviceType === 'RIDES' ||
+            isHourlyShowingPrice(bookingDetails) ||
+            isOutstationBooking(bookingDetails) ||
+            isDropTaxiBooking(bookingDetails)
+        ) &&
+        (
+            bookingDetails?.serviceType === 'AUTO' ||
+            bookingDetails?.serviceType === 'RIDES' ||
+            shouldShowQuotePricing(bookingDetails)
+        );
     const hourlyPackageBaseFare = isHourlyShowingPrice(bookingDetails)
         ? Number(
             bookingDetails?.carType === "Sedan"
@@ -1352,7 +1366,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                             )}
                             
-                              {perKmShow > 0 &&  bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES' ||  (isOutstationBooking || isDropTaxiBooking) && (
+                              {shouldShowPerKmRate && (
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Per KM Rate:</span>
                                     <span className="text-gray-900 font-medium">₹ {perKmShow}</span>
@@ -1428,12 +1442,6 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             )}
                         
 
-                            {perKmShow > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && isHourlyShowingPrice(bookingDetails) && (
-                                <div className="flex flex-col-2 gap-2">
-                                    <span className="text-gray-500 font-semibold">Per KM Rate:</span>
-                                    <span className="text-gray-900 font-medium">₹ {perKmShow}</span>
-                                </div>
-                            )}
                             {bookingDetails?.estimatedDistance > 0 &&
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Estimate km:</span>
