@@ -354,15 +354,18 @@ const handleTabChange = (value) => {
         if ((activeTab === 'CUSTOM_DATE' || dateFilter === 'Custom date') && (!customDateFrom || !customDateTo)) {return;}
         setLoading(true);
     try {
-        const filterType = {
-            type: activeTab,
-            status: statusFilter,
-            source: sourceFilter,
-            tripCoordinator: tripCoordinatorFilter,
-            tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
-            zone: zoneFilter.includes('All') ? ['All'] : zoneFilter,
-        };
-        
+      const filterType = {
+    type: activeTab,
+    source: sourceFilter,
+    tripCoordinator: tripCoordinatorFilter,
+    zone: zoneFilter.includes('All') ? ['All'] : zoneFilter,
+};
+
+// Only add status-related fields if NOT "All"
+if (!statusFilter.includes('All')) {
+    filterType.status = statusFilter;
+    filterType.tripStatus = statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined;
+}
         // Calculate startDate and endDate based on dateFilter
         let startDate = '';
         let endDate = '';
