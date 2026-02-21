@@ -28,7 +28,7 @@ export function Dashboard() {
       const userId = JSON.parse(user)?.id;
       const perm = await ApiRequestUtils.get(API_ROUTES.GET_USER_BY_ID + userId);
       if(perm?.success){
-        setPermissions(perm?.data?.permission);
+        setPermissions(perm?.data?.permission || []);
       } else {
         console.error("Failed to fetch permissions:", perm?.message);
       }
@@ -60,10 +60,10 @@ export function Dashboard() {
     <div className="h-screen bg-gray-50">
       <div className="grid h-full grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)]">
         {/* Sidebar column (desktop persistent, mobile off-canvas handled in component) */}
-        <aside className={`hidden lg:block ${miniSidenav ? 'w-[4.5rem]' : 'w-72'} h-full bg-blue-gray-100`}></aside>
+        <aside className={`hidden lg:block ${miniSidenav ? 'w-[4.5rem]' : 'w-72'} h-full bg-[#F8FAFC]`}></aside>
 
         {/* Main column */}
-        <div className="relative flex min-w-0 flex-col">
+        <div className="relative flex min-w-0 flex-col bg-white sm:bg-[#F8FAFC]">
           {/* Mobile header: left hamburger, centered app icon */}
           <div className="grid grid-cols-3 items-center px-3 py-2 lg:hidden">
             <div className="flex justify-start">
@@ -89,21 +89,21 @@ export function Dashboard() {
 
           {/* Actual sidenav (positioned fixed by the component itself) */}
           <div className="fixed top-0 left-0 z-40">
-            <Sidenav routes={routes} brandImg={"/img/logo-ct.png"} />
+            <Sidenav routes={routes} brandImg={"/img/logo-ct.png"} permissions={permissions} />
           </div>
 
           {/* Collapser moved inside Sidenav header for better aesthetics */}
 
           {/* Existing Topnav */}
-          <Topnav sidenavColor={sidenavColor} sidenavType={sidenavType} />
+          <Topnav sidenavColor={sidenavColor} sidenavType={sidenavType} permissions={permissions} />
 
           {/* Content area */}
-          <div className="flex-1 min-w-0 px-4 lg:px-7 pt-4 overflow-y-auto bg-blue-gray-100">
+          <div className="flex-1 min-w-0 px-4 lg:px-7 pt-4 overflow-y-auto bg-[#F8FAFC]">
             <Routes>
               {routes.map(
                 ({ layout, pages }) =>
                   layout === "dashboard" &&
-                  pages.map(({ path, element, permission }) => (
+                  pages.map(({ path, element, permission, superUserOnly }) => (
                     <Route
                       key={path}
                       exact
@@ -113,6 +113,8 @@ export function Dashboard() {
                           element={element}
                           permission={permission}
                           permissions={permissions}
+                          superUserOnly={superUserOnly}
+                          requirePermission={true}
                         />
                       }
                     />

@@ -762,6 +762,12 @@ const getPackageListDetails = async () => {
                                     className="w-full rounded-md border-gray-300"
                                     showCheckbox={true}
                                     disabled={!values.carType}
+                                    style={{
+                                        chips: {
+                                            backgroundColor: '#3b82f6',
+                                            color: 'white',
+                                        },
+                                    }}
                                 />
                                
                             </div>

@@ -902,7 +902,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setIsOpen(false);
         await sendQuotationLogs(data?.data?.result?.id, loggedInUserId);
             if (params?.bookingDetails) {
-                navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id } });
+                navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id, fromPath: location.pathname}});
             } else {
                 setBookingStage(1);
                 setRange({ startDate: new Date(values?.fromDate), endDate: new Date(values?.toDate) })
@@ -946,6 +946,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
             state: {
                 bookingId: data?.id,
                 customerId: data?.customerId || data?.Customer?.id || 0,
+                fromPath: location.pathname,
             },
         });
                 // console.log('selecting booking', data);

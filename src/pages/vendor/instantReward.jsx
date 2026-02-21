@@ -284,6 +284,24 @@ const InstantReward = () => {
                             : 'Select Customers'
                         }
                         isDisabled={isSubmitting || customerOptions.length === 0}
+                        styles={{
+                          multiValue: (base) => ({
+                            ...base,
+                            backgroundColor: '#3b82f6',
+                          }),
+                          multiValueLabel: (base) => ({
+                            ...base,
+                            color: '#fff',
+                          }),
+                          multiValueRemove: (base) => ({
+                            ...base,
+                            color: '#fff',
+                            ':hover': {
+                              backgroundColor: '#2563eb',
+                              color: '#fff',
+                            },
+                          }),
+                        }}
                       />
                       <ErrorMessage name="customerId" component="div" className="text-red-500 text-sm"/>
                     </div>

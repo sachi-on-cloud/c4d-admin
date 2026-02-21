@@ -5,7 +5,7 @@ import { API_ROUTES, ColorStyles, KYC_PROCESS } from '@/utils/constants';
 import { useParams, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
-import { Button } from '@material-tailwind/react';
+import { Button, Typography } from '@material-tailwind/react';
 // import WalletDetails from '@/components/WalletDetails';
 import PrintDriverDetails from '@/components/PrintDriverDetails';
 import DocumentsList from '@/components/DocumentsList';
@@ -334,6 +334,12 @@ const DriverDetails = ({ btnShow = false, noApprove = false }) => {
                                                 placeholder=""
                                                 className="w-full rounded-xl border-gray-300 bg-gray-200 border"
                                                 disable={true}
+                                                style={{
+                                                    chips: {
+                                                        backgroundColor: '#3b82f6',
+                                                        color: 'white',
+                                                    },
+                                                }}
                                             />
                                         </div> */}
                                     </div>

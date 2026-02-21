@@ -67,6 +67,7 @@ const ConfirmBooking = (props) => {
         paymentStatus: "NOT PAID",
         enable: false // Default value
     });
+    const { hideBackButton = false } = props;
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -88,6 +89,8 @@ const ConfirmBooking = (props) => {
     const hasSetIsOpen = typeof props?.setIsOpen === "function";
     const hasOnEdit = typeof props?.onEdit === "function";
     const hasOnAssignDriver = typeof props?.onAssignDriver === "function";
+    const fromPath = paramsPassed?.fromPath;
+    const backPath = fromPath || "/dashboard/booking";
     const triggerParentRefresh = () => {
         if (hasOnConfirm) {
             props.onConfirm();
@@ -97,7 +100,7 @@ const ConfirmBooking = (props) => {
         if (hasSetIsOpen) {
             props.setIsOpen(false);
         } else {
-            navigate("/dashboard/booking");
+            navigate(backPath);
         }
     };
     const handleEditAction = (booking) => {
@@ -106,7 +109,7 @@ const ConfirmBooking = (props) => {
         if (hasOnEdit) {
             props.onEdit(booking);
         } else {
-            navigate("/dashboard/booking", {
+            navigate(backPath, {
                 state: {
                     ...(location.state || {}),
                     editBooking: booking,
@@ -712,16 +715,71 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
 
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
+    const extraHoursMinutes = Number(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails?.extraHours || 0);
+    const hasExtraHours = extraHoursMinutes > 0;
+    const extraHoursRate = Number(bookingDetails?.finalFareBreakdown?.extraHours?.rate || bookingDetails?.extraHourPrice || 0);
+    const extraHoursCharge = Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge || bookingDetails?.extraPrice || 0);
     const isDropTaxiBooking = (booking) => (booking?.serviceType === 'RENTAL' && booking?.bookingType === 'DROP ONLY' && booking?.packageType ==='Outstation') || booking?.serviceType === 'RENTAL_DROP_TAXI';
     const isOutstationBooking = (booking) => booking?.serviceType === 'RENTAL' && booking?.packageType === 'Outstation' && booking?.bookingType === 'ROUND TRIP';
     const isQuotedWithoutCarType = (booking) => booking?.status === BOOKING_STATUS.QUOTED && (booking?.carType === '' || booking?.carType == null);
     const shouldShowQuotePricing = (booking) => !isQuotedWithoutCarType(booking);
+    const isHourlyShowingPrice = (booking) => booking?.serviceType === 'RENTAL' && booking?.packageType === 'Local';
+    const hasPreferredBaseFare = bookingDetails?.finalFareBreakdown?.baseFare !== undefined && bookingDetails?.finalFareBreakdown?.baseFare !== null;
+    const preferredBaseFare = Number(bookingDetails?.finalFareBreakdown?.baseFare || 0);
+    const fallbackBaseFare = Number(bookingDetails?.value?.fareBreakdown?.baseFare || 0);
+    const baseFareToShow = hasPreferredBaseFare ? preferredBaseFare : fallbackBaseFare;
+
+    const hasPreferredPerKm = bookingDetails?.finalFareBreakdown?.distanceFare?.rate !== undefined && bookingDetails?.finalFareBreakdown?.distanceFare?.rate !== null;
+    const preferredPerKm = Number(bookingDetails?.finalFareBreakdown?.distanceFare?.rate || 0);
+    const fallbackPerkm = Number(bookingDetails?.value?.fareBreakdown?.distanceFare?.rate || 0);
+    const perKmShow = hasPreferredPerKm ? preferredPerKm : fallbackPerkm;
+    const shouldShowPerKmRate =
+        perKmShow > 0 &&
+        (
+            bookingDetails?.serviceType === 'AUTO' ||
+            bookingDetails?.serviceType === 'RIDES' ||
+            // isHourlyShowingPrice(bookingDetails) ||
+            isOutstationBooking(bookingDetails) ||
+            isDropTaxiBooking(bookingDetails)
+        ) &&
+        (
+            bookingDetails?.serviceType === 'AUTO' ||
+            bookingDetails?.serviceType === 'RIDES' ||
+            shouldShowQuotePricing(bookingDetails)
+        );
+    const hourlyPackageBaseFare = isHourlyShowingPrice(bookingDetails)
+        // ? Number(bookingDetails?.estimatedFareBreakdown?.distanceFare?.rate || 0)
+        ? Number(
+            bookingDetails?.carType === "Sedan"
+                ? bookingDetails?.Package?.baseFareSedan
+                : bookingDetails?.carType === "MUV"
+                    ? bookingDetails?.Package?.baseFareMVP
+                    : bookingDetails?.carType === "SUV"
+                        ? bookingDetails?.Package?.baseFareSuv
+                        : bookingDetails?.Package?.baseFare || 0
+        )
+        : 0;
+    const packagePerKm = Number(
+        bookingDetails?.carType === "Sedan"
+            ? bookingDetails?.Package?.kilometerPriceSedan
+            : bookingDetails?.carType === "MUV"
+                ? bookingDetails?.Package?.kilometerPriceMVP
+                : bookingDetails?.carType === "SUV"
+                    ? bookingDetails?.Package?.kilometerPriceSuv
+                    : bookingDetails?.Package?.kilometerPrice || 0
+    );
+    const estimatedPerKm = Number(bookingDetails?.estimatedFareBreakdown?.distanceFare?.rate || 0);
+    const hourlyPackagePerKm = isHourlyShowingPrice(bookingDetails)
+        ? (estimatedPerKm || packagePerKm)
+        : packagePerKm;
+
+
     return (
         <div className="container mx-auto px-2 md:px-6">
             {bookingDetails && (
                 <div>
                     <div className="flex flex-wrap pb-3 items-center gap-3 w-full lg:w-auto">
-                        {showDetails == true && (
+                        {showDetails == true &&  !hideBackButton && (
                         <Button
                             variant="text"
                             color="black"
@@ -1320,17 +1378,23 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <span className="text-gray-500 font-semibold">Start Date:</span>
                                 <span className="text-gray-900 font-medium">{moment(bookingDetails.fromDate).format("DD-MM-YYYY / hh:mm A")}</span>
                             </div>
-                              {bookingDetails?.value?.baseFare > 0 &&  bookingDetails?.serviceType === 'AUTO' &&  (
+                              {baseFareToShow > 0 &&  bookingDetails?.serviceType === 'AUTO' &&  (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Base Fare:</span>
-                                    <span className="text-gray-900 font-medium">₹ {bookingDetails?.value?.baseFare}</span>
+                                    <span className="text-gray-900 font-medium">₹ {baseFareToShow}</span>
                                 </div>
                             )}
+                                    {isHourlyShowingPrice(bookingDetails) && hourlyPackagePerKm !== null && hourlyPackagePerKm !== undefined && (
+                                        <div className="flex gap-2">
+                                            <span className="text-gray-500 font-semibold">Per KM Rate:</span>
+                                            <span className="text-gray-900 font-medium">₹ {Number(hourlyPackagePerKm).toFixed(2)}</span>
+                                        </div>
+                                    )}
                             
-                              {  bookingDetails?.serviceType === 'AUTO' &&  (
+                              {shouldShowPerKmRate && (
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Per KM Rate:</span>
-                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.value?.kilometerPriceVal || 0).toFixed(2)}</span>
+                                    <span className="text-gray-900 font-medium">₹ {perKmShow}</span>
                                 </div>
                                 )}
                                  
@@ -1389,18 +1453,20 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                             }
                            
-                            {bookingDetails?.value?.baseFare > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && (
+                            {baseFareToShow > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && !isHourlyShowingPrice(bookingDetails) && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Base Fare:</span>
-                                    <span className="text-gray-900 font-medium">₹ {bookingDetails?.value?.baseFare}</span>
+                                    <span className="text-gray-900 font-medium">₹ {baseFareToShow}</span>
                                 </div>
                             )}
-                            {bookingDetails?.value?.kilometerPriceVal > 0 && bookingDetails?.serviceType !== 'AUTO' && shouldShowQuotePricing(bookingDetails) && (
+                            {isHourlyShowingPrice(bookingDetails) && hourlyPackageBaseFare > 0 && (
                                 <div className="flex flex-col-2 gap-2">
-                                    <span className="text-gray-500 font-semibold">Per KM Rate:</span>
-                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.value?.kilometerPriceVal || 0).toFixed(2)}</span>
+                                    <span className="text-gray-500 font-semibold">Base Fare:</span>
+                                    <span className="text-gray-900 font-medium">₹ {hourlyPackageBaseFare}</span>
                                 </div>
                             )}
+                        
+
                             {bookingDetails?.estimatedDistance > 0 &&
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Estimate km:</span>
@@ -1413,7 +1479,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <span className="text-gray-900 font-medium">  {(Number(bookingDetails?.totalDistanceKilometer || 0) + Number(bookingDetails?.value?.driverWithin || 0)).toFixed(2)} Km</span>
                                     </div>
                                 )} 
-                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.value?.estimatedDistance > 0 &&
+                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED  &&
                                 (bookingDetails?.serviceType === 'RIDES' || bookingDetails?.serviceType === 'AUTO') && (
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
@@ -1421,17 +1487,25 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                                 )
                             }
-                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED &&  bookingDetails?.value?.estimatedDistance > 0 && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO"&&
+                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED  && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO"&&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance :</span>
                                     <span className="text-gray-900 font-medium">{Number(bookingDetails?.value?.estimatedDistance || 0).toFixed(2)} Kms</span>
                                 </div>
                             }
-                             {(bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES')   && bookingDetails?.status !== "ENDED" &&(
+                             {(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
                                     
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
-                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.value?.estimatedPrice || 0).toFixed(2)}</span>
+                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.estimatedFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}</span>
+                                </div>
+                                
+                                )}
+                             {!(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
+                                    
+                             <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
+                                    <span className="text-gray-900 font-medium">₹ {Number(bookingDetails?.estimatedFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}</span>
                                 </div>
                                 
                                 )}
@@ -1498,7 +1572,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     {/* </div> */}
                             {/* need to add logic for price */}
                     {/* <div className="grid sm:grid-cols-2 gap-4 text-sm">                                         */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO'&&bookingDetails?.serviceType !== 'RIDES' && shouldShowQuotePricing(bookingDetails)  && (                            
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'RIDES' && shouldShowQuotePricing(bookingDetails)  && (                            
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
@@ -1521,7 +1595,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                                     ? bookingDetails?.Package?.priceSuv
                                                                     : bookingDetails?.Package?.price 
                                                     )
-                                                    : bookingDetails?.value?.estimatedPrice) || 0
+                                                    : bookingDetails?.value?.fareBreakdown?.total) || 0
                                         ).toFixed(2)}
                                     </span>
                                 </div>
@@ -1532,7 +1606,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price (Incl Tax):</span>
                                     <span className="text-gray-900 font-medium">
-                                        ₹ {Number(bookingDetails?.offerPrice || 0).toFixed(2)}
+                                        ₹ {Number(bookingDetails?.estimatedFareBreakdown?.total) || (bookingDetails?.value?.fareBreakdown?.total || 0).toFixed(2)}
                                     </span>
                                 </div>
                             )}
@@ -1871,10 +1945,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 <Typography>{bookingDetails?.value?.displayTime || '0'}</Typography>
                                 </div>
                             )} */}
-                            {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                            {hasExtraHours && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs:</Typography>
-                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium"> {minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails.extraHours)}
+                                    <Typography color="gray" variant="sm" className="text-sm text-black font-medium"> {minsToHHMM(extraHoursMinutes)}
                                     </Typography>
                                 </div>
                             )}
@@ -1885,11 +1959,11 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                          <Typography className="text-sm text-black font-medium">{minsToHHMM(bookingDetails?.estimatedMin)}</Typography>
                                 </div>
                                 }
-                                {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
+                                {hasExtraHours && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra Hrs  : </Typography>
                                     <Typography color="gray" variant="sm" className="text-sm text-black font-medium">
-                                        {minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails.extraHours)}
+                                        {minsToHHMM(extraHoursMinutes)}
                                     </Typography>
                                 </div>
                                 )}
@@ -1901,7 +1975,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         </Typography>
                                 </div>
                                 )}
-                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
+                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
                                     <div className="flex justify-between my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate km:</Typography>
                                     <Typography className="text-sm text-black font-medium">
@@ -2005,10 +2079,10 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.extraNightChargePrice || 0).toFixed(2)}</Typography>
                                     </div>
                                 }
-                                {bookingDetails?.extraHours > 0 &&
+                                {hasExtraHours &&
                                     <div className="flex justify-between  my-1">
                                         <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Extra hrs price (After first 15 mins):</Typography>
-                                        <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.rate  || 0).toFixed(2)}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {extraHoursRate.toFixed(2)}</Typography>
                                     </div>
                                 }
                                 {bookingDetails?.packageType === "Local" || bookingDetails?.packageType === "Outstation" ?
@@ -2017,17 +2091,17 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <Typography color="gray" variant="sm">Base Fare:<text-sm /Typography>
                                         <Typography>₹ {amount?.price}</Typography>
                                     </div> */}
-                                        {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
+                                        {hasExtraHours && (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.packageType != "Local") && (
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
-                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${bookingDetails?.finalFareBreakdown?.extraHours?.minutes} x ${bookingDetails?.finalFareBreakdown?.extraHours?.rate})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge || 0).toFixed(2)}</Typography>
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${extraHoursMinutes} x ${extraHoursRate})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {extraHoursCharge.toFixed(2)}</Typography>
                                             </div>)}
-                                        {bookingDetails?.extraHours > 0 && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
+                                        {hasExtraHours && (bookingDetails?.serviceType === "RIDES" || bookingDetails?.serviceType === "DRIVER" || (bookingDetails?.serviceType === "RENTAL" && bookingDetails?.packageType === "Local")) && (
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Extra fare after ${bookingDetails?.Package?.period
-                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(bookingDetails?.finalFareBreakdown?.extraHours?.minutes)} x ${bookingDetails?.finalFareBreakdown?.extraHours?.rate})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.extraHours?.charge || 0).toFixed(2)}</Typography>
+                                                    } hrs ${bookingDetails?.packageType === "Outstation" ? "d" : bookingDetails?.packageType === "Intercity" ? "hr" : ""}: (${minsToHHMM(extraHoursMinutes)} x ${extraHoursRate})`}</Typography>
+                                                <Typography className="text-sm text-black font-medium">₹ {extraHoursCharge.toFixed(2)}</Typography>
                                             </div>)}
                                         {/* {amount.extraKMs > 0 &&
                                             <div className="flex justify-between  my-1">
@@ -2424,7 +2498,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                 if (typeof props?.setIsOpen === "function") {
                     props.setIsOpen(false); 
                 } else {
-                    navigate("/dashboard/booking"); 
+                    navigate(backPath); 
                 }
 
             } else {

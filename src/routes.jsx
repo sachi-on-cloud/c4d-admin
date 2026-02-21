@@ -125,6 +125,8 @@ import DriverOfferList from "./pages/finance/driverOffer/DriverOfferList";
 import DriverOfferAdd from "./pages/finance/driverOffer/add";
 import DriverOfferAssign from "./pages/finance/driverOffer/DriverOfferAssign";
 import DriverOpsView from "./pages/DriverOps/view";
+import BookingInvoiceList from "./pages/finance/bookingInvoice/list";
+import BookingInvoiceDetails from "./pages/finance/bookingInvoice/details";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -644,7 +646,7 @@ export const routes = [
         path: "/Auto",
         element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.AUTO} />,
         display: false,
-        permission: "All bookings",
+        permission: "Autos",
       },
       ...(Feature.parcel ? [
         {
@@ -951,6 +953,7 @@ export const routes = [
         element: <Reports />,
         display: true,
         permission: "Trip Master",
+        superUserOnly: true,
       },
       {
         icon: <UserIcon {...icon} />,
@@ -1098,7 +1101,7 @@ export const routes = [
         path: "/rental-rate-card",
         element: <RentalTariffRateCard />,
         display: true,
-        permission: "Home"
+        permission: "Support"
       },
       {
         icon: <UserIcon {...icon} />,
@@ -1106,12 +1109,12 @@ export const routes = [
         path: "/leads",
         element: <LeadsView/>,
         display: true,
-        permission: "Home"
+        permission: "Support"
       },
       {
         icon: <UserIcon {...icon} />,
         name: "exotel calls",
-        path: "/users/exotel-calls/list",
+        path: "/exotel-calls/list",
         element: <ExotelCallsList />,
         display: false,
         permission: "Calls",
@@ -1123,29 +1126,24 @@ export const routes = [
         element: <DriverOpsView />,
         display: false,
         permission: "Driver Ops",
-      }
-    ],
-  },
-  {
-    title: "rate card",
-    layout: "dashboard",
-    pages: [
-      {
-        icon: <ServerStackIcon {...icon} />,
-        name: "rate card",
-        path: "/rate-card",
-        element: <PriceList />,
-        display: true,
-        permission: "Home",
       },
-      {
-        icon: <ServerStackIcon {...icon} />,
-        name: "rental rate card",
-        path: "/rental-rate-card",
-        element: <RentalTariffRateCard />,
-        display: true,
-        permission: "Home",
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Booking Invoice List",
+        path: "/finance/bookingInvoiceList",
+        element: <BookingInvoiceList />,
+        display: false,
+        permission: "Finance",
       },
+       {
+        icon: <UserIcon {...icon} />,
+        name: "Booking Invoice Details",
+        path: "/finance/bookingInvoice/details/:id",
+        element: <BookingInvoiceDetails />,
+        display: false,
+        permission: "Finance",
+      },
+
     ],
   },
   {
@@ -1184,36 +1182,6 @@ export const routes = [
       },
     ],
   },
-  {
-    layout: "booking",
-    pages: [
-      {
-        icon: <HomeModernIcon {...icon} />,
-        name: "Booking",
-        path: "/",
-        element: <Booking />,
-        display: false
-      },
-      {
-        name: "SelectLocation",
-        path: "/select-location",
-        element: <SelectLocation />,
-        display: false
-      },
-      {
-        name: "ConfirmBooking",
-        path: "/confirm-booking",
-        element: <ConfirmBooking />,
-        display: false
-      },
-      // {
-      //   name: "SearchDriver",
-      //   path: "/search-drivers",
-      //   element: <SearchDrivers />,
-      //   display: false
-      // }
-    ],
-  }
 ];
 
 export default routes;

@@ -287,6 +287,7 @@ const getDetails = useCallback(
                               { value: "Driver", label: "Driver" },
                               { value: "Account", label: "Account" },
                               { value: "Cab", label: "Cab" },
+                               { value: "Auto", label: "Auto" },
                             ]}
                             selectedFilters={typeFilter} 
                             onFilterChange={(value) => handleFilterChange("type", value)}
@@ -316,7 +317,10 @@ const getDetails = useCallback(
 
                   accounts.filter((account) => {
                         const status = account.isComplete ? "APPROVED" : "PENDING";
-                        const type = account["Register.id"] ? "Driver": account["Driver.id"] ? "Driver": account["Account.id"] ? "Account": account["Cab.id"] ? "Cab": "";
+                        const type =   (account["Register.id"] || account["Driver.id"]) ? "Driver" :
+                                        account["Account.serviceType"] === "Company" ? "Account":
+                                         account["Account.serviceType"] === "Individual" ? "Cab" :
+                                        account["Account.serviceType"] === "Auto" ? "Auto" :"";
                         return (
                           (statusFilter.includes("All") || statusFilter.includes(status)) && 
                           (typeFilter.includes("All") || typeFilter.includes(type))
@@ -329,7 +333,10 @@ const getDetails = useCallback(
 
                         const status = data.isComplete ? "APPROVED" : "PENDING";
                         const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
-                        const nameType = data['Register.id'] ? "Register" : data['Driver.id'] ? "Driver" : data['Account.id'] ? "Account" : data['Cab.id'] ? "Cab" : "";
+                       const nameType = (data["Register.id"] || data["Driver.id"]) ? "Driver" :
+                                        data["Account.serviceType"] === "Company" ? "Account":
+                                        data["Account.serviceType"] === "Individual" ? "Cab" :
+                                        data["Account.serviceType"] === "Auto" ? "Auto" :"";
                         const number = (() => {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";

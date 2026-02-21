@@ -281,7 +281,7 @@ useEffect(() => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">From Date</label>
             <input
@@ -343,7 +343,7 @@ useEffect(() => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-3 xl:grid-cols-6">
           <div className="p-2 border border-gray-200 text-center">Trips: {summary.totalTrips}</div>
           <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm}</div>
           {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed}</div> */}
@@ -363,8 +363,8 @@ useEffect(() => {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <>
-            <div className="min-w-[700px]">
-              <table className="w-full border-collapse table-fixed">
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-[1200px] w-full border-collapse">
                 <thead>
                   <tr className="bg-primary-900 text-white text-center">
                     <th className="border border-gray-200 p-2">Date</th>

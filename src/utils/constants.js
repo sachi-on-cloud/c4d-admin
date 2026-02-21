@@ -999,7 +999,9 @@ export const API_ROUTES = {
     'GET_DRIVER_SERVICES_TRIP_DEMAND':'/drivers/trip-service-counts',
     'INDIVIDUAL_DRIVER_TARGET_ACHIEVEMENT' : '/drivers/target-achievements',
     'GET_DRIVER_AREA_TRIP_HRS' : '/drivers/area-hour-demand',
-    'GET_DRIVER_AREA_TRIP_SHARE' : '/drivers/area-trip-share'
+    'GET_DRIVER_AREA_TRIP_SHARE' : '/drivers/area-trip-share',
+    'GENERATE_INVOICE': '/generate-invoice',
+
 
 };
 
@@ -1095,19 +1097,66 @@ export const USER_ROLE = [
     { id: 'FINANCE', role: 'Finance' }
 ];
 
-// Role-based permissions
+// Role-based permissions for main modules (side/top nav)
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home',  'Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing','Reports', 'Users','Autos'],
-    'SALES': ['Home',  'Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
-    'SUPPORT': ['Home',  'Driver Ops','All bookings', 'Customers', 'Vendors','Autos'],
-    'FINANCE': ['Home',  'Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance', 'Document verification','Autos'],
+    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
+    'SALES': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
+    'SUPPORT': ['Home','Support','All bookings', 'Customers', 'Vendors','Autos'],
+    'FINANCE': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance','Document verification','Autos'],
+};
+
+export const PERMISSION_GROUPS = {
+    Support: ['Vendors','Document verification','Trip Master'],
+    Users: ['Driver Ops','Trip Master','Calls'],
+};
+
+export const expandPermissionsByGroup = (permissions = []) => {
+    const expanded = new Set(permissions);
+    permissions.forEach((permission) => {
+        const extras = PERMISSION_GROUPS[permission];
+        if (Array.isArray(extras)) {
+            extras.forEach((extra) => expanded.add(extra));
+        }
+    });
+    return Array.from(expanded);
+};
+
+export const applyPermissionSelection = (
+    selectedPermissions = [],
+    changedPermission = null,
+    action = 'select'
+) => {
+    const next = new Set(selectedPermissions);
+    const groups = Object.entries(PERMISSION_GROUPS);
+
+    // Removing a parent should remove all its grouped children.
+    if (action === 'remove' && changedPermission && PERMISSION_GROUPS[changedPermission]) {
+        PERMISSION_GROUPS[changedPermission].forEach((child) => next.delete(child));
+    }
+
+    // Selecting a parent should add all of its grouped children.
+    if (action === 'select' && changedPermission && PERMISSION_GROUPS[changedPermission]) {
+        PERMISSION_GROUPS[changedPermission].forEach((child) => next.add(child));
+    }
+
+    // Selecting a child should ensure its parent is present.
+    if (action === 'select' && changedPermission) {
+        groups.forEach(([parent, children]) => {
+            if (Array.isArray(children) && children.includes(changedPermission)) {
+                next.add(parent);
+            }
+        });
+    }
+
+    return Array.from(next);
 };
 
 export const PERMISSION_OPTIONS = [
     { name: 'Home', id: 'Home' },
+    { name: 'Support', id: 'Support' },
     { name: 'Driver Ops', id: 'Driver Ops' },
     { name: 'Calls', id: 'Calls'},
-     { name: 'Autos', id: 'Autos'},
+    { name: 'Autos', id: 'Autos'},
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
@@ -1115,7 +1164,6 @@ export const PERMISSION_OPTIONS = [
     { name: 'Finance', id: 'Finance' },
     { name: 'Document verification', id: 'Document verification' },
     { name: 'Marketing', id: 'Marketing' },
-    { name: 'Reports', id: 'Reports' },
     { name: 'Users', id: 'Users' },
 ];
 
@@ -1305,4 +1353,45 @@ export const ColorStyles = {
     continueButtonColor: " bg-primary text-white",
     backButton: " text-black border-gray-400 border-2 rounded-xl bg-white",
     editButton: "bg-primary text-white",
-}; 
+};
+
+export const NAV_UI = {
+    colors: {
+        sidebarBg: "bg-[#F3F4F6]",
+        sidebarBorder: "border-[#E2E8F0]",
+        sidebarActiveBg: "bg-[#DFF3EE]",
+        sidebarActiveText: "text-[#0F766E]",
+        sidebarInactiveText: "text-slate-600",
+        topnavContainerBg: "bg-[#F8FAFC]",
+        topnavActiveBg: "border-b-2 border-primary-500 bg-transparent",
+        topnavActiveText: "text-[#0F766E] gap-2",
+        topnavInactiveText: "text-slate-600 border-b-2 border-transparent",
+    },
+    typography: {
+        sidebarLabel: "text-[15px] font-medium tracking-normal normal-case",
+        topnavLabel: "text-[15px] font-medium tracking-normal normal-case",
+    },
+    iconSizes: {
+        sidebar: "h-5 w-5",
+        topnav: "h-[18px] w-[18px]",
+    },
+    radius: {
+        item: "rounded-xl",
+    },
+    spacing: {
+        sidebarButton: "py-3 pb-2",
+        topnavButton: "px-2 py-2",
+        topnavGap: "gap-2",
+    },
+    sidebar: {
+        itemBase: "group flex items-center transition-colors duration-150",
+        itemHover: "hover:bg-[#E9EEF2] hover:text-slate-700",
+    },
+    topnav: {
+        list: "flex items-center gap-6 overflow-x-auto whitespace-nowrap py-0",
+        buttonBase: "flex items-center transition-colors duration-150",
+        buttonHover: "hover:bg-transparent hover:text-primary-600 hover:border-primary-300",
+        nestedList: "ml-2 mt-1 flex items-center gap-2 overflow-x-auto whitespace-nowrap",
+        secondaryList: "mt-1 flex items-center gap-2 overflow-x-auto whitespace-nowrap border-t border-[#E2E8F0] pt-2",
+    },
+};
