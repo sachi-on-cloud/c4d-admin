@@ -23,6 +23,7 @@ const STATUS_OPTIONS = [
 ];
 
 const PRICE_SCHEMA = Yup.object().shape({
+    baseKm: Yup.number().required('Base Km is required'),
     baseFare: Yup.number().required('Base Fare is required'),
     ratePerKm: Yup.number().required('Rate Per Km is required'),
     ratePerMin: Yup.number().required('Rate Per Min is required'),
@@ -63,6 +64,7 @@ const PriceAdd = () => {
 
     const initialValues = {
         baseFare: '',
+        baseKm: '',
         baseFareSuv:'',
         baseFareSedan:'',
         baseFareMVP: '',
@@ -88,6 +90,7 @@ const PriceAdd = () => {
         try {
             console.log('Submitted Price Data:', values);
             const reqBody = {
+                'baseKm': values.baseKm,
                 'baseFare': values.baseFare,
                 'baseFareMVP': values.baseFareMVP,
                 'baseFareSedan':values.baseFareSedan,
@@ -173,6 +176,11 @@ const PriceAdd = () => {
                                 <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                                 <Field type="number" name="surchargePercentage" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 <ErrorMessage name="surchargePercentage" component="div" className="text-red-500 text-sm" />
+                            </div>
+                              <div>
+                                <label className="text-sm font-medium text-gray-700">Base Km</label>
+                                <Field type="number" name="baseKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseKm" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Night Hours (10:00 PM - 06:00 AM)</label>

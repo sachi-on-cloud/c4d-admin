@@ -38,6 +38,7 @@ const PriceDetails = () => {
             if (data?.success) {
                 setInitialValues({
                     baseFare: data?.data?.baseFare,
+                    baseKm: data?.data?.baseKm,
                     baseFareSuv: data?.data?.baseFareSuv,
                     baseFareSedan: data?.data?.baseFareSedan,
                     baseFareMVP: data?.data?.baseFareMVP,
@@ -96,6 +97,10 @@ const PriceDetails = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                                 <Field type="number" name="surchargePercentage" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base KM</label>
+                                <Field type="number" name="baseKm" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
