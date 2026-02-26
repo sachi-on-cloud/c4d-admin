@@ -39,6 +39,8 @@ export function DriverView() {
   const [sourceFilter,setSourceFilter] = useState(['All'])
   const [subscriptionStatusFilter,setsubscriptionStatusFilter] = useState(['All'])
   const [loading, setLoading] = useState(false);
+  const [zoneFilter, setZoneFilter] = useState(['All']);
+const [zoneOptions, setZoneOptions] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -54,6 +56,13 @@ export function DriverView() {
   const paramsPassed = location.state;
 
   const navigate = useNavigate();
+  const filterTypeObj = {
+      status: statusFilter,                   
+      source: sourceFilter,                     
+      subscriptionStatus: subscriptionStatusFilter, 
+      documentStatus: documentTypeFilter,       
+      district:  zoneFilter,                         
+    };
 
   const fetchDrivers = async (page = 1, searchQuery = '', showLoader = false) => {
     try {
@@ -62,6 +71,7 @@ export function DriverView() {
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
+        filterType: JSON.stringify(filterTypeObj)
     });
     if (data?.success) {
       setDrivers(data?.data);
@@ -94,8 +104,9 @@ export function DriverView() {
   );
 
 useEffect(() => {
+  fetchZones(); 
     fetchDrivers(pagination.currentPage, pagination.search, true);
-  }, [pagination.currentPage, pagination.itemsPerPage]);
+  }, [pagination.currentPage, pagination.itemsPerPage, statusFilter, sourceFilter, subscriptionStatusFilter, documentTypeFilter, zoneFilter]);
 
 
   function formatPhoneNumber(phoneNumber) {
@@ -127,7 +138,17 @@ useEffect(() => {
   // useEffect(() => {
   //   getDrivers(searchQuery.trim());
   // }, [searchQuery]);
-
+const fetchZones = async () => {
+    try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+        if (response?.success) {
+            const areas = response.data.filter(area => area.type === 'Service Area');
+            setZoneOptions(areas);
+        }
+    } catch (err) {
+        console.error("Failed to load zones for filter:", err);
+    }
+};
   const handleFilterChange = (filterType, value) => {
     console.log('filterType, value :', filterType, value)
     if (filterType === 'availableStatus') {
@@ -155,6 +176,18 @@ useEffect(() => {
         }
       })
     } 
+     else if (filterType === "zone") {  // Add this new condition
+    setZoneFilter(prev => {
+      if (value === 'All') {
+        return ['All'];
+      } else {
+        const newFilter = prev.includes(value)
+          ? prev.filter(item => item !== value)
+          : [...prev.filter(item => item !== 'All'), value];
+        return newFilter.length === 0 ? ['All'] : newFilter;
+      }
+    });
+  }
     else if(filterType === "source")
       {
         setSourceFilter(prev => {
@@ -309,7 +342,7 @@ useEffect(() => {
                       <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">Driver Name</Typography>
                       {sortConfig.key === 'firstName' && (sortConfig.direction === 'ascending' ? <ChevronUpIcon className="w-5 h-5 ml-1" /> : <ChevronDownIcon className="w-5 h-5 ml-1" />)}
                     </th> */}
-                    {["Driver Name","Phone Number", "Local", "Outstation", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status","Last Online Date and Time"].map((el) => (
+                    {["Driver Name","Phone Number", "Local", "Outstation","Zone", "Source", "Service Type", "Available Status", "subscription Status", "KYC Status","Last Online Date and Time"].map((el) => (
                       <th
                       key={el}
                       className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -338,7 +371,20 @@ useEffect(() => {
                         selectedFilters={sourceFilter}
                         onFilterChange={(value) => handleFilterChange("source", value)}
                         />
-                    ) : el === "subscription Status" ? (
+                    )  : el === "Zone" ? (  // Add this new condition
+                          <FilterPopover
+                            title={el}
+                            options={[
+                              { value: 'All', label: 'All' },
+                              ...zoneOptions.map(zone => ({
+                                value: zone.name,
+                                label: zone.name
+                              }))
+                            ]}
+                            selectedFilters={zoneFilter}
+                            onFilterChange={(value) => handleFilterChange("zone", value)}
+                          />
+                        ) : el === "subscription Status" ? (
                       <FilterPopover title={el}
                         options={[
                           { value: "All", label: "All" },
@@ -389,9 +435,10 @@ useEffect(() => {
                       (statusFilter.includes('All') || statusFilter.includes(driver?.status)) && 
                       (sourceFilter.includes('All') || sourceFilter.includes(driver.source)) &&
                       (subscriptionStatusFilter.includes('All') || subscriptionStatusFilter.includes(driver?.subscriptionStatus)) && 
-                      (documentTypeFilter.includes('All') || documentTypeFilter.includes(driver?.documentStatus?.status) )
+                      (documentTypeFilter.includes('All') || documentTypeFilter.includes(driver?.documentStatus?.status) )&&
+                      (zoneFilter.includes('All')       || zoneFilter.includes(driver?.district))
                     ).map(
-                      ({ id, firstName, lastName, phoneNumber, email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus, Shifts}, key) => {
+                      ({ id, firstName, lastName, phoneNumber, district,email, status, localCount, outstationCount, curAddress, source, driverType, created_at, subscriptionStatus, documentStatus, Shifts}, key) => {
                         const className = `py-3 px-5 ${key === drivers.length - 1
                           ? ""
                           : "border-b border-blue-gray-50"
@@ -439,6 +486,11 @@ useEffect(() => {
                             <td className={className}>
                               <Typography className="text-xs font-semibold text-blue-gray-900">
                                 {outstationCount}
+                              </Typography>
+                            </td>
+                            <td className={className}>
+                              <Typography className="text-xs font-semibold text-blue-gray-900">
+                                {district|| '-'}  
                               </Typography>
                             </td>
                             <td className={className}>
