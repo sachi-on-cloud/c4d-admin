@@ -1002,6 +1002,7 @@ export const API_ROUTES = {
     'GET_DRIVER_AREA_TRIP_HRS' : '/drivers/area-hour-demand',
     'GET_DRIVER_AREA_TRIP_SHARE' : '/drivers/area-trip-share',
     'GENERATE_INVOICE': '/generate-invoice',
+    'AUTO_MASTERPRICE_TABLE_ADD':'/add-autos-package',
 
 
 };

@@ -148,6 +148,9 @@ export function MasterPriceView() {
         } else if (serviceType === 'RENTAL') {
             navigate('/dashboard/users/master-price/rentals-add');
         }
+        else if (serviceType === 'AUTO') {
+        navigate('/dashboard/users/master-price/auto-add');     // ← add this block
+    }
     };
     const tierList = useMemo(() => {
     return parcelLocalPackageList.flatMap((pkg) =>
@@ -1118,7 +1121,7 @@ export function MasterPriceView() {
                             </div>
                         </div>
                     </div>
-                    {serviceType && serviceType !== 'AUTO' && serviceType !== 'PARCEL' && (
+                    {serviceType && serviceType !== 'PARCEL' && (
                     <button
                         onClick={onHandleAddNew}
                         className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
