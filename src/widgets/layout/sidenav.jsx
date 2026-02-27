@@ -36,8 +36,8 @@ const menuItems = [
       { permission: "Support", path: "/dashboard/rental-rate-card" },
     ],
   },
-  { type: "item", name: "All Records", path: "/dashboard/booking/list", permission: "All bookings" },
-  { type: "item", name: "Auto Records", path: "/dashboard/Auto", permission: "Autos" },
+  { type: "item", name: "All Inquiries", path: "/dashboard/booking/list", permission: "All bookings" },
+  { type: "item", name: "All Auto Inquiries", path: "/dashboard/Auto", permission: "Autos" },
   { type: "item", name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { type: "item", name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
   {
@@ -122,9 +122,9 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
           currentPath.startsWith("/dashboard/vendors/vehiclelist") ||
           currentPath.startsWith("/dashboard/vendors/onlinevehicleslist")
         );
-      case "All Records":
+      case "All Inquiries":
         return currentPath.startsWith("/dashboard/booking/list");
-      case "Auto Records":
+      case "All Auto Inquiries":
         return currentPath.startsWith("/dashboard/auto");
       case "Customers":
         return currentPath.startsWith("/dashboard/customers");
@@ -257,12 +257,12 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                         {name === "Calls" ? (
                           <img src="/img/calls.png" alt="Calls" className={`${NAV_UI.iconSizes.sidebar} rounded-full`} />
                         ) : null}
-                        {name === "All Records" ? (
+                        {name === "All Inquiries" ? (
                           <DocumentTextIcon
                             className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
-                        {name === "Auto Records" ? (
+                        {name === "All Auto Inquiries" ? (
                           <img src="/img/auto.png" alt="Autos" className={`${NAV_UI.iconSizes.sidebar} rounded-full`} />
                         ) : null}
                         {name === "Customers" ? (
