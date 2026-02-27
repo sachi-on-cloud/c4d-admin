@@ -135,7 +135,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [userId, setUserId] = useState(null);  
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [selectedBookingForReassign, setSelectedBookingForReassign] = useState(null);
-    const [counts, setCounts] = useState({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+    const [counts, setCounts] = useState({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0", uniqueCustomerPerDayBookingCount:"0"});
     const [dateFilter, setDateFilter] = useState('All');
     const [customDateFrom, setCustomDateFrom] = useState('');
     const [customDateTo, setCustomDateTo] = useState('');
@@ -416,7 +416,7 @@ if (!statusFilter.includes('All')) {
                 totalItems: data?.pagination?.totalItems || 0,
                 itemsPerPage: data?.pagination?.itemsPerPage || 20,
             });
-                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+                setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0", uniqueCustomerPerDayBookingCount:"0" });
                 setOnlineDrivers(data?.onlineDrivers || []);
                 setTotalDriverCount(data?.totalDrivers || 0);
                 setSelectedBookingId(null);
@@ -424,20 +424,20 @@ if (!statusFilter.includes('All')) {
             else {
                 setBookingsList([]);
                 setOnlineDrivers([]);
-                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0", uniqueCustomerPerDayBookingCount:"0" });
             }
         } 
         else {
             console.error('API request failed:', data?.message);
             setBookingsList([]);
             setOnlineDrivers([]);
-            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0", uniqueCustomerPerDayBookingCount:"0" });
         }
     } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookingsList([]);
         setOnlineDrivers([]);
-        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0" });
+        setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount: "0", uniqueCustomerPerDayBookingCount:"0" });
     } finally {
         setLoading(false);
         }
@@ -712,21 +712,21 @@ if (!statusFilter.includes('All')) {
                         totalItems: data?.pagination?.totalItems || 0,
                         itemsPerPage: data?.pagination?.itemsPerPage || 20,
                     });
-                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+                    setCounts(data?.counts || { endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0", uniqueCustomerPerDayBookingCount:"0" });
                     setSelectedBookingId(null);
                 } else {
                     setBookingsList([]);
-                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+                    setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0", uniqueCustomerPerDayBookingCount:"0" });
                 }
             } else {
                 console.error('API request failed:', data?.message);
                 setBookingsList([]);
-                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+                setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0", uniqueCustomerPerDayBookingCount:"0" });
             }
         } catch (error) {
             console.error('Error fetching bookings:', error);
             setBookingsList([]);
-            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0" });
+            setCounts({ endedCount: "0", quotedCount: "0", totalBookingCount: "0", confirmedCount: "0", supportCount:"0", uniqueCustomerPerDayBookingCount:"0" });
         } finally {
             setLoading(false);
         }
@@ -782,7 +782,8 @@ if (!statusFilter.includes('All')) {
                     {/* Status Cards Grid */}
                         <div className="grid grid-cols-1 py-12 sm:grid-cols-2 md:grid-cols-7 gap-2">
                             {[
-                                { key: 'totalBookingCount', label: 'Total Enquiry', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
+                                // { key: 'totalBookingCount', label: 'Total Enquiry', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
+                                { key: 'uniqueCustomerPerDayBookingCount', label: 'Total Unique Enquiry', icon: FaChartBar, color: 'bg-blue-50 text-blue-900', chipColor: 'bg-blue-600 text-white' },
                                 { key: 'quotedCount', label: 'Quoted', icon: FaClipboardList, color: 'bg-yellow-50 text-yellow-900', chipColor: 'bg-yellow-600 text-white' },
                                 { key: 'confirmedCount', label: 'Confirmed', icon: FaCalendarAlt, color: 'bg-purple-50 text-purple-900', chipColor: 'bg-purple-600 text-white' },
                                 { key: 'endedCount', label: 'Trip Completed', icon: FaCheckCircle, color: 'bg-green-50 text-green-900', chipColor: 'bg-green-600 text-white' },
