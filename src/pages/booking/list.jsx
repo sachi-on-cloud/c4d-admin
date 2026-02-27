@@ -668,12 +668,20 @@ if (!statusFilter.includes('All')) {
         try {
             const filterType = {
                 type: activeTab,
-                status: statusFilterParam,
                 source: sourceFilterParam,
                 tripCoordinator: tripCoordinatorFilterParam,
-                tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
                 zone: zoneFilterParam.includes('All') ? ["All"] : zoneFilterParam,
             };
+
+            // Match getBookingsList behavior: never send sentinel "All" for enum status filter.
+            if (!statusFilterParam.includes('All')) {
+                filterType.status = statusFilterParam;
+                filterType.tripStatus = statusFilterParam.includes('COMPLETED')
+                    ? true
+                    : statusFilterParam.includes('ENDED')
+                        ? false
+                        : undefined;
+            }
             
             const queryParams = {
                 "customerId": customerId,
