@@ -127,6 +127,7 @@ import DriverOfferAssign from "./pages/finance/driverOffer/DriverOfferAssign";
 import DriverOpsView from "./pages/DriverOps/view";
 import BookingInvoiceList from "./pages/finance/bookingInvoice/list";
 import BookingInvoiceDetails from "./pages/finance/bookingInvoice/details";
+import AutoMasterPriceTableAdd from "./pages/finance/masterPriceTable/AutoMasterPriceTableAdd";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -799,6 +800,14 @@ export const routes = [
         name: "Auto Master Price Edit",
         path: "/users/master-price/auto-edit/:id",
         element: <AutoMasterPriceEdit />,
+        display: true,
+        permission: "Users"
+      },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Master Price Add",
+        path: "/users/master-price/auto-add",
+        element: <AutoMasterPriceTableAdd />,
         display: true,
         permission: "Users"
       },

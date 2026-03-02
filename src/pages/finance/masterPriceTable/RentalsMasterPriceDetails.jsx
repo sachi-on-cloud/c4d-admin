@@ -27,6 +27,7 @@ const RentalsPriceMasterDetails = () => {
                     zone: data?.data?.zone || '',
                     type: data?.data?.type,
                     period: data?.data?.period,
+                    baseKm: data?.data?.baseKm,
                     baseFare: data?.data?.baseFare,
                     kilometer: data?.data?.kilometer,
                     kilometerPrice: data?.data?.kilometerPrice,
@@ -121,6 +122,10 @@ const RentalsPriceMasterDetails = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Package Type</label>
                                 <Field type="string" name="period" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                             <div>
+                                <label className="text-sm font-medium text-gray-700">Base KM</label>
+                                <Field type="number" name="baseKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             {initialValues?.type !== 'Outstation' && <div> 
                                 <label className="text-sm font-medium text-gray-700">KM</label>

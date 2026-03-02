@@ -335,7 +335,7 @@ const getDetails = useCallback(
                         const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
                        const nameType = (data["Register.id"] || data["Driver.id"]) ? "Driver" :
                                         data["Account.serviceType"] === "Company" ? "Account":
-                                        data["Account.serviceType"] === "Individual" ? "Cab" :
+                                        data["Account.serviceType"] === "Individual" ? "Account" :
                                         data["Account.serviceType"] === "Auto" ? "Auto" :"";
                         const number = (() => {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";

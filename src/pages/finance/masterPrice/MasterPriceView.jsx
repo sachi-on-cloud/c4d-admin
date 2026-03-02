@@ -148,6 +148,9 @@ export function MasterPriceView() {
         } else if (serviceType === 'RENTAL') {
             navigate('/dashboard/users/master-price/rentals-add');
         }
+        else if (serviceType === 'AUTO') {
+        navigate('/dashboard/users/master-price/auto-add');     // ← add this block
+    }
     };
     const tierList = useMemo(() => {
     return parcelLocalPackageList.flatMap((pkg) =>
@@ -438,6 +441,7 @@ export function MasterPriceView() {
                                     {[
                                         "Zone",
                                         "Rate Parameter",
+                                        'Base KM',
                                         "Base Fare (Mini)",
                                         "Base Fare (Sedan)",
                                         "Base Fare (SUV)",
@@ -463,6 +467,7 @@ export function MasterPriceView() {
                                 {ridesData.map(({
                                     id,
                                     zone,
+                                    baseKm,
                                     baseFare,
                                     baseFareSedan, 
                                     baseFareSuv,
@@ -495,6 +500,11 @@ export function MasterPriceView() {
                                                         </Typography>
                                                     </div>
                                                 </div>
+                                            </td>
+                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseKm}
+                                                </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -565,6 +575,7 @@ export function MasterPriceView() {
                                         "Zone",
                                         "Type",
                                         "Package",
+                                        'Base KM',
                                         "Base Fare",
                                         "Kilometer",
                                         "Kilometer Rate",
@@ -594,6 +605,7 @@ export function MasterPriceView() {
                                     zone,
                                     type,
                                     carType,
+                                    baseKm,
                                     baseFare,
                                     kilometerPrice,
                                     kilometer,
@@ -633,6 +645,11 @@ export function MasterPriceView() {
                                                         </Typography>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseKm}
+                                                </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -712,6 +729,7 @@ export function MasterPriceView() {
                                         "Zone",
                                         "Type",
                                         "Package",
+                                        "Base Km",
                                         "Base Fare",
                                         // "Kilometer",
                                         // "Hours Limit",
@@ -746,6 +764,7 @@ export function MasterPriceView() {
                                     zone,
                                     type,
                                     carType,
+                                    baseKm,
                                     baseFare,
                                     kilometerPrice,
                                     // kilometer,
@@ -790,6 +809,11 @@ export function MasterPriceView() {
                                                         </Typography>
                                                     </div>
                                                 </div>
+                                            </td>
+                                             <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {baseKm}
+                                                </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -1097,7 +1121,7 @@ export function MasterPriceView() {
                             </div>
                         </div>
                     </div>
-                    {serviceType && serviceType !== 'AUTO' && serviceType !== 'PARCEL' && (
+                    {serviceType && serviceType !== 'PARCEL' && (
                     <button
                         onClick={onHandleAddNew}
                         className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${

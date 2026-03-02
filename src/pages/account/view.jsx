@@ -43,6 +43,8 @@ export function AccountView() {
   const [documentTypeFilter, setDocumentTypeFilter] = useState(['All']) 
   const [availableStatusFilter,setavailableStatusFilter] = useState(['All']) 
   const [sourceFilter,setSourceFilter] = useState(['All'])
+  const [zoneFilter, setZoneFilter] = useState(['All']);
+  const [zoneOptions, setZoneOptions] = useState();
 
   const [pagination, setPagination] = useState({
         currentPage: 1,
@@ -56,6 +58,7 @@ export function AccountView() {
   const fetchAccounts = async (page = 1, searchQuery = '', showLoader = true) => {
     if (showLoader) setLoading(true);
     try {
+      const zoneValue = Array.isArray(zoneFilter) ? (zoneFilter.includes('All') ? undefined : zoneFilter[0]) : zoneFilter;
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_ACCOUNTS, {
         
       
@@ -64,6 +67,7 @@ export function AccountView() {
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
+        district: zoneValue,
         filterType: JSON.stringify({
        
           status: documentTypeFilter,
@@ -104,6 +108,7 @@ export function AccountView() {
   //   }
   // }
   useEffect(() => {
+    fetchZones();
     fetchAccounts(pagination.currentPage, pagination.search, true);
 
     if (location.state?.accountAdded || location.state?.accountUpdated) {
@@ -117,7 +122,7 @@ export function AccountView() {
       }, 5000);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate,pagination.currentPage, pagination.search, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]);
+  }, [location, navigate, pagination.currentPage, pagination.search, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter, zoneFilter]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
@@ -151,7 +156,17 @@ export function AccountView() {
         }
         return buttons;
       };
-
+   const fetchZones = async () => {
+    try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
+        if (response?.success) {
+            const areas = response.data.filter(area => area.type === 'Service Area');
+            setZoneOptions(areas);
+        }
+    } catch (err) {
+        console.error("Failed to load zones for filter:", err);
+    }
+};
   const getAccounts = useCallback(
     debounce((searchQuery) => {
       setPagination((prev) => ({
@@ -220,7 +235,15 @@ export function AccountView() {
         }
       });
     }
-
+    else if (filterType === "zone") {
+      setZoneFilter(prev => {
+        if (value === 'All') {
+            return ['All'];
+        } else {
+            return [value];
+        }
+    });
+}
     else if (filterType === 'availableStatus') {
       setavailableStatusFilter(prev => {
         if (value === 'All') {
@@ -320,7 +343,7 @@ export function AccountView() {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Created Date","ID","Account Name","Email","Phone Number","Service Type","Source","KYC Status"].map((el) => (
+                    {["Created Date","ID","Account Name","Email","Phone Number","Service Type","Source","KYC Status","Zone"].map((el) => (
                       <th
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -351,6 +374,19 @@ export function AccountView() {
                           ]}
                           selectedFilters={sourceFilter}
                           onFilterChange={(value) => handleFilterChange("source", value)}
+                          />
+                      ): el === "Zone" ? (
+                          <FilterPopover
+                              title={el}
+                              options={[
+                                  { value: 'All', label: 'All' },
+                                  ...zoneOptions.map(zone => ({
+                                      value: zone.name,
+                                      label: zone.name
+                                  }))
+                              ]}
+                              selectedFilters={zoneFilter}
+                              onFilterChange={(value) => handleFilterChange("zone", value)}
                           />
                       )
                       // : el === "Subscription Status" ? (
@@ -435,9 +471,10 @@ export function AccountView() {
                     (sourceFilter.includes('All') || sourceFilter.includes(account.source)) &&
                     (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(account.type)) &&
                     // (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
-                    (documentTypeFilter.includes('All') || documentTypeFilter.includes(account.documentStatus?.status))
+                    (documentTypeFilter.includes('All') || documentTypeFilter.includes(account.documentStatus?.status))&&
+                    (zoneFilter.includes('All') || zoneFilter.includes(account.district)) 
                   ).map(
-                    ({id, created_at, name, email,phoneNumber, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
+                    ({id, created_at, name, email,phoneNumber,district, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
                       const className = `py-3 px-5 ${key === accounts.length - 1
                         ? ""
                         : "border-b border-blue-gray-50"
@@ -505,10 +542,7 @@ export function AccountView() {
                             <Chip
                               variant="ghost"
                               color={ownerStatus == "Active" ? "green" : "black"}
-                                value={ownerStatus === "Active" ? "Active" : ownerStatus === "InActive"? "InActive": "Blocked"
-                                     }
-
-
+                                value={ownerStatus === "Active" ? "Active" : ownerStatus === "InActive"? "InActive": "Blocked"}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
                           </td>  */}
@@ -519,6 +553,11 @@ export function AccountView() {
                               value={documentStatus?.status}
                               className="py-0.5 px-2 text-[11px] font-medium w-fit"
                             />
+                          </td>
+                           <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {district||"-"}
+                            </Typography>
                           </td>
                           {/* <td className={className}>
                             <Button
