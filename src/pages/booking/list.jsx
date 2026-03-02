@@ -151,6 +151,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [showDriverHours, setShowDriverHours] = useState(false);
     const [isCustomDatePopoverOpen, setIsCustomDatePopoverOpen] = useState(false);
     const [followupLoading, setFollowupLoading] = useState({});
+    const [allUsers, setAllUsers] = useState([]); 
 
 useEffect(() => {
   const storedUser = getItemSafe('loggedInUser');
@@ -174,6 +175,22 @@ useEffect(() => {
     setSelectedDriver({ count: 0 });
   }
 }, [onlineDrivers, selectedHour]);
+
+useEffect(() => {
+    const fetchAllUsers = async () => {
+        try {
+            const response = await ApiRequestUtils.get(API_ROUTES.GET_ALL_USERS);
+            if (response?.success) {
+                setAllUsers(response?.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+    
+    fetchAllUsers();
+}, []);
+
     useEffect(() => {
         loadBookingFilters({setActiveTab,setStatusFilter,setServiceTypeFilter,setSourceFilter,setTripCoordinatorFilter,setZoneFilter,setDateFilter,setCustomDateFrom,setCustomDateTo,setPagination,setFiltersLoaded,
         });
@@ -601,13 +618,10 @@ if (!statusFilter.includes('All')) {
     };
     const tripCoordinatorOptions = [
         { value: 'All', label: 'All' },
-        ...[...new Set(
-            bookingsList
-                .filter(booking => booking.User?.id && booking.User?.name)
-                .map(booking => JSON.stringify({ id: booking.User.id, name: booking.User.name })) // Stringify to ensure uniqueness
-        )]
-            .map(str => JSON.parse(str))
-            .map(user => ({ value: user.id, label: user.name })),
+        ...allUsers
+            .filter(user => user?.id && user?.name)
+            .map(user => ({ value: user.id, label: user.name }))
+            .sort((a, b) => a.label.localeCompare(b.label))
     ];
 
     const allTabLabel =
