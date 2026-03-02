@@ -336,7 +336,7 @@ const handleTabChange = (value) => {
                     <FaFilter className="text-white text-xs" />
                 </div>
             </PopoverHandler>
-            <PopoverContent className="p-2 z-10">
+            <PopoverContent className="p-2 z-10 max-h-[540px] overflow-y-auto">
                 {customContent ? (
                     customContent
                 ) : (
