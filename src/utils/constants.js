@@ -1103,13 +1103,13 @@ export const USER_ROLE = [
 export const ROLE_PERMISSIONS = {
     'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
     'SALES': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
-    'SUPPORT': ['Home','Support','All bookings', 'Customers', 'Vendors','Autos'],
+    'SUPPORT': ['Home','Support','Calls','All bookings', 'Customers', 'Vendors','Autos'],
     'FINANCE': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance','Document verification','Autos'],
 };
 
 export const PERMISSION_GROUPS = {
     Support: ['Vendors','Document verification','Trip Master'],
-    Users: ['Driver Ops','Trip Master','Calls'],
+    Users: ['Driver Ops','Trip Master'],
 };
 
 export const expandPermissionsByGroup = (permissions = []) => {

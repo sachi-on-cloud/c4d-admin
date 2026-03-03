@@ -64,10 +64,9 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/user/gst") ||
     path.startsWith("/dashboard/driver-ops") ||
     path.startsWith("/dashboard/finance") ||
-    // Also show admin top bar on Trip Master and Calls
+    // Also show admin top bar on Trip Master
     path.startsWith("/dashboard/tripdetails") ||
-    path.startsWith("/dashboard/reports/tripmasterreport") ||
-    path.startsWith("/dashboard/exotel-calls");
+    path.startsWith("/dashboard/reports/tripmasterreport");
 
 
   // If we are not in any section that has a top nav, render nothing
