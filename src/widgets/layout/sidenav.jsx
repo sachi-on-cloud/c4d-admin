@@ -36,6 +36,7 @@ const menuItems = [
       { permission: "Support", path: "/dashboard/rental-rate-card" },
     ],
   },
+  { type: "item", name: "Calls", path: "/dashboard/exotel-calls/list", permission: "Calls" },
   { type: "item", name: "All Inquiries", path: "/dashboard/booking/list", permission: "All bookings" },
   { type: "item", name: "All Auto Inquiries", path: "/dashboard/Auto", permission: "Autos" },
   { type: "item", name: "Customers", path: "/dashboard/customers", permission: "Customers" },
@@ -45,13 +46,12 @@ const menuItems = [
     name: "Admin",
     path: "/dashboard/users",
     permission: "Users",
-    permissionsAny: ["Users", "Driver Ops", "Trip Master", "Calls", "Finance"],
+    permissionsAny: ["Users", "Driver Ops", "Trip Master", "Finance"],
     landingRoutes: [
       { permission: "Users", path: "/dashboard/users" },
       { permission: "Finance", path: "/dashboard/finance/invoice" },
       { permission: "Driver Ops", path: "/dashboard/driver-ops" },
       { permission: "Trip Master", path: "/dashboard/tripDetails" },
-      { permission: "Calls", path: "/dashboard/exotel-calls/list" },
     ],
   },
 ];
@@ -128,6 +128,8 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
         return currentPath.startsWith("/dashboard/auto");
       case "Customers":
         return currentPath.startsWith("/dashboard/customers");
+      case "Calls":
+        return currentPath.startsWith("/dashboard/exotel-calls");
       case "Finance":
         return currentPath.startsWith("/dashboard/finance");
       case "Marketing":
@@ -147,8 +149,7 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
           currentPath.startsWith("/dashboard/user/gst") ||
           currentPath.startsWith("/dashboard/driver-ops") ||
           currentPath.startsWith("/dashboard/reports/tripmasterreport") ||
-          currentPath.startsWith("/dashboard/tripdetails") ||
-          currentPath.startsWith("/dashboard/exotel-calls")
+          currentPath.startsWith("/dashboard/tripdetails")
         );
       default:
         return false;

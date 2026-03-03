@@ -65,7 +65,6 @@ function AdminSubmenu({ permissions = [] }) {
     { label: "TAX", path: "/dashboard/user/GSTList", requiredPermission: "Users" },
     { label: "Trip Master Details", path: "/dashboard/tripDetails", requiredPermission: "Trip Master" },
     { label: "Trip Master Report", path: "/dashboard/reports/tripMasterReport", requiredPermission: "Trip Master" },
-    { label: "Calls", path: "/dashboard/exotel-calls/list", requiredPermission: "Calls" },
   ];
   const financeSubItems = [
     { label: "Subscription Invoice", path: "/dashboard/finance/invoice", requiredPermission: "Finance" },
