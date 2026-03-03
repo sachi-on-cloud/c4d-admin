@@ -137,8 +137,8 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
           currentPath.startsWith("/dashboard/vendors/notificationlist") ||
           currentPath.startsWith("/dashboard/vendors/customernotificationlist") ||
           currentPath.startsWith("/dashboard/vendors/drivernotificationlist") ||
-          currentPath.startsWith("/dashboard/user/bannerimg") ||
-          currentPath.startsWith("/dashboard/user/testimonial")
+          currentPath.startsWith("/dashboard/user/bannerimg")
+          // currentPath.startsWith("/dashboard/user/testimonial")
         );
       case "Admin":
         return (

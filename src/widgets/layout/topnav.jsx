@@ -52,9 +52,9 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/vendors/customernotificationlist") ||
     path.startsWith("/dashboard/vendors/drivernotificationlist") ||
     path.startsWith("/dashboard/user/bannerimgview") ||
-    path.startsWith("/dashboard/user/bannerimg/add") ||
-    path.startsWith("/dashboard/user/testimonialview") ||
-    path.startsWith("/dashboard/user/testimonial/add");
+    path.startsWith("/dashboard/user/bannerimg/add")
+    // path.startsWith("/dashboard/user/testimonialview") ||
+    // path.startsWith("/dashboard/user/testimonial/add");
 
   const isAdminSection =
     path.startsWith("/dashboard/users") ||
