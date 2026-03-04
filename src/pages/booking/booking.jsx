@@ -346,7 +346,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
         const quoteData = {
             serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
-            customerId: values?.customerId,
+            customerId: values?.customerId?.id,
             packageType: 'Outstation',
             fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             // carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
