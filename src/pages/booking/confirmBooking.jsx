@@ -1487,7 +1487,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                                 )
                             }
-                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED  && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO"&&
+                            {bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.status !== BOOKING_STATUS.ENDED  && bookingDetails?.serviceType !=="RIDES" && bookingDetails?.serviceType !=="AUTO" && (!isHourlyShowingPrice(bookingDetails) || Number(bookingDetails?.value?.estimatedDistance || 0) > 0) &&
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance :</span>
                                     <span className="text-gray-900 font-medium">{Number(bookingDetails?.value?.estimatedDistance || 0).toFixed(2)} Kms</span>
@@ -1539,7 +1539,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                 ).toFixed(2)}</span>
                                             </div>
                                         )}
-                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO'  &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP")   &&                
+                                {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.serviceType !== 'AUTO'  &&  (bookingDetails?.status == "ENDED" || bookingDetails?.status == "END_OTP") && (!isHourlyShowingPrice(bookingDetails) || (Number(bookingDetails?.totalDistanceKilometer || 0) + Number(bookingDetails?.value?.driverWithin || 0)) > 0) &&                
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Total Distance:</span>
                                     <span className="text-gray-900 font-medium">{(Number(bookingDetails?.totalDistanceKilometer)+Number (bookingDetails?.value?.driverWithin ||0)).toFixed(2)} Kms</span>
@@ -1631,7 +1631,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <span className="text-gray-900 font-medium">{bookingDetails?.discount?.percentage} %</span>
                                         </div>
                                     )}
-                                    {bookingDetails?.status !== 'PAYMENT_REQUESTED'&&bookingDetails?.status !== 'ENDED'&&bookingDetails?.status !== 'END_OTP' && bookingDetails?.serviceType !== 'AUTO' && (
+                                    {bookingDetails?.status !== 'PAYMENT_REQUESTED'&&bookingDetails?.status !== 'ENDED'&&bookingDetails?.status !== 'END_OTP' && bookingDetails?.serviceType !== 'AUTO' && !isHourlyShowingPrice(bookingDetails) && (
                                         bookingDetails?.serviceType !== 'RIDES' ||  ( bookingDetails?.serviceType === 'RIDES' && !['END_OTP', 'ENDED'].includes(bookingDetails?.status) )
                                         )  && shouldShowQuotePricing(bookingDetails) && (
                                             <div className="flex flex-col-2 gap-2">
@@ -1730,7 +1730,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             <span className="text-gray-900 font-medium">₹ {bookingDetails?.discount?.amount} </span>
                                             </div>
                                         )}
-                                        {bookingDetails?.discount?.amount > 0  && bookingDetails?.status !== 'ENDED' && bookingDetails?.status !== 'END_OTP' &&  bookingDetails?.serviceType !== 'AUTO' && (
+                                        {bookingDetails?.discount?.amount > 0  && bookingDetails?.status !== 'ENDED' && bookingDetails?.status !== 'END_OTP' &&  bookingDetails?.serviceType !== 'AUTO' && !isHourlyShowingPrice(bookingDetails) && (
                                           <div className="flex flex-col-2 gap-2">  
                                         <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                         <span className="text-gray-900 font-medium">₹ {Number(

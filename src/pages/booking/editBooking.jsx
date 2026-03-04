@@ -238,8 +238,7 @@ const getQuoteOutstationDetails = async (values) => {
     const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
     const quoteData = {
         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
-        customerId: values?.customerId,
-        bookingType: values?.tripType?.toUpperCase(),
+        customerId: values?.customerId?.id,
         packageType: 'Outstation',
         fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             // carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
@@ -254,6 +253,9 @@ const getQuoteOutstationDetails = async (values) => {
         zone: actualZone,
             isPremiumService : values?.isPremiumService ? true : false
     };
+    if (values?.serviceType !== 'RENTAL_HOURLY_PACKAGE' && values?.serviceType !== 'AUTO') {
+        quoteData.bookingType = values?.tripType ? values.tripType.toUpperCase() : '';
+    }
     const isDriverOutstation = values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation';
         const isRoundTripCustom =
             isDriverOutstation &&
@@ -298,7 +300,7 @@ const getQuoteOutstationDetails = async (values) => {
         tripType: bookingData?.bookingType == "DROP ONLY" ? "Drop Only" : "Round Trip" || '',
         transmissionType : bookingData?.transmissionType || '',
         packageSelected: bookingData?.packageId ? bookingData?.packageId : '',
-        customerId: bookingData?.customerId ? bookingData?.customerId : '',
+        customerId: bookingData?.customerId ? bookingData?.customerId?.id : '',
         carType: bookingData?.carType ? bookingData?.carType : '',
         pickupAddress: bookingData?.pickupAddress?.name || '',
         dropAddress: bookingData?.dropAddress?.name || '',
@@ -377,8 +379,7 @@ const getQuoteOutstationDetails = async (values) => {
 
             const quoteDate = {
                 serviceType: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : values.serviceType || mappedServiceType,
-                customerId: values?.customerId,
-                bookingType: values?.serviceType === 'AUTO' ? 'DROP ONLY' : (values.tripType?.toUpperCase() || ''),
+                customerId: values?.customerId?.id,
                 serviceFor: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : values.serviceType,
                 packageType: 'Local',
                 fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
@@ -399,6 +400,9 @@ const getQuoteOutstationDetails = async (values) => {
             isPremiumService : values?.isPremiumService ? true : false
 
             };
+            if (values?.serviceType !== 'RENTAL_HOURLY_PACKAGE' && values?.serviceType !== 'AUTO') {
+                quoteDate.bookingType = values?.tripType ? values.tripType.toUpperCase() : '';
+            }
             const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
             if (data?.success) {
                 setQuoteDetails(data?.data);
@@ -657,7 +661,9 @@ const getQuoteOutstationDetails = async (values) => {
                     bookingId: bookingData?.id,
                     adminBooking: true,
                     serviceType: values?.serviceType,
-                    bookingType: values?.tripType.toUpperCase(),
+                    ...((values?.serviceType !== 'RENTAL_HOURLY_PACKAGE' && values?.serviceType !== 'AUTO') && {
+                        bookingType: values?.tripType?.toUpperCase() || '',
+                    }),
                 transmissionType : values?.transmissionType ? values?.transmissionType : bookingData?.transmissionType,
                     carType: values?.serviceType === 'DRIVER' ? 'Mini' : (values?.carType ? values?.carType : bookingData?.carType),
                     fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
