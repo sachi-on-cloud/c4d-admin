@@ -238,7 +238,7 @@ const getQuoteOutstationDetails = async (values) => {
     const mappedServiceType = serviceTypeMap[values?.serviceType] || values?.serviceType;
     const quoteData = {
         serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'RENTAL' : values?.serviceType || mappedServiceType,
-        customerId: values?.customerId,
+        customerId: values?.customerId?.id,
         packageType: 'Outstation',
         fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
             // carType: values?.carType != "Sedan" ? values?.carType.toUpperCase() : values?.carType,
@@ -300,7 +300,7 @@ const getQuoteOutstationDetails = async (values) => {
         tripType: bookingData?.bookingType == "DROP ONLY" ? "Drop Only" : "Round Trip" || '',
         transmissionType : bookingData?.transmissionType || '',
         packageSelected: bookingData?.packageId ? bookingData?.packageId : '',
-        customerId: bookingData?.customerId ? bookingData?.customerId : '',
+        customerId: bookingData?.customerId ? bookingData?.customerId?.id : '',
         carType: bookingData?.carType ? bookingData?.carType : '',
         pickupAddress: bookingData?.pickupAddress?.name || '',
         dropAddress: bookingData?.dropAddress?.name || '',
@@ -379,7 +379,7 @@ const getQuoteOutstationDetails = async (values) => {
 
             const quoteDate = {
                 serviceType: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL' : values.serviceType || mappedServiceType,
-                customerId: values?.customerId,
+                customerId: values?.customerId?.id,
                 serviceFor: values.serviceType === 'RENTAL_HOURLY_PACKAGE' ? 'RENTAL_HOURLY_PACKAGE' : values.serviceType,
                 packageType: 'Local',
                 fromDate: moment(`${values?.rideDate} ${values?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
