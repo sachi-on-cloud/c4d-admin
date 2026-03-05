@@ -48,6 +48,7 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/doc-verification/pending");
   
   const isMarketingSection = 
+    path.startsWith("/dashboard/vendors/driver-incentive") ||
     path.startsWith("/dashboard/vendors/notificationlist") ||
     path.startsWith("/dashboard/vendors/customernotificationlist") ||
     path.startsWith("/dashboard/vendors/drivernotificationlist") ||
@@ -62,7 +63,7 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/user/versioncontrol") ||
     path.startsWith("/dashboard/user/discountmodule") ||
     path.startsWith("/dashboard/user/gst") ||
-    path.startsWith("/dashboard/driver-ops") ||
+    path.startsWith("/dashboard/driverengagement") ||
     path.startsWith("/dashboard/finance") ||
     // Also show admin top bar on Trip Master
     path.startsWith("/dashboard/tripdetails") ||
