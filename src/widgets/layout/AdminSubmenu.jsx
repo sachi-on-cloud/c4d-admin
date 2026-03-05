@@ -62,6 +62,7 @@ function AdminSubmenu({ permissions = [] }) {
 
   const primaryItems = [
     { label: "Users", path: "/dashboard/users", requiredPermission: "Users" },
+    { label: "Cash Back", path: "/dashboard/users/cash-back/list", requiredPermission: "Users" },
     { label: "Master Price Table", path: "/dashboard/users/master-price", requiredPermission: "Users" },
     { label: "Instant Reward", path: "/dashboard/users/instant-reward", requiredPermission: "Users" },
     { label: "GeoMarkings", path: "/dashboard/admin/geo-markings", requiredPermission: "Users" },
@@ -72,7 +73,6 @@ function AdminSubmenu({ permissions = [] }) {
 
   // Secondary/shortcut items that can live on a second row
   const secondaryItems = [
-    { label: "Cash Back", path: "/dashboard/users/cash-back/list", requiredPermission: "Users" },
     { label: "Driver Bonus", path: "/dashboard/users/driver-offer/list", requiredPermission: "Users" },
     { label: "Driver Engagement", path: "/dashboard/driverengagement", requiredPermission: "Driver Engagement" },
     { label: "Discount Module", path: "/dashboard/user/discountModuleList", requiredPermission: "Users" },
