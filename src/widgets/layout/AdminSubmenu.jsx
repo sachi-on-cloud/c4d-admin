@@ -16,6 +16,7 @@ function AdminSubmenu({ permissions = [] }) {
   const pathname = location.pathname.toLowerCase();
   const isSuperUser = isSuperUserRole();
   const isFinanceActive = pathname.startsWith("/dashboard/finance");
+  const isDriverEngagementActive = pathname.startsWith("/dashboard/driverengagement");
 
   const isMainItemActive = (label, path) => {
     const target = path.toLowerCase();
@@ -45,6 +46,17 @@ function AdminSubmenu({ permissions = [] }) {
       );
     }
 
+    if (label === "Tier Details") {
+      return (
+        pathname === "/dashboard/driverengagement" ||
+        pathname.startsWith("/dashboard/driverengagement/tier/")
+      );
+    }
+    
+    if (label === "Cash Back") {
+      return pathname.startsWith("/dashboard/users/cash-back");
+    }
+
     return pathname.startsWith(target);
   };
 
@@ -55,14 +67,15 @@ function AdminSubmenu({ permissions = [] }) {
     { label: "GeoMarkings", path: "/dashboard/admin/geo-markings", requiredPermission: "Users" },
     { label: "Version Control", path: "/dashboard/user/versionControlList", requiredPermission: "Users" },
     { label: "Custom Discount", path: "/dashboard/users/custom-discount/list", requiredPermission: "Users" },
+    { label: "TAX", path: "/dashboard/user/GSTList", requiredPermission: "Users" },
   ];
 
   // Secondary/shortcut items that can live on a second row
   const secondaryItems = [
+    { label: "Cash Back", path: "/dashboard/users/cash-back/list", requiredPermission: "Users" },
     { label: "Driver Bonus", path: "/dashboard/users/driver-offer/list", requiredPermission: "Users" },
-    { label: "Driver Ops", path: "/dashboard/driver-ops", requiredPermission: "Driver Ops" },
+    { label: "Driver Engagement", path: "/dashboard/driverengagement", requiredPermission: "Driver Engagement" },
     { label: "Discount Module", path: "/dashboard/user/discountModuleList", requiredPermission: "Users" },
-    { label: "TAX", path: "/dashboard/user/GSTList", requiredPermission: "Users" },
     { label: "Trip Master Details", path: "/dashboard/tripDetails", requiredPermission: "Trip Master" },
     { label: "Trip Master Report", path: "/dashboard/reports/tripMasterReport", requiredPermission: "Trip Master" },
   ];
@@ -72,6 +85,12 @@ function AdminSubmenu({ permissions = [] }) {
     { label: "Master Subscription", path: "/dashboard/finance/master-subscription", requiredPermission: "Finance" },
     { label: "Booking Invoice", path: "/dashboard/finance/bookingInvoiceList", requiredPermission: "Finance" },
   ];
+  const driverEngagementSubItems = [
+    { label: "Tier Details", path: "/dashboard/driverengagement", requiredPermission: "Driver Engagement" },
+    { label: "Driver Monitoring", path: "/dashboard/driverengagement/driver-monitoring", requiredPermission: "Driver Engagement" },
+    { label: "Incentive Payout", path: "/dashboard/driverengagement/incentive-payout", requiredPermission: "Driver Engagement" },
+    { label: "Audit Logs", path: "/dashboard/driverengagement/audit-logs", requiredPermission: "Driver Engagement" },
+  ];
 
   const filteredPrimaryItems = primaryItems.filter(({ requiredPermission }) => permissions.includes(requiredPermission));
   const filteredSecondaryItems = secondaryItems.filter(({ requiredPermission, label }) => {
@@ -79,9 +98,13 @@ function AdminSubmenu({ permissions = [] }) {
     return permissions.includes(requiredPermission);
   });
   const filteredFinanceItems = financeSubItems.filter(({ requiredPermission }) => permissions.includes(requiredPermission));
+  const filteredDriverEngagementItems = driverEngagementSubItems.filter(({ requiredPermission }) =>
+    permissions.includes(requiredPermission)
+  );
   const hasFinanceAccess = filteredFinanceItems.length > 0;
+  const hasDriverEngagementAccess = filteredDriverEngagementItems.length > 0;
 
-  if (!filteredPrimaryItems.length && !filteredSecondaryItems.length && !hasFinanceAccess) {
+  if (!filteredPrimaryItems.length && !filteredSecondaryItems.length && !hasFinanceAccess && !hasDriverEngagementAccess) {
     return null;
   }
 
@@ -147,6 +170,28 @@ function AdminSubmenu({ permissions = [] }) {
       {hasFinanceAccess && isFinanceActive && (
         <ul className={NAV_UI.topnav.nestedList}>
           {filteredFinanceItems.map(({ label, path }) => (
+            <li key={label}>
+              <NavLink to={path} end={false}>
+                <Button
+                  variant="text"
+                  className={getItemClasses(isMainItemActive(label, path))}
+                >
+                  <Typography
+                    color="inherit"
+                    className={NAV_UI.typography.topnavLabel}
+                  >
+                    {label}
+                  </Typography>
+                </Button>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {hasDriverEngagementAccess && isDriverEngagementActive && (
+        <ul className={NAV_UI.topnav.nestedList}>
+          {filteredDriverEngagementItems.map(({ label, path }) => (
             <li key={label}>
               <NavLink to={path} end={false}>
                 <Button
