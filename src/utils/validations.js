@@ -921,3 +921,21 @@ export const DriverOfferSchema = Yup.object({
   status: Yup.mixed().required("Status is required"),
 });
 
+export const CASH_BACK_SCHEMA = Yup.object().shape({
+  serviceType: Yup.string().required("Service type is required"),
+  name: Yup.string().trim().required("Name is required"),
+  description: Yup.string().nullable(),
+  config: Yup.object()
+    .shape({
+      zones: Yup.array()
+        .of(Yup.string())
+        .min(1, "At least one zone is required")
+        .required("Zones are required"),
+      cashbackDiscount: Yup.number()
+        .typeError("Cashback discount must be a number")
+        .required("Cashback discount is required"),
+    })
+    .required(),
+  isActive: Yup.boolean().required("Status is required"),
+});
+

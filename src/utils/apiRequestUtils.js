@@ -101,6 +101,31 @@ export const ApiRequestUtils = {
         }
     },
 
+    patch: async (apiRoute, body, custID = 0) => {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            'token': token,
+            // 'ngrok-skip-browser-warning': '69420',
+        }
+        if (custID != 0) {
+            headers['custID'] = custID;
+        }
+        const { data } = await axios.patch(getBaseUrl() + apiRoute, body, {
+            headers
+        });
+        if (!data.success && (data.code === 400 || data.code === 415)) {
+            alert('Failure', data.message, [{
+                style: 'default', onPress: () => {
+                    // navigation.navigate('Welcome');
+                }
+            }]);
+            return;
+        } else {
+            return data;
+        }
+    },
+
     delete: async (apiRoute, body) => {
         const token = localStorage.getItem('token');
         const { data } = await axios.delete(getBaseUrl() + apiRoute, {
