@@ -52,6 +52,9 @@ import ReassignDriver from "./components/ReassignDriver";
 import PayableView from "./pages/finance/payable/view";
 import PayableDetails from "./pages/finance/payable/details";
 import UserEdit from "./pages/users/edit";
+import CashBackList from "./pages/users/cashBack/list";
+import CashBackAdd from "./pages/users/cashBack/add";
+import CashBackEdit from "./pages/users/cashBack/edit";
 import { MasterSubscriptionView } from "./pages/finance/masterSubscription/MasterSubscriptionView";
 import MasterSubscriptionAdd from "./pages/finance/masterSubscription/MasterSubscriptionAdd";
 import MasterSubscriptionDetails from "./pages/finance/masterSubscription/MasterSubscriptionDetails";
@@ -73,6 +76,8 @@ import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMast
 import GeoMarkings from "./pages/geoMarkings/geoMarkings";
 import NotificationList from "./pages/vendor/notificationList";
 import NotificationListApp from "./pages/vendor/notificationadd";
+import DriverIncentiveList from "./pages/marketing/DriverIncentive/list";
+import DriverIncentiveEdit from "./pages/marketing/DriverIncentive/edit";
 import InstantReward from "./pages/vendor/instantReward";
 import { VehiclesList } from "./pages/vendor/vehiclesList";
 import DriverNotificationList from "./pages/vendor/driverNotificationList";
@@ -128,6 +133,12 @@ import DriverOpsView from "./pages/DriverOps/view";
 import BookingInvoiceList from "./pages/finance/bookingInvoice/list";
 import BookingInvoiceDetails from "./pages/finance/bookingInvoice/details";
 import AutoMasterPriceTableAdd from "./pages/finance/masterPriceTable/AutoMasterPriceTableAdd";
+import TierDetailsList from "./pages/DriverEngagementModule/TierDetails/list";
+import TierDetailsAdd from "./pages/DriverEngagementModule/TierDetails/add";
+import TierDetailsEdit from "./pages/DriverEngagementModule/TierDetails/edit";
+import DriverMonitoringList from "./pages/DriverEngagementModule/DriverMonitoring/list";
+import IncentivePayoutList from "./pages/DriverEngagementModule/IncentivePayout/list";
+import DriverEngagementAuditLogs from "./pages/DriverEngagementModule/AuditLogs/list";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -207,6 +218,22 @@ export const routes = [
         element: <DriverView />,
         display: true,
         permission: "Vendors",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "driver incentive",
+        path: "/vendors/driver-incentive",
+        element: <DriverIncentiveList />,
+        display: true,
+        permission: "Marketing",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "driver incentive edit",
+        path: "/vendors/driver-incentive/edit/:id",
+        element: <DriverIncentiveEdit />,
+        display: false,
+        permission: "Marketing",
       },
       {
         icon: <UserIcon {...icon} />,
@@ -749,6 +776,30 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Cash Back List",
+        path: "/users/cash-back/list",
+        element: <CashBackList />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Cash Back Add",
+        path: "/users/cash-back/add",
+        element: <CashBackAdd />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Cash Back Edit",
+        path: "/users/cash-back/edit/:id",
+        element: <CashBackEdit />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Master Price Add",
         path: "/users/master-price/driver-add",
         element: <MasterPriceAdd />,
@@ -803,7 +854,7 @@ export const routes = [
         display: true,
         permission: "Users"
       },
-        {
+      {
         icon: <UserIcon {...icon} />,
         name: "Auto Master Price Add",
         path: "/users/master-price/auto-add",
@@ -1135,6 +1186,54 @@ export const routes = [
         element: <DriverOpsView />,
         display: false,
         permission: "Driver Ops",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Tier Details",
+        path: "/driverengagement",
+        element: <TierDetailsList />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Add Tier",
+        path: "/driverengagement/tier/add",
+        element: <TierDetailsAdd />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Edit Tier",
+        path: "/driverengagement/tier/edit/:id",
+        element: <TierDetailsEdit />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Driver Monitoring",
+        path: "/driverengagement/driver-monitoring",
+        element: <DriverMonitoringList />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Incentive Payout",
+        path: "/driverengagement/incentive-payout",
+        element: <IncentivePayoutList />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Audit Logs",
+        path: "/driverengagement/audit-logs",
+        element: <DriverEngagementAuditLogs />,
+        display: false,
+        permission: "Driver Engagement",
       },
        {
         icon: <UserIcon {...icon} />,
