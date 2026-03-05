@@ -1003,8 +1003,21 @@ export const API_ROUTES = {
     'GET_DRIVER_AREA_TRIP_SHARE' : '/drivers/area-trip-share',
     'GENERATE_INVOICE': '/generate-invoice',
     'AUTO_MASTERPRICE_TABLE_ADD':'/add-autos-package',
-
-
+    'ADD_DE_TIER': '/admin/partner-tier/rules',
+    'EDIT_DE_TIER': '/admin/partner-tier/rules',
+    'LIST_DE_TIER': '/admin/partner-tier/rules',
+    'DRIVER_MONITORING_TIER':'/admin/partner-tier/monitoring',
+    'DRIVER_MONITORING_TIER_HISTORY':'/admin/partner-tier/history',
+    'INCENTIVE_PAYOUT' :'/admin/partner-tier/incentives',
+    'INCENTIVE_PAYOUT_SUMMARY': '/admin/partner-tier/incentives/summary',
+    'DE_AUDIT_LOG': '/admin/partner-tier/history',
+    'DE_AUDIT_LOG_SUMMARY': '/admin/partner-tier/history/summary',
+    'DRIVER_INCENTIVE':'/admin/partner-tier/incentive-component',
+    'DRIVER_INCENTIVE_EDIT':'/admin/partner-tier/incentive-component',
+    'DRIVER_INCENTIVE_STATUS':'/admin/partner-tier/incentive-component/status',
+    'ADD_CASH_BACK':'/cashback-rules',
+    'UPDATE_CASH_BACK':'/cashback-rules/:settingId',
+    'GET_CASH_BACK':'/cashback-rules',
 };
 
 export const KYC_PROCESS = {
@@ -1101,7 +1114,7 @@ export const USER_ROLE = [
 
 // Role-based permissions for main modules (side/top nav)
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
+    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos','Driver Engagement'],
     'SALES': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
     'SUPPORT': ['Home','Support','Calls','All bookings', 'Customers', 'Vendors','Autos'],
     'FINANCE': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance','Document verification','Autos'],
@@ -1109,7 +1122,7 @@ export const ROLE_PERMISSIONS = {
 
 export const PERMISSION_GROUPS = {
     Support: ['Vendors','Document verification','Trip Master'],
-    Users: ['Driver Ops','Trip Master'],
+    Users: ['Trip Master','Driver Engagement'],
 };
 
 export const expandPermissionsByGroup = (permissions = []) => {
@@ -1159,6 +1172,7 @@ export const PERMISSION_OPTIONS = [
     { name: 'Driver Ops', id: 'Driver Ops' },
     { name: 'Calls', id: 'Calls'},
     { name: 'Autos', id: 'Autos'},
+    { name: 'Driver Engagement', id: 'Driver Engagement'},
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },
@@ -1364,7 +1378,7 @@ export const NAV_UI = {
         sidebarActiveBg: "bg-[#DFF3EE]",
         sidebarActiveText: "text-[#0F766E]",
         sidebarInactiveText: "text-slate-600",
-        topnavContainerBg: "bg-[#F8FAFC]",
+        topnavContainerBg: "bg-white",
         topnavActiveBg: "border-b-2 border-primary-500 bg-transparent",
         topnavActiveText: "text-[#0F766E] gap-2",
         topnavInactiveText: "text-slate-600 border-b-2 border-transparent",
