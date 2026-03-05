@@ -41,17 +41,18 @@ const menuItems = [
   { type: "item", name: "All Auto Inquiries", path: "/dashboard/Auto", permission: "Autos" },
   { type: "item", name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { type: "item", name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
+  { type: "item", name: "Driver Reports", path: "/dashboard/driver-ops", permission: "Driver Ops" },
   {
     type: "item",
     name: "Admin",
     path: "/dashboard/users",
     permission: "Users",
-    permissionsAny: ["Users", "Driver Ops", "Trip Master", "Finance"],
+    permissionsAny: ["Users", "Trip Master", "Finance", "Driver Engagement"],
     landingRoutes: [
       { permission: "Users", path: "/dashboard/users" },
       { permission: "Finance", path: "/dashboard/finance/invoice" },
-      { permission: "Driver Ops", path: "/dashboard/driver-ops" },
       { permission: "Trip Master", path: "/dashboard/tripDetails" },
+      { permission: "Driver Engagement", path: "/dashboard/driverengagement" },
     ],
   },
 ];
@@ -134,12 +135,15 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
         return currentPath.startsWith("/dashboard/finance");
       case "Marketing":
         return (
+          currentPath.startsWith("/dashboard/vendors/driver-incentive") ||
           currentPath.startsWith("/dashboard/vendors/notificationlist") ||
           currentPath.startsWith("/dashboard/vendors/customernotificationlist") ||
           currentPath.startsWith("/dashboard/vendors/drivernotificationlist") ||
           currentPath.startsWith("/dashboard/user/bannerimg")
           // currentPath.startsWith("/dashboard/user/testimonial")
         );
+      case "Driver Reports":
+        return currentPath.startsWith("/dashboard/driver-ops");
       case "Admin":
         return (
           currentPath.startsWith("/dashboard/users") ||
@@ -147,7 +151,7 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
           currentPath.startsWith("/dashboard/user/versioncontrol") ||
           currentPath.startsWith("/dashboard/user/discountmodule") ||
           currentPath.startsWith("/dashboard/user/gst") ||
-          currentPath.startsWith("/dashboard/driver-ops") ||
+          currentPath.startsWith("/dashboard/driverengagement") ||
           currentPath.startsWith("/dashboard/reports/tripmasterreport") ||
           currentPath.startsWith("/dashboard/tripdetails")
         );
@@ -246,7 +250,7 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                           />
                         ) : null}
 
-                        {name === "Driver Ops" ? (
+                        {name === "Driver Reports" ? (
                           <ChartBarIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
                         ) : null}
                         {name === "Leads" ? (
