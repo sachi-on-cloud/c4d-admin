@@ -184,16 +184,16 @@ function DispatchTierRuleCard({
                         </div>
                         <div>
                           <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">
-                            Value
+                            {condition.metric === "acceptancePct" ? "Value (%)" : "Value"}
                           </Typography>
                           <input
                             type="number"
                             value={condition.value}
                             onChange={(event) =>
-                              onDispatchConditionChange(tierKey, serviceKey, index, "value", Number(event.target.value))
+                              onDispatchConditionChange(tierKey, serviceKey, index, "value", event.target.value)
                             }
                             className="w-full rounded-md border border-blue-gray-200 bg-white px-2 py-2 text-sm"
-                            placeholder="value"
+                            placeholder={condition.metric === "acceptancePct" ? "value (%)" : "value"}
                           />
                         </div>
                         <div>

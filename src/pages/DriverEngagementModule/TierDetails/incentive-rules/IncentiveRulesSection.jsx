@@ -5,9 +5,9 @@ function IncentiveRulesSection({ registerBuilder, initialConfig = {} }) {
   const [weeklyTierBonus, setWeeklyTierBonus] = useState({
     enabled: true,
     payoutFrequency: "WEEKLY",
-    silver: 0,
-    gold: 0,
-    elite: 0,
+    silver: "",
+    gold: "",
+    elite: "",
   });
 
   useEffect(() => {
@@ -19,9 +19,9 @@ function IncentiveRulesSection({ registerBuilder, initialConfig = {} }) {
       setWeeklyTierBonus({
         enabled: Boolean(weeklyTierBonusComponent?.enabled),
         payoutFrequency: weeklyTierBonusComponent?.payoutFrequency || "WEEKLY",
-        silver: Number(weeklyTierBonusComponent?.payoutByTier?.SILVER || 0),
-        gold: Number(weeklyTierBonusComponent?.payoutByTier?.GOLD || 0),
-        elite: Number(weeklyTierBonusComponent?.payoutByTier?.ELITE || 0),
+        silver: String(weeklyTierBonusComponent?.payoutByTier?.SILVER ?? ""),
+        gold: String(weeklyTierBonusComponent?.payoutByTier?.GOLD ?? ""),
+        elite: String(weeklyTierBonusComponent?.payoutByTier?.ELITE ?? ""),
       });
     }
   }, [initialConfig]);
@@ -72,15 +72,15 @@ function IncentiveRulesSection({ registerBuilder, initialConfig = {} }) {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <div>
             <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Silver</Typography>
-            <input type="number" value={weeklyTierBonus.silver} onChange={(event) => onBonusInputChange(setWeeklyTierBonus, "silver", Number(event.target.value))} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm" placeholder="SILVER payout" />
+            <input type="number" value={weeklyTierBonus.silver} onChange={(event) => onBonusInputChange(setWeeklyTierBonus, "silver", event.target.value)} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm" placeholder="SILVER payout" />
           </div>
           <div>
             <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Gold</Typography>
-            <input type="number" value={weeklyTierBonus.gold} onChange={(event) => onBonusInputChange(setWeeklyTierBonus, "gold", Number(event.target.value))} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm" placeholder="GOLD payout" />
+            <input type="number" value={weeklyTierBonus.gold} onChange={(event) => onBonusInputChange(setWeeklyTierBonus, "gold", event.target.value)} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm" placeholder="GOLD payout" />
           </div>
           <div>
             <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Elite</Typography>
-            <input type="number" value={weeklyTierBonus.elite} onChange={(event) => onBonusInputChange(setWeeklyTierBonus, "elite", Number(event.target.value))} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm" placeholder="ELITE payout" />
+            <input type="number" value={weeklyTierBonus.elite} onChange={(event) => onBonusInputChange(setWeeklyTierBonus, "elite", event.target.value)} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm" placeholder="ELITE payout" />
           </div>
         </div>
       </div>

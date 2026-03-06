@@ -72,7 +72,7 @@ function DispatchRulesSection({ registerBuilder, serviceAreas = [], selectedZone
             conditionServiceKey:
               (condition?.metric || "tripCount") === "onlineHours" ? "ANY" : mapConditionToUi(condition),
             op: condition?.op || ">=",
-            value: Number(condition?.value || 0),
+            value: String(condition?.value ?? ""),
             isMandatory: typeof condition?.isMandatory === "boolean" ? condition.isMandatory : true,
           }));
           if (!tierAllowedZones.length) {
@@ -121,6 +121,23 @@ function DispatchRulesSection({ registerBuilder, serviceAreas = [], selectedZone
         [tierKey]: nextTierAccess,
       };
     });
+
+    // Destructive behavior by design: once unchecked, clear stored conditions
+    // so re-check starts with a clean slate.
+    if (!checked) {
+      setDispatchUnlockConditions((prev) => {
+        const tierConditions = prev?.[tierKey] || {};
+        if (!Object.prototype.hasOwnProperty.call(tierConditions, serviceKey)) {
+          return prev;
+        }
+        const nextTierConditions = { ...tierConditions };
+        delete nextTierConditions[serviceKey];
+        return {
+          ...prev,
+          [tierKey]: nextTierConditions,
+        };
+      });
+    }
   };
 
   const onDispatchConditionChange = (tierKey, serviceKey, index, field, nextValue) => {
@@ -262,6 +279,7 @@ function DispatchRulesSection({ registerBuilder, serviceAreas = [], selectedZone
       const buildTierUnlockRules = (tierKey) =>
         Object.entries(dispatchUnlockConditions[tierKey] || {})
           .filter(([serviceKey, conditions]) =>
+            Boolean(dispatchServiceAccess?.[tierKey]?.[serviceKey]) &&
             serviceKey !== BASE_DISPATCH_SERVICE_KEY && Array.isArray(conditions) && conditions.length > 0
           )
           .map(([serviceKey, conditions]) => ({
