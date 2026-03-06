@@ -244,7 +244,7 @@ function DriverIncentiveEdit() {
         </Button>
       </div>
       <Card>
-        <CardBody>
+        <CardBody className="p-0">
           <form onSubmit={onSubmit} className="space-y-5">
             {!!error && (
               <Typography color="red" className="text-sm">

@@ -25,8 +25,8 @@ export const createEditableRule = (rule = {}, code = "") => {
     period: condition?.period || "WEEKLY",
     serviceType: condition?.serviceType || fallbackServiceType,
     op: condition?.op || ">=",
-    value: Number(condition?.value || 0),
-    amount: Number(rule?.amount || 0),
+    value: String(condition?.value ?? ""),
+    amount: String(rule?.amount ?? ""),
   };
 };
 

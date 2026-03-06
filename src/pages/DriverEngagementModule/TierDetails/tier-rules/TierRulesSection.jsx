@@ -8,7 +8,7 @@ const createCondition = () => ({
   period: "DAILY",
   serviceType: "ANY",
   op: ">=",
-  value: 1,
+  value: "1",
   isMandatory: true,
 });
 
@@ -91,7 +91,7 @@ function TierRulesSection({ registerBuilder, initialConfig = {}, partnerType = "
                       ? "AUTO"
                       : getUiServiceType(condition),
                 op: condition?.op || ">=",
-                value: Number(condition?.value || 0),
+                value: String(condition?.value ?? ""),
                 isMandatory:
                   typeof condition?.isMandatory === "boolean" ? condition.isMandatory : true,
               }))
@@ -277,8 +277,8 @@ function TierRulesSection({ registerBuilder, initialConfig = {}, partnerType = "
                       </select>
                     </div>
                     <div>
-                      <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Value</Typography>
-                      <input type="number" step="any" value={condition.value} onChange={(e) => onConditionChange(tierKey, index, "value", Number(e.target.value))} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm text-blue-gray-700" placeholder="Value" />
+                      <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">{condition.metric === "acceptancePct" ? "Value (%)" : "Value"}</Typography>
+                      <input type="number" step="any" value={condition.value} onChange={(e) => onConditionChange(tierKey, index, "value", e.target.value)} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm text-blue-gray-700" placeholder={condition.metric === "acceptancePct" ? "Value(%)" : "Value"} />
                     </div>
                     <div>
                       <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Mandatory</Typography>

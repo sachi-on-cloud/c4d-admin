@@ -76,7 +76,7 @@ export const createDispatchCondition = (conditionServiceOptions = []) => ({
   period: "DAILY",
   conditionServiceKey: conditionServiceOptions[0] || "RIDES",
   op: ">=",
-  value: 1,
+  value: "1",
   isMandatory: true,
 });
 

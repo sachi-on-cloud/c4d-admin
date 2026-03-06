@@ -56,12 +56,12 @@ function IncentiveRuleGrid({
             </select>
           </div>
           <div>
-            <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Value</Typography>
-            <input type="number" value={rule.value} onChange={(event) => onRuleChange(setRules, index, "value", Number(event.target.value))} className="w-full rounded-md border border-blue-gray-200 bg-white px-2 py-2 text-sm" placeholder="value" />
+            <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">{rule.metric === "acceptancePct" ? "Value (%)" : "Value"}</Typography>
+            <input type="number" value={rule.value} onChange={(event) => onRuleChange(setRules, index, "value", event.target.value)} className="w-full rounded-md border border-blue-gray-200 bg-white px-2 py-2 text-sm" placeholder={rule.metric === "acceptancePct" ? "value(%)" : "value"} />
           </div>
           <div>
             <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Amount</Typography>
-            <input type="number" value={rule.amount} onChange={(event) => onRuleChange(setRules, index, "amount", Number(event.target.value))} className="w-full rounded-md border border-blue-gray-200 bg-white px-2 py-2 text-sm" placeholder="amount" />
+            <input type="number" value={rule.amount} onChange={(event) => onRuleChange(setRules, index, "amount", event.target.value)} className="w-full rounded-md border border-blue-gray-200 bg-white px-2 py-2 text-sm" placeholder="amount" />
           </div>
           <div>
             <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">Action</Typography>

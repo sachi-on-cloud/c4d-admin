@@ -204,7 +204,7 @@ function DriverIncentiveComponentEditor({
                   onChange={(event) =>
                     setComponentRules((prev) =>
                       prev.map((item, idx) =>
-                        idx === index ? { ...item, value: Number(event.target.value) } : item
+                        idx === index ? { ...item, value: event.target.value } : item
                       )
                     )
                   }
@@ -222,7 +222,7 @@ function DriverIncentiveComponentEditor({
                     onChange={(event) =>
                       setComponentRules((prev) =>
                         prev.map((item, idx) =>
-                          idx === index ? { ...item, amount: Number(event.target.value) } : item
+                          idx === index ? { ...item, amount: event.target.value } : item
                         )
                       )
                     }
