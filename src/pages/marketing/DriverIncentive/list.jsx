@@ -12,8 +12,8 @@ function DriverIncentiveList() {
   const navigate = useNavigate();
   const [code, setCode] = useState("ONLINE_HOURS_BONUS");
   const [partnerType, setPartnerType] = useState("CAB");
-  const [zone, setZone] = useState("ALL");
-  const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "ALL" }]);
+  const [zone, setZone] = useState("");
+  const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "" }]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -46,7 +46,24 @@ function DriverIncentiveList() {
             : response?.data && typeof response.data === "object"
               ? [response.data]
               : [];
-        setRows(mapDriverIncentiveRows(rawRows));
+        // setRows(mapDriverIncentiveRows(rawRows));
+
+        //zone fixed back end remove the fall back
+        const normalizedRows = mapDriverIncentiveRows(rawRows);
+        const selectedZone = String(zone || "").trim();
+
+        if (selectedZone) {
+          const exactZoneRows = normalizedRows.filter(
+            (row) =>
+              String(row?.raw?.scope?.zone || row?.raw?.config?.scope?.zone || "")
+                .trim()
+                .toLowerCase() === selectedZone.toLowerCase()
+          );
+          // Temporary compatibility fallback while backend matching behavior is being aligned.
+          setRows(exactZoneRows.length > 0 ? exactZoneRows : normalizedRows);
+        } else {
+          setRows(normalizedRows);
+        }
       } catch (apiError) {
         console.error("Failed to fetch driver incentive list:", apiError);
         setRows([]);

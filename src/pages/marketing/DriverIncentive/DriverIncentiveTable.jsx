@@ -10,6 +10,7 @@ const TABLE_HEAD = [
   "Valid From",
   "Valid To",
   "Payout Frequency",
+  "Is Active",
   "Zone",
   "Action",
   "Expand",
@@ -180,6 +181,11 @@ function DriverIncentiveTable({ rows, loading, error, onEdit }) {
                       <td className={cellClass}>
                         <Typography variant="small" className="text-blue-gray-700">
                           {formatPayoutFrequencyLabel(row.payoutFrequency)}
+                        </Typography>
+                      </td>
+                      <td className={cellClass}>
+                        <Typography variant="small" className="text-blue-gray-700">
+                          {(row.isActive == 'true' ? "Active" : "In Active")}
                         </Typography>
                       </td>
                       <td className={cellClass}>

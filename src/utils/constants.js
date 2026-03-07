@@ -1012,7 +1012,7 @@ export const API_ROUTES = {
     'INCENTIVE_PAYOUT_SUMMARY': '/admin/partner-tier/incentives/summary',
     'DE_AUDIT_LOG': '/admin/partner-tier/history',
     'DE_AUDIT_LOG_SUMMARY': '/admin/partner-tier/history/summary',
-    'DRIVER_INCENTIVE':'/admin/partner-tier/incentive-component',
+    'DRIVER_INCENTIVE':'/admin/partner-tier/incentive-components',
     'DRIVER_INCENTIVE_EDIT':'/admin/partner-tier/incentive-component',
     'DRIVER_INCENTIVE_STATUS':'/admin/partner-tier/incentive-component/status',
     'ADD_CASH_BACK':'/cashback-rules',
