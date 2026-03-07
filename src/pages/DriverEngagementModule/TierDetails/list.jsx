@@ -104,7 +104,7 @@ function TierDetailsList() {
           <table className="w-full min-w-[640px] table-auto text-left">
             <thead>
               <tr>
-                {["Type", "Rule Name", "Tier", "Status", "Created At", "Updated At", "Action", "Expand"].map((head) => (
+                {["Type", "Rule Name", "Tier", "Status", "Zone", "Created At", "Updated At", "Action", "Expand"].map((head) => (
                   <th key={head} className="bg-primary border-b border-blue-gray-50 px-5 py-3 text-left">
                     <Typography variant="small" color="white" className="font-semibold">
                       {head}
@@ -165,6 +165,11 @@ function TierDetailsList() {
                           className={row.isActive ? "font-medium text-green-600" : "font-medium text-blue-gray-500"}
                         >
                           {row.isActive ? "Active" : "Inactive"}
+                        </Typography>
+                      </td>
+                      <td className={cellClass}>
+                        <Typography variant="small" color="blue-gray" className="font-semibold">
+                          {row.zone}
                         </Typography>
                       </td>
                       <td className={cellClass}>

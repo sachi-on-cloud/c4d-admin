@@ -4,6 +4,7 @@ import { Card, CardBody, Typography, Button } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { normalizeTierRows } from "./shared/tierApi";
+import { buildZoneConflictMessage, findZoneConflict } from "./shared/zoneValidation";
 import TierRulesSection from "./tier-rules/TierRulesSection";
 import IncentiveRulesSection from "./incentive-rules/IncentiveRulesSection";
 import DispatchRulesSection from "./dispatch-rules/DispatchRulesSection";
@@ -59,6 +60,8 @@ function TierDetailsEdit() {
   const location = useLocation();
   const navigate = useNavigate();
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [existingTierRows, setExistingTierRows] = useState([]);
+  const [zoneError, setZoneError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingTier, setIsLoadingTier] = useState(true);
   const [rowData, setRowData] = useState(location.state?.tier || null);
@@ -91,6 +94,7 @@ function TierDetailsEdit() {
       try {
         const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.LIST_DE_TIER, {});
         const rows = normalizeTierRows(response?.data || []);
+        setExistingTierRows(rows.filter((item) => item?.isActive === true));
         const selected = rows.find((row) => String(row.id) === String(id));
         const raw = selected?.raw || null;
         setRowData(raw);
@@ -128,6 +132,34 @@ function TierDetailsEdit() {
     fetchGeoData();
   }, []);
 
+  useEffect(() => {
+    const normalize = (value, fallback = "ALL") => {
+      const normalized = String(value || "").trim().toUpperCase();
+      return normalized || fallback;
+    };
+
+    const initialZone = normalize(rowData?.config?.scope?.zone || rowData?.scope?.zone || "ALL");
+    const currentZone = normalize(form.zone, "ALL");
+    const initialIsActive = typeof rowData?.isActive === "boolean" ? rowData.isActive : true;
+
+    // Allow editing non-zone fields without being blocked by pre-existing zone duplicates.
+    if (currentZone === initialZone && form.isActive === initialIsActive) {
+      setZoneError("");
+      return;
+    }
+
+    const currentTierId = rowData?.id || id;
+    const conflict = findZoneConflict({
+      rows: existingTierRows,
+      type: form.type,
+      partnerType: form.partnerType,
+      zone: form.zone,
+      excludeId: currentTierId,
+      currentIsActive: form.isActive,
+    });
+    setZoneError(conflict ? buildZoneConflictMessage(form.zone) : "");
+  }, [existingTierRows, form.type, form.partnerType, form.zone, form.isActive, rowData, id]);
+
   const onSubmit = async (event) => {
     event.preventDefault();
 
@@ -138,6 +170,10 @@ function TierDetailsEdit() {
 
     if (!form.name?.trim()) {
       alert("Name is required");
+      return;
+    }
+    if (form.isActive && zoneError) {
+      alert(zoneError);
       return;
     }
 
@@ -166,6 +202,7 @@ function TierDetailsEdit() {
         isActive: form.isActive,
         config: {
           ...normalizedConfig,
+          isActive: form.isActive,
           scope: {
             partnerType: form.partnerType || existingScope.partnerType || "CAB",
             vehicleType:
@@ -319,6 +356,11 @@ function TierDetailsEdit() {
                     </option>
                   ))}
                 </select>
+                {!!zoneError && form.isActive && (
+                  <Typography variant="small" color="red" className="mt-1 font-medium">
+                    {zoneError}
+                  </Typography>
+                )}
               </div>
               <div>
                 <Typography variant="small" color="blue-gray" className="mb-2 font-semibold">
@@ -356,7 +398,7 @@ function TierDetailsEdit() {
             />
 
             <div>
-              <Button type="submit" color="blue" disabled={isSaving}>
+              <Button type="submit" color="blue" disabled={isSaving || (form.isActive && !!zoneError)}>
                 {isSaving ? "Saving..." : "Update"}
               </Button>
             </div>

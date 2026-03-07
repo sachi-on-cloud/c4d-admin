@@ -4,6 +4,8 @@ import { Card, CardBody, Typography, Button } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { parseInputValue } from "./shared/ruleMappings";
+import { normalizeTierRows } from "./shared/tierApi";
+import { buildZoneConflictMessage, findZoneConflict } from "./shared/zoneValidation";
 import CommonFieldsSection from "./shared/CommonFieldsSection";
 import TierRulesSection from "./tier-rules/TierRulesSection";
 import IncentiveRulesSection from "./incentive-rules/IncentiveRulesSection";
@@ -61,6 +63,8 @@ function TierDetailsAdd() {
     zone: "ALL",
   });
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [existingTierRows, setExistingTierRows] = useState([]);
+  const [zoneError, setZoneError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const typeBuilderRef = useRef(() => ({}));
 
@@ -78,8 +82,38 @@ function TierDetailsAdd() {
   }, []);
 
   useEffect(() => {
+    const fetchTierRows = async () => {
+      try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.LIST_DE_TIER, { isActive: true });
+        setExistingTierRows(normalizeTierRows(response?.data || []));
+      } catch (error) {
+        console.error("Failed to fetch tiers for zone validation:", error);
+        setExistingTierRows([]);
+      }
+    };
+
+    fetchTierRows();
+  }, []);
+
+  useEffect(() => {
     setForm((prev) => ({ ...prev, type: typeFromQuery || "TIER_RULES" }));
   }, [typeFromQuery]);
+
+  useEffect(() => {
+    if (!form.isActive) {
+      setZoneError("");
+      return;
+    }
+
+    const conflict = findZoneConflict({
+      rows: existingTierRows,
+      type: form.type,
+      partnerType: form.partnerType,
+      zone: form.zone,
+      currentIsActive: form.isActive,
+    });
+    setZoneError(conflict ? buildZoneConflictMessage(form.zone) : "");
+  }, [existingTierRows, form.type, form.partnerType, form.zone, form.isActive]);
 
   const onInputChange = (event) => {
     const { name } = event.target;
@@ -105,6 +139,23 @@ function TierDetailsAdd() {
 
     setIsSubmitting(true);
     try {
+      if (form.isActive) {
+        const latestResponse = await ApiRequestUtils.getWithQueryParam(API_ROUTES.LIST_DE_TIER, { isActive: true });
+        const latestRows = normalizeTierRows(latestResponse?.data || []);
+        const latestConflict = findZoneConflict({
+          rows: latestRows,
+          type: form.type,
+          partnerType: form.partnerType,
+          zone: form.zone,
+          currentIsActive: true,
+        });
+        if (latestConflict) {
+          const message = buildZoneConflictMessage(form.zone);
+          setZoneError(message);
+          throw new Error(message);
+        }
+      }
+
       const builtConfig = (typeBuilderRef.current && typeBuilderRef.current()) || {};
       const typeConfig =
         form.type === "DISPATCH_RULES"
@@ -116,6 +167,7 @@ function TierDetailsAdd() {
         description: form.description,
         isActive: form.isActive,
         config: {
+          isActive: form.isActive,
           scope: {
             partnerType: form.partnerType || "CAB",
             vehicleType: form.partnerType === "AUTO" ? "AUTO" : "ALL",
@@ -154,7 +206,7 @@ function TierDetailsAdd() {
       <Card>
         <CardBody>
           <form onSubmit={onSubmit} className="space-y-5">
-            <CommonFieldsSection form={form} onInputChange={onInputChange} serviceAreas={serviceAreas} />
+            <CommonFieldsSection form={form} onInputChange={onInputChange} serviceAreas={serviceAreas} zoneError={form.isActive ? zoneError : ""} />
 
             <ActiveSection
               registerBuilder={registerBuilder}
@@ -181,7 +233,7 @@ function TierDetailsAdd() {
             </div>
 
             <div>
-              <Button type="submit" color="blue" disabled={isSubmitting}>
+              <Button type="submit" color="blue" disabled={isSubmitting || (form.isActive && !!zoneError)}>
                 {isSubmitting ? "Saving..." : "Save"}
               </Button>
             </div>

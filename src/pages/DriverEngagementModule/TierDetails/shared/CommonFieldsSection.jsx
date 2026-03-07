@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "@material-tailwind/react";
 
-function CommonFieldsSection({ form, onInputChange, serviceAreas = [] }) {
+function CommonFieldsSection({ form, onInputChange, serviceAreas = [], zoneError = "" }) {
   return (
     <>
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -43,6 +43,11 @@ function CommonFieldsSection({ form, onInputChange, serviceAreas = [] }) {
               </option>
             ))}
           </select>
+          {!!zoneError && (
+            <Typography variant="small" color="red" className="mt-1 font-medium">
+              {zoneError}
+            </Typography>
+          )}
         </div>
         <div>
           <Typography variant="small" color="blue-gray" className="mb-2 font-semibold">Description</Typography>
