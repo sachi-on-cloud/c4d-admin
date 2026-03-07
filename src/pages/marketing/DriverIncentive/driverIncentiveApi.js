@@ -9,7 +9,7 @@ export const DRIVER_INCENTIVE_CODES = [
 export const fetchDriverIncentiveList = async ({
   code = "ONLINE_HOURS_BONUS",
   partnerType = "CAB",
-  zone = "ALL",
+  zone = "",
   vehicleType = "ALL",
   settingId,
 } = {}) => {

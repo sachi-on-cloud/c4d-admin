@@ -23,7 +23,7 @@ function DriverIncentiveEdit() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [rowData, setRowData] = useState(null);
-  const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "ALL" }]);
+  const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "" }]);
   const [componentRules, setComponentRules] = useState([]);
   const [form, setForm] = useState({
     name: "",
@@ -31,7 +31,7 @@ function DriverIncentiveEdit() {
     isActive: true,
     partnerType: "CAB",
     vehicleType: "ALL",
-    zone: "ALL",
+    zone: "",
     code: "",
     enabled: true,
     payoutFrequency: "WEEKLY",
@@ -100,7 +100,7 @@ function DriverIncentiveEdit() {
           isActive: typeof selectedRow?.isActive === "boolean" ? selectedRow.isActive : true,
           partnerType: scope?.partnerType || "CAB",
           vehicleType: scope?.vehicleType || "ALL",
-          zone: scope?.zone || "ALL",
+          zone: scope?.zone || "",
           code: component?.code || selectedCode || "",
           enabled: typeof component?.enabled === "boolean" ? component.enabled : true,
           payoutFrequency: resolvedPayoutFrequency,
@@ -142,6 +142,10 @@ function DriverIncentiveEdit() {
   const onSubmit = async (event) => {
     event.preventDefault();
     if (!rowData) return;
+    if (!form.isActive) {
+      setError("Inactive incentive cannot be edited.");
+      return;
+    }
 
     const existingComponent = getTargetComponent(rowData, form.code);
     if (!existingComponent) {
@@ -189,7 +193,7 @@ function DriverIncentiveEdit() {
         scope: {
           partnerType: form.partnerType || "CAB",
           vehicleType: form.vehicleType || "ALL",
-          zone: form.zone || "ALL",
+          zone: form.zone || "",
         },
       });
       if (!statusResponse?.success) {
@@ -202,7 +206,7 @@ function DriverIncentiveEdit() {
         scope: {
           partnerType: form.partnerType || "CAB",
           vehicleType: form.vehicleType || "ALL",
-          zone: form.zone || "ALL",
+          zone: form.zone || "",
         },
         component: nextComponent,
       });
@@ -280,12 +284,13 @@ function DriverIncentiveEdit() {
               componentRules={componentRules}
               setComponentRules={setComponentRules}
             />
-            <div className="hidden">
+            <div className="">
               <label className="inline-flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(event) => onInputChange("isActive", event.target.checked)}
+                  disabled
                   className="h-4 w-4 rounded border-blue-gray-300"
                 />
                 <Typography variant="small" color="blue-gray" className="font-semibold">
@@ -294,7 +299,7 @@ function DriverIncentiveEdit() {
               </label>
             </div>
 
-            <Button type="submit" color="blue" disabled={saving}>
+            <Button type="submit" color="blue" disabled={saving || !form.isActive}>
               {saving ? "Saving..." : "Update"}
             </Button>
           </form>

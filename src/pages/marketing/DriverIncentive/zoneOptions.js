@@ -1,7 +1,7 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 
-const ALL_OPTION = { label: "ALL", value: "ALL" };
+const ALL_OPTION = { label: "ALL", value: "" };
 
 export const fetchZoneOptions = async () => {
   try {

@@ -12,8 +12,8 @@ function DriverIncentiveList() {
   const navigate = useNavigate();
   const [code, setCode] = useState("ONLINE_HOURS_BONUS");
   const [partnerType, setPartnerType] = useState("CAB");
-  const [zone, setZone] = useState("ALL");
-  const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "ALL" }]);
+  const [zone, setZone] = useState("");
+  const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "" }]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
