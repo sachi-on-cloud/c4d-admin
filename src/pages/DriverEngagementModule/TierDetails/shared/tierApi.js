@@ -12,6 +12,13 @@ export const normalizeTierRows = (rows = []) =>
             .toUpperCase()
             .trim() === "ACTIVE";
     const updatedAtRaw = row?.updatedAt || row?.updatedDate || row?.createdAt || "";
+        const scope =
+      row?.config?.scope && typeof row.config.scope === "object"
+        ? row.config.scope
+        : row?.scope && typeof row.scope === "object"
+          ? row.scope
+          : {};
+    const zone = String(scope?.zone || row?.zone || "ALL")
 
     return {
       id: String(id),
@@ -19,6 +26,7 @@ export const normalizeTierRows = (rows = []) =>
       name: row?.name || "",
       description: row?.description || "",
       isActive,
+      zone,
       updatedAt: updatedAtRaw ? String(updatedAtRaw).slice(0, 10) : "-",
       raw: row,
     };

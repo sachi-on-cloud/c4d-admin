@@ -13,11 +13,10 @@ export const fetchDriverIncentiveList = async ({
   vehicleType = "ALL",
   settingId,
 } = {}) => {
-  const normalizedZone = String(zone || "").trim().toUpperCase() === "ALL" ? "" : zone;
   const params = {
     code,
     partnerType,
-    zone: normalizedZone,
+    zone,
     vehicleType,
   };
 
