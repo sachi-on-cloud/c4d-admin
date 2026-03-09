@@ -27,6 +27,10 @@ const DocumentsDetails = () => {
   const [modalData, setModalData] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const isPendingDetailsRoute = location.pathname.includes('/doc-verification/pending/');
+  const backPath = isPendingDetailsRoute
+    ? '/dashboard/doc-verification/pending'
+    : '/dashboard/doc-verification';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,7 +145,7 @@ const DocumentsDetails = () => {
         </>
         }
         <div className="flex justify-center mt-5">
-          <Button className="bg-white text-black" onClick={() => navigate(`/dashboard/doc-verification`)} >Back</Button>
+          <Button className="bg-white text-black" onClick={() => navigate(backPath)} >Back</Button>
         </div>
       </div>
     </>)

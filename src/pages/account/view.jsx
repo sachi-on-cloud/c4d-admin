@@ -20,7 +20,33 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+import { KYC_STATUS_OPTIONS } from "@/pages/common/kycStatusOptions";
+import { EMPTY_KYC_STATUS_COUNTS, extractKycStatusCounts, normalizeKycStatusFilterValues } from "@/pages/common/kycStatusCounts";
+import KycStatusCards from "@/pages/common/KycStatusCards";
 
+const ACCOUNT_VIEW_FILTERS_KEY = 'accountViewFilters';
+ 
+const isBrowser = () => typeof window !== 'undefined';
+ 
+const getItemSafe = (key) => {
+  if (!isBrowser()) return null;
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    console.error(`Error reading localStorage key "${key}":`, err);
+    return null;
+  }
+};
+ 
+const setItemSafe = (key, value) => {
+  if (!isBrowser()) return;
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    console.error(`Error writing localStorage key "${key}":`, err);
+  }
+};
+ 
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
@@ -32,7 +58,6 @@ const debounce = (func, delay) => {
 export function AccountView() {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
-  const [allAccounts, setAllAccounts] = useState([]);
   const [alert, setAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
@@ -44,21 +69,91 @@ export function AccountView() {
   const [availableStatusFilter,setavailableStatusFilter] = useState(['All']) 
   const [sourceFilter,setSourceFilter] = useState(['All'])
   const [zoneFilter, setZoneFilter] = useState(['All']);
-  const [zoneOptions, setZoneOptions] = useState();
-
-  const [pagination, setPagination] = useState({
+  const [zoneOptions, setZoneOptions] = useState([]);
+  const [kycStatusCounts, setKycStatusCounts] = useState(EMPTY_KYC_STATUS_COUNTS);
+ 
+  const [pagination, setPagination] = useState(() => {
+    const stored = getItemSafe(ACCOUNT_VIEW_FILTERS_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return {
+          currentPage: parsed.currentPage || 1,
+          totalPages: 1,
+          totalItems: 0,
+          itemsPerPage: 15,
+         
+        };
+      } catch {
+        return {
+          currentPage: 1,
+          totalPages: 1,
+          totalItems: 0,
+          itemsPerPage: 15,
+         
+        };
+      }
+    }
+    return {
         currentPage: 1,
         totalPages: 1,
         totalItems: 0,
         itemsPerPage: 15,
-        search: '',
-      }); 
-  // const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
-
+     
+    };
+  });
+ 
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
+ 
+  useEffect(() => {
+    const stored = getItemSafe(ACCOUNT_VIEW_FILTERS_KEY);
+    if (!stored) {
+      setFiltersLoaded(true);
+      return;
+    }
+ 
+    try {
+      const parsed = JSON.parse(stored);
+ 
+   
+      if (Array.isArray(parsed.statusFilter)) setStatusFilter(parsed.statusFilter);
+      if (Array.isArray(parsed.serviceTypeFilter)) setServiceTypeFilter(parsed.serviceTypeFilter);
+      if (Array.isArray(parsed.documentTypeFilter)) {
+        setDocumentTypeFilter(normalizeKycStatusFilterValues(parsed.documentTypeFilter));
+      }
+      if (Array.isArray(parsed.availableStatusFilter)) setavailableStatusFilter(parsed.availableStatusFilter);
+      if (Array.isArray(parsed.sourceFilter)) setSourceFilter(parsed.sourceFilter);
+      if (Array.isArray(parsed.zoneFilter)) setZoneFilter(parsed.zoneFilter);
+    } catch (err) {
+      console.error("Failed to load account filters", err);
+    } finally {
+      setFiltersLoaded(true);
+    }
+  }, []);
+ 
+  useEffect(() => {
+    if (!filtersLoaded) return;
+ 
+    const data = {
+     
+      statusFilter,
+      serviceTypeFilter,
+      documentTypeFilter,
+      availableStatusFilter,
+      sourceFilter,
+      zoneFilter,
+      currentPage: pagination.currentPage
+    };
+ 
+    setItemSafe(ACCOUNT_VIEW_FILTERS_KEY, JSON.stringify(data));
+  }, [filtersLoaded,  pagination.currentPage, statusFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter, sourceFilter, zoneFilter]);
+ 
   const fetchAccounts = async (page = 1, searchQuery = '', showLoader = true) => {
     if (showLoader) setLoading(true);
     try {
-      const zoneValue = Array.isArray(zoneFilter) ? (zoneFilter.includes('All') ? undefined : zoneFilter[0]) : zoneFilter;
+      const zoneValue = Array.isArray(zoneFilter)
+        ? (zoneFilter.includes('All') ? undefined : zoneFilter)
+        : (zoneFilter ? [zoneFilter] : undefined);
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_ACCOUNTS, {
         
       
@@ -67,19 +162,19 @@ export function AccountView() {
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
-        district: zoneValue,
+        district: zoneValue ? JSON.stringify(zoneValue) : undefined,
         filterType: JSON.stringify({
        
           status: documentTypeFilter,
           source: sourceFilter,
           serviceType: serviceTypeFilter,
+          //  district: zoneValue
           
           
         })
       });
       if (data?.success) {
         setAccounts(data?.data);
-        setAllAccounts(data?.data);
         setPagination({
           currentPage: page,
           totalPages:searchQuery.trim() ? 1 : data?.pagination?.totalPages || 1,
@@ -87,9 +182,13 @@ export function AccountView() {
           itemsPerPage: data?.pagination?.itemsPerPage || 10,
           search: searchQuery.trim(),
         });
+        setKycStatusCounts(extractKycStatusCounts(data));
+      } else {
+        setKycStatusCounts(EMPTY_KYC_STATUS_COUNTS);
       }
     } catch (error) {
       console.error('Error fetching accounts:', error);
+      setKycStatusCounts(EMPTY_KYC_STATUS_COUNTS);
     } finally {
       setLoading(false);
     }
@@ -108,9 +207,16 @@ export function AccountView() {
   //   }
   // }
   useEffect(() => {
+    if (!filtersLoaded) return;
     fetchZones();
-    fetchAccounts(pagination.currentPage, pagination.search, true);
+  }, [filtersLoaded]);
 
+  useEffect(() => {
+    if (!filtersLoaded) return;
+    fetchAccounts(pagination.currentPage, pagination.search, true);
+  }, [filtersLoaded, pagination.currentPage, pagination.search, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter, zoneFilter]);
+ 
+  useEffect(() => {
     if (location.state?.accountAdded || location.state?.accountUpdated) {
       const action = location.state.accountAdded ? 'added' : 'updated';
       const accountName = location.state.accountName || 'Account';
@@ -122,12 +228,28 @@ export function AccountView() {
       }, 5000);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, navigate, pagination.currentPage, pagination.search, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter, zoneFilter]);
-
+  }, [location, navigate]);
+ 
+  const handleRefresh = () => {
+    localStorage.removeItem(ACCOUNT_VIEW_FILTERS_KEY);
+    setPagination({
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: 0,
+      itemsPerPage: 15,
+      search: '',
+    });
+    setStatusFilter(['All']);
+    setServiceTypeFilter(['All']);
+    setDocumentTypeFilter(['All']);
+    setavailableStatusFilter(['All']);
+    setSourceFilter(['All']);
+    setZoneFilter(['All']);
+  };
+ 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
-      fetchAccounts(page, pagination.search, true);
     }
   };
 
@@ -169,14 +291,17 @@ export function AccountView() {
 };
   const getAccounts = useCallback(
     debounce((searchQuery) => {
-      setPagination((prev) => ({
+      setPagination((prev) => {
+      if (prev.search === searchQuery) return prev;
+ 
+      return {
         ...prev,
         currentPage: 1,
         search: searchQuery,
-      }));
-      fetchAccounts(1, searchQuery, false);
+      };
+    });
     }, 1000),
-    [pagination.itemsPerPage, statusFilter, sourceFilter, serviceTypeFilter, documentTypeFilter, availableStatusFilter]
+  []
   );
   function formatPhoneNumber(phoneNumber) {
     if(phoneNumber){if (phoneNumber.startsWith("+91")) {
@@ -238,12 +363,15 @@ export function AccountView() {
     else if (filterType === "zone") {
       setZoneFilter(prev => {
         if (value === 'All') {
-            return ['All'];
+          return ['All'];
         } else {
-            return [value];
+          const newFilter = prev.includes(value)
+            ? prev.filter(item => item !== value)
+            : [...prev.filter(item => item !== 'All'), value];
+          return newFilter.length === 0 ? ['All'] : newFilter;
         }
-    });
-}
+      });
+    }
     else if (filterType === 'availableStatus') {
       setavailableStatusFilter(prev => {
         if (value === 'All') {
@@ -318,6 +446,32 @@ export function AccountView() {
         </PopoverContent>
       </Popover>
     );
+    const FilterSelectPopover = ({ valueText, options, selectedFilters, onFilterChange }) => (
+      <Popover placement="bottom-start">
+        <PopoverHandler>
+          <div className="w-[280px] bg-white border border-blue-gray-200 rounded-md px-3 py-2 flex items-center justify-between cursor-pointer">
+            <Typography variant="small" className="text-sm font-normal normal-case text-blue-gray-700 truncate">
+              {valueText}
+            </Typography>
+            <ChevronDownIcon className="w-4 h-4 text-blue-gray-500" />
+          </div>
+        </PopoverHandler>
+        <PopoverContent className="p-2">
+          {options.map((option) => (
+            <div key={option.value} className="flex items-center mb-2">
+              <Checkbox
+                color="blue"
+                checked={selectedFilters.includes(option.value)}
+                onChange={() => onFilterChange(option.value)}
+              />
+              <Typography color="blue-gray" className="font-medium ml-2">
+                {option.label}
+              </Typography>
+            </div>
+          ))}
+        </PopoverContent>
+      </Popover>
+    );
   return (
     <div className="mb-8 flex flex-col gap-12">
       {alert && (
@@ -329,17 +483,63 @@ export function AccountView() {
             {alert.message}
           </Alert>
         </div>)}
-      <AccountSearch onSearch={getAccounts}/>
+      <AccountSearch onSearch={getAccounts} initialValue={pagination.search} />
+      <div className="px-6 -mt-4 pb-4 flex flex-wrap items-start gap-8">
+          <div className="min-w-[220px]">
+            <Typography variant="small" className="text-sm font-semibold text-blue-gray-800 mb-2">
+              KYC Filter
+            </Typography>
+            <FilterSelectPopover
+              valueText={`${documentTypeFilter.includes('All') ? 'All' : documentTypeFilter.join(', ')}`}
+              options={[
+                { value: "All", label: "All" },
+                ...KYC_STATUS_OPTIONS,
+              ]}
+              selectedFilters={documentTypeFilter}
+              onFilterChange={(value) => handleFilterChange("documentStatus", value)}
+            />
+          </div>
+          <div className="min-w-[220px]">
+            <Typography variant="small" className="text-sm font-semibold text-blue-gray-800 mb-2">
+              Zone Filter
+            </Typography>
+            <FilterSelectPopover
+              valueText={`${zoneFilter.includes('All') ? 'All' : zoneFilter.join(', ')}`}
+              options={[
+                { value: 'All', label: 'All' },
+                ...zoneOptions.map(zone => ({
+                  value: zone.name,
+                  label: zone.name
+                }))
+              ]}
+              selectedFilters={zoneFilter}
+              onFilterChange={(value) => handleFilterChange("zone", value)}
+            />
+          </div>
+        </div>
+      <KycStatusCards options={KYC_STATUS_OPTIONS} counts={kycStatusCounts} />
       <Card>
-        {accounts.length > 0 ? (
-          <>
-            <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center rounded-xl 
-              ${ColorStyles.bgColor}`}>
-              <Typography variant="h6" color="white">
-                Accounts List
-              </Typography>
-            </CardHeader>
-            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+        <CardHeader variant="gradient"  className={`mb-8 p-6 flex-1 justify-between items-center rounded-xl
+          ${ColorStyles.bgColor}`}>
+            <div className='flex items-center justify-between w-full'>
+          <Typography variant="h6" color="white">
+          All  Accounts List
+          </Typography>
+        <button
+          className="bg-primary-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2 hover:bg-primary-500"
+          onClick={handleRefresh}
+          disabled={loading}
+        >
+          {loading ? (
+            <Spinner className="w-4 h-4" />
+          ) : (
+            <img src="/img/refresh.png" alt="Refresh" className="w-4 h-4" />
+          )}
+          <span>{loading ? "Refreshing..." : "Refresh"}</span>
+        </button>
+          </div>
+        </CardHeader>
+        <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
@@ -348,21 +548,7 @@ export function AccountView() {
                         key={el}
                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
                       >
-                        {el === "KYC Status" ? (
-                          <FilterPopover
-                            title={el}
-                            options={[
-                              { value: "All", label: "All" },
-                              { value: "PENDING UPLOAD", label: "Pending Upload" },
-                              { value: "VERIFIED", label: "Verified" },
-                              { value: "PENDING VERIFICATION", label: "Pending Verified" },
-                              { value: "DECLINED", label: "Declined" },
-
-                            ]}
-                            selectedFilters={documentTypeFilter}
-                            onFilterChange={(value) => handleFilterChange("documentStatus", value)}
-                          />
-                        ) : el === "Source" ? (
+                        {el === "Source" ? (
                           <FilterPopover 
                           title = {el}
                           options={[
@@ -374,19 +560,6 @@ export function AccountView() {
                           ]}
                           selectedFilters={sourceFilter}
                           onFilterChange={(value) => handleFilterChange("source", value)}
-                          />
-                      ): el === "Zone" ? (
-                          <FilterPopover
-                              title={el}
-                              options={[
-                                  { value: 'All', label: 'All' },
-                                  ...zoneOptions.map(zone => ({
-                                      value: zone.name,
-                                      label: zone.name
-                                  }))
-                              ]}
-                              selectedFilters={zoneFilter}
-                              onFilterChange={(value) => handleFilterChange("zone", value)}
                           />
                       )
                       // : el === "Subscription Status" ? (
@@ -459,21 +632,22 @@ export function AccountView() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={8} className="py-3 px-5">
+                      <td colSpan={9} className="py-3 px-5">
                         <div className="flex justify-center items-center">
                           <Spinner className="h-12 w-12" />
                         </div>
                       </td>
                     </tr>
+                  ) : accounts.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="py-6 px-5 text-center">
+                        <Typography variant="small" className="font-semibold text-blue-gray-700">
+                          No Accounts
+                        </Typography>
+                      </td>
+                    </tr>
                   ) : (
-                    accounts.filter(account =>
-                    // (statusFilter.includes('All') || statusFilter.includes(account.ownerStatus)) && 
-                    (sourceFilter.includes('All') || sourceFilter.includes(account.source)) &&
-                    (serviceTypeFilter.includes('All') || serviceTypeFilter.includes(account.type)) &&
-                    // (availableStatusFilter.includes('All') || availableStatusFilter.includes(account.availableStatus)) &&
-                    (documentTypeFilter.includes('All') || documentTypeFilter.includes(account.documentStatus?.status))&&
-                    (zoneFilter.includes('All') || zoneFilter.includes(account.district)) 
-                  ).map(
+                    accounts.map(
                     ({id, created_at, name, email,phoneNumber,district, serviceType, source, availableStatus, type, ownerStatus, documentStatus}, key) => {
                       const className = `py-3 px-5 ${key === accounts.length - 1
                         ? ""
@@ -575,6 +749,7 @@ export function AccountView() {
                 </tbody>
               </table>
 
+              {accounts.length > 0 && (
                 <div className="flex items-center justify-center mt-4">
                                       <Button
                                         size="sm"
@@ -596,14 +771,8 @@ export function AccountView() {
                                         {'>'}
                                       </Button>
                   </div>
+                )}
             </CardBody>
-          </>) : (
-          <CardHeader variant="gradient"  className={`mb-8 p-6 ${ColorStyles.bgColor}`}>
-            <Typography variant="h6" color="white">
-              No Accounts
-            </Typography>
-          </CardHeader>
-        )}
       </Card>
     </div>
   );

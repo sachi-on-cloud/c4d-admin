@@ -211,15 +211,16 @@ const EditAuto = () => {
       accountId: values.accountId,
       name: values.name,
       company: values.ownerName,
-      autoNumber: values.autoNumber,
+      autoNumber: values.carNumber,
       curAddress: values.address,
       insurance: values.insurance,
-      vehicleType: values.autoType,
+      vehicleType: values.vehicleType,
       seater: values.seater,
       modelYear: values.modelYear,
       curLatitude: '',
       curLongitude: '',
       autoId:values.autoId,
+      status:values.status,
     };
             
 

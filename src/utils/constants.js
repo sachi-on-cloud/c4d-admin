@@ -1067,7 +1067,8 @@ export const BOOKING_SERVICE_TYPE = {
     CAR_WASH: 'CAR_WASH',
     RENTAL: 'RENTAL',
     AUTO: 'AUTO',
-    PARCEL: 'PARCEL'
+    PARCEL: 'PARCEL',
+    ALL_CABS:'ALL_CABS'
 };
 
 export const PUSH_NOTIFICATION_TYPE = {
@@ -1113,7 +1114,7 @@ export const USER_ROLE = [
 
 // Role-based permissions for main modules (side/top nav)
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos','Driver Engagement'],
+    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Driver Engagement','Autos'],
     'SALES': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
     'SUPPORT': ['Home','Support','Calls','All bookings', 'Customers', 'Vendors','Autos'],
     'FINANCE': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance','Document verification','Autos'],

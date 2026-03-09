@@ -624,7 +624,7 @@ export const routes = [
         icon: <UserIcon {...icon} />,
         name: "All bookings List",
         path: "/booking/list",
-        element: <AllBookingsLists type={''} />,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.ALL_CABS} />,
         display: false,
         permission: "All bookings",
       },

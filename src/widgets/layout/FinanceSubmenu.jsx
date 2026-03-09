@@ -12,15 +12,15 @@ function FinanceSubmenu() {
     }`;
 
   const items = [
-    { label: "Subscription Invoice", path: "/dashboard/finance/invoice", icon: "/img/subscription.png" },
-    { label: "Booking Receipt", path: "/dashboard/finance/receipt", icon: "/img/recipt.png" },
-    { label: "Master Subscription", path: "/dashboard/finance/master-subscription", icon: "/img/master_price.png" },
+    { label: "Subscription Invoice", path: "/dashboard/finance/invoice" },
+    { label: "Booking Receipt", path: "/dashboard/finance/receipt" },
+    { label: "Master Subscription Table", path: "/dashboard/finance/master-subscription" },
     { label: "Booking Invoice", path: "/dashboard/finance/bookingInvoiceList" },
   ];
 
   return (
     <ul className={NAV_UI.topnav.list}>
-      {items.map(({ label, path, icon }) => (
+      {items.map(({ label, path }) => (
         <li key={label}>
           <NavLink to={path} end={false}>
             {({ isActive }) => (
