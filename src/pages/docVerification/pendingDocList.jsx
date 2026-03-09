@@ -1,6 +1,6 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import {
   Card,
@@ -21,6 +21,38 @@ import {
 import { FaFilter } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import moment from "moment";
+
+const DOC_VERIFICATION_PENDING_FILTERS_KEY = "docVerificationPendingFilters";
+const isBrowser = () => typeof window !== "undefined";
+
+const getItemSafe = (key) => {
+  if (!isBrowser()) return null;
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    console.error(`Error reading localStorage key "${key}":`, err);
+    return null;
+  }
+};
+
+const setItemSafe = (key, value) => {
+  if (!isBrowser()) return;
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    console.error(`Error writing localStorage key "${key}":`, err);
+  }
+};
+
+const removeItemSafe = (key) => {
+  if (!isBrowser()) return;
+  try {
+    localStorage.removeItem(key);
+  } catch (err) {
+    console.error(`Error removing localStorage key "${key}":`, err);
+  }
+};
+
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
@@ -31,30 +63,85 @@ const debounce = (func, delay) => {
 
 export function PendingDocList() {
   const [accounts, setAccounts] = useState([]);
-  const [allAccounts, setAllAccounts] = useState([]);
   const [typeFilter, setTypeFilter] = useState(["All"]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => {
+    const stored = getItemSafe(DOC_VERIFICATION_PENDING_FILTERS_KEY);
+    if (!stored) return "";
+    try {
+      const parsed = JSON.parse(stored);
+      return parsed.searchQuery || parsed.search || "";
+    } catch {
+      return "";
+    }
+  });
   const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({
-            currentPage: 1,
-            totalPages: 1,
-            totalItems: 0,
-            itemsPerPage: 15,
-            search:'',
-          });  
+  const [pagination, setPagination] = useState(() => {
+    const stored = getItemSafe(DOC_VERIFICATION_PENDING_FILTERS_KEY);
+    if (!stored) {
+      return {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 15,
+        search: "",
+      };
+    }
+    try {
+      const parsed = JSON.parse(stored);
+      return {
+        currentPage: parsed.currentPage || 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 15,
+        search: parsed.search || "",
+      };
+    } catch {
+      return {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 15,
+        search: "",
+      };
+    }
+  });
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
   const navigate = useNavigate();
+  const latestRequestIdRef = useRef(0);
+  const resolveAccountType = (record = {}) => {
+    const serviceType = record["Account.serviceType"];
+    if (record["Register.id"] || record["Driver.id"] || serviceType == null || serviceType === "") return "Driver";
+    if (serviceType === "Company") return "Account";
+    if (serviceType === "Individual") return "Cab";
+    if (serviceType === "Auto") return "Auto";
+    return "";
+  };
 
     const fetchDoc = async (page = 1, searchQuery = '', showLoader = true) => {
+      const requestId = ++latestRequestIdRef.current;
       if(showLoader) setLoading(true); 
     try {
+      const normalizedTypeFilter = Array.from(
+        new Set(
+          (Array.isArray(typeFilter) ? typeFilter : []).map((value) => {
+            if (value === "All") return "";
+            if (value === "") return "";
+            if (value === "Account") return "Company";
+            if (value === "Cab") return "Individual";
+            if (value === "Driver") return "";
+            return value;
+          })
+        )
+      );
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'Pending',{
         page: page,
         limit: pagination.itemsPerPage,
         search:searchQuery.trim(),
+        serviceType: JSON.stringify(normalizedTypeFilter),
       });
+      if (requestId !== latestRequestIdRef.current) return;
       if (data?.success) {
         setAccounts(data?.data);
-        setAllAccounts(data?.data);
         setPagination({
           currentPage: page,
           totalPages: data?.pagination?.totalPages || 1,
@@ -66,9 +153,48 @@ export function PendingDocList() {
       } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
-      setLoading(false); 
+      if (requestId === latestRequestIdRef.current) {
+        setLoading(false);
+      }
     }
-    };
+  };
+
+    useEffect(() => {
+      const stored = getItemSafe(DOC_VERIFICATION_PENDING_FILTERS_KEY);
+      if (!stored) {
+        setFiltersLoaded(true);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed.typeFilter)) setTypeFilter(parsed.typeFilter);
+        if (parsed.currentPage !== undefined || parsed.search !== undefined) {
+          setPagination((prev) => ({
+            ...prev,
+            currentPage: parsed.currentPage || 1,
+            search: parsed.search || "",
+          }));
+        }
+        if (parsed.searchQuery !== undefined) {
+          setSearchQuery(parsed.searchQuery || "");
+        }
+      } catch (err) {
+        console.error("Failed to load pending document filters", err);
+      } finally {
+        setFiltersLoaded(true);
+      }
+    }, []);
+
+    useEffect(() => {
+      if (!filtersLoaded) return;
+      const data = {
+        typeFilter,
+        currentPage: pagination.currentPage,
+        search: pagination.search,
+        searchQuery,
+      };
+      setItemSafe(DOC_VERIFICATION_PENDING_FILTERS_KEY, JSON.stringify(data));
+    }, [filtersLoaded, typeFilter, pagination.currentPage, pagination.search, searchQuery]);
 
     const getDetails = useCallback(
        debounce((searchQuery) => {
@@ -76,24 +202,24 @@ export function PendingDocList() {
             ...prev,
             currentPage:1,
             search:searchQuery,
-          }))
-          fetchDoc(1,searchQuery,true);
+        }))
         },1000),
-        [pagination.itemsPerPage]
+        []
       )
 
   useEffect(() => {
-    fetchDoc(pagination.currentPage,pagination.search,true);
-  }, [pagination.currentPage, pagination.itemsPerPage]);
+    if (!filtersLoaded) return;
+    fetchDoc(pagination.currentPage, pagination.search, true);
+  }, [filtersLoaded, pagination.currentPage, pagination.itemsPerPage, pagination.search, typeFilter]);
 
   useEffect(() => {
+    if (searchQuery.trim() === pagination.search) return;
     getDetails(searchQuery.trim());
-  }, [searchQuery]);
+  }, [searchQuery, pagination.search]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
-      fetchDoc(page,pagination.search, true)
     }
   };
     const generatePageButtons = () => {
@@ -121,6 +247,19 @@ export function PendingDocList() {
             }
             return buttons;
     };
+
+  const handleRefresh = () => {
+    setSearchQuery('');
+    setTypeFilter(['All']);
+    setPagination({
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: 0,
+      itemsPerPage: 15,
+      search: '',
+    });
+    removeItemSafe(DOC_VERIFICATION_PENDING_FILTERS_KEY);
+  };
 
   // const getDetails = async (searchQuery) => {
   //   if (searchQuery && searchQuery.trim() !== "") {
@@ -197,9 +336,8 @@ export function PendingDocList() {
               type="text"
               className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="Search Document"
-              onChange={(e) => {setSearchQuery(e.target.value)
-                                getDetails(e.target.value)
-              }}
+              value={searchQuery}
+              onChange={(e) => {setSearchQuery(e.target.value)}}
             />
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
@@ -208,7 +346,7 @@ export function PendingDocList() {
           <div className="ml-4">
             <button
               className="bg-primary-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2 hover:bg-primary-500"
-              onClick={() => fetchDoc()}
+              onClick={() => handleRefresh()}
               disabled={loading}
             >
               {loading ? (
@@ -222,7 +360,7 @@ export function PendingDocList() {
         </div>
       </div>
       <Card>
-         {accounts.length > 0 ? (
+         {(loading || accounts.length > 0) ? (
           <>
             <CardHeader
               variant="gradient"
@@ -230,7 +368,7 @@ export function PendingDocList() {
               className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
             >
               <Typography variant="h6" color="white">
-                Documents List
+                Pending Documents List
               </Typography>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
@@ -254,9 +392,10 @@ export function PendingDocList() {
                             title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "Driver", label: "Driver" },
-                              { value: "Account", label: "Account" },
-                              { value: "Cab", label: "Cab" },
+                              // { value: null, label: "Driver" },
+                              { value: "Company", label: "Account" },
+                              { value: "Individual", label: "Cab" },
+                              { value: "Auto", label: "Auto" },
                             ]}
                           />
                         ) : (
@@ -280,29 +419,23 @@ export function PendingDocList() {
                         </div>
                       </td>
                     </tr>
-                    ): (accounts.filter((account) => {
-                        const type = account["Register.id"] ? "Driver": account["Driver.id"] ? "Driver": account["Account.id"] ? "Account": account["Cab.id"] ? "Cab": "";
-                        return (
-                          typeFilter.includes("All") || typeFilter.includes(type)
-                        );
-                      })
-                      .map((data, key) => {
+                    ): (accounts.map((data, key) => {
                         const className = `py-3 px-3 ${
                           key === accounts.length - 1 ? "" : "border-b border-blue-gray-50"
                         }`;
 
                         const status = data.isComplete ? "APPROVED" : "PENDING";
                         const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
-                        const nameType = data['Register.id'] ? "Register" : data['Driver.id'] ? "Driver" : data['Account.id'] ? "Account" : data['Cab.id'] ? "Cab" : "";
-                        const source = data["Driver.source"] || data["Account.source"];
+                        const displayType = resolveAccountType(data);
+                        const nameType = displayType === "Cab" ? "Account" : displayType;
                         const number = (() => {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
                         })();
+                        const source = data["Driver.source"] || data["Account.source"];
                         const id = data["Cab.id"] ? data["Cab.id"] : data["Driver.id"] ?  data["Driver.id"] : data["Account.id"] ? data["Account.id"] : data["Register.id"] ? data["Register.id"] : data.id;
                         return (
-                          <>
-                            <tr key={data?.id}>
+                            <tr key={data?.id || key}>
                               <td className={className}>
                                 <div className="flex items-center gap-4">
                                   <div onClick={() => onClickName(id, nameType)}>
@@ -322,7 +455,7 @@ export function PendingDocList() {
                               </td>
                               <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-900">
-                                  {nameType}
+                                  {displayType}
                                 </Typography>
                               </td>
                               <td className={className}>
@@ -344,7 +477,6 @@ export function PendingDocList() {
                                 </Typography>
                               </td>
                             </tr>
-                          </>
                         );
                       }
                     ))}

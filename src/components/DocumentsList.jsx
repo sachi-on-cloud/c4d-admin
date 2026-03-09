@@ -48,6 +48,12 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                 return "text-green-500";
             case "declined":
                 return "text-red-500";
+            case "not_interested":
+                return "text-orange-500";
+            case "no_response":
+                return "text-gray-500";
+            case "invalid":
+                return "text-red-400";
             default:
                 return "text-gray-500";
         }
@@ -335,6 +341,26 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                         className="text-xs font-semibold text-white bg-black px-4 py-2"
                                     >
                                         Decline
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleStatusChange(modalData.id, "NOT_INTERESTED", "")}
+                                        className="text-xs font-semibold text-white bg-orange-500 px-4 py-2"
+                                    >
+                                        Not Interested
+                                    </Button>
+
+                                    {/* NEW BUTTON */}
+                                    <Button
+                                        onClick={() => handleStatusChange(modalData.id, "NO_RESPONSE", "")}
+                                        className="text-xs font-semibold text-white bg-gray-500 px-4 py-2"
+                                    >
+                                        No Response
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleStatusChange(modalData.id, "INVALID", "")}
+                                        className="text-xs font-semibold text-white bg-red-600 px-4 py-2"
+                                    >
+                                        Invalid
                                     </Button>
                                 </div>
                             ) : (

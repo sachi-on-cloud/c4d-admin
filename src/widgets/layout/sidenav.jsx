@@ -38,8 +38,9 @@ const menuItems = [
   },
   { type: "item", name: "Calls", path: "/dashboard/exotel-calls/list", permission: "Calls" },
   { type: "item", name: "All Inquiries", path: "/dashboard/booking/list", permission: "All bookings" },
-  { type: "item", name: "All Auto Inquiries", path: "/dashboard/Auto", permission: "Autos" },
+  { type: "item", name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { type: "item", name: "Customers", path: "/dashboard/customers", permission: "Customers" },
+  { type: "item", name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance"},
   { type: "item", name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
   { type: "item", name: "Driver Reports", path: "/dashboard/driver-ops", permission: "Driver Ops" },
   {
@@ -47,10 +48,9 @@ const menuItems = [
     name: "Admin",
     path: "/dashboard/users",
     permission: "Users",
-    permissionsAny: ["Users", "Trip Master", "Finance", "Driver Engagement"],
+    permissionsAny: ["Users", "Trip Master", "Driver Engagement"],
     landingRoutes: [
       { permission: "Users", path: "/dashboard/users" },
-      { permission: "Finance", path: "/dashboard/finance/invoice" },
       { permission: "Trip Master", path: "/dashboard/tripDetails" },
       { permission: "Driver Engagement", path: "/dashboard/driverengagement" },
     ],
@@ -117,16 +117,18 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
       case "Support":
         return (
           currentPath.startsWith("/dashboard/rental-rate-card") ||
-          currentPath.startsWith("/dashboard/leads") ||
-          currentPath.startsWith("/dashboard/doc-verification") ||
-          currentPath.startsWith("/dashboard/vendors/account") ||
-          currentPath.startsWith("/dashboard/vendors/vehiclelist") ||
-          currentPath.startsWith("/dashboard/vendors/onlinevehicleslist")
+          currentPath.startsWith("/dashboard/leads")
+          // currentPath.startsWith("/dashboard/doc-verification") ||         
         );
       case "All Inquiries":
         return currentPath.startsWith("/dashboard/booking/list");
-      case "All Auto Inquiries":
-        return currentPath.startsWith("/dashboard/auto");
+      case "Vendors":
+        return (
+          currentPath.startsWith("/dashboard/vendors/account") ||
+          currentPath.startsWith("/dashboard/vendors/vehiclelist") ||
+          currentPath.startsWith("/dashboard/vendors/onlinevehicleslist") ||
+          currentPath.startsWith("/dashboard/doc-verification")
+        );
       case "Customers":
         return currentPath.startsWith("/dashboard/customers");
       case "Calls":
@@ -266,9 +268,6 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                           <DocumentTextIcon
                             className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
-                        ) : null}
-                        {name === "All Auto Inquiries" ? (
-                          <img src="/img/auto.png" alt="Autos" className={`${NAV_UI.iconSizes.sidebar} rounded-full`} />
                         ) : null}
                         {name === "Customers" ? (
                           <UserGroupIcon
