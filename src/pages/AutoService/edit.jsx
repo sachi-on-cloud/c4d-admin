@@ -552,6 +552,7 @@ const AutoEdit = () => {
                                         <option value="">Select Type</option>
                                         <option value="Individual">Owner cum Driver</option>
                                         <option value="Company">Travels</option>
+                                        <option value="Auto">Auto</option>
                                     </Field>
                                     <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                 </div>
@@ -713,7 +714,7 @@ const AutoEdit = () => {
                                     <Field type="text" name="pincode" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                     <ErrorMessage name="pincode" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
-                                <div>
+                                <div className='hidden'>
                                     <label htmlFor="status" className="text-sm font-medium text-gray-700">Driver Status</label>
                                     <Field 
                                         as="select" 

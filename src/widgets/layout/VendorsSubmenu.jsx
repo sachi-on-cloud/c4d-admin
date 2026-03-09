@@ -35,18 +35,28 @@ function VendorsSubmenu({ miniSidenav }) {
         );
       case "Online Vehicles List":
         return pathname.startsWith("/dashboard/vendors/onlinevehicleslist");
+      case "Auto Owner":
+        return pathname.startsWith("/dashboard/vendors/account/autoview");
+      case "Auto List" :
+        return pathname.startsWith("/dashboard/vendors/account/autolist");
+      case "All Document Verification":
+        return pathname.startsWith("/dashboard/doc-verification");
+      case "All Pending Documents":
+        return pathname.startsWith("/dashboard/doc-verification/pending");
       default:
         return pathname.startsWith(target);
     }
   };
 
   const items = [
-    { label: "Owners", path: "/dashboard/vendors/account", icon: "/img/owners.png" },
-    { label: "Acting Driver", path: "/dashboard/vendors/account/drivers", icon: "/img/acting_driver.png" },
-    { label: "Vehicles", path: "/dashboard/Vendors/vehicleList", icon: "/img/vehicles.png" },
-    { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList", icon: "/img/vehicleslist.png" },
-    { label: "Auto Owner", path: "/dashboard/Vendors/account/autoview", icon: "/img/parcel_list.png" },
-    { label: "Auto List", path: "/dashboard/Vendors/account/autoList", icon: "/img/auto.png" },
+    { label: "All Cab Owners", path: "/dashboard/vendors/account", icon: "/img/owners.png" },
+    { label: "All Acting Driver", path: "/dashboard/vendors/account/drivers", icon: "/img/acting_driver.png" },
+    { label: "All Auto Owner", path: "/dashboard/vendors/account/autoview", icon: "/img/parcel_list.png" },
+    { label: "All Cab List", path: "/dashboard/vendors/vehicleList", icon: "/img/vehicles.png" },
+    { label: "Online Vehicles List", path: "/dashboard/vendors/onlineVehiclesList", icon: "/img/vehicleslist.png" },
+    { label: "All Auto List", path: "/dashboard/vendors/account/autoList", icon: "/img/auto.png" },
+    { label: "All Document Verification", path: "/dashboard/doc-verification", icon: "/img/all.png" },
+    { label: "All Pending Documents", path: "/dashboard/doc-verification/pending", icon: "/img/pending_doc.png" },
     ...(Feature.parcel
       ? [
           {

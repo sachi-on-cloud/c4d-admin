@@ -1053,7 +1053,8 @@ export const BOOKING_SERVICE_TYPE = {
     CAR_WASH: 'CAR_WASH',
     RENTAL: 'RENTAL',
     AUTO: 'AUTO',
-    PARCEL: 'PARCEL'
+    PARCEL: 'PARCEL',
+    ALL_CABS:'ALL_CABS'
 };
 
 export const PUSH_NOTIFICATION_TYPE = {
@@ -1099,10 +1100,10 @@ export const USER_ROLE = [
 
 // Role-based permissions for main modules (side/top nav)
 export const ROLE_PERMISSIONS = {
-    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users','Autos'],
-    'SALES': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification','Autos'],
-    'SUPPORT': ['Home','Support','All bookings', 'Customers', 'Vendors','Autos'],
-    'FINANCE': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance','Document verification','Autos'],
+    'SUPER_USER': ['Home','Support','Driver Ops',"Calls", 'All bookings', 'Customers', 'Vendors', 'Trip Master','Finance', 'Document verification','Marketing', 'Users'],         // 'Autos'
+    'SALES': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Document verification'],        // 'Autos'
+    'SUPPORT': ['Home','Support','All bookings', 'Customers', 'Vendors'],        // 'Autos'
+    'FINANCE': ['Home','Support','Driver Ops','All bookings', 'Customers', 'Vendors', 'Finance','Document verification'],        // 'Autos'
 };
 
 export const PERMISSION_GROUPS = {
@@ -1156,7 +1157,7 @@ export const PERMISSION_OPTIONS = [
     { name: 'Support', id: 'Support' },
     { name: 'Driver Ops', id: 'Driver Ops' },
     { name: 'Calls', id: 'Calls'},
-    { name: 'Autos', id: 'Autos'},
+    // { name: 'Autos', id: 'Autos'},
     { name: 'All bookings', id: 'All bookings' },
     { name: 'Customers', id: 'Customers' },
     { name: 'Vendors', id: 'Vendors' },

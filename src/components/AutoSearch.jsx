@@ -4,9 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { ColorStyles } from '@/utils/constants';
 
 
-const AutoSearch = ({ onSearch, hideAddNewButton=false }) => {
+const AutoSearch = ({ onSearch, initialValue = '', hideAddNewButton=false }) => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialValue);
+
+  useEffect(() => {
+    setSearchQuery(initialValue || '');
+  }, [initialValue]);
 
   useEffect(() => {
     onSearch(searchQuery.trim());
@@ -19,6 +23,7 @@ const AutoSearch = ({ onSearch, hideAddNewButton=false }) => {
             type="text"
             className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Search Driver"
+            value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">

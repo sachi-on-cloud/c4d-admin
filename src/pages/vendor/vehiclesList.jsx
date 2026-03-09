@@ -241,7 +241,7 @@ export function VehiclesList({ id = 0 }) {
         {vehicleList.length > 0 ? (
           <>
             <CardHeader variant="gradient" className="mb-8 p-6 flex justify-between items-center bg-primary">
-              <Typography variant="h6" color="white">Vehicles</Typography>
+              <Typography variant="h6" color="white">All Cab List</Typography>
               <Typography variant="h6" color="white">{pagination.totalItems} vehicle{pagination.totalItems !== 1 ? 's' : ''} found</Typography>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">

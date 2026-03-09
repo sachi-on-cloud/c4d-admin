@@ -2,37 +2,26 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import CustomersSubmenu from "./CustomersSubmenu";
 import VendorsSubmenu from "./VendorsSubmenu";
-import DocumentVerificationSubmenu from "./DocumentVerificationSubmenu";
 import MarketingSubmenu from "./MarketingSubmenu";
 import AdminSubmenu from "./AdminSubmenu";
 import AllRecordsSubmenu from "./AllRecordsSubmenu";
 import SupportSubmenu from "./SupportSubmenu";
-import { Feature, NAV_UI } from "@/utils/constants";
+import FinanceSubmenu from "./FinanceSubmenu";
+import { NAV_UI } from "@/utils/constants";
 export function Topnav({ permissions = [] }) {
   const location = useLocation();
   const path = location.pathname.toLowerCase();
 
-  const AllRecordsSection =
+  const isAllRecordsSection =
     path.startsWith("/dashboard/booking/list") ||
-    path.startsWith("/dashboard/booking/list/actingdriver") ||
-    path.startsWith("/dashboard/booking/list/rides") ||
-    path.startsWith("/dashboard/booking/list/rentals") ||
-    (Feature.parcel && path.startsWith("/dashboard/booking/list/parcel"));
+    path.startsWith("/dashboard/auto");
 
   const isCustomersSection =
     path.startsWith("/dashboard/customers");
 
   const isSupportSection =
     path.startsWith("/dashboard/rental-rate-card") ||
-    path.startsWith("/dashboard/leads") ||
-    path.startsWith("/dashboard/doc-verification") ||
-    // Vendors operations (but NOT marketing notification routes)
-    path.startsWith("/dashboard/vendors/account") ||
-    path.startsWith("/dashboard/vendors/vehiclelist") ||
-    path.startsWith("/dashboard/vendors/onlinevehicleslist") ||
-    path.startsWith("/dashboard/vendors/account/allvehicles") ||
-    path.startsWith("/dashboard/vendors/account/autoview") ||
-    path.startsWith("/dashboard/vendors/account/autolist");
+    path.startsWith("/dashboard/leads");
 
   const isVendorsSection =
     path.startsWith("/dashboard/vendors/account") ||
@@ -41,9 +30,7 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/vendors/onlinevehicleslist") ||
     path.startsWith("/dashboard/vendors/account/allvehicles") ||
     path.startsWith("/dashboard/vendors/account/autoview") ||
-    path.startsWith("/dashboard/vendors/account/autolist");
-
-  const isDocVerifiction = 
+    path.startsWith("/dashboard/vendors/account/autolist") ||
     path.startsWith("/dashboard/doc-verification") ||
     path.startsWith("/dashboard/doc-verification/pending");
   
@@ -56,6 +43,7 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/user/testimonialview") ||
     path.startsWith("/dashboard/user/testimonial/add");
 
+  const isFinanceSection = path.startsWith("/dashboard/finance");
   const isAdminSection =
     path.startsWith("/dashboard/users") ||
     path.startsWith("/dashboard/admin/geo-markings") ||
@@ -63,7 +51,6 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/user/discountmodule") ||
     path.startsWith("/dashboard/user/gst") ||
     path.startsWith("/dashboard/driver-ops") ||
-    path.startsWith("/dashboard/finance") ||
     // Also show admin top bar on Trip Master and Calls
     path.startsWith("/dashboard/tripdetails") ||
     path.startsWith("/dashboard/reports/tripmasterreport") ||
@@ -72,12 +59,13 @@ export function Topnav({ permissions = [] }) {
 
   // If we are not in any section that has a top nav, render nothing
   if (
-    !AllRecordsSection &&
+    !isAllRecordsSection &&
     !isSupportSection &&
     !isCustomersSection &&
     !isVendorsSection &&
-    !isDocVerifiction &&
+    // !isDocVerifiction &&
     !isMarketingSection &&
+    !isFinanceSection &&
     !isAdminSection
   ) {
     return null;
@@ -98,11 +86,11 @@ return (
 
     {/* Main row: other section-specific submenus */}
     <div className="overflow-x-auto whitespace-nowrap">
-      {AllRecordsSection && <AllRecordsSubmenu />}
+      {isAllRecordsSection && <AllRecordsSubmenu />}
       {isCustomersSection && <CustomersSubmenu />}
       {isVendorsSection && <VendorsSubmenu />}
-      {isDocVerifiction && <DocumentVerificationSubmenu />}
       {isMarketingSection && <MarketingSubmenu />}
+      {isFinanceSection && <FinanceSubmenu />}
       {isAdminSection && <AdminSubmenu permissions={permissions} />}
     </div>
     </div>
