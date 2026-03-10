@@ -400,7 +400,7 @@ const getQuoteOutstationDetails = async (values) => {
             isPremiumService : values?.isPremiumService ? true : false
 
             };
-            if (values?.serviceType !== 'RENTAL_HOURLY_PACKAGE' && values?.serviceType !== 'AUTO') {
+            if (values?.serviceType !== 'RENTAL_HOURLY_PACKAGE' && values?.serviceType !== 'AUTO' && values?.serviceType !== 'RIDES') {
                 quoteDate.bookingType = values?.tripType ? values.tripType.toUpperCase() : '';
             }
             const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
