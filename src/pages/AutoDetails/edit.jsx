@@ -145,7 +145,7 @@ const EditAuto = () => {
     const initialValues = {
         name: cabVal?.result?.name || '',
         ownerName: cabVal?.result?.Account ? cabVal?.result?.Account?.name : '',
-        carNumber: cabVal?.result?.autoNumber || '',
+        autoNumber: cabVal?.result?.autoNumber || '',
         address: cabVal?.result?.curAddress || '',
         accountId: cabVal?.result?.Account?.id || '',
         driverName: '',
@@ -211,7 +211,7 @@ const EditAuto = () => {
       accountId: values.accountId,
       name: values.name,
       company: values.ownerName,
-      autoNumber: values.carNumber,
+      autoNumber: values.autoNumber,
       curAddress: values.address,
       insurance: values.insurance,
       vehicleType: values.vehicleType,
@@ -315,16 +315,16 @@ const EditAuto = () => {
                                 <ErrorMessage name="ownerName" component="div" className="text-red-500 text-sm my-1" />
                             </div>
                             <div>
-                                <label htmlFor="carNumber" className="text-sm font-medium text-gray-700">
-                                    Car Number
+                                <label htmlFor="autoNumber" className="text-sm font-medium text-gray-700">
+                                    Auto Number
                                 </label>
                                 <Field
                                     type="text"
-                                    name="carNumber"
+                                    name="autoNumber"
                                     className="p-2 w-full rounded-md border-gray-300"
                                     maxLength={10}
                                 />
-                                <ErrorMessage name="carNumber" component="div" className="text-red-500 text-sm" />
+                                <ErrorMessage name="autoNumber" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
                                 <label htmlFor="address" className="text-sm font-medium text-gray-700">
