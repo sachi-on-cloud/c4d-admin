@@ -400,7 +400,11 @@ const getQuoteOutstationDetails = async (values) => {
             isPremiumService : values?.isPremiumService ? true : false
 
             };
-            if (values?.serviceType !== 'RENTAL_HOURLY_PACKAGE' && values?.serviceType !== 'AUTO') {
+            const isHourlyPackageSelection =
+                values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ||
+                (values?.serviceType === 'RENTAL' && values?.packageTypeSelected == 'Local');
+
+            if (!isHourlyPackageSelection && values?.serviceType !== 'AUTO' && values?.serviceType !== 'RIDES') {
                 quoteDate.bookingType = values?.tripType ? values.tripType.toUpperCase() : '';
             }
             const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteDate);
@@ -654,6 +658,10 @@ const getQuoteOutstationDetails = async (values) => {
                     (pkg) => pkg.id === Number(values?.packageSelected)
                 );
             const period = values?.serviceType === 'DRIVER' && values?.packageTypeSelected === 'Outstation'? (values?.packageSelected && values?.packageSelected !== 'custom_date' ? Number(values?.packageSelected) : ''): (values?.serviceType === 'RENTAL_HOURLY_PACKAGE' || values?.serviceType === 'DRIVER'? selectedPackage?.period || '' : '');
+                const isHourlyPackageSelection =
+                    values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ||
+                    (values?.serviceType === 'RENTAL' && values?.packageTypeSelected == 'Local');
+
                 data = {
                     packageId: values?.packageSelected === "0" || values?.packageSelected === "custom_date" ? 0 : Number(values?.packageSelected),
                     packageType: values?.packageTypeSelected,
@@ -661,7 +669,7 @@ const getQuoteOutstationDetails = async (values) => {
                     bookingId: bookingData?.id,
                     adminBooking: true,
                     serviceType: values?.serviceType,
-                    ...((values?.serviceType !== 'RENTAL_HOURLY_PACKAGE' && values?.serviceType !== 'AUTO') && {
+                    ...((!isHourlyPackageSelection && values?.serviceType !== 'AUTO') && {
                         bookingType: values?.tripType?.toUpperCase() || '',
                     }),
                 transmissionType : values?.transmissionType ? values?.transmissionType : bookingData?.transmissionType,
@@ -700,16 +708,13 @@ const getQuoteOutstationDetails = async (values) => {
                     data.toDate = moment(`${values.toDate} ${values.toTime}`, "YYYY-MM-DD HH:mm:ss").toISOString();
                 }
                 const isLocalDropOnly = values.packageTypeSelected == 'Local' && values?.tripType?.toUpperCase() == 'DROP ONLY';
-                const isRentalHourlyPackage =
-                    values?.serviceType === 'RENTAL_HOURLY_PACKAGE' ||
-                    (values?.serviceType === 'RENTAL' && values?.packageTypeSelected == 'Local');
-                if (!isLocalDropOnly && !isRentalHourlyPackage) {
+                if (!isLocalDropOnly && !isHourlyPackageSelection) {
                     data.dropLat = values?.dropLocation?.lat ? values?.dropLocation?.lat : bookingData?.dropLat
                     data.dropLong = values?.dropLocation?.lng ? values?.dropLocation?.lng : bookingData?.dropLong
                     data.dropAddress = values?.dropLocation ? { name: values?.dropAddress } : bookingData?.dropAddress ? {
                         name: values?.dropAddress ? values?.dropAddress : bookingData?.dropAddress?.name
                     } : null
-                } else if (isRentalHourlyPackage) {
+                } else if (isHourlyPackageSelection) {
                     delete data.dropLat;
                     delete data.dropLong;
                     delete data.dropAddress;
@@ -1538,7 +1543,8 @@ const getQuoteOutstationDetails = async (values) => {
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.fare_before_gst)}
                                                                 </Typography>
-                                                                {quoteDetails.amount?.gst_amount > 0 && <>(
+                                                                {quoteDetails.amount?.gst_amount > 0 && (
+                                                                    <>
                                                                     <Typography color="gray" variant="h6">TAX Amount</Typography>
                                                                     <Typography>
                                                                         ₹ {Math.round(quoteDetails.amount?.gst_amount)}
@@ -1548,7 +1554,7 @@ const getQuoteOutstationDetails = async (values) => {
                                                                 <Typography>
                                                                     ₹ {Math.round(quoteDetails.amount?.estimatedPrice)}
                                                                 </Typography>
-                                                                 )</>}
+                                                                 </>)}
                                                                 {quoteDetails.discount?.percentage > 0 && <>
 
                                                                     <Typography color="gray" variant="h6">Discount Applied</Typography>
