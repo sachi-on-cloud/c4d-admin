@@ -1107,7 +1107,7 @@ export const ROLE_PERMISSIONS = {
 };
 
 export const PERMISSION_GROUPS = {
-    Support: ['Vendors','Document verification','Trip Master'],
+    Support: ['Vendors','Document verification','Trip Master','Calls'],
     Users: ['Driver Ops','Trip Master','Calls'],
 };
 
