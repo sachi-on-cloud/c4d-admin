@@ -156,26 +156,37 @@ const [zoneOptions, setZoneOptions] = useState([]);
     setItemSafe(DRIVER_VIEW_FILTERS_KEY, JSON.stringify(data));
   }, [filtersLoaded, pagination.currentPage, pagination.search, statusFilter, serviceTypeFilter,
       documentTypeFilter, sourceFilter, subscriptionStatusFilter, zoneFilter]);
-        const filterType = {
-      status: statusFilter,                   
-      source: sourceFilter,                     
-      serviceType: serviceTypeFilter,
-      subscriptionStatus: subscriptionStatusFilter,
-      documentStatus: documentTypeFilter
-    };
   const fetchDrivers = async (page = 1, searchQuery = '', showLoader = false) => {
     try {
       if (showLoader) setLoading(true);
-      const zoneValue = Array.isArray(zoneFilter)
-        ? (zoneFilter.includes('All') ? undefined : zoneFilter)
-        : (zoneFilter ? [zoneFilter] : undefined);
-      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_DRIVERS, {
+      const shouldIncludeFilter = (filterValue) =>
+        Array.isArray(filterValue) && filterValue.length > 0 && !filterValue.includes('All');
+
+      const queryParams = {
         page,
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
-        district: zoneValue ? JSON.stringify(zoneValue) : undefined,
-        filterType: JSON.stringify(filterType)
-      });
+      };
+
+      if (shouldIncludeFilter(zoneFilter)) {
+        queryParams.district = JSON.stringify(zoneFilter);
+      }
+      if (shouldIncludeFilter(statusFilter)) {
+        queryParams.status = JSON.stringify(statusFilter);
+      }
+      if (shouldIncludeFilter(sourceFilter)) {
+        queryParams.source = JSON.stringify(sourceFilter);
+      }
+      if (shouldIncludeFilter(serviceTypeFilter)) {
+        queryParams.serviceType = JSON.stringify(serviceTypeFilter);
+      }
+      if (shouldIncludeFilter(subscriptionStatusFilter)) {
+        queryParams.subscriptionStatus = JSON.stringify(subscriptionStatusFilter);
+      }
+      if (shouldIncludeFilter(documentTypeFilter)) {
+        queryParams.documentStatus = JSON.stringify(documentTypeFilter);
+      }
+      const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_ALL_DRIVERS, queryParams);
     if (data?.success) {
       setDrivers(data?.data);
       setPagination(prev => ({
