@@ -47,6 +47,7 @@ const RentalsMasterPriceEdit = () => {
         try {
             const data = await ApiRequestUtils.get(`${API_ROUTES.RIDES_PRICE_DETAILS}/${packageId}`);
             if (data?.success) {
+                const isLocalType = data?.data?.type === 'Local';
                 setInitialValues({
                     // carType: data?.data?.carType || '',
                     zone: data?.data?.zone || '',
@@ -96,10 +97,10 @@ const RentalsMasterPriceEdit = () => {
                     extraKilometerRoundPriceSedan: data?.data?.extraKilometerRoundPriceSedan || 0,
 
 
-                    acKilometerPrice: data?.data?.acKilometerPrice || 0,
-                    acKilometerPriceMVP: data?.data?.acKilometerPriceMVP || 0,
-                    acKilometerPriceSuv: data?.data?.acKilometerPriceSuv || 0,
-                    acKilometerPriceSedan: data?.data?.acKilometerPriceSedan || 0,
+                    acKilometerPrice: isLocalType ? (data?.data?.kilometerPrice || 0) : (data?.data?.acKilometerPrice || 0),
+                    acKilometerPriceMVP: isLocalType ? (data?.data?.kilometerPriceMVP || 0) : (data?.data?.acKilometerPriceMVP || 0),
+                    acKilometerPriceSuv: isLocalType ? (data?.data?.kilometerPriceSuv || 0) : (data?.data?.acKilometerPriceSuv || 0),
+                    acKilometerPriceSedan: isLocalType ? (data?.data?.kilometerPriceSedan || 0) : (data?.data?.acKilometerPriceSedan || 0),
 
                     acKilometerRoundPrice: data?.data?.acKilometerRoundPrice || 0,
                     acKilometerRoundPriceMVP: data?.data?.acKilometerRoundPriceMVP || 0,
@@ -184,10 +185,10 @@ const RentalsMasterPriceEdit = () => {
                 extraKilometerRoundPriceSuv: Number(values.extraKilometerRoundPriceSuv),
                 extraKilometerRoundPriceSedan: Number(values.extraKilometerRoundPriceSedan),
 
-                acKilometerPrice: Number(values.acKilometerPrice),
-                acKilometerPriceMVP: Number(values.acKilometerPriceMVP),
-                acKilometerPriceSuv: Number(values.acKilometerPriceSuv),
-                acKilometerPriceSedan: Number(values.acKilometerPriceSedan),
+                acKilometerPrice: values.type === 'Local' ? Number(values.kilometerPrice) : Number(values.acKilometerPrice),
+                acKilometerPriceMVP: values.type === 'Local' ? Number(values.kilometerPriceMVP) : Number(values.acKilometerPriceMVP),
+                acKilometerPriceSuv: values.type === 'Local' ? Number(values.kilometerPriceSuv) : Number(values.acKilometerPriceSuv),
+                acKilometerPriceSedan: values.type === 'Local' ? Number(values.kilometerPriceSedan) : Number(values.acKilometerPriceSedan),
 
                 acKilometerRoundPrice: Number(values.acKilometerRoundPrice),
                 acKilometerRoundPriceMVP: Number(values.acKilometerRoundPriceMVP),
