@@ -403,9 +403,15 @@ const getDetails = useCallback(
               // color="gray"
               className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
             >
+              <div className="flex justify-between">
               <Typography variant="h6" color="white">
                 All Documents List
               </Typography>
+               <Typography variant="h6" color="white">
+                {pagination.totalItems}
+              </Typography>
+              
+              </div>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
