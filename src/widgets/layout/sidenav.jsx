@@ -19,7 +19,8 @@ import {
   DocumentCheckIcon,
   UserGroupIcon,
   MegaphoneIcon,
-  UsersIcon
+  UsersIcon,
+  UserIcon
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, NAV_UI } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -41,6 +42,7 @@ const menuItems = [
   { type: "item", name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { type: "item", name: "Customers", path: "/dashboard/customers", permission: "Customers" },
   { type: "item", name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance"},
+  { type: "item", name: "Driver Engagement", path: "/dashboard/driverengagement", permission: "Driver Engagement" },
   { type: "item", name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
   { type: "item", name: "Driver Reports", path: "/dashboard/driver-ops", permission: "Driver Ops" },
   {
@@ -48,11 +50,10 @@ const menuItems = [
     name: "Admin",
     path: "/dashboard/users",
     permission: "Users",
-    permissionsAny: ["Users", "Trip Master", "Driver Engagement"],
+    permissionsAny: ["Users", "Trip Master"],
     landingRoutes: [
       { permission: "Users", path: "/dashboard/users" },
       { permission: "Trip Master", path: "/dashboard/tripDetails" },
-      { permission: "Driver Engagement", path: "/dashboard/driverengagement" },
     ],
   },
 ];
@@ -146,6 +147,8 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
         );
       case "Driver Reports":
         return currentPath.startsWith("/dashboard/driver-ops");
+      case "Driver Engagement":
+        return currentPath.startsWith("/dashboard/driverengagement");
       case "Admin":
         return (
           currentPath.startsWith("/dashboard/users") ||
@@ -153,7 +156,6 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
           currentPath.startsWith("/dashboard/user/versioncontrol") ||
           currentPath.startsWith("/dashboard/user/discountmodule") ||
           currentPath.startsWith("/dashboard/user/gst") ||
-          currentPath.startsWith("/dashboard/driverengagement") ||
           currentPath.startsWith("/dashboard/reports/tripmasterreport") ||
           currentPath.startsWith("/dashboard/tripdetails")
         );
@@ -301,6 +303,11 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                         ) : null}
                         {name === "Admin" ? (
                           <UserCircleIcon
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
+                          />
+                        ) : null}
+                        {name === "Driver Engagement" ? (
+                          <UserIcon
                             className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}

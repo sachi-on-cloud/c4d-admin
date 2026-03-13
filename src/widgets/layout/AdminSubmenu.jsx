@@ -15,7 +15,6 @@ function AdminSubmenu({ permissions = [] }) {
   const location = useLocation();
   const pathname = location.pathname.toLowerCase();
   const isSuperUser = isSuperUserRole();
-  const isDriverEngagementActive = pathname.startsWith("/dashboard/driverengagement");
 
   const isMainItemActive = (label, path) => {
     const target = path.toLowerCase();
@@ -37,14 +36,6 @@ function AdminSubmenu({ permissions = [] }) {
         pathname.startsWith("/dashboard/user/gst/")
       );
     }
-
-    if (label === "Tier Details") {
-      return (
-        pathname === "/dashboard/driverengagement" ||
-        pathname.startsWith("/dashboard/driverengagement/tier/")
-      );
-    }
-    
     if (label === "Cash Back") {
       return pathname.startsWith("/dashboard/users/cash-back");
     }
@@ -66,95 +57,49 @@ function AdminSubmenu({ permissions = [] }) {
   // Secondary/shortcut items that can live on a second row
   const secondaryItems = [
     { label: "Driver Bonus", path: "/dashboard/users/driver-offer/list", requiredPermission: "Users" },
-    { label: "Driver Engagement", path: "/dashboard/driverengagement", requiredPermission: "Driver Engagement" },
     { label: "Discount Module", path: "/dashboard/user/discountModuleList", requiredPermission: "Users" },
     { label: "Trip Master Details", path: "/dashboard/tripDetails", requiredPermission: "Trip Master" },
     { label: "Trip Master Report", path: "/dashboard/reports/tripMasterReport", requiredPermission: "Trip Master" },
   ];
-  const driverEngagementSubItems = [
-    { label: "Tier Details", path: "/dashboard/driverengagement", requiredPermission: "Driver Engagement" },
-    { label: "Driver Monitoring", path: "/dashboard/driverengagement/driver-monitoring", requiredPermission: "Driver Engagement" },
-    { label: "Incentive Payout", path: "/dashboard/driverengagement/incentive-payout", requiredPermission: "Driver Engagement" },
-    { label: "Audit Logs", path: "/dashboard/driverengagement/audit-logs", requiredPermission: "Driver Engagement" },
-  ];
-
   const filteredPrimaryItems = primaryItems.filter(({ requiredPermission }) => permissions.includes(requiredPermission));
   const filteredSecondaryItems = secondaryItems.filter(({ requiredPermission, label }) => {
     if (label === "Trip Master Report" && !isSuperUser) return false;
     return permissions.includes(requiredPermission);
   });
-  const filteredDriverEngagementItems = driverEngagementSubItems.filter(({ requiredPermission }) =>
-    permissions.includes(requiredPermission)
-  );
-const hasDriverEngagementAccess = filteredDriverEngagementItems.length > 0;
+  const allAdminItems = [...filteredPrimaryItems, ...filteredSecondaryItems];
 
-  if (!filteredPrimaryItems.length && !filteredSecondaryItems.length && !hasDriverEngagementAccess) {
+  if (!allAdminItems.length) {
     return null;
   }
 
+  const firstRowItems = allAdminItems.slice(0, 6);
+  const secondRowItems = allAdminItems.slice(6);
+
+  const renderItems = (items) =>
+    items.map(({ label, path }) => (
+          <li key={label}>
+            <NavLink to={path} end={false}>
+              <Button
+                variant="text"
+                className={getItemClasses(isMainItemActive(label, path))}
+              >
+                <Typography
+                  color="inherit"
+                  className={NAV_UI.typography.topnavLabel}
+                >
+                  {label}
+                </Typography>
+              </Button>
+            </NavLink>
+          </li>
+    ));
+
   return (
-    <div className="flex flex-col gap-1">
-      <ul className={NAV_UI.topnav.list}>
-        {filteredPrimaryItems.map(({ label, path }) => (
-          <li key={label}>
-            <NavLink to={path} end={false}>
-              <Button
-                variant="text"
-                className={getItemClasses(isMainItemActive(label, path))}
-              >
-                <Typography
-                  color="inherit"
-                  className={NAV_UI.typography.topnavLabel}
-                >
-                  {label}
-                </Typography>
-              </Button>
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-
-      <ul className={NAV_UI.topnav.secondaryList}>
-        {filteredSecondaryItems.map(({ label, path }) => (
-          <li key={label}>
-            <NavLink to={path} end={false}>
-              <Button
-                variant="text"
-                className={getItemClasses(isMainItemActive(label, path))}
-              >
-                <Typography
-                  color="inherit"
-                  className={NAV_UI.typography.topnavLabel}
-                >
-                  {label}
-                </Typography>
-              </Button>
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-
-      {hasDriverEngagementAccess && isDriverEngagementActive && (
-        <ul className={NAV_UI.topnav.nestedList}>
-          {filteredDriverEngagementItems.map(({ label, path }) => (
-            <li key={label}>
-              <NavLink to={path} end={false}>
-                <Button
-                  variant="text"
-                  className={getItemClasses(isMainItemActive(label, path))}
-                >
-                  <Typography
-                    color="inherit"
-                    className={NAV_UI.typography.topnavLabel}
-                  >
-                    {label}
-                  </Typography>
-                </Button>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div>
+      <ul className={NAV_UI.topnav.list}>{renderItems(firstRowItems)}</ul>
+      {secondRowItems.length > 0 ? (
+        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(secondRowItems)}</ul>
+      ) : null}
     </div>
   );
 }
