@@ -2,19 +2,26 @@ import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 
 export const DRIVER_INCENTIVE_CODES = [
-  "ONLINE_HOURS_BONUS",
-  "SERVICE_TRIP_BONUS",
+  "ONLINE_HOURS_RULES",
+  "SERVICE_TRIP_RULES",
 ];
 
+const toApiCode = (code = "") =>
+  code === "ONLINE_HOURS_RULES"
+    ? "ONLINE_HOURS_BONUS"
+    : code === "SERVICE_TRIP_RULES"
+      ? "SERVICE_TRIP_BONUS"
+      : code;
+
 export const fetchDriverIncentiveList = async ({
-  code = "ONLINE_HOURS_BONUS",
+  code = "ONLINE_HOURS_RULES",
   partnerType = "CAB",
   zone = "",
   vehicleType = "ALL",
   settingId,
 } = {}) => {
   const params = {
-    code,
+    code: toApiCode(code),
     partnerType,
     zone,
     vehicleType,
@@ -31,13 +38,17 @@ export const fetchDriverIncentiveList = async ({
 export const updateDriverIncentiveComponent = async ({
   settingId,
   name,
+  type,
   description,
   isActive = true,
   scope = {},
   component = {},
 }) => {
   const payload = {
-    component,
+    component: {
+      ...(component || {}),
+      code: toApiCode(component?.code || ""),
+    },
   };
 
   if (settingId !== undefined && settingId !== null && settingId !== "") {
@@ -46,6 +57,9 @@ export const updateDriverIncentiveComponent = async ({
 
   if (typeof name === "string" && name.trim()) {
     payload.name = name.trim();
+  }
+  if (typeof type === "string" && type.trim()) {
+    payload.type = type.trim();
   }
   if (typeof description === "string" && description.trim()) {
     payload.description = description.trim();
@@ -70,7 +84,7 @@ export const updateDriverIncentiveStatus = async ({
 
   const payload = {
     settingId: parsedSettingId,
-    code,
+    code: toApiCode(code),
     enabled: Boolean(enabled),
   };
 
@@ -79,5 +93,24 @@ export const updateDriverIncentiveStatus = async ({
   }
 
   const response = await ApiRequestUtils.patch(API_ROUTES.DRIVER_INCENTIVE_STATUS, payload);
+  return response || {};
+};
+
+export const createDriverIncentiveRule = async ({
+  name,
+  description,
+  isActive = true,
+  type = "ONLINE_HOURS_RULES",
+  config = {},
+}) => {
+  const payload = {
+    type,
+    name: String(name || "").trim(),
+    description: String(description || "").trim(),
+    isActive: Boolean(isActive),
+    config: config && typeof config === "object" ? config : {},
+  };
+
+  const response = await ApiRequestUtils.post(API_ROUTES.ADD_DE_TIER, payload);
   return response || {};
 };

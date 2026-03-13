@@ -10,8 +10,15 @@ function DriverIncentiveComponentEditor({
   componentRules,
   setComponentRules,
 }) {
+  const normalizedCode =
+    form.code === "ONLINE_HOURS_RULES"
+      ? "ONLINE_HOURS_BONUS"
+      : form.code === "SERVICE_TRIP_RULES"
+        ? "SERVICE_TRIP_BONUS"
+        : form.code;
+  const isAutoPartner = String(form.partnerType || "").trim().toUpperCase() === "AUTO";
   const isRuleBasedComponent =
-    form.code === "ONLINE_HOURS_BONUS" || form.code === "SERVICE_TRIP_BONUS";
+    normalizedCode === "ONLINE_HOURS_BONUS" || normalizedCode === "SERVICE_TRIP_BONUS";
   const componentTitleMap = {
     ONLINE_HOURS_BONUS: "Online Hours Bonus",
     SERVICE_TRIP_BONUS: "Service Trip Bonus",
@@ -20,7 +27,7 @@ function DriverIncentiveComponentEditor({
     ONLINE_HOURS_BONUS: [{ value: "onlineHours", label: "Online Hours" }],
     SERVICE_TRIP_BONUS: [{ value: "tripCount", label: "Trip Count" }],
   };
-  const componentTitle = componentTitleMap[form.code] || form.code || "-";
+  const componentTitle = componentTitleMap[normalizedCode] || form.code || "-";
 
   return (
     <div className="rounded-lg border border-blue-gray-100 p-4">
@@ -96,7 +103,7 @@ function DriverIncentiveComponentEditor({
               onClick={() =>
                 setComponentRules((prev) => [
                   ...prev,
-                  { ...createDefaultRule(form.code), period: form.payoutFrequency || "WEEKLY" },
+                  { ...createDefaultRule(form.code, form.partnerType), period: form.payoutFrequency || "WEEKLY" },
                 ])
               }
             >
@@ -124,7 +131,7 @@ function DriverIncentiveComponentEditor({
                   }
                   className="w-full rounded-md border border-blue-gray-200 px-2 py-2 text-xs"
                 >
-                  {metricOptionsByCode[form.code]?.map((metricOption) => (
+                  {metricOptionsByCode[normalizedCode]?.map((metricOption) => (
                     <option key={`${form.code}-metric-${metricOption.value}`} value={metricOption.value}>
                       {metricOption.label}
                     </option>
@@ -164,9 +171,12 @@ function DriverIncentiveComponentEditor({
                     )
                   }
                   className="w-full rounded-md border border-blue-gray-200 px-2 py-2 text-xs"
+                  disabled={isAutoPartner}
                 >
                   {withCurrentOption(
-                    SERVICE_TYPE_OPTIONS_BY_CODE[form.code] || [{ value: "RIDES", label: "Rides" }],
+                    isAutoPartner
+                      ? [{ value: "AUTO", label: "Auto" }]
+                      : SERVICE_TYPE_OPTIONS_BY_CODE[form.code] || [{ value: "RIDES", label: "Rides" }],
                     rule.serviceType
                   ).map((serviceTypeOption) => (
                     <option

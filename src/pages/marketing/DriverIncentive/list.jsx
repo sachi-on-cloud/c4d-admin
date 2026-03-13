@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Typography } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import DriverIncentiveTabs from "./DriverIncentiveTabs";
 import DriverIncentiveFilters from "./DriverIncentiveFilters";
@@ -10,7 +10,7 @@ import { fetchZoneOptions } from "./zoneOptions";
 
 function DriverIncentiveList() {
   const navigate = useNavigate();
-  const [code, setCode] = useState("ONLINE_HOURS_BONUS");
+  const [code, setCode] = useState("ONLINE_HOURS_RULES");
   const [partnerType, setPartnerType] = useState("CAB");
   const [zone, setZone] = useState("");
   const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "" }]);
@@ -37,7 +37,7 @@ function DriverIncentiveList() {
           code,
           partnerType,
           zone,
-          vehicleType: "ALL",
+          vehicleType: String(partnerType || "").toUpperCase() === "AUTO" ? "AUTO" : "ALL",
         });
         const rawRows = Array.isArray(response?.rows)
           ? response.rows
@@ -61,6 +61,7 @@ function DriverIncentiveList() {
 
   return (
     <div className="mb-10 mt-5 space-y-4 bg-white p-2 px-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
       <div>
         <Typography variant="h5" color="blue-gray" className="font-bold">
           Driver Incentive
@@ -68,6 +69,17 @@ function DriverIncentiveList() {
         <Typography color="gray" className="mt-1 text-base font-normal">
           Review driver incentive components by code and scope
         </Typography>
+        </div>
+        <Button
+          color="blue"
+          onClick={() =>
+            navigate(
+              `/dashboard/vendors/driver-incentive/add?code=${encodeURIComponent(code)}&partnerType=${encodeURIComponent(partnerType)}&zone=${encodeURIComponent(zone)}`
+            )
+          }
+        >
+          Add
+        </Button>
       </div>
       <DriverIncentiveFilters
         partnerType={partnerType}
