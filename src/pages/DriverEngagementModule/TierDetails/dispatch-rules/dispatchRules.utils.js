@@ -2,6 +2,7 @@ import { DISPATCH_SERVICE_KEYS } from "../shared/typeConstants";
 
 export const CONDITION_SERVICE_KEY_TO_SERVICE_TYPE = {
   ANY: "ANY",
+  AUTO: "AUTO",
   RIDES: "RIDES",
   RENTAL_HOURLY_PACKAGE: "RENTAL_HOURLY_PACKAGE",
   RENTAL_DROP_ONLY: "RENTAL_DROP_TAXI",
@@ -10,6 +11,7 @@ export const CONDITION_SERVICE_KEY_TO_SERVICE_TYPE = {
 
 export const SERVICE_TYPE_TO_CONDITION_SERVICE_KEY = {
   ANY: "ANY",
+  AUTO: "AUTO",
   RIDES: "RIDES",
   RENTAL_HOURLY_PACKAGE: "RENTAL_HOURLY_PACKAGE",
   RENTAL_DROP_TAXI: "RENTAL_DROP_ONLY",
@@ -47,6 +49,7 @@ export const normalizeDispatchServiceValue = (keyOrLabel) => {
   if (upper === "DROP_TAXI" || upper === "RENTAL_DROP_TAXI" || upper === "RENTAL_DROP_ONLY") return "RENTAL_DROP_ONLY";
   if (upper === "HOURLY_PACKAGE" || upper === "RENTAL_HOURLY_PACKAGE") return "RENTAL_HOURLY_PACKAGE";
   if (upper === "ANY") return "ANY";
+  if (upper === "AUTO") return "AUTO";
 
   return raw;
 };

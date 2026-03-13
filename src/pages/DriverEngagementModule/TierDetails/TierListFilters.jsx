@@ -52,7 +52,9 @@ function TierListFilters({
           disabled
           className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm text-blue-gray-700 outline-none focus:border-blue-500"
         >
+          <option value="ALL">All</option>
           <option value="CAB">Cab</option>
+          <option value="AUTO">Auto</option>
         </select>
       </div>
     </div>

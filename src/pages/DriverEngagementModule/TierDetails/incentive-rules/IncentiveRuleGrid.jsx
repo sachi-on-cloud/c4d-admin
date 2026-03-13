@@ -39,10 +39,8 @@ function IncentiveRuleGrid({
               className="w-full rounded-md border border-blue-gray-200 bg-white px-2 py-2 text-sm"
               disabled={rule.metric === "onlineHours" || partnerType === "AUTO"}
             >
-              {(rule.metric === "onlineHours"
+              {(partnerType === "AUTO" ? AUTO_LOCKED_SERVICE_TYPE_OPTIONS : rule.metric === "onlineHours"
                 ? LOCKED_SERVICE_TYPE_OPTIONS
-                : partnerType === "AUTO"
-                  ? AUTO_LOCKED_SERVICE_TYPE_OPTIONS
                   : SERVICE_TYPE_OPTIONS
               ).map((option) => (
                 <option key={getOptionValue(option)} value={getOptionValue(option)}>{getOptionLabel(option)}</option>
