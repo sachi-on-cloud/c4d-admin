@@ -114,8 +114,8 @@ const MasterSubscriptionEdit = () => {
               // validityDays only when not PAID
               validityDays: values.type === "PAID" ? null : Number(values.validityDays || 0),
               type: values.type,
-              // earningStrategy only when not FREE
-              earningStrategy: values.type === "FREE" ? null : values.earningStrategy || null,
+              // For FREE plans, backend expects CREDIT as earningStrategy
+              earningStrategy: values.type === "FREE" ? "CREDIT" : values.earningStrategy || null,
               earningWindowDays: values.type !== "FREE" && values.earningStrategy === "UNLIMITED" ? Number(values.earningWindowDays || 0) : null,
             };
 
@@ -144,7 +144,7 @@ const MasterSubscriptionEdit = () => {
                     validityDays:
                       plan.type === "PAID" ? null : Number(plan.validityDays || 0),
                     type: plan.type || "",
-                    earningStrategy: plan.type === "FREE" ? null : plan.earningStrategy || null,
+                    earningStrategy: plan.type === "FREE" ? "CREDIT" : plan.earningStrategy || null,
                     earningWindowDays: plan.type !== "FREE" && plan.earningStrategy === "UNLIMITED" ? Number(plan.earningWindowDays || 0) : null,
                   }))
               : [];
